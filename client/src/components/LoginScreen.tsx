@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import appLogo from "@assets/generated_images/App_logo_biblical_metallic_blue_695d5d1c.png";
+import appLogo from "@assets/logo/logo.png";
 
 interface LoginScreenProps {
   onLogin?: () => void;

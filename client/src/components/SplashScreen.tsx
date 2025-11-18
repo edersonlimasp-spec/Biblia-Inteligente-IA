@@ -1,31 +1,36 @@
-import splashBg from "@assets/generated_images/Splash_screen_background_gradient_2ee3e811.png";
-import appLogo from "@assets/generated_images/App_logo_biblical_metallic_blue_695d5d1c.png";
+import splashFullScreen from "@assets/logo/splash.png";
+import appLogo from "@assets/logo/logo.png";
 
 export function SplashScreen() {
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center"
+      className="fixed inset-0 flex items-center justify-center bg-primary"
       style={{
-        backgroundImage: `url(${splashBg})`,
+        backgroundImage: `url(${splashFullScreen})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
       data-testid="screen-splash"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-primary/40 to-primary/60" />
-      <div className="relative z-10 flex flex-col items-center gap-6 px-4">
-        <img
-          src={appLogo}
-          alt="Logo"
-          className="w-24 h-24 animate-pulse"
-          data-testid="img-splash-logo"
-        />
-        <h1 className="font-serif text-3xl md:text-4xl font-bold text-white text-center tracking-tight">
-          Bíblia Hebraico & Grego
-        </h1>
-        <p className="text-white/90 text-base font-medium">
-          Primeiros Textos + IA
-        </p>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/10 to-primary/30" />
+      <div className="relative z-10 flex flex-col items-center gap-8 px-4">
+        <div className="relative">
+          <div className="absolute inset-0 blur-2xl opacity-50 bg-white/20 rounded-full" />
+          <img
+            src={appLogo}
+            alt="Bíblia Hebraico & Grego"
+            className="relative w-32 h-32 md:w-40 md:h-40 animate-pulse drop-shadow-2xl"
+            data-testid="img-splash-logo"
+          />
+        </div>
+        <div className="text-center space-y-3">
+          <h1 className="font-serif text-3xl md:text-5xl font-bold text-white tracking-tight drop-shadow-lg">
+            Bíblia Hebraico & Grego
+          </h1>
+          <p className="text-white/95 text-lg md:text-xl font-medium drop-shadow-md">
+            Primeiros Textos + IA
+          </p>
+        </div>
       </div>
     </div>
   );

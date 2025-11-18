@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { StrongModal } from "@/components/StrongModal";
+import logoSmall from "@assets/logo/logo-small.png";
 
 interface BibleBook {
   id: string;
@@ -125,7 +126,15 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     <div className="flex flex-col h-screen">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card">
-        <div className="flex items-center justify-between px-4 h-14 gap-2">
+        <div className="flex items-center justify-between px-4 h-14 gap-3">
+          {/* Logo */}
+          <img 
+            src={logoSmall} 
+            alt="Logo" 
+            className="h-8 w-auto hidden sm:block"
+            data-testid="img-header-logo"
+          />
+          
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Select value={selectedBook} onValueChange={setSelectedBook}>
               <SelectTrigger className="w-[140px]" data-testid="select-book">

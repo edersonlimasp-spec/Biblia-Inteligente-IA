@@ -2,6 +2,7 @@ import { Check, Crown, Sparkles, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import appLogo from "@assets/logo/logo.png";
 
 interface SubscriptionScreenProps {
   onBack?: () => void;
@@ -63,6 +64,16 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <img 
+              src={appLogo} 
+              alt="Bíblia Hebraico & Grego" 
+              className="h-20 w-20 md:h-24 md:w-24"
+              data-testid="img-subscription-logo"
+            />
+          </div>
+          
           <Badge variant="secondary" className="mb-4">
             <Lock className="h-3 w-3 mr-1" />
             Trial de 30 dias: 15 dias restantes

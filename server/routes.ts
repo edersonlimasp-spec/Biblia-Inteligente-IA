@@ -28,9 +28,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate token
       const token = generateToken(user.id, user.email);
 
-      // Return user without password
+      // Return user without password + trial info
       const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword, token });
+      const trialActive = isTrialActive(user.trialStartDate);
+      const daysRemaining = getTrialDaysRemaining(user.trialStartDate);
+      
+      res.json({ 
+        user: userWithoutPassword, 
+        token,
+        trial: {
+          active: trialActive,
+          daysRemaining,
+        },
+      });
     } catch (error) {
       console.error("Registration error:", error);
       res.status(400).json({ error: "Erro ao criar conta" });
@@ -57,7 +67,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const token = generateToken(user.id, user.email);
       const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword, token });
+      
+      const trialActive = isTrialActive(user.trialStartDate);
+      const daysRemaining = getTrialDaysRemaining(user.trialStartDate);
+      
+      res.json({ 
+        user: userWithoutPassword, 
+        token,
+        trial: {
+          active: trialActive,
+          daysRemaining,
+        },
+      });
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ error: "Erro ao fazer login" });

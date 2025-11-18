@@ -31,6 +31,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // CRITICAL: Set token in both state AND localStorage so apiRequest can use it
+      setAuthToken(storedToken);
+      setToken(storedToken);
+
       try {
         const res = await apiRequest('GET', '/api/auth/me');
         const data = await res.json();
@@ -57,8 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthToken(data.token);
     setToken(data.token);
     setUser(data.user);
-    setTrialActive(true);
-    setTrialDaysRemaining(30);
+    setTrialActive(data.trial.active);
+    setTrialDaysRemaining(data.trial.daysRemaining);
   };
 
   const register = async (name: string, email: string, password: string) => {
@@ -68,8 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthToken(data.token);
     setToken(data.token);
     setUser(data.user);
-    setTrialActive(true);
-    setTrialDaysRemaining(30);
+    setTrialActive(data.trial.active);
+    setTrialDaysRemaining(data.trial.daysRemaining);
   };
 
   const logout = () => {

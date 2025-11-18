@@ -116,8 +116,8 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 - `DELETE /api/annotations/:id` - Deletar anotação
 
 ### Bíblia
-- `GET /api/bible/books` - Listar livros disponíveis (atualmente apenas João)
-- `GET /api/bible/:bookId/:chapter` - Buscar capítulo específico
+- `GET /api/bible/books` - Listar todos os 66 livros disponíveis (Antigo e Novo Testamento)
+- `GET /api/bible/:bookId/:chapter` - Buscar capítulo específico de qualquer livro
 
 ### Dicionário Strong
 - `GET /api/strong/:number` - Buscar entrada Strong (ex: G2316 ou H430) - Requer autenticação e acesso Strong (trial ou assinatura)
@@ -133,11 +133,16 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 │   ├── storage.ts           # Interface de storage PostgreSQL
 │   ├── routes.ts            # Todas as rotas da API
 │   ├── bible-data/
-│   │   ├── books.ts         # Metadata dos livros bíblicos
-│   │   └── john.ts          # Dados de João capítulos 1, 2 e 3 (ACF)
+│   │   ├── books.ts         # Metadata dos 66 livros bíblicos
+│   │   ├── bible-index.ts   # Índice centralizado de todos os livros
+│   │   ├── gen.ts           # Gênesis (50 capítulos)
+│   │   ├── ... (64 outros livros)
+│   │   └── rev.ts           # Apocalipse (22 capítulos)
 │   └── strong-data/
 │       ├── greek.ts         # Dicionário Strong Grego (13 entradas demo)
 │       └── hebrew.ts        # Dicionário Strong Hebraico (10 entradas demo)
+├── scripts/
+│   └── import-bible.ts      # Script de importação automática da Bíblia ACF
 ├── shared/
 │   └── schema.ts            # Schemas Drizzle + Zod
 ├── client/src/
@@ -184,9 +189,12 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
    - Integração OpenAI GPT-5 para Professor Teológico
 
 2. **Dados bíblicos:**
-   - Evangelho de João capítulos 1, 2 e 3 (ACF) - 112 versículos
-   - Sistema de navegação entre livros/capítulos
-   - API retorna 404 com mensagens claras para conteúdo não implementado
+   - **Bíblia completa ACF (Almeida Corrigida Fiel)** - 31.106 versículos
+   - **66 livros** (Antigo e Novo Testamento)
+   - Script de importação automatizada do GitHub (thiagobodruk/bible)
+   - Sistema de navegação completo entre livros/capítulos
+   - API com validação de livros e capítulos inválidos
+   - Escape adequado de caracteres especiais e quebras de linha
 
 3. **Dicionário Strong:**
    - 13 entradas gregas (G1-G5547)
@@ -221,11 +229,12 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 
 ### 📋 Próximos Passos (Expansão Futura)
 
-1. Expandir dados bíblicos para toda a Bíblia (66 livros)
+1. ~~Expandir dados bíblicos para toda a Bíblia (66 livros)~~ ✅ **COMPLETO**
 2. Adicionar todos os ~14,298 números Strong (5,624 gregos + 8,674 hebraicos)
-3. Vincular números Strong reais aos versículos originais
+3. Vincular números Strong reais aos versículos originais em Hebraico/Grego
 4. Implementar sistema de busca por palavra/versículo
 5. Adicionar integração de pagamento real (Stripe) para assinaturas
+6. Expandir mapeamento de palavras-chave para Strong's (atualmente 39 palavras)
 
 ## Tecnologias
 

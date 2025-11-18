@@ -6,7 +6,7 @@ import { askTheologicalQuestion } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
-import { johnChapters } from "./bible-data/john";
+import { getBookChapter } from "./bible-data/bible-index";
 import { greekStrongs } from "./strong-data/greek";
 import { hebrewStrongs } from "./strong-data/hebrew";
 
@@ -354,9 +354,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Bible routes
   app.get("/api/bible/books", async (req, res) => {
     try {
-      // For MVP: only return João (John) since it's the only book implemented
-      const implementedBooks = bibleBooks.filter(book => book.id === 'jhn');
-      res.json(implementedBooks);
+      // Return all 66 books of the Bible
+      res.json(bibleBooks);
     } catch (error) {
       console.error("Get books error:", error);
       res.status(500).json({ error: "Erro ao buscar livros" });
@@ -372,23 +371,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Livro não encontrado" });
       }
 
-      // For MVP: only John chapters 1, 2, and 3 are implemented
-      if (bookId === 'jhn') {
-        const chapterData = johnChapters.find(c => c.chapter === parseInt(chapter));
-        if (!chapterData) {
-          return res.status(404).json({ 
-            error: "Capítulo ainda não disponível",
-            message: "Este capítulo será adicionado em breve. Por enquanto, apenas João 1, 2 e 3 estão disponíveis na versão demo."
-          });
-        }
-        res.json({ book, chapter: chapterData, available: true });
-      } else {
-        // Other books not yet implemented
+      // Get chapter from centralized bible index (all 66 books)
+      const chapterData = getBookChapter(bookId, parseInt(chapter));
+      
+      if (!chapterData) {
         return res.status(404).json({ 
-          error: "Livro ainda não disponível",
-          message: "Este livro será adicionado em breve. Por enquanto, apenas o Evangelho de João (capítulos 1, 2 e 3) está disponível na versão demo."
+          error: "Capítulo inválido",
+          message: `O livro ${book.name} tem ${book.chapters} capítulos. Capítulo ${chapter} não existe.`
         });
       }
+      
+      res.json({ book, chapter: chapterData, available: true });
     } catch (error) {
       console.error("Get chapter error:", error);
       res.status(500).json({ error: "Erro ao buscar capítulo" });
@@ -407,7 +400,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check trial status and subscriptions
       const trialActive = isTrialActive(user.trialStartDate);
       const subscriptions = await storage.getUserSubscriptions(user.id);
-      const hasStrongAccess = subscriptions.some(s => s.type === 'strong_lifetime' && s.status === 'active');
+      const hasStrongAccess = subscriptions.some(s => s.planType === 'strong_lifetime' && s.status === 'active');
 
       if (!trialActive && !hasStrongAccess) {
         return res.status(403).json({ 

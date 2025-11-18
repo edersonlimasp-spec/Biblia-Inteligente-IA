@@ -15,10 +15,28 @@ export function clearAuthToken() {
   localStorage.removeItem('authToken');
 }
 
+// Custom error class to preserve response data
+export class ApiError extends Error {
+  status: number;
+  data: any;
+  
+  constructor(status: number, data: any) {
+    super(`API Error: ${status}`);
+    this.status = status;
+    this.data = data;
+    this.name = 'ApiError';
+  }
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      data = { error: res.statusText };
+    }
+    throw new ApiError(res.status, data);
   }
 }
 

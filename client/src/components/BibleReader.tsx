@@ -46,7 +46,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   const [selectedBook, setSelectedBook] = useState("jhn");
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
-  const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
 
   const { data: books } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
@@ -88,7 +88,37 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
 
   const handleWordClick = (word: string, verseNum: number) => {
     console.log("Word clicked:", word, "in verse", verseNum);
-    setSelectedWord(word);
+    
+    // MVP Demo: Map common words to Strong numbers for demonstration
+    // In production, this would come from the verse data with actual Strong references
+    const wordToStrong: Record<string, string> = {
+      'Deus': 'G2316',
+      'Jesus': 'G2424',
+      'Cristo': 'G5547',
+      'amor': 'G26',
+      'palavra': 'G3056',
+      'luz': 'G5457',
+      'santo': 'G40',
+      'espírito': 'G4151',
+      'Espírito': 'G4151',
+      'princípio': 'G1',
+      'Verbo': 'G3056',
+      'vida': 'G2222',
+      'trevas': 'G5457',
+      'homem': 'G444',
+      'homens': 'G444',
+      'mundo': 'G2889',
+      // Add more demo mappings as needed
+    };
+    
+    const strongNumber = wordToStrong[word];
+    
+    // Only open modal if we have a valid mapping for this word
+    if (strongNumber) {
+      setSelectedStrongNumber(strongNumber);
+    } else {
+      console.log(`No Strong mapping available for word: "${word}"`);
+    }
   };
 
   return (
@@ -232,10 +262,10 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       <AIPanel />
 
       {/* Strong Modal */}
-      {selectedWord && (
+      {selectedStrongNumber && (
         <StrongModal
-          word={selectedWord}
-          onClose={() => setSelectedWord(null)}
+          strongNumber={selectedStrongNumber}
+          onClose={() => setSelectedStrongNumber(null)}
         />
       )}
     </div>

@@ -7,6 +7,8 @@ import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, inser
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { johnChapters } from "./bible-data/john";
+import { greekStrongs } from "./strong-data/greek";
+import { hebrewStrongs } from "./strong-data/hebrew";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
@@ -390,6 +392,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get chapter error:", error);
       res.status(500).json({ error: "Erro ao buscar capítulo" });
+    }
+  });
+
+  // Strong's Dictionary routes
+  app.get("/api/strong/:number", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      // Check if user has access to Strong's dictionary
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+      }
+
+      // Check trial status and subscriptions
+      const trialActive = isTrialActive(user.trialStartDate);
+      const subscriptions = await storage.getUserSubscriptions(user.id);
+      const hasStrongAccess = subscriptions.some(s => s.type === 'strong_lifetime' && s.status === 'active');
+
+      if (!trialActive && !hasStrongAccess) {
+        return res.status(403).json({ 
+          error: "Acesso negado",
+          message: "Você precisa de uma assinatura Strong Vitalício (R$ 189,90) para acessar o dicionário de Hebraico e Grego.",
+          requiresSubscription: true,
+          subscriptionType: 'strong_lifetime'
+        });
+      }
+
+      const { number } = req.params;
+      const upperNumber = number.toUpperCase();
+      
+      // Check if it's Greek (G) or Hebrew (H)
+      let entry;
+      if (upperNumber.startsWith('G')) {
+        entry = greekStrongs.find(e => e.number === upperNumber);
+      } else if (upperNumber.startsWith('H')) {
+        entry = hebrewStrongs.find(e => e.number === upperNumber);
+      }
+      
+      if (!entry) {
+        return res.status(404).json({ 
+          error: "Entrada não encontrada",
+          message: "Este número Strong ainda não está disponível no dicionário."
+        });
+      }
+      
+      res.json(entry);
+    } catch (error) {
+      console.error("Get Strong entry error:", error);
+      res.status(500).json({ error: "Erro ao buscar entrada do dicionário" });
+    }
+  });
+
+  app.get("/api/strong/search/:query", async (req, res) => {
+    try {
+      const { query } = req.params;
+      const lowerQuery = query.toLowerCase();
+      
+      // Search in both Greek and Hebrew
+      const greekResults = greekStrongs.filter(e => 
+        e.word.toLowerCase().includes(lowerQuery) ||
+        e.transliteration.toLowerCase().includes(lowerQuery) ||
+        e.definition.toLowerCase().includes(lowerQuery)
+      );
+      
+      const hebrewResults = hebrewStrongs.filter(e => 
+        e.word.toLowerCase().includes(lowerQuery) ||
+        e.transliteration.toLowerCase().includes(lowerQuery) ||
+        e.definition.toLowerCase().includes(lowerQuery)
+      );
+      
+      const results = [...greekResults, ...hebrewResults].slice(0, 50); // Limit to 50 results
+      
+      res.json({ results, total: results.length });
+    } catch (error) {
+      console.error("Search Strong error:", error);
+      res.status(500).json({ error: "Erro ao buscar no dicionário" });
     }
   });
 

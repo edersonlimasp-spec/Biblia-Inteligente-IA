@@ -4,13 +4,16 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 
 ## Visão Geral
 
-Aplicação web fullstack desenvolvida em TypeScript usando React + Express + PostgreSQL que oferece:
+**Progressive Web App (PWA)** fullstack desenvolvida em TypeScript usando React + Express + PostgreSQL que oferece:
 - Leitura da Bíblia (texto em Português ACF)
 - Acesso a textos originais em Hebraico e Grego com Strong's
-- Professor Teológico com IA em dois níveis (Essencial e Premium)
+- Professor Teológico com IA OpenAI GPT-5 em dois níveis (Essencial e Premium)
 - Sistema de assinaturas com três planos
 - Trial gratuito de 30 dias
 - Marcadores e anotações pessoais
+- **Instalável em iOS e Android** como PWA
+- **Funcionalidade offline** para navegação e leitura
+- **Logo profissional** integrado em toda a aplicação
 
 ## Arquitetura
 
@@ -25,6 +28,9 @@ Aplicação web fullstack desenvolvida em TypeScript usando React + Express + Po
 - **Routing:** Navegação por estado local (sem wouter para simplificar)
 - **UI:** Shadcn/UI com Tailwind CSS
 - **Tema:** Metallic Blue (#1A5299) com suporte a dark mode
+- **PWA:** Progressive Web App completo com manifest, service worker e ícones
+- **Instalável:** Pode ser instalado como app nativo em iOS e Android
+- **Offline:** Service worker com cache inteligente (navegação offline, APIs fail naturalmente)
 
 ### Database Schema
 
@@ -195,6 +201,23 @@ Aplicação web fullstack desenvolvida em TypeScript usando React + Express + Po
    - Context de autenticação
    - React Query para gerenciamento de estado
    - Error handling robusto
+
+5. **PWA (Progressive Web App):**
+   - Manifest.json com metadados completos
+   - Service Worker com cache inteligente
+   - Ícones otimizados (192x192 e 512x512)
+   - Meta tags para iOS e Android
+   - Instalável como app nativo
+   - Funcionalidade offline (navegação cached, APIs fail graciosamente)
+   - Splash screen personalizada
+   - Tema azul metálico (#1A5299)
+
+6. **Logo Profissional:**
+   - Logo integrado em todas as telas
+   - Splash screen com gradiente azul
+   - Ícones PWA otimizados
+   - Header com logo pequeno
+   - Assets organizados em /attached_assets/logo/
 
 ### 📋 Próximos Passos (Expansão Futura)
 

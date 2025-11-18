@@ -26,7 +26,13 @@ const verses = [
   { number: 5, text: "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã: o dia primeiro.", hasStrong: true },
 ];
 
-export function BibleReader() {
+interface BibleReaderProps {
+  onNavigateToSubscriptions?: () => void;
+  onNavigateToSettings?: () => void;
+  onNavigateToHistory?: () => void;
+}
+
+export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory }: BibleReaderProps) {
   const [selectedBook, setSelectedBook] = useState("Gênesis");
   const [selectedChapter, setSelectedChapter] = useState("1");
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
@@ -84,7 +90,7 @@ export function BibleReader() {
               <Bookmark className="h-5 w-5" />
             </Button>
             <ThemeToggle />
-            <Button variant="ghost" size="icon" data-testid="button-settings">
+            <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings}>
               <Settings className="h-5 w-5" />
             </Button>
           </div>

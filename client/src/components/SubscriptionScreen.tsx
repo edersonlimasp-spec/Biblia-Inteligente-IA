@@ -3,7 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export function SubscriptionScreen() {
+interface SubscriptionScreenProps {
+  onBack?: () => void;
+}
+
+export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const plans = [
     {
       name: "Strong Vitalício",

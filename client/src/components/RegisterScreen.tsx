@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import appLogo from "@assets/generated_images/App_logo_biblical_metallic_blue_695d5d1c.png";
 
 interface RegisterScreenProps {
@@ -15,11 +17,40 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { register } = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Register attempt:", { name, email, password, confirmPassword });
-    onRegister?.();
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Senhas não coincidem",
+        description: "Por favor, verifique as senhas digitadas",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await register(name, email, password);
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Bem-vindo! Você ganhou 30 dias de trial.",
+      });
+      onRegister?.();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao criar conta",
+        description: error.message || "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -86,8 +117,9 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
               type="submit"
               className="w-full"
               data-testid="button-register"
+              disabled={isLoading}
             >
-              Criar Conta
+              {isLoading ? "Criando conta..." : "Criar Conta"}
             </Button>
             <div className="text-center">
               <Button

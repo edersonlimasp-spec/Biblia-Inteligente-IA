@@ -7,7 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 
-export function SettingsScreen() {
+interface SettingsScreenProps {
+  onBack?: () => void;
+}
+
+export function SettingsScreen({ onBack }: SettingsScreenProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [fontSize, setFontSize] = useState("medium");

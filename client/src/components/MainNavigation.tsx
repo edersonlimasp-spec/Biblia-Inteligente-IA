@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { SplashScreen } from "./SplashScreen";
 import { LoginScreen } from "./LoginScreen";
 import { RegisterScreen } from "./RegisterScreen";
@@ -19,10 +20,29 @@ type Screen =
 
 export function MainNavigation() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("splash");
+  const [showSplash, setShowSplash] = useState(true);
+  const { user, isLoading } = useAuth();
 
-  // Simulate splash screen timeout
-  if (currentScreen === "splash") {
-    setTimeout(() => setCurrentScreen("login"), 2000);
+  // Show splash screen for 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Redirect to bible if authenticated, login if not
+  useEffect(() => {
+    if (!showSplash && !isLoading) {
+      if (user && currentScreen !== "bible" && currentScreen !== "subscriptions" && currentScreen !== "settings" && currentScreen !== "history") {
+        setCurrentScreen("bible");
+      } else if (!user && currentScreen !== "login" && currentScreen !== "register") {
+        setCurrentScreen("login");
+      }
+    }
+  }, [showSplash, isLoading, user, currentScreen]);
+
+  if (showSplash || isLoading) {
     return <SplashScreen />;
   }
 
@@ -40,10 +60,22 @@ export function MainNavigation() {
           onNavigateToLogin={() => setCurrentScreen("login")}
         />
       )}
-      {currentScreen === "bible" && <BibleReader />}
-      {currentScreen === "subscriptions" && <SubscriptionScreen />}
-      {currentScreen === "settings" && <SettingsScreen />}
-      {currentScreen === "history" && <AIHistoryScreen />}
+      {currentScreen === "bible" && (
+        <BibleReader 
+          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
+          onNavigateToSettings={() => setCurrentScreen("settings")}
+          onNavigateToHistory={() => setCurrentScreen("history")}
+        />
+      )}
+      {currentScreen === "subscriptions" && (
+        <SubscriptionScreen onBack={() => setCurrentScreen("bible")} />
+      )}
+      {currentScreen === "settings" && (
+        <SettingsScreen onBack={() => setCurrentScreen("bible")} />
+      )}
+      {currentScreen === "history" && (
+        <AIHistoryScreen onBack={() => setCurrentScreen("bible")} />
+      )}
     </ThemeProvider>
   );
 }

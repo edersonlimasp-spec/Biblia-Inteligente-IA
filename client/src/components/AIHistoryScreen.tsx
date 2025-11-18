@@ -10,7 +10,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-export function AIHistoryScreen() {
+interface AIHistoryScreenProps {
+  onBack?: () => void;
+}
+
+export function AIHistoryScreen({ onBack }: AIHistoryScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Mock history data

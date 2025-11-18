@@ -1,30 +1,64 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ChevronUp, ChevronDown, X } from "lucide-react";
+import { Sparkles, ChevronUp, ChevronDown, X, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+
+interface AIRequest {
+  question: string;
+  verse?: string;
+  book?: string;
+  chapter?: number;
+  mode: 'essential' | 'premium';
+}
+
+interface AIResponse {
+  response: string;
+}
 
 export function AIPanel() {
   const [question, setQuestion] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [response, setResponse] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const askAIMutation = useMutation({
+    mutationFn: async (request: AIRequest) => {
+      const res = await apiRequest('POST', '/api/ai/ask', request);
+      const data = await res.json() as AIResponse;
+      return data;
+    },
+    onSuccess: (data) => {
+      setResponse(data.response);
+      setIsExpanded(true);
+      // Clear input after successful response
+      setQuestion("");
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.data?.error || error?.message || "Erro ao processar pergunta";
+      const needsSubscription = error?.status === 403;
+      
+      toast({
+        title: needsSubscription ? "Assinatura Necessária" : "Erro",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleAsk = () => {
     if (!question.trim()) return;
-    console.log("AI question:", question);
-    // Simulate AI response
-    setResponse(`Esta é uma resposta simulada da IA Professor Teológico para: "${question}". 
-
-No contexto bíblico, este versículo possui profunda significância teológica. A palavra hebraica original revela nuances que não aparecem em traduções modernas.
-
-Análise Contextual:
-• Contexto histórico do período
-• Significado cultural da época
-• Implicações teológicas
-
-Esta passagem deve ser entendida dentro do contexto maior das escrituras...`);
-    setIsExpanded(true);
+    
+    // For now, use 'essential' mode by default
+    // TODO: Get user's actual subscription level
+    askAIMutation.mutate({
+      question: question.trim(),
+      mode: 'essential',
+    });
   };
 
   return (
@@ -78,11 +112,15 @@ Esta passagem deve ser entendida dentro do contexto maior das escrituras...`);
             />
             <Button
               onClick={handleAsk}
-              disabled={!question.trim()}
+              disabled={!question.trim() || askAIMutation.isPending}
               data-testid="button-ask-ai"
             >
-              <Sparkles className="h-4 w-4 mr-2" />
-              Perguntar
+              {askAIMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-2" />
+              )}
+              {askAIMutation.isPending ? 'Pensando...' : 'Perguntar'}
             </Button>
           </div>
           {response && (

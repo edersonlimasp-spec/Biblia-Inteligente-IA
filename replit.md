@@ -109,17 +109,31 @@ Aplicação web fullstack desenvolvida em TypeScript usando React + Express + Po
 - `PATCH /api/annotations/:id` - Atualizar anotação
 - `DELETE /api/annotations/:id` - Deletar anotação
 
+### Bíblia
+- `GET /api/bible/books` - Listar livros disponíveis (atualmente apenas João)
+- `GET /api/bible/:bookId/:chapter` - Buscar capítulo específico
+
+### Dicionário Strong
+- `GET /api/strong/:number` - Buscar entrada Strong (ex: G2316 ou H430) - Requer autenticação e acesso Strong (trial ou assinatura)
+- `GET /api/strong/search/:query` - Buscar no dicionário por palavra/transliteração/definição
+
 ## Estrutura de Arquivos
 
 ```
 ├── server/
-│   ├── auth.ts          # Sistema de autenticação JWT
-│   ├── db.ts            # Configuração Drizzle + Neon
-│   ├── openai.ts        # Integração OpenAI GPT-5
-│   ├── storage.ts       # Interface de storage PostgreSQL
-│   └── routes.ts        # Todas as rotas da API
+│   ├── auth.ts              # Sistema de autenticação JWT
+│   ├── db.ts                # Configuração Drizzle + Neon
+│   ├── openai.ts            # Integração OpenAI GPT-5
+│   ├── storage.ts           # Interface de storage PostgreSQL
+│   ├── routes.ts            # Todas as rotas da API
+│   ├── bible-data/
+│   │   ├── books.ts         # Metadata dos livros bíblicos
+│   │   └── john.ts          # Dados de João capítulos 1, 2 e 3 (ACF)
+│   └── strong-data/
+│       ├── greek.ts         # Dicionário Strong Grego (13 entradas demo)
+│       └── hebrew.ts        # Dicionário Strong Hebraico (10 entradas demo)
 ├── shared/
-│   └── schema.ts        # Schemas Drizzle + Zod
+│   └── schema.ts            # Schemas Drizzle + Zod
 ├── client/src/
 │   ├── contexts/
 │   │   └── AuthContext.tsx    # Context de autenticação
@@ -152,13 +166,43 @@ Aplicação web fullstack desenvolvida em TypeScript usando React + Express + Po
 - Modo Premium: Respostas até 2048 tokens, análise acadêmica profunda
 - Histórico salvo automaticamente em `ai_history` table
 
-## Próximos Passos (Pendentes)
+## Status da Implementação
 
-1. Adicionar dados bíblicos reais (ACF completo)
-2. Implementar sistema de navegação entre livros/capítulos
-3. Integrar dicionário Strong's com dados reais de Hebraico/Grego
-4. Vincular números Strong aos versículos da Bíblia
-5. Implementar sistema de busca por palavra/versículo
+### ✅ Completo (MVP Funcional)
+
+1. **Backend completo:**
+   - Autenticação JWT com bcrypt
+   - Sistema de trial de 30 dias
+   - Gerenciamento de assinaturas
+   - APIs REST para todas funcionalidades
+   - Integração OpenAI GPT-5 para Professor Teológico
+
+2. **Dados bíblicos:**
+   - Evangelho de João capítulos 1, 2 e 3 (ACF) - 112 versículos
+   - Sistema de navegação entre livros/capítulos
+   - API retorna 404 com mensagens claras para conteúdo não implementado
+
+3. **Dicionário Strong:**
+   - 13 entradas gregas (G1-G5547)
+   - 10 entradas hebraicas (H1-H8064)
+   - API com controle de acesso (trial + assinatura)
+   - Frontend com paywall integrado
+   - Mapeamento de 14 palavras-chave para demonstração
+
+4. **Frontend completo:**
+   - Telas: Splash, Login, Register, BibleReader, Subscriptions, Settings, AI History
+   - Componentes: AIPanel, StrongModal, ThemeToggle
+   - Context de autenticação
+   - React Query para gerenciamento de estado
+   - Error handling robusto
+
+### 📋 Próximos Passos (Expansão Futura)
+
+1. Expandir dados bíblicos para toda a Bíblia (66 livros)
+2. Adicionar todos os ~14,298 números Strong (5,624 gregos + 8,674 hebraicos)
+3. Vincular números Strong reais aos versículos originais
+4. Implementar sistema de busca por palavra/versículo
+5. Adicionar integração de pagamento real (Stripe) para assinaturas
 
 ## Tecnologias
 

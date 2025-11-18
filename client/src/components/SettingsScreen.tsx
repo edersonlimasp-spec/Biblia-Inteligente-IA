@@ -6,15 +6,22 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SettingsScreenProps {
   onBack?: () => void;
 }
 
 export function SettingsScreen({ onBack }: SettingsScreenProps) {
+  const { user, logout, trialDaysRemaining } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [fontSize, setFontSize] = useState("medium");
+
+  const handleLogout = () => {
+    logout();
+    onBack?.();
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -31,12 +38,12 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
                 <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                  JD
+                  {user?.name.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-semibold text-lg">João da Silva</p>
-                <p className="text-sm text-muted-foreground">joao@email.com</p>
+                <p className="font-semibold text-lg">{user?.name || 'Usuário'}</p>
+                <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
               </div>
             </div>
           </CardContent>
@@ -119,7 +126,9 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">Plano Atual</p>
-                  <p className="text-sm text-muted-foreground">Trial (15 dias restantes)</p>
+                  <p className="text-sm text-muted-foreground">
+                    Trial ({trialDaysRemaining} dias restantes)
+                  </p>
                 </div>
                 <Button variant="outline" data-testid="button-manage-subscription">
                   Gerenciar
@@ -157,6 +166,7 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
         <Button
           variant="destructive"
           className="w-full"
+          onClick={handleLogout}
           data-testid="button-logout"
         >
           <LogOut className="h-4 w-4 mr-2" />

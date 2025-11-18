@@ -51,7 +51,7 @@ export const bibleBooks: BibleBook[] = [
   { id: 'mat', name: 'Mateus', testament: 'new', chapters: 28 },
   { id: 'mrk', name: 'Marcos', testament: 'new', chapters: 16 },
   { id: 'luk', name: 'Lucas', testament: 'new', chapters: 24 },
-  { id: 'jhn', name: 'João', testament: 'new', chapters: 3 },
+  { id: 'jhn', name: 'João', testament: 'new', chapters: 21 },
   { id: 'act', name: 'Atos', testament: 'new', chapters: 28 },
   { id: 'rom', name: 'Romanos', testament: 'new', chapters: 16 },
   { id: '1co', name: '1 Coríntios', testament: 'new', chapters: 16 },

@@ -88,11 +88,14 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   };
 
   const handleWordClick = (word: string, verseNum: number) => {
-    console.log("Word clicked:", word, "in verse", verseNum);
+    // Remove pontuação da palavra antes de buscar
+    const cleanWord = word.replace(/[.,;:!?"""''()]/g, '').trim();
+    console.log("Word clicked:", cleanWord, "in verse", verseNum);
     
     // MVP Demo: Map common words to Strong numbers for demonstration
     // In production, this would come from the verse data with actual Strong references
     const wordToStrong: Record<string, string> = {
+      // Palavras-chave de João 1-3
       'Deus': 'G2316',
       'Jesus': 'G2424',
       'Cristo': 'G5547',
@@ -102,23 +105,43 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       'santo': 'G40',
       'espírito': 'G4151',
       'Espírito': 'G4151',
-      'princípio': 'G1',
+      'princípio': 'G746',
       'Verbo': 'G3056',
       'vida': 'G2222',
-      'trevas': 'G5457',
+      'trevas': 'G4655',
       'homem': 'G444',
       'homens': 'G444',
       'mundo': 'G2889',
-      // Add more demo mappings as needed
+      'água': 'G5204',
+      'batismo': 'G908',
+      'João': 'G2491',
+      'testemunho': 'G3141',
+      'crê': 'G4100',
+      'crer': 'G4100',
+      'fé': 'G4102',
+      'filho': 'G5207',
+      'Filho': 'G5207',
+      'pai': 'G3962',
+      'Pai': 'G3962',
+      'nome': 'G3686',
+      'graça': 'G5485',
+      'verdade': 'G225',
+      'lei': 'G3551',
+      'Moisés': 'G3475',
+      'profeta': 'G4396',
+      'nascer': 'G1080',
+      'nascido': 'G1080',
+      'carne': 'G4561',
+      'sangue': 'G129',
     };
     
-    const strongNumber = wordToStrong[word];
+    const strongNumber = wordToStrong[cleanWord];
     
     // Only open modal if we have a valid mapping for this word
     if (strongNumber) {
       setSelectedStrongNumber(strongNumber);
     } else {
-      console.log(`No Strong mapping available for word: "${word}"`);
+      console.log(`No Strong mapping available for word: "${cleanWord}"`);
     }
   };
 

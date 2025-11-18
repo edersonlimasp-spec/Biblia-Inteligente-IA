@@ -89,7 +89,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
 
   const handleWordClick = (word: string, verseNum: number) => {
     // Remove pontuação da palavra antes de buscar
-    const cleanWord = word.replace(/[.,;:!?"""''()]/g, '').trim();
+    const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
     console.log("Word clicked:", cleanWord, "in verse", verseNum);
     
     // MVP Demo: Map common words to Strong numbers for demonstration

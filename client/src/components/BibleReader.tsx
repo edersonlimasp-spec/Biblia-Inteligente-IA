@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Bookmark, Search, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,23 +9,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { StrongModal } from "@/components/StrongModal";
 
-// Mock data for Bible
-const books = [
-  "Gênesis", "Êxodo", "Levítico", "Números", "Deuteronômio",
-  "Josué", "Juízes", "Rute", "1 Samuel", "2 Samuel"
-];
+interface BibleBook {
+  id: string;
+  name: string;
+  testament: 'old' | 'new';
+  chapters: number;
+}
 
-const verses = [
-  { number: 1, text: "No princípio, criou Deus os céus e a terra.", hasStrong: true },
-  { number: 2, text: "E a terra era sem forma e vazia; e havia trevas sobre a face do abismo; e o Espírito de Deus se movia sobre a face das águas.", hasStrong: true },
-  { number: 3, text: "E disse Deus: Haja luz. E houve luz.", hasStrong: true },
-  { number: 4, text: "E viu Deus que era boa a luz; e fez Deus separação entre a luz e as trevas.", hasStrong: true },
-  { number: 5, text: "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã: o dia primeiro.", hasStrong: true },
-];
+interface Verse {
+  verse: number;
+  text: string;
+}
+
+interface Chapter {
+  chapter: number;
+  verses: Verse[];
+}
+
+interface BibleChapterData {
+  book: BibleBook;
+  chapter: Chapter;
+}
 
 interface BibleReaderProps {
   onNavigateToSubscriptions?: () => void;
@@ -33,10 +43,48 @@ interface BibleReaderProps {
 }
 
 export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory }: BibleReaderProps) {
-  const [selectedBook, setSelectedBook] = useState("Gênesis");
-  const [selectedChapter, setSelectedChapter] = useState("1");
+  const [selectedBook, setSelectedBook] = useState("jhn");
+  const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
+
+  const { data: books } = useQuery<BibleBook[]>({
+    queryKey: ['/api/bible/books'],
+  });
+
+  const { data: chapterData, isLoading, error } = useQuery<BibleChapterData>({
+    queryKey: ['/api/bible', selectedBook, selectedChapter],
+    enabled: !!selectedBook && !!selectedChapter,
+    retry: false,
+  });
+
+  const currentBook = books?.find(b => b.id === selectedBook);
+
+  const handlePreviousChapter = () => {
+    if (selectedChapter > 1) {
+      setSelectedChapter(selectedChapter - 1);
+    } else if (books && currentBook) {
+      const currentIndex = books.findIndex(b => b.id === selectedBook);
+      if (currentIndex > 0) {
+        const previousBook = books[currentIndex - 1];
+        setSelectedBook(previousBook.id);
+        setSelectedChapter(previousBook.chapters);
+      }
+    }
+  };
+
+  const handleNextChapter = () => {
+    if (currentBook && selectedChapter < currentBook.chapters) {
+      setSelectedChapter(selectedChapter + 1);
+    } else if (books && currentBook) {
+      const currentIndex = books.findIndex(b => b.id === selectedBook);
+      if (currentIndex < books.length - 1) {
+        const nextBook = books[currentIndex + 1];
+        setSelectedBook(nextBook.id);
+        setSelectedChapter(1);
+      }
+    }
+  };
 
   const handleWordClick = (word: string, verseNum: number) => {
     console.log("Word clicked:", word, "in verse", verseNum);
@@ -54,30 +102,45 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {books.map((book) => (
-                  <SelectItem key={book} value={book}>
-                    {book}
+                {books?.map((book) => (
+                  <SelectItem key={book.id} value={book.id}>
+                    {book.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" data-testid="button-prev-chapter">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handlePreviousChapter}
+                disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
+                data-testid="button-prev-chapter"
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Select value={selectedChapter} onValueChange={setSelectedChapter}>
+              <Select value={selectedChapter.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
                 <SelectTrigger className="w-[70px]" data-testid="select-chapter">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Array.from({ length: 50 }, (_, i) => i + 1).map((ch) => (
+                  {currentBook && Array.from({ length: currentBook.chapters }, (_, i) => i + 1).map((ch) => (
                     <SelectItem key={ch} value={String(ch)}>
                       {ch}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Button variant="ghost" size="icon" data-testid="button-next-chapter">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleNextChapter}
+                disabled={
+                  selectedBook === books?.[books.length - 1]?.id && 
+                  selectedChapter === currentBook?.chapters
+                }
+                data-testid="button-next-chapter"
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -100,41 +163,68 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       {/* Bible Text */}
       <main className="flex-1 overflow-y-auto pb-24">
         <div className="max-w-3xl mx-auto px-4 py-6">
-          <h2 className="font-serif text-2xl font-bold mb-6 text-primary">
-            {selectedBook} {selectedChapter}
-          </h2>
-          <div className="space-y-4 font-serif text-lg leading-relaxed">
-            {verses.map((verse) => (
-              <div
-                key={verse.number}
-                className={`flex gap-3 group ${
-                  selectedVerse === verse.number ? "bg-primary/10 -mx-2 px-2 py-1 rounded" : ""
-                }`}
-                onClick={() => setSelectedVerse(verse.number)}
-                data-testid={`verse-${verse.number}`}
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          ) : error ? (
+            <div className="bg-muted/50 border border-border rounded-lg p-6 text-center">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Conteúdo ainda não disponível
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Este conteúdo será adicionado em breve. Por enquanto, apenas o Evangelho de João (capítulos 1, 2 e 3) está disponível na versão demo.
+              </p>
+              <Button 
+                onClick={() => {
+                  setSelectedBook('jhn');
+                  setSelectedChapter(1);
+                }}
+                data-testid="button-go-to-john"
               >
-                <span className="text-xs font-sans text-muted-foreground mt-1 select-none">
-                  {verse.number}
-                </span>
-                <p className="flex-1">
-                  {verse.text.split(" ").map((word, idx) => (
-                    <span
-                      key={idx}
-                      className={verse.hasStrong ? "cursor-pointer hover:text-primary transition-colors" : ""}
-                      onClick={(e) => {
-                        if (verse.hasStrong) {
-                          e.stopPropagation();
-                          handleWordClick(word, verse.number);
-                        }
-                      }}
-                    >
-                      {word}{" "}
+                Ir para João 1
+              </Button>
+            </div>
+          ) : (
+            <>
+              <h2 className="font-serif text-2xl font-bold mb-6 text-primary">
+                {chapterData?.book.name} {chapterData?.chapter.chapter}
+              </h2>
+              <div className="space-y-4 font-serif text-lg leading-relaxed">
+                {chapterData?.chapter.verses.map((verse) => (
+                  <div
+                    key={verse.verse}
+                    className={`flex gap-3 group ${
+                      selectedVerse === verse.verse ? "bg-primary/10 -mx-2 px-2 py-1 rounded" : ""
+                    }`}
+                    onClick={() => setSelectedVerse(verse.verse)}
+                    data-testid={`verse-${verse.verse}`}
+                  >
+                    <span className="text-xs font-sans text-muted-foreground mt-1 select-none">
+                      {verse.verse}
                     </span>
-                  ))}
-                </p>
+                    <p className="flex-1">
+                      {verse.text.split(" ").map((word, idx) => (
+                        <span
+                          key={idx}
+                          className="cursor-pointer hover:text-primary transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleWordClick(word, verse.verse);
+                          }}
+                        >
+                          {word}{" "}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
       </main>
 

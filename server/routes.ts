@@ -5,6 +5,8 @@ import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, isTri
 import { askTheologicalQuestion } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema } from "@shared/schema";
 import { z } from "zod";
+import { bibleBooks, getBookById } from "./bible-data/books";
+import { johnChapters } from "./bible-data/john";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
@@ -344,6 +346,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Delete annotation error:", error);
       res.status(500).json({ error: "Erro ao deletar anotação" });
+    }
+  });
+
+  // Bible routes
+  app.get("/api/bible/books", async (req, res) => {
+    try {
+      // For MVP: only return João (John) since it's the only book implemented
+      const implementedBooks = bibleBooks.filter(book => book.id === 'jhn');
+      res.json(implementedBooks);
+    } catch (error) {
+      console.error("Get books error:", error);
+      res.status(500).json({ error: "Erro ao buscar livros" });
+    }
+  });
+
+  app.get("/api/bible/:bookId/:chapter", async (req, res) => {
+    try {
+      const { bookId, chapter } = req.params;
+      const book = getBookById(bookId);
+      
+      if (!book) {
+        return res.status(404).json({ error: "Livro não encontrado" });
+      }
+
+      // For MVP: only John chapters 1, 2, and 3 are implemented
+      if (bookId === 'jhn') {
+        const chapterData = johnChapters.find(c => c.chapter === parseInt(chapter));
+        if (!chapterData) {
+          return res.status(404).json({ 
+            error: "Capítulo ainda não disponível",
+            message: "Este capítulo será adicionado em breve. Por enquanto, apenas João 1, 2 e 3 estão disponíveis na versão demo."
+          });
+        }
+        res.json({ book, chapter: chapterData, available: true });
+      } else {
+        // Other books not yet implemented
+        return res.status(404).json({ 
+          error: "Livro ainda não disponível",
+          message: "Este livro será adicionado em breve. Por enquanto, apenas o Evangelho de João (capítulos 1, 2 e 3) está disponível na versão demo."
+        });
+      }
+    } catch (error) {
+      console.error("Get chapter error:", error);
+      res.status(500).json({ error: "Erro ao buscar capítulo" });
     }
   });
 

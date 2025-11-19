@@ -251,27 +251,33 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   }, [wordSearchResults]);
 
   const handleWordClick = (word: string, verseNum: number) => {
+    console.log("🔥 handleWordClick CALLED! Word:", word, "Verse:", verseNum);
+    
     // Remove pontuação da palavra antes de buscar
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
+    console.log("🔥 Clean word:", cleanWord, "Length:", cleanWord.length);
     
     // Filter: Ignore very short words (< 4 chars) to avoid stopword noise
     if (cleanWord.length < 4) {
-      console.log("Skipping short word:", cleanWord);
+      console.log("⚠️ Skipping short word:", cleanWord);
       return;
     }
     
-    console.log("Word clicked:", cleanWord, "in verse", verseNum);
+    console.log("✅ Word clicked:", cleanWord, "in verse", verseNum);
     
     // Check if word has a direct mapping to Strong's number
     const strongNumber = portugueseToStrong[cleanWord];
+    console.log("🔍 Mapping lookup:", cleanWord, "→", strongNumber);
+    
     if (strongNumber) {
-      console.log("Found direct mapping:", cleanWord, "→", strongNumber);
+      console.log("✅ Found direct mapping:", cleanWord, "→", strongNumber);
+      console.log("🎯 Setting selectedStrongNumber to:", strongNumber);
       setSelectedStrongNumber(strongNumber);
       return;
     }
     
     // If no direct mapping, search in database via API
-    console.log("No direct mapping, searching in database:", cleanWord);
+    console.log("🔍 No direct mapping, searching in database:", cleanWord);
     setSearchingWord(cleanWord);
   };
 

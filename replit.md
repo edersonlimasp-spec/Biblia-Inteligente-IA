@@ -123,9 +123,16 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 - `GET /api/bible/books` - Listar todos os 66 livros disponíveis (Antigo e Novo Testamento)
 - `GET /api/bible/:bookId/:chapter` - Buscar capítulo específico de qualquer livro
 
-### Dicionário Strong
+### Dicionário Strong (Database-Driven)
 - `GET /api/strong/:number` - Buscar entrada Strong (ex: G2316 ou H430) - Requer autenticação e acesso Strong (trial ou assinatura)
-- `GET /api/strong/search/:query` - Buscar no dicionário por palavra/transliteração/definição
+- `GET /api/strong/search/:query` - Buscar no dicionário por palavra/transliteração/definição (retorna até 50 resultados)
+
+**Arquitetura Strong's MVP:**
+- **Database:** PostgreSQL com 60 termos teologicamente importantes (30 grego + 30 hebraico)
+- **Índices:** Criados em lemma, translit, kjvDef, language para performance otimizada
+- **Frontend:** Busca dinâmica via API (remove mapeamento hardcoded de 200+ palavras)
+- **Filtro inteligente:** Apenas palavras ≥4 caracteres são buscadas (evita stopwords como "o", "e", "a")
+- **Escalabilidade:** Arquitetura pronta para expansão para ~14k entradas Strong completas
 
 ## Estrutura de Arquivos
 
@@ -183,35 +190,51 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 
 ## Melhorias Recentes (Última Sessão)
 
-**1. BUG CRÍTICO CORRIGIDO - Trial agora funciona para IA:**
-- Trial de 30 dias concede acesso a IA Essential (antes só funcionava para Strong's)
-- `/api/access/ai/:mode` e `/api/ai/ask` agora verificam trial corretamente
-- Mensagens de erro melhoradas com sugestões de planos
+**IMPLEMENTAÇÃO COMPLETA: Strong's Database-Driven Architecture**
 
-**2. Dicionário Strong expandido 5x:**
-- Grego: 13 → 37 entradas (~3x mais)
-- Hebraico: 10 → 29 entradas (~3x mais)
-- Total: 66 entradas (representando os 66 livros da Bíblia)
+**1. Schema de Banco de Dados (shared/schema.ts):**
+- Criada tabela `strong_entries` com campos completos:
+  - strongNumber, language, lemma, translit, xlit, pron, kjvDef, strongsDef, derivation
+- Criada tabela `bible_words` (preparada para dados interlineares futuros)
+- Adicionados **índices otimizados** para performance:
+  - lemmaIdx, translitIdx, kjvDefIdx, languageIdx
+  - Suporta buscas eficientes em dataset de 14k+ entradas
 
-**3. Mapeamento palavra→Strong expandido 2x:**
-- 39 → 75 palavras mapeadas
-- Cobertura de Novo e Antigo Testamento
-- Termos teológicos chave incluídos
+**2. Script de Importação MVP (scripts/import-strong-mvp.ts):**
+- Importa **60 termos teologicamente importantes** (30 grego + 30 hebraico)
+- Inclui: Deus, Jesus, amor, fé, graça, salvação, justiça, paz, etc.
+- Demonstra arquitetura completa funcionando
+- Documenta próximos passos para importação de ~14k termos completos
+- **Bug fix crítico:** Mapeamento correto de nomes de colunas (translit, pron, kjvDef)
 
-**4. Mensagens de erro de login específicas:**
-- "Email não cadastrado" vs "Senha incorreta" (não mais genérico "Credenciais inválidas")
-- Frontend corrigido para mostrar `error.data.error` do backend
+**3. API Backend Database-Driven (server/routes.ts):**
+- **REMOVIDO:** Arrays hardcoded greekStrongs e hebrewStrongs
+- **MODIFICADO:** GET /api/strong/:number busca do PostgreSQL via Drizzle ORM
+- **MODIFICADO:** GET /api/strong/search/:query busca via SQL LIKE com índices
+- Formato de resposta padronizado: `{ results: [...], total: N }`
+- Retorna: number, word, transliteration, pronunciation, definition, language
 
-**5. Badge visual de trial:**
-- Mostra dias restantes no header ("Trial: 30 dias")
-- Visível apenas quando trial está ativo
-- Usa AuthContext para dados em tempo real
+**4. Frontend com Busca Dinâmica (client/src/components/BibleReader.tsx):**
+- **REMOVIDO:** Mapeamento hardcoded de ~200 palavras (wordToStrong)
+- **ADICIONADO:** Busca dinâmica via API quando usuário clica em palavra
+- **ADICIONADO:** useEffect para processar resultados da busca
+- **ADICIONADO:** Filtro inteligente - ignora palavras < 4 caracteres
+  - Previne buscas vazias para stopwords ("o", "e", "a", "da", etc.)
+- Todas as palavras significativas (≥4 chars) são clicáveis
+- Modal Strong abre automaticamente com dados do banco
 
-**6. StrongModal redesenhado:**
-- Removido todos os emojis (substituídos por ícones Lucide)
-- Layout profissional com ícones BookOpen, Library, Lightbulb
-- Badges de idioma sem emojis
-- Boxes organizados para melhor leitura
+**5. Arquitetura Demonstrada:**
+- ✅ MVP funcional com 60 termos Strong no banco
+- ✅ Sistema preparado para escalar para ~14k entradas
+- ✅ Performance otimizada com índices PostgreSQL
+- ✅ Frontend desacoplado do backend (busca dinâmica)
+- ✅ Demonstração de arquitetura profissional vs hardcoded
+
+**6. Próximos Passos Documentados:**
+- Importação de dataset completo Strong's (~14k entradas)
+- Implementação de dados interlineares (bible_words table)
+- Vinculação de números Strong reais aos versículos originais em Hebraico/Grego
+- Normalização de busca com diacríticos (ex: "theos" encontra "theós")
 
 ## Status da Implementação
 

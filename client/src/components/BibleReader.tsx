@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Bookmark, Search, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,12 +45,27 @@ interface BibleReaderProps {
   onNavigateToHistory?: () => void;
 }
 
+interface StrongSearchResult {
+  number: string;
+  word: string;
+  transliteration: string;
+  pronunciation: string;
+  definition: string;
+  language: string;
+}
+
+interface StrongSearchResponse {
+  results: StrongSearchResult[];
+  total: number;
+}
+
 export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory }: BibleReaderProps) {
   const { trialActive, trialDaysRemaining } = useAuth();
   const [selectedBook, setSelectedBook] = useState("jhn");
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
+  const [searchingWord, setSearchingWord] = useState<string | null>(null);
 
   const { data: books } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
@@ -59,6 +74,13 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   const { data: chapterData, isLoading, error } = useQuery<BibleChapterData>({
     queryKey: ['/api/bible', selectedBook, selectedChapter],
     enabled: !!selectedBook && !!selectedChapter,
+    retry: false,
+  });
+
+  // Query to search for Strong's number when clicking a word
+  const { data: wordSearchResults } = useQuery<StrongSearchResponse>({
+    queryKey: ['/api/strong/search', searchingWord],
+    enabled: !!searchingWord,
     retry: false,
   });
 
@@ -90,141 +112,36 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     }
   };
 
-  // Mapeamento expandido: 200+ palavras mais comuns (NT Grego + AT Hebraico)
-  const wordToStrong: Record<string, string> = {
-    // Divindade
-    'Deus': 'G2316', 'Jesus': 'G2424', 'Cristo': 'G5547', 'Senhor': 'G2962',
-    'SENHOR': 'H3068', 'Javé': 'H3068', 'Jeová': 'H3068', 'Adonai': 'H136',
-    'Espírito': 'G4151', 'espírito': 'G4151', 'espiritual': 'G4152',
-    'Elohim': 'H430', 'El': 'H410', 'Eloah': 'H433',
-    // Conceitos Centrais
-    'amor': 'G26', 'amar': 'G25', 'amou': 'G25', 'amado': 'G27',
-    'palavra': 'G3056', 'palavras': 'G3056', 'Verbo': 'G3056',
-    'vida': 'G2222', 'viver': 'G2198', 'viveu': 'G2198', 'vivo': 'G2198',
-    'morte': 'G2288', 'morrer': 'G599', 'morto': 'G3498', 'morreu': 'G599',
-    'luz': 'G5457', 'trevas': 'G4655', 'escuridão': 'G4655',
-    'verdade': 'G225', 'verdadeiro': 'G228', 'mentira': 'G5579',
-    'graça': 'G5485', 'gracioso': 'G5485', 'misericórdia': 'G1656',
-    // Santidade
-    'santo': 'G40', 'Santos': 'G40', 'santificado': 'G37',
-    'pecado': 'G266', 'pecados': 'G266', 'pecador': 'G268', 'pecar': 'G264',
-    'justiça': 'G1343', 'justo': 'G1342', 'justificado': 'G1344',
-    'perdão': 'G859', 'perdoar': 'G863', 'perdoado': 'G863',
-    // Fé
-    'fé': 'G4102', 'fiel': 'G4103', 'fielmente': 'G4103',
-    'crê': 'G4100', 'crer': 'G4100', 'crente': 'G4103', 'creram': 'G4100',
-    'salvação': 'G4991', 'salvar': 'G4982', 'Salvador': 'G4990', 'salvo': 'G4982',
-    // Família
-    'filho': 'G5207', 'Filho': 'G5207', 'filhos': 'G5207', 'filha': 'H1323',
-    'pai': 'G3962', 'Pai': 'G3962', 'pais': 'G3962', 'mãe': 'G3384',
-    'irmão': 'G80', 'irmãos': 'G80', 'irmã': 'G79',
-    'mulher': 'H802', 'esposa': 'H802',
-    // Criação
-    'princípio': 'G746', 'começo': 'G746', 'fim': 'G5056',
-    'criar': 'H1254', 'criou': 'H1254', 'criado': 'H1254', 'criação': 'H1254',
-    'fazer': 'H6213', 'fez': 'H6213', 'feito': 'H6213',
-    'mundo': 'G2889', 'terra': 'H776', 'Terra': 'H776',
-    'céu': 'G3772', 'céus': 'G3772', 'celestial': 'G3770', 'firmamento': 'H7549',
-    'água': 'G5204', 'águas': 'H4325',
-    // Pessoas Bíblicas
-    'João': 'G2491', 'Pedro': 'G4074', 'Paulo': 'G3972', 'Tiago': 'G2385',
-    'Moisés': 'G3475', 'Abraão': 'G11', 'Davi': 'G1138', 'Isaías': 'G2268',
-    'Adão': 'H120', 'Eva': 'H2332',
-    'Israel': 'H3478', 'Judá': 'H3063', 'Jerusalém': 'H3389',
-    // Humanidade
-    'homem': 'G444', 'homens': 'G444', 'humanidade': 'G444',
-    'povo': 'H5971', 'povos': 'H5971', 'nação': 'H1471', 'nações': 'H1471',
-    // Corpo
-    'corpo': 'G4983', 'corpos': 'G4983', 'membro': 'G3196',
-    'coração': 'G2588', 'corações': 'G2588', 'alma': 'G5590',
-    'carne': 'G4561', 'sangue': 'G129', 'osso': 'G3747',
-    'mão': 'G5495', 'mãos': 'G5495', 'dedo': 'G1147', 'braço': 'H2220',
-    'olho': 'G3788', 'olhos': 'G3788', 'rosto': 'H6440', 'face': 'H6440',
-    'ouvido': 'G3775', 'voz': 'H6963',
-    // Reino
-    'reino': 'G932', 'reinar': 'G936', 'rei': 'H4428',
-    'poder': 'G1411', 'poderoso': 'G1415', 'força': 'G2479',
-    'glória': 'G1391', 'glorificar': 'G1392', 'glorioso': 'G1741',
-    // Igreja
-    'igreja': 'G1577', 'igrejas': 'G1577', 'assembleia': 'G1577',
-    'discípulo': 'G3101', 'discípulos': 'G3101', 'apóstolo': 'G652',
-    'servo': 'G1401', 'servir': 'G1398', 'serviço': 'G1248',
-    'profeta': 'G4396', 'profetas': 'G4396', 'profecia': 'G4394',
-    'sacerdote': 'H3548', 'sacerdócio': 'H3550', 'Levita': 'H3881',
-    // Testemunho
-    'testemunho': 'G3141', 'testemunha': 'G3144', 'testemunhar': 'G3140',
-    'nome': 'G3686', 'nomes': 'G3686', 'chamado': 'G2564',
-    // Lei
-    'lei': 'G3551', 'leis': 'G3551', 'mandamento': 'G1785', 'mandamentos': 'G1785',
-    'aliança': 'H1285', 'pacto': 'H1285', 'promessa': 'H1697',
-    // Nascimento
-    'nascer': 'G1080', 'nascido': 'G1080', 'nascimento': 'G1083',
-    'batismo': 'G908', 'batizar': 'G907',
-    // Espiritual
-    'anjo': 'G32', 'anjos': 'G32', 'arcanjo': 'G743',
-    'diabo': 'G1228', 'satanás': 'G4567', 'demônio': 'G1142',
-    // Redenção
-    'cruz': 'G4716', 'crucificar': 'G4717', 'crucificado': 'G4717',
-    'ressurreição': 'G386', 'ressuscitar': 'G1453', 'ressuscitou': 'G1453',
-    // Adoração
-    'oração': 'G4335', 'orar': 'G4336', 'orou': 'G4336',
-    'louvor': 'H8416', 'louvar': 'H1984',
-    'bênção': 'H1293', 'abençoar': 'H1288', 'bendito': 'H1288',
-    'sacrifício': 'H2077', 'oferta': 'H7133', 'holocausto': 'H5930', 'expiação': 'H3722',
-    // Virtudes
-    'paz': 'G1515', 'pacífico': 'G1516', 'reconciliação': 'G2643',
-    'alegria': 'G5479', 'alegrar': 'G5463', 'feliz': 'G3107',
-    'esperança': 'G1680', 'esperar': 'G1679', 'esperou': 'G1679',
-    'sabedoria': 'G4678', 'sábio': 'G4680', 'conhecimento': 'G1108',
-    'bondade': 'G19', 'bom': 'G18', 'bem': 'G2095',
-    // Mal
-    'mal': 'G2556', 'maldade': 'G2549', 'maligno': 'G4190',
-    'maldição': 'H7045', 'amaldiçoar': 'H779', 'maldito': 'H779',
-    // Tempo
-    'eternidade': 'G165', 'eterno': 'G166', 'sempre': 'G3842',
-    'dia': 'H3117', 'dias': 'H3117', 'noite': 'H3915',
-    'ano': 'H8141', 'anos': 'H8141', 'tempo': 'H6256',
-    // Ações
-    'obra': 'G2041', 'obras': 'G2041', 'trabalho': 'G2038',
-    'ver': 'G991', 'viu': 'G1492', 'visão': 'H2377',
-    'ouvir': 'G191', 'ouviu': 'G191',
-    'falar': 'G2980', 'falou': 'G2036', 'dizer': 'G3004', 'disse': 'G2036',
-    'vir': 'G2064', 'veio': 'G2064', 'vindo': 'G2064', 'vinda': 'G3952',
-    'ir': 'G5217', 'foi': 'G565', 'ido': 'G4198',
-    'dar': 'G1325', 'deu': 'G1325', 'dado': 'G1325', 'dom': 'G1431',
-    'receber': 'G2983', 'recebeu': 'G2983', 'recebido': 'G2983',
-    'enviar': 'G649', 'enviou': 'G649', 'enviado': 'G652',
-    'buscar': 'G2212', 'buscou': 'G2212', 'procurar': 'G2212',
-    'encontrar': 'G2147', 'encontrou': 'G2147', 'achado': 'G2147',
-    'seguir': 'G190', 'seguiu': 'G190', 'seguidor': 'G190',
-    'saber': 'H3045',
-    // Lugares
-    'templo': 'G2411', 'sinagoga': 'G4864', 'altar': 'G2379',
-    'casa': 'H1004', 'casas': 'H1004', 'habitação': 'H4908',
-    'cidade': 'H5892', 'cidades': 'H5892', 'lugar': 'H4725',
-    'monte': 'H2022', 'montanha': 'H2022', 'vale': 'H1516',
-    'rio': 'H5104', 'mar': 'H3220',
-    'porta': 'G2374', 'caminho': 'G3598', 'estrada': 'G3598',
-    // Elementos
-    'fogo': 'H784', 'chama': 'H3852',
-    'pão': 'G740', 'vinho': 'G3631', 'ceia': 'G1173',
-    // Outros
-    'guerra': 'H4421', 'batalha': 'H4421', 'retidão': 'H6666',
-  };
+  // Process search results when available
+  useEffect(() => {
+    if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length > 0) {
+      // Take the first result (most relevant)
+      const firstResult = wordSearchResults.results[0];
+      if (firstResult.number) {
+        setSelectedStrongNumber(firstResult.number);
+        setSearchingWord(null); // Clear search state
+      }
+    } else if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length === 0) {
+      // No results found - clear search
+      setSearchingWord(null);
+      console.log("No Strong's entry found in database for this word");
+    }
+  }, [wordSearchResults]);
 
   const handleWordClick = (word: string, verseNum: number) => {
     // Remove pontuação da palavra antes de buscar
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
+    
+    // Filter: Ignore very short words (< 4 chars) to avoid stopword noise
+    if (cleanWord.length < 4) {
+      console.log("Skipping short word:", cleanWord);
+      return;
+    }
+    
     console.log("Word clicked:", cleanWord, "in verse", verseNum);
     
-    const strongNumber = wordToStrong[cleanWord];
-    
-    // Only open modal if we have a valid mapping for this word
-    if (strongNumber) {
-      setSelectedStrongNumber(strongNumber);
-    } else {
-      console.log(`No Strong mapping available for word: "${cleanWord}"`);
-    }
+    // Search in database via API
+    setSearchingWord(cleanWord);
   };
 
   return (
@@ -360,27 +277,18 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                       {verse.verse}
                     </span>
                     <p className="flex-1">
-                      {verse.text.split(" ").map((word, idx) => {
-                        const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
-                        const hasStrong = !!wordToStrong[cleanWord];
-                        
-                        return (
-                          <span
-                            key={idx}
-                            className={`cursor-pointer transition-colors ${
-                              hasStrong 
-                                ? 'text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 underline decoration-dotted' 
-                                : 'hover:text-primary'
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleWordClick(word, verse.verse);
-                            }}
-                          >
-                            {word}{" "}
-                          </span>
-                        );
-                      })}
+                      {verse.text.split(" ").map((word, idx) => (
+                        <span
+                          key={idx}
+                          className="cursor-pointer transition-colors hover:text-primary hover:font-medium"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleWordClick(word, verse.verse);
+                          }}
+                        >
+                          {word}{" "}
+                        </span>
+                      ))}
                     </p>
                   </div>
                 ))}

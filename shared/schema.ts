@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean, jsonb, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -102,3 +102,54 @@ export const insertAIHistorySchema = createInsertSchema(aiHistory).omit({
 
 export type InsertAIHistory = z.infer<typeof insertAIHistorySchema>;
 export type AIHistory = typeof aiHistory.$inferSelect;
+
+// Strong's Dictionary Entries table
+export const strongEntries = pgTable("strong_entries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  strongNumber: text("strong_number").notNull().unique(), // e.g., "G2316", "H7225"
+  language: text("language").notNull(), // 'greek' or 'hebrew'
+  lemma: text("lemma").notNull(), // Original Greek/Hebrew word
+  translit: text("translit"), // Transliteration (romanized)
+  xlit: text("xlit"), // Alternative transliteration (Hebrew only)
+  pron: text("pron"), // Pronunciation
+  kjvDef: text("kjv_def"), // KJV definition
+  strongsDef: text("strongs_def"), // Full Strong's definition
+  derivation: text("derivation"), // Etymology/word derivation
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  // Indexes for search performance (optimized for LIKE queries)
+  lemmaIdx: index("strong_entries_lemma_idx").on(table.lemma),
+  translitIdx: index("strong_entries_translit_idx").on(table.translit),
+  kjvDefIdx: index("strong_entries_kjv_def_idx").on(table.kjvDef),
+  languageIdx: index("strong_entries_language_idx").on(table.language),
+}));
+
+export const insertStrongEntrySchema = createInsertSchema(strongEntries).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertStrongEntry = z.infer<typeof insertStrongEntrySchema>;
+export type StrongEntry = typeof strongEntries.$inferSelect;
+
+// Bible Words (interlinear data) table
+export const bibleWords = pgTable("bible_words", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  book: text("book").notNull(), // e.g., 'gen', 'jhn'
+  chapter: integer("chapter").notNull(),
+  verse: integer("verse").notNull(),
+  wordPosition: integer("word_position").notNull(), // Order of word in verse
+  originalWord: text("original_word"), // Greek/Hebrew word
+  strongNumber: text("strong_number"), // e.g., "G2316", "H7225"
+  morphology: text("morphology"), // Grammatical parsing
+  gloss: text("gloss"), // English gloss/translation
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertBibleWordSchema = createInsertSchema(bibleWords).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBibleWord = z.infer<typeof insertBibleWordSchema>;
+export type BibleWord = typeof bibleWords.$inferSelect;

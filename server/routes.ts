@@ -3,12 +3,12 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
-import { greekStrongs } from "./strong-data/greek";
-import { hebrewStrongs } from "./strong-data/hebrew";
+import { db } from "./db";
+import { eq, or, like, sql } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
@@ -424,7 +424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Strong's Dictionary routes
+  // Strong's Dictionary routes (Database-driven)
   app.get("/api/strong/:number", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       // Check if user has access to Strong's dictionary
@@ -450,22 +450,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { number } = req.params;
       const upperNumber = number.toUpperCase();
       
-      // Check if it's Greek (G) or Hebrew (H)
-      let entry;
-      if (upperNumber.startsWith('G')) {
-        entry = greekStrongs.find(e => e.number === upperNumber);
-      } else if (upperNumber.startsWith('H')) {
-        entry = hebrewStrongs.find(e => e.number === upperNumber);
-      }
+      // Query database for Strong's entry
+      const [entry] = await db
+        .select()
+        .from(strongEntries)
+        .where(eq(strongEntries.strongNumber, upperNumber))
+        .limit(1);
       
       if (!entry) {
         return res.status(404).json({ 
           error: "Entrada não encontrada",
-          message: "Este número Strong ainda não está disponível no dicionário."
+          message: "Este número Strong ainda não está disponível no dicionário. Temos 60 termos principais no MVP."
         });
       }
       
-      res.json(entry);
+      // Format response to match frontend expectations
+      res.json({
+        number: entry.strongNumber,
+        word: entry.lemma,
+        transliteration: entry.translit || entry.xlit || '',
+        pronunciation: entry.pron || '',
+        definition: entry.kjvDef || entry.strongsDef || '',
+        language: entry.language,
+      });
     } catch (error) {
       console.error("Get Strong entry error:", error);
       res.status(500).json({ error: "Erro ao buscar entrada do dicionário" });
@@ -475,24 +482,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
       const { query } = req.params;
-      const lowerQuery = query.toLowerCase();
+      const searchQuery = `%${query.toLowerCase()}%`;
       
-      // Search in both Greek and Hebrew
-      const greekResults = greekStrongs.filter(e => 
-        e.word.toLowerCase().includes(lowerQuery) ||
-        e.transliteration.toLowerCase().includes(lowerQuery) ||
-        e.definition.toLowerCase().includes(lowerQuery)
-      );
+      // Search in database (lemma, transliteration, or definition)
+      const results = await db
+        .select()
+        .from(strongEntries)
+        .where(
+          or(
+            sql`LOWER(${strongEntries.lemma}) LIKE ${searchQuery}`,
+            sql`LOWER(${strongEntries.translit}) LIKE ${searchQuery}`,
+            sql`LOWER(${strongEntries.kjvDef}) LIKE ${searchQuery}`
+          )
+        )
+        .limit(50);
       
-      const hebrewResults = hebrewStrongs.filter(e => 
-        e.word.toLowerCase().includes(lowerQuery) ||
-        e.transliteration.toLowerCase().includes(lowerQuery) ||
-        e.definition.toLowerCase().includes(lowerQuery)
-      );
+      // Format results to match frontend expectations
+      const formattedResults = results.map(e => ({
+        number: e.strongNumber,
+        word: e.lemma,
+        transliteration: e.translit || e.xlit || '',
+        pronunciation: e.pron || '',
+        definition: e.kjvDef || e.strongsDef || '',
+        language: e.language,
+      }));
       
-      const results = [...greekResults, ...hebrewResults].slice(0, 50); // Limit to 50 results
-      
-      res.json({ results, total: results.length });
+      res.json({ results: formattedResults, total: formattedResults.length });
     } catch (error) {
       console.error("Search Strong error:", error);
       res.status(500).json({ error: "Erro ao buscar no dicionário" });

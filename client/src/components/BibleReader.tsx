@@ -95,7 +95,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     // MVP Demo: Map common words to Strong numbers for demonstration
     // In production, this would come from the verse data with actual Strong references
     const wordToStrong: Record<string, string> = {
-      // Palavras-chave de João 1-3
+      // Novo Testamento - Grego
       'Deus': 'G2316',
       'Jesus': 'G2424',
       'Cristo': 'G5547',
@@ -133,6 +133,42 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       'nascido': 'G1080',
       'carne': 'G4561',
       'sangue': 'G129',
+      'igreja': 'G1577',
+      'corpo': 'G4983',
+      'coração': 'G2588',
+      'reino': 'G932',
+      'céu': 'G3772',
+      'céus': 'G3772',
+      // Antigo Testamento - Hebraico
+      'SENHOR': 'H3068',
+      'Senhor': 'H3068',
+      'Jeová': 'H3068',
+      'Javé': 'H3068',
+      'Elohim': 'H430',
+      'terra': 'H776',
+      'Terra': 'H776',
+      'criar': 'H1254',
+      'criou': 'H1254',
+      'criado': 'H1254',
+      'amar': 'H157',
+      'amou': 'H157',
+      'Adão': 'H120',
+      'mulher': 'H802',
+      'rei': 'H4428',
+      'povo': 'H5971',
+      'cidade': 'H5892',
+      'casa': 'H1004',
+      'dia': 'H3117',
+      'dias': 'H3117',
+      'noite': 'H3915',
+      'águas': 'H4325',
+      'fogo': 'H784',
+      'rosto': 'H6440',
+      'face': 'H6440',
+      'fazer': 'H6213',
+      'fez': 'H6213',
+      'feito': 'H6213',
+      'misericórdia': 'H2617',
     };
     
     const strongNumber = wordToStrong[cleanWord];

@@ -61,12 +61,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const user = await storage.getUserByEmail(email);
       if (!user) {
-        return res.status(401).json({ error: "Credenciais inválidas" });
+        return res.status(401).json({ 
+          error: "Email não cadastrado. Verifique o email ou crie uma nova conta.",
+          errorType: "user_not_found"
+        });
       }
 
       const isPasswordValid = await verifyPassword(password, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ error: "Credenciais inválidas" });
+        return res.status(401).json({ 
+          error: "Senha incorreta. Verifique e tente novamente.",
+          errorType: "invalid_password"
+        });
       }
 
       const token = generateToken(user.id, user.email);

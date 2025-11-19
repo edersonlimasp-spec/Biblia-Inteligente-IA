@@ -90,5 +90,157 @@ export const hebrewStrongs: StrongEntry[] = [
     pronunciation: "aw-hab'",
     definition: "ter afeição por (sexualmente ou de outra forma)",
     kjvUsage: "amar, amigo, amar, afeição, amado, querido, gostar, amizade"
+  },
+  {
+    number: "H120",
+    word: "אָדָם",
+    transliteration: "adam",
+    pronunciation: "aw-dawm'",
+    definition: "homem, humanidade; também o nome próprio do primeiro homem",
+    kjvUsage: "Adão, homem, pessoa, humano"
+  },
+  {
+    number: "H802",
+    word: "אִשָּׁה",
+    transliteration: "ishshah",
+    pronunciation: "ish-shaw'",
+    definition: "mulher, esposa, fêmea",
+    kjvUsage: "mulher, esposa, fêmea"
+  },
+  {
+    number: "H1121",
+    word: "בֵּן",
+    transliteration: "ben",
+    pronunciation: "bane",
+    definition: "um filho (como construtor do nome da família), em sentido mais amplo (de neto, súdito, nação, qualidade ou condição, etc.)",
+    kjvUsage: "filho, filhos, criança, descendente"
+  },
+  {
+    number: "H1323",
+    word: "בַּת",
+    transliteration: "bath",
+    pronunciation: "bath",
+    definition: "uma filha (usada da mesma forma ampla que filho)",
+    kjvUsage: "filha, donzela, jovem"
+  },
+  {
+    number: "H4428",
+    word: "מֶלֶךְ",
+    transliteration: "melek",
+    pronunciation: "meh'-lek",
+    definition: "um rei",
+    kjvUsage: "rei, real"
+  },
+  {
+    number: "H4467",
+    word: "מַמְלָכָה",
+    transliteration: "mamlakah",
+    pronunciation: "mam-law-kaw'",
+    definition: "domínio, isto é, (abstratamente) o patrimônio ou (concretamente) o país",
+    kjvUsage: "reino, reinado, domínio"
+  },
+  {
+    number: "H5971",
+    word: "עַם",
+    transliteration: "am",
+    pronunciation: "am",
+    definition: "um povo (como uma congregação de unidades); especificamente, uma tribo (como aquelas de Israel); daí (coletivamente) tropas ou atendentes; figurativamente, um bando",
+    kjvUsage: "povo, nação, gente, homens"
+  },
+  {
+    number: "H5892",
+    word: "עִיר",
+    transliteration: "iyr",
+    pronunciation: "eer",
+    definition: "ou (no plural) um lugar guardado por vigília; geralmente uma cidade; por implicação, um lugar em geral",
+    kjvUsage: "cidade, lugar, vilarejo"
+  },
+  {
+    number: "H1004",
+    word: "בַּיִת",
+    transliteration: "bayith",
+    pronunciation: "bah'-yith",
+    definition: "uma casa (em sentido mais amplo); especialmente uma família, etc.",
+    kjvUsage: "casa, lar, família, edifício, templo"
+  },
+  {
+    number: "H3117",
+    word: "יוֹם",
+    transliteration: "yowm",
+    pronunciation: "yome",
+    definition: "um dia (como o período quente das horas), literal (do amanhecer ao anoitecer, ou de um pôr do sol ao próximo), ou figurado (um espaço de tempo definido por um termo associado)",
+    kjvUsage: "dia, tempo, época, período"
+  },
+  {
+    number: "H3915",
+    word: "לַיְלָה",
+    transliteration: "layil",
+    pronunciation: "lah'-yil",
+    definition: "propriamente, uma torção (da escuridão); por implicação, noite; figurativamente, adversidade",
+    kjvUsage: "noite, adversidade, escuridão"
+  },
+  {
+    number: "H4325",
+    word: "מַיִם",
+    transliteration: "mayim",
+    pronunciation: "mah'-yim",
+    definition: "água; figurativamente, suco; por eufemismo, urina, sêmen",
+    kjvUsage: "água, águas, rio"
+  },
+  {
+    number: "H784",
+    word: "אֵשׁ",
+    transliteration: "esh",
+    pronunciation: "aysh",
+    definition: "fogo (literalmente ou figurativamente)",
+    kjvUsage: "fogo, chama, ardente"
+  },
+  {
+    number: "H6440",
+    word: "פָּנִים",
+    transliteration: "paniym",
+    pronunciation: "paw-neem'",
+    definition: "o rosto (como a parte que se vira); usado de maneira muito variada (literalmente e figurativamente)",
+    kjvUsage: "rosto, face, presença, frente"
+  },
+  {
+    number: "H8034",
+    word: "שֵׁם",
+    transliteration: "shem",
+    pronunciation: "shame",
+    definition: "um apelação, como uma marca ou memorial de individualidade; por implicação, honra, autoridade, caráter",
+    kjvUsage: "nome, renome, fama"
+  },
+  {
+    number: "H6213",
+    word: "עָשָׂה",
+    transliteration: "asah",
+    pronunciation: "aw-saw'",
+    definition: "fazer ou fazer, de maneira muito ampla e aplicada (da seguinte forma)",
+    kjvUsage: "fazer, produzir, executar, cumprir, trabalhar"
+  },
+  {
+    number: "H1697",
+    word: "דָּבָר",
+    transliteration: "dabar",
+    pronunciation: "daw-baw'",
+    definition: "uma palavra; por implicação, um assunto (como falado de) ou coisa; adverbialmente, uma causa",
+    kjvUsage: "palavra, coisa, assunto, negócio, falar"
+  },
+  {
+    number: "H2617",
+    word: "חֶסֶד",
+    transliteration: "chesed",
+    pronunciation: "kheh'-sed",
+    definition: "bondade; por implicação (para com Deus) piedade; raramente (por oposição) censura ou (subjetivamente) vergonha",
+    kjvUsage: "misericórdia, bondade, benignidade, favor"
+  },
+  {
+    number: "H571",
+    word: "אֱמֶת",
+    transliteration: "emeth",
+    pronunciation: "eh'-meth",
+    definition: "estabilidade; (figurativamente) certeza, verdade, fidedignidade",
+    kjvUsage: "verdade, fiel, certo, correto"
   }
 ];

@@ -114,5 +114,197 @@ export const greekStrongs: StrongEntry[] = [
     pronunciation: "dzo-ay'",
     definition: "vida (literalmente ou figurativamente)",
     kjvUsage: "vida, vitalidade"
+  },
+  {
+    number: "G746",
+    word: "ἀρχή",
+    transliteration: "archē",
+    pronunciation: "ar-khay'",
+    definition: "princípio (literalmente ou figurativamente), origem, governo, poder",
+    kjvUsage: "princípio, início, origem, governo, poder, principado"
+  },
+  {
+    number: "G4100",
+    word: "πιστεύω",
+    transliteration: "pisteuō",
+    pronunciation: "pist-yoo'-o",
+    definition: "ter fé (em, sobre ou com respeito a, uma pessoa ou coisa), isto é, crédito; por implicação, confiar (especialmente espiritualmente, crença religiosa)",
+    kjvUsage: "crer, ter fé, confiar, dar crédito"
+  },
+  {
+    number: "G4102",
+    word: "πίστις",
+    transliteration: "pistis",
+    pronunciation: "pis'-tis",
+    definition: "persuasão, isto é, credibilidade; moralmente, convicção (de verdade religiosa, ou veracidade de Deus ou de um mestre religioso), especialmente confiança no senhorio de Cristo",
+    kjvUsage: "fé, crença, fidelidade, convicção"
+  },
+  {
+    number: "G5207",
+    word: "υἱός",
+    transliteration: "huios",
+    pronunciation: "hwee-os'",
+    definition: "um filho (às vezes de animais), usado muito amplamente de descendência imediata, remota ou figurativamente, causal",
+    kjvUsage: "filho, descendente, herdeiro"
+  },
+  {
+    number: "G3962",
+    word: "πατήρ",
+    transliteration: "patēr",
+    pronunciation: "pat-ayr'",
+    definition: "um pai (literalmente ou figurativamente, próximo ou mais remoto)",
+    kjvUsage: "pai, patriarca, antepassado"
+  },
+  {
+    number: "G3686",
+    word: "ὄνομα",
+    transliteration: "onoma",
+    pronunciation: "on'-om-ah",
+    definition: "um nome (literalmente ou figurativamente), autoridade, caráter",
+    kjvUsage: "nome, título, autoridade, reputação"
+  },
+  {
+    number: "G5485",
+    word: "χάρις",
+    transliteration: "charis",
+    pronunciation: "khar'-ece",
+    definition: "graça, favor, bondade, benefício; especialmente graça divina",
+    kjvUsage: "favor aceitável, benefício, graça, presente, dádiva, prazer, agradecimento"
+  },
+  {
+    number: "G225",
+    word: "ἀλήθεια",
+    transliteration: "alētheia",
+    pronunciation: "al-ay'-thi-a",
+    definition: "verdade como uma virtude; verdade tanto em questão de fato quanto em realidade",
+    kjvUsage: "verdade, verdadeiro, sinceramente, veracidade"
+  },
+  {
+    number: "G3551",
+    word: "νόμος",
+    transliteration: "nomos",
+    pronunciation: "nom'-os",
+    definition: "lei (através da ideia de prescrição), especialmente (de Moisés [incluindo o volume]); também do Evangelho; ou figurativamente, um princípio",
+    kjvUsage: "lei, direito, costume, ordenança"
+  },
+  {
+    number: "G3475",
+    word: "Μωϋσῆς",
+    transliteration: "Mōusēs",
+    pronunciation: "moce-oo'-sace",
+    definition: "Moisés, o legislador israelita",
+    kjvUsage: "Moisés"
+  },
+  {
+    number: "G4396",
+    word: "προφήτης",
+    transliteration: "prophētēs",
+    pronunciation: "prof-ay'-tace",
+    definition: "um pré-falante, isto é, orador inspirado; por extensão, um poeta",
+    kjvUsage: "profeta"
+  },
+  {
+    number: "G1080",
+    word: "γεννάω",
+    transliteration: "gennaō",
+    pronunciation: "ghen-nah'-o",
+    definition: "fazer nascer, gerar; figurativamente regenerar",
+    kjvUsage: "gerar, dar à luz, nascer, conceber, produzir"
+  },
+  {
+    number: "G4561",
+    word: "σάρξ",
+    transliteration: "sarx",
+    pronunciation: "sarx",
+    definition: "carne (como despojada da pele), isto é, (estritamente) as partes carnudas do corpo; por extensão corpo, pessoa; figurativamente, a natureza animal ou carnal",
+    kjvUsage: "carne, corpo, humano, carnal"
+  },
+  {
+    number: "G129",
+    word: "αἷμα",
+    transliteration: "haima",
+    pronunciation: "hah'-ee-mah",
+    definition: "sangue, literalmente (de homens ou animais), figurativamente (o suco de uvas) ou especialmente (o sangue atoning ou expiador de Cristo)",
+    kjvUsage: "sangue"
+  },
+  {
+    number: "G5204",
+    word: "ὕδωρ",
+    transliteration: "hudōr",
+    pronunciation: "hoo'-dore",
+    definition: "água (como se chovendo), literalmente ou figurativamente",
+    kjvUsage: "água"
+  },
+  {
+    number: "G908",
+    word: "βάπτισμα",
+    transliteration: "baptisma",
+    pronunciation: "bap'-tis-mah",
+    definition: "imersão, submersão; batismo (tecnicamente ou figuradamente, de calamidades)",
+    kjvUsage: "batismo"
+  },
+  {
+    number: "G2491",
+    word: "Ἰωάννης",
+    transliteration: "Iōannēs",
+    pronunciation: "ee-o-an'-nace",
+    definition: "João, nome de quatro israelitas",
+    kjvUsage: "João"
+  },
+  {
+    number: "G3141",
+    word: "μαρτυρία",
+    transliteration: "marturia",
+    pronunciation: "mar-too-ree'-ah",
+    definition: "evidência dada (judicialmente ou genericamente)",
+    kjvUsage: "registro, relatório, testemunho, testemunha"
+  },
+  {
+    number: "G4655",
+    word: "σκότος",
+    transliteration: "skotos",
+    pronunciation: "skot'-os",
+    definition: "escuridão, literalmente ou figurativamente",
+    kjvUsage: "trevas, escuridão"
+  },
+  {
+    number: "G1577",
+    word: "ἐκκλησία",
+    transliteration: "ekklēsia",
+    pronunciation: "ek-klay-see'-ah",
+    definition: "uma chamada para fora, isto é, (concretamente) uma assembléia popular; por implicação, um corpo de cristãos (literalmente ou nominalmente)",
+    kjvUsage: "assembleia, igreja"
+  },
+  {
+    number: "G4983",
+    word: "σῶμα",
+    transliteration: "sōma",
+    pronunciation: "so'-mah",
+    definition: "o corpo (como um todo sólido), usado de maneira muito ampla, literal ou figuradamente",
+    kjvUsage: "corpo, escravo"
+  },
+  {
+    number: "G2588",
+    word: "καρδία",
+    transliteration: "kardia",
+    pronunciation: "kar-dee'-ah",
+    definition: "o coração, isto é, (figurativamente) os pensamentos ou sentimentos (mente); também (por analogia) o meio",
+    kjvUsage: "coração, mente"
+  },
+  {
+    number: "G932",
+    word: "βασιλεία",
+    transliteration: "basileia",
+    pronunciation: "bas-il-i'-ah",
+    definition: "realeza propriamente, isto é, (abstratamente) governo, (concretamente) um reino",
+    kjvUsage: "reino, reinado"
+  },
+  {
+    number: "G3772",
+    word: "οὐρανός",
+    transliteration: "ouranos",
+    pronunciation: "oo-ran-os'",
+    definition: "o céu (como estendido); por extensão, o céu, ou (figurativamente) felicidade, poder, eternidade",
+    kjvUsage: "ar, céu, céus"
   }
 ];

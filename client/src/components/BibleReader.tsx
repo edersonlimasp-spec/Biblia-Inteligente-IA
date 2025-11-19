@@ -59,6 +59,128 @@ interface StrongSearchResponse {
   total: number;
 }
 
+// Portuguese word to Strong's number mapping for the 60 MVP terms in database
+const portugueseToStrong: Record<string, string> = {
+  // Deus / God
+  "deus": "G2316",
+  "deuses": "G2316",
+  "divino": "G2316",
+  "divina": "G2316",
+  "senhor": "G2962",
+  "todo-poderoso": "H7706",
+  "altíssimo": "H5945",
+  
+  // Jesus / Christ
+  "jesus": "G2424",
+  "cristo": "G5547",
+  "messias": "G5547",
+  
+  // Espírito / Spirit
+  "espírito": "G4151",
+  "espiritual": "G4151",
+  
+  // Amor / Love
+  "amor": "G26",
+  "amar": "G25",
+  "amado": "G27",
+  "amados": "G27",
+  
+  // Fé / Faith
+  "fé": "G4102",
+  "crer": "G4100",
+  "crê": "G4100",
+  "crente": "G4100",
+  "acreditar": "G4100",
+  
+  // Graça / Grace
+  "graça": "G5485",
+  "graças": "G5485",
+  "favor": "G5485",
+  
+  // Salvação / Salvation
+  "salvação": "G4991",
+  "salvar": "G4982",
+  "salvador": "G4990",
+  
+  // Paz / Peace
+  "paz": "G1515",
+  "pacífico": "G1515",
+  
+  // Justiça / Righteousness
+  "justiça": "G1343",
+  "justo": "G1342",
+  "justificação": "G1347",
+  
+  // Palavra / Word
+  "palavra": "G3056",
+  "verbo": "G3056",
+  
+  // Santo / Holy
+  "santo": "G40",
+  "santa": "G40",
+  "santos": "G40",
+  "santas": "G40",
+  
+  // Vida / Life
+  "vida": "G2222",
+  "viver": "G2198",
+  "vivo": "G2198",
+  
+  // Luz / Light
+  "luz": "G5457",
+  "iluminar": "G5461",
+  
+  // Verdade / Truth
+  "verdade": "G225",
+  "verdadeiro": "G228",
+  
+  // Esperança / Hope
+  "esperança": "G1680",
+  "esperar": "G1679",
+  
+  // Oração / Prayer
+  "oração": "G4335",
+  "orar": "G4336",
+  "prece": "G4335",
+  
+  // Aleluia / Hallelujah
+  "aleluia": "G239",
+  "aleluias": "G239",
+  
+  // Misericórdia / Mercy
+  "misericórdia": "G1656",
+  "misericordioso": "G1655",
+  
+  // Rei / King
+  "rei": "G935",
+  "reino": "G932",
+  
+  // Terra / Earth (Hebrew)
+  "terra": "H776",
+  "terras": "H776",
+  
+  // Céus / Heaven (Hebrew)
+  "céus": "H8064",
+  "céu": "H8064",
+  "celestial": "H8064",
+  
+  // Homem / Man (Hebrew)
+  "homem": "H120",
+  "humano": "H120",
+  
+  // Anjo / Angel
+  "anjo": "H4397",
+  "anjos": "H4397",
+  
+  // Servo / Servant
+  "servo": "H5650",
+  "servir": "H5647",
+  
+  // Casa / House
+  "casa": "H1004",
+  "casas": "H1004",
+};
+
 export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory }: BibleReaderProps) {
   const { trialActive, trialDaysRemaining } = useAuth();
   const [selectedBook, setSelectedBook] = useState("jhn");
@@ -130,7 +252,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
 
   const handleWordClick = (word: string, verseNum: number) => {
     // Remove pontuação da palavra antes de buscar
-    const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
+    const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
     
     // Filter: Ignore very short words (< 4 chars) to avoid stopword noise
     if (cleanWord.length < 4) {
@@ -140,7 +262,16 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     
     console.log("Word clicked:", cleanWord, "in verse", verseNum);
     
-    // Search in database via API
+    // Check if word has a direct mapping to Strong's number
+    const strongNumber = portugueseToStrong[cleanWord];
+    if (strongNumber) {
+      console.log("Found direct mapping:", cleanWord, "→", strongNumber);
+      setSelectedStrongNumber(strongNumber);
+      return;
+    }
+    
+    // If no direct mapping, search in database via API
+    console.log("No direct mapping, searching in database:", cleanWord);
     setSearchingWord(cleanWord);
   };
 

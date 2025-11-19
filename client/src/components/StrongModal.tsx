@@ -18,6 +18,7 @@ interface StrongEntry {
   transliteration: string;
   pronunciation: string;
   definition: string;
+  portugueseDefinition?: string | null; // NEW: Portuguese translation
   kjvUsage: string;
 }
 
@@ -108,9 +109,18 @@ export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
               <div className="bg-card border rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <BookOpen className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-semibold text-primary">Definição</p>
+                  <p className="text-sm font-semibold text-primary">
+                    {strongData.portugueseDefinition ? "Definição em Português" : "Definição"}
+                  </p>
                 </div>
-                <p className="leading-relaxed">{strongData.definition}</p>
+                <p className="leading-relaxed">
+                  {strongData.portugueseDefinition || strongData.definition}
+                </p>
+                {strongData.portugueseDefinition && strongData.definition && (
+                  <p className="text-sm text-muted-foreground mt-3 pt-3 border-t">
+                    <span className="font-medium">Inglês:</span> {strongData.definition}
+                  </p>
+                )}
               </div>
 
               <div className="bg-card border rounded-lg p-4">

@@ -471,6 +471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transliteration: entry.translit || entry.xlit || '',
         pronunciation: entry.pron || '',
         definition: entry.kjvDef || entry.strongsDef || '',
+        portugueseDefinition: entry.portugueseDef || null, // NEW: Portuguese translation
         language: entry.language,
       });
     } catch (error) {
@@ -500,6 +501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Format results to match frontend expectations
       const formattedResults = results.map(e => ({
         number: e.strongNumber,
+        portugueseDefinition: e.portugueseDef || null, // NEW: Portuguese translation
         word: e.lemma,
         transliteration: e.translit || e.xlit || '',
         pronunciation: e.pron || '',

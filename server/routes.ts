@@ -168,17 +168,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const mode = req.params.mode; // 'essential' or 'premium'
       
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Check trial (gives access to essential mode during 30 days)
+      const trialActive = isTrialActive(user.trialStartDate);
+      
       const hasEssential = await storage.hasActiveSubscription(req.userId!, 'ai_essential');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'ai_premium');
 
       let hasAccess = false;
       if (mode === 'essential') {
-        hasAccess = hasEssential || hasPremium;
+        // Trial grants access to essential mode
+        hasAccess = trialActive || hasEssential || hasPremium;
       } else if (mode === 'premium') {
+        // Only premium subscription grants premium access
         hasAccess = hasPremium;
       }
 
-      res.json({ hasAccess });
+      res.json({ 
+        hasAccess,
+        reason: trialActive ? 'trial' : hasPremium ? 'premium' : hasEssential ? 'essential' : 'none'
+      });
     } catch (error) {
       console.error("Check AI access error:", error);
       res.status(500).json({ error: "Erro ao verificar acesso" });
@@ -194,16 +207,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Pergunta é obrigatória" });
       }
 
+      // Get user and check trial status
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      const trialActive = isTrialActive(user.trialStartDate);
+      
       // Check access
       const hasEssential = await storage.hasActiveSubscription(req.userId!, 'ai_essential');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'ai_premium');
 
       if (mode === 'premium' && !hasPremium) {
-        return res.status(403).json({ error: "Acesso premium necessário" });
+        return res.status(403).json({ 
+          error: "Acesso Premium necessário. Assine o plano IA Premium (R$ 49,90/mês) para acessar análises avançadas.",
+          requiresSubscription: true,
+          subscriptionType: 'ai_premium'
+        });
       }
 
-      if (mode === 'essential' && !hasEssential && !hasPremium) {
-        return res.status(403).json({ error: "Assinatura de IA necessária" });
+      // Trial grants access to essential mode
+      if (mode === 'essential' && !trialActive && !hasEssential && !hasPremium) {
+        return res.status(403).json({ 
+          error: "Seu trial de 30 dias expirou. Assine um plano IA (Essencial R$ 19,90/mês ou Premium R$ 49,90/mês) para continuar usando o Professor Teológico.",
+          requiresSubscription: true,
+          subscriptionType: 'ai_essential'
+        });
       }
 
       // Get AI response

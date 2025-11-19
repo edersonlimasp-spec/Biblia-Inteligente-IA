@@ -45,7 +45,7 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
-        description: error.message || "Tente novamente mais tarde",
+        description: error.data?.error || error.message || "Tente novamente mais tarde",
         variant: "destructive",
       });
     } finally {

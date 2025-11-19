@@ -33,7 +33,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister }: LoginScreenProps)
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
-        description: error.message || "Verifique suas credenciais",
+        description: error.data?.error || error.message || "Verifique suas credenciais",
         variant: "destructive",
       });
     } finally {

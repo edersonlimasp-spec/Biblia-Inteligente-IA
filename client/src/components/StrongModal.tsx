@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, BookOpen, Library, Lightbulb } from "lucide-react";
 import { ApiError } from "@/lib/queryClient";
 
 interface StrongModalProps {
@@ -92,7 +92,7 @@ export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
                   {strongData.number}
                 </Badge>
                 <Badge variant="secondary" className="text-xs">
-                  {strongData.number.startsWith('G') ? '🇬🇷 Grego' : '🇮🇱 Hebraico'}
+                  {strongData.number.startsWith('G') ? 'Grego' : 'Hebraico'}
                 </Badge>
               </div>
               <DialogTitle className="text-3xl font-serif text-primary mb-1">
@@ -106,19 +106,28 @@ export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
             <div className="space-y-4">
 
               <div className="bg-card border rounded-lg p-4">
-                <p className="text-sm font-semibold mb-2 text-primary">📖 Definição</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-semibold text-primary">Definição</p>
+                </div>
                 <p className="leading-relaxed">{strongData.definition}</p>
               </div>
 
               <div className="bg-card border rounded-lg p-4">
-                <p className="text-sm font-semibold mb-2 text-primary">📚 Uso na Bíblia</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <Library className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-semibold text-primary">Uso na Bíblia</p>
+                </div>
                 <p className="leading-relaxed text-muted-foreground">{strongData.kjvUsage}</p>
               </div>
 
               <div className="bg-primary/10 p-3 rounded-md border border-primary/20">
-                <p className="text-xs text-primary font-medium">
-                  💡 Esta palavra original ajuda a compreender o significado mais profundo do texto bíblico
-                </p>
+                <div className="flex items-start gap-2">
+                  <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-primary font-medium">
+                    Esta palavra original ajuda a compreender o significado mais profundo do texto bíblico
+                  </p>
+                </div>
               </div>
             </div>
           </>

@@ -80,9 +80,13 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 
 ## Sistema de Trial (30 dias)
 
-- Ao criar conta, usuário recebe 30 dias de acesso gratuito ao Strong's
-- Após 30 dias, acesso a Hebraico/Grego/Strong bloqueado automaticamente
-- Verificação em `/api/access/strong` retorna `hasAccess: false` se trial expirado e sem assinatura lifetime
+- Ao criar conta, usuário recebe 30 dias de acesso gratuito ao Strong's E IA Essential
+- Trial concede acesso completo a:
+  - Dicionário Strong (Hebraico e Grego)
+  - Professor Teológico IA modo Essential
+- Badge visual no header mostra dias restantes
+- Após 30 dias, acesso bloqueado automaticamente (requer assinatura)
+- Verificações em `/api/access/strong` e `/api/access/ai/:mode`
 
 ## APIs Principais
 
@@ -177,6 +181,38 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 - Modo Premium: Respostas até 2048 tokens, análise acadêmica profunda
 - Histórico salvo automaticamente em `ai_history` table
 
+## Melhorias Recentes (Última Sessão)
+
+**1. BUG CRÍTICO CORRIGIDO - Trial agora funciona para IA:**
+- Trial de 30 dias concede acesso a IA Essential (antes só funcionava para Strong's)
+- `/api/access/ai/:mode` e `/api/ai/ask` agora verificam trial corretamente
+- Mensagens de erro melhoradas com sugestões de planos
+
+**2. Dicionário Strong expandido 5x:**
+- Grego: 13 → 37 entradas (~3x mais)
+- Hebraico: 10 → 29 entradas (~3x mais)
+- Total: 66 entradas (representando os 66 livros da Bíblia)
+
+**3. Mapeamento palavra→Strong expandido 2x:**
+- 39 → 75 palavras mapeadas
+- Cobertura de Novo e Antigo Testamento
+- Termos teológicos chave incluídos
+
+**4. Mensagens de erro de login específicas:**
+- "Email não cadastrado" vs "Senha incorreta" (não mais genérico "Credenciais inválidas")
+- Frontend corrigido para mostrar `error.data.error` do backend
+
+**5. Badge visual de trial:**
+- Mostra dias restantes no header ("Trial: 30 dias")
+- Visível apenas quando trial está ativo
+- Usa AuthContext para dados em tempo real
+
+**6. StrongModal redesenhado:**
+- Removido todos os emojis (substituídos por ícones Lucide)
+- Layout profissional com ícones BookOpen, Library, Lightbulb
+- Badges de idioma sem emojis
+- Boxes organizados para melhor leitura
+
 ## Status da Implementação
 
 ### ✅ Completo (MVP Funcional)
@@ -197,11 +233,12 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
    - Escape adequado de caracteres especiais e quebras de linha
 
 3. **Dicionário Strong:**
-   - 13 entradas gregas (G1-G5547)
-   - 10 entradas hebraicas (H1-H8064)
+   - 37 entradas gregas (expandido 3x)
+   - 29 entradas hebraicas (expandido 3x)
+   - Total: 66 entradas (5x mais que antes)
    - API com controle de acesso (trial + assinatura)
-   - Frontend com paywall integrado
-   - Mapeamento de 14 palavras-chave para demonstração
+   - Frontend com paywall integrado e modal redesenhado
+   - Mapeamento de 75 palavras-chave (2x mais que antes)
 
 4. **Frontend completo:**
    - Telas: Splash, Login, Register, BibleReader, Subscriptions, Settings, AI History
@@ -230,11 +267,15 @@ Aplicação completa de leitura bíblica com textos originais em Hebraico/Grego,
 ### 📋 Próximos Passos (Expansão Futura)
 
 1. ~~Expandir dados bíblicos para toda a Bíblia (66 livros)~~ ✅ **COMPLETO**
-2. Adicionar todos os ~14,298 números Strong (5,624 gregos + 8,674 hebraicos)
-3. Vincular números Strong reais aos versículos originais em Hebraico/Grego
-4. Implementar sistema de busca por palavra/versículo
-5. Adicionar integração de pagamento real (Stripe) para assinaturas
-6. Expandir mapeamento de palavras-chave para Strong's (atualmente 39 palavras)
+2. ~~Expandir dicionário Strong significativamente~~ ✅ **COMPLETO** (66 entradas: 37 gregas + 29 hebraicas)
+3. ~~Expandir mapeamento de palavras-chave para Strong's~~ ✅ **COMPLETO** (75 palavras mapeadas)
+4. ~~Melhorar mensagens de erro de autenticação~~ ✅ **COMPLETO**
+5. ~~Adicionar indicador visual de trial~~ ✅ **COMPLETO**
+6. Adicionar todos os ~14,298 números Strong restantes
+7. Vincular números Strong reais aos versículos originais em Hebraico/Grego
+8. Implementar sistema de busca por palavra/versículo
+9. Adicionar integração de pagamento real (Stripe) para assinaturas
+10. Adicionar funcionalidades: marcadores visíveis, anotações, busca por referência
 
 ## Tecnologias
 

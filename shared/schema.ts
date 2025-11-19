@@ -112,7 +112,8 @@ export const strongEntries = pgTable("strong_entries", {
   translit: text("translit"), // Transliteration (romanized)
   xlit: text("xlit"), // Alternative transliteration (Hebrew only)
   pron: text("pron"), // Pronunciation
-  kjvDef: text("kjv_def"), // KJV definition
+  kjvDef: text("kjv_def"), // KJV definition (English)
+  portugueseDef: text("portuguese_def"), // Portuguese translation of definition
   strongsDef: text("strongs_def"), // Full Strong's definition
   derivation: text("derivation"), // Etymology/word derivation
   createdAt: timestamp("created_at").notNull().defaultNow(),

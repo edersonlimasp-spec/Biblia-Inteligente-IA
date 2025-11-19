@@ -99,37 +99,46 @@ export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
               <DialogTitle className="text-3xl font-serif text-primary mb-1">
                 {strongData.word}
               </DialogTitle>
-              <DialogDescription className="text-base">
-                {strongData.transliteration} <span className="italic text-muted-foreground">({strongData.pronunciation})</span>
-              </DialogDescription>
+              {(strongData.transliteration || strongData.pronunciation) && (
+                <DialogDescription className="text-base">
+                  {strongData.transliteration}
+                  {strongData.pronunciation && (
+                    <span className="italic text-muted-foreground"> ({strongData.pronunciation})</span>
+                  )}
+                </DialogDescription>
+              )}
             </DialogHeader>
 
             <div className="space-y-4">
 
-              <div className="bg-card border rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <BookOpen className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-semibold text-primary">
-                    {strongData.portugueseDefinition ? "Definição em Português" : "Definição"}
+              {(strongData.portugueseDefinition || strongData.definition) && (
+                <div className="bg-card border rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-semibold text-primary">
+                      {strongData.portugueseDefinition ? "Definição em Português" : "Definição"}
+                    </p>
+                  </div>
+                  <p className="leading-relaxed">
+                    {strongData.portugueseDefinition || strongData.definition}
                   </p>
+                  {strongData.portugueseDefinition && strongData.definition && (
+                    <p className="text-sm text-muted-foreground mt-3 pt-3 border-t">
+                      <span className="font-medium">Inglês:</span> {strongData.definition}
+                    </p>
+                  )}
                 </div>
-                <p className="leading-relaxed">
-                  {strongData.portugueseDefinition || strongData.definition}
-                </p>
-                {strongData.portugueseDefinition && strongData.definition && (
-                  <p className="text-sm text-muted-foreground mt-3 pt-3 border-t">
-                    <span className="font-medium">Inglês:</span> {strongData.definition}
-                  </p>
-                )}
-              </div>
+              )}
 
-              <div className="bg-card border rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Library className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-semibold text-primary">Uso na Bíblia</p>
+              {strongData.kjvUsage && (
+                <div className="bg-card border rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Library className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-semibold text-primary">Uso na Bíblia</p>
+                  </div>
+                  <p className="leading-relaxed text-muted-foreground">{strongData.kjvUsage}</p>
                 </div>
-                <p className="leading-relaxed text-muted-foreground">{strongData.kjvUsage}</p>
-              </div>
+              )}
 
               <div className="bg-primary/10 p-3 rounded-md border border-primary/20">
                 <div className="flex items-start gap-2">

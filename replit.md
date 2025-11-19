@@ -29,7 +29,7 @@ The application is a fullstack PWA with a React frontend and an Express backend,
 - **State Management:** TanStack Query v5 for server state management in the frontend.
 - **Routing:** Local state-based navigation in the frontend.
 - **Bible Data:** Full ACF (Almeida Corrigida Fiel) Bible (31,106 verses, 66 books) is integrated, with an automated import script.
-- **Strong's Dictionary:** Database-driven architecture storing ~60 key theological terms (30 Greek, 30 Hebrew) in PostgreSQL with optimized indices. The frontend dynamically fetches Strong's entries via API, mapping Portuguese words to Strong's numbers. It intelligently filters searches to ignore short stopwords. The architecture is designed for scalability to ~14k full Strong's entries.
+- **Strong's Dictionary:** Complete database of 14,197 entries (5,523 Greek + 8,674 Hebrew) imported from OpenScriptures XML/JS sources into PostgreSQL with optimized indices. The frontend dynamically fetches Strong's entries via API, mapping 200+ Portuguese words to Strong's numbers via `portugueseToStrong` dictionary. Currently, 26 entries have Portuguese translations in `portugueseDef` field, while remaining 14,171 entries display English definitions as fallback. The system intelligently filters short words (< 3 chars) to reduce noise. Future enhancement: systematic translation of all English definitions to Portuguese.
 - **AI Theological Professor:** Integrates OpenAI GPT-5 (via Replit AI Integrations) offering two modes: "Essential" for basic explanations (up to 1024 tokens) and "Premium" for deep exegesis and comparative theology (up to 2048 tokens). AI conversations are saved to a history.
 - **User Features:**
     - **Subscriptions:** Manages different subscription plans (`Strong Vitalício`, `IA Essencial`, `IA Premium`).
@@ -45,7 +45,7 @@ The application is a fullstack PWA with a React frontend and an Express backend,
     - `Bookmarks`: `id`, `userId`, `book`, `chapter`, `verse`, `color`.
     - `Annotations`: `id`, `userId`, `book`, `chapter`, `verse`, `note`, `updatedAt`.
     - `AIHistory`: `id`, `userId`, `book`, `chapter`, `verse`, `question`, `response`, `aiMode`.
-    - `strong_entries`: `strongNumber`, `language`, `lemma`, `translit`, `xlit`, `pron`, `kjvDef`, `strongsDef`, `derivation` with optimized indices.
+    - `strong_entries`: `strongNumber`, `language`, `lemma`, `translit`, `xlit`, `pron`, `kjvDef`, `strongsDef`, `portugueseDef` (nullable), `derivation` with optimized indices. Contains 14,197 entries total.
     - `bible_words`: (prepared for future interlinear data).
 - **APIs:** Comprehensive RESTful API endpoints for authentication, subscriptions, permissions, AI interactions, bookmarks, annotations, bible content, and Strong's dictionary lookups.
 

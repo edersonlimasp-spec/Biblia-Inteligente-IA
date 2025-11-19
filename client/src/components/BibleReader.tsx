@@ -10,9 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { StrongModal } from "@/components/StrongModal";
+import { useAuth } from "@/contexts/AuthContext";
 import logoSmall from "@assets/logo/logo-small.png";
 
 interface BibleBook {
@@ -44,6 +46,7 @@ interface BibleReaderProps {
 }
 
 export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory }: BibleReaderProps) {
+  const { trialActive, trialDaysRemaining } = useAuth();
   const [selectedBook, setSelectedBook] = useState("jhn");
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
@@ -243,7 +246,16 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
               </Button>
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
+            {trialActive && (
+              <Badge 
+                variant="secondary" 
+                className="hidden sm:flex text-xs"
+                data-testid="badge-trial"
+              >
+                Trial: {trialDaysRemaining} {trialDaysRemaining === 1 ? 'dia' : 'dias'}
+              </Badge>
+            )}
             <Button variant="ghost" size="icon" data-testid="button-search">
               <Search className="h-5 w-5" />
             </Button>

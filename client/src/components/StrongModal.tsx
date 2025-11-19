@@ -87,46 +87,37 @@ export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
         {!error && strongData && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-serif text-primary">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline" className="font-mono text-xs">
+                  {strongData.number}
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {strongData.number.startsWith('G') ? '🇬🇷 Grego' : '🇮🇱 Hebraico'}
+                </Badge>
+              </div>
+              <DialogTitle className="text-3xl font-serif text-primary mb-1">
                 {strongData.word}
               </DialogTitle>
+              <DialogDescription className="text-base">
+                {strongData.transliteration} <span className="italic text-muted-foreground">({strongData.pronunciation})</span>
+              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Transliteração</p>
-                <p className="font-medium">{strongData.transliteration}</p>
-              </div>
 
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Pronúncia</p>
-                <p className="font-medium italic">{strongData.pronunciation}</p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="font-mono">
-                  {strongData.number}
-                </Badge>
-                <Badge variant="secondary">
-                  {strongData.number.startsWith('G') ? 'Grego' : 'Hebraico'}
-                </Badge>
-              </div>
-
-              <Separator />
-
-              <div>
-                <p className="text-sm font-semibold mb-2 text-primary">Definição</p>
+              <div className="bg-card border rounded-lg p-4">
+                <p className="text-sm font-semibold mb-2 text-primary">📖 Definição</p>
                 <p className="leading-relaxed">{strongData.definition}</p>
               </div>
 
-              <div>
-                <p className="text-sm font-semibold mb-2 text-primary">Uso na KJV</p>
+              <div className="bg-card border rounded-lg p-4">
+                <p className="text-sm font-semibold mb-2 text-primary">📚 Uso na Bíblia</p>
                 <p className="leading-relaxed text-muted-foreground">{strongData.kjvUsage}</p>
               </div>
 
-              <div className="bg-muted/50 p-3 rounded-md">
-                <p className="text-xs text-muted-foreground">
-                  💡 Dica: Use o dicionário Strong para entender melhor as palavras originais da Bíblia em {strongData.number.startsWith('G') ? 'Grego' : 'Hebraico'}.
+              <div className="bg-primary/10 p-3 rounded-md border border-primary/20">
+                <p className="text-xs text-primary font-medium">
+                  💡 Esta palavra original ajuda a compreender o significado mais profundo do texto bíblico
                 </p>
               </div>
             </div>

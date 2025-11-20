@@ -26,11 +26,11 @@ export type User = typeof users.$inferSelect;
 export const subscriptions = pgTable("subscriptions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  planType: text("plan_type").notNull(), // 'strong_lifetime', 'ai_essential', 'ai_premium'
+  planType: text("plan_type").notNull(), // 'strong_lifetime', 'gold', 'premium'
   status: text("status").notNull().default('active'), // 'active', 'cancelled', 'expired'
   startDate: timestamp("start_date").notNull().defaultNow(),
   endDate: timestamp("end_date"), // null for lifetime
-  amount: text("amount").notNull(), // Store as text: "189.90", "19.90", "49.90"
+  amount: text("amount").notNull(), // Store as text: "189.90" (Strong Vitalício), "19.90" (Gold), "29.90" (Premium)
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -154,3 +154,23 @@ export const insertBibleWordSchema = createInsertSchema(bibleWords).omit({
 
 export type InsertBibleWord = z.infer<typeof insertBibleWordSchema>;
 export type BibleWord = typeof bibleWords.$inferSelect;
+
+// AI Usage Limits table (for rate limiting)
+export const aiUsageLimits = pgTable("ai_usage_limits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  date: timestamp("date").notNull().defaultNow(), // Date of usage (daily reset)
+  questionCount: integer("question_count").notNull().default(0), // Number of questions asked today
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  // Index for efficient lookups by user and date
+  userDateIdx: index("ai_usage_limits_user_date_idx").on(table.userId, table.date),
+}));
+
+export const insertAIUsageLimitSchema = createInsertSchema(aiUsageLimits).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAIUsageLimit = z.infer<typeof insertAIUsageLimitSchema>;
+export type AIUsageLimit = typeof aiUsageLimits.$inferSelect;

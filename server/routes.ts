@@ -182,13 +182,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check trial (gives access to essential mode during 30 days)
       const trialActive = isTrialActive(user.trialStartDate);
       
-      const hasEssential = await storage.hasActiveSubscription(req.userId!, 'ai_essential');
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'ai_premium');
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
       let hasAccess = false;
       if (mode === 'essential') {
         // Trial grants access to essential mode
-        hasAccess = trialActive || hasEssential || hasPremium;
+        hasAccess = trialActive || hasGold || hasPremium;
       } else if (mode === 'premium') {
         // Only premium subscription grants premium access
         hasAccess = hasPremium;
@@ -196,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         hasAccess,
-        reason: trialActive ? 'trial' : hasPremium ? 'premium' : hasEssential ? 'essential' : 'none'
+        reason: trialActive ? 'trial' : hasPremium ? 'premium' : hasGold ? 'gold' : 'none'
       });
     } catch (error) {
       console.error("Check AI access error:", error);
@@ -221,24 +221,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const trialActive = isTrialActive(user.trialStartDate);
       
-      // Check access
-      const hasEssential = await storage.hasActiveSubscription(req.userId!, 'ai_essential');
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'ai_premium');
+      // Check access (renamed: ai_essential → gold, ai_premium → premium)
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
       if (mode === 'premium' && !hasPremium) {
         return res.status(403).json({ 
-          error: "Acesso Premium necessário. Assine o plano IA Premium (R$ 49,90/mês) para acessar análises avançadas.",
+          error: "Acesso Premium necessário. Assine o plano Premium (R$ 29,90/mês) para acessar análises avançadas.",
           requiresSubscription: true,
-          subscriptionType: 'ai_premium'
+          subscriptionType: 'premium'
         });
       }
 
       // Trial grants access to essential mode
-      if (mode === 'essential' && !trialActive && !hasEssential && !hasPremium) {
+      if (mode === 'essential' && !trialActive && !hasGold && !hasPremium) {
         return res.status(403).json({ 
-          error: "Seu trial de 30 dias expirou. Assine um plano IA (Essencial R$ 19,90/mês ou Premium R$ 49,90/mês) para continuar usando o Professor.",
+          error: "Seu trial de 30 dias expirou. Assine um plano (Gold R$ 19,90/mês ou Premium R$ 29,90/mês) para continuar usando o Professor.",
           requiresSubscription: true,
-          subscriptionType: 'ai_essential'
+          subscriptionType: 'gold'
+        });
+      }
+
+      // RATE LIMITING: Check daily usage limits
+      const todayCount = await storage.getTodayUsageCount(req.userId!);
+      const limit = hasPremium ? 100 : hasGold ? 30 : trialActive ? 30 : 0;
+
+      if (todayCount >= limit) {
+        return res.status(429).json({ 
+          error: `Você atingiu o limite diário de ${limit} perguntas. ${
+            hasGold ? 'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.' : 
+            hasPremium ? 'Aguarde até amanhã para continuar.' :
+            'Assine um plano para continuar usando o Professor.'
+          }`,
+          requiresSubscription: !hasGold && !hasPremium,
+          dailyLimit: limit,
+          usedToday: todayCount
         });
       }
 
@@ -251,6 +268,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mode: mode as 'essential' | 'premium',
       });
 
+      // Increment usage count
+      await storage.incrementUsageCount(req.userId!);
+
       // Save to history
       await storage.createAIHistory({
         userId: req.userId!,
@@ -262,7 +282,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         aiMode: mode,
       });
 
-      res.json({ response });
+      res.json({ 
+        response,
+        usageInfo: {
+          usedToday: todayCount + 1,
+          dailyLimit: limit,
+          remaining: limit - (todayCount + 1)
+        }
+      });
     } catch (error: any) {
       console.error("AI ask error:", error);
       res.status(500).json({ error: error.message || "Erro ao processar pergunta" });

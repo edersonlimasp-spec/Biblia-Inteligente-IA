@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits } from '@shared/schema';
 import type {
   User,
   InsertUser,
@@ -11,8 +11,10 @@ import type {
   InsertAnnotation,
   AIHistory,
   InsertAIHistory,
+  AIUsageLimit,
+  InsertAIUsageLimit,
 } from '@shared/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, gte, sql } from 'drizzle-orm';
 
 export interface IStorage {
   // Users
@@ -40,6 +42,10 @@ export interface IStorage {
   // AI History
   getUserAIHistory(userId: string): Promise<AIHistory[]>;
   createAIHistory(history: InsertAIHistory): Promise<AIHistory>;
+
+  // AI Usage Limits (Rate Limiting)
+  getTodayUsageCount(userId: string): Promise<number>;
+  incrementUsageCount(userId: string): Promise<void>;
 }
 
 class PostgresStorage implements IStorage {
@@ -142,6 +148,55 @@ class PostgresStorage implements IStorage {
   async createAIHistory(history: InsertAIHistory): Promise<AIHistory> {
     const result = await db.insert(aiHistory).values(history).returning();
     return result[0];
+  }
+
+  // AI Usage Limits (Rate Limiting)
+  async getTodayUsageCount(userId: string): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
+    const result = await db
+      .select()
+      .from(aiUsageLimits)
+      .where(
+        and(
+          eq(aiUsageLimits.userId, userId),
+          gte(aiUsageLimits.date, today)
+        )
+      );
+
+    return result.reduce((sum, record) => sum + record.questionCount, 0);
+  }
+
+  async incrementUsageCount(userId: string): Promise<void> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
+    // Try to find today's record
+    const existing = await db
+      .select()
+      .from(aiUsageLimits)
+      .where(
+        and(
+          eq(aiUsageLimits.userId, userId),
+          gte(aiUsageLimits.date, today)
+        )
+      );
+
+    if (existing.length > 0) {
+      // Increment existing record
+      await db
+        .update(aiUsageLimits)
+        .set({ questionCount: sql`${aiUsageLimits.questionCount} + 1` })
+        .where(eq(aiUsageLimits.id, existing[0].id));
+    } else {
+      // Create new record for today
+      await db.insert(aiUsageLimits).values({
+        userId,
+        date: today,
+        questionCount: 1,
+      });
+    }
   }
 }
 

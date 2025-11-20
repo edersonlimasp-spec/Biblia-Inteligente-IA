@@ -30,82 +30,39 @@ export async function askProfessor(params: ProfessorQuestionParams): Promise<str
   const userMessage = `${question}${contextInfo}`;
 
   try {
-    // If ASSISTANT_ID is configured, use Assistants API
-    if (ASSISTANT_ID) {
-      return await askViaAssistant(userMessage, mode);
-    } else {
-      // Fallback to direct chat completions (legacy behavior)
-      console.warn('OPENAI_ASSISTANT_ID not configured, using fallback chat completions');
-      return await askViaChat(userMessage, mode);
-    }
+    // Use Chat Completions API (Replit AI Integrations doesn't support Assistants API beta endpoints)
+    return await askViaChat(userMessage, mode);
   } catch (error: any) {
     console.error('OpenAI API error:', error);
     throw new Error('Erro ao processar sua pergunta. Tente novamente.');
   }
 }
 
-// New: Use OpenAI Assistants API (Responses API)
-async function askViaAssistant(userMessage: string, mode: 'essential' | 'premium'): Promise<string> {
-  try {
-    // Create a thread for this conversation
-    const thread = await openai.beta.threads.create();
-
-    // Add the user's message to the thread
-    await openai.beta.threads.messages.create(thread.id, {
-      role: "user",
-      content: userMessage,
-    });
-
-    // Create a run with the configured Assistant
-    const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
-      assistant_id: ASSISTANT_ID!,
-      // Add mode-specific instructions as additional instructions
-      additional_instructions: mode === 'premium'
-        ? 'Forneça uma análise exegética profunda e detalhada, incluindo comparações teológicas, contexto histórico-cultural completo, e insights acadêmicos. Use linguagem formal apropriada para pregadores e professores de teologia.'
-        : 'Forneça uma explicação básica e clara, usando linguagem acessível para estudantes iniciantes de Bíblia.',
-      max_completion_tokens: mode === 'premium' ? 2048 : 1024,
-    });
-
-    if (run.status === 'completed') {
-      // Retrieve the assistant's response
-      const messages = await openai.beta.threads.messages.list(thread.id);
-      const assistantMessage = messages.data.find(msg => msg.role === 'assistant');
-
-      if (assistantMessage && assistantMessage.content[0]) {
-        const content = assistantMessage.content[0];
-        if (content.type === 'text') {
-          return content.text.value;
-        }
-      }
-    } else if (run.status === 'failed' || run.status === 'cancelled' || run.status === 'expired') {
-      console.error(`Assistant run failed with status: ${run.status}`);
-      throw new Error(`Assistente falhou: ${run.status}`);
-    }
-
-    return "Desculpe, não consegui gerar uma resposta.";
-  } catch (error: any) {
-    console.error('Assistant API error:', error);
-    // Fallback to chat if assistant fails
-    return await askViaChat(userMessage, mode);
-  }
-}
-
-// Legacy: Direct chat completions (fallback)
+// Direct chat completions
 async function askViaChat(userMessage: string, mode: 'essential' | 'premium'): Promise<string> {
   const systemPrompt = mode === 'premium' 
     ? `Você é um Professor avançado especializado em estudos bíblicos profundos. Forneça análises exegéticas detalhadas, comparações teológicas, contexto histórico-cultural completo, e insights acadêmicos. Use linguagem formal e acadêmica adequada para pregadores e professores de teologia.`
     : `Você é um Professor que fornece explicações básicas e contexto cultural simples sobre passagens bíblicas. Use linguagem clara e acessível para estudantes iniciantes.`;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-5",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userMessage }
-    ],
-    max_completion_tokens: mode === 'premium' ? 2048 : 1024,
-  });
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage }
+      ],
+      max_tokens: mode === 'premium' ? 2048 : 1024,
+    });
 
-  return response.choices[0]?.message?.content || "Desculpe, não consegui gerar uma resposta.";
+    return response.choices[0]?.message?.content || "Desculpe, não consegui gerar uma resposta.";
+  } catch (error: any) {
+    console.error('OpenAI Chat Completions Error:', {
+      message: error.message,
+      status: error.status,
+      type: error.type
+    });
+    throw error;
+  }
 }
 
 // Keep legacy export for backward compatibility

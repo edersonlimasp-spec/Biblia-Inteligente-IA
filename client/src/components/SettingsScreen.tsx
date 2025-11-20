@@ -10,9 +10,10 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface SettingsScreenProps {
   onBack?: () => void;
+  onNavigateToSubscriptions?: () => void;
 }
 
-export function SettingsScreen({ onBack }: SettingsScreenProps) {
+export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsScreenProps) {
   const { user, logout, trialDaysRemaining } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
@@ -130,7 +131,11 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
                     Trial ({trialDaysRemaining} dias restantes)
                   </p>
                 </div>
-                <Button variant="outline" data-testid="button-manage-subscription">
+                <Button 
+                  variant="outline" 
+                  onClick={onNavigateToSubscriptions}
+                  data-testid="button-manage-subscription"
+                >
                   Gerenciar
                 </Button>
               </div>

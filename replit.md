@@ -30,10 +30,10 @@ The application is a fullstack PWA with a React frontend and an Express backend,
 - **Routing:** Local state-based navigation in the frontend.
 - **Bible Data:** Full ACF (Almeida Corrigida Fiel) Bible (31,106 verses, 66 books) is integrated, with an automated import script.
 - **Strong's Dictionary:** Complete database of 14,197 entries (5,523 Greek + 8,674 Hebrew) imported from OpenScriptures XML/JS sources into PostgreSQL with optimized indices. **ALL 14,197 entries now have complete Portuguese (Brazilian) translations** in the `portugueseDef` field, achieved through hybrid approach: 2,690 entries extracted from authoritative Portuguese Strong's PDF + 11,507 entries translated via OpenAI GPT-4o-mini. The frontend dynamically fetches Strong's entries via API, mapping 200+ Portuguese words to Strong's numbers via `portugueseToStrong` dictionary. The system intelligently filters short words (< 3 chars) to reduce noise. StrongModal component prioritizes Portuguese definitions with English as supplementary reference.
-- **AI Professor:** Integrates OpenAI GPT-5 (via Replit AI Integrations) offering two modes: "Essential" for basic explanations (up to 1024 tokens) and "Premium" for deep exegesis and comparative theology (up to 2048 tokens). AI conversations are saved to a history.
+- **AI Professor:** Integrates OpenAI GPT-4o-mini (via Replit AI Integrations) offering two modes: "Essential" for basic explanations (up to 1024 tokens) and "Premium" for deep exegesis and comparative theology (up to 2048 tokens). AI conversations are saved to a history. **Rate limiting:** Trial/Gold users get 30 questions/day, Premium users get 100 questions/day.
 - **User Features:**
-    - **Subscriptions:** Manages different subscription plans (`Strong Vitalício`, `IA Essencial`, `IA Premium`).
-    - **Trial System:** 30-day free trial for new users providing access to Strong's and AI Essential features, with a visual indicator of remaining trial days.
+    - **Subscriptions:** Manages three subscription plans: `Strong Vitalício` (R$ 189,90 one-time), `Gold` (R$ 19,90/month, AI Essential + Strong), `Premium` (R$ 29,90/month, AI Premium + Strong).
+    - **Trial System:** 30-day free trial for new users providing access to Strong's and AI Essential (30 questions/day), with a visual indicator of remaining trial days.
     - **Bookmarks & Annotations:** Users can create and manage personal bookmarks and notes on verses.
 
 **System Design Choices:**
@@ -41,7 +41,8 @@ The application is a fullstack PWA with a React frontend and an Express backend,
 - **Monorepo Structure:** `server/` for backend, `client/src/` for frontend, `shared/` for shared schemas, and `scripts/` for utilities.
 - **Database Schema:**
     - `Users`: `id`, `name`, `email`, `password` (hashed), `trialStartDate`, `createdAt`.
-    - `Subscriptions`: `id`, `userId`, `planType`, `status`, `startDate`, `endDate`, `amount`.
+    - `Subscriptions`: `id`, `userId`, `planType` ('strong_lifetime' | 'gold' | 'premium'), `status`, `startDate`, `endDate`, `amount`.
+    - `AIUsageLimits`: `userId`, `count`, `date` (for daily rate limiting).
     - `Bookmarks`: `id`, `userId`, `book`, `chapter`, `verse`, `color`.
     - `Annotations`: `id`, `userId`, `book`, `chapter`, `verse`, `note`, `updatedAt`.
     - `AIHistory`: `id`, `userId`, `book`, `chapter`, `verse`, `question`, `response`, `aiMode`.
@@ -53,7 +54,7 @@ The application is a fullstack PWA with a React frontend and an Express backend,
 
 - **Database:** PostgreSQL (Neon)
 - **ORM:** Drizzle ORM
-- **AI:** OpenAI GPT-5 (via Replit AI Integrations)
+- **AI:** OpenAI GPT-4o-mini (via Replit AI Integrations)
 - **Build Tool:** Vite
 - **Packages:**
     - `bcryptjs` for password hashing

@@ -71,7 +71,6 @@ export function AIPanel() {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
                 <span className="font-semibold text-primary">Professor</span>
-                <Badge variant="secondary" className="text-xs">IA Premium</Badge>
               </div>
               <Button
                 variant="ghost"

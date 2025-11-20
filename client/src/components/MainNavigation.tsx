@@ -71,7 +71,10 @@ export function MainNavigation() {
         <SubscriptionScreen onBack={() => setCurrentScreen("bible")} />
       )}
       {currentScreen === "settings" && (
-        <SettingsScreen onBack={() => setCurrentScreen("bible")} />
+        <SettingsScreen 
+          onBack={() => setCurrentScreen("bible")}
+          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
+        />
       )}
       {currentScreen === "history" && (
         <AIHistoryScreen onBack={() => setCurrentScreen("bible")} />

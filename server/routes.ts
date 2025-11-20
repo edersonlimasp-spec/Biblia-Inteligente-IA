@@ -209,8 +209,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { question, book, chapter, verse, mode = 'essential' } = req.body;
 
-      if (!question) {
+      // Validate input
+      if (!question || typeof question !== 'string') {
         return res.status(400).json({ error: "Pergunta é obrigatória" });
+      }
+
+      // Validate mode - only accept 'essential' or 'premium'
+      if (mode !== 'essential' && mode !== 'premium') {
+        return res.status(400).json({ error: "Modo inválido. Use 'essential' ou 'premium'." });
       }
 
       // Get user and check trial status
@@ -221,10 +227,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const trialActive = isTrialActive(user.trialStartDate);
       
-      // Check access (renamed: ai_essential → gold, ai_premium → premium)
+      // Check subscription status
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
+      // Enforce plan permissions BEFORE making OpenAI call
       if (mode === 'premium' && !hasPremium) {
         return res.status(403).json({ 
           error: "Acesso Premium necessário. Assine o plano Premium (R$ 29,90/mês) para acessar análises avançadas.",
@@ -233,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Trial grants access to essential mode
+      // Essential mode requires trial, Gold, or Premium
       if (mode === 'essential' && !trialActive && !hasGold && !hasPremium) {
         return res.status(403).json({ 
           error: "Seu trial de 30 dias expirou. Assine um plano (Gold R$ 19,90/mês ou Premium R$ 29,90/mês) para continuar usando o Professor.",
@@ -242,9 +249,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // RATE LIMITING: Check daily usage limits
+      // Enforce rate limits BEFORE making OpenAI call
       const todayCount = await storage.getTodayUsageCount(req.userId!);
-      const limit = hasPremium ? 100 : hasGold ? 30 : trialActive ? 30 : 0;
+      const limit = hasPremium ? 100 : (hasGold || trialActive) ? 30 : 0;
 
       if (todayCount >= limit) {
         return res.status(429).json({ 
@@ -259,16 +266,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get AI response
+      // All validations passed - make OpenAI call
       const response = await askTheologicalQuestion({
         question,
         verse,
         book,
         chapter,
-        mode: mode as 'essential' | 'premium',
+        mode,
       });
 
-      // Increment usage count
+      // Only increment usage count after successful response
       await storage.incrementUsageCount(req.userId!);
 
       // Save to history

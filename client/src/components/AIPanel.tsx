@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X } from "lucide-react";
@@ -118,6 +118,24 @@ export function AIPanel() {
   const [currentSessionId, setCurrentSessionId] = useState<string>("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  
+  // Ref para scroll automático ao final do chat
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // ===================================
+  // AUTO-SCROLL - Scroll automático ao final quando mensagens mudam
+  // ===================================
+  
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    // Scroll ao final quando mensagens mudarem ou painel expandir
+    if (isExpanded && messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages, isExpanded]);
 
   // ===================================
   // INITIALIZATION - Carregar sessões do localStorage
@@ -430,6 +448,9 @@ export function AIPanel() {
                     </div>
                   </div>
                 )}
+                
+                {/* Elemento invisível para scroll automático */}
+                <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
           </div>

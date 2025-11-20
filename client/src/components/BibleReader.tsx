@@ -59,135 +59,6 @@ interface StrongSearchResponse {
   total: number;
 }
 
-// Portuguese word to Strong's number mapping (expanded for common Bible terms)
-const portugueseToStrong: Record<string, string> = {
-  // === CORE THEOLOGICAL TERMS ===
-  "deus": "G2316", "deuses": "G2316", "divino": "G2316", "divina": "G2316",
-  "senhor": "G2962", "todo-poderoso": "H7706", "altíssimo": "H5945",
-  "jesus": "G2424", "cristo": "G5547", "messias": "G5547",
-  "espírito": "G4151", "espiritual": "G4151",
-  
-  // === LOVE & RELATIONSHIPS ===
-  "amor": "G26", "amar": "G25", "amado": "G27", "amados": "G27", "amada": "G27",
-  
-  // === FAITH & BELIEF ===
-  "fé": "G4102", "crer": "G4100", "crê": "G4100", "crente": "G4100", "acreditar": "G4100",
-  "crença": "G4102", "creu": "G4100", "creram": "G4100", "crentes": "G4100",
-  
-  // === GRACE & SALVATION ===
-  "graça": "G5485", "graças": "G5485", "favor": "G5485",
-  "salvação": "G4991", "salvar": "G4982", "salvador": "G4990", "salvo": "G4982", "salvos": "G4982",
-  
-  // === PEACE & HOPE ===
-  "paz": "G1515", "pacífico": "G1515", "pacificador": "G1515",
-  "esperança": "G1680", "esperar": "G1679", "esperou": "G1679",
-  
-  // === RIGHTEOUSNESS & JUSTICE ===
-  "justiça": "G1343", "justo": "G1342", "justificação": "G1347", "justos": "G1342",
-  "justificar": "G1344", "justificados": "G1344",
-  
-  // === WORD & TRUTH ===
-  "palavra": "G3056", "verbo": "G3056", "palavras": "G3056",
-  "verdade": "G225", "verdadeiro": "G228", "verdadeira": "G228",
-  
-  // === HOLINESS ===
-  "santo": "G40", "santa": "G40", "santos": "G40", "santas": "G40",
-  "santidade": "G42", "santificar": "G37", "santificado": "G37",
-  
-  // === LIFE & DEATH ===
-  "vida": "G2222", "viver": "G2198", "vivo": "G2198", "viva": "G2198", "vivem": "G2198",
-  "morte": "G2288", "morrer": "G2348", "morto": "G3498", "mortos": "G3498",
-  "ressurreição": "G386", "ressuscitar": "G1453", "ressuscitou": "G1453",
-  
-  // === LIGHT & DARKNESS ===
-  "luz": "G5457", "iluminar": "G5461", "brilhar": "G5316",
-  "trevas": "G4655", "escuridão": "G4655", "escuro": "G4652",
-  
-  // === PRAYER & WORSHIP ===
-  "oração": "G4335", "orar": "G4336", "prece": "G4335", "orem": "G4336",
-  "adorar": "G4352", "adoração": "G4352", "adoradores": "G4353",
-  "louvar": "G134", "louvor": "G133", "aleluia": "G239",
-  
-  // === CHURCH & MINISTRY ===
-  "igreja": "G1577", "igrejas": "G1577", "congregação": "G4864",
-  "apóstolo": "G652", "apóstolos": "G652",
-  "profeta": "G4396", "profetas": "G4396", "profetizar": "G4395",
-  "pastor": "G4166", "pastores": "G4166",
-  "presbítero": "G4245", "bispo": "G1985", "diácono": "G1249",
-  "discípulo": "G3101", "discípulos": "G3101",
-  
-  // === SIN & REDEMPTION ===
-  "pecado": "G266", "pecados": "G266", "pecar": "G264",
-  "perdão": "G859", "perdoar": "G863", "perdoado": "G863",
-  "arrependimento": "G3341", "arrepender": "G3340", "arrependei": "G3340",
-  "redenção": "G629", "redimir": "G3084", "remissão": "G859",
-  
-  // === FAITH VIRTUES ===
-  "misericórdia": "G1656", "misericordioso": "G1655", "compaixão": "G4697",
-  "bondade": "G19", "benignidade": "G5544",
-  "humildade": "G5012", "humilde": "G5011",
-  "mansidão": "G4240", "manso": "G4239",
-  "paciência": "G5281", "paciente": "G420",
-  
-  // === KINGDOM & GLORY ===
-  "rei": "G935", "reino": "G932", "reinar": "G936",
-  "glória": "G1391", "glorificar": "G1392", "glorioso": "G1741",
-  "poder": "G1411", "poderoso": "G1415", "autoridade": "G1849",
-  
-  // === GOSPEL & LAW ===
-  "evangelho": "G2098", "evangelizar": "G2097",
-  "lei": "G3551", "leis": "G3551", "mandamento": "G1785", "mandamentos": "G1785",
-  "aliança": "G1242", "testamento": "G1242", "pacto": "G1242",
-  
-  // === FAMILY & RELATIONSHIPS ===
-  "pai": "G3962", "pais": "G3962", "paterna": "G3967",
-  "mãe": "G3384", "materna": "G3384",
-  "filho": "G5207", "filhos": "G5207", "filha": "G2364",
-  "irmão": "G80", "irmãos": "G80", "irmã": "G79",
-  "esposo": "G435", "esposa": "G1135", "marido": "G435", "mulher": "G1135",
-  
-  // === SPIRITUAL WARFARE ===
-  "diabo": "G1228", "satanás": "G4567", "demônio": "G1140", "demônios": "G1140",
-  "tentação": "G3986", "tentar": "G3985", "tentador": "G3985",
-  "armadura": "G3696", "batalha": "G4171", "guerra": "G4171",
-  
-  // === HEBREW - CREATION & NATURE ===
-  "terra": "H776", "terras": "H776",
-  "céus": "H8064", "céu": "H8064", "celestial": "H8064",
-  "água": "H4325", "águas": "H4325",
-  "fogo": "H784", "chama": "H3827",
-  "vento": "H7307", "ventos": "H7307",
-  
-  // === HEBREW - PEOPLE & PLACES ===
-  "homem": "H120", "humano": "H120", "homens": "H120",
-  "povo": "H5971", "povos": "H5971", "nação": "H1471",
-  "israel": "H3478", "jerusalém": "H3389", "sião": "H6726",
-  "egito": "H4714", "babilônia": "H894",
-  
-  // === HEBREW - WORSHIP & TEMPLE ===
-  "templo": "H1964", "santuário": "H4720", "altar": "H4196",
-  "sacerdote": "H3548", "sacerdotes": "H3548", "levita": "H3881",
-  "sacrifício": "H2077", "oferta": "H4503",
-  "arca": "H727", "tabernáculo": "H4908",
-  
-  // === HEBREW - DIVINE ATTRIBUTES ===
-  "anjo": "H4397", "anjos": "H4397", "mensageiro": "H4397",
-  "servo": "H5650", "servir": "H5647", "servos": "H5650",
-  "profecia": "H5016", "visão": "H2377",
-  
-  // === HEBREW - LIFE & TIME ===
-  "casa": "H1004", "casas": "H1004",
-  "caminho": "H1870", "caminhos": "H1870",
-  "porta": "H8179", "portas": "H8179",
-  "montanha": "H2022", "monte": "H2022",
-  "cidade": "H5892", "cidades": "H5892",
-  "nome": "H8034", "nomes": "H8034",
-  "mão": "H3027", "mãos": "H3027",
-  "coração": "H3820", "corações": "H3820",
-  "alma": "H5315", "almas": "H5315",
-  "sangue": "H1818", "carne": "H1320",
-};
-
 export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory }: BibleReaderProps) {
   const { trialActive, trialDaysRemaining } = useAuth();
   const [selectedBook, setSelectedBook] = useState("jhn");
@@ -241,50 +112,41 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     }
   };
 
-  // Process search results when available
+  // Process search results when available, filtering by testament
   useEffect(() => {
     if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length > 0) {
-      // Take the first result (most relevant)
-      const firstResult = wordSearchResults.results[0];
-      if (firstResult.number) {
-        setSelectedStrongNumber(firstResult.number);
+      // Filter results by testament/language
+      const testament = currentBook?.testament;
+      const expectedLanguage = testament === 'old' ? 'hebrew' : 'greek';
+      
+      // First try to find a result matching the current testament
+      let matchingResult = wordSearchResults.results.find(r => r.language === expectedLanguage);
+      
+      // Fallback to first result if no match found (edge case for cross-testament words)
+      if (!matchingResult) {
+        matchingResult = wordSearchResults.results[0];
+      }
+      
+      if (matchingResult && matchingResult.number) {
+        setSelectedStrongNumber(matchingResult.number);
         setSearchingWord(null); // Clear search state
       }
     } else if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length === 0) {
       // No results found - clear search
       setSearchingWord(null);
-      console.log("No Strong's entry found in database for this word");
     }
-  }, [wordSearchResults]);
+  }, [wordSearchResults, currentBook]);
 
   const handleWordClick = (word: string, verseNum: number) => {
-    console.log("🔥 handleWordClick CALLED! Word:", word, "Verse:", verseNum);
-    
     // Remove pontuação da palavra antes de buscar
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
-    console.log("🔥 Clean word:", cleanWord, "Length:", cleanWord.length);
     
-    // Filter: Ignore very short words (< 4 chars) to avoid stopword noise
-    if (cleanWord.length < 4) {
-      console.log("⚠️ Skipping short word:", cleanWord);
+    // Filter: Ignore very short words (< 3 chars) to avoid stopword noise
+    if (cleanWord.length < 3) {
       return;
     }
     
-    console.log("✅ Word clicked:", cleanWord, "in verse", verseNum);
-    
-    // Check if word has a direct mapping to Strong's number
-    const strongNumber = portugueseToStrong[cleanWord];
-    console.log("🔍 Mapping lookup:", cleanWord, "→", strongNumber);
-    
-    if (strongNumber) {
-      console.log("✅ Found direct mapping:", cleanWord, "→", strongNumber);
-      console.log("🎯 Setting selectedStrongNumber to:", strongNumber);
-      setSelectedStrongNumber(strongNumber);
-      return;
-    }
-    
-    // If no direct mapping, search in database via API
-    console.log("🔍 No direct mapping, searching in database:", cleanWord);
+    // Search in database via API (will filter by testament/language automatically)
     setSearchingWord(cleanWord);
   };
 

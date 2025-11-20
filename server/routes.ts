@@ -519,12 +519,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { query } = req.params;
       const searchQuery = `%${query.toLowerCase()}%`;
       
-      // Search in database (lemma, transliteration, or definition)
+      // Search in database (lemma, transliteration, Portuguese definition, or English definition)
+      // Prioritize Portuguese definitions since we have 100% coverage
       const results = await db
         .select()
         .from(strongEntries)
         .where(
           or(
+            sql`LOWER(${strongEntries.portugueseDef}) LIKE ${searchQuery}`,
             sql`LOWER(${strongEntries.lemma}) LIKE ${searchQuery}`,
             sql`LOWER(${strongEntries.translit}) LIKE ${searchQuery}`,
             sql`LOWER(${strongEntries.kjvDef}) LIKE ${searchQuery}`

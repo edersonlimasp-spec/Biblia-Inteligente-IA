@@ -518,9 +518,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { query } = req.params;
       const searchQuery = `%${query.toLowerCase()}%`;
+      const exactWordQuery = `${query.toLowerCase()}%`; // Starts with the word
       
       // Search in database (lemma, transliteration, Portuguese definition, or English definition)
       // Prioritize Portuguese definitions since we have 100% coverage
+      // Order by relevance: exact match at start > contains word > contains substring
       const results = await db
         .select()
         .from(strongEntries)
@@ -531,6 +533,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             sql`LOWER(${strongEntries.translit}) LIKE ${searchQuery}`,
             sql`LOWER(${strongEntries.kjvDef}) LIKE ${searchQuery}`
           )
+        )
+        .orderBy(
+          // Priority 1: Portuguese definition starts with the word (e.g., "Deus")
+          sql`CASE WHEN LOWER(${strongEntries.portugueseDef}) LIKE ${exactWordQuery} THEN 1 ELSE 2 END`,
+          // Priority 2: Lemma/transliteration exact match
+          sql`CASE WHEN LOWER(${strongEntries.lemma}) = ${query.toLowerCase()} THEN 1 ELSE 2 END`
         )
         .limit(50);
       

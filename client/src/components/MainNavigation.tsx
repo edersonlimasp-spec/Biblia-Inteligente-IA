@@ -20,16 +20,23 @@ type Screen =
 
 export function MainNavigation() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("splash");
-  const [showSplash, setShowSplash] = useState(true);
+  // Only show splash on first visit (not on page reload)
+  const [showSplash, setShowSplash] = useState(() => {
+    const hasVisited = sessionStorage.getItem('hasVisitedApp');
+    return !hasVisited;
+  });
   const { user, isLoading } = useAuth();
 
-  // Show splash screen for 2 seconds
+  // Show splash screen for 2 seconds (only on first visit)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (showSplash) {
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        sessionStorage.setItem('hasVisitedApp', 'true');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash]);
 
   // Redirect to bible if authenticated, login if not
   useEffect(() => {

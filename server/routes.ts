@@ -122,6 +122,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Routes
+  // IMPORTANT: This route allows the FIRST user to become admin without authentication
+  // After the first admin exists, only authenticated admins can make others admin
+  app.post("/api/admin/make-admin", async (req: AuthRequest, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email é obrigatório" });
+      }
+
+      // Check if any admin exists
+      const existingAdmins = await storage.getAdminUsers();
+      
+      // If no admins exist, allow anyone to make themselves admin
+      if (existingAdmins.length === 0) {
+        const user = await storage.getUserByEmail(email);
+        if (!user) {
+          return res.status(404).json({ error: "Usuário não encontrado" });
+        }
+        
+        await storage.makeUserAdmin(user.id);
+        return res.json({ message: "Primeiro administrador criado com sucesso!", email: user.email });
+      }
+      
+      // If admins exist, require authentication and admin privileges
+      if (!req.userId) {
+        return res.status(401).json({ error: "Autenticação necessária" });
+      }
+      
+      const currentUser = await storage.getUser(req.userId);
+      if (!currentUser?.isAdmin) {
+        return res.status(403).json({ error: "Apenas administradores podem criar outros administradores" });
+      }
+      
+      const targetUser = await storage.getUserByEmail(email);
+      if (!targetUser) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      await storage.makeUserAdmin(targetUser.id);
+      res.json({ message: "Usuário promovido a administrador!", email: targetUser.email });
+    } catch (error) {
+      console.error("Make admin error:", error);
+      res.status(500).json({ error: "Erro ao tornar usuário administrador" });
+    }
+  });
+
   // Subscriptions
   app.get("/api/subscriptions", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {

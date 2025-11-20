@@ -22,40 +22,41 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         "Morfologia detalhada",
         "Acesso vitalício",
         "Sem mensalidades",
+        "Sem acesso à IA Professor",
       ],
-      highlight: true,
-      badge: "Melhor Valor",
+      highlight: false,
     },
     {
-      name: "IA Essencial",
+      name: "Plano Gold",
       price: "R$ 19,90",
       period: "por mês",
       icon: Sparkles,
       features: [
-        "Explicações básicas de IA",
+        "IA Professor (modo Essencial)",
+        "30 perguntas por dia",
+        "Strong + Hebraico + Grego",
+        "Explicações básicas",
         "Contexto cultural simples",
-        "Perguntas ilimitadas",
-        "Respostas rápidas",
         "Histórico de conversas",
       ],
       highlight: false,
     },
     {
-      name: "IA Premium",
-      price: "R$ 49,90",
+      name: "Plano Premium",
+      price: "R$ 29,90",
       period: "por mês",
       icon: Sparkles,
       features: [
-        "Tudo do Essencial, mais:",
+        "IA Professor (modo Premium)",
+        "100 perguntas por dia",
+        "Strong + Hebraico + Grego",
         "Exegese profunda",
         "Comparação teológica",
-        "Estudos completos",
-        "Modo pregador",
-        "Modo professor",
-        "Análise avançada",
+        "Análise histórico-cultural",
+        "Modo pregador/professor",
       ],
-      highlight: false,
-      badge: "Popular",
+      highlight: true,
+      badge: "Recomendado",
     },
   ];
 
@@ -155,8 +156,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
               <div>
                 <h3 className="font-semibold mb-1">Sobre o Trial de 30 Dias</h3>
                 <p className="text-sm text-muted-foreground">
-                  Novos usuários têm acesso gratuito ao dicionário Strong, textos em Hebraico e Grego por 30 dias.
-                  Após o período, o acesso será bloqueado automaticamente. Assine um plano para continuar aproveitando.
+                  Novos usuários têm acesso completo gratuito por 30 dias: Strong, Hebraico, Grego e IA Professor (modo Essencial, 30 perguntas/dia).
+                  Após o período, esses recursos serão bloqueados. Assine um plano para continuar aproveitando.
                 </p>
               </div>
             </div>

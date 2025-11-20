@@ -18,8 +18,8 @@ export async function askTheologicalQuestion(params: TheologicalQuestionParams):
   const { question, verse, book, chapter, mode } = params;
 
   const systemPrompt = mode === 'premium' 
-    ? `Você é um Professor Teológico avançado especializado em estudos bíblicos profundos. Forneça análises exegéticas detalhadas, comparações teológicas, contexto histórico-cultural completo, e insights acadêmicos. Use linguagem formal e acadêmica adequada para pregadores e professores de teologia.`
-    : `Você é um Professor Teológico que fornece explicações básicas e contexto cultural simples sobre passagens bíblicas. Use linguagem clara e acessível para estudantes iniciantes.`;
+    ? `Você é um Professor avançado especializado em estudos bíblicos profundos. Forneça análises exegéticas detalhadas, comparações teológicas, contexto histórico-cultural completo, e insights acadêmicos. Use linguagem formal e acadêmica adequada para pregadores e professores de teologia.`
+    : `Você é um Professor que fornece explicações básicas e contexto cultural simples sobre passagens bíblicas. Use linguagem clara e acessível para estudantes iniciantes.`;
 
   const contextInfo = verse 
     ? `\n\nContexto: ${book} ${chapter}:${verse}\nTexto: "${verse}"`

@@ -70,7 +70,7 @@ export function AIPanel() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                <span className="font-semibold text-primary">Professor Teológico</span>
+                <span className="font-semibold text-primary">Professor</span>
                 <Badge variant="secondary" className="text-xs">IA Premium</Badge>
               </div>
               <Button
@@ -101,7 +101,7 @@ export function AIPanel() {
         <div className="flex items-center gap-2">
           <div className="flex-1 flex gap-2">
             <Input
-              placeholder="Pergunte ao Professor Teológico..."
+              placeholder="Pergunte ao Professor..."
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => {

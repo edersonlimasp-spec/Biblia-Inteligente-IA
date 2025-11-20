@@ -51,7 +51,7 @@ export function AIHistoryScreen({ onBack }: AIHistoryScreenProps) {
             Histórico de IA
           </h1>
           <p className="text-muted-foreground">
-            Suas conversas anteriores com o Professor Teológico
+            Suas conversas anteriores com o Professor
           </p>
         </div>
 

@@ -204,7 +204,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Professor Teológico
+  // AI Professor
   app.post("/api/ai/ask", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const { question, book, chapter, verse, mode = 'essential' } = req.body;
@@ -236,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Trial grants access to essential mode
       if (mode === 'essential' && !trialActive && !hasEssential && !hasPremium) {
         return res.status(403).json({ 
-          error: "Seu trial de 30 dias expirou. Assine um plano IA (Essencial R$ 19,90/mês ou Premium R$ 49,90/mês) para continuar usando o Professor Teológico.",
+          error: "Seu trial de 30 dias expirou. Assine um plano IA (Essencial R$ 19,90/mês ou Premium R$ 49,90/mês) para continuar usando o Professor.",
           requiresSubscription: true,
           subscriptionType: 'ai_essential'
         });

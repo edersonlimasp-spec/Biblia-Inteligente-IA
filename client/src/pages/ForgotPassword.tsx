@@ -22,20 +22,26 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
     setIsLoading(true);
 
     try {
-      // Em produção, isso chamaria uma API para enviar email de reset
-      // Por enquanto, simulamos o sucesso
       if (!email) {
         throw new Error("Por favor, insira seu email");
       }
 
-      // Simulação de envio de email
-      setTimeout(() => {
-        setIsSubmitted(true);
-        toast({
-          title: "Email enviado",
-          description: `Se uma conta existe com ${email}, você receberá um email de reset de senha em breve.`,
-        });
-      }, 1000);
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Erro ao processar sua solicitação");
+      }
+
+      setIsSubmitted(true);
+      toast({
+        title: "Email enviado",
+        description: `Se uma conta existe com ${email}, você receberá um email de reset de senha em breve.`,
+      });
     } catch (error: any) {
       toast({
         title: "Erro",

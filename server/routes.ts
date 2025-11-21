@@ -576,17 +576,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from(strongEntries)
         .where(
           or(
-            sql`LOWER(${strongEntries.portugueseDef}) LIKE ${searchQuery}`,
-            sql`LOWER(${strongEntries.lemma}) LIKE ${searchQuery}`,
-            sql`LOWER(${strongEntries.translit}) LIKE ${searchQuery}`,
-            sql`LOWER(${strongEntries.kjvDef}) LIKE ${searchQuery}`
+            sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${searchQuery}`,
+            sql`LOWER(COALESCE(${strongEntries.lemma}, '')) LIKE ${searchQuery}`,
+            sql`LOWER(COALESCE(${strongEntries.translit}, '')) LIKE ${searchQuery}`,
+            sql`LOWER(COALESCE(${strongEntries.kjvDef}, '')) LIKE ${searchQuery}`
           )
         )
         .orderBy(
           // Priority 1: Portuguese definition starts with the word (e.g., "Deus")
-          sql`CASE WHEN LOWER(${strongEntries.portugueseDef}) LIKE ${exactWordQuery} THEN 1 ELSE 2 END`,
+          sql`CASE WHEN LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${exactWordQuery} THEN 1 ELSE 2 END`,
           // Priority 2: Lemma/transliteration exact match
-          sql`CASE WHEN LOWER(${strongEntries.lemma}) = ${query.toLowerCase()} THEN 1 ELSE 2 END`
+          sql`CASE WHEN LOWER(COALESCE(${strongEntries.lemma}, '')) = ${query.toLowerCase()} THEN 1 ELSE 2 END`
         )
         .limit(50);
       

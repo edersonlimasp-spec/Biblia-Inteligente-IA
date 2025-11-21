@@ -294,7 +294,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                             key={idx}
                             className={`transition-all ${
                               hasStrong
-                                ? 'cursor-pointer hover:text-primary decoration-dotted underline underline-offset-2 opacity-100 hover:font-medium active:font-bold'
+                                ? 'cursor-pointer hover:text-primary underline underline-offset-2 hover:font-medium'
                                 : 'cursor-default'
                             }`}
                             onClick={(e) => {

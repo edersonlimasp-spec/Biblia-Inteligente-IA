@@ -51,6 +51,7 @@ interface StrongSearchResult {
   transliteration: string;
   pronunciation: string;
   definition: string;
+  portugueseDefinition?: string | null;
   language: string;
 }
 

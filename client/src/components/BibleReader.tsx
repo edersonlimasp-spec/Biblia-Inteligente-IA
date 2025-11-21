@@ -67,6 +67,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
   const [searchingWord, setSearchingWord] = useState<string | null>(null);
+  const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
 
   const { data: books } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
@@ -130,13 +131,26 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       
       if (matchingResult && matchingResult.number) {
         setSelectedStrongNumber(matchingResult.number);
+        // Add to wordsWithStrong set
+        if (searchingWord) {
+          setWordsWithStrong(prev => {
+            const newSet = new Set(prev);
+            newSet.add(searchingWord);
+            return newSet;
+          });
+        }
         setSearchingWord(null); // Clear search state
       }
     } else if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length === 0) {
       // No results found - clear search
       setSearchingWord(null);
     }
-  }, [wordSearchResults, currentBook]);
+  }, [wordSearchResults, currentBook, searchingWord]);
+
+  // Reset words tracking when chapter changes
+  useEffect(() => {
+    setWordsWithStrong(new Set());
+  }, [selectedBook, selectedChapter]);
 
   const handleWordClick = (word: string, verseNum: number) => {
     // Remove pontuação da palavra antes de buscar
@@ -286,19 +300,20 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                     <p className="flex-1">
                       {verse.text.split(" ").map((word, idx) => {
                         // Remove punctuation to check if word might have strong
-                        const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '');
-                        const hasStrong = cleanWord.length > 2;
+                        const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
+                        const isClickable = cleanWord.length > 2;
+                        const hasStrongInCache = wordsWithStrong.has(cleanWord);
                         
                         return (
                           <span
                             key={idx}
-                            className={`transition-all ${
-                              hasStrong
-                                ? 'cursor-pointer hover:text-primary underline underline-offset-2 hover:font-medium'
-                                : 'cursor-default'
+                            className={`transition-colors ${
+                              isClickable ? 'cursor-pointer' : 'cursor-default'
+                            } ${
+                              hasStrongInCache ? 'opacity-80 font-medium' : ''
                             }`}
                             onClick={(e) => {
-                              if (hasStrong) {
+                              if (isClickable) {
                                 e.stopPropagation();
                                 handleWordClick(cleanWord, verse.verse);
                               }

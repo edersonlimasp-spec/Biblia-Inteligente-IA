@@ -252,7 +252,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       </header>
 
       {/* Bible Text */}
-      <main className="flex-1 overflow-y-auto pb-24">
+      <main className="flex-1 overflow-y-auto pb-24 bible-page">
         <div className="max-w-3xl mx-auto px-4 py-6">
           {isLoading ? (
             <div className="space-y-4">

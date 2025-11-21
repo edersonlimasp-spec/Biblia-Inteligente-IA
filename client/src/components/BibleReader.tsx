@@ -284,18 +284,31 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                       {verse.verse}
                     </span>
                     <p className="flex-1">
-                      {verse.text.split(" ").map((word, idx) => (
-                        <span
-                          key={idx}
-                          className="cursor-pointer transition-colors hover:text-primary hover:font-medium"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleWordClick(word, verse.verse);
-                          }}
-                        >
-                          {word}{" "}
-                        </span>
-                      ))}
+                      {verse.text.split(" ").map((word, idx) => {
+                        // Remove punctuation to check if word might have strong
+                        const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '');
+                        const hasStrong = cleanWord.length > 2;
+                        
+                        return (
+                          <span
+                            key={idx}
+                            className={`transition-all ${
+                              hasStrong
+                                ? 'cursor-pointer hover:text-primary decoration-dotted underline underline-offset-2 opacity-100 hover:font-medium active:font-bold'
+                                : 'cursor-default'
+                            }`}
+                            onClick={(e) => {
+                              if (hasStrong) {
+                                e.stopPropagation();
+                                handleWordClick(cleanWord, verse.verse);
+                              }
+                            }}
+                            data-testid={`word-${verse.verse}-${idx}`}
+                          >
+                            {word}{" "}
+                          </span>
+                        );
+                      })}
                     </p>
                   </div>
                 ))}

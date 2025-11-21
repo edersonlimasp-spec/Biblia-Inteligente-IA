@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLocation } from "wouter";
 import { SplashScreen } from "./SplashScreen";
 import { LoginScreen } from "./LoginScreen";
 import { RegisterScreen } from "./RegisterScreen";
@@ -8,11 +9,15 @@ import { SubscriptionScreen } from "./SubscriptionScreen";
 import { SettingsScreen } from "./SettingsScreen";
 import { AIHistoryScreen } from "./AIHistoryScreen";
 import { ThemeProvider } from "./ThemeProvider";
+import { ForgotPassword } from "@/pages/ForgotPassword";
+import { ResetPassword } from "@/pages/ResetPassword";
 
 type Screen = 
   | "splash"
   | "login"
   | "register"
+  | "forgot-password"
+  | "reset-password"
   | "bible"
   | "subscriptions"
   | "settings"
@@ -26,6 +31,14 @@ export function MainNavigation() {
     return !hasVisited;
   });
   const { user, isLoading } = useAuth();
+  const [location] = useLocation();
+
+  // Handle URL-based routing for reset password
+  useEffect(() => {
+    if (location.includes("reset-password")) {
+      setCurrentScreen("reset-password");
+    }
+  }, [location]);
 
   // Show splash screen for 2 seconds (only on first visit)
   useEffect(() => {
@@ -59,12 +72,23 @@ export function MainNavigation() {
         <LoginScreen
           onLogin={() => setCurrentScreen("bible")}
           onNavigateToRegister={() => setCurrentScreen("register")}
+          onNavigateToForgotPassword={() => setCurrentScreen("forgot-password")}
         />
       )}
       {currentScreen === "register" && (
         <RegisterScreen
           onRegister={() => setCurrentScreen("bible")}
           onNavigateToLogin={() => setCurrentScreen("login")}
+        />
+      )}
+      {currentScreen === "forgot-password" && (
+        <ForgotPassword
+          onBackToLogin={() => setCurrentScreen("login")}
+        />
+      )}
+      {currentScreen === "reset-password" && (
+        <ResetPassword
+          onBackToLogin={() => setCurrentScreen("login")}
         />
       )}
       {currentScreen === "bible" && (

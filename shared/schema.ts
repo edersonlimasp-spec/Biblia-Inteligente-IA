@@ -104,6 +104,18 @@ export const insertAIHistorySchema = createInsertSchema(aiHistory).omit({
 export type InsertAIHistory = z.infer<typeof insertAIHistorySchema>;
 export type AIHistory = typeof aiHistory.$inferSelect;
 
+// Password Reset Tokens table
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+
 // Strong's Dictionary Entries table
 export const strongEntries = pgTable("strong_entries", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

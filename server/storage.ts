@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens } from '@shared/schema';
 import type {
   User,
   InsertUser,
@@ -23,6 +23,10 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getAdminUsers(): Promise<User[]>;
   makeUserAdmin(userId: string): Promise<void>;
+  updateUserPassword(userId: string, hashedPassword: string): Promise<void>;
+  createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void>;
+  getPasswordResetToken(token: string): Promise<{userId: string; expiresAt: Date; used: boolean} | undefined>;
+  markResetTokenAsUsed(token: string): Promise<void>;
 
   // Subscriptions
   getUserSubscriptions(userId: string): Promise<Subscription[]>;
@@ -73,6 +77,27 @@ class PostgresStorage implements IStorage {
 
   async makeUserAdmin(userId: string): Promise<void> {
     await db.update(users).set({ isAdmin: true }).where(eq(users.id, userId));
+  }
+
+  async updateUserPassword(userId: string, hashedPassword: string): Promise<void> {
+    await db.update(users).set({ password: hashedPassword }).where(eq(users.id, userId));
+  }
+
+  async createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void> {
+    await db.insert(passwordResetTokens).values({ userId, token, expiresAt });
+  }
+
+  async getPasswordResetToken(token: string): Promise<{userId: string; expiresAt: Date; used: boolean} | undefined> {
+    const result = await db.select({
+      userId: passwordResetTokens.userId,
+      expiresAt: passwordResetTokens.expiresAt,
+      used: passwordResetTokens.used,
+    }).from(passwordResetTokens).where(eq(passwordResetTokens.token, token));
+    return result[0];
+  }
+
+  async markResetTokenAsUsed(token: string): Promise<void> {
+    await db.update(passwordResetTokens).set({ used: true }).where(eq(passwordResetTokens.token, token));
   }
 
   // Subscriptions

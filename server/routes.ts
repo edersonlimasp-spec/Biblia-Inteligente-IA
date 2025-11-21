@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
+import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries } from "@shared/schema";
 import { z } from "zod";
@@ -119,6 +120,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get user error:", error);
       res.status(500).json({ error: "Erro ao buscar dados do usuário" });
+    }
+  });
+
+  // Forgot password - send reset link via email
+  app.post("/api/auth/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email é obrigatório" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // For security, don't reveal if email exists or not
+        return res.json({ 
+          message: "Se existe uma conta com esse email, você receberá um link de reset em breve." 
+        });
+      }
+
+      // Generate reset token (valid for 1 hour)
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+
+      await storage.createPasswordResetToken(user.id, resetToken, expiresAt);
+
+      // In production, send email with reset link
+      // For now, we'll return the token (in production, store link in email)
+      const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+      
+      // TODO: Send email with resetLink
+      console.log(`[DEV] Reset link for ${email}: ${resetLink}`);
+
+      res.json({ 
+        message: "Link de reset enviado para seu email (verificar console em dev)",
+        // In development only:
+        ...(process.env.NODE_ENV !== 'production' && { devResetToken: resetToken })
+      });
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ error: "Erro ao processar solicitação" });
+    }
+  });
+
+  // Reset password - confirm reset with token and new password
+  app.post("/api/auth/reset-password", async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+
+      if (!token || !newPassword) {
+        return res.status(400).json({ error: "Token e nova senha são obrigatórios" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "Senha deve ter pelo menos 6 caracteres" });
+      }
+
+      // Get reset token
+      const resetToken = await storage.getPasswordResetToken(token);
+      if (!resetToken) {
+        return res.status(400).json({ error: "Token de reset inválido ou expirado" });
+      }
+
+      if (resetToken.used) {
+        return res.status(400).json({ error: "Este token de reset já foi usado" });
+      }
+
+      if (new Date() > resetToken.expiresAt) {
+        return res.status(400).json({ error: "Token de reset expirado" });
+      }
+
+      // Hash new password and update
+      const hashedPassword = await hashPassword(newPassword);
+      await storage.updateUserPassword(resetToken.userId, hashedPassword);
+      await storage.markResetTokenAsUsed(token);
+
+      res.json({ message: "Senha alterada com sucesso" });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ error: "Erro ao resetar senha" });
     }
   });
 

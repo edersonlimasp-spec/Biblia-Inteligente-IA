@@ -565,46 +565,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
       const { query } = req.params;
-      const searchQuery = `%${query.toLowerCase()}%`;
-      const exactWordQuery = `${query.toLowerCase()}%`; // Starts with the word
+      const lowerQuery = query.toLowerCase();
       
-      // Search in database (lemma, transliteration, Portuguese definition, or English definition)
-      // Prioritize Portuguese definitions since we have 100% coverage
-      // Order by relevance: exact match at start > contains word > contains substring
-      const results = await db
-        .select()
-        .from(strongEntries)
-        .where(
-          or(
-            sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${searchQuery}`,
-            sql`LOWER(COALESCE(${strongEntries.lemma}, '')) LIKE ${searchQuery}`,
-            sql`LOWER(COALESCE(${strongEntries.translit}, '')) LIKE ${searchQuery}`,
-            sql`LOWER(COALESCE(${strongEntries.kjvDef}, '')) LIKE ${searchQuery}`
-          )
-        )
-        .orderBy(
-          // Priority 1: Portuguese definition starts with the word (e.g., "Deus")
-          sql`CASE WHEN LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${exactWordQuery} THEN 1 ELSE 2 END`,
-          // Priority 2: Lemma/transliteration exact match
-          sql`CASE WHEN LOWER(COALESCE(${strongEntries.lemma}, '')) = ${query.toLowerCase()} THEN 1 ELSE 2 END`
-        )
-        .limit(50);
+      // Search in database - simpler approach with raw SQL for better compatibility
+      const results = await db.execute(sql`
+        SELECT strong_number, lemma, translit, xlit, pron, kjv_def, portuguese_def, language
+        FROM strong_entries
+        WHERE 
+          LOWER(COALESCE(portuguese_def, '')) LIKE ${`%${lowerQuery}%`} OR
+          LOWER(COALESCE(lemma, '')) LIKE ${`%${lowerQuery}%`} OR
+          LOWER(COALESCE(translit, '')) LIKE ${`%${lowerQuery}%`} OR
+          LOWER(COALESCE(kjv_def, '')) LIKE ${`%${lowerQuery}%`}
+        ORDER BY 
+          CASE WHEN LOWER(COALESCE(portuguese_def, '')) LIKE ${`${lowerQuery}%`} THEN 1 ELSE 2 END,
+          CASE WHEN LOWER(COALESCE(lemma, '')) = ${lowerQuery} THEN 1 ELSE 2 END
+        LIMIT 50
+      `);
       
       // Format results to match frontend expectations
-      const formattedResults = results.map(e => ({
-        number: e.strongNumber,
-        portugueseDefinition: e.portugueseDef || null, // NEW: Portuguese translation
+      const formattedResults = results.map((e: any) => ({
+        number: e.strong_number,
+        portugueseDefinition: e.portuguese_def || null,
         word: e.lemma,
         transliteration: e.translit || e.xlit || '',
         pronunciation: e.pron || '',
-        definition: e.kjvDef || e.strongsDef || '',
+        definition: e.kjv_def || '',
         language: e.language,
       }));
       
       res.json({ results: formattedResults, total: formattedResults.length });
     } catch (error) {
       console.error("Search Strong error:", error);
-      res.status(500).json({ error: "Erro ao buscar no dicionário" });
+      res.status(500).json({ error: "Erro ao buscar no dicionário", details: String(error) });
     }
   });
 

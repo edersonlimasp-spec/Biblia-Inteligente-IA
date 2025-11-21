@@ -1,0 +1,149 @@
+Você agora é meu ARQUITETO DE SOFTWARE. Preciso que implemente o caminho completo de monetização do app “Bíblia Inteligente” usando REVENUECAT, pois o app será publicado para iOS e Android e vende conteúdo digital.
+
+IMPORTANTE:
+- NÃO usar Stripe/MercadoPago dentro do app para assinaturas digitais.
+- Usar Apple In-App Purchase (iOS) + Google Play Billing (Android) via RevenueCat.
+- Não peça chaves privadas no chat. Eu vou inserir tudo em Secrets/Env.
+
+========================================================
+1) OBJETIVO
+========================================================
+Criar o fluxo completo:
+1. Usuário instala o app.
+2. Ganha trial de 30 dias com acesso total ao Strong + Hebraico/Grego + IA.
+3. Após 30 dias, Strong e IA bloqueiam e abre tela de planos.
+4. Compras são feitas via IAP/Play Billing, gerenciadas pelo RevenueCat.
+5. Backend valida o status (trial/Gold/Premium/Vitalício) e libera recursos.
+
+========================================================
+2) PLANOS E REGRAS (IDs oficiais)
+========================================================
+Planos do app:
+
+A) Plano GOLD – R$ 19,90 / mês
+- Assinatura mensal
+- Libera IA (modo essencial) + Strong/Hebraico/Grego enquanto estiver ativa
+
+B) Plano PREMIUM – R$ 29,90 / mês
+- Assinatura mensal
+- Libera IA premium + Strong/Hebraico/Grego enquanto estiver ativa
+
+C) Strong Vitalício – R$ 189,90
+- Compra única (lifetime)
+- Libera Strong/Hebraico/Grego para sempre
+- NÃO libera IA
+
+Sugestão de product IDs (mantendo consistência):
+- gold_monthly
+- premium_monthly
+- strong_lifetime
+
+Criar “Entitlements” no RevenueCat:
+- entitlement_gold
+- entitlement_premium
+- entitlement_strong_lifetime
+
+========================================================
+3) PASSOS DE IMPLEMENTAÇÃO (OBRIGATÓRIOS)
+========================================================
+3.1 Criar SKUs nas lojas
+- iOS (App Store Connect):
+  • criar subscriptions: gold_monthly, premium_monthly
+  • criar non-consumable lifetime: strong_lifetime
+- Android (Google Play Console):
+  • criar subscriptions: gold_monthly, premium_monthly
+  • criar one-time product lifetime: strong_lifetime
+
+3.2 Criar projeto no RevenueCat
+- Criar Project “Biblia Inteligente”
+- Conectar App Store (via API Key .p8)
+- Conectar Google Play (Service Account JSON)
+- Importar os Products das lojas usando os IDs acima
+- Criar Offerings:
+  • offering_default com os 3 produtos
+
+3.3 Integrar SDK RevenueCat no app
+- Identificar stack atual:
+  • Se for React Native/Expo → usar react-native-purchases
+  • Se for Capacitor/Ionic/PWA wrapper → usar SDK compatível + bridge
+- Criar serviço de billing (BillingService) que:
+  a) inicializa RevenueCat
+  b) busca offerings
+  c) realiza compra
+  d) restaura compras
+  e) retorna entitlements ativos
+
+3.4 Tela de Planos (UX)
+- Criar tela bonita e muito clara:
+  • Trial expirado → abre automaticamente essa tela
+  • Mostrar Gold, Premium e Vitalício
+  • Botão “Assinar” para Gold/Premium
+  • Botão “Comprar Vitalício” para Strong
+  • Botão “Restaurar compras”
+- Tema azul/metálico já definido no app.
+
+3.5 Backend de validação (essencial)
+- Criar endpoint /billing/status
+- App consulta este endpoint no login e ao abrir leitura.
+- Backend deve:
+  • verificar trial (dataInicioTrial, dataFimTrial)
+  • consultar RevenueCat via webhook/status quando necessário
+  • salvar no DB:
+      - planType: TRIAL | GOLD | PREMIUM | LIFETIME | FREE
+      - expiresAt (assinatura)
+      - isActive
+- Criar webhook /billing/webhook para receber eventos do RevenueCat:
+  • INITIAL_PURCHASE
+  • RENEWAL
+  • CANCELLATION
+  • EXPIRATION
+  • PRODUCT_CHANGE
+  • LIFETIME_PURCHASE
+
+3.6 Lógica de acesso
+- FREE: Bíblia base liberada, Strong/IA bloqueados
+- TRIAL ativo: Strong + IA liberados
+- GOLD ativo: Strong + IA essencial liberados
+- PREMIUM ativo: Strong + IA premium liberados
+- LIFETIME ativo: Strong liberado, IA bloqueada
+
+========================================================
+4) TRIAL 30 DIAS
+========================================================
+- Ao criar conta nova:
+  • registrar trialStart=now()
+  • trialEnd=now()+30 dias
+- Durante trial:
+  • liberar Strong + Hebraico/Grego + IA essencial
+- Após expirar:
+  • bloquear Strong e IA
+  • mostrar tela de planos automaticamente
+
+========================================================
+5) TESTES E ENTREGA
+========================================================
+Antes de finalizar:
+- Testar compras sandbox iOS e Android
+- Testar restauração de compra
+- Testar upgrade/downgrade Gold ↔ Premium
+- Testar lifetime
+- Testar trial expirar corretamente
+- Confirmar que bloqueia/libera features sem bugs
+
+Entregar:
+1) Código completo da integração RevenueCat no app
+2) Código do backend /billing/status e /billing/webhook
+3) Lista de arquivos alterados
+4) Instruções claras de como eu:
+   - crio SKUs nas lojas
+   - conecto o RevenueCat
+   - coloco as chaves em Secrets
+   - testo sandbox
+
+IMPORTANTE FINAL:
+Revise tudo antes de dizer que está pronto.
+Não considere completo enquanto:
+- RevenueCat estiver integrado nos dois sistemas
+- Trial 30 dias estiver funcionando
+- Tela de planos estiver clara e operacional
+- Entitlements liberarem/bloquearem tudo corretamente.

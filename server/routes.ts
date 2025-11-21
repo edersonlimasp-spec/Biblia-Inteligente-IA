@@ -567,36 +567,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { query } = req.params;
       const lowerQuery = query.toLowerCase();
       
-      // Search in database - simpler approach with raw SQL for better compatibility
-      const results = await db.execute(sql`
-        SELECT strong_number, lemma, translit, xlit, pron, kjv_def, portuguese_def, language
-        FROM strong_entries
-        WHERE 
-          LOWER(COALESCE(portuguese_def, '')) LIKE ${`%${lowerQuery}%`} OR
-          LOWER(COALESCE(lemma, '')) LIKE ${`%${lowerQuery}%`} OR
-          LOWER(COALESCE(translit, '')) LIKE ${`%${lowerQuery}%`} OR
-          LOWER(COALESCE(kjv_def, '')) LIKE ${`%${lowerQuery}%`}
-        ORDER BY 
-          CASE WHEN LOWER(COALESCE(portuguese_def, '')) LIKE ${`${lowerQuery}%`} THEN 1 ELSE 2 END,
-          CASE WHEN LOWER(COALESCE(lemma, '')) = ${lowerQuery} THEN 1 ELSE 2 END
-        LIMIT 50
-      `);
+      // Search in database using Drizzle with proper LIKE syntax
+      const results = await db
+        .select()
+        .from(strongEntries)
+        .where(
+          or(
+            sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+            sql`LOWER(COALESCE(${strongEntries.lemma}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+            sql`LOWER(COALESCE(${strongEntries.translit}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+            sql`LOWER(COALESCE(${strongEntries.kjvDef}, '')) LIKE ${'%' + lowerQuery + '%'}`
+          )
+        )
+        .limit(50);
       
       // Format results to match frontend expectations
-      const formattedResults = results.map((e: any) => ({
-        number: e.strong_number,
-        portugueseDefinition: e.portuguese_def || null,
+      const formattedResults = results.map(e => ({
+        number: e.strongNumber,
+        portugueseDefinition: e.portugueseDef || null,
         word: e.lemma,
         transliteration: e.translit || e.xlit || '',
         pronunciation: e.pron || '',
-        definition: e.kjv_def || '',
+        definition: e.kjvDef || e.strongsDef || '',
         language: e.language,
       }));
       
       res.json({ results: formattedResults, total: formattedResults.length });
     } catch (error) {
       console.error("Search Strong error:", error);
-      res.status(500).json({ error: "Erro ao buscar no dicionário", details: String(error) });
+      res.status(500).json({ error: "Erro ao buscar no dicionário" });
+    }
+  });
+
+  // ===================================
+  // BILLING ROUTES - RevenueCat Integration
+  // ===================================
+
+  // Get user billing status
+  app.get("/api/billing/status", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const user = await storage.getUser(req.userId!);
+      if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
+
+      const trialActive = isTrialActive(user.trialStartDate);
+      const subscriptions = await storage.getUserSubscriptions(user.id);
+      
+      const activeSubscription = subscriptions.find(s => s.status === 'active');
+      const planType = activeSubscription?.planType || (trialActive ? 'trial' : 'free');
+      
+      res.json({
+        planType,
+        trialActive,
+        trialDaysRemaining: trialActive ? getTrialDaysRemaining(user.trialStartDate) : 0,
+        hasActiveSubscription: !!activeSubscription,
+        subscription: activeSubscription || null,
+      });
+    } catch (error) {
+      console.error("Billing status error:", error);
+      res.status(500).json({ error: "Erro ao obter status de cobrança" });
+    }
+  });
+
+  // Webhook para eventos RevenueCat
+  app.post("/api/billing/webhook", async (req, res) => {
+    try {
+      const { event, app_user_id, entitlements } = req.body;
+      
+      if (!app_user_id) {
+        return res.status(400).json({ error: "app_user_id ausente" });
+      }
+
+      const user = await storage.getUser(app_user_id);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Map entitlements to plan types
+      let planType = 'free';
+      if (entitlements?.includes('entitlement_premium')) {
+        planType = 'premium';
+      } else if (entitlements?.includes('entitlement_gold')) {
+        planType = 'gold';
+      } else if (entitlements?.includes('entitlement_strong_lifetime')) {
+        planType = 'strong_lifetime';
+      }
+
+      // Create or update subscription based on event
+      if (event === 'INITIAL_PURCHASE' || event === 'RENEWAL' || event === 'PRODUCT_CHANGE') {
+        await storage.createSubscription({
+          userId: user.id,
+          planType,
+          status: 'active',
+          amount: planType === 'gold' ? '19.90' : planType === 'premium' ? '29.90' : '189.90',
+        });
+      } else if (event === 'CANCELLATION' || event === 'EXPIRATION') {
+        // Mark subscriptions as cancelled
+        const subscriptions = await storage.getUserSubscriptions(user.id);
+        for (const sub of subscriptions) {
+          if (sub.planType === planType) {
+            // Update subscription status to cancelled
+            // (would need to implement updateSubscription method)
+          }
+        }
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Billing webhook error:", error);
+      res.status(500).json({ error: "Erro ao processar webhook" });
     }
   });
 

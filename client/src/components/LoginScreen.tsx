@@ -10,9 +10,10 @@ import appLogo from "@assets/logo/logo.png";
 interface LoginScreenProps {
   onLogin?: () => void;
   onNavigateToRegister?: () => void;
+  onNavigateToForgotPassword?: () => void;
 }
 
-export function LoginScreen({ onLogin, onNavigateToRegister }: LoginScreenProps) {
+export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotPassword }: LoginScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -100,6 +101,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister }: LoginScreenProps)
                 type="button"
                 variant="ghost"
                 className="text-sm text-muted-foreground"
+                onClick={onNavigateToForgotPassword}
                 data-testid="link-forgot-password"
               >
                 Esqueceu a senha?

@@ -17,6 +17,18 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false }));
 
+// CRITICAL: Set no-cache headers for index.html to prevent mobile caching issues
+app.use((req, res, next) => {
+  if (req.path === '/' || req.path === '/index.html' || req.path.endsWith('.html')) {
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

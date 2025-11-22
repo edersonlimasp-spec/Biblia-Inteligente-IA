@@ -1,7 +1,9 @@
-const CACHE_NAME = 'biblia-hg-v1';
+// Generate cache name with timestamp to force update on each deployment
+const CACHE_VERSION = new Date().toISOString().split('T')[0]; // Date format: YYYY-MM-DD
+const CACHE_NAME = `biblia-hg-${CACHE_VERSION}`;
+
+// Only cache static assets, NOT index.html
 const urlsToCache = [
-  '/',
-  '/index.html',
   '/manifest.json',
   '/pwa-icons/icon-192.png',
   '/pwa-icons/icon-512.png',
@@ -9,46 +11,88 @@ const urlsToCache = [
 
 // Install event - cache essential files
 self.addEventListener('install', (event) => {
+  console.log('[SW] Installing version:', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('[SW] Opened cache');
+        return cache.addAll(urlsToCache).catch(err => {
+          console.log('[SW] Some assets failed to cache (may be normal for missing files):', err);
+        });
       })
   );
+  // Force activation immediately
   self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating version:', CACHE_NAME);
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  // Claim all clients immediately
   self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - smart caching strategy
 self.addEventListener('fetch', (event) => {
+  const url = event.request.url;
+
   // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+  if (!url.startsWith(self.location.origin)) {
     return;
   }
 
-  // Don't cache API requests - let them fail naturally when offline
-  if (event.request.url.includes('/api/')) {
-    event.respondWith(fetch(event.request));
+  // CRITICAL: API requests MUST go to network (no caching)
+  if (url.includes('/api/')) {
+    event.respondWith(fetch(event.request).catch(() => {
+      return new Response(JSON.stringify({ error: 'Network unavailable' }), {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }));
     return;
   }
 
+  // CRITICAL: index.html and HTML files MUST use network-first strategy
+  if (url.endsWith('/') || url.endsWith('/index.html') || url.includes('index.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Always update cache with latest version
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cached version if network fails
+          return caches.match(event.request).then(cached => {
+            return cached || new Response('Offline - no cached version available', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
+          });
+        })
+    );
+    return;
+  }
+
+  // For other requests (JS, CSS, images): cache-first strategy
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -69,8 +113,8 @@ self.addEventListener('fetch', (event) => {
           // Clone the response
           const responseToCache = response.clone();
 
-          // Only cache GET requests for static assets
-          if (event.request.method === 'GET' && event.request.mode === 'navigate') {
+          // Cache successful GET requests
+          if (event.request.method === 'GET') {
             caches.open(CACHE_NAME)
               .then((cache) => {
                 cache.put(event.request, responseToCache);
@@ -79,13 +123,20 @@ self.addEventListener('fetch', (event) => {
 
           return response;
         }).catch(() => {
-          // Network failed for navigation request
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
-          }
-          // For other requests (images, scripts), just let them fail
+          // Network failed
+          console.log('[SW] Network request failed for:', url);
           return new Response('', { status: 503, statusText: 'Service Unavailable' });
         });
       })
   );
+});
+
+// Message handler for cache clearing requests
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    console.log('[SW] Clearing cache');
+    caches.delete(CACHE_NAME).then(() => {
+      console.log('[SW] Cache cleared');
+    });
+  }
 });

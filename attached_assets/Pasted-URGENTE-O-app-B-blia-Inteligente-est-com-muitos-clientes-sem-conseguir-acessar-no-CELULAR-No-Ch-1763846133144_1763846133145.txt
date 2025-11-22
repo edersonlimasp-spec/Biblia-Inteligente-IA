@@ -1,0 +1,93 @@
+URGENTE: O app “Bíblia Inteligente” está com muitos clientes sem conseguir acessar no CELULAR.
+No Chrome desktop só abre com Ctrl+Shift+R, então é claro que existe CACHE/SERVICE WORKER travando versões antigas.
+No celular NÃO dá para pedir para cliente limpar cache. Preciso que o app atualize sozinho.
+
+OBJETIVO ÚNICO:
+➡️ Fazer com que QUALQUER usuário (desktop ou mobile) receba a versão nova automaticamente, sem limpar cache.
+
+====================================================
+1) INVESTIGAR CAUSA REAL (OBRIGATÓRIO)
+====================================================
+1.1 Verificar se existe Service Worker/PWA ativo:
+- procurar `service-worker.js` no dist/ ou server/public/
+- procurar `navigator.serviceWorker.register(...)` no frontend
+- verificar manifest e precache.
+
+1.2 Confirmar se o problema é cache de index.html/assets:
+- Network em produção (mobile emulado):
+  ver se index.html vem antigo ou se assets ficam 404/antigos.
+
+====================================================
+2) CORRIGIR SERVICE WORKER (SE EXISTIR)
+====================================================
+Se houver service-worker.js:
+
+2.1 Forçar atualização imediata:
+No SW:
+- No install:
+  self.skipWaiting();
+- No activate:
+  self.clients.claim();
+
+2.2 Versionar cache sempre que publicar:
+- CACHE_NAME precisa mudar a cada build (ex.: incluir versão/timestamp).
+Exemplo:
+  const CACHE_NAME = "biblia-cache-v" + BUILD_VERSION;
+  (BUILD_VERSION deve ser incrementada a cada publish)
+
+2.3 Limpar caches antigos ao ativar:
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(k => caches.delete(k)))
+    )
+  );
+});
+
+2.4 Garantir update em background:
+- app deve detectar SW novo e recarregar automaticamente.
+Ex.: ao receber `controllerchange`, fazer reload.
+
+====================================================
+3) SE NÃO PRECISAR OFFLINE AGORA, DESABILITAR SW EM PRODUÇÃO
+====================================================
+Se modo offline não é prioridade imediata:
+- Remover/condicionar registro do SW em produção.
+Ex.:
+  if (import.meta.env.DEV) {
+     navigator.serviceWorker.register(...)
+  }
+
+Isso elimina o travamento de versão no celular imediatamente.
+
+====================================================
+4) AJUSTAR CACHE DO BACKEND (EXPRESS) SEM DEPENDER DO CLIENTE
+====================================================
+index.html NÃO pode ser cacheado:
+- Antes de servir o index, setar:
+  Cache-Control: no-store, no-cache, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+Assets podem ficar cacheados porque têm hash do Vite.
+
+====================================================
+5) VALIDAR EM MOBILE REAL
+====================================================
+- Publicar nova versão
+- Testar:
+  ✅ Chrome desktop sem hard refresh
+  ✅ Android Chrome
+  ✅ iPhone Safari/Chrome
+- Garantir que abre direto e sempre pega versão nova.
+
+====================================================
+6) ENTREGA
+====================================================
+Depois de corrigir, me entregue:
+- qual era a causa raiz (SW ou cache backend)
+- quais arquivos foram alterados
+- como ficou o mecanismo de auto-update
+- confirmação de teste em mobile real.
+
+NÃO considere pronto até usuários MOBILE acessarem normalmente sem limpar cache.

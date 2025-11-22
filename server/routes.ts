@@ -768,14 +768,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve service worker with correct MIME type for Chrome compatibility
+  // Serve service worker with correct MIME type and cache headers
   app.get('/sw.js', (req, res) => {
     const swPath = path.resolve(import.meta.dirname, 'public/sw.js');
     if (fs.existsSync(swPath)) {
+      // Never cache service worker - always fetch latest version
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
       res.type('application/javascript').sendFile(swPath);
     } else {
       res.status(404).json({ error: 'Service worker not found' });
     }
+  });
+
+  // Cache headers for manifest and index.html
+  app.get(['/manifest.json', '/index.html', '/'], (req, res, next) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
   });
 
   const httpServer = createServer(app);

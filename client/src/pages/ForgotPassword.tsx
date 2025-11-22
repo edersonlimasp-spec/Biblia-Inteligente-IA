@@ -15,6 +15,7 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [resetLink, setResetLink] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,15 +33,17 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
         body: JSON.stringify({ email }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Erro ao processar sua solicitação");
+        throw new Error(data.error || "Erro ao processar sua solicitação");
       }
 
       setIsSubmitted(true);
+      setResetLink(data.resetLink);
       toast({
-        title: "Email enviado",
-        description: `Se uma conta existe com ${email}, você receberá um email de reset de senha em breve.`,
+        title: "Link de reset gerado",
+        description: "Use o link abaixo para redefinir sua senha",
       });
     } catch (error: any) {
       toast({
@@ -50,6 +53,16 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (resetLink) {
+      navigator.clipboard.writeText(resetLink);
+      toast({
+        title: "Link copiado",
+        description: "Cole o link na barra de endereço do seu navegador",
+      });
     }
   };
 
@@ -69,15 +82,50 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
         </CardHeader>
         <CardContent>
           {isSubmitted ? (
-            <div className="space-y-4 text-center">
-              <p className="text-sm text-muted-foreground">
-                Enviamos um link de reset de senha para <strong>{email}</strong>
+            <div className="space-y-4">
+              <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <p className="text-sm text-green-900 dark:text-green-100 mb-3">
+                  ✓ Link de reset de senha gerado com sucesso!
+                </p>
+                
+                {resetLink && (
+                  <div className="space-y-3">
+                    <div className="bg-white dark:bg-slate-900 p-3 rounded border border-gray-200 dark:border-gray-700 break-all">
+                      <p className="text-xs text-muted-foreground mb-2">Link de reset:</p>
+                      <p className="text-xs font-mono text-primary">{resetLink}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Button
+                        onClick={handleCopyLink}
+                        variant="default"
+                        className="w-full"
+                        data-testid="button-copy-reset-link"
+                      >
+                        Copiar Link
+                      </Button>
+                      
+                      <a href={resetLink} className="block">
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          data-testid="button-use-reset-link"
+                        >
+                          Usar Link de Reset
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-xs text-muted-foreground text-center">
+                Este link expira em 1 hora. Se expirar, você poderá solicitar um novo.
               </p>
-              <p className="text-xs text-muted-foreground">
-                Se não receber o email em alguns minutos, verifique sua pasta de spam.
-              </p>
+
               <Button
                 onClick={onBackToLogin}
+                variant="ghost"
                 className="w-full"
                 data-testid="button-back-to-login"
               >

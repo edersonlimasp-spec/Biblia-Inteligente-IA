@@ -1,0 +1,62 @@
+╔════════════════════════════════════════════════════════════════════╗
+║                   EDITAR .replit - 3 PASSOS                        ║
+╚════════════════════════════════════════════════════════════════════╝
+
+PASSO 1: ABRIR O ARQUIVO .replit
+─────────────────────────────────
+
+   Replit UI
+   ─────────
+   
+   [Publish] [Files] [Settings]
+                │
+                └─ Veja a lista de arquivos
+                   │
+                   ├─ .git
+                   ├─ .github
+                   ├─ .replit      ← CLIQUE AQUI
+                   ├─ client/
+                   ├─ dist/
+                   ├─ server/
+                   ├─ package.json
+                   └─ ...
+
+
+PASSO 2: ENCONTRAR A LINHA
+──────────────────────────
+
+   Dentro do arquivo .replit, procure por:
+   
+   ┌──────────────────────────────────────────────┐
+   │ [deployment]                                 │
+   │ deploymentTarget = "autoscale"               │
+   │ build = ["npm", "run", "build"]  ← AQUI     │
+   │ run = ["npm", "run", "start"]                │
+   └──────────────────────────────────────────────┘
+
+
+PASSO 3: MUDAR A LINHA
+─────────────────────
+
+   APAGUE:
+   build = ["npm", "run", "build"]
+
+   ESCREVA:
+   build = ["npm", "ci", "&&", "npm", "run", "build"]
+
+
+RESULTADO:
+──────────
+
+   ┌──────────────────────────────────────────────────────────────────┐
+   │ [deployment]                                                     │
+   │ deploymentTarget = "autoscale"                                   │
+   │ build = ["npm", "ci", "&&", "npm", "run", "build"]  ← CORRIGIDO │
+   │ run = ["npm", "run", "start"]                                    │
+   └──────────────────────────────────────────────────────────────────┘
+
+
+SALVAR: Ctrl+S ou Cmd+S
+PUBLISH: Clique em "Publish" button
+PRONTO! ✅
+

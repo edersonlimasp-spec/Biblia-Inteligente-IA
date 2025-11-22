@@ -621,28 +621,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Strong's Dictionary routes (Database-driven)
-  app.get("/api/strong/:number", ensureAuthenticated, async (req: AuthRequest, res) => {
+  app.get("/api/strong/:number", async (req, res) => {
     try {
-      // Check if user has access to Strong's dictionary
-      const user = await storage.getUser(req.userId!);
-      if (!user) {
-        return res.status(401).json({ error: "Usuário não autenticado" });
-      }
-
-      // Check trial status and subscriptions
-      const trialActive = isTrialActive(user.trialStartDate);
-      const subscriptions = await storage.getUserSubscriptions(user.id);
-      const hasStrongAccess = subscriptions.some(s => s.planType === 'strong_lifetime' && s.status === 'active');
-
-      if (!trialActive && !hasStrongAccess) {
-        return res.status(403).json({ 
-          error: "Acesso negado",
-          message: "Você precisa de uma assinatura Strong Vitalício (R$ 189,90) para acessar o dicionário de Hebraico e Grego.",
-          requiresSubscription: true,
-          subscriptionType: 'strong_lifetime'
-        });
-      }
-
       const { number } = req.params;
       const upperNumber = number.toUpperCase();
       

@@ -1,0 +1,35 @@
+=== BÍBLIA INTELIGENTE - PRODUCTION FIX SUMMARY ===
+
+PROBLEMA INICIAL:
+1. Build falhando em produção (.replit sem npm ci)
+2. Strong's sem destaque visual adequado
+
+ARQUIVOS MODIFICADOS:
+1. client/src/components/BibleReader.tsx
+   - Adicionado destaque visual para palavras com Strong
+   - Underline pontilhado
+   - Bold (fontWeight: 500)
+   - Hover effect com background semi-transparente
+   - Implementado com inline styles para evitar conflitos Tailwind
+
+ARQUIVOS CRIADOS (Documentação):
+1. PRODUCTION_DEPLOYMENT_GUIDE.md - Guia completo
+2. FIX_PRODUCTION_NOW.md - Instruções emergenciais  
+3. VALIDATION_CHECKLIST.sh - Script de validação
+4. SUMMARY_FIXES_APPLIED.md - Resumo de mudanças
+5. INSTRUCOES_FINAIS.md - Instruções finais
+
+CONFIGURAÇÃO NECESSÁRIA:
+- Editar .replit linha build command
+- DE: ["npm", "run", "build"]
+- PARA: ["npm", "ci", "&&", "npm", "run", "build"]
+
+STATUS:
+- Local development: ✅ Funcionando
+- Build: ✅ Compilação OK
+- Deployment: ⏳ Aguardando .replit editar
+
+PRÓXIMOS PASSOS:
+1. Usuário edita .replit
+2. Clica Publish
+3. Testa em produção

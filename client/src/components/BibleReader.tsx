@@ -307,17 +307,22 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                         return (
                           <span
                             key={idx}
-                            className={`transition-colors ${
-                              isClickable ? 'cursor-pointer hover:bg-primary/20' : 'cursor-default'
-                            } ${
-                              hasStrongInCache 
-                                ? 'font-medium underline decoration-dotted decoration-1 underline-offset-2 text-foreground dark:text-foreground' 
-                                : ''
-                            }`}
+                            className={isClickable ? 'cursor-pointer transition-colors' : 'cursor-default'}
+                            style={hasStrongInCache ? { textDecoration: 'underline dotted', textDecorationThickness: '1px', textUnderlineOffset: '2px', fontWeight: '500' } : {}}
                             onClick={(e) => {
                               if (isClickable) {
                                 e.stopPropagation();
                                 handleWordClick(cleanWord, verse.verse);
+                              }
+                            }}
+                            onMouseEnter={(e) => {
+                              if (isClickable && (e.currentTarget as HTMLElement)) {
+                                (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(26, 82, 153, 0.1)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (isClickable && (e.currentTarget as HTMLElement)) {
+                                (e.currentTarget as HTMLElement).style.backgroundColor = '';
                               }
                             }}
                             data-testid={`word-${verse.verse}-${idx}`}

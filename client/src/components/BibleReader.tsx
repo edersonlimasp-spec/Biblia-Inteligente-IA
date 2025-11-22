@@ -308,9 +308,11 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                           <span
                             key={idx}
                             className={`transition-colors ${
-                              isClickable ? 'cursor-pointer' : 'cursor-default'
+                              isClickable ? 'cursor-pointer hover:bg-primary/20' : 'cursor-default'
                             } ${
-                              hasStrongInCache ? 'opacity-80 font-medium' : ''
+                              hasStrongInCache 
+                                ? 'font-medium underline decoration-dotted decoration-1 underline-offset-2 text-foreground dark:text-foreground' 
+                                : ''
                             }`}
                             onClick={(e) => {
                               if (isClickable) {

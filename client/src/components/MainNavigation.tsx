@@ -56,7 +56,7 @@ export function MainNavigation() {
     if (!showSplash && !isLoading) {
       if (user && currentScreen !== "bible" && currentScreen !== "subscriptions" && currentScreen !== "settings" && currentScreen !== "history") {
         setCurrentScreen("bible");
-      } else if (!user && currentScreen !== "login" && currentScreen !== "register") {
+      } else if (!user && currentScreen !== "login" && currentScreen !== "register" && currentScreen !== "forgot-password" && currentScreen !== "reset-password") {
         setCurrentScreen("login");
       }
     }

@@ -1,4 +1,4 @@
-import { User, Moon, BookText, CreditCard, Info, LogOut, Bell } from "lucide-react";
+import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -27,6 +27,16 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-3xl mx-auto space-y-6">
+        {/* Back Button */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onBack}
+          data-testid="button-settings-back"
+          className="mb-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         {/* Profile Section */}
         <Card>
           <CardHeader>

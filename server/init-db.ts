@@ -1,45 +1,61 @@
 import { db } from './db';
-import { strongEntries, users } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { strongEntries } from '@shared/schema';
 import fs from 'fs';
 import path from 'path';
 
 export async function initializeDatabase() {
   try {
-    console.log('🔍 Checking if database needs initialization...');
+    console.log('🔍 Verificando se banco de dados precisa de inicialização...');
     
     // Check if strong_entries table has data
     const strongCount = await db.select().from(strongEntries).limit(1);
     
     if (strongCount.length > 0) {
-      console.log('✅ Database already initialized with Strong entries');
+      console.log('✅ Banco de dados já inicializado com Strong entries');
       return;
     }
 
-    console.log('📥 Database is empty, importing data...');
+    console.log('📥 Banco está vazio, importando dados...');
     
-    // Import Strong dictionary data
+    // Import Strong dictionary data from embedded JSON file
     const strongDataPath = path.resolve(__dirname, '../server/strong-data.json');
     
     if (fs.existsSync(strongDataPath)) {
-      console.log('📂 Found strong-data.json, importing...');
-      const strongData = JSON.parse(fs.readFileSync(strongDataPath, 'utf-8'));
+      console.log('📂 Encontrado strong-data.json, importando...');
+      const strongDataRaw = JSON.parse(fs.readFileSync(strongDataPath, 'utf-8'));
+      
+      // Map from snake_case (DB export) to the schema field names
+      const strongData = strongDataRaw.map((row: any) => ({
+        id: row.id,
+        strongNumber: row.strong_number,
+        language: row.language,
+        lemma: row.lemma,
+        translit: row.translit,
+        xlit: row.xlit,
+        pron: row.pron,
+        kjvDef: row.kjv_def,
+        strongsDef: row.strongs_def,
+        portugueseDef: row.portuguese_def,
+        derivation: row.derivation,
+        createdAt: row.created_at,
+      }));
       
       // Import in batches to avoid overwhelming the database
       const batchSize = 500;
       for (let i = 0; i < strongData.length; i += batchSize) {
         const batch = strongData.slice(i, i + batchSize);
         await db.insert(strongEntries).values(batch).onConflictDoNothing();
-        console.log(`  Imported ${Math.min(i + batchSize, strongData.length)} / ${strongData.length}`);
+        const processed = Math.min(i + batchSize, strongData.length);
+        console.log(`  ✓ Importados ${processed} / ${strongData.length}`);
       }
-      console.log(`✅ Imported ${strongData.length} Strong dictionary entries`);
+      console.log(`✅ Importados ${strongData.length} Strong dictionary entries`);
     } else {
-      console.log('⚠️ strong-data.json not found - Strong dictionary will be empty');
+      console.log('⚠️ strong-data.json não encontrado - Dicionário Strong estará vazio');
     }
 
   } catch (error) {
-    console.error('❌ Error initializing database:', error);
+    console.error('❌ Erro ao inicializar banco de dados:', error);
     // Don't throw - app should still run even if data import fails
-    console.log('⚠️ App will continue but with limited functionality');
+    console.log('⚠️ App continuará rodando mas com funcionalidade limitada');
   }
 }

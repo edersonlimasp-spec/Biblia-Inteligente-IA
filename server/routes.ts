@@ -10,6 +10,8 @@ import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
 import { db } from "./db";
 import { eq, or, like, sql } from "drizzle-orm";
+import path from "path";
+import fs from "fs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
@@ -763,6 +765,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Billing webhook error:", error);
       res.status(500).json({ error: "Erro ao processar webhook" });
+    }
+  });
+
+  // Serve service worker with correct MIME type for Chrome compatibility
+  app.get('/sw.js', (req, res) => {
+    const swPath = path.resolve(import.meta.dirname, '../client/public/sw.js');
+    if (fs.existsSync(swPath)) {
+      res.type('application/javascript').sendFile(swPath);
+    } else {
+      res.status(404).json({ error: 'Service worker not found' });
     }
   });
 

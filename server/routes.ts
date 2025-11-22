@@ -14,6 +14,30 @@ import path from "path";
 import fs from "fs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Middleware: Cache control for static files (MUST be first!)
+  // This prevents browser from caching the app shell and allows updates
+  app.use((req, res, next) => {
+    const path = req.path;
+    
+    // Never cache: app shell, manifest, service worker
+    if (path === '/' || path === '/index.html' || path === '/manifest.json' || path === '/sw.js') {
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      res.set('ETag', '');  // Disable ETag caching for these files
+    }
+    // Cache assets with hashes for 1 year (they have content hashes in filename)
+    else if (path.startsWith('/assets/')) {
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    // Cache other resources for 1 hour
+    else if (path.match(/\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico)$/)) {
+      res.set('Cache-Control', 'public, max-age=3600');
+    }
+    
+    next();
+  });
+
   // Authentication routes
   app.post("/api/auth/register", async (req, res) => {
     try {
@@ -766,28 +790,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Billing webhook error:", error);
       res.status(500).json({ error: "Erro ao processar webhook" });
     }
-  });
-
-  // Serve service worker with correct MIME type and cache headers
-  app.get('/sw.js', (req, res) => {
-    const swPath = path.resolve(import.meta.dirname, 'public/sw.js');
-    if (fs.existsSync(swPath)) {
-      // Never cache service worker - always fetch latest version
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.set('Pragma', 'no-cache');
-      res.set('Expires', '0');
-      res.type('application/javascript').sendFile(swPath);
-    } else {
-      res.status(404).json({ error: 'Service worker not found' });
-    }
-  });
-
-  // Cache headers for manifest and index.html
-  app.get(['/manifest.json', '/index.html', '/'], (req, res, next) => {
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    next();
   });
 
   const httpServer = createServer(app);

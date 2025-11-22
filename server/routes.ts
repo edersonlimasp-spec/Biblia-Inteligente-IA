@@ -770,7 +770,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve service worker with correct MIME type for Chrome compatibility
   app.get('/sw.js', (req, res) => {
-    const swPath = path.resolve(import.meta.dirname, '../client/public/sw.js');
+    const swPath = path.resolve(import.meta.dirname, 'public/sw.js');
     if (fs.existsSync(swPath)) {
       res.type('application/javascript').sendFile(swPath);
     } else {

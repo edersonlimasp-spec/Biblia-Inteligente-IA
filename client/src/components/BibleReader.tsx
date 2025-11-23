@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { StrongModal } from "@/components/StrongModal";
-import { BibleVersionSelector } from "@/components/BibleVersionSelector";
+import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import logoSmall from "@assets/logo/logo-small.png";
 
@@ -214,8 +214,8 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             data-testid="img-header-logo"
           />
           
-          {/* Version Selector */}
-          <BibleVersionSelector 
+          {/* Version Selector - Almeida Versions */}
+          <AlmeidaVersionSelector 
             selectedVersion={selectedVersion} 
             onVersionChange={setSelectedVersion}
           />

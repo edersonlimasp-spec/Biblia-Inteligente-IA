@@ -1,0 +1,100 @@
+Quero implementar no app “Bíblia Inteligente” uma versão completa de “Bíblia Almeida Strong”.
+
+Objetivo:
+- Incluir todas as traduções Almeida que são livres (domínio público).
+- Garantir Strong funcionando em TODAS elas.
+- Criar seletor de tradução para o usuário escolher qual Almeida quer ler.
+
+IMPORTANTE (direitos autorais):
+- Adicionar SOMENTE versões Almeida de domínio público:
+  ACF, ARC (edições antigas), AA e Almeida 1911.
+- NÃO adicionar ARA, NAA, NVI ou qualquer tradução protegida sem licença.
+
+====================================================
+1) VERSÕES A INCLUIR
+====================================================
+Criar/ativar estas versões no sistema:
+- ACF (Almeida Corrigida Fiel)
+- ARC (Almeida Revista e Corrigida – edição pública)
+- AA (Almeida Atualizada histórica)
+- ALMEIDA_1911 (Almeida 1911)
+
+Criar tabela BibleVersion (se não existir):
+- code, name, language="PT", license="public_domain", isActive=true
+
+====================================================
+2) IMPORTAR/POPULAR BÍBLIA COMPLETA
+====================================================
+Para cada versão acima:
+- inserir os 66 livros completos
+- garantir mesma estrutura (book/chapter/verse)
+- criar seed/import scripts para popular o banco
+
+====================================================
+3) STRONG TAGUEADO EM TODAS AS ALMEIDAS
+====================================================
+- Strong deve ser aplicado como camada por palavra (tokenização).
+- Ao abrir qualquer Almeida, as palavras que possuem strongId:
+  ✅ ficam clicáveis
+  ✅ abrem modal Strong (Hxxxx/Gxxxx)
+  ✅ mostram original hebraico/greco + transliteração + definição
+
+- Palavras sem strongId:
+  ❌ não clicáveis
+
+- Manter destaque visual sutil nas palavras com Strong:
+  • cor levemente mais escura (+10%)
+  • sublinhado pontilhado discreto (dotted underline)
+
+====================================================
+4) SELETOR DE TRADUÇÃO (UX)
+====================================================
+Adicionar seletor em 2 pontos:
+
+4.1 Configurações do usuário:
+- “Tradução padrão de leitura”
+- defaultVersion salvo no perfil do user
+
+4.2 Tela de leitura:
+- dropdown no topo
+- opções: ACF, ARC, AA, Almeida 1911
+- trocar tradução mantendo o mesmo livro/capítulo
+
+Persistir última escolha do usuário.
+
+====================================================
+5) APIS
+====================================================
+Criar/ajustar endpoints:
+
+GET /versions
+- lista versões ativas Almeida
+
+GET /bible?versionCode=ACF&book=Jo&chapter=3
+- retorna capítulo
+
+GET /verse?versionCode=ARC&book=Gn&chapter=1&verse=1
+- retorna versículo
+
+Fallback:
+- se versionCode inválido, usar ACF.
+
+====================================================
+6) TESTES
+====================================================
+Antes de concluir:
+1. Abrir João 3:16 nas 4 Almeida
+2. Trocar tradução e confirmar que texto muda
+3. Confirmar Strong clicável em todas
+4. Confirmar destaque sutil apenas onde há Strong
+5. Testar em desktop e mobile
+
+====================================================
+7) ENTREGA
+====================================================
+Me entregar:
+- lista das versões adicionadas
+- scripts de import/seed
+- models/migrations
+- telas/selector pronto
+- confirmação de testes.

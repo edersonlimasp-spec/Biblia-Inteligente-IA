@@ -42,7 +42,7 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground p-4 md:p-8">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Back Button */}
         <Button 

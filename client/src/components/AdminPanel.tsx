@@ -18,9 +18,9 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
 
   if (!user || (!isSuperAdmin && user.role !== 'admin')) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-2">Acesso Negado</h1>
+          <h1 className="text-2xl font-bold text-foreground dark:text-foreground mb-2">Acesso Negado</h1>
           <p className="text-muted-foreground mb-4">Você não tem permissão para acessar o painel administrativo.</p>
           <Button onClick={onBack}>Voltar</Button>
         </div>
@@ -29,9 +29,9 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground">
       {/* Admin Header */}
-      <div className="border-b bg-card">
+      <div className="border-b bg-card dark:bg-card">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

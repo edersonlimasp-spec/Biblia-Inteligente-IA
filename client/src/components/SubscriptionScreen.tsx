@@ -61,7 +61,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 dark:from-primary/20 dark:via-background dark:to-primary/20 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

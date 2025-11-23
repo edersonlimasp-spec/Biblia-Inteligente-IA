@@ -8,6 +8,7 @@ import { BibleReader } from "./BibleReader";
 import { SubscriptionScreen } from "./SubscriptionScreen";
 import { SettingsScreen } from "./SettingsScreen";
 import { AIHistoryScreen } from "./AIHistoryScreen";
+import { AdminPanel } from "./AdminPanel";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
@@ -21,7 +22,8 @@ type Screen =
   | "bible"
   | "subscriptions"
   | "settings"
-  | "history";
+  | "history"
+  | "admin";
 
 export function MainNavigation() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("splash");
@@ -80,7 +82,7 @@ export function MainNavigation() {
   // Redirect to bible if authenticated, login if not
   useEffect(() => {
     if (!showSplash && !isLoading) {
-      if (user && currentScreen !== "bible" && currentScreen !== "subscriptions" && currentScreen !== "settings" && currentScreen !== "history") {
+      if (user && currentScreen !== "bible" && currentScreen !== "subscriptions" && currentScreen !== "settings" && currentScreen !== "history" && currentScreen !== "admin") {
         setCurrentScreen("bible");
       } else if (!user && currentScreen !== "login" && currentScreen !== "register" && currentScreen !== "forgot-password" && currentScreen !== "reset-password") {
         setCurrentScreen("login");
@@ -135,6 +137,9 @@ export function MainNavigation() {
       )}
       {currentScreen === "history" && (
         <AIHistoryScreen onBack={() => setCurrentScreen("bible")} />
+      )}
+      {currentScreen === "admin" && (
+        <AdminPanel onBack={() => setCurrentScreen("bible")} />
       )}
     </ThemeProvider>
   );

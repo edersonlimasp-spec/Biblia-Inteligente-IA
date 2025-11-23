@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
+import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries } from "@shared/schema";
@@ -57,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Generate token
-      const token = generateToken(user.id, user.email);
+      const token = generateToken(user.id, user.email, user.role || 'user');
 
       // Return user without password + trial info
       const { password: _, ...userWithoutPassword } = user;
@@ -102,8 +102,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const token = generateToken(user.id, user.email);
+      const token = generateToken(user.id, user.email, user.role || 'user');
       const { password: _, ...userWithoutPassword } = user;
+      
+      // Update last login
+      await storage.updateUserLastLogin(user.id);
       
       const trialActive = isTrialActive(user.trialStartDate);
       const daysRemaining = getTrialDaysRemaining(user.trialStartDate);
@@ -769,6 +772,235 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Billing webhook error:", error);
       res.status(500).json({ error: "Erro ao processar webhook" });
+    }
+  });
+
+  // ============================================
+  // ADMIN ROUTES (Protected by role guards)
+  // ============================================
+
+  // Admin Dashboard - Stats
+  app.get("/api/admin/stats", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const allUsers = await db.select().from(users);
+      const subscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
+      
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const recentUsers = allUsers.filter(u => new Date(u.createdAt) >= monthStart);
+
+      const activeTrials = allUsers.filter(u => isTrialActive(u.trialStartDate)).length;
+      const activeGold = subscriptions.filter(s => s.planType === 'gold').length;
+      const activePremium = subscriptions.filter(s => s.planType === 'premium').length;
+      const lifetimeStrong = subscriptions.filter(s => s.planType === 'strong_lifetime').length;
+
+      const monthlyRevenue = subscriptions
+        .filter(s => new Date(s.createdAt) >= monthStart)
+        .reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
+        .toFixed(2);
+
+      res.json({
+        totalUsers: allUsers.length,
+        newUsersThisMonth: recentUsers.length,
+        activeTrials,
+        activeGoldSubscriptions: activeGold,
+        activePremiumSubscriptions: activePremium,
+        lifetimeStrong,
+        estimatedMonthlyRevenue: monthlyRevenue,
+        cancelledThisMonth: 0, // Would need subscription history
+      });
+    } catch (error) {
+      console.error("Admin stats error:", error);
+      res.status(500).json({ error: "Erro ao buscar estatísticas" });
+    }
+  });
+
+  // Admin Users - List all users
+  app.get("/api/admin/users", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { email, page = "1" } = req.query;
+      const pageNum = parseInt(page as string) || 1;
+      const pageSize = 10;
+      const skip = (pageNum - 1) * pageSize;
+
+      const { users: usersList, total } = await storage.getAllUsers(email as string | undefined, pageSize, skip);
+      
+      // Remove passwords
+      const safeUsers = usersList.map(u => {
+        const { password: _, ...rest } = u;
+        return rest;
+      });
+
+      res.json({ users: safeUsers, total });
+    } catch (error) {
+      console.error("Admin users error:", error);
+      res.status(500).json({ error: "Erro ao buscar usuários" });
+    }
+  });
+
+  // Admin Users - Update user role (SUPER_ADMIN only)
+  app.patch("/api/admin/users/:userId/role", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { userId } = req.params;
+      const { role } = req.body;
+
+      if (!['user', 'admin', 'super_admin'].includes(role)) {
+        return res.status(400).json({ error: "Role inválido" });
+      }
+
+      await storage.updateUserRole(userId, role);
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'ROLE_CHANGED',
+        targetUserId: userId,
+        details: { newRole: role },
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Admin role update error:", error);
+      res.status(500).json({ error: "Erro ao atualizar função" });
+    }
+  });
+
+  // Admin Users - Block user
+  app.post("/api/admin/users/:userId/block", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { userId } = req.params;
+      await storage.blockUser(userId);
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'USER_BLOCKED',
+        targetUserId: userId,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Block user error:", error);
+      res.status(500).json({ error: "Erro ao bloquear usuário" });
+    }
+  });
+
+  // Admin Users - Unblock user
+  app.post("/api/admin/users/:userId/unblock", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { userId } = req.params;
+      await storage.unblockUser(userId);
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'USER_UNBLOCKED',
+        targetUserId: userId,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Unblock user error:", error);
+      res.status(500).json({ error: "Erro ao desbloquear usuário" });
+    }
+  });
+
+  // Admin Monetization - Stats
+  app.get("/api/admin/monetization", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const activeSubscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
+      
+      const activeGold = activeSubscriptions.filter(s => s.planType === 'gold').length;
+      const activePremium = activeSubscriptions.filter(s => s.planType === 'premium').length;
+      const lifetimeStrong = activeSubscriptions.filter(s => s.planType === 'strong_lifetime').length;
+
+      const totalRevenue = activeSubscriptions
+        .reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
+        .toFixed(2);
+
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthlyRevenue = activeSubscriptions
+        .filter(s => new Date(s.createdAt) >= monthStart)
+        .reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
+        .toFixed(2);
+
+      res.json({
+        activeGold,
+        activePremium,
+        lifetimeStrong,
+        totalRevenue,
+        monthlyRevenue,
+      });
+    } catch (error) {
+      console.error("Admin monetization error:", error);
+      res.status(500).json({ error: "Erro ao buscar dados de monetização" });
+    }
+  });
+
+  // Admin Bonuses - Create bonus
+  app.post("/api/admin/bonuses", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { userEmail, bonusType, duration, reason } = req.body;
+
+      const targetUser = await storage.getUserByEmail(userEmail);
+      if (!targetUser) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      const endAt = duration ? new Date(Date.now() + duration * 24 * 60 * 60 * 1000) : null;
+
+      const bonus = await storage.createBonus({
+        userId: targetUser.id,
+        bonusType,
+        startAt: new Date(),
+        endAt,
+        reason,
+        grantedByAdminId: req.userId!,
+      });
+
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'BONUS_GRANTED',
+        targetUserId: targetUser.id,
+        details: { bonusType, duration, reason },
+      });
+
+      res.json(bonus);
+    } catch (error) {
+      console.error("Create bonus error:", error);
+      res.status(500).json({ error: "Erro ao criar bônus" });
+    }
+  });
+
+  // Admin Bonuses - List active bonuses
+  app.get("/api/admin/bonuses", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const activeBonuses = await storage.getActiveBonuses();
+      res.json(activeBonuses);
+    } catch (error) {
+      console.error("Get bonuses error:", error);
+      res.status(500).json({ error: "Erro ao buscar bônus" });
+    }
+  });
+
+  // Admin Bonuses - Revoke bonus (SUPER_ADMIN only)
+  app.delete("/api/admin/bonuses/:bonusId", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { bonusId } = req.params;
+      await storage.revokeBonus(bonusId);
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'BONUS_REVOKED',
+        details: { bonusId },
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Revoke bonus error:", error);
+      res.status(500).json({ error: "Erro ao revogar bônus" });
+    }
+  });
+
+  // Admin Logs - Get audit log
+  app.get("/api/admin/logs", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const actions = await storage.getAdminActions(50);
+      res.json(actions);
+    } catch (error) {
+      console.error("Get logs error:", error);
+      res.status(500).json({ error: "Erro ao buscar logs" });
     }
   });
 

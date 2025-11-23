@@ -9,8 +9,10 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
-  isAdmin: boolean("is_admin").notNull().default(false),
+  role: text("role").notNull().default("user"), // 'user', 'admin', 'super_admin'
+  isBlocked: boolean("is_blocked").notNull().default(false),
   trialStartDate: timestamp("trial_start_date").notNull().defaultNow(),
+  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -167,6 +169,54 @@ export const insertBibleWordSchema = createInsertSchema(bibleWords).omit({
 
 export type InsertBibleWord = z.infer<typeof insertBibleWordSchema>;
 export type BibleWord = typeof bibleWords.$inferSelect;
+
+// Admin Actions (Audit Log) table
+export const adminActions = pgTable("admin_actions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  adminId: varchar("admin_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  actionType: text("action_type").notNull(), // BONUS_GRANTED, PLAN_CHANGED, ADMIN_CREATED, USER_BLOCKED, etc.
+  targetUserId: varchar("target_user_id").references(() => users.id, { onDelete: "cascade" }),
+  details: jsonb("details"), // Additional context/data
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  adminIdIdx: index("admin_actions_admin_id_idx").on(table.adminId),
+  targetUserIdIdx: index("admin_actions_target_user_id_idx").on(table.targetUserId),
+  createdAtIdx: index("admin_actions_created_at_idx").on(table.createdAt),
+}));
+
+export const insertAdminActionSchema = createInsertSchema(adminActions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAdminAction = z.infer<typeof insertAdminActionSchema>;
+export type AdminAction = typeof adminActions.$inferSelect;
+
+// Bonuses/Exemptions table
+export const bonuses = pgTable("bonuses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  bonusType: text("bonus_type").notNull(), // TRIAL_EXTEND, GOLD_FREE, PREMIUM_FREE, LIFETIME_GRANT
+  isActive: boolean("is_active").notNull().default(true),
+  startAt: timestamp("start_at").notNull().defaultNow(),
+  endAt: timestamp("end_at"), // null for lifetime/permanent bonuses
+  reason: text("reason"),
+  grantedByAdminId: varchar("granted_by_admin_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("bonuses_user_id_idx").on(table.userId),
+  isActiveIdx: index("bonuses_is_active_idx").on(table.isActive),
+  createdAtIdx: index("bonuses_created_at_idx").on(table.createdAt),
+}));
+
+export const insertBonusSchema = createInsertSchema(bonuses).omit({
+  id: true,
+  createdAt: true,
+  isActive: true,
+});
+
+export type InsertBonus = z.infer<typeof insertBonusSchema>;
+export type Bonus = typeof bonuses.$inferSelect;
 
 // AI Usage Limits table (for rate limiting)
 export const aiUsageLimits = pgTable("ai_usage_limits", {

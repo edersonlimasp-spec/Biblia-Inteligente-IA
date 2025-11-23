@@ -44,6 +44,7 @@ interface BibleReaderProps {
   onNavigateToSubscriptions?: () => void;
   onNavigateToSettings?: () => void;
   onNavigateToHistory?: () => void;
+  onNavigateToAdmin?: () => void;
 }
 
 interface StrongSearchResult {
@@ -61,8 +62,8 @@ interface StrongSearchResponse {
   total: number;
 }
 
-export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory }: BibleReaderProps) {
-  const { trialActive, trialDaysRemaining } = useAuth();
+export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory, onNavigateToAdmin }: BibleReaderProps) {
+  const { trialActive, trialDaysRemaining, isAdmin } = useAuth();
   const [selectedBook, setSelectedBook] = useState("jhn");
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
@@ -255,6 +256,11 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             <Bookmark className="h-4 w-4" />
           </Button>
           <ThemeToggle />
+          {isAdmin && (
+            <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-9 w-9" title="Painel Admin">
+              ⚙️
+            </Button>
+          )}
           <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-9 w-9">
             <Settings className="h-4 w-4" />
           </Button>

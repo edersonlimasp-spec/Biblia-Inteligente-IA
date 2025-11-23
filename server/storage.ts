@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses } from '@shared/schema';
 import type {
   User,
   InsertUser,
@@ -13,8 +13,12 @@ import type {
   InsertAIHistory,
   AIUsageLimit,
   InsertAIUsageLimit,
+  AdminAction,
+  InsertAdminAction,
+  Bonus,
+  InsertBonus,
 } from '@shared/schema';
-import { eq, and, desc, gte, sql } from 'drizzle-orm';
+import { eq, and, desc, gte, sql, like, limit, offset } from 'drizzle-orm';
 
 export interface IStorage {
   // Users
@@ -52,6 +56,23 @@ export interface IStorage {
   // AI Usage Limits (Rate Limiting)
   getTodayUsageCount(userId: string): Promise<number>;
   incrementUsageCount(userId: string): Promise<void>;
+
+  // Admin Operations
+  getAllUsers(searchEmail?: string, limit?: number, offset?: number): Promise<{ users: User[], total: number }>;
+  updateUserRole(userId: string, role: string): Promise<void>;
+  blockUser(userId: string): Promise<void>;
+  unblockUser(userId: string): Promise<void>;
+  updateUserLastLogin(userId: string): Promise<void>;
+
+  // Bonuses
+  createBonus(bonus: InsertBonus): Promise<Bonus>;
+  getUserBonuses(userId: string): Promise<Bonus[]>;
+  revokeBonus(bonusId: string): Promise<void>;
+  getActiveBonuses(): Promise<Bonus[]>;
+
+  // Audit Log
+  logAdminAction(action: InsertAdminAction): Promise<AdminAction>;
+  getAdminActions(limit?: number): Promise<AdminAction[]>;
 }
 
 class PostgresStorage implements IStorage {
@@ -76,7 +97,41 @@ class PostgresStorage implements IStorage {
   }
 
   async makeUserAdmin(userId: string): Promise<void> {
-    await db.update(users).set({ isAdmin: true }).where(eq(users.id, userId));
+    await db.update(users).set({ role: 'admin' }).where(eq(users.id, userId));
+  }
+
+  async getAllUsers(searchEmail?: string, take?: number, skip?: number): Promise<{ users: User[], total: number }> {
+    let query = db.select().from(users).$dynamic();
+    
+    if (searchEmail) {
+      query = query.where(like(users.email, `%${searchEmail}%`));
+    }
+
+    const totalResult = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const total = totalResult[0]?.count || 0;
+
+    let finalQuery = query.orderBy(desc(users.createdAt));
+    if (take) finalQuery = finalQuery.limit(take);
+    if (skip) finalQuery = finalQuery.offset(skip);
+
+    const usersList = await finalQuery;
+    return { users: usersList, total };
+  }
+
+  async updateUserRole(userId: string, role: string): Promise<void> {
+    await db.update(users).set({ role }).where(eq(users.id, userId));
+  }
+
+  async blockUser(userId: string): Promise<void> {
+    await db.update(users).set({ isBlocked: true }).where(eq(users.id, userId));
+  }
+
+  async unblockUser(userId: string): Promise<void> {
+    await db.update(users).set({ isBlocked: false }).where(eq(users.id, userId));
+  }
+
+  async updateUserLastLogin(userId: string): Promise<void> {
+    await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, userId));
   }
 
   async updateUserPassword(userId: string, hashedPassword: string): Promise<void> {
@@ -232,6 +287,36 @@ class PostgresStorage implements IStorage {
         questionCount: 1,
       });
     }
+  }
+
+  // Bonuses
+  async createBonus(bonus: InsertBonus): Promise<Bonus> {
+    const result = await db.insert(bonuses).values(bonus).returning();
+    return result[0];
+  }
+
+  async getUserBonuses(userId: string): Promise<Bonus[]> {
+    return db.select().from(bonuses).where(eq(bonuses.userId, userId)).orderBy(desc(bonuses.createdAt));
+  }
+
+  async revokeBonus(bonusId: string): Promise<void> {
+    await db.update(bonuses).set({ isActive: false }).where(eq(bonuses.id, bonusId));
+  }
+
+  async getActiveBonuses(): Promise<Bonus[]> {
+    return db.select().from(bonuses).where(eq(bonuses.isActive, true)).orderBy(desc(bonuses.createdAt));
+  }
+
+  // Audit Log
+  async logAdminAction(action: InsertAdminAction): Promise<AdminAction> {
+    const result = await db.insert(adminActions).values(action).returning();
+    return result[0];
+  }
+
+  async getAdminActions(take?: number): Promise<AdminAction[]> {
+    let query = db.select().from(adminActions).orderBy(desc(adminActions.createdAt));
+    if (take) query = query.limit(take);
+    return query;
   }
 }
 

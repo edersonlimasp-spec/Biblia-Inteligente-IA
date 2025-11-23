@@ -8,6 +8,7 @@ const TRIAL_DURATION_DAYS = 30;
 export interface AuthRequest extends Request {
   userId?: string;
   userEmail?: string;
+  userRole?: string;
 }
 
 // Hash password
@@ -21,14 +22,14 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 // Generate JWT token
-export function generateToken(userId: string, email: string): string {
-  return jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '7d' });
+export function generateToken(userId: string, email: string, role: string = 'user'): string {
+  return jwt.sign({ userId, email, role }, JWT_SECRET, { expiresIn: '7d' });
 }
 
 // Verify JWT token
-export function verifyToken(token: string): { userId: string; email: string } | null {
+export function verifyToken(token: string): { userId: string; email: string; role?: string } | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as { userId: string; email: string };
+    return jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role?: string };
   } catch {
     return null;
   }
@@ -55,6 +56,65 @@ export function ensureAuthenticated(
 
   req.userId = payload.userId;
   req.userEmail = payload.email;
+  req.userRole = payload.role || 'user';
+  next();
+}
+
+// Middleware: Ensure admin or super_admin
+export function ensureAdmin(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const token = authHeader.substring(7);
+  const payload = verifyToken(token);
+
+  if (!payload) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  if (payload.role !== 'admin' && payload.role !== 'super_admin') {
+    return res.status(403).json({ error: 'Forbidden: Admin access required' });
+  }
+
+  req.userId = payload.userId;
+  req.userEmail = payload.email;
+  req.userRole = payload.role;
+  next();
+}
+
+// Middleware: Ensure super_admin only
+export function ensureSuperAdmin(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const token = authHeader.substring(7);
+  const payload = verifyToken(token);
+
+  if (!payload) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  if (payload.role !== 'super_admin') {
+    return res.status(403).json({ error: 'Forbidden: Super admin access required' });
+  }
+
+  req.userId = payload.userId;
+  req.userEmail = payload.email;
+  req.userRole = payload.role;
   next();
 }
 

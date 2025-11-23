@@ -795,6 +795,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         language: e.language,
       }));
       
+      // Sort by relevance: Portuguese definitions first, then others
+      formattedResults.sort((a, b) => {
+        const aHasPortuguese = a.portugueseDefinition ? 1 : 0;
+        const bHasPortuguese = b.portugueseDefinition ? 1 : 0;
+        return bHasPortuguese - aHasPortuguese;
+      });
+      
       res.json({ results: formattedResults, total: formattedResults.length });
     } catch (error) {
       console.error("Search Strong error:", error);

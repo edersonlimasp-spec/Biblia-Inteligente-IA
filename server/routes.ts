@@ -4,12 +4,12 @@ import { storage } from "./storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
 import { db } from "./db";
-import { eq, or, like, sql } from "drizzle-orm";
+import { eq, or, like, sql, and } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
 
@@ -586,6 +586,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===================================
+  // BIBLE VERSIONS ROUTES
+  // ===================================
+  
+  // Get all available versions
+  app.get("/api/versions", async (req, res) => {
+    try {
+      const versions = await db.select().from(bibleVersions).where(eq(bibleVersions.isActive, true));
+      res.json(versions);
+    } catch (error) {
+      console.error("Get versions error:", error);
+      res.status(500).json({ error: "Erro ao buscar versões" });
+    }
+  });
+
+  // Get user's bible preferences
+  app.get("/api/user/bible-preferences", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const prefs = await db.query.userBiblePreferences.findFirst({
+        where: eq(db.schema.userBiblePreferences.userId, req.userId!),
+      }).catch(() => null);
+      
+      res.json(prefs || {
+        defaultVersionCode: 'ACF',
+        lastViewedVersionCode: 'ACF',
+      });
+    } catch {
+      res.json({
+        defaultVersionCode: 'ACF',
+        lastViewedVersionCode: 'ACF',
+      });
+    }
+  });
+
+  // Update user's bible preferences
+  app.patch("/api/user/bible-preferences", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { defaultVersionCode, lastViewedVersionCode } = req.body;
+      
+      const prefs = await db.query.userBiblePreferences.findFirst({
+        where: eq(db.schema.userBiblePreferences.userId, req.userId!),
+      }).catch(() => null);
+      
+      if (prefs) {
+        await db.update(db.schema.userBiblePreferences).set({
+          defaultVersionCode: defaultVersionCode || prefs.defaultVersionCode,
+          lastViewedVersionCode: lastViewedVersionCode || prefs.lastViewedVersionCode,
+          updatedAt: new Date(),
+        }).where(eq(db.schema.userBiblePreferences.userId, req.userId!));
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Update preferences error:", error);
+      res.status(500).json({ error: "Erro ao atualizar preferências" });
+    }
+  });
+
   // Bible routes
   app.get("/api/bible/books", async (req, res) => {
     try {
@@ -600,6 +658,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/bible/:bookId/:chapter", async (req, res) => {
     try {
       const { bookId, chapter } = req.params;
+      const { version = 'ACF' } = req.query;
       const book = getBookById(bookId);
       
       if (!book) {
@@ -616,7 +675,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      res.json({ book, chapter: chapterData, available: true });
+      res.json({ book, chapter: chapterData, available: true, version });
     } catch (error) {
       console.error("Get chapter error:", error);
       res.status(500).json({ error: "Erro ao buscar capítulo" });

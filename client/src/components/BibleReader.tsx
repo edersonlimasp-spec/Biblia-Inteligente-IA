@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { StrongModal } from "@/components/StrongModal";
+import { BibleVersionSelector } from "@/components/BibleVersionSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import logoSmall from "@assets/logo/logo-small.png";
 
@@ -71,6 +72,13 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   const [searchingWord, setSearchingWord] = useState<string | null>(null);
   const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
   const [textSearchQuery, setTextSearchQuery] = useState("");
+  const [selectedVersion, setSelectedVersion] = useState(() => {
+    try {
+      return localStorage.getItem("bible-version") || "ACF";
+    } catch {
+      return "ACF";
+    }
+  });
   const [fontSize, setFontSize] = useState(() => {
     try {
       return localStorage.getItem("bible-font-size") || "medium";
@@ -78,6 +86,13 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       return "medium";
     }
   });
+
+  // Save version preference to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("bible-version", selectedVersion);
+    } catch {}
+  }, [selectedVersion]);
 
   const { data: books } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
@@ -189,6 +204,12 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             data-testid="img-header-logo"
           />
           
+          {/* Version Selector */}
+          <BibleVersionSelector 
+            selectedVersion={selectedVersion} 
+            onVersionChange={setSelectedVersion}
+          />
+
           {/* Book Selection */}
           <Select value={selectedBook} onValueChange={setSelectedBook}>
             <SelectTrigger className="w-[120px] text-base" data-testid="select-book">

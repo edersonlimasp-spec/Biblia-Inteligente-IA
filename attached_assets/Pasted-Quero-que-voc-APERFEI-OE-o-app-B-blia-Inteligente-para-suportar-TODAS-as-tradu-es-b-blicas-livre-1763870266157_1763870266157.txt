@@ -1,0 +1,137 @@
+Quero que você APERFEIÇOE o app “Bíblia Inteligente” para suportar TODAS as traduções bíblicas livres/disponíveis legalmente e criar um seletor de tradução para leitura.
+
+IMPORTANTE (direitos autorais):
+- Inclua APENAS versões de domínio público ou com licença livre para uso em apps.
+- NÃO inclua traduções protegidas (ex.: NVI, ARA, NAA, ESV, NIV etc.) sem licença.
+- Para cada versão adicionada, informe a fonte/licença.
+
+====================================================
+1) OBJETIVO
+====================================================
+1.1 Incluir múltiplas traduções bíblicas gratuitas (PT e EN):
+- Ex.: ACF (Almeida Corrigida Fiel) – domínio público
+- ARC (Almeida Revista e Corrigida) – domínio público
+- AA (Almeida de 1848/1911) – domínio público
+- KJV (King James Version 1611) – domínio público
+- ASV / WEB / outras versões com licença livre
+(complete a lista com todas as livres que conseguir, sempre citando licença).
+
+1.2 Garantir que o Strong funcione INDEPENDENTE da tradução:
+- Strong se aplica ao texto base (hebraico/greco).
+- Ao trocar tradução, o Strong continua aparecendo nas palavras correspondentes.
+
+1.3 Criar campo claro para o usuário selecionar:
+- Tradução padrão ao abrir o app
+- Trocar tradução dentro da tela de leitura
+
+====================================================
+2) MODELAGEM / BANCO
+====================================================
+Criar/atualizar tabela “BibleVersion”:
+- id
+- code (ex.: "ACF", "ARC", "KJV")
+- name
+- language (PT/EN)
+- license (public_domain / free_license)
+- sourceUrl (link da fonte)
+- isActive
+
+Criar/atualizar tabela “VerseText” (ou equivalente):
+- id
+- versionCode (FK BibleVersion.code)
+- book
+- chapter
+- verse
+- text
+
+Garantir índice:
+- (versionCode, book, chapter, verse)
+
+====================================================
+3) IMPORTAÇÃO DE DADOS
+====================================================
+3.1 Importar os 66 livros para cada versão ativa.
+3.2 Validar consistência:
+- mesma estrutura de livros/capítulos/versículos entre versões
+- se houver divergências, tratar mapeamento.
+
+3.3 Criar script de seed/import:
+- rodar uma vez e popular todas versões no banco.
+
+====================================================
+4) FRONT-END / UX (SELETOR DE TRADUÇÃO)
+====================================================
+Adicionar seletor de tradução em DOIS lugares:
+
+4.1 Configurações do usuário:
+- “Tradução padrão”
+- salvar preferência no perfil (user.defaultVersion)
+
+4.2 Tela de leitura:
+- adicionar dropdown/selector no topo (ao lado do nome do livro)
+- mostrar versões disponíveis agrupadas por idioma:
+  • Português
+  • Inglês
+- trocar tradução atual sem recarregar toda a tela (reload suave apenas do texto)
+
+Persistência:
+- lembrar última versão escolhida.
+- se usuário não tiver preferência, usar ACF como padrão.
+
+====================================================
+5) API / ENDPOINTS
+====================================================
+Criar/ajustar endpoints:
+
+GET /versions
+- retorna lista de versões ativas com nome, idioma e licença.
+
+GET /bible
+params: versionCode, book, chapter
+- retorna capítulo completo daquela versão.
+
+GET /verse
+params: versionCode, book, chapter, verse
+- retorna versículo específico.
+
+Garantir fallback:
+- se versionCode não existir, usar padrão ACF.
+
+====================================================
+6) STRONG + HEBRAICO/GREGO
+====================================================
+- Confirmar Strong completo disponível.
+- Manter clique nas palavras com Strong.
+- Ajustar destaque sutil nas palavras com Strong:
+  • levemente mais escura (+10% contraste)
+  • underline dotted fino
+- ao tocar, abrir modal com:
+  StrongId, original, transliteração, definição.
+
+====================================================
+7) TESTES OBRIGATÓRIOS
+====================================================
+Antes de finalizar:
+1. Listar /versions e confirmar todas livres.
+2. Abrir Gênesis 1 e João 3 em:
+   - ACF
+   - ARC
+   - KJV
+   - outras versões livres
+3. Trocar tradução na tela e garantir:
+   ✅ texto muda
+   ✅ navegação mantém livro/capítulo/verso
+   ✅ sem erros no Chrome e mobile
+4. Strong continua clicável após troca.
+
+====================================================
+8) ENTREGA
+====================================================
+Me entregar:
+- lista completa de versões adicionadas + licença + fonte
+- scripts de import
+- migrations/models
+- endpoints
+- telas atualizadas
+- confirmação de testes.
+NÃO considere pronto sem validar todas as versões e o seletor funcionando.

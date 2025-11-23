@@ -264,3 +264,46 @@ export const pageEvents = pgTable("page_events", {
   eventTypeIdx: index("page_events_event_type_idx").on(table.eventType),
   createdAtIdx: index("page_events_created_at_idx").on(table.createdAt),
 }));
+
+// Bible Versions table
+export const bibleVersions = pgTable("bible_versions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: text("code").notNull().unique(), // 'ACF', 'ARC', 'KJV', etc.
+  name: text("name").notNull(), // 'Almeida Corrigida Fiel', etc.
+  language: text("language").notNull(), // 'pt', 'en'
+  license: text("license").notNull(), // 'public_domain', 'free_license'
+  sourceUrl: text("source_url"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  codeIdx: index("bible_versions_code_idx").on(table.code),
+  languageIdx: index("bible_versions_language_idx").on(table.language),
+}));
+
+export type BibleVersion = typeof bibleVersions.$inferSelect;
+
+// Bible Verses table (stores text for each version)
+export const bibleVerses = pgTable("bible_verses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  versionCode: text("version_code").notNull().references(() => bibleVersions.code, { onDelete: "cascade" }),
+  book: text("book").notNull(),
+  chapter: integer("chapter").notNull(),
+  verse: integer("verse").notNull(),
+  text: text("text").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  versionBookChapterVerseIdx: index("bible_verses_vbcv_idx").on(table.versionCode, table.book, table.chapter, table.verse),
+  bookChapterVerseIdx: index("bible_verses_bcv_idx").on(table.book, table.chapter, table.verse),
+}));
+
+export type BibleVerse = typeof bibleVerses.$inferSelect;
+
+// User Bible Preferences
+export const userBiblePreferences = pgTable("user_bible_preferences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  defaultVersionCode: text("default_version_code").notNull().default("ACF"),
+  lastViewedVersionCode: text("last_viewed_version_code").notNull().default("ACF"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

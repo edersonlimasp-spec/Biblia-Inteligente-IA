@@ -33,6 +33,24 @@ export function MainNavigation() {
   const { user, isLoading } = useAuth();
   const [location] = useLocation();
 
+  // MOBILE FIX: Dynamically measure header height for mobile padding
+  useEffect(() => {
+    const measureHeaderHeight = () => {
+      const headerEl = document.querySelector('header, .header, .topbar, .app-header') as HTMLElement | null;
+      if (!headerEl) return;
+      
+      const height = headerEl.offsetHeight || 56;
+      document.documentElement.style.setProperty('--mobile-header-height', `${height}px`);
+    };
+
+    // Measure on mount
+    measureHeaderHeight();
+    
+    // Re-measure on resize (for orientation changes on mobile)
+    window.addEventListener('resize', measureHeaderHeight);
+    return () => window.removeEventListener('resize', measureHeaderHeight);
+  }, []);
+
   // Handle URL-based routing for reset password
   useEffect(() => {
     if (location.includes("reset-password")) {

@@ -309,3 +309,41 @@
     filter: blur(60px);
   }
 }
+
+/* ====== MOBILE FIXES ====== */
+:root {
+  --mobile-header-height: 56px;
+}
+
+@media (max-width: 768px) {
+  /* Main content needs padding to account for sticky header */
+  main, .main, .content, .page-content {
+    padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top));
+  }
+
+  /* Input in footer/chat should be smaller than button */
+  .flex-1.flex.gap-2 input,
+  .chat-footer input,
+  .bottom-bar input {
+    height: 36px !important;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  /* Button in footer should be larger and stand out */
+  .flex-1.flex.gap-2 ~ button,
+  .chat-footer button,
+  .bottom-bar button {
+    height: 44px !important;
+    padding: 0 14px;
+    font-size: 15px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  /* AIPanel footer container padding for safe area */
+  .ai-panel-footer, .chat-footer, .bottom-bar {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+  }
+}

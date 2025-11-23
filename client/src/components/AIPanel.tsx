@@ -544,7 +544,8 @@ export function AIPanel() {
           {/* Input Field */}
           <div className="flex-1 flex gap-2">
             <Input
-              placeholder="Pergunte ao Professor..."
+              placeholder="Buscar"
+              aria-label="Buscar"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => {

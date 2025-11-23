@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -783,18 +783,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/stats", ensureAdmin, async (req: AuthRequest, res) => {
     try {
       const allUsers = await db.select().from(users);
-      const subscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
+      const activeSubscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
       
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const recentUsers = allUsers.filter(u => new Date(u.createdAt) >= monthStart);
 
       const activeTrials = allUsers.filter(u => isTrialActive(u.trialStartDate)).length;
-      const activeGold = subscriptions.filter(s => s.planType === 'gold').length;
-      const activePremium = subscriptions.filter(s => s.planType === 'premium').length;
-      const lifetimeStrong = subscriptions.filter(s => s.planType === 'strong_lifetime').length;
+      const activeGold = activeSubscriptions.filter(s => s.planType === 'gold').length;
+      const activePremium = activeSubscriptions.filter(s => s.planType === 'premium').length;
+      const lifetimeStrong = activeSubscriptions.filter(s => s.planType === 'strong_lifetime').length;
 
-      const monthlyRevenue = subscriptions
+      const monthlyRevenue = activeSubscriptions
         .filter(s => new Date(s.createdAt) >= monthStart)
         .reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
         .toFixed(2);

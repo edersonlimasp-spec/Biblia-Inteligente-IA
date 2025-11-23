@@ -190,7 +190,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
           
           {/* Book Selection */}
           <Select value={selectedBook} onValueChange={setSelectedBook}>
-            <SelectTrigger className="w-[120px] text-sm" data-testid="select-book">
+            <SelectTrigger className="w-[120px] text-base" data-testid="select-book">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -211,10 +211,10 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             data-testid="button-prev-chapter"
             className="h-9 w-9"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
           </Button>
           <Select value={selectedChapter.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
-            <SelectTrigger className="w-[60px] text-sm relative z-40" data-testid="select-chapter">
+            <SelectTrigger className="w-[60px] text-base relative z-40" data-testid="select-chapter">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="z-50">
@@ -320,7 +320,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
               <div 
                 className={`space-y-4 font-serif leading-relaxed ${
                   fontSize === "small" ? "text-base" : 
-                  fontSize === "medium" ? "text-lg" : 
+                  fontSize === "medium" ? "text-xl" : 
                   "text-2xl"
                 }`}
               >

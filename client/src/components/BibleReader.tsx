@@ -202,10 +202,10 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Select value={selectedChapter.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
-                <SelectTrigger className="w-[70px]" data-testid="select-chapter">
+                <SelectTrigger className="w-[70px] relative z-40" data-testid="select-chapter">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50">
                   {currentBook && Array.from({ length: currentBook.chapters }, (_, i) => i + 1).map((ch) => (
                     <SelectItem key={ch} value={String(ch)}>
                       {ch}

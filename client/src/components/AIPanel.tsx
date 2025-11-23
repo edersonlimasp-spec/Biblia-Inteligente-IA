@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X } from "lucide-react";
+import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -544,8 +544,8 @@ export function AIPanel() {
           {/* Input Field */}
           <div className="flex-1 flex gap-2">
             <Input
-              placeholder="Buscar"
-              aria-label="Buscar"
+              placeholder="Pergunte ao Professor..."
+              aria-label="Pergunte ao Professor"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => {
@@ -561,13 +561,14 @@ export function AIPanel() {
               onClick={handleAsk}
               disabled={!question.trim() || askAIMutation.isPending}
               data-testid="button-ask-ai"
+              className="mobile-search-button"
             >
               {askAIMutation.isPending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Sparkles className="h-4 w-4 mr-2" />
+                <Search className="h-4 w-4 mr-2" />
               )}
-              {askAIMutation.isPending ? 'Pensando...' : 'Perguntar'}
+              {askAIMutation.isPending ? 'Pensando...' : 'Buscar'}
             </Button>
           </div>
 

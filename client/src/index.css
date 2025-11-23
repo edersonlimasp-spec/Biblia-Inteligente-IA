@@ -316,9 +316,15 @@
 }
 
 @media (max-width: 768px) {
-  /* Main content needs padding to account for sticky header */
-  main, .main, .content, .page-content {
-    padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top));
+  /* Main content needs padding to account for sticky header - SPECIFIC FOR BIBLE PAGE */
+  main.bible-page {
+    padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top)) !important;
+    scroll-padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top)) !important;
+  }
+  
+  /* Fallback for any main element */
+  main {
+    padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top)) !important;
   }
 
   /* Input in footer/chat should be smaller than button */

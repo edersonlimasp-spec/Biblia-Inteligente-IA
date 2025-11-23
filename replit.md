@@ -12,6 +12,16 @@ I prefer detailed explanations.
 Do not make changes to the folder `Z`.
 Do not make changes to the file `Y`.
 
+## Recent Changes (Nov 23, 2025)
+
+**Mobile Responsiveness Fixes:**
+- **Header Overlap Fix:** Added CSS media query for mobile (`max-width: 768px`) with `padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top))` on main element to prevent content overlap under sticky header.
+- **Dynamic Header Measurement:** Implemented `useEffect` in MainNavigation.tsx to dynamically measure header height (with 100ms delay for DOM readiness) and set CSS variable `--mobile-header-height`, with automatic re-measurement on window resize for orientation changes.
+- **Input/Button Sizing:** Mobile input height set to 36px (smaller), button height set to 44px (larger) with `!important` to ensure visibility hierarchy.
+- **Placeholder Update:** Changed AI input placeholder from "Pergunte ao Professor..." to "Buscar" with `aria-label` for accessibility.
+- **Safe Area Support:** Added `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` for iPhone notch and gesture bar compatibility.
+- **Scroll Padding:** Added `scroll-padding-top` for smooth anchor scrolling on mobile.
+
 ## System Architecture
 
 The application is a fullstack PWA with a React frontend and an Express backend, utilizing PostgreSQL for data persistence.

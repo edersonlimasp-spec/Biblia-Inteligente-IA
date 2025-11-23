@@ -36,19 +36,27 @@ export function MainNavigation() {
   // MOBILE FIX: Dynamically measure header height for mobile padding
   useEffect(() => {
     const measureHeaderHeight = () => {
-      const headerEl = document.querySelector('header, .header, .topbar, .app-header') as HTMLElement | null;
-      if (!headerEl) return;
+      const headerEl = document.querySelector('header') as HTMLElement | null;
+      if (!headerEl) {
+        // Fallback: set default if header not found
+        document.documentElement.style.setProperty('--mobile-header-height', '56px');
+        return;
+      }
       
       const height = headerEl.offsetHeight || 56;
       document.documentElement.style.setProperty('--mobile-header-height', `${height}px`);
     };
 
-    // Measure on mount
-    measureHeaderHeight();
+    // Measure after a small delay to ensure DOM is fully rendered
+    const timer = setTimeout(measureHeaderHeight, 100);
     
     // Re-measure on resize (for orientation changes on mobile)
     window.addEventListener('resize', measureHeaderHeight);
-    return () => window.removeEventListener('resize', measureHeaderHeight);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', measureHeaderHeight);
+    };
   }, []);
 
   // Handle URL-based routing for reset password

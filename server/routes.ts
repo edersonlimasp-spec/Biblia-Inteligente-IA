@@ -239,6 +239,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Change password (authenticated user)
+  app.post("/api/auth/change-password", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Senha atual e nova senha são obrigatórias" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "Nova senha deve ter pelo menos 6 caracteres" });
+      }
+
+      // Get current user
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Verify current password
+      const isCurrentPasswordValid = await verifyPassword(currentPassword, user.password);
+      if (!isCurrentPasswordValid) {
+        return res.status(401).json({ error: "Senha atual está incorreta" });
+      }
+
+      // Prevent using same password
+      const isSamePassword = await verifyPassword(newPassword, user.password);
+      if (isSamePassword) {
+        return res.status(400).json({ error: "Nova senha não pode ser igual à senha atual" });
+      }
+
+      // Hash new password and update
+      const hashedPassword = await hashPassword(newPassword);
+      await storage.updateUserPassword(req.userId!, hashedPassword);
+
+      res.json({ message: "Senha alterada com sucesso" });
+    } catch (error) {
+      console.error("Change password error:", error);
+      res.status(500).json({ error: "Erro ao alterar senha" });
+    }
+  });
+
   // Admin Routes
   // IMPORTANT: This route allows the FIRST user to become admin without authentication
   // After the first admin exists, only authenticated admins can make others admin

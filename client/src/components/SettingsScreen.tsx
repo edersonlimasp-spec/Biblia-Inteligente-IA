@@ -1,4 +1,4 @@
-import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft } from "lucide-react";
+import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 
 interface SettingsScreenProps {
   onBack?: () => void;
@@ -17,6 +18,7 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
   const { user, logout, trialDaysRemaining } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [fontSize, setFontSize] = useState(() => {
     try {
       return localStorage.getItem("bible-font-size") || "medium";
@@ -104,6 +106,27 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
                 data-testid="switch-notifications"
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Security Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5" />
+              Segurança
+            </CardTitle>
+            <CardDescription>Gerencie sua senha e segurança</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setIsChangePasswordOpen(true)}
+              data-testid="button-change-password"
+            >
+              Alterar Senha
+            </Button>
           </CardContent>
         </Card>
 
@@ -218,6 +241,12 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
           <LogOut className="h-4 w-4 mr-2" />
           Sair da Conta
         </Button>
+
+        {/* Change Password Modal */}
+        <ChangePasswordModal 
+          isOpen={isChangePasswordOpen}
+          onClose={() => setIsChangePasswordOpen(false)}
+        />
       </div>
     </div>
   );

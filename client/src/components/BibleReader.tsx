@@ -205,12 +205,12 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card">
         {/* Top Row: Logo and Navigation */}
-        <div className="flex items-center justify-between px-4 h-14 gap-2">
+        <div className="flex items-center justify-start px-2 h-12 gap-1 overflow-x-auto scrollbar-hide">
           {/* Logo */}
           <img 
             src={logoSmall} 
             alt="Logo" 
-            className="h-8 w-auto hidden sm:block"
+            className="h-7 w-auto hidden sm:block flex-shrink-0"
             data-testid="img-header-logo"
           />
           
@@ -222,7 +222,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
 
           {/* Book Selection */}
           <Select value={selectedBook} onValueChange={setSelectedBook}>
-            <SelectTrigger className="w-[120px] text-base" data-testid="select-book">
+            <SelectTrigger className="w-20 text-sm h-9 flex-shrink-0" data-testid="select-book">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -241,12 +241,12 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             onClick={handlePreviousChapter}
             disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
             data-testid="button-prev-chapter"
-            className="h-9 w-9"
+            className="h-8 w-8 flex-shrink-0"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" />
           </Button>
           <Select value={selectedChapter.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
-            <SelectTrigger className="w-[60px] text-base relative z-40" data-testid="select-chapter">
+            <SelectTrigger className="w-12 text-sm h-9 relative z-40 flex-shrink-0" data-testid="select-chapter">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="z-50">
@@ -266,7 +266,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
               selectedChapter === currentBook?.chapters
             }
             data-testid="button-next-chapter"
-            className="h-9 w-9"
+            className="h-8 w-8 flex-shrink-0"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -275,24 +275,27 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
           {trialActive && (
             <Badge 
               variant="secondary" 
-              className="hidden sm:flex text-xs"
+              className="hidden sm:inline-flex text-xs flex-shrink-0"
               data-testid="badge-trial"
             >
               Trial: {trialDaysRemaining}d
             </Badge>
           )}
 
+          {/* Settings Icons - Spacer */}
+          <div className="flex-1"></div>
+
           {/* Settings Icons */}
-          <Button variant="ghost" size="icon" data-testid="button-bookmarks" className="h-9 w-9">
+          <Button variant="ghost" size="icon" data-testid="button-bookmarks" className="h-8 w-8 flex-shrink-0">
             <Bookmark className="h-4 w-4" />
           </Button>
           <ThemeToggle />
           {isAdmin && (
-            <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-9 w-9" title="Painel Admin">
+            <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-8 w-8 flex-shrink-0" title="Painel Admin">
               <Shield className="h-4 w-4" />
             </Button>
           )}
-          <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-9 w-9">
+          <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8 flex-shrink-0">
             <Settings className="h-4 w-4" />
           </Button>
         </div>

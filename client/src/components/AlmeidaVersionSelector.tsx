@@ -7,7 +7,6 @@
  * - ALMEIDA_1911 (Almeida 1911)
  */
 
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -15,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Globe } from "lucide-react";
 
 interface AlmeidaVersionSelectorProps {
   selectedVersion: string;
@@ -38,28 +36,25 @@ export function AlmeidaVersionSelector({
   const currentVersion = ALMEIDA_VERSIONS.find(v => v.code === selectedVersion);
   
   return (
-    <div className="flex items-center gap-2">
-      <Globe className="w-4 h-4 text-muted-foreground" />
-      <Select
-        value={selectedVersion}
-        onValueChange={onVersionChange}
-        disabled={disabled}
-      >
-        <SelectTrigger className="w-44" data-testid="select-almeida-version">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent data-testid="select-almeida-version-content">
-          {ALMEIDA_VERSIONS.map((version) => (
-            <SelectItem
-              key={version.code}
-              value={version.code}
-              data-testid={`select-version-${version.code}`}
-            >
-              {version.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select
+      value={selectedVersion}
+      onValueChange={onVersionChange}
+      disabled={disabled}
+    >
+      <SelectTrigger className="w-14 text-sm font-medium h-9" data-testid="select-almeida-version">
+        <SelectValue placeholder={selectedVersion} />
+      </SelectTrigger>
+      <SelectContent data-testid="select-almeida-version-content">
+        {ALMEIDA_VERSIONS.map((version) => (
+          <SelectItem
+            key={version.code}
+            value={version.code}
+            data-testid={`select-version-${version.code}`}
+          >
+            {version.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

@@ -767,22 +767,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
-      const { query } = req.params;
+      const { query, book, chapter, verse } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Search in database using Drizzle with proper LIKE syntax
+      // Se temos contexto (livro, capítulo, verso), usa mapeamento preciso
+      if (book && chapter && verse) {
+        const { findStrongInJohn1 } = await import('./word-strong-mapping');
+        
+        if (book === 'jhn') {
+          const strongNum = findStrongInJohn1(lowerQuery, parseInt(chapter), parseInt(verse));
+          if (strongNum) {
+            const [entry] = await db
+              .select()
+              .from(strongEntries)
+              .where(eq(strongEntries.strongNumber, strongNum))
+              .limit(1);
+            
+            if (entry) {
+              return res.json({
+                results: [{
+                  number: entry.strongNumber,
+                  portugueseDefinition: entry.portugueseDef || null,
+                  word: entry.lemma,
+                  transliteration: entry.translit || entry.xlit || '',
+                  pronunciation: entry.pron || '',
+                  definition: entry.kjvDef || entry.strongsDef || '',
+                  language: entry.language,
+                  contextMatched: true,
+                }],
+                total: 1,
+                contextUsed: true,
+              });
+            }
+          }
+        }
+      }
+      
+      // Fallback: busca por lemma (palavra grega) PRIMEIRO, depois português
       const results = await db
         .select()
         .from(strongEntries)
         .where(
           or(
-            sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${'%' + lowerQuery + '%'}`,
             sql`LOWER(COALESCE(${strongEntries.lemma}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+            sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${'%' + lowerQuery + '%'}`,
             sql`LOWER(COALESCE(${strongEntries.translit}, '')) LIKE ${'%' + lowerQuery + '%'}`,
             sql`LOWER(COALESCE(${strongEntries.kjvDef}, '')) LIKE ${'%' + lowerQuery + '%'}`
           )
         )
-        .limit(50);
+        .orderBy(strongEntries.strongNumber)
+        .limit(10);
       
       // Format results to match frontend expectations
       const formattedResults = results.map(e => ({
@@ -802,7 +836,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return bHasPortuguese - aHasPortuguese;
       });
       
-      res.json({ results: formattedResults, total: formattedResults.length });
+      res.json({ results: formattedResults, total: formattedResults.length, contextUsed: false });
     } catch (error) {
       console.error("Search Strong error:", error);
       res.status(500).json({ error: "Erro ao buscar no dicionário" });

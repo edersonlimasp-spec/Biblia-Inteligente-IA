@@ -105,10 +105,20 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   });
 
   // Query to search for Strong's number when clicking a word
+  // Includes book/chapter context for accurate Strong number mapping
   const { data: wordSearchResults } = useQuery<StrongSearchResponse>({
-    queryKey: ['/api/strong/search', searchingWord],
+    queryKey: ['/api/strong/search', searchingWord, selectedBook, selectedChapter],
     enabled: !!searchingWord,
     retry: false,
+    queryFn: async () => {
+      const searchParams = new URLSearchParams({
+        book: selectedBook,
+        chapter: selectedChapter.toString(),
+      });
+      const response = await fetch(`/api/strong/search/${encodeURIComponent(searchingWord)}?${searchParams}`);
+      if (!response.ok) throw new Error('Strong search failed');
+      return response.json();
+    },
   });
 
   const currentBook = books?.find(b => b.id === selectedBook);

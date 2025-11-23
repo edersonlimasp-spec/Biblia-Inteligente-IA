@@ -809,7 +809,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
-      const { query, book, chapter, verse } = req.query as Record<string, string>;
+      const query = req.params.query;
+      const { book, chapter, verse } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
       // Se temos contexto (livro, capítulo, verso), usa mapeamento preciso

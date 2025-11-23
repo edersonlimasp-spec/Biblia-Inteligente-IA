@@ -205,7 +205,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card">
         {/* Top Row: Logo and Navigation */}
-        <div className="flex items-center justify-start px-2 h-12 gap-1 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center justify-start px-1.5 h-12 gap-0.5 overflow-x-auto scrollbar-hide">
           {/* Logo */}
           <img 
             src={logoSmall} 

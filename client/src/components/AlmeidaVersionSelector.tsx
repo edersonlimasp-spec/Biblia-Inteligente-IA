@@ -22,10 +22,10 @@ interface AlmeidaVersionSelectorProps {
 }
 
 const ALMEIDA_VERSIONS = [
-  { code: "ACF", label: "ACF - Corrigida Fiel" },
-  { code: "ARC", label: "ARC - Revista e Corrigida" },
-  { code: "AA", label: "AA - Atualizada" },
-  { code: "ALMEIDA_1911", label: "Almeida 1911" },
+  { code: "ACF", label: "ACF - Corrigida Fiel", short: "ACF" },
+  { code: "ARC", label: "ARC - Revista e Corrigida", short: "ARC" },
+  { code: "AA", label: "AA - Atualizada", short: "AA" },
+  { code: "ALMEIDA_1911", label: "Almeida 1911", short: "ALM" },
 ];
 
 export function AlmeidaVersionSelector({
@@ -34,6 +34,7 @@ export function AlmeidaVersionSelector({
   disabled = false,
 }: AlmeidaVersionSelectorProps) {
   const currentVersion = ALMEIDA_VERSIONS.find(v => v.code === selectedVersion);
+  const displayText = currentVersion?.short || "ACF";
   
   return (
     <Select
@@ -41,8 +42,8 @@ export function AlmeidaVersionSelector({
       onValueChange={onVersionChange}
       disabled={disabled}
     >
-      <SelectTrigger className="w-14 text-sm font-medium h-9" data-testid="select-almeida-version">
-        <SelectValue placeholder={selectedVersion} />
+      <SelectTrigger className="w-11 text-xs font-bold h-8" data-testid="select-almeida-version">
+        <span>{displayText}</span>
       </SelectTrigger>
       <SelectContent data-testid="select-almeida-version-content">
         {ALMEIDA_VERSIONS.map((version) => (

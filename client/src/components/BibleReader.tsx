@@ -70,6 +70,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
   const [searchingWord, setSearchingWord] = useState<string | null>(null);
+  const [searchingVerseNum, setSearchingVerseNum] = useState<number | null>(null);
   const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
   const [textSearchQuery, setTextSearchQuery] = useState("");
   const [selectedVersion, setSelectedVersion] = useState(() => {
@@ -105,15 +106,16 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   });
 
   // Query to search for Strong's number when clicking a word
-  // Includes book/chapter context for accurate Strong number mapping
+  // Includes book/chapter/verse context for accurate Strong number mapping
   const { data: wordSearchResults } = useQuery<StrongSearchResponse>({
-    queryKey: ['/api/strong/search', searchingWord, selectedBook, selectedChapter],
-    enabled: !!searchingWord,
+    queryKey: ['/api/strong/search', searchingWord, selectedBook, selectedChapter, searchingVerseNum],
+    enabled: !!searchingWord && searchingVerseNum !== null,
     retry: false,
     queryFn: async () => {
       const searchParams = new URLSearchParams({
         book: selectedBook,
         chapter: selectedChapter.toString(),
+        verse: searchingVerseNum!.toString(),
       });
       const response = await fetch(`/api/strong/search/${encodeURIComponent(searchingWord)}?${searchParams}`);
       if (!response.ok) throw new Error('Strong search failed');
@@ -175,10 +177,12 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
           });
         }
         setSearchingWord(null); // Clear search state
+        setSearchingVerseNum(null); // Clear verse state
       }
     } else if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length === 0) {
       // No results found - clear search
       setSearchingWord(null);
+      setSearchingVerseNum(null);
     }
   }, [wordSearchResults, currentBook, searchingWord]);
 
@@ -198,6 +202,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     
     // Search in database via API (will filter by testament/language automatically)
     setSearchingWord(cleanWord);
+    setSearchingVerseNum(verseNum);
   };
 
   return (

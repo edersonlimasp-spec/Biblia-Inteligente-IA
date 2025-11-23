@@ -813,12 +813,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { book, chapter, verse } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Se temos contexto (livro, capítulo, verso), usa mapeamento preciso
-      if (book && chapter && verse) {
+      // Se temos contexto COMPLETO (livro, capítulo, verso), usa mapeamento preciso
+      if (book && chapter && verse && !isNaN(parseInt(chapter)) && !isNaN(parseInt(verse))) {
         const { findStrongInJohn1 } = await import('./word-strong-mapping');
         
         if (book === 'jhn') {
-          const strongNum = findStrongInJohn1(lowerQuery, parseInt(chapter), parseInt(verse));
+          const chapterNum = parseInt(chapter);
+          const verseNum = parseInt(verse);
+          const strongNum = findStrongInJohn1(lowerQuery, chapterNum, verseNum);
+          
           if (strongNum) {
             const [entry] = await db
               .select()

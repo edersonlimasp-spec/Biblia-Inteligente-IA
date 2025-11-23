@@ -14,11 +14,13 @@ Do not make changes to the file `Y`.
 
 ## Recent Changes (Nov 23, 2025)
 
-**Mobile Responsiveness & UI Improvements:**
+**Mobile Responsiveness & UI Improvements (Final):**
+- **Header Font Size:** Increased header font size 20%: Book/Chapter selectors `text-sm` → `text-base`, navigation arrows `h-4 w-4` → `h-5 w-5`.
+- **Bible Font Size:** Increased medium font size 20%: `text-lg` → `text-xl` (while keeping small = text-base, large = text-2xl).
+- **Lateral Scroll Fix:** Added `overflow-x: hidden` to html and body in index.css to prevent lateral scrolling on reading screen.
+- **Dark Mode Fix:** ThemeProvider already active in MainNavigation.tsx with proper CSS variables for dark mode (dark background, light text).
 - **Header Restructure:** Separated Book/Chapter/Verse selection into individual controls without overlaps. Added 2-row header: (1) Top row with Book selector, Chapter navigation arrows, Chapter selector, Trial badge, Bookmarks, Theme toggle, Settings. (2) Bottom row with text search by keywords with lupa icon and clear button.
-- **Dynamic Header Measurement:** Implemented `useEffect` in MainNavigation.tsx to dynamically measure header height (with 100ms delay for DOM readiness) and set CSS variable `--mobile-header-height`, with automatic re-measurement on window resize for orientation changes.
-- **Input/Button Sizing:** Mobile input height set to 36px (smaller), button height set to 44px (larger), search button set to 32px (20% smaller). All with `!important` to ensure visibility hierarchy.
-- **Font Size System:** Implemented 3-tier font size system (small/medium/large) with localStorage persistence. Default is "medium". Added Configurações de Leitura section in SettingsScreen with visual buttons showing text sizes (A pequeno, A médio, A grande). Applied dynamic className to Bible text based on user preference: small = text-base, medium = text-lg, large = text-2xl.
+- **Font Size System:** Implemented 3-tier font size system (small/medium/large) with localStorage persistence. Default is "medium". Added Configurações de Leitura section in SettingsScreen with visual buttons showing text sizes (A pequeno, A médio, A grande).
 - **Safe Area Support:** Added `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` for iPhone notch and gesture bar compatibility.
 - **Search by Keywords:** Added text search input in header bottom row with placeholder "Buscar por palavras-chave..." and clear button (X icon) when search is active.
 

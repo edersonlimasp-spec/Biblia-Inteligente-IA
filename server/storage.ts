@@ -18,7 +18,7 @@ import type {
   Bonus,
   InsertBonus,
 } from '@shared/schema';
-import { eq, and, desc, gte, sql, like, limit, offset } from 'drizzle-orm';
+import { eq, and, desc, gte, sql, like } from 'drizzle-orm';
 
 export interface IStorage {
   // Users
@@ -93,7 +93,7 @@ class PostgresStorage implements IStorage {
   }
 
   async getAdminUsers(): Promise<User[]> {
-    return db.select().from(users).where(eq(users.isAdmin, true));
+    return db.select().from(users).where(eq(users.role, 'admin'));
   }
 
   async makeUserAdmin(userId: string): Promise<void> {
@@ -110,7 +110,7 @@ class PostgresStorage implements IStorage {
     const totalResult = await db.select({ count: sql<number>`count(*)` }).from(users);
     const total = totalResult[0]?.count || 0;
 
-    let finalQuery = query.orderBy(desc(users.createdAt));
+    let finalQuery = query.orderBy(desc(users.trialStartDate));
     if (take) finalQuery = finalQuery.limit(take);
     if (skip) finalQuery = finalQuery.offset(skip);
 
@@ -314,7 +314,7 @@ class PostgresStorage implements IStorage {
   }
 
   async getAdminActions(take?: number): Promise<AdminAction[]> {
-    let query = db.select().from(adminActions).orderBy(desc(adminActions.createdAt));
+    let query = db.select().from(adminActions).orderBy(desc(adminActions.createdAt)) as any;
     if (take) query = query.limit(take);
     return query;
   }

@@ -201,9 +201,9 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-background text-foreground dark:bg-background dark:text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-card">
+      <header className="sticky top-0 z-50 border-b bg-card dark:bg-card">
         {/* Top Row: Logo and Navigation */}
         <div className="flex items-center justify-start px-1.5 h-12 gap-0.5 overflow-x-auto scrollbar-hide">
           {/* Logo */}
@@ -325,7 +325,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       </header>
 
       {/* Bible Text */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 bible-page">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
         <div className="max-w-3xl mx-auto px-4 py-6">
           {isLoading ? (
             <div className="space-y-4">

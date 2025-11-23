@@ -657,25 +657,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/bible/:bookId/:chapter", async (req, res) => {
     try {
-      const { bookId, chapter } = req.params;
-      const { version = 'ACF' } = req.query;
+      const { bookId, chapter: chapterNum } = req.params;
+      const version = (req.query.version as string) || 'ACF';
       const book = getBookById(bookId);
       
       if (!book) {
         return res.status(404).json({ error: "Livro não encontrado" });
       }
 
-      // Get chapter from centralized bible index (all 66 books)
-      const chapterData = getBookChapter(bookId, parseInt(chapter));
-      
-      if (!chapterData) {
+      const chapterInt = parseInt(chapterNum);
+      if (isNaN(chapterInt) || chapterInt < 1 || chapterInt > book.chapters) {
         return res.status(404).json({ 
           error: "Capítulo inválido",
-          message: `O livro ${book.name} tem ${book.chapters} capítulos. Capítulo ${chapter} não existe.`
+          message: `O livro ${book.name} tem ${book.chapters} capítulos. Capítulo ${chapterNum} não existe.`
         });
       }
-      
-      res.json({ book, chapter: chapterData, available: true, version });
+
+      // Try to fetch from database first
+      let verses = await db
+        .select()
+        .from(bibleVerses)
+        .where(
+          and(
+            eq(bibleVerses.versionCode, version),
+            eq(bibleVerses.book, bookId),
+            eq(bibleVerses.chapter, chapterInt)
+          )
+        )
+        .orderBy(bibleVerses.verse);
+
+      // If database has no verses for this version, fall back to hardcoded data
+      if (!verses || verses.length === 0) {
+        const fallbackChapterData = getBookChapter(bookId, chapterInt);
+        if (!fallbackChapterData) {
+          return res.status(404).json({ 
+            error: "Capítulo não encontrado",
+            message: `Nenhum dado disponível para ${book.name} ${chapterInt} na versão ${version}`
+          });
+        }
+        
+        // Return fallback data with version info
+        res.json({ 
+          book, 
+          chapter: fallbackChapterData, 
+          available: true, 
+          version,
+          source: 'fallback'
+        });
+        return;
+      }
+
+      // Format verses from database
+      const formattedVerses = verses.map(v => ({
+        verse: v.verse,
+        text: v.text
+      }));
+
+      res.json({ 
+        book, 
+        chapter: {
+          chapter: chapterInt,
+          verses: formattedVerses
+        },
+        available: true, 
+        version,
+        source: 'database'
+      });
     } catch (error) {
       console.error("Get chapter error:", error);
       res.status(500).json({ error: "Erro ao buscar capítulo" });

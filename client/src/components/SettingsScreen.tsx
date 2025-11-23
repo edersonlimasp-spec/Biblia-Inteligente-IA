@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface SettingsScreenProps {
@@ -17,7 +17,22 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
   const { user, logout, trialDaysRemaining } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
-  const [fontSize, setFontSize] = useState("medium");
+  const [fontSize, setFontSize] = useState(() => {
+    try {
+      return localStorage.getItem("bible-font-size") || "medium";
+    } catch {
+      return "medium";
+    }
+  });
+
+  // Persist font size to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("bible-font-size", fontSize);
+    } catch (error) {
+      console.error("Erro ao salvar tamanho da fonte:", error);
+    }
+  }, [fontSize]);
 
   const handleLogout = () => {
     logout();
@@ -103,22 +118,38 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Tamanho da Fonte</Label>
-              <div className="flex gap-2 mt-2">
-                {["small", "medium", "large"].map((size) => (
-                  <Button
-                    key={size}
-                    variant={fontSize === size ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setFontSize(size)}
-                    data-testid={`button-font-${size}`}
-                  >
-                    {size === "small" && "A"}
-                    {size === "medium" && "A"}
-                    {size === "large" && "A"}
-                  </Button>
-                ))}
+              <Label className="mb-3 block">Tamanho da Fonte do Texto Bíblico</Label>
+              <div className="flex gap-2 mt-3">
+                <Button
+                  variant={fontSize === "small" ? "default" : "outline"}
+                  onClick={() => setFontSize("small")}
+                  data-testid="button-font-small"
+                  className="flex-1"
+                >
+                  <span className="text-sm">A</span>
+                </Button>
+                <Button
+                  variant={fontSize === "medium" ? "default" : "outline"}
+                  onClick={() => setFontSize("medium")}
+                  data-testid="button-font-medium"
+                  className="flex-1"
+                >
+                  <span className="text-lg">A</span>
+                </Button>
+                <Button
+                  variant={fontSize === "large" ? "default" : "outline"}
+                  onClick={() => setFontSize("large")}
+                  data-testid="button-font-large"
+                  className="flex-1"
+                >
+                  <span className="text-2xl">A</span>
+                </Button>
               </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                {fontSize === "small" && "Tamanho: Pequeno"}
+                {fontSize === "medium" && "Tamanho: Médio (padrão)"}
+                {fontSize === "large" && "Tamanho: Grande"}
+              </p>
             </div>
           </CardContent>
         </Card>

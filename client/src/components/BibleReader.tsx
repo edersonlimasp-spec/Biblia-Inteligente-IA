@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -68,6 +69,14 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
   const [searchingWord, setSearchingWord] = useState<string | null>(null);
   const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
+  const [textSearchQuery, setTextSearchQuery] = useState("");
+  const [fontSize, setFontSize] = useState(() => {
+    try {
+      return localStorage.getItem("bible-font-size") || "medium";
+    } catch {
+      return "medium";
+    }
+  });
 
   const { data: books } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
@@ -169,7 +178,8 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     <div className="flex flex-col h-screen">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card">
-        <div className="flex items-center justify-between px-4 h-14 gap-3">
+        {/* Top Row: Logo and Navigation */}
+        <div className="flex items-center justify-between px-4 h-14 gap-2">
           {/* Logo */}
           <img 
             src={logoSmall} 
@@ -178,76 +188,99 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             data-testid="img-header-logo"
           />
           
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Select value={selectedBook} onValueChange={setSelectedBook}>
-              <SelectTrigger className="w-[140px]" data-testid="select-book">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {books?.map((book) => (
-                  <SelectItem key={book.id} value={book.id}>
-                    {book.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handlePreviousChapter}
-                disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
-                data-testid="button-prev-chapter"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Select value={selectedChapter.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
-                <SelectTrigger className="w-[70px] relative z-40" data-testid="select-chapter">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-50">
-                  {currentBook && Array.from({ length: currentBook.chapters }, (_, i) => i + 1).map((ch) => (
-                    <SelectItem key={ch} value={String(ch)}>
-                      {ch}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleNextChapter}
-                disabled={
-                  selectedBook === books?.[books.length - 1]?.id && 
-                  selectedChapter === currentBook?.chapters
-                }
-                data-testid="button-next-chapter"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {trialActive && (
-              <Badge 
-                variant="secondary" 
-                className="hidden sm:flex text-xs"
-                data-testid="badge-trial"
-              >
-                Trial: {trialDaysRemaining} {trialDaysRemaining === 1 ? 'dia' : 'dias'}
-              </Badge>
-            )}
-            <Button variant="ghost" size="icon" data-testid="button-search">
-              <Search className="h-5 w-5" />
+          {/* Book Selection */}
+          <Select value={selectedBook} onValueChange={setSelectedBook}>
+            <SelectTrigger className="w-[120px] text-sm" data-testid="select-book">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {books?.map((book) => (
+                <SelectItem key={book.id} value={book.id}>
+                  {book.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Chapter Navigation */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handlePreviousChapter}
+            disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
+            data-testid="button-prev-chapter"
+            className="h-9 w-9"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Select value={selectedChapter.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
+            <SelectTrigger className="w-[60px] text-sm relative z-40" data-testid="select-chapter">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-50">
+              {currentBook && Array.from({ length: currentBook.chapters }, (_, i) => i + 1).map((ch) => (
+                <SelectItem key={ch} value={String(ch)}>
+                  {ch}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleNextChapter}
+            disabled={
+              selectedBook === books?.[books.length - 1]?.id && 
+              selectedChapter === currentBook?.chapters
+            }
+            data-testid="button-next-chapter"
+            className="h-9 w-9"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+
+          {/* Trial Badge */}
+          {trialActive && (
+            <Badge 
+              variant="secondary" 
+              className="hidden sm:flex text-xs"
+              data-testid="badge-trial"
+            >
+              Trial: {trialDaysRemaining}d
+            </Badge>
+          )}
+
+          {/* Settings Icons */}
+          <Button variant="ghost" size="icon" data-testid="button-bookmarks" className="h-9 w-9">
+            <Bookmark className="h-4 w-4" />
+          </Button>
+          <ThemeToggle />
+          <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-9 w-9">
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Bottom Row: Text Search */}
+        <div className="px-4 py-2 border-t bg-card/50 flex gap-2 items-center">
+          <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <Input
+            placeholder="Buscar por palavras-chave..."
+            value={textSearchQuery}
+            onChange={(e) => setTextSearchQuery(e.target.value)}
+            className="flex-1 h-8 text-sm"
+            data-testid="input-text-search"
+          />
+          {textSearchQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTextSearchQuery("")}
+              className="h-8 w-8"
+              data-testid="button-clear-search"
+            >
+              <X className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" data-testid="button-bookmarks">
-              <Bookmark className="h-5 w-5" />
-            </Button>
-            <ThemeToggle />
-            <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings}>
-              <Settings className="h-5 w-5" />
-            </Button>
-          </div>
+          )}
         </div>
       </header>
 
@@ -284,7 +317,13 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
               <h2 className="font-serif text-2xl font-bold mb-6 text-primary">
                 {chapterData?.book.name} {chapterData?.chapter.chapter}
               </h2>
-              <div className="space-y-4 font-serif text-lg leading-relaxed">
+              <div 
+                className={`space-y-4 font-serif leading-relaxed ${
+                  fontSize === "small" ? "text-base" : 
+                  fontSize === "medium" ? "text-lg" : 
+                  "text-2xl"
+                }`}
+              >
                 {chapterData?.chapter.verses.map((verse) => (
                   <div
                     key={verse.verse}

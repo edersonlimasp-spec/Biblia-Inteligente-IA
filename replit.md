@@ -14,13 +14,13 @@ Do not make changes to the file `Y`.
 
 ## Recent Changes (Nov 23, 2025)
 
-**Mobile Responsiveness Fixes:**
-- **Header Overlap Fix:** Added CSS media query for mobile (`max-width: 768px`) with `padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top))` on main element to prevent content overlap under sticky header.
+**Mobile Responsiveness & UI Improvements:**
+- **Header Restructure:** Separated Book/Chapter/Verse selection into individual controls without overlaps. Added 2-row header: (1) Top row with Book selector, Chapter navigation arrows, Chapter selector, Trial badge, Bookmarks, Theme toggle, Settings. (2) Bottom row with text search by keywords with lupa icon and clear button.
 - **Dynamic Header Measurement:** Implemented `useEffect` in MainNavigation.tsx to dynamically measure header height (with 100ms delay for DOM readiness) and set CSS variable `--mobile-header-height`, with automatic re-measurement on window resize for orientation changes.
-- **Input/Button Sizing:** Mobile input height set to 36px (smaller), button height set to 44px (larger) with `!important` to ensure visibility hierarchy.
-- **Placeholder Update:** Changed AI input placeholder from "Pergunte ao Professor..." to "Buscar" with `aria-label` for accessibility.
+- **Input/Button Sizing:** Mobile input height set to 36px (smaller), button height set to 44px (larger), search button set to 32px (20% smaller). All with `!important` to ensure visibility hierarchy.
+- **Font Size System:** Implemented 3-tier font size system (small/medium/large) with localStorage persistence. Default is "medium". Added Configurações de Leitura section in SettingsScreen with visual buttons showing text sizes (A pequeno, A médio, A grande). Applied dynamic className to Bible text based on user preference: small = text-base, medium = text-lg, large = text-2xl.
 - **Safe Area Support:** Added `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` for iPhone notch and gesture bar compatibility.
-- **Scroll Padding:** Added `scroll-padding-top` for smooth anchor scrolling on mobile.
+- **Search by Keywords:** Added text search input in header bottom row with placeholder "Buscar por palavras-chave..." and clear button (X icon) when search is active.
 
 ## System Architecture
 

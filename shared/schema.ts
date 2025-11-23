@@ -237,3 +237,30 @@ export const insertAIUsageLimitSchema = createInsertSchema(aiUsageLimits).omit({
 
 export type InsertAIUsageLimit = z.infer<typeof insertAIUsageLimitSchema>;
 export type AIUsageLimit = typeof aiUsageLimits.$inferSelect;
+
+// User Sessions table (for online tracking)
+export const userSessions = pgTable("user_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  sessionId: text("session_id").notNull().unique(),
+  lastActivityAt: timestamp("last_activity_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("user_sessions_user_id_idx").on(table.userId),
+  lastActivityAtIdx: index("user_sessions_last_activity_at_idx").on(table.lastActivityAt),
+}));
+
+export type UserSession = typeof userSessions.$inferSelect;
+
+// Page Events table (for tracking page views, AI usage, subscription funnel, etc.)
+export const pageEvents = pgTable("page_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull(), // 'PAGE_VIEW', 'AI_QUESTION', 'SUBSCRIPTION_PAGE_VISIT', 'SUBSCRIPTION_ABANDONED'
+  eventData: jsonb("event_data"), // Additional context (page name, AI mode, etc.)
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("page_events_user_id_idx").on(table.userId),
+  eventTypeIdx: index("page_events_event_type_idx").on(table.eventType),
+  createdAtIdx: index("page_events_created_at_idx").on(table.createdAt),
+}));

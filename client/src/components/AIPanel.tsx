@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { trackAIQuestion } from "@/lib/tracking";
 import {
   Sheet,
   SheetContent,
@@ -362,6 +363,9 @@ export function AIPanel() {
     };
     
     setMessages(prev => [...prev, userMessage]);
+
+    // Track AI question
+    trackAIQuestion('essential').catch(() => {});
 
     // Fazer pergunta à API, capturando sessionId atual para prevenir race conditions
     askAIMutation.mutate({

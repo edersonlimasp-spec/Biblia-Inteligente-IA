@@ -815,6 +815,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Metrics - Online Users
+  app.get("/api/admin/metrics/online-users", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const onlineCount = await storage.getOnlineUsers(5); // Last 5 minutes
+      res.json({ onlineUsers: onlineCount });
+    } catch (error) {
+      console.error("Online users error:", error);
+      res.status(500).json({ error: "Erro ao buscar usuários online" });
+    }
+  });
+
+  // Admin Metrics - AI Usage Stats
+  app.get("/api/admin/metrics/ai-usage", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { days = "30" } = req.query;
+      const stats = await storage.getAIUsageStats(parseInt(days as string));
+      res.json(stats);
+    } catch (error) {
+      console.error("AI usage error:", error);
+      res.status(500).json({ error: "Erro ao buscar estatísticas de IA" });
+    }
+  });
+
+  // Admin Metrics - Usage Heatmap
+  app.get("/api/admin/metrics/usage-heatmap", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { days = "7" } = req.query;
+      const heatmap = await storage.getUsageHeatmap(parseInt(days as string));
+      res.json({ heatmap });
+    } catch (error) {
+      console.error("Heatmap error:", error);
+      res.status(500).json({ error: "Erro ao buscar heatmap" });
+    }
+  });
+
+  // Admin Metrics - Abandoned Subscriptions
+  app.get("/api/admin/metrics/abandoned-subscriptions", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const abandoned = await storage.getAbandonedSubscriptions();
+      res.json({ abandoned });
+    } catch (error) {
+      console.error("Abandoned subscriptions error:", error);
+      res.status(500).json({ error: "Erro ao buscar assinaturas abandonadas" });
+    }
+  });
+
+  // Track Event (Authenticated)
+  app.post("/api/admin/events/track", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { eventType, eventData } = req.body;
+      await storage.trackPageEvent(req.userId!, eventType, eventData);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Event tracking error:", error);
+      res.status(500).json({ error: "Erro ao rastrear evento" });
+    }
+  });
+
   // Admin Users - List all users
   app.get("/api/admin/users", ensureAdmin, async (req: AuthRequest, res) => {
     try {

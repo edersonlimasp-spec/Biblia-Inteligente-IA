@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents } from '@shared/schema';
 import type {
   User,
   InsertUser,
@@ -17,6 +17,7 @@ import type {
   InsertAdminAction,
   Bonus,
   InsertBonus,
+  UserSession,
 } from '@shared/schema';
 import { eq, and, desc, gte, sql, like } from 'drizzle-orm';
 
@@ -73,6 +74,14 @@ export interface IStorage {
   // Audit Log
   logAdminAction(action: InsertAdminAction): Promise<AdminAction>;
   getAdminActions(limit?: number): Promise<AdminAction[]>;
+
+  // Sessions & Events (for metrics)
+  createOrUpdateSession(userId: string, sessionId: string): Promise<UserSession>;
+  getOnlineUsers(minutesAgo?: number): Promise<number>;
+  trackPageEvent(userId: string, eventType: string, eventData?: any): Promise<void>;
+  getAIUsageStats(days?: number): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}>;
+  getUsageHeatmap(days?: number): Promise<Array<{hour: number; count: number}>>;
+  getAbandonedSubscriptions(): Promise<Array<{userId: string; email: string; lastSeenAt: string}>>;
 }
 
 class PostgresStorage implements IStorage {
@@ -317,6 +326,115 @@ class PostgresStorage implements IStorage {
     let query = db.select().from(adminActions).orderBy(desc(adminActions.createdAt)) as any;
     if (take) query = query.limit(take);
     return query;
+  }
+
+  // Sessions & Events
+  async createOrUpdateSession(userId: string, sessionId: string): Promise<UserSession> {
+    const existing = await db.select().from(userSessions).where(eq(userSessions.sessionId, sessionId));
+    
+    if (existing.length > 0) {
+      await db.update(userSessions)
+        .set({ lastActivityAt: new Date() })
+        .where(eq(userSessions.sessionId, sessionId));
+      return existing[0];
+    }
+
+    const result = await db.insert(userSessions).values({
+      userId,
+      sessionId,
+      lastActivityAt: new Date(),
+    }).returning();
+    return result[0];
+  }
+
+  async getOnlineUsers(minutesAgo: number = 5): Promise<number> {
+    const cutoffTime = new Date(Date.now() - minutesAgo * 60000);
+    const result = await db.select({ count: sql<number>`count(distinct ${userSessions.userId})` })
+      .from(userSessions)
+      .where(gte(userSessions.lastActivityAt, cutoffTime));
+    return result[0]?.count || 0;
+  }
+
+  async trackPageEvent(userId: string, eventType: string, eventData?: any): Promise<void> {
+    await db.insert(pageEvents).values({
+      userId,
+      eventType,
+      eventData,
+    });
+  }
+
+  async getAIUsageStats(days: number = 30): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}> {
+    const cutoffDate = new Date(Date.now() - days * 86400000);
+    
+    const allAIEvents = await db.select().from(pageEvents)
+      .where(and(
+        eq(pageEvents.eventType, 'AI_QUESTION'),
+        gte(pageEvents.createdAt, cutoffDate)
+      ));
+
+    const total = allAIEvents.length;
+    const byMode = {
+      essential: allAIEvents.filter(e => e.eventData?.mode === 'essential').length,
+      premium: allAIEvents.filter(e => e.eventData?.mode === 'premium').length,
+    };
+
+    const userMap = new Map<string, number>();
+    allAIEvents.forEach(e => {
+      userMap.set(e.userId, (userMap.get(e.userId) || 0) + 1);
+    });
+
+    const byUser = Array.from(userMap.entries())
+      .map(([userId, count]) => ({ userId, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return { total, byMode, byUser };
+  }
+
+  async getUsageHeatmap(days: number = 7): Promise<Array<{hour: number; count: number}>> {
+    const cutoffDate = new Date(Date.now() - days * 86400000);
+    
+    const events = await db.select().from(pageEvents)
+      .where(gte(pageEvents.createdAt, cutoffDate));
+
+    const heatmap = new Map<number, number>();
+    events.forEach(e => {
+      const hour = new Date(e.createdAt).getHours();
+      heatmap.set(hour, (heatmap.get(hour) || 0) + 1);
+    });
+
+    return Array.from({length: 24}, (_, i) => ({
+      hour: i,
+      count: heatmap.get(i) || 0,
+    }));
+  }
+
+  async getAbandonedSubscriptions(): Promise<Array<{userId: string; email: string; lastSeenAt: string}>> {
+    const abandonment = new Map<string, {lastSeenAt: Date; email: string}>();
+    
+    const events = await db.select()
+      .from(pageEvents)
+      .where(eq(pageEvents.eventType, 'SUBSCRIPTION_PAGE_VISIT'));
+
+    for (const event of events) {
+      const user = await this.getUser(event.userId);
+      if (user) {
+        const existing = abandonment.get(event.userId);
+        if (!existing || new Date(event.createdAt) > existing.lastSeenAt) {
+          abandonment.set(event.userId, {
+            lastSeenAt: new Date(event.createdAt),
+            email: user.email,
+          });
+        }
+      }
+    }
+
+    return Array.from(abandonment.entries())
+      .map(([userId, data]) => ({
+        userId,
+        email: data.email,
+        lastSeenAt: data.lastSeenAt.toISOString(),
+      }))
+      .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
   }
 }
 

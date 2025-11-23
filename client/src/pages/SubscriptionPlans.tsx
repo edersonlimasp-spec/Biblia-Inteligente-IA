@@ -6,6 +6,7 @@ import { Check } from 'lucide-react';
 import { revenueCat, type Offering } from '@/lib/revenueCat';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { trackSubscriptionPageVisit } from '@/lib/tracking';
 
 interface SubscriptionPlansProps {
   onSubscriptionChange?: () => void;
@@ -18,6 +19,7 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
   const { toast } = useToast();
 
   useEffect(() => {
+    trackSubscriptionPageVisit().catch(() => {});
     loadOfferings();
   }, []);
 

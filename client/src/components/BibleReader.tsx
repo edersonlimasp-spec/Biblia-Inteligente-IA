@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -258,7 +258,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
           <ThemeToggle />
           {isAdmin && (
             <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-9 w-9" title="Painel Admin">
-              ⚙️
+              <Shield className="h-4 w-4" />
             </Button>
           )}
           <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-9 w-9">

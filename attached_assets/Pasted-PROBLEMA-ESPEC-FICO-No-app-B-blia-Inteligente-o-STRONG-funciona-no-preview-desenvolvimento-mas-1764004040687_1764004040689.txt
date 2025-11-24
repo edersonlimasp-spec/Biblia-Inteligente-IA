@@ -1,0 +1,92 @@
+PROBLEMA ESPECÍFICO:
+No app “Bíblia Inteligente”, o STRONG funciona no preview/desenvolvimento, mas PARA de funcionar depois que eu publico o app. 
+
+Sintoma:
+- No ambiente publicado (URL pública), ao tocar nas palavras que deveriam abrir o Strong, nada acontece.
+- No preview, funciona normalmente.
+
+Quero que você:
+1) descubra POR QUE o Strong quebra após o publish
+2) corrija de forma definitiva
+3) valide em PRODUÇÃO (na URL pública) antes de dizer que está pronto.
+
+====================================================
+1) VERIFICAR DADOS DO STRONG EM PRODUÇÃO
+====================================================
+1.1 Conferir se a fonte de dados do Strong está disponível em PRODUÇÃO:
+- Se usa banco: conferir se a tabela de Strong (hebraico/grego) está populada também no banco de produção (não só no dev).
+- Se usa arquivo JSON/arquivo local: conferir se esse arquivo está sendo incluído no build e copiado para o ambiente de produção (dist/server/public etc).
+
+1.2 Se em produção a tabela/arquivo estiver vazio ou ausente:
+- Criar script de seed/migração que popule o Strong também no banco/ambiente de PRODUÇÃO.
+- Garantir que o processo de publish rode esse seed se for necessário.
+
+====================================================
+2) VERIFICAR API DO STRONG EM PRODUÇÃO
+====================================================
+2.1 Testar o endpoint real em PRODUÇÃO:
+- Ex.: GET /strong/:id ou /api/strong/:id (o que o app estiver usando).
+- No ambiente publicado, chamar esse endpoint diretamente e ver se:
+  ✅ responde 200 com os dados do Strong
+  ❌ ou dá 404 / 500 / erro de CORS / erro de rota.
+
+2.2 Se a rota NÃO estiver funcionando em produção:
+- Corrigir o roteamento para o Strong:
+  - garantir que o servidor (Express/Nest) esteja expondo o endpoint de Strong também no ambiente de produção.
+  - garantir que o path esteja correto (incluindo /api/ se necessário).
+
+2.3 Garantir que, em produção, o frontend está chamando o MESMO endpoint de Strong que funciona em dev:
+- se no código estiver hardcoded algo como “http://localhost:5000/…”, trocar para caminho relativo “/api/strong/:id”.
+
+====================================================
+3) VERIFICAR TOKENIZAÇÃO / strongId NO FRONT EM PRODUÇÃO
+====================================================
+Muitas vezes o build de produção “quebra” a passagem do strongId.
+
+3.1 Verificar como o texto é montado no frontend:
+- conferir se cada palavra/token mantém a propriedade strongId tanto em dev quanto em produção.
+- inspecionar no console do navegador em produção o objeto que representa o versículo/palavra e ver se strongId está vindo.
+
+3.2 Se strongId estiver sumindo no build:
+- localizar no código qualquer map/filter/transform que remove strongId em ambiente de produção.
+- garantir que o componente de renderização do texto receba strongId e o mantenha até o onClick.
+
+3.3 Garantir que o handler de clique está ativo em produção:
+- onClick/onPress na palavra com strongId deve chamar a função que abre o modal do Strong.
+- conferir se não há condição do tipo `if (process.env.NODE_ENV === 'development')` que esteja impedindo o Strong em prod.
+
+====================================================
+4) DESTAQUE VISUAL E UX (CONFIRMAÇÃO)
+====================================================
+4.1 Confirmar que APENAS palavras com strongId:
+- têm o estilo de destaque (ex.: cor um pouco mais escura + underline pontilhado).
+- são clicáveis para abrir o modal do Strong.
+
+4.2 Palavras sem strongId:
+- não abrem modal
+- não lançam erro no console.
+
+====================================================
+5) TESTES OBRIGATÓRIOS EM PRODUÇÃO (URL PÚBLICA)
+====================================================
+Antes de dizer que está pronto, você deve TESTAR na URL publicada:
+
+1. Abrir a URL pública do app.
+2. Navegar para:
+   - um texto do AT (hebraico)
+   - um texto do NT (grego)
+3. Clicar em várias palavras com Strong:
+   ✅ modal/caixa do Strong abre
+   ✅ aparece número Strong (Hxxxx/Gxxxx), palavra original, transliteração e definição.
+4. Confirmar que NÃO há erros no console do navegador (F12 → Console) ao clicar nas palavras.
+
+====================================================
+6) ENTREGA
+====================================================
+Na resposta, explique claramente:
+- qual era a causa do Strong não funcionar após o publish (dados, rota, strongId, endpoint, etc.),
+- quais arquivos/configurações você alterou,
+- como ficou a chamada do Strong no frontend em produção,
+- a confirmação de que testou na URL pública e está funcionando.
+
+NÃO considere pronto até o Strong funcionar normalmente no AMBIENTE PUBLICADO.

@@ -1,0 +1,66 @@
+================================================================================
+                    🚀 PRONTO PARA PUBLICAR - 3 PASSOS
+================================================================================
+
+SENHA ADMIN ATUALIZADA:
+  Email: edersonlima.sp@gmail.com
+  Senha: 102030
+
+================================================================================
+O QUE FAZER:
+================================================================================
+
+PASSO 1: Clique em "Publish" (no topo do Replit)
+
+PASSO 2: Clique em "Advanced"
+
+PASSO 3: NO CAMPO "Build command"
+  - Apague tudo que está lá
+  - Cole EXATAMENTE isto:
+  
+    sh build-production.sh
+
+PASSO 4: Clique "Save"
+
+PASSO 5: Clique "Publish" (botão verde)
+
+PASSO 6: AGUARDE 2-3 MINUTOS
+
+================================================================================
+DEPOIS QUE PUBLICAR, TESTE:
+================================================================================
+
+1. Copie a URL pública do seu app (está no Replit)
+
+2. Abra em ABA ANÔNIMA:
+   - Chrome: Ctrl+Shift+N
+   - Safari: Cmd+Shift+N
+   - Firefox: Ctrl+Shift+P
+
+3. Digite o email: edersonlima.sp@gmail.com
+
+4. Digite a senha: 102030
+
+5. Clique "Entrar"
+
+SE FUNCIONAR:
+  ✅ Login OK
+  ✅ Clique em uma palavra para testar Strong's Dictionary
+  ✅ PRONTO!
+
+SE NÃO FUNCIONAR:
+  - Qual é a mensagem de erro que aparece na tela?
+  - Me manda a mensagem EXATAMENTE como aparece
+
+================================================================================
+STATUS ATUAL:
+================================================================================
+
+✅ Banco de dados: Senha atualizada e verificada
+✅ Build script: Pronto (build-production.sh)
+✅ Frontend: Compilado
+✅ Backend: Sincronizado
+
+Falta apenas: VOCÊ PUBLICAR COM O NOVO BUILD COMMAND
+
+================================================================================

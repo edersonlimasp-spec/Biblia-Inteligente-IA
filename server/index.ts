@@ -2,6 +2,40 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./init-db";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// SYNC: Ensure frontend files are available for production serving
+// This runs before Express starts, synchronizing dist/public -> server/public if needed
+function syncFrontendFiles() {
+  if (process.env.NODE_ENV === "production") {
+    const sourceDir = path.resolve(__dirname, "..", "dist", "public");
+    const targetDir = path.resolve(__dirname, "public");
+
+    if (fs.existsSync(sourceDir)) {
+      try {
+        // Create target if it doesn't exist
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true });
+        }
+
+        // Check if sync is needed (source has newer files)
+        const sourceFiles = fs.readdirSync(sourceDir);
+        if (sourceFiles.length > 0) {
+          // Copy files from dist/public to server/public
+          fs.cpSync(sourceDir, targetDir, { recursive: true, force: true });
+          log(`Frontend files synced from dist/public to server/public`, "sync");
+        }
+      } catch (error: any) {
+        log(`Warning: Could not sync frontend files: ${error.message}`, "sync");
+        // Don't fail startup - this may happen in some environments
+      }
+    }
+  }
+}
 
 const app = express();
 
@@ -60,6 +94,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Sync frontend files before initializing anything
+  syncFrontendFiles();
+
   // Initialize database with seed data if needed
   await initializeDatabase();
 

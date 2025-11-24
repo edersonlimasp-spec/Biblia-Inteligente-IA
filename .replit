@@ -8,7 +8,7 @@ packages = ["poppler_utils"]
 
 [deployment]
 deploymentTarget = "autoscale"
-build = ["sh", "-c", "npm ci && npm run build && mkdir -p server/public && rm -rf server/public/* && cp -r dist/public/* server/public/"]
+build = ["sh", "-c", "sh build-production.sh"]
 run = ["npm", "run", "start"]
 
 [[ports]]

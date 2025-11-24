@@ -9,30 +9,58 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // SYNC: Ensure frontend files are available for production serving
-// This runs before Express starts, synchronizing dist/public -> server/public if needed
-function syncFrontendFiles() {
+// This runs before Express starts, verifying files are in the right place
+function ensureFrontendFilesReady() {
   if (process.env.NODE_ENV === "production") {
-    const sourceDir = path.resolve(__dirname, "..", "dist", "public");
-    const targetDir = path.resolve(__dirname, "public");
+    const possibleLocations = [
+      path.resolve(__dirname, "public"),                    // Primary: server/public
+      path.resolve(__dirname, "..", "dist", "public"),     // Secondary: dist/public
+      path.resolve(__dirname, "..", "client", "dist", "public"), // Tertiary: client/dist/public
+    ];
 
-    if (fs.existsSync(sourceDir)) {
+    // Find where the files actually are
+    let sourceDir: string | null = null;
+    for (const location of possibleLocations) {
+      if (fs.existsSync(location) && fs.readdirSync(location).length > 0) {
+        sourceDir = location;
+        log(`Found frontend files at: ${location}`, "sync");
+        break;
+      }
+    }
+
+    // If source found but it's not in server/public, copy it there
+    if (sourceDir && sourceDir !== possibleLocations[0]) {
+      const targetDir = possibleLocations[0];
       try {
-        // Create target if it doesn't exist
+        // Create target if doesn't exist
         if (!fs.existsSync(targetDir)) {
           fs.mkdirSync(targetDir, { recursive: true });
         }
 
-        // Check if sync is needed (source has newer files)
-        const sourceFiles = fs.readdirSync(sourceDir);
-        if (sourceFiles.length > 0) {
-          // Copy files from dist/public to server/public
-          fs.cpSync(sourceDir, targetDir, { recursive: true, force: true });
-          log(`Frontend files synced from dist/public to server/public`, "sync");
+        // Clear and copy files
+        const existingFiles = fs.readdirSync(targetDir);
+        for (const file of existingFiles) {
+          const filePath = path.join(targetDir, file);
+          if (fs.lstatSync(filePath).isDirectory()) {
+            fs.rmSync(filePath, { recursive: true });
+          } else {
+            fs.unlinkSync(filePath);
+          }
         }
+
+        // Copy from source to target
+        fs.cpSync(sourceDir, targetDir, { recursive: true, force: true });
+        log(`Frontend files synced to server/public`, "sync");
       } catch (error: any) {
         log(`Warning: Could not sync frontend files: ${error.message}`, "sync");
-        // Don't fail startup - this may happen in some environments
+        // Don't fail startup - server can still run
       }
+    }
+
+    // Verify final location has files
+    const finalLocation = possibleLocations[0];
+    if (!fs.existsSync(finalLocation) || fs.readdirSync(finalLocation).length === 0) {
+      log(`Warning: No frontend files found in ${finalLocation}`, "sync");
     }
   }
 }
@@ -94,8 +122,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Sync frontend files before initializing anything
-  syncFrontendFiles();
+  // Ensure frontend files are in correct location before starting server
+  ensureFrontendFilesReady();
 
   // Initialize database with seed data if needed
   await initializeDatabase();

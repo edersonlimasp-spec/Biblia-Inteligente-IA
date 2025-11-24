@@ -117,7 +117,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
         chapter: selectedChapter.toString(),
         verse: searchingVerseNum!.toString(),
       });
-      const response = await fetch(`/api/strong/search/${encodeURIComponent(searchingWord)}?${searchParams}`);
+      const response = await fetch(`/api/strong/search/${encodeURIComponent(searchingWord!)}?${searchParams}`);
       if (!response.ok) throw new Error('Strong search failed');
       return response.json();
     },

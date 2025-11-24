@@ -16,12 +16,32 @@ export async function initializeDatabase() {
     }
 
     console.log('📥 Banco está vazio, importando dados...');
+    console.log(`🔍 __dirname: ${__dirname}`);
+    console.log(`🔍 process.cwd(): ${process.cwd()}`);
     
     // Import Strong dictionary data from embedded JSON file
-    const strongDataPath = path.resolve(__dirname, '../server/strong-data.json');
+    // Try multiple paths for dev and production environments
+    const possiblePaths = [
+      path.resolve(__dirname, '../server/strong-data.json'),  // dev: when running from dist/
+      path.resolve(__dirname, './server/strong-data.json'),   // prod: if running from root
+      path.resolve(__dirname, 'strong-data.json'),            // prod: if copied to dist/
+      path.resolve(process.cwd(), 'server/strong-data.json'), // fallback: from project root
+      path.resolve(process.cwd(), 'strong-data.json'),        // fallback: if in root
+    ];
     
-    if (fs.existsSync(strongDataPath)) {
-      console.log('📂 Encontrado strong-data.json, importando...');
+    console.log('🔍 Tentando encontrar strong-data.json nos seguintes caminhos:');
+    possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
+    
+    let strongDataPath = null;
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        strongDataPath = testPath;
+        break;
+      }
+    }
+    
+    if (strongDataPath) {
+      console.log(`📂 ✅ Encontrado strong-data.json em: ${strongDataPath}`);
       const strongDataRaw = JSON.parse(fs.readFileSync(strongDataPath, 'utf-8'));
       
       // Map from snake_case (DB export) to the schema field names

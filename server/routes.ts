@@ -12,6 +12,7 @@ import { db } from "./db";
 import { eq, or, like, sql, and } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
+import { findStrongInJohn1 } from "./word-strong-mapping";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware: Cache control for static files (MUST be first!)
@@ -815,8 +816,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Se temos contexto COMPLETO (livro, capítulo, verso), usa mapeamento preciso
       if (book && chapter && verse && !isNaN(parseInt(chapter)) && !isNaN(parseInt(verse))) {
-        const { findStrongInJohn1 } = await import('./word-strong-mapping');
-        
         if (book === 'jhn') {
           const chapterNum = parseInt(chapter);
           const verseNum = parseInt(verse);

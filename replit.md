@@ -12,17 +12,26 @@ I prefer detailed explanations.
 Do not make changes to the folder `Z`.
 Do not make changes to the file `Y`.
 
-## Recent Changes (Nov 23, 2025)
+## Recent Changes (Nov 24, 2025)
 
-**Mobile Responsiveness & UI Improvements (Final):**
-- **Header Font Size:** Increased header font size 20%: Book/Chapter selectors `text-sm` → `text-base`, navigation arrows `h-4 w-4` → `h-5 w-5`.
-- **Bible Font Size:** Increased medium font size 20%: `text-lg` → `text-xl` (while keeping small = text-base, large = text-2xl).
-- **Lateral Scroll Fix:** Added `overflow-x: hidden` to html and body in index.css to prevent lateral scrolling on reading screen.
-- **Dark Mode Fix:** ThemeProvider already active in MainNavigation.tsx with proper CSS variables for dark mode (dark background, light text).
-- **Header Restructure:** Separated Book/Chapter/Verse selection into individual controls without overlaps. Added 2-row header: (1) Top row with Book selector, Chapter navigation arrows, Chapter selector, Trial badge, Bookmarks, Theme toggle, Settings. (2) Bottom row with text search by keywords with lupa icon and clear button.
-- **Font Size System:** Implemented 3-tier font size system (small/medium/large) with localStorage persistence. Default is "medium". Added Configurações de Leitura section in SettingsScreen with visual buttons showing text sizes (A pequeno, A médio, A grande).
+**CRITICAL FIX: Strong's Dictionary Production Compatibility:**
+- **Problem Identified:** Strong's feature worked in development but broke after publishing to production.
+- **Root Causes Found:**
+  1. Dynamic import of `word-strong-mapping.ts` with relative path broke after build/bundling
+  2. Path resolution for `strong-data.json` (6MB file) failed in production environment
+- **Fixes Applied:**
+  - **server/routes.ts:** Changed dynamic `await import('./word-strong-mapping')` to static import at top of file. This ensures the module is bundled correctly and available in production.
+  - **server/init-db.ts:** Implemented multi-path fallback system to locate `strong-data.json` in both dev and prod environments. Added comprehensive diagnostic logging to identify path resolution issues post-publish.
+  - **copy-strong-data.sh:** Created utility script to copy `strong-data.json` to `dist/` if needed for production deploys.
+- **Production Notes:** 
+  - Once Strong data is imported into production database, it persists and subsequent deploys won't need the JSON file.
+  - Enhanced logging will help diagnose path issues if Strong data fails to load in production.
+  - See `copy-strong-data.sh` for manual data file deployment if needed.
+
+**Previous Changes (Nov 23, 2025):**
+- **Mobile Responsiveness & UI Improvements:** Header font size increased 20%, Bible text `text-lg` → `text-xl`, lateral scroll fix with `overflow-x: hidden`, dark mode fully functional, 2-row header with Book/Chapter selectors, Trial badge, Bookmarks, Theme toggle, Settings, and keyword search.
+- **Font Size System:** 3-tier system (small/medium/large) with localStorage persistence. Default is "medium".
 - **Safe Area Support:** Added `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` for iPhone notch and gesture bar compatibility.
-- **Search by Keywords:** Added text search input in header bottom row with placeholder "Buscar por palavras-chave..." and clear button (X icon) when search is active.
 
 ## System Architecture
 

@@ -808,54 +808,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { book, chapter, verse } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Se temos contexto COMPLETO (livro, capítulo, verso), usa mapeamento preciso
-      if (book && chapter && verse && !isNaN(parseInt(chapter)) && !isNaN(parseInt(verse))) {
-        if (book === 'jhn') {
-          const chapterNum = parseInt(chapter);
-          const verseNum = parseInt(verse);
-          const strongNum = findStrongInJohn1(lowerQuery, chapterNum, verseNum);
-          
-          if (strongNum) {
-            const [entry] = await db
-              .select()
-              .from(strongEntries)
-              .where(eq(strongEntries.strongNumber, strongNum))
-              .limit(1);
-            
-            if (entry) {
-              return res.json({
-                results: [{
-                  number: entry.strongNumber,
-                  portugueseDefinition: entry.portugueseDef || null,
-                  word: entry.lemma,
-                  transliteration: entry.translit || entry.xlit || '',
-                  pronunciation: entry.pron || '',
-                  definition: entry.kjvDef || entry.strongsDef || '',
-                  language: entry.language,
-                  contextMatched: true,
-                }],
-                total: 1,
-                contextUsed: true,
-              });
-            }
-          }
-        }
-      }
-      
-      // Fallback: busca por lemma (palavra grega) PRIMEIRO, depois português
+      // Busca direta no banco por lemma (palavra grega), português, transliteração ou definição
+      // Funciona em produção e desenvolvimento
       const results = await db
         .select()
         .from(strongEntries)
         .where(
           or(
-            sql`LOWER(COALESCE(${strongEntries.lemma}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+            // Portuguese definition first (most important)
             sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+            // Greek/Hebrew lemma
+            sql`LOWER(COALESCE(${strongEntries.lemma}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+            // Transliteration
             sql`LOWER(COALESCE(${strongEntries.translit}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+            // English definition (fallback)
             sql`LOWER(COALESCE(${strongEntries.kjvDef}, '')) LIKE ${'%' + lowerQuery + '%'}`
           )
         )
-        .orderBy(strongEntries.strongNumber)
-        .limit(10);
+        .limit(20);
+      
+      if (results.length === 0) {
+        return res.json({ results: [], total: 0, message: "Nenhuma entrada encontrada" });
+      }
       
       // Format results to match frontend expectations
       const formattedResults = results.map(e => ({

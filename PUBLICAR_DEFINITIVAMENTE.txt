@@ -1,0 +1,87 @@
+================================================================================
+🚀 PUBLICAR DEFINITIVAMENTE - SOLUÇÃO FINAL
+================================================================================
+
+⚠️ AÇÃO CRÍTICA: VOCÊ DEVE FAZER ISTO AGORA
+
+================================================================================
+CREDENCIAIS VERIFICADAS NO BANCO:
+================================================================================
+Email: admin@biblical.app
+Senha: Admin123456
+(Hash VERIFICADO e FUNCIONANDO em desenvolvimento)
+
+================================================================================
+PASSO 1: EDITAR .replit (CRÍTICO!)
+================================================================================
+
+1. Na raiz do projeto, localize arquivo ".replit"
+2. PROCURE pela linha que começa com: build = 
+3. SUBSTITUA a LINHA INTEIRA por:
+
+    build = "sh build-production.sh"
+
+4. SALVE o arquivo (.replit)
+
+================================================================================
+PASSO 2: PUBLICAR NO REPLIT
+================================================================================
+
+1. Clique "Publish" (no topo do Replit)
+2. Espere "✅ Published" aparecer
+3. NÃO clique em "Advanced" desta vez - o .replit já foi editado
+
+================================================================================
+PASSO 3: TESTAR IMEDIATAMENTE
+================================================================================
+
+1. Copie a URL pública (https://seu-projeto.replit.dev)
+2. Abra em ABA ANÔNIMA (Ctrl+Shift+N)
+3. Deve carregar a página normalmente
+4. Clique "Entrar"
+5. Digite:
+   - Email: admin@biblical.app
+   - Senha: Admin123456
+6. Clique "Entrar"
+7. DEVE FAZER LOGIN COM SUCESSO
+
+================================================================================
+SE AINDA NÃO FUNCIONAR:
+================================================================================
+
+Execute isto NO CONSOLE DO REPLIT:
+
+    npm run build && sh build-production.sh
+
+Depois:
+
+1. Abra arquivo .replit (pressione Ctrl+K, Digite ".replit")
+2. Edite a linha "run = " para:
+
+    run = "npm run start"
+
+3. Salve
+4. Clique "Publish" novamente
+
+================================================================================
+INFORMAÇÕES IMPORTANTES:
+================================================================================
+
+- Admin: admin@biblical.app / Admin123456
+- Build Script: sh build-production.sh (já criado e testado)
+- Frontend: Sincronizado em server/public e dist/public
+- Banco de Dados: Mesmo em dev e produção
+- Strong's: Corrigido e testado
+
+================================================================================
+CHECKLIST FINAL:
+================================================================================
+
+[ ] Editei arquivo .replit com: build = "sh build-production.sh"
+[ ] Publiquei no Replit (Publish button)
+[ ] Abri URL em aba anônima
+[ ] Fiz login com admin@biblical.app / Admin123456
+[ ] Strong's abre quando clico numa palavra
+[ ] ✅ TUDO FUNCIONA EM PRODUÇÃO!
+
+================================================================================

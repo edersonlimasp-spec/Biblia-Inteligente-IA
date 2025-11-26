@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
+import { sendPasswordResetEmail } from "./email";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses } from "@shared/schema";
@@ -177,23 +178,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createPasswordResetToken(user.id, resetToken, expiresAt);
 
       // Generate reset link
-      const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+      const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+      const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
       
-      // In development: Log and return token for testing
-      // In production: Would send via email service
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[DEV] Reset link for ${email}: ${resetLink}`);
-        console.log(`[DEV] Reset token: ${resetToken}`);
-      }
+      // Send email with reset link
+      const emailResult = await sendPasswordResetEmail(email, resetLink, user.name);
 
-      // TODO: Implement email sending service (Nodemailer, SendGrid, etc.)
-      // For now, return the reset link to frontend for development
       res.json({ 
-        message: "Link de reset de senha gerado. Verifique o console ou use o link abaixo.",
-        resetLink: resetLink,
-        token: resetToken,
-        // In development only, include token for direct testing
-        ...(process.env.NODE_ENV !== 'production' && { devResetToken: resetToken })
+        message: emailResult.message,
+        // For development: also include token so developers can test
+        ...(process.env.NODE_ENV !== 'production' && { devToken: resetToken, devLink: resetLink })
       });
     } catch (error) {
       console.error("Forgot password error:", error);

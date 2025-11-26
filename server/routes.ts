@@ -13,7 +13,6 @@ import { db } from "./db";
 import { eq, or, like, sql, and } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
-import { findStrongInJohn1 } from "./word-strong-mapping";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware: Cache control for static files (MUST be first!)

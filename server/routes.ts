@@ -82,27 +82,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password } = req.body;
+      
+      // ===== LOGS DETALHADOS PARA DEBUG =====
+      console.log(`\n🔐 ===== TENTATIVA DE LOGIN =====`);
+      console.log(`📧 Email: ${email}`);
+      console.log(`🔑 Senha recebida: ${'*'.repeat(password?.length || 0)} (${password?.length || 0} caracteres)`);
+      console.log(`🌍 NODE_ENV: ${process.env.NODE_ENV}`);
+      console.log(`⏰ Timestamp: ${new Date().toISOString()}`);
 
       if (!email || !password) {
+        console.log(`❌ ERRO: Email ou senha não fornecidos`);
         return res.status(400).json({ error: "Email e senha são obrigatórios" });
       }
 
+      console.log(`🔍 Buscando usuário no banco...`);
       const user = await storage.getUserByEmail(email);
+      
       if (!user) {
+        console.log(`❌ USUÁRIO NÃO ENCONTRADO: ${email}`);
         return res.status(401).json({ 
           error: "Email não cadastrado. Verifique o email ou crie uma nova conta.",
           errorType: "user_not_found"
         });
       }
+      
+      console.log(`✅ Usuário encontrado!`);
+      console.log(`   - ID: ${user.id}`);
+      console.log(`   - Nome: ${user.name}`);
+      console.log(`   - Role: ${user.role}`);
+      // Não logamos o hash em produção por segurança
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`   - Hash no banco: ${user.password.substring(0, 25)}...`);
+      }
 
+      console.log(`🔐 Comparando senha com bcrypt...`);
       const isPasswordValid = await verifyPassword(password, user.password);
+      console.log(`🔐 Resultado bcrypt.compare: ${isPasswordValid ? '✅ VÁLIDO' : '❌ INVÁLIDO'}`);
+      
       if (!isPasswordValid) {
+        console.log(`❌ SENHA INVÁLIDA para ${email}`);
         return res.status(401).json({ 
           error: "Senha incorreta. Verifique e tente novamente.",
           errorType: "invalid_password"
         });
       }
 
+      console.log(`✅ LOGIN BEM-SUCEDIDO para ${email}!`);
       const token = generateToken(user.id, user.email, user.role || 'user');
       const { password: _, ...userWithoutPassword } = user;
       
@@ -111,6 +136,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const trialActive = isTrialActive(user.trialStartDate);
       const daysRemaining = getTrialDaysRemaining(user.trialStartDate);
+      
+      console.log(`🎫 Token gerado, enviando resposta...`);
+      console.log(`🔐 ===== FIM DO LOGIN =====\n`);
       
       res.json({ 
         user: userWithoutPassword, 
@@ -121,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       });
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("❌ ERRO CRÍTICO no login:", error);
       res.status(500).json({ error: "Erro ao fazer login" });
     }
   });

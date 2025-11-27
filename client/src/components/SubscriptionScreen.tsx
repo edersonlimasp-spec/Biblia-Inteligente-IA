@@ -12,8 +12,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const plans = [
     {
       name: "Strong Vitalício",
-      price: "R$ 189,90",
-      period: "pagamento único",
+      price: "Em breve",
+      period: "",
       icon: Crown,
       features: [
         "Dicionário Strong completo",
@@ -28,7 +28,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     },
     {
       name: "Plano Gold",
-      price: "R$ 19,90",
+      price: "R$ 9,90",
       period: "por mês",
       icon: Sparkles,
       features: [
@@ -43,7 +43,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     },
     {
       name: "Plano Premium",
-      price: "R$ 29,90",
+      price: "R$ 19,90",
       period: "por mês",
       icon: Sparkles,
       features: [

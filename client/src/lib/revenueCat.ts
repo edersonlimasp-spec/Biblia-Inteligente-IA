@@ -43,21 +43,21 @@ class RevenueCatService {
         products: [
           {
             id: 'gold_monthly',
-            price: 'R$ 19,90',
+            price: 'R$ 9,90',
             currency: 'BRL',
             title: 'Gold',
             description: 'IA Essencial + Strong + Hebraico/Grego',
           },
           {
             id: 'premium_monthly',
-            price: 'R$ 29,90',
+            price: 'R$ 19,90',
             currency: 'BRL',
             title: 'Premium',
             description: 'IA Premium + Strong + Hebraico/Grego',
           },
           {
             id: 'strong_lifetime',
-            price: 'R$ 189,90',
+            price: 'Em breve',
             currency: 'BRL',
             title: 'Strong Vitalício',
             description: 'Strong + Hebraico/Grego para sempre',

@@ -36,19 +36,19 @@ export function AdminMonetization() {
               <div className="border rounded-lg p-4">
                 <p className="text-sm text-muted-foreground">Gold Ativo</p>
                 <p className="text-3xl font-bold">{stats?.activeGold || 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">R$ 19,90/mês</p>
+                <p className="text-xs text-muted-foreground mt-1">R$ 9,90/mês</p>
               </div>
 
               <div className="border rounded-lg p-4">
                 <p className="text-sm text-muted-foreground">Premium Ativo</p>
                 <p className="text-3xl font-bold">{stats?.activePremium || 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">R$ 29,90/mês</p>
+                <p className="text-xs text-muted-foreground mt-1">R$ 19,90/mês</p>
               </div>
 
               <div className="border rounded-lg p-4">
                 <p className="text-sm text-muted-foreground">Lifetime Strong</p>
                 <p className="text-3xl font-bold">{stats?.lifetimeStrong || 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">R$ 189,90 único</p>
+                <p className="text-xs text-muted-foreground mt-1">Em breve</p>
               </div>
 
               <div className="border rounded-lg p-4">

@@ -93,7 +93,7 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
     {
       id: 'gold_monthly',
       name: 'Gold',
-      price: 'R$ 19,90',
+      price: 'R$ 9,90',
       period: '/mês',
       description: 'Perfeito para iniciantes',
       features: [
@@ -107,7 +107,7 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
     {
       id: 'premium_monthly',
       name: 'Premium',
-      price: 'R$ 29,90',
+      price: 'R$ 19,90',
       period: '/mês',
       description: 'Para estudos profundos',
       features: [
@@ -122,8 +122,8 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
     {
       id: 'strong_lifetime',
       name: 'Strong Vitalício',
-      price: 'R$ 189,90',
-      period: 'uma única vez',
+      price: 'Em breve',
+      period: '',
       description: 'Acesso permanente',
       features: [
         '✓ Strong + Hebraico/Grego (Permanente)',

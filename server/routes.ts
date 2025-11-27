@@ -463,7 +463,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Enforce plan permissions BEFORE making OpenAI call
       if (mode === 'premium' && !hasPremium) {
         return res.status(403).json({ 
-          error: "Acesso Premium necessário. Assine o plano Premium (R$ 29,90/mês) para acessar análises avançadas.",
+          error: "Acesso Premium necessário. Assine o plano Premium (R$ 19,90/mês) para acessar análises avançadas.",
           requiresSubscription: true,
           subscriptionType: 'premium'
         });
@@ -472,7 +472,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Essential mode requires trial, Gold, or Premium
       if (mode === 'essential' && !trialActive && !hasGold && !hasPremium) {
         return res.status(403).json({ 
-          error: "Seu trial de 30 dias expirou. Assine um plano (Gold R$ 19,90/mês ou Premium R$ 29,90/mês) para continuar usando o Professor.",
+          error: "Seu trial de 30 dias expirou. Assine um plano (Gold R$ 9,90/mês ou Premium R$ 19,90/mês) para continuar usando o Professor.",
           requiresSubscription: true,
           subscriptionType: 'gold'
         });
@@ -942,7 +942,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: user.id,
           planType,
           status: 'active',
-          amount: planType === 'gold' ? '19.90' : planType === 'premium' ? '29.90' : '189.90',
+          amount: planType === 'gold' ? '9.90' : planType === 'premium' ? '19.90' : '0',
         });
       } else if (event === 'CANCELLATION' || event === 'EXPIRATION') {
         // Mark subscriptions as cancelled

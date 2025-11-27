@@ -14,7 +14,16 @@ Do not make changes to the file `Y`.
 
 ## Recent Changes (Nov 27, 2025)
 
-**Monetization Pricing Adjustment:**
+**Premium Tier Differentiation - Full Implementation:**
+- **AI Professor Prompts Completely Differentiated:**
+  - **Premium:** Exegese profunda, comparação teológica, análise histórico-cultural, modo pregador/professor com terminologia acadêmica e insights eruditos
+  - **Essential:** Explicações claras e acessíveis, contexto cultural básico, linguagem simples para iniciantes
+- **Frontend Detection:** AIPanel now fetches user subscription status and automatically selects correct mode
+- **UI Indicators:** Premium/Gold badges appear in AI chat panel to show active mode
+- **Files Updated:** server/openai.ts (enriched prompts), client/src/components/AIPanel.tsx (mode detection + UI)
+- **Rates Preserved:** Premium users get 100 questions/day vs Gold/Trial with 30 questions/day
+
+**Monetization Pricing Adjustment (Completed):**
 - **Gold Plan:** R$ 19,90/mês → **R$ 9,90/mês** (50% reduction)
 - **Premium Plan:** R$ 29,90/mês → **R$ 19,90/mês** (33% reduction)
 - **Strong Lifetime:** R$ 189,90 → **"Em breve"** (coming soon, removed from current offerings)

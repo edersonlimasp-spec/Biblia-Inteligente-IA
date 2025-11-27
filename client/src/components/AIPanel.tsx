@@ -106,10 +106,17 @@ function loadCurrentSessionId(): string | null {
 // COMPONENT - AIPanel
 // ===================================
 
+interface UserSubscription {
+  hasPremium: boolean;
+  hasGold: boolean;
+  trialActive: boolean;
+}
+
 export function AIPanel() {
   const [question, setQuestion] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [userSub, setUserSub] = useState<UserSubscription>({ hasPremium: false, hasGold: false, trialActive: false });
   const { toast } = useToast();
 
   // ===================================
@@ -137,6 +144,29 @@ export function AIPanel() {
       scrollToBottom();
     }
   }, [messages, isExpanded]);
+
+  // ===================================
+  // INITIALIZATION - Carregar status de assinatura
+  // ===================================
+
+  useEffect(() => {
+    async function fetchSubscriptionStatus() {
+      try {
+        const res = await fetch('/api/user/subscription-status');
+        if (res.ok) {
+          const data = await res.json();
+          setUserSub({
+            hasPremium: data.hasPremium || false,
+            hasGold: data.hasGold || false,
+            trialActive: data.trialActive || false,
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao carregar status de assinatura:', error);
+      }
+    }
+    fetchSubscriptionStatus();
+  }, []);
 
   // ===================================
   // INITIALIZATION - Carregar sessões do localStorage
@@ -364,13 +394,16 @@ export function AIPanel() {
     
     setMessages(prev => [...prev, userMessage]);
 
+    // Determine mode based on subscription
+    const mode = userSub.hasPremium ? 'premium' : 'essential';
+    
     // Track AI question
-    trackAIQuestion('essential').catch(() => {});
+    trackAIQuestion(mode).catch(() => {});
 
     // Fazer pergunta à API, capturando sessionId atual para prevenir race conditions
     askAIMutation.mutate({
       question: question.trim(),
-      mode: 'essential',
+      mode,
       sessionId: currentSessionId, // CRITICAL: Track which session this response belongs to
     });
   };
@@ -389,6 +422,16 @@ export function AIPanel() {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
                 <span className="font-semibold text-primary">Professor</span>
+                {userSub.hasPremium && (
+                  <Badge variant="default" className="text-xs bg-amber-600">
+                    Premium
+                  </Badge>
+                )}
+                {!userSub.hasPremium && userSub.hasGold && (
+                  <Badge variant="secondary" className="text-xs">
+                    Gold
+                  </Badge>
+                )}
                 <Badge variant="outline" className="text-xs">
                   {messages.length} {messages.length === 1 ? 'mensagem' : 'mensagens'}
                 </Badge>

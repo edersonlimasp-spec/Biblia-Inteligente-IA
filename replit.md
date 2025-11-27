@@ -12,7 +12,29 @@ I prefer detailed explanations.
 Do not make changes to the folder `Z`.
 Do not make changes to the file `Y`.
 
-## Recent Changes (Nov 24, 2025)
+## Recent Changes (Nov 27, 2025)
+
+**CRITICAL FIX: Admin Login Production Compatibility:**
+- **Problem Identified:** Login with admin credentials worked in development but failed after publishing to production.
+- **Root Causes Found:**
+  1. Admin users were not being created automatically in production
+  2. No mechanism to ensure admin accounts exist on every deployment
+- **Fixes Applied:**
+  - **server/seed-admins.ts (NEW):** Created idempotent seed script that automatically creates/verifies admin users on EVERY server startup. If users exist, it verifies passwords and updates if needed.
+  - **server/init-db.ts:** Now calls `seedAdminUsers()` before any other initialization. This ensures admins exist in both development and production.
+  - **server/routes.ts:** Added detailed debug logging for login attempts (shows email, user found status, bcrypt result). Hash prefix is NOT logged in production for security.
+- **Admin Credentials (Production & Development):**
+  - `admin@meuapp.com` / `Admin@12345` (super_admin)
+  - `googleplay@meuapp.com` / `Play@12345` (admin)
+  - `admin@biblical.app` / `Admin123456` (super_admin, legacy)
+- **How it works:**
+  - On every server startup (dev or prod), the seed script runs
+  - It checks if each admin user exists in the database
+  - If not found, creates the user with hashed password
+  - If found, verifies the password matches and updates if needed
+  - This is completely idempotent - safe to run multiple times
+
+## Previous Changes (Nov 24, 2025)
 
 **CRITICAL FIX: Strong's Dictionary Production Compatibility:**
 - **Problem Identified:** Strong's feature worked in development but broke after publishing to production.

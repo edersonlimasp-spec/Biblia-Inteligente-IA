@@ -1,0 +1,153 @@
+1. ENTENDER A AUTENTICAÇÃO DO PROJETO
+
+Analise TODO o código do projeto e identifique:
+
+Onde é feita a autenticação (rotas de login, middlewares, controllers etc.).
+
+Onde ficam os usuários (banco de dados, arquivo JSON, seed, prisma, mongoose, sqlite etc.).
+
+Se existem diferenças de configuração entre ambiente de desenvolvimento (preview) e ambiente de produção (deploy):
+
+Variáveis de ambiente (.env)
+
+URL/arquivo do banco
+
+Configuração de cookies / sessão
+
+Flags tipo NODE_ENV, PRODUCTION, etc.
+
+Me explique, em linguagem simples, qual é hoje a lógica de login:
+
+Qual rota recebe usuário/senha?
+
+Qual função compara a senha?
+
+Como o hash de senha é gerado e validado?
+
+Onde o usuário é buscado no banco?
+
+2. CRIAR DOIS USUÁRIOS ADMINISTRATIVOS FIXOS
+
+Quero que você implemente/ajuste o sistema para garantir que existam, de forma automática, esses dois usuários:
+
+Usuário ADMIN PRINCIPAL
+
+Login: admin@meuapp.com
+
+Senha: Admin@12345
+
+Papel/role: admin (ou equivalente no sistema)
+
+Usuário ADMIN GOOGLE PLAY
+
+Login: googleplay@meuapp.com
+
+Senha: Play@12345
+
+Papel/role: admin ou play_admin (como for mais adequado à estrutura atual)
+
+Requisitos importantes:
+
+A criação desses usuários deve ser idempotente:
+
+Se já existirem no banco, não devem ser duplicados.
+
+Se não existirem, devem ser criados automaticamente na inicialização do app ou via script de seed.
+
+As senhas devem ser salvas com o mesmo mecanismo de hash já utilizado no sistema (bcrypt, argon2, etc.).
+
+Garanta que isso funcione tanto no preview quanto no deploy (produção).
+
+Crie e mostre o código de:
+
+Seed / script de criação de usuários,
+
+Ou trecho de inicialização que verifica e cria esses usuários.
+
+3. INVESTIGAR POR QUE SOMENTE NA PUBLICAÇÃO O LOGIN DÁ INVÁLIDO
+
+Quero uma investigação completa focada na diferença entre preview e deploy.
+Verifique, ajuste e depois me explique:
+
+Banco de Dados
+
+O preview e o deploy estão usando o mesmo banco de dados?
+
+Por exemplo: em desenvolvimento pode estar usando sqlite local e em produção um outro arquivo ou outro banco.
+
+Verifique a URL/arquivo de banco nas variáveis de ambiente de produção do Replit (ou da plataforma de deploy usada).
+
+Variáveis de ambiente (.env)
+
+Confirme se as variáveis necessárias para login (chaves de banco, segredo de JWT, salt, etc.) estão configuradas também no ambiente de produção.
+
+Se o sistema usa .env, garanta que os mesmos valores essenciais estejam configurados no painel de environment do deploy.
+
+Hash de senha
+
+Verifique se em produção o código de hash e comparação da senha não está usando:
+
+Um SALT diferente,
+
+Um outro parâmetro que torne impossível validar a senha criada no preview.
+
+Confirme que a lógica de hash(password) ao criar usuário é exatamente a mesma usada para validar no login.
+
+Sessão / Cookies
+
+Verifique se em produção os cookies não estão sendo bloqueados por:
+
+secure: true em ambiente sem HTTPS,
+
+sameSite ou domain configurados de forma incorreta.
+
+Certifique-se de que o erro “usuário ou senha inválida” não é, na verdade, um problema de sessão/cookie.
+
+Logs detalhados
+
+Adicione logs claros (temporários) no backend, por exemplo:
+
+Antes de buscar o usuário no banco.
+
+Depois de buscar (se encontrou ou não).
+
+Resultado da comparação de senha.
+
+Os logs NÃO devem mostrar a senha em texto puro, mas podem informar quando a comparação falhar.
+
+Me mostre o trecho de código dos logs adicionados.
+
+Depois disso, rode o app em modo de produção dentro do Replit / Deploy e teste os logins dos dois usuários criados.
+Quero que você me diga explicitamente:
+
+“Teste em produção do usuário admin@meuapp.com → OK / FALHOU (motivo).”
+
+“Teste em produção do usuário googleplay@meuapp.com → OK / FALHOU (motivo).”
+
+Se encontrar qualquer problema, corrija o código e mostre a solução.
+
+4. TESTAR ANTES DE ME ENTREGAR
+
+Antes de concluir, faça o seguinte:
+
+Gere o build / prepare o app da mesma forma que será usado para publicação (produção).
+
+Rode o app no modo que simula a publicação (ou o deploy da própria plataforma).
+
+Tente logar com:
+
+admin@meuapp.com / Admin@12345
+
+googleplay@meuapp.com / Play@12345
+
+Somente depois de os dois logins funcionarem:
+
+Me mostre:
+
+Os arquivos modificados,
+
+Os trechos de código principais,
+
+Uma explicação clara do que foi feito e por que o erro acontecia só na publicação.
+
+Quero que você seja bem didático na explicação, porque sou iniciante.

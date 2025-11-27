@@ -14,6 +14,13 @@ Do not make changes to the file `Y`.
 
 ## Recent Changes (Nov 27, 2025)
 
+**Monetization Pricing Adjustment:**
+- **Gold Plan:** R$ 19,90/mês → **R$ 9,90/mês** (50% reduction)
+- **Premium Plan:** R$ 29,90/mês → **R$ 19,90/mês** (33% reduction)
+- **Strong Lifetime:** R$ 189,90 → **"Em breve"** (coming soon, removed from current offerings)
+- **Updated in:** SubscriptionPlans.tsx, revenueCat.ts, AdminMonetization.tsx, SubscriptionScreen.tsx, server/routes.ts
+- **Backend:** Database storing amounts as 9.90 (Gold) and 19.90 (Premium)
+
 **CRITICAL FIX: Admin Login Production Compatibility:**
 - **Problem Identified:** Login with admin credentials worked in development but failed after publishing to production.
 - **Root Causes Found:**

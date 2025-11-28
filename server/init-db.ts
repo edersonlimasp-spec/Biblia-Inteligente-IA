@@ -1,6 +1,7 @@
 import { db } from './db';
 import { strongEntries } from '@shared/schema';
 import { seedAdminUsers } from './seed-admins';
+import { seedBibleVersions } from './seed-versions';
 import fs from 'fs';
 import path from 'path';
 
@@ -10,6 +11,9 @@ export async function initializeDatabase() {
     
     // SEMPRE criar/verificar usuários admin (idempotente)
     await seedAdminUsers();
+    
+    // SEMPRE seed versões de Bíblia
+    await seedBibleVersions();
     
     // Check if strong_entries table has data
     const strongCount = await db.select().from(strongEntries).limit(1);

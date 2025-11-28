@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, Share2, MessageSquare } from "lucide-react";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -68,10 +68,8 @@ interface StrongSearchResponse {
   total: number;
 }
 
-// Highlight storage key
 const getHighlightsKey = () => 'bible-highlights';
 
-// Helper to get highlights from localStorage
 function getStoredHighlights(): Record<string, string> {
   try {
     return JSON.parse(localStorage.getItem(getHighlightsKey()) || '{}');
@@ -80,40 +78,56 @@ function getStoredHighlights(): Record<string, string> {
   }
 }
 
-// Helper to save highlights to localStorage
 function saveHighlights(highlights: Record<string, string>) {
   try {
     localStorage.setItem(getHighlightsKey(), JSON.stringify(highlights));
   } catch {}
 }
 
-export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory, onNavigateToAdmin }: BibleReaderProps) {
-  const { trialActive, trialDaysRemaining, isAdmin, user } = useAuth();
+export function BibleReader({
+  onNavigateToSubscriptions,
+  onNavigateToSettings,
+  onNavigateToHistory,
+  onNavigateToAdmin,
+}: BibleReaderProps) {
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
-  const [selectedBook, setSelectedBook] = useState("jhn");
+
+  // State management
+  const [selectedBook, setSelectedBook] = useState("gen");
   const [selectedChapter, setSelectedChapter] = useState(1);
+  const [selectedVersion, setSelectedVersion] = useState("ACF");
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
-  const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
-  const [searchingWord, setSearchingWord] = useState<string | null>(null);
-  const [searchingVerseNum, setSearchingVerseNum] = useState<number | null>(null);
-  const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
   const [textSearchQuery, setTextSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
-  const [highlights, setHighlights] = useState<Record<string, string>>(getStoredHighlights);
-  const [selectedVersion, setSelectedVersion] = useState(() => {
+  const [fontSize, setFontSize] = useState<"small" | "medium" | "large">(() => {
     try {
-      return localStorage.getItem("bible-version") || "ACF";
-    } catch {
-      return "ACF";
-    }
-  });
-  const [fontSize, setFontSize] = useState(() => {
-    try {
-      return localStorage.getItem("bible-font-size") || "medium";
+      const stored = localStorage.getItem("bible-font-size");
+      return (stored as "small" | "medium" | "large") || "medium";
     } catch {
       return "medium";
     }
   });
+  
+  // Strong's search state
+  const [searchingWord, setSearchingWord] = useState<string | null>(null);
+  const [searchingVerseNum, setSearchingVerseNum] = useState<number | null>(null);
+  const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
+  const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
+
+  // Highlights state
+  const [highlights, setHighlights] = useState<Record<string, string>>(() => getStoredHighlights());
+
+  // Trial status
+  const [trialActive, setTrialActive] = useState(false);
+  const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
+
+  // Save font size preference
+  useEffect(() => {
+    try {
+      localStorage.setItem("bible-font-size", fontSize);
+    } catch {}
+  }, [fontSize]);
 
   // Save version preference to localStorage
   useEffect(() => {
@@ -122,7 +136,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     } catch {}
   }, [selectedVersion]);
 
-  // Core data queries - must be defined first
+  // Core data queries
   const { data: books } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
   });
@@ -150,16 +164,15 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     },
   });
 
-  // Derived state - currentBook must be defined before handlers that use it
   const currentBook = books?.find(b => b.id === selectedBook);
 
-  // Fetch bookmarks (user-scoped via API)
+  // Fetch bookmarks
   const { data: bookmarks } = useQuery<BookmarkType[]>({
     queryKey: ['/api/bookmarks'],
     enabled: !!user,
   });
 
-  // Fetch annotations (user-scoped via API)
+  // Fetch annotations
   const { data: annotations } = useQuery<Annotation[]>({
     queryKey: ['/api/annotations'],
     enabled: !!user,
@@ -176,7 +189,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     return highlights[key] || null;
   };
 
-  // Check if verse has annotation (already user-scoped by API)
+  // Check if verse has annotation
   const verseHasAnnotation = (verse: number) => {
     return annotations?.some(a => a.book === selectedBook && a.chapter === selectedChapter && a.verse === verse);
   };
@@ -203,48 +216,32 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     },
   });
 
-  // Handle highlight with better error handling
+  // Handle highlight
   const handleHighlight = (verse: number, color: string) => {
     const key = `${selectedBook}-${selectedChapter}-${verse}`;
     const newHighlights = { ...highlights, [key]: color };
     setHighlights(newHighlights);
-    try {
-      saveHighlights(newHighlights);
-      toast({
-        title: "Versículo realçado",
-        description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}`,
-      });
-    } catch {
-      toast({
-        title: "Erro",
-        description: "Não foi possível salvar o realce",
-        variant: "destructive",
-      });
-    }
+    saveHighlights(newHighlights);
+    toast({
+      title: "Versículo realçado",
+      description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}`,
+    });
   };
 
-  // Remove highlight with toast feedback
+  // Remove highlight
   const handleRemoveHighlight = (verse: number) => {
     const key = `${selectedBook}-${selectedChapter}-${verse}`;
     const newHighlights = { ...highlights };
     delete newHighlights[key];
     setHighlights(newHighlights);
-    try {
-      saveHighlights(newHighlights);
-      toast({
-        title: "Realce removido",
-        description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}`,
-      });
-    } catch {
-      toast({
-        title: "Erro",
-        description: "Não foi possível remover o realce",
-        variant: "destructive",
-      });
-    }
+    saveHighlights(newHighlights);
+    toast({
+      title: "Realce removido",
+      description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}`,
+    });
   };
 
-  // Handle annotate - select verse and scroll to annotation panel
+  // Handle annotate
   const handleAnnotate = (verse: number) => {
     setSelectedVerse(verse);
   };
@@ -275,24 +272,20 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     }
   };
 
-  // Process search results when available, filtering by testament
+  // Process search results
   useEffect(() => {
     if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length > 0) {
-      // Filter results by testament/language
       const testament = currentBook?.testament;
       const expectedLanguage = testament === 'old' ? 'hebrew' : 'greek';
       
-      // First try to find a result matching the current testament
       let matchingResult = wordSearchResults.results.find(r => r.language === expectedLanguage);
       
-      // Fallback to first result if no match found (edge case for cross-testament words)
       if (!matchingResult) {
         matchingResult = wordSearchResults.results[0];
       }
       
       if (matchingResult && matchingResult.number) {
         setSelectedStrongNumber(matchingResult.number);
-        // Add to wordsWithStrong set
         if (searchingWord) {
           setWordsWithStrong(prev => {
             const newSet = new Set(prev);
@@ -300,11 +293,10 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             return newSet;
           });
         }
-        setSearchingWord(null); // Clear search state
-        setSearchingVerseNum(null); // Clear verse state
+        setSearchingWord(null);
+        setSearchingVerseNum(null);
       }
     } else if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length === 0) {
-      // No results found - clear search
       setSearchingWord(null);
       setSearchingVerseNum(null);
     }
@@ -316,15 +308,12 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   }, [selectedBook, selectedChapter]);
 
   const handleWordClick = (word: string, verseNum: number) => {
-    // Remove pontuação da palavra antes de buscar
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
     
-    // Filter: Ignore very short words (< 3 chars) to avoid stopword noise
     if (cleanWord.length < 3) {
       return;
     }
     
-    // Search in database via API (will filter by testament/language automatically)
     setSearchingWord(cleanWord);
     setSearchingVerseNum(verseNum);
   };
@@ -335,7 +324,6 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
       <header className="sticky top-0 z-50 border-b bg-card dark:bg-card">
         {/* Top Row: Logo and Navigation */}
         <div className="flex items-center justify-start px-1.5 h-12 gap-0.5 overflow-x-auto scrollbar-hide">
-          {/* Logo */}
           <img 
             src={logoSmall} 
             alt="Logo" 
@@ -343,13 +331,11 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             data-testid="img-header-logo"
           />
           
-          {/* Version Selector - Almeida Versions */}
           <AlmeidaVersionSelector 
             selectedVersion={selectedVersion} 
             onVersionChange={setSelectedVersion}
           />
 
-          {/* Book Selection */}
           <Select value={selectedBook} onValueChange={setSelectedBook}>
             <SelectTrigger className="w-20 text-sm h-9 flex-shrink-0" data-testid="select-book">
               <SelectValue />
@@ -363,7 +349,6 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             </SelectContent>
           </Select>
 
-          {/* Chapter Navigation */}
           <Button 
             variant="ghost" 
             size="icon" 
@@ -400,7 +385,6 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             <ChevronRight className="h-4 w-4" />
           </Button>
 
-          {/* Trial Badge */}
           {trialActive && (
             <Badge 
               variant="secondary" 
@@ -411,10 +395,8 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
             </Badge>
           )}
 
-          {/* Settings Icons - Spacer */}
           <div className="flex-1"></div>
 
-          {/* Settings Icons */}
           <Button variant="ghost" size="icon" data-testid="button-bookmarks" className="h-8 w-8 flex-shrink-0">
             <Bookmark className="h-4 w-4" />
           </Button>
@@ -429,40 +411,26 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
           </Button>
         </div>
 
-        {/* Bottom Row: Compact Search */}
-        <div className="px-2 py-1 border-t bg-card/50 flex gap-1 items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSearch(!showSearch)}
-            className="h-7 px-2 text-xs gap-1"
-            data-testid="button-toggle-search"
-          >
-            <Search className="h-3 w-3" />
-            {showSearch ? "Fechar" : "Buscar"}
-          </Button>
-          
-          {showSearch && (
-            <>
-              <Input
-                placeholder="Palavra-chave..."
-                value={textSearchQuery}
-                onChange={(e) => setTextSearchQuery(e.target.value)}
-                className="flex-1 h-7 text-xs"
-                data-testid="input-text-search"
-              />
-              {textSearchQuery && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setTextSearchQuery("")}
-                  className="h-7 w-7"
-                  data-testid="button-clear-search"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              )}
-            </>
+        {/* Bottom Row: Text Search - FULL WIDTH */}
+        <div className="px-4 py-2 border-t bg-card/50 flex gap-2 items-center">
+          <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <Input
+            placeholder="Buscar por palavras-chave..."
+            value={textSearchQuery}
+            onChange={(e) => setTextSearchQuery(e.target.value)}
+            className="flex-1 h-8 text-sm"
+            data-testid="input-text-search"
+          />
+          {textSearchQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTextSearchQuery("")}
+              className="h-8 w-8"
+              data-testid="button-clear-search"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </header>
@@ -472,37 +440,22 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
         <div className="max-w-3xl mx-auto px-4 py-6">
           {isLoading ? (
             <div className="space-y-4">
-              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-6 w-3/4" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
             </div>
           ) : error ? (
-            <div className="bg-muted/50 border border-border rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                Conteúdo ainda não disponível
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Este conteúdo será adicionado em breve. Por enquanto, apenas o Evangelho de João (capítulos 1, 2 e 3) está disponível na versão demo.
-              </p>
-              <Button 
-                onClick={() => {
-                  setSelectedBook('jhn');
-                  setSelectedChapter(1);
-                }}
-                data-testid="button-go-to-john"
-              >
-                Ir para João 1
-              </Button>
+            <div className="text-center py-8 text-muted-foreground" data-testid="error-message">
+              Erro ao carregar capítulo
             </div>
-          ) : (
+          ) : chapterData ? (
             <>
-              <h2 className="font-serif text-2xl font-bold mb-6 text-primary">
-                {chapterData?.book.name} {chapterData?.chapter.chapter}
+              <h2 className="text-2xl font-bold mb-4 text-foreground" data-testid="chapter-title">
+                {chapterData.book.name} {selectedChapter}
               </h2>
-              <div 
-                className={`space-y-4 font-serif leading-relaxed ${
-                  fontSize === "small" ? "text-base" : 
+              <div
+                className={`space-y-3 ${
+                  fontSize === "small" ? "text-sm" : 
                   fontSize === "medium" ? "text-xl" : 
                   "text-2xl"
                 }`}
@@ -583,7 +536,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                         chapter={selectedChapter}
                         verse={verse.verse}
                         text={verse.text}
-                        isBookmarked={hasBookmark}
+                        isBookmarked={hasBookmark || false}
                         isHighlighted={!!highlightColor}
                         onBookmark={() => bookmarkMutation.mutate({ verse: verse.verse, isBookmarked: hasBookmark || false })}
                         onHighlight={(color) => handleHighlight(verse.verse, color)}
@@ -595,11 +548,11 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                 })}
               </div>
             </>
-          )}
+          ) : null}
         </div>
       </main>
 
-      {/* Annotation Panel - Collapsible */}
+      {/* Annotation Panel */}
       {user && currentBook && (
         <AnnotationPanel
           book={selectedBook}
@@ -609,7 +562,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
         />
       )}
 
-      {/* AI Panel - Fixed Bottom */}
+      {/* AI Panel */}
       <AIPanel />
 
       {/* Strong Modal */}

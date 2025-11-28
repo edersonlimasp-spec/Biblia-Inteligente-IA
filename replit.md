@@ -12,7 +12,19 @@ I prefer detailed explanations.
 Do not make changes to the folder `Z`.
 Do not make changes to the file `Y`.
 
-## Recent Changes (Nov 27, 2025)
+## Recent Changes (Nov 28, 2025)
+
+**Bible Reader Enhanced UI/UX (Completed):**
+- **Compact Search Toggle:** Search bar reduced ~50% - now a toggle button that expands on click
+- **Verse Highlighting System:** 6 color options (yellow, green, blue, pink, orange, purple) with localStorage persistence (`bible-highlights` key)
+- **VerseActions Component:** Dropdown menu on each verse with share, copy, bookmark, highlight, annotate options
+- **Share Functionality:** Web Share API with clipboard fallback for sharing verse text + reference
+- **Annotation Panel:** Collapsible panel at bottom for creating/editing/deleting notes per verse
+- **Visual Indicators:** Bookmark icons (filled) and annotation icons (message) appear next to verse numbers
+- **Files Added/Updated:** VerseActions.tsx (NEW), AnnotationPanel.tsx (NEW), BibleReader.tsx (major refactor)
+- **Error Handling:** Highlight save/remove operations now show toast notifications on success/failure
+
+## Previous Changes (Nov 27, 2025)
 
 **Premium Tier Differentiation - Full Implementation:**
 - **AI Professor Prompts Completely Differentiated:**

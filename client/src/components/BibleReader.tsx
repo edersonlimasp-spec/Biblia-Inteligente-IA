@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, Share2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,8 +16,13 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { StrongModal } from "@/components/StrongModal";
 import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
+import { VerseActions, HIGHLIGHT_COLORS } from "@/components/VerseActions";
+import { AnnotationPanel } from "@/components/AnnotationPanel";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import logoSmall from "@assets/logo/logo-small.png";
+import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
 interface BibleBook {
   id: string;
@@ -63,8 +68,28 @@ interface StrongSearchResponse {
   total: number;
 }
 
+// Highlight storage key
+const getHighlightsKey = () => 'bible-highlights';
+
+// Helper to get highlights from localStorage
+function getStoredHighlights(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(getHighlightsKey()) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+// Helper to save highlights to localStorage
+function saveHighlights(highlights: Record<string, string>) {
+  try {
+    localStorage.setItem(getHighlightsKey(), JSON.stringify(highlights));
+  } catch {}
+}
+
 export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, onNavigateToHistory, onNavigateToAdmin }: BibleReaderProps) {
-  const { trialActive, trialDaysRemaining, isAdmin } = useAuth();
+  const { trialActive, trialDaysRemaining, isAdmin, user } = useAuth();
+  const { toast } = useToast();
   const [selectedBook, setSelectedBook] = useState("jhn");
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
@@ -73,6 +98,8 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   const [searchingVerseNum, setSearchingVerseNum] = useState<number | null>(null);
   const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
   const [textSearchQuery, setTextSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [highlights, setHighlights] = useState<Record<string, string>>(getStoredHighlights);
   const [selectedVersion, setSelectedVersion] = useState(() => {
     try {
       return localStorage.getItem("bible-version") || "ACF";
@@ -95,6 +122,7 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     } catch {}
   }, [selectedVersion]);
 
+  // Core data queries - must be defined first
   const { data: books } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
   });
@@ -106,7 +134,6 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
   });
 
   // Query to search for Strong's number when clicking a word
-  // Includes book/chapter/verse context for accurate Strong number mapping
   const { data: wordSearchResults } = useQuery<StrongSearchResponse>({
     queryKey: ['/api/strong/search', searchingWord, selectedBook, selectedChapter, searchingVerseNum],
     enabled: !!searchingWord && searchingVerseNum !== null,
@@ -123,7 +150,104 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
     },
   });
 
+  // Derived state - currentBook must be defined before handlers that use it
   const currentBook = books?.find(b => b.id === selectedBook);
+
+  // Fetch bookmarks (user-scoped via API)
+  const { data: bookmarks } = useQuery<BookmarkType[]>({
+    queryKey: ['/api/bookmarks'],
+    enabled: !!user,
+  });
+
+  // Fetch annotations (user-scoped via API)
+  const { data: annotations } = useQuery<Annotation[]>({
+    queryKey: ['/api/annotations'],
+    enabled: !!user,
+  });
+
+  // Check if verse is bookmarked
+  const isVerseBookmarked = (verse: number) => {
+    return bookmarks?.some(b => b.book === selectedBook && b.chapter === selectedChapter && b.verse === verse);
+  };
+
+  // Get highlight color for verse
+  const getVerseHighlight = (verse: number) => {
+    const key = `${selectedBook}-${selectedChapter}-${verse}`;
+    return highlights[key] || null;
+  };
+
+  // Check if verse has annotation (already user-scoped by API)
+  const verseHasAnnotation = (verse: number) => {
+    return annotations?.some(a => a.book === selectedBook && a.chapter === selectedChapter && a.verse === verse);
+  };
+
+  // Toggle bookmark mutation
+  const bookmarkMutation = useMutation({
+    mutationFn: async ({ verse, isBookmarked }: { verse: number; isBookmarked: boolean }) => {
+      if (isBookmarked) {
+        const bookmark = bookmarks?.find(b => b.book === selectedBook && b.chapter === selectedChapter && b.verse === verse);
+        if (bookmark) {
+          return apiRequest('DELETE', `/api/bookmarks/${bookmark.id}`);
+        }
+      } else {
+        return apiRequest('POST', '/api/bookmarks', {
+          book: selectedBook,
+          chapter: selectedChapter,
+          verse,
+          color: 'default',
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookmarks'] });
+    },
+  });
+
+  // Handle highlight with better error handling
+  const handleHighlight = (verse: number, color: string) => {
+    const key = `${selectedBook}-${selectedChapter}-${verse}`;
+    const newHighlights = { ...highlights, [key]: color };
+    setHighlights(newHighlights);
+    try {
+      saveHighlights(newHighlights);
+      toast({
+        title: "Versículo realçado",
+        description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}`,
+      });
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar o realce",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Remove highlight with toast feedback
+  const handleRemoveHighlight = (verse: number) => {
+    const key = `${selectedBook}-${selectedChapter}-${verse}`;
+    const newHighlights = { ...highlights };
+    delete newHighlights[key];
+    setHighlights(newHighlights);
+    try {
+      saveHighlights(newHighlights);
+      toast({
+        title: "Realce removido",
+        description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}`,
+      });
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Não foi possível remover o realce",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle annotate - select verse and scroll to annotation panel
+  const handleAnnotate = (verse: number) => {
+    setSelectedVerse(verse);
+  };
 
   const handlePreviousChapter = () => {
     if (selectedChapter > 1) {
@@ -305,26 +429,40 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
           </Button>
         </div>
 
-        {/* Bottom Row: Text Search */}
-        <div className="px-4 py-2 border-t bg-card/50 flex gap-2 items-center">
-          <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          <Input
-            placeholder="Buscar por palavras-chave..."
-            value={textSearchQuery}
-            onChange={(e) => setTextSearchQuery(e.target.value)}
-            className="flex-1 h-8 text-sm"
-            data-testid="input-text-search"
-          />
-          {textSearchQuery && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTextSearchQuery("")}
-              className="h-8 w-8"
-              data-testid="button-clear-search"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+        {/* Bottom Row: Compact Search */}
+        <div className="px-2 py-1 border-t bg-card/50 flex gap-1 items-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSearch(!showSearch)}
+            className="h-7 px-2 text-xs gap-1"
+            data-testid="button-toggle-search"
+          >
+            <Search className="h-3 w-3" />
+            {showSearch ? "Fechar" : "Buscar"}
+          </Button>
+          
+          {showSearch && (
+            <>
+              <Input
+                placeholder="Palavra-chave..."
+                value={textSearchQuery}
+                onChange={(e) => setTextSearchQuery(e.target.value)}
+                className="flex-1 h-7 text-xs"
+                data-testid="input-text-search"
+              />
+              {textSearchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setTextSearchQuery("")}
+                  className="h-7 w-7"
+                  data-testid="button-clear-search"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+            </>
           )}
         </div>
       </header>
@@ -369,60 +507,107 @@ export function BibleReader({ onNavigateToSubscriptions, onNavigateToSettings, o
                   "text-2xl"
                 }`}
               >
-                {chapterData?.chapter.verses.map((verse) => (
-                  <div
-                    key={verse.verse}
-                    className={`flex gap-3 group ${
-                      selectedVerse === verse.verse ? "bg-primary/10 -mx-2 px-2 py-1 rounded" : ""
-                    }`}
-                    onClick={() => setSelectedVerse(verse.verse)}
-                    data-testid={`verse-${verse.verse}`}
-                  >
-                    <span className="text-xs font-sans text-muted-foreground mt-1 select-none">
-                      {verse.verse}
-                    </span>
-                    <p className="flex-1">
-                      {verse.text.split(" ").map((word, idx) => {
-                        // Remove punctuation to check if word might have strong
-                        const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
-                        const isClickable = cleanWord.length > 2;
-                        const hasStrongInCache = wordsWithStrong.has(cleanWord);
-                        
-                        return (
-                          <span
-                            key={idx}
-                            className={isClickable ? 'cursor-pointer transition-colors' : 'cursor-default'}
-                            style={hasStrongInCache ? { textDecoration: 'underline dotted', textDecorationThickness: '1px', textUnderlineOffset: '2px', fontWeight: '500' } : {}}
-                            onClick={(e) => {
-                              if (isClickable) {
-                                e.stopPropagation();
-                                handleWordClick(cleanWord, verse.verse);
-                              }
-                            }}
-                            onMouseEnter={(e) => {
-                              if (isClickable && (e.currentTarget as HTMLElement)) {
-                                (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(26, 82, 153, 0.1)';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (isClickable && (e.currentTarget as HTMLElement)) {
-                                (e.currentTarget as HTMLElement).style.backgroundColor = '';
-                              }
-                            }}
-                            data-testid={`word-${verse.verse}-${idx}`}
-                          >
-                            {word}{" "}
-                          </span>
-                        );
-                      })}
-                    </p>
-                  </div>
-                ))}
+                {chapterData?.chapter.verses.map((verse) => {
+                  const highlightColor = getVerseHighlight(verse.verse);
+                  const highlightBg = highlightColor 
+                    ? HIGHLIGHT_COLORS.find(c => c.color === highlightColor)?.bg 
+                    : null;
+                  const hasBookmark = isVerseBookmarked(verse.verse);
+                  const hasNote = verseHasAnnotation(verse.verse);
+                  
+                  return (
+                    <div
+                      key={verse.verse}
+                      className={`flex gap-2 group relative ${
+                        selectedVerse === verse.verse 
+                          ? "bg-primary/10 -mx-2 px-2 py-1 rounded" 
+                          : highlightBg 
+                            ? `${highlightBg} -mx-2 px-2 py-1 rounded`
+                            : ""
+                      }`}
+                      onClick={() => setSelectedVerse(verse.verse)}
+                      data-testid={`verse-${verse.verse}`}
+                    >
+                      {/* Verse Number + Icons */}
+                      <div className="flex flex-col items-center gap-0.5 min-w-[20px]">
+                        <span className="text-xs font-sans text-muted-foreground select-none">
+                          {verse.verse}
+                        </span>
+                        {hasBookmark && (
+                          <Bookmark className="h-3 w-3 fill-primary text-primary" />
+                        )}
+                        {hasNote && (
+                          <MessageSquare className="h-3 w-3 text-primary" />
+                        )}
+                      </div>
+                      
+                      {/* Verse Text */}
+                      <p className="flex-1">
+                        {verse.text.split(" ").map((word, idx) => {
+                          const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
+                          const isClickable = cleanWord.length > 2;
+                          const hasStrongInCache = wordsWithStrong.has(cleanWord);
+                          
+                          return (
+                            <span
+                              key={idx}
+                              className={isClickable ? 'cursor-pointer transition-colors' : 'cursor-default'}
+                              style={hasStrongInCache ? { textDecoration: 'underline dotted', textDecorationThickness: '1px', textUnderlineOffset: '2px', fontWeight: '500' } : {}}
+                              onClick={(e) => {
+                                if (isClickable) {
+                                  e.stopPropagation();
+                                  handleWordClick(cleanWord, verse.verse);
+                                }
+                              }}
+                              onMouseEnter={(e) => {
+                                if (isClickable && (e.currentTarget as HTMLElement)) {
+                                  (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(26, 82, 153, 0.1)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (isClickable && (e.currentTarget as HTMLElement)) {
+                                  (e.currentTarget as HTMLElement).style.backgroundColor = '';
+                                }
+                              }}
+                              data-testid={`word-${verse.verse}-${idx}`}
+                            >
+                              {word}{" "}
+                            </span>
+                          );
+                        })}
+                      </p>
+                      
+                      {/* Verse Actions */}
+                      <VerseActions
+                        bookName={chapterData?.book.name || ""}
+                        chapter={selectedChapter}
+                        verse={verse.verse}
+                        text={verse.text}
+                        isBookmarked={hasBookmark}
+                        isHighlighted={!!highlightColor}
+                        onBookmark={() => bookmarkMutation.mutate({ verse: verse.verse, isBookmarked: hasBookmark || false })}
+                        onHighlight={(color) => handleHighlight(verse.verse, color)}
+                        onRemoveHighlight={() => handleRemoveHighlight(verse.verse)}
+                        onAnnotate={() => handleAnnotate(verse.verse)}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </>
           )}
         </div>
       </main>
+
+      {/* Annotation Panel - Collapsible */}
+      {user && currentBook && (
+        <AnnotationPanel
+          book={selectedBook}
+          bookName={currentBook.name}
+          chapter={selectedChapter}
+          selectedVerse={selectedVerse}
+        />
+      )}
 
       {/* AI Panel - Fixed Bottom */}
       <AIPanel />

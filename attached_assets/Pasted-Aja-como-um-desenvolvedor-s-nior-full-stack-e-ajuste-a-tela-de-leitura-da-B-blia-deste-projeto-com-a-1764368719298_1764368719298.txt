@@ -1,0 +1,59 @@
+Aja como um desenvolvedor sênior full stack e ajuste a tela de leitura da Bíblia deste projeto com as seguintes mudanças de layout e funcionalidades:
+
+1) REDUZIR BOTÃO “BUSCA POR PALAVRA CHAVE”
+- Localize o botão/área de “Busca por palavra chave” na tela de leitura da Bíblia.
+- Reduza o tamanho visual desse botão em aproximadamente 50% (largura e/ou altura), mantendo a mesma funcionalidade.
+- Garanta que ele continue visível e fácil de clicar em telas de celular.
+
+2) ADICIONAR CAMPO DE ANOTAÇÕES
+- No espaço liberado pela redução do botão, crie um **campo de anotações** na mesma tela da leitura da Bíblia.
+- O usuário deve poder:
+  - Escrever, editar e apagar anotações.
+- Sempre que possível, vincule a anotação ao contexto atual (livro, capítulo e, se der, versículo selecionado).
+- Use o mesmo mecanismo de armazenamento já utilizado no app (banco de dados, API ou localStorage). Se existir sistema de usuário, vincule as notas ao usuário logado.
+
+3) SISTEMA DE MARCAÇÃO / REALCE DE TEXTO
+- Permita que o usuário **marque/realce trechos da Bíblia** (por versículo ou seleção de texto).
+- A marcação deve ser visual (ex.: fundo amarelo, sublinhado ou outro destaque discreto).
+- Deve ser possível:
+  - Aplicar marcação.
+  - Remover marcação.
+- As marcações precisam ser persistentes: ao recarregar a página ou voltar depois, o texto deve continuar marcado para aquele usuário.
+
+4) COMPARTILHAR VERSÍCULO AO CLICAR
+- Ao clicar em um versículo (ou em um ícone de menu ao lado dele), abrir uma ação de **compartilhar**.
+- O conteúdo compartilhado deve incluir, no mínimo:
+  - O texto do versículo.
+  - A referência (Livro, capítulo e versículo), por exemplo: “João 3:16”.
+- Implemente da forma mais compatível possível:
+  - Se estiver no navegador e `navigator.share` estiver disponível, use a Web Share API.
+  - Caso contrário, ofereça pelo menos:
+    - Opção de copiar o texto do versículo + referência para a área de transferência (clipboard), para o usuário colar em WhatsApp, etc.
+- Garanta que isso funcione bem em celulares (foco principal).
+
+5) INTEGRAÇÃO ENTRE LEITURA, NOTAS, MARCAÇÃO E COMPARTILHAMENTO
+- Organize o layout para ficar confortável em telas pequenas:
+  - Texto bíblico com boa leitura.
+  - Botão de busca menor, porém acessível.
+  - Campo de anotações claramente identificado (ex.: “Minhas anotações”).
+  - Ação de compartilhar acessível por versículo (clique ou ícone).
+- Evite sobrecarregar a tela; priorize usabilidade em mobile.
+
+6) TESTES EM PREVIEW E PRODUÇÃO
+- Teste todas as funcionalidades em:
+  - Ambiente de teste/preview.
+  - Ambiente de produção/publicação (deploy).
+- Verifique:
+  - Busca por palavra-chave funcionando.
+  - Anotações sendo salvas, carregadas e editadas.
+  - Marcações persistindo após recarregar.
+  - Compartilhamento funcionando (Web Share quando disponível, ou cópia para clipboard como fallback).
+
+7) EXPLICAÇÃO FINAL
+Ao finalizar, explique de forma didática:
+- Quais arquivos foram alterados.
+- Como as anotações e marcações são armazenadas (estrutura básica).
+- Como foi implementado o compartilhamento por versículo.
+- Como garantir que tudo continue funcionando em futuras publicações.
+
+Lembre-se de que sou iniciante, então descreva os passos e decisões de forma simples e organizada.

@@ -99,15 +99,6 @@ export function BibleReader({
   const [selectedVersion, setSelectedVersion] = useState("ACF");
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [textSearchQuery, setTextSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
-  const [fontSize, setFontSize] = useState<"small" | "medium" | "large">(() => {
-    try {
-      const stored = localStorage.getItem("bible-font-size");
-      return (stored as "small" | "medium" | "large") || "medium";
-    } catch {
-      return "medium";
-    }
-  });
   
   // Strong's search state
   const [searchingWord, setSearchingWord] = useState<string | null>(null);
@@ -121,13 +112,6 @@ export function BibleReader({
   // Trial status
   const [trialActive, setTrialActive] = useState(false);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
-
-  // Save font size preference
-  useEffect(() => {
-    try {
-      localStorage.setItem("bible-font-size", fontSize);
-    } catch {}
-  }, [fontSize]);
 
   // Save version preference to localStorage
   useEffect(() => {
@@ -453,13 +437,7 @@ export function BibleReader({
               <h2 className="text-2xl font-bold mb-4 text-foreground" data-testid="chapter-title">
                 {chapterData.book.name} {selectedChapter}
               </h2>
-              <div
-                className={`space-y-3 ${
-                  fontSize === "small" ? "text-sm" : 
-                  fontSize === "medium" ? "text-xl" : 
-                  "text-2xl"
-                }`}
-              >
+              <div className="space-y-3 text-lg">
                 {chapterData?.chapter.verses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 

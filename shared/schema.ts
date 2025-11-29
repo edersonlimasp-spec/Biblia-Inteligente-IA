@@ -307,3 +307,63 @@ export const userBiblePreferences = pgTable("user_bible_preferences", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+// Highlights table (cloud-synced verse highlights)
+export const highlights = pgTable("highlights", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  book: text("book").notNull(),
+  chapter: integer("chapter").notNull(),
+  verse: integer("verse").notNull(),
+  color: text("color").notNull(), // 'yellow', 'green', 'blue', 'pink', 'orange', 'purple'
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("highlights_user_id_idx").on(table.userId),
+  userBookChapterIdx: index("highlights_user_bcv_idx").on(table.userId, table.book, table.chapter),
+}));
+
+export const insertHighlightSchema = createInsertSchema(highlights).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertHighlight = z.infer<typeof insertHighlightSchema>;
+export type Highlight = typeof highlights.$inferSelect;
+
+// Sync State table (tracks last sync per device)
+export const syncState = pgTable("sync_state", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id").notNull(), // Unique device identifier
+  lastSyncAt: timestamp("last_sync_at").notNull().defaultNow(),
+  syncVersion: integer("sync_version").notNull().default(1), // Increment on each sync
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userDeviceIdx: index("sync_state_user_device_idx").on(table.userId, table.deviceId),
+}));
+
+export type SyncState = typeof syncState.$inferSelect;
+
+// Reading History table (tracks what user has read)
+export const readingHistory = pgTable("reading_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  book: text("book").notNull(),
+  chapter: integer("chapter").notNull(),
+  versionCode: text("version_code").notNull().default("ACF"),
+  readAt: timestamp("read_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("reading_history_user_id_idx").on(table.userId),
+  readAtIdx: index("reading_history_read_at_idx").on(table.readAt),
+}));
+
+export const insertReadingHistorySchema = createInsertSchema(readingHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReadingHistory = z.infer<typeof insertReadingHistorySchema>;
+export type ReadingHistory = typeof readingHistory.$inferSelect;

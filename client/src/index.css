@@ -44,7 +44,7 @@
   --chart-4: 185 65% 55%;
   --chart-5: 175 60% 60%;
   --font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif: 'Crimson Pro', Georgia, serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
   --font-mono: Menlo, monospace;
   --radius: .5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(220 8% 50% / 0.00);

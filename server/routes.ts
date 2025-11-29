@@ -969,7 +969,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Dashboard - Stats
   app.get("/api/admin/stats", ensureAdmin, async (req: AuthRequest, res) => {
     try {
-      const allUsers = await db.select().from(users);
+      const { users: allUsers, total: totalCount } = await storage.getAllUsers(undefined, 10000, 0);
       const activeSubscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
       
       const now = new Date();
@@ -987,7 +987,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .toFixed(2);
 
       res.json({
-        totalUsers: allUsers.length,
+        totalUsers: totalCount,
         newUsersThisMonth: recentUsers.length,
         activeTrials,
         activeGoldSubscriptions: activeGold,

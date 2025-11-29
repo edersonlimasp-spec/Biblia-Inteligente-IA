@@ -36,7 +36,7 @@ export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="w-[50vw] h-[50vw] max-w-2xl max-h-[500px] flex flex-col" data-testid="modal-strong">
+      <DialogContent className="w-[90vw] h-[85vh] max-w-4xl max-h-[90vh] flex flex-col" data-testid="modal-strong">
         <DialogClose asChild>
           <Button 
             variant="ghost" 

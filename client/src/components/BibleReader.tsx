@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare } from "lucide-react";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Cloud, CloudOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,6 +20,7 @@ import { VerseActions, HIGHLIGHT_COLORS } from "@/components/VerseActions";
 import { AnnotationPanel } from "@/components/AnnotationPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
@@ -68,22 +69,6 @@ interface StrongSearchResponse {
   total: number;
 }
 
-const getHighlightsKey = () => 'bible-highlights';
-
-function getStoredHighlights(): Record<string, string> {
-  try {
-    return JSON.parse(localStorage.getItem(getHighlightsKey()) || '{}');
-  } catch {
-    return {};
-  }
-}
-
-function saveHighlights(highlights: Record<string, string>) {
-  try {
-    localStorage.setItem(getHighlightsKey(), JSON.stringify(highlights));
-  } catch {}
-}
-
 export function BibleReader({
   onNavigateToSubscriptions,
   onNavigateToSettings,
@@ -92,6 +77,17 @@ export function BibleReader({
 }: BibleReaderProps) {
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
+  
+  const {
+    isSyncing,
+    highlights,
+    addHighlight,
+    removeHighlight,
+    getHighlightColor,
+    isAuthenticated,
+  } = useSyncManager();
+  
+  const { trackReading } = useReadingHistory();
 
   // State management
   const [selectedBook, setSelectedBook] = useState("gen");
@@ -105,9 +101,6 @@ export function BibleReader({
   const [searchingVerseNum, setSearchingVerseNum] = useState<number | null>(null);
   const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
   const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
-
-  // Highlights state
-  const [highlights, setHighlights] = useState<Record<string, string>>(() => getStoredHighlights());
 
   // Trial status
   const [trialActive, setTrialActive] = useState(false);
@@ -169,8 +162,7 @@ export function BibleReader({
 
   // Get highlight color for verse
   const getVerseHighlight = (verse: number) => {
-    const key = `${selectedBook}-${selectedChapter}-${verse}`;
-    return highlights[key] || null;
+    return getHighlightColor(selectedBook, selectedChapter, verse);
   };
 
   // Check if verse has annotation
@@ -200,28 +192,21 @@ export function BibleReader({
     },
   });
 
-  // Handle highlight
-  const handleHighlight = (verse: number, color: string) => {
-    const key = `${selectedBook}-${selectedChapter}-${verse}`;
-    const newHighlights = { ...highlights, [key]: color };
-    setHighlights(newHighlights);
-    saveHighlights(newHighlights);
+  // Handle highlight - now syncs to cloud
+  const handleHighlight = async (verse: number, color: string) => {
+    await addHighlight(selectedBook, selectedChapter, verse, color);
     toast({
       title: "Versículo realçado",
-      description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}`,
+      description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}${isAuthenticated ? ' (sincronizado)' : ''}`,
     });
   };
 
-  // Remove highlight
-  const handleRemoveHighlight = (verse: number) => {
-    const key = `${selectedBook}-${selectedChapter}-${verse}`;
-    const newHighlights = { ...highlights };
-    delete newHighlights[key];
-    setHighlights(newHighlights);
-    saveHighlights(newHighlights);
+  // Remove highlight - now syncs to cloud
+  const handleRemoveHighlight = async (verse: number) => {
+    await removeHighlight(selectedBook, selectedChapter, verse);
     toast({
       title: "Realce removido",
-      description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}`,
+      description: `${currentBook?.name || selectedBook} ${selectedChapter}:${verse}${isAuthenticated ? ' (sincronizado)' : ''}`,
     });
   };
 
@@ -290,6 +275,13 @@ export function BibleReader({
   useEffect(() => {
     setWordsWithStrong(new Set());
   }, [selectedBook, selectedChapter]);
+
+  // Track reading history when chapter changes (cloud sync)
+  useEffect(() => {
+    if (selectedBook && selectedChapter && isAuthenticated) {
+      trackReading(selectedBook, selectedChapter, selectedVersion);
+    }
+  }, [selectedBook, selectedChapter, selectedVersion, isAuthenticated, trackReading]);
 
   const handleWordClick = (word: string, verseNum: number) => {
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
@@ -377,6 +369,30 @@ export function BibleReader({
             >
               Trial: {trialDaysRemaining}d
             </Badge>
+          )}
+
+          {/* Cloud Sync Indicator */}
+          {isAuthenticated && (
+            <div 
+              className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0" 
+              data-testid="sync-indicator"
+              title={isSyncing ? 'Sincronizando...' : 'Sincronizado com a nuvem'}
+            >
+              {isSyncing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+              ) : (
+                <Cloud className="h-3.5 w-3.5 text-green-500" />
+              )}
+            </div>
+          )}
+          {!isAuthenticated && user && (
+            <div 
+              className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0" 
+              data-testid="sync-indicator-offline"
+              title="Modo offline"
+            >
+              <CloudOff className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
           )}
 
           <div className="flex-1"></div>

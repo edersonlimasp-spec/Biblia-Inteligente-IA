@@ -651,6 +651,152 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===================================
+  // HIGHLIGHTS ROUTES (Cloud Sync)
+  // ===================================
+
+  app.get("/api/highlights", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userHighlights = await storage.getUserHighlights(req.userId!);
+      res.json(userHighlights);
+    } catch (error) {
+      console.error("Get highlights error:", error);
+      res.status(500).json({ error: "Erro ao buscar destaques" });
+    }
+  });
+
+  app.get("/api/highlights/:book/:chapter", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { book, chapter } = req.params;
+      const chapterHighlights = await storage.getChapterHighlights(req.userId!, book, parseInt(chapter));
+      res.json(chapterHighlights);
+    } catch (error) {
+      console.error("Get chapter highlights error:", error);
+      res.status(500).json({ error: "Erro ao buscar destaques do capítulo" });
+    }
+  });
+
+  app.post("/api/highlights", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { book, chapter, verse, color } = req.body;
+      
+      if (!book || chapter === undefined || verse === undefined || !color) {
+        return res.status(400).json({ error: "Livro, capítulo, versículo e cor são obrigatórios" });
+      }
+
+      const highlight = await storage.createHighlight({
+        userId: req.userId!,
+        book,
+        chapter: parseInt(chapter),
+        verse: parseInt(verse),
+        color,
+      });
+
+      res.json(highlight);
+    } catch (error) {
+      console.error("Create highlight error:", error);
+      res.status(400).json({ error: "Erro ao criar destaque" });
+    }
+  });
+
+  app.delete("/api/highlights/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      await storage.deleteHighlight(req.params.id, req.userId!);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete highlight error:", error);
+      res.status(500).json({ error: "Erro ao remover destaque" });
+    }
+  });
+
+  app.delete("/api/highlights/verse/:book/:chapter/:verse", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { book, chapter, verse } = req.params;
+      await storage.deleteVerseHighlight(req.userId!, book, parseInt(chapter), parseInt(verse));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete verse highlight error:", error);
+      res.status(500).json({ error: "Erro ao remover destaque do versículo" });
+    }
+  });
+
+  // ===================================
+  // READING HISTORY ROUTES (Cloud Sync)
+  // ===================================
+
+  app.get("/api/reading-history", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const history = await storage.getUserReadingHistory(req.userId!, limit);
+      res.json(history);
+    } catch (error) {
+      console.error("Get reading history error:", error);
+      res.status(500).json({ error: "Erro ao buscar histórico de leitura" });
+    }
+  });
+
+  app.post("/api/reading-history", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { book, chapter, versionCode } = req.body;
+      
+      if (!book || chapter === undefined) {
+        return res.status(400).json({ error: "Livro e capítulo são obrigatórios" });
+      }
+
+      const historyEntry = await storage.addReadingHistory({
+        userId: req.userId!,
+        book,
+        chapter: parseInt(chapter),
+        versionCode: versionCode || 'ACF',
+        readAt: new Date(),
+      });
+
+      res.json(historyEntry);
+    } catch (error) {
+      console.error("Add reading history error:", error);
+      res.status(400).json({ error: "Erro ao registrar histórico de leitura" });
+    }
+  });
+
+  // ===================================
+  // CLOUD SYNC ROUTES
+  // ===================================
+
+  app.get("/api/sync/all", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const deviceId = req.headers['x-device-id'] as string || 'default';
+      
+      const allData = await storage.getAllUserData(req.userId!);
+      await storage.updateSyncState(req.userId!, deviceId);
+      
+      res.json({
+        success: true,
+        data: allData,
+        syncedAt: new Date().toISOString(),
+        deviceId,
+      });
+    } catch (error) {
+      console.error("Sync all error:", error);
+      res.status(500).json({ error: "Erro ao sincronizar dados" });
+    }
+  });
+
+  app.get("/api/sync/state", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const deviceId = req.headers['x-device-id'] as string || 'default';
+      const state = await storage.getSyncState(req.userId!, deviceId);
+      
+      res.json({
+        lastSyncAt: state?.lastSyncAt?.toISOString() || null,
+        syncVersion: state?.syncVersion || 0,
+        deviceId,
+      });
+    } catch (error) {
+      console.error("Get sync state error:", error);
+      res.status(500).json({ error: "Erro ao buscar estado de sincronização" });
+    }
+  });
+
+  // ===================================
   // BIBLE VERSIONS ROUTES
   // ===================================
   

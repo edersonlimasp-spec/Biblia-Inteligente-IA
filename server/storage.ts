@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory } from '@shared/schema';
 import type {
   User,
   InsertUser,
@@ -18,6 +18,11 @@ import type {
   Bonus,
   InsertBonus,
   UserSession,
+  Highlight,
+  InsertHighlight,
+  SyncState,
+  ReadingHistory,
+  InsertReadingHistory,
 } from '@shared/schema';
 import { eq, and, desc, gte, sql, like } from 'drizzle-orm';
 
@@ -82,6 +87,29 @@ export interface IStorage {
   getAIUsageStats(days?: number): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}>;
   getUsageHeatmap(days?: number): Promise<Array<{hour: number; count: number}>>;
   getAbandonedSubscriptions(): Promise<Array<{userId: string; email: string; lastSeenAt: string}>>;
+
+  // Highlights (Cloud Sync)
+  getUserHighlights(userId: string): Promise<Highlight[]>;
+  getChapterHighlights(userId: string, book: string, chapter: number): Promise<Highlight[]>;
+  createHighlight(highlight: InsertHighlight): Promise<Highlight>;
+  updateHighlight(id: string, userId: string, color: string): Promise<Highlight | undefined>;
+  deleteHighlight(id: string, userId: string): Promise<void>;
+  deleteVerseHighlight(userId: string, book: string, chapter: number, verse: number): Promise<void>;
+
+  // Reading History (Cloud Sync)
+  getUserReadingHistory(userId: string, limit?: number): Promise<ReadingHistory[]>;
+  addReadingHistory(history: InsertReadingHistory): Promise<ReadingHistory>;
+
+  // Sync State
+  getSyncState(userId: string, deviceId: string): Promise<SyncState | undefined>;
+  updateSyncState(userId: string, deviceId: string): Promise<SyncState>;
+  getAllUserData(userId: string): Promise<{
+    bookmarks: Bookmark[];
+    annotations: Annotation[];
+    highlights: Highlight[];
+    readingHistory: ReadingHistory[];
+    lastSyncAt: Date | null;
+  }>;
 }
 
 class PostgresStorage implements IStorage {
@@ -440,6 +468,136 @@ class PostgresStorage implements IStorage {
         lastSeenAt: data.lastSeenAt.toISOString(),
       }))
       .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
+  }
+
+  // Highlights (Cloud Sync)
+  async getUserHighlights(userId: string): Promise<Highlight[]> {
+    return db.select().from(highlights).where(eq(highlights.userId, userId)).orderBy(desc(highlights.createdAt));
+  }
+
+  async getChapterHighlights(userId: string, book: string, chapter: number): Promise<Highlight[]> {
+    return db.select().from(highlights).where(
+      and(
+        eq(highlights.userId, userId),
+        eq(highlights.book, book),
+        eq(highlights.chapter, chapter)
+      )
+    );
+  }
+
+  async createHighlight(highlight: InsertHighlight): Promise<Highlight> {
+    const existing = await db.select().from(highlights).where(
+      and(
+        eq(highlights.userId, highlight.userId),
+        eq(highlights.book, highlight.book),
+        eq(highlights.chapter, highlight.chapter),
+        eq(highlights.verse, highlight.verse)
+      )
+    );
+    
+    if (existing.length > 0) {
+      const result = await db.update(highlights)
+        .set({ color: highlight.color, updatedAt: new Date() })
+        .where(eq(highlights.id, existing[0].id))
+        .returning();
+      return result[0];
+    }
+    
+    const result = await db.insert(highlights).values(highlight).returning();
+    return result[0];
+  }
+
+  async updateHighlight(id: string, userId: string, color: string): Promise<Highlight | undefined> {
+    const result = await db.update(highlights)
+      .set({ color, updatedAt: new Date() })
+      .where(and(eq(highlights.id, id), eq(highlights.userId, userId)))
+      .returning();
+    return result[0];
+  }
+
+  async deleteHighlight(id: string, userId: string): Promise<void> {
+    await db.delete(highlights).where(and(eq(highlights.id, id), eq(highlights.userId, userId)));
+  }
+
+  async deleteVerseHighlight(userId: string, book: string, chapter: number, verse: number): Promise<void> {
+    await db.delete(highlights).where(
+      and(
+        eq(highlights.userId, userId),
+        eq(highlights.book, book),
+        eq(highlights.chapter, chapter),
+        eq(highlights.verse, verse)
+      )
+    );
+  }
+
+  // Reading History (Cloud Sync)
+  async getUserReadingHistory(userId: string, limit: number = 50): Promise<ReadingHistory[]> {
+    return db.select().from(readingHistory)
+      .where(eq(readingHistory.userId, userId))
+      .orderBy(desc(readingHistory.readAt))
+      .limit(limit);
+  }
+
+  async addReadingHistory(history: InsertReadingHistory): Promise<ReadingHistory> {
+    const result = await db.insert(readingHistory).values(history).returning();
+    return result[0];
+  }
+
+  // Sync State
+  async getSyncState(userId: string, deviceId: string): Promise<SyncState | undefined> {
+    const result = await db.select().from(syncState).where(
+      and(
+        eq(syncState.userId, userId),
+        eq(syncState.deviceId, deviceId)
+      )
+    );
+    return result[0];
+  }
+
+  async updateSyncState(userId: string, deviceId: string): Promise<SyncState> {
+    const existing = await this.getSyncState(userId, deviceId);
+    
+    if (existing) {
+      const result = await db.update(syncState)
+        .set({ 
+          lastSyncAt: new Date(),
+          syncVersion: sql`${syncState.syncVersion} + 1`
+        })
+        .where(eq(syncState.id, existing.id))
+        .returning();
+      return result[0];
+    }
+    
+    const result = await db.insert(syncState).values({
+      userId,
+      deviceId,
+      lastSyncAt: new Date(),
+      syncVersion: 1,
+    }).returning();
+    return result[0];
+  }
+
+  async getAllUserData(userId: string): Promise<{
+    bookmarks: Bookmark[];
+    annotations: Annotation[];
+    highlights: Highlight[];
+    readingHistory: ReadingHistory[];
+    lastSyncAt: Date | null;
+  }> {
+    const [userBookmarks, userAnnotations, userHighlights, userHistory] = await Promise.all([
+      this.getUserBookmarks(userId),
+      this.getUserAnnotations(userId),
+      this.getUserHighlights(userId),
+      this.getUserReadingHistory(userId, 100),
+    ]);
+
+    return {
+      bookmarks: userBookmarks,
+      annotations: userAnnotations,
+      highlights: userHighlights,
+      readingHistory: userHistory,
+      lastSyncAt: new Date(),
+    };
   }
 }
 

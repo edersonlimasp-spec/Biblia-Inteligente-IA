@@ -453,7 +453,7 @@ export function BibleReader({
               <h2 className="text-2xl font-bold mb-4 text-foreground" data-testid="chapter-title">
                 {chapterData.book.name} {selectedChapter}
               </h2>
-              <div className="space-y-3 text-xl">
+              <div className="space-y-3 text-xl font-serif">
                 {chapterData?.chapter.verses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 

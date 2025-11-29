@@ -110,20 +110,25 @@ class PostgresStorage implements IStorage {
   }
 
   async getAllUsers(searchEmail?: string, take?: number, skip?: number): Promise<{ users: User[], total: number }> {
-    let query = db.select().from(users).$dynamic();
+    let whereCondition = undefined;
     
     if (searchEmail) {
-      query = query.where(like(users.email, `%${searchEmail}%`));
+      whereCondition = like(users.email, `%${searchEmail}%`);
     }
 
-    const totalResult = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const totalResult = await db.select({ count: sql<number>`count(*)` }).from(users)
+      .where(whereCondition || undefined);
     const total = totalResult[0]?.count || 0;
 
-    let finalQuery = query.orderBy(desc(users.trialStartDate));
-    if (take) finalQuery = finalQuery.limit(take);
-    if (skip) finalQuery = finalQuery.offset(skip);
+    let query = db.select().from(users);
+    if (whereCondition) {
+      query = query.where(whereCondition);
+    }
+    query = query.orderBy(desc(users.trialStartDate));
+    if (take) query = query.limit(take);
+    if (skip) query = query.offset(skip);
 
-    const usersList = await finalQuery;
+    const usersList = await query;
     return { users: usersList, total };
   }
 

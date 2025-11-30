@@ -464,7 +464,7 @@ export function BibleReader({
                   
                   return (
                     <div
-                      key={verse.verse}
+                      key={`${selectedBook}-${selectedChapter}-${verse.verse}`}
                       className={`flex gap-2 group relative ${
                         selectedVerse === verse.verse 
                           ? "bg-primary/10 -mx-2 px-2 py-1 rounded" 

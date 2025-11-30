@@ -436,8 +436,8 @@ export function BibleReader({
       </header>
 
       {/* Bible Text */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
-        <div className="max-w-3xl mx-auto px-4 py-6">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-20 sm:pb-24 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
+        <div className="max-w-3xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-6 w-3/4" />
@@ -450,10 +450,10 @@ export function BibleReader({
             </div>
           ) : chapterData ? (
             <>
-              <h2 className="text-2xl font-bold mb-4 text-foreground" data-testid="chapter-title">
+              <h2 className="text-lg sm:text-2xl font-bold mb-2 sm:mb-4 text-foreground" data-testid="chapter-title">
                 {chapterData.book.name} {selectedChapter}
               </h2>
-              <div className="space-y-3 text-xl font-serif">
+              <div className="space-y-2 sm:space-y-3 text-lg sm:text-xl font-serif">
                 {chapterData?.chapter.verses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 

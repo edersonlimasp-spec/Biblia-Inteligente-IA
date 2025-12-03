@@ -174,53 +174,67 @@ export function AIPanel() {
   
   useEffect(() => {
     // RESET AUTOMÁTICO: Detectar se app foi reaberto (nova sessão do navegador)
-    const isFirstVisitThisSession = !sessionStorage.getItem('bible-app-session-initialized');
-    
-    if (isFirstVisitThisSession) {
-      // APP REABERTO: Criar nova conversa limpa
-      sessionStorage.setItem('bible-app-session-initialized', 'true');
+    try {
+      const isFirstVisitThisSession = !sessionStorage.getItem('bible-app-session-initialized');
       
-      // Limpar dados de contexto
-      localStorage.removeItem('bible-ai-current-session-id');
-      
-      // Criar primeira sessão vazia (sessões anteriores permanecem no histórico)
-      const newSessionId = `session-${Date.now()}`;
-      setCurrentSessionId(newSessionId);
-      setMessages([]);
-      setChatSessions([]);
-      saveCurrentSessionId(newSessionId);
-    } else {
-      // Mesma sessão do navegador: carregar conversa anterior normalmente
-      const loadedSessions = loadSessions();
-      const savedSessionId = loadCurrentSessionId();
-      
-      if (loadedSessions.length > 0) {
-        // Tentar carregar a sessão que estava ativa
-        let sessionToLoad = savedSessionId 
-          ? loadedSessions.find(s => s.id === savedSessionId)
-          : null;
-        
-        // Se não encontrou, usar a última sessão
-        if (!sessionToLoad) {
-          sessionToLoad = loadedSessions[loadedSessions.length - 1];
+      if (isFirstVisitThisSession) {
+        // APP REABERTO: Criar nova conversa limpa
+        try {
+          sessionStorage.setItem('bible-app-session-initialized', 'true');
+        } catch (e) {
+          console.warn('sessionStorage não disponível');
         }
         
-        setCurrentSessionId(sessionToLoad.id);
-        setMessages(sessionToLoad.messages);
-        setChatSessions(loadedSessions);
+        // Limpar dados de contexto
+        localStorage.removeItem('bible-ai-current-session-id');
         
-        // Expandir painel se já houver mensagens
-        if (sessionToLoad.messages.length > 0) {
-          setIsExpanded(true);
-        }
-      } else {
-        // Criar primeira sessão vazia
+        // Criar primeira sessão vazia (sessões anteriores permanecem no histórico)
         const newSessionId = `session-${Date.now()}`;
         setCurrentSessionId(newSessionId);
         setMessages([]);
         setChatSessions([]);
         saveCurrentSessionId(newSessionId);
+      } else {
+        // Mesma sessão do navegador: carregar conversa anterior normalmente
+        const loadedSessions = loadSessions();
+        const savedSessionId = loadCurrentSessionId();
+        
+        if (loadedSessions.length > 0) {
+          // Tentar carregar a sessão que estava ativa
+          let sessionToLoad = savedSessionId 
+            ? loadedSessions.find(s => s.id === savedSessionId)
+            : null;
+          
+          // Se não encontrou, usar a última sessão
+          if (!sessionToLoad) {
+            sessionToLoad = loadedSessions[loadedSessions.length - 1];
+          }
+          
+          setCurrentSessionId(sessionToLoad.id);
+          setMessages(sessionToLoad.messages);
+          setChatSessions(loadedSessions);
+          
+          // Expandir painel se já houver mensagens
+          if (sessionToLoad.messages.length > 0) {
+            setIsExpanded(true);
+          }
+        } else {
+          // Criar primeira sessão vazia
+          const newSessionId = `session-${Date.now()}`;
+          setCurrentSessionId(newSessionId);
+          setMessages([]);
+          setChatSessions([]);
+          saveCurrentSessionId(newSessionId);
+        }
       }
+    } catch (error) {
+      console.error('Erro ao inicializar AIPanel:', error);
+      // Fallback: criar primeira sessão vazia
+      const newSessionId = `session-${Date.now()}`;
+      setCurrentSessionId(newSessionId);
+      setMessages([]);
+      setChatSessions([]);
+      saveCurrentSessionId(newSessionId);
     }
   }, []);
 

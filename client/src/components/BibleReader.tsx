@@ -499,7 +499,7 @@ export function BibleReader({
                             <span
                               key={idx}
                               className={isClickable ? 'cursor-pointer transition-colors' : 'cursor-default'}
-                              style={hasStrongInCache ? { textDecoration: 'underline dotted', textDecorationThickness: '1px', textUnderlineOffset: '2px', fontWeight: '500' } : {}}
+                              style={hasStrongInCache ? { textDecoration: 'underline dotted', textDecorationThickness: '1px', textUnderlineOffset: '2px', fontWeight: '500', fontSize: '1.3em', color: 'hsl(var(--primary))' } : {}}
                               onClick={(e) => {
                                 if (isClickable) {
                                   e.stopPropagation();

@@ -169,39 +169,58 @@ export function AIPanel() {
   }, []);
 
   // ===================================
-  // INITIALIZATION - Carregar sessões do localStorage
+  // INITIALIZATION - Carregar sessões do localStorage (com RESET automático)
   // ===================================
   
   useEffect(() => {
-    const loadedSessions = loadSessions();
-    const savedSessionId = loadCurrentSessionId();
+    // RESET AUTOMÁTICO: Detectar se app foi reaberto (nova sessão do navegador)
+    const isFirstVisitThisSession = !sessionStorage.getItem('bible-app-session-initialized');
     
-    if (loadedSessions.length > 0) {
-      // Tentar carregar a sessão que estava ativa
-      let sessionToLoad = savedSessionId 
-        ? loadedSessions.find(s => s.id === savedSessionId)
-        : null;
+    if (isFirstVisitThisSession) {
+      // APP REABERTO: Criar nova conversa limpa
+      sessionStorage.setItem('bible-app-session-initialized', 'true');
       
-      // Se não encontrou, usar a última sessão
-      if (!sessionToLoad) {
-        sessionToLoad = loadedSessions[loadedSessions.length - 1];
-      }
+      // Limpar dados de contexto
+      localStorage.removeItem('bible-ai-current-session-id');
       
-      setCurrentSessionId(sessionToLoad.id);
-      setMessages(sessionToLoad.messages);
-      setChatSessions(loadedSessions);
-      
-      // Expandir painel se já houver mensagens
-      if (sessionToLoad.messages.length > 0) {
-        setIsExpanded(true);
-      }
-    } else {
-      // Criar primeira sessão vazia
+      // Criar primeira sessão vazia (sessões anteriores permanecem no histórico)
       const newSessionId = `session-${Date.now()}`;
       setCurrentSessionId(newSessionId);
       setMessages([]);
       setChatSessions([]);
       saveCurrentSessionId(newSessionId);
+    } else {
+      // Mesma sessão do navegador: carregar conversa anterior normalmente
+      const loadedSessions = loadSessions();
+      const savedSessionId = loadCurrentSessionId();
+      
+      if (loadedSessions.length > 0) {
+        // Tentar carregar a sessão que estava ativa
+        let sessionToLoad = savedSessionId 
+          ? loadedSessions.find(s => s.id === savedSessionId)
+          : null;
+        
+        // Se não encontrou, usar a última sessão
+        if (!sessionToLoad) {
+          sessionToLoad = loadedSessions[loadedSessions.length - 1];
+        }
+        
+        setCurrentSessionId(sessionToLoad.id);
+        setMessages(sessionToLoad.messages);
+        setChatSessions(loadedSessions);
+        
+        // Expandir painel se já houver mensagens
+        if (sessionToLoad.messages.length > 0) {
+          setIsExpanded(true);
+        }
+      } else {
+        // Criar primeira sessão vazia
+        const newSessionId = `session-${Date.now()}`;
+        setCurrentSessionId(newSessionId);
+        setMessages([]);
+        setChatSessions([]);
+        saveCurrentSessionId(newSessionId);
+      }
     }
   }, []);
 
@@ -480,7 +499,7 @@ export function AIPanel() {
                           : "bg-muted"
                       }`}
                     >
-                      <p className="text-sm leading-relaxed whitespace-pre-line">
+                      <p className="text-base sm:text-lg leading-relaxed whitespace-pre-line">
                         {msg.text}
                       </p>
                     </div>
@@ -601,14 +620,14 @@ export function AIPanel() {
                   handleAsk();
                 }
               }}
-              className="flex-1"
+              className="flex-1 text-base sm:text-lg"
               data-testid="input-ai-question"
             />
             <Button
               onClick={handleAsk}
               disabled={!question.trim() || askAIMutation.isPending}
               data-testid="button-ask-ai"
-              className="mobile-search-button"
+              className="mobile-search-button text-base sm:text-lg"
             >
               {askAIMutation.isPending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

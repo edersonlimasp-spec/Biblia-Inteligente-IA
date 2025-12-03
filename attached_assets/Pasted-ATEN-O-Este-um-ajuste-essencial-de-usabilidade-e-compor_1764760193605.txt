@@ -1,0 +1,84 @@
+ATENÇÃO: Este é um ajuste essencial de usabilidade e comportamento da IA do app “Bíblia Inteligente”.  
+Trata-se de correção e melhoria obrigatória, não deve gerar nova cobrança.
+
+====================================================
+1) RESET AUTOMÁTICO DA CONVERSA DA IA (OBRIGATÓRIO)
+====================================================
+PROBLEMA:
+Quando o usuário fecha e reabre o app, a IA continua a conversa anterior. Isso NÃO deve acontecer.
+
+OBJETIVO:
+Implementar RESET AUTOMÁTICO de sessão sempre que o app for reaberto.
+
+FUNCIONAMENTO EXIGIDO:
+- Fechou o app → sessão de IA é descartada.
+- Abriu o app → iniciar NOVA conversa, limpa, sem histórico.
+- A IA não deve carregar mensagens antigas automaticamente.
+- O histórico só pode ser visto se o usuário abrir a aba “Histórico” manualmente.
+- Gerar novo sessionId / conversationId ao iniciar o app.
+- Limpar:
+  • sessão local da IA  
+  • thread anterior  
+  • dados de contexto (localStorage, sessionStorage)  
+  • qualquer memória temporária do assistente  
+
+TESTE OBRIGATÓRIO ANTES DE MARCAR COMO PRONTO:
+1. Abrir o app → enviar mensagem ao Professor.
+2. Fechar completamente o app.
+3. Abrir de novo.
+4. A tela do chat deve aparecer ZERADA e iniciar nova conversa.
+
+====================================================
+2) AJUSTE DE ACESSIBILIDADE — AUMENTAR FONTES EM 30%
+====================================================
+Quero melhorar acessibilidade e leitura do app aumentando o tamanho da fonte em **30%** SOMENTE em:
+
+A) As palavras do texto bíblico que possuem StrongID  
+   - essas palavras devem ficar 30% maiores  
+   - manter destaque sutil (cor +10% mais escura + underline pontilhado)
+
+B) A caixa de pergunta da IA “Professor Teológico”  
+   - aumentar fonte atual da caixa de input em 30%  
+   - aumentar também o botão “Perguntar ao Professor” proporcionalmente
+
+C) A resposta da IA  
+   - aumentar fonte em 30%  
+   - manter legibilidade e quebras de linha adequadas  
+   - NÃO alterar a estrutura geral do layout  
+   - apenas deixar leitura mais confortável
+
+REQUISITOS:
+- Não mexer nas outras fontes da interface (menus, títulos, etc.)
+- Somente esses 3 elementos devem ser ampliados.
+- A ampliação não pode quebrar o layout no celular.
+- A caixa da IA deve continuar na mesma posição (abaixo da leitura bíblica).
+
+====================================================
+3) GARANTIR COMPATIBILIDADE COM DEV E PRODUÇÃO
+====================================================
+Depois de aplicar as mudanças, você deve:
+- Testar no PREVIEW  
+- Publicar  
+- Testar na versão publicada  
+
+E garantir que:
+✔ palavras com Strong continuam funcionando  
+✔ tamanho da fonte está 30% maior  
+✔ caixa de pergunta está 30% maior  
+✔ respostas estão 30% maiores  
+✔ nova sessão da IA inicia ao abrir o app  
+✔ nenhuma conversa antiga aparece automaticamente  
+✔ nenhum erro no console  
+✔ layout permanece estável em mobile
+
+====================================================
+4) ENTREGA FINAL OBRIGATÓRIA
+====================================================
+Me entregue:
+1. Os arquivos e trechos modificados (nomes e caminhos).  
+2. Onde implementou o reset automático da IA.  
+3. Onde aumentou a fonte (componentes exatos).  
+4. Como garantiu que essa alteração não quebrou o layout mobile.  
+5. Confirmação de funcionamento total em DEV e PRODUÇÃO.
+
+Somente finalize após validar tudo.

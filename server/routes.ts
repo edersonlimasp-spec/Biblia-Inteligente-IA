@@ -1314,6 +1314,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
         .toFixed(2);
 
+      // Guest stats
+      let totalGuests = 0;
+      let activeGuestTrials = 0;
+      let convertedGuests = 0;
+      try {
+        if (typeof storage.getGuestStats === 'function') {
+          const guestStats = await storage.getGuestStats();
+          totalGuests = guestStats.totalGuests;
+          activeGuestTrials = guestStats.activeTrials;
+          convertedGuests = guestStats.converted;
+        }
+      } catch (e) {
+        console.warn('Erro ao buscar guest stats:', e);
+      }
+
       res.json({
         totalUsers: totalCount,
         newUsersThisMonth: recentUsers.length,
@@ -1323,6 +1338,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lifetimeStrong,
         estimatedMonthlyRevenue: monthlyRevenue,
         cancelledThisMonth: 0, // Would need subscription history
+        totalGuests,
+        activeGuestTrials,
+        convertedGuests,
       });
     } catch (error) {
       console.error("Admin stats error:", error);

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock } from "lucide-react";
+import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface DashboardStats {
@@ -13,6 +13,9 @@ interface DashboardStats {
   lifetimeStrong: number;
   estimatedMonthlyRevenue: string;
   cancelledThisMonth: number;
+  totalGuests: number;
+  activeGuestTrials: number;
+  convertedGuests: number;
 }
 
 interface OnlineMetrics {
@@ -121,6 +124,50 @@ export function AdminDashboard() {
           subtext="Estimado"
         />
       </div>
+
+      {/* Guest Stats */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Smartphone className="h-5 w-5 text-primary" />
+            Estatísticas de Guests (Visitantes Anônimos)
+          </CardTitle>
+          <CardDescription>Usuários usando o app sem login, rastreados por deviceId</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {statsLoading ? (
+            <div className="flex gap-4">
+              <Skeleton className="h-12 w-32" />
+              <Skeleton className="h-12 w-32" />
+              <Skeleton className="h-12 w-32" />
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-4 bg-accent/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Total de Guests</p>
+                </div>
+                <p className="text-2xl font-semibold">{stats?.totalGuests || 0}</p>
+              </div>
+              <div className="p-4 bg-accent/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Trials Ativos (Guest)</p>
+                </div>
+                <p className="text-2xl font-semibold">{stats?.activeGuestTrials || 0}</p>
+              </div>
+              <div className="p-4 bg-accent/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Convertidos (criaram conta)</p>
+                </div>
+                <p className="text-2xl font-semibold">{stats?.convertedGuests || 0}</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* AI Usage */}
       <Card>

@@ -1,0 +1,219 @@
+Quero ALTERAR o fluxo do meu app “Bíblia Inteligente” para:
+
+1) Tirar o login obrigatório na entrada (usuário entra direto no app).
+2) Pedir login/criar conta SOMENTE quando o usuário for assinar.
+3) Manter CONTROLE COMPLETO de usuários via deviceId (guest) e via conta (assinantes).
+4) Alimentar a área ADMIN com estatísticas reais de uso (visitantes e assinantes).
+
+====================================================
+1) FLUXO NOVO – SEM LOGIN NA ENTRADA
+====================================================
+Comportamento atual:
+- Hoje o app exige login/senha logo ao abrir.
+
+Comportamento desejado:
+- Ao abrir o app:
+  ✔ NÃO mostrar tela de login.
+  ✔ Entrar direto na tela principal de leitura da Bíblia.
+  ✔ Usuário é tratado como “CONVIDADO” (guest) por padrão.
+
+Requisito:
+- NUNCA travar a leitura da Bíblia por falta de login.
+- Trial de 30 dias de Strong/IA continua valendo, agora baseado em deviceId.
+
+====================================================
+2) USUÁRIO GUEST (VISITANTE) COM deviceId
+====================================================
+Implementar um mecanismo de identificação anônima:
+
+- Criar um deviceId (UUID) na primeira vez que o app abre.
+- Salvar o deviceId:
+  • em storage local (localStorage ou equivalente)
+  • no banco (tabela Guests ou Users de tipo guest)
+
+Campos sugeridos:
+- deviceId (string, obrigatório)
+- firstSeenAt
+- lastSeenAt
+- platform (web, Android webview, iOS webview)
+- country/locale (se disponível)
+- trialStartAt
+- trialEndAt
+
+Esse deviceId será usado para:
+- controlar o trial dos 30 dias (Strong + IA)
+- contar usuários únicos
+- gerar métricas de uso.
+
+Usuário guest pode:
+- ler a Bíblia à vontade
+- usar Strong/IA dentro das regras do trial
+- navegar normalmente sem login.
+
+====================================================
+3) QUANDO EXIGIR LOGIN / CONTA
+====================================================
+Exigir login/cadastro SOMENTE em:
+
+1) Área ADMIN
+   - Acesso restrito a administradores.
+   - Continua como antes: login, senha, permissões.
+
+2) Momento da ASSINATURA
+   - Quando o usuário clicar em:
+     • “Assinar plano Gold (19,90)”
+     • “Assinar plano Premium (29,90)”
+     • “Comprar Strong Vitalício (189,90)”
+   - Nessa hora:
+     → se não tiver conta:
+        - mostrar tela simples de criar conta (email + senha)
+        - vincular deviceId + usuário
+     → se já tiver conta:
+        - pedir login e seguir para pagamento.
+
+A leitura da Bíblia, uso básico do Strong (no trial) e IA (no trial) NÃO devem exigir login.
+
+====================================================
+4) TRIAL DE 30 DIAS BASEADO EM DEVICEID
+====================================================
+Regra:
+
+- Todo novo deviceId recebe 30 dias de acesso completo a:
+  • Strong
+  • Hebraico
+  • Grego
+  • IA (dentro das regras definidas)
+
+Implementar:
+- Ao detectar novo deviceId:
+  • definir trialStartAt = agora
+  • trialEndAt = agora + 30 dias
+
+- Ao fim do trial:
+  • bloquear acesso ao Strong/Hebraico/Grego/IA, conforme planos
+  • mostrar tela de oferta de assinatura (Gold/Premium/Vitalício)
+
+Se o usuário criar conta depois (no momento do pagamento):
+- Vincular deviceId ao userId.
+- Migrar o trial e histórico para a conta.
+
+====================================================
+5) CONTROLE DE USUÁRIOS E ESTATÍSTICAS (NÃO PERDER CONTROLE)
+====================================================
+Quero manter CONTROLE TOTAL de uso, mesmo sem login inicial.
+
+Criar (ou ajustar) estrutura no banco para gerar métricas:
+
+5.1 Tabela Users (assinantes / admins)
+- userId
+- email
+- tipo (ADMIN, SUPER_ADMIN, PREMIUM, GOLD, VITALICIO, FREE)
+- createdAt
+- lastLoginAt
+
+5.2 Tabela Guests / Devices
+- deviceId
+- firstSeenAt
+- lastSeenAt
+- totalSessions
+- origem (web / mobile)
+- trialStartAt
+- trialEndAt
+- linkedUserId (nullable)
+
+5.3 Tabela Metrics ou eventos
+Registrar eventos básicos:
+- openApp (com deviceId ou userId)
+- bibleRead (livro, capítulo, versão)
+- strongLookup (strongId)
+- iaQuestion (pergunta ao Professor)
+- subscribeClick (tentativa de assinar)
+- subscriptionActivated (plano Gold/Premium/Vitalício)
+
+Esses dados devem alimentar o painel ADMIN (atual ou futuro), com:
+
+- total de visitantes únicos (guests)
+- total de usuários com conta
+- quantos estão em trial
+- quantos já assinaram (por plano)
+- taxa de conversão trial → assinante
+- uso diário de Strong e IA
+
+====================================================
+6) AJUSTAR MIDDLEWARE DE AUTENTICAÇÃO
+====================================================
+Regras de backend:
+
+1) Rotas que DEVEM aceitar guest (via deviceId):
+   - leitura da Bíblia
+   - consulta Strong (respeitando trial)
+   - perguntas ao Professor (respeitando trial/plano free)
+   - registro de eventos/uso
+
+2) Rotas que DEVEM exigir login (JWT ou similar):
+   - área /admin
+   - relatórios detalhados
+   - gestão de planos/bonificações
+   - configurações de sistema
+
+3) Rotas de assinatura:
+   - ao iniciar processo de pagamento, se não houver userId:
+     → criar conta e vincular deviceId.
+
+====================================================
+7) UX / FLUXO VISUAL
+====================================================
+Fluxo desejado:
+
+1) Abrir o app:
+   ✔ entra direto na Bíblia (sem login)
+
+2) Usuário navega, lê, usa Strong/IA (se dentro do trial).
+
+3) Ao clicar em:
+   - “Assinar Gold”
+   - “Assinar Premium”
+   - “Strong Vitalício”
+   → abrir modal/tela de conta:
+      - “Criar conta” ou “Entrar”
+      - depois seguir pagamento normal.
+
+4) Admin:
+   - continua acessando com login pela rota /admin.
+
+====================================================
+8) TESTES OBRIGATÓRIOS
+====================================================
+Antes de dizer que está pronto, TESTAR:
+
+1) Novo dispositivo (ou aba anônima):
+   - abrir app → entra sem login
+   - ver Bíblia
+   - testar Strong e IA dentro do primeiro acesso
+
+2) Clicar em assinar plano:
+   - app pede conta (email/senha)
+   - cria conta
+   - ativa assinatura corretamente
+
+3) Admin:
+   - continua protegido por login
+   - consegue ver nº de guests, nº de assinantes, trial etc.
+
+4) Produção:
+   - validar a mesma coisa na URL publicada.
+
+====================================================
+9) ENTREGA FINAL
+====================================================
+Me entregue:
+
+- Lista de arquivos alterados (front e back)
+- Como o deviceId foi implementado
+- Como o trial por dispositivo foi aplicado
+- Como o fluxo de assinatura ficou com login apenas nesse momento
+- Se atualizou (ou não) o painel admin com:
+  • total de guests
+  • total de usuários com conta
+  • total em trial
+  • total de assinantes por plano

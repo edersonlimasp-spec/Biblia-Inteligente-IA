@@ -1,0 +1,127 @@
+QUERO APRIMORAR O CONTEÚDO DO STRONG NO MEU APP “Bíblia Inteligente”.
+
+Hoje, quando clico em uma palavra com Strong no meu app:
+- a janela/modal do Strong mostra pouca informação (definição muito curta).
+- porém quero algo mais completo, parecido com apps como “Bíblia Almeida Strong / Olive Tree”, com:
+  • palavra em hebraico/grego bem destacada
+  • STRONG’S NUMBER: hXXXX / gXXXX
+  • definição longa com várias linhas, subitens, anotações, referências etc.
+
+PRECISO QUE VOCÊ:
+
+====================================================
+1) VERIFIQUE O QUE ESTÁ SALVO NO BANCO
+====================================================
+1. Abra a tabela do dicionário Strong no BANCO DE DADOS (produção e dev).
+   Exemplos de nomes possíveis: strong_entries, strong, strong_dictionary, etc.
+
+2. Pegue alguns IDs conhecidos (exemplo):
+   - h0216 (luz, Gn 1:3)
+   - h02822 (trevas, Gn 1:2)
+   - h0922 (vazio, Gn 1:2)
+   - h0430 (Elohim, Gn 1:1)
+
+3. Verifique quais campos existem para cada entrada:
+   - lemma (palavra original)
+   - transliteration
+   - short_definition / gloss
+   - long_definition / extended_definition / kjv_definition / notes / origin / usage etc.
+
+4. Me diga se o banco já tem um campo com DEFINIÇÃO LONGA (mais completa) e se ele está preenchido.
+
+CASO 1: O BANCO JÁ TEM DEFINIÇÃO LONGA
+→ O problema é só na tela (frontend).
+
+CASO 2: O BANCO NÃO TEM DEFINIÇÃO LONGA
+→ O problema é na importação/seed (o dicionário foi salvo de forma resumida).
+
+====================================================
+2) SE O BANCO JÁ TEM CONTEÚDO LONGO
+====================================================
+Se você confirmar que existem campos com conteúdo mais rico, quero que:
+
+2.1 Ajuste o componente de exibição do Strong para:
+   - Mostrar:
+     • palavra em hebraico/grego em destaque (fonte maior)
+     • STRONG’S NUMBER: hXXXX / gXXXX
+     • transliteração (se existir)
+     • definição longa (campo mais completo do dicionário) com todos os parágrafos, subitens, etc.
+   - Não cortar o texto por tamanho de caracteres (evitar substring, slice, etc).
+   - Permitir rolagem vertical dentro do modal, com max-height amigável para celular.
+
+2.2 Layout desejado do modal:
+   - Topo: palavra original (hebraico/grego) grande.
+   - Abaixo: “STRONG’S NUMBER: hXXXX” em destaque.
+   - Abaixo: título “Definição do Dicionário” (ou similar).
+   - Texto longo da definição, com quebras de linha normais.
+   - Se possível, manter links para outros códigos Strong (H0215, etc.) clicáveis.
+
+2.3 Garantir que isso funcione tanto no preview quanto na versão publicada.
+
+====================================================
+3) SE O BANCO NÃO TIVER DEFINIÇÃO LONGA
+====================================================
+Se você detectar que a tabela do Strong só tem um campo curto de gloss:
+
+3.1 Analise o script de importação/seed do Strong:
+   - localizar o arquivo (ex.: scripts/import_strong.ts, seed_strong.js, prisma/seed.ts, etc.)
+   - ver de onde ele lê o dicionário (JSON, CSV, PDF convertido, etc.).
+   - verificar se existem campos mais completos sendo ignorados na importação.
+
+3.2 Ajustar o seed para:
+   - ler também o campo de definição longa que já veio da fonte original (em português, se estiver disponível).
+   - salvar essa definição em um campo apropriado (ex.: long_definition ou equivalente).
+
+3.3 Rodar o seed de forma segura para:
+   - atualizar o banco de dados de desenvolvimento,
+   - e depois o banco de produção,
+   - sem apagar dados de usuários.
+
+IMPORTANTE:
+- se não houver fonte com definição mais longa na base atual, você deve deixar isso explícito na resposta (não inventar conteúdo).
+
+====================================================
+4) GARANTIR QUE NÃO HÁ CORTE DO TEXTO NO FRONTEND
+====================================================
+No componente do modal do Strong:
+
+- Remover qualquer limitação artificial tipo:
+  • text.slice(0, 200) + "..."
+  • maxLines muito baixo
+  • CSS que corta texto (overflow: hidden sem scroll)
+
+- Configurar:
+  • white-space: normal;
+  • overflow-y: auto;
+  • max-height suficiente para caber em telas pequenas.
+
+====================================================
+5) TESTES OBRIGATÓRIOS
+====================================================
+Testar na VERSÃO PUBLICADA:
+
+1. Abrir Gn 1:1-5 e clicar nas palavras:
+   - “Deus” (h0430)
+   - “luz” (h0216)
+   - “trevas” (h02822)
+   - “vazio” (h0922)
+
+2. Verificar se:
+   ✔ aparece a palavra original em destaque
+   ✔ o STRONG’S NUMBER é exibido corretamente
+   ✔ a definição é longa, com vários significados e frases (não só uma palavra ou linha)
+   ✔ o modal permite rolagem do texto
+   ✔ não há erros no console
+
+====================================================
+6) ENTREGA FINAL
+====================================================
+Na sua resposta, me explique:
+
+1. Se o banco já tinha ou não uma definição longa.
+2. O que você alterou no frontend (arquivos e componentes).
+3. Se foi necessário ajustar o seed/import do Strong.
+4. Como ficou o modal final (resumo do layout).
+5. Confirmação de que funciona tanto no preview quanto na URL publicada.
+
+NÃO considere pronto enquanto o Strong continuar mostrando definições curtas demais na versão publicada.

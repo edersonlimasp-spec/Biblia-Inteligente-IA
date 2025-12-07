@@ -131,6 +131,7 @@ export const strongEntries = pgTable("strong_entries", {
   portugueseDef: text("portuguese_def"), // Portuguese translation of definition
   strongsDef: text("strongs_def"), // Full Strong's definition
   derivation: text("derivation"), // Etymology/word derivation
+  extendedDefinition: text("extended_definition"), // Rich theological explanation in Portuguese (AI-generated)
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   // Indexes for search performance (optimized for LIKE queries)

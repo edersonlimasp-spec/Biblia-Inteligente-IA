@@ -1154,14 +1154,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Format response to match frontend expectations
+      // Format response with ALL available fields for rich display
       res.json({
         number: entry.strongNumber,
         word: entry.lemma,
         transliteration: entry.translit || entry.xlit || '',
         pronunciation: entry.pron || '',
         definition: entry.kjvDef || entry.strongsDef || '',
-        portugueseDefinition: entry.portugueseDef || null, // NEW: Portuguese translation
+        portugueseDefinition: entry.portugueseDef || null,
+        strongsDefinition: entry.strongsDef || null,
+        kjvDefinition: entry.kjvDef || null,
+        derivation: entry.derivation || null,
+        extendedDefinition: entry.extendedDefinition || null,
         language: entry.language,
       });
     } catch (error) {

@@ -936,8 +936,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "deviceId e question são obrigatórios" });
       }
       
+      // Auto-register guest if not exists (ensures guest record before AI usage)
+      let trialInfo = await storage.getGuestTrialInfo(deviceId);
+      if (!trialInfo) {
+        // Create guest record on-the-fly
+        await storage.createOrUpdateGuest(deviceId, 'web');
+        trialInfo = await storage.getGuestTrialInfo(deviceId);
+      }
+      
       // Check trial
-      const trialInfo = await storage.getGuestTrialInfo(deviceId);
       if (trialInfo && !trialInfo.active) {
         return res.status(403).json({ 
           error: "Trial expirado",
@@ -1321,9 +1328,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         if (typeof storage.getGuestStats === 'function') {
           const guestStats = await storage.getGuestStats();
-          totalGuests = guestStats.totalGuests;
-          activeGuestTrials = guestStats.activeTrials;
-          convertedGuests = guestStats.converted;
+          totalGuests = guestStats.totalGuests || 0;
+          activeGuestTrials = guestStats.guestsInTrial || 0;
+          convertedGuests = guestStats.linkedToUsers || 0;
         }
       } catch (e) {
         console.warn('Erro ao buscar guest stats:', e);

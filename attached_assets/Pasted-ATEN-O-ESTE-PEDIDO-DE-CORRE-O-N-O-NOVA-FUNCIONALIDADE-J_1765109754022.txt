@@ -1,0 +1,188 @@
+ATENÇÃO: ESTE PEDIDO É DE CORREÇÃO, NÃO É NOVA FUNCIONALIDADE.  
+Já foi cobrado várias vezes para consertar os MESMOS problemas e eles continuam voltando.  
+Portanto, trate isso como AJUSTE/BUGFIX do que já foi contratado, NÃO como novo trabalho faturável.
+
+APP: Bíblia Inteligente / Bíblia Hebraico & Grego
+
+====================================================
+0) PROBLEMA GERAL – PREVIEW ≠ PRODUÇÃO + REGRESSÕES
+====================================================
+O estado atual está totalmente inconsistente:
+
+- O que aparece no PREVIEW não bate com o que está PUBLICADO.
+- O app publicado parece estar usando versão ANTIGA do código.
+- Mudanças já pedidas e cobradas SUMIRAM (ex.: botão Admin).
+- A cada tentativa de correção surgem novos erros e o sistema volta a cobrar.
+
+QUERO UMA CORREÇÃO ESTRUTURAL:
+
+1. Garanta que a VERSÃO PUBLICADA está usando:
+   - o mesmo código da branch principal (main/master)
+   - as mesmas dependências que o preview
+   - o mesmo schema de banco (sem migrações pendentes).
+
+2. Verifique:
+   - arquivo `.replit`
+   - configurações de Deploy/Publish (build e run)
+   - se não há outra branch ou snapshot sendo usada para produção.
+
+SÓ DEPOIS DE ALINHAR PREVIEW = PRODUÇÃO continue para os pontos abaixo.
+
+====================================================
+1) STRONG COM NÚMERO ERRADO NA ALMEIDA STRONG
+====================================================
+Exemplo concreto:
+
+- Em Gênesis 1 (Almeida Strong), a palavra em português **“luz”** em “Disse Deus: haja luz”  
+  → está vindo com **Strong H3870 ("looz", nome de lugar)** no meu app.  
+  → o correto para essa “luz” de Gn 1:3 é **H0216 (אוֹר – ʾôr)**, como qualquer dicionário Strong básico.
+
+Isso mostra que:
+- ou o texto da Bíblia Almeida Strong está sendo lido com o alinhamento errado,
+- ou o mapeamento word → strongId está corrompido,
+- ou o dataset do Strong está com indexes trocados.
+
+QUERO UMA CORREÇÃO COMPLETA DO MAPEAMENTO PARA A BÍBLIA ALMEIDA STRONG.
+
+PASSOS OBRIGATÓRIOS:
+
+1. Identifique onde está o ALINHAMENTO Bíblia ↔ Strong:
+   - tabela tipo bible_words, verse_words, scripture_tokens, etc.
+   - ou JSON/arquivo de versículos com strongIds embutidos.
+
+2. Para a versão “Bíblia Almeida Strong”:
+
+   Testar programaticamente pelo menos estes casos (ANTIGO TESTAMENTO):
+
+   - Gênesis 1:1 – “Deus” → deve ser H0430 (’Elohim)
+   - Gênesis 1:2 – “trevas” → deve ser H02822 (ḥōshek)
+   - Gênesis 1:2 – “vazio” → deve ser H0922 (bōhû)
+   - Gênesis 1:3 – “luz” → deve ser H0216 (ʾôr)
+
+3. Compare o que o app está retornando hoje para essas palavras
+   com o que DEVERIA ser H0430, H2822, H922, H216.
+
+4. Corrija o que for necessário:
+   - se o problema for na FONTE dos dados (arquivo com strongs trocados), corrija ou substitua.
+   - se for no PARSER que quebra o texto e associa strongId à palavra, corrija a lógica de parsing.
+   - se for no BANCO, rode migração/ajuste adequado para alinhar cada palavra à strong correta.
+
+IMPORTANTE:
+- NÃO resolva “na marra” só para esses versos.
+- Ajuste a BASE / PARSER para corrigir TUDO que estiver desalinhado na Almeida Strong.
+
+Depois da correção, gere um relatório com:
+- quantos versos/palavras estavam com strong errado
+- exemplos corrigidos
+- como garantir que isso não volta a quebrar (ex.: teste automatizado simples para alguns versículos-chave).
+
+====================================================
+2) CONTEÚDO DO STRONG POBRE / INCOMPLETO
+====================================================
+Além do número errado, as definições estão muito curtas.
+
+No meu app eu preciso:
+- Palavra original em destaque (hebraico/greco)
+- Número Strong (Hxxxx/Gxxxx)
+- Transliteração
+- Definição longa em português (quando houver)
+- Definição completa do dicionário Strong em inglês (quando houver)
+
+Verifique na tabela do Strong:
+
+1. Quais campos existem (ex.: lemma, transliteration, pt_definition, strong_definition, long_definition etc.).
+2. Se o conteúdo LONGO está salvo e não está sendo exibido.
+3. Se o conteúdo está MUITO reduzido, rever o script de importação/seed e, se houver fonte mais completa, reimportar.
+
+No modal do Strong:
+- NÃO truncar texto (sem slice(0, 200) + “...”).
+- Permitir scroll vertical.
+- Usar SEMPRE a definição mais completa disponível.
+
+====================================================
+3) ADMIN SUMIU + PAINEL DE GESTÃO
+====================================================
+Outro erro grave: o BOTÃO DE ADMIN desapareceu e junto se perdeu o acesso à área administrativa.
+
+Eu quero de volta o que já foi solicitado e pago:
+
+- Tela / rota de ADMIN acessível apenas para usuários admin.
+- Botão/entrada clara no menu (ou ícone) para acessar o painel admin.
+- No painel admin:
+  • visão de usuários / dispositivos
+  • quantos usuários ativos
+  • quantos em trial
+  • quantos assinantes por plano
+  • controle de monetização e assinaturas
+  • possibilidade de bonificar/isentar usuários
+  (se essa parte ainda estiver em construção, AO MENOS restaurar o acesso admin e os dados corretos já existentes).
+
+Verificar:
+
+1. Se o usuário admin ainda existe no banco (por e-mail).
+2. Se o middleware de autenticação mudou recentemente e bloqueou admin.
+3. Se, no frontend, o botão/admin foi removido em alguma refatoração (ex.: remoção de login obrigatório).
+4. Restaurar o botão Admin **SEM AFETAR** a experiência dos usuários comuns (que entram direto na Bíblia).
+
+====================================================
+4) ALINHAR PREVIEW, PRODUÇÃO E BANCO
+====================================================
+Hoje:
+
+- Preview mostra uma coisa.
+- Produção mostra outra.
+- Algumas correções aparecem só em preview, outras só em produção.
+
+Você deve:
+
+1. Verificar qual branch/commit está em uso no preview e qual está no deploy.
+2. Garantir que a publicação usa SEMPRE a branch principal com as últimas correções.
+3. Verificar variáveis de ambiente:
+   - DATABASE_URL (dev)
+   - DATABASE_URL (prod)
+   - etc.
+4. Garantir que as migrações de banco estão aplicadas em produção.
+5. Garantir que o seed do Strong foi aplicado na MESMA base usada em produção.
+
+Depois disso:
+- Preview e Produção devem mostrar EXATAMENTE o mesmo comportamento, com os mesmos dados de Strong, mesmas telas e mesmo Admin.
+
+====================================================
+5) SOBRE COBRANÇAS REPETIDAS
+====================================================
+Refaço: este pedido é de CORREÇÃO de problemas criados ou não corrigidos corretamente em iterações anteriores, NÃO de nova funcionalidade.
+
+Portanto:
+- NÃO é correto cobrar múltiplas vezes para “corrigir a correção” do mesmo bug.
+- Considere este trabalho como AJUSTE e estabilização daquilo que já foi pedido.
+
+====================================================
+6) TESTES OBRIGATÓRIOS ANTES DE DIZER QUE ESTÁ PRONTO
+====================================================
+Antes de encerrar, você DEVE testar na VERSÃO PUBLICADA (URL pública):
+
+1. Abrir Gênesis 1 na Almeida Strong e conferir:
+   - “Deus” → H0430
+   - “trevas” → H2822
+   - “vazio” → H922
+   - “luz” (em “haja luz”) → H0216
+   - Modal com definição longa, em português (se houver) + descrição Strong.
+
+2. Verificar se o botão Admin está visível para usuário admin e escondido para não-admin.
+
+3. Verificar se o preview e a versão publicada estão idênticos (mesmos dados, mesma interface).
+
+4. Validar que nenhuma modificação desfez outras funções já combinadas.
+
+====================================================
+7) RELATÓRIO FINAL QUE EU QUERO
+====================================================
+Na RESPOSTA FINAL, quero que você explique:
+
+1. Qual era a causa REAL do desalinhamento do Strong na Almeida Strong.
+2. Como corrigiu o mapeamento palavra ↔ Strong.
+3. Se mexeu no dataset, parser, ou ambos.
+4. Como ficou o modal de definição (campos mostrados).
+5. Como restaurou o Admin e como acessá-lo.
+6. Como garantiu que preview e produção agora usam o MESMO código e mesma base.
+7. Confirmação de que isso foi tratado como BUGFIX e não como nova funcionalidade faturável.

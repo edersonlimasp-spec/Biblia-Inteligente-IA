@@ -192,6 +192,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Logout
+  app.post("/api/auth/logout", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      console.log(`🔓 Logout do usuário ${req.userId}`);
+      res.json({ message: "Logout realizado com sucesso" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ error: "Erro ao fazer logout" });
+    }
+  });
+
   // Forgot password - send reset link via email
   app.post("/api/auth/forgot-password", async (req, res) => {
     try {

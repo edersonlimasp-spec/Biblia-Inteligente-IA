@@ -78,12 +78,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTrialDaysRemaining(data.trial.daysRemaining);
   };
 
-  const logout = () => {
-    clearAuthToken();
-    setToken(null);
-    setUser(null);
-    setTrialActive(false);
-    setTrialDaysRemaining(0);
+  const logout = async () => {
+    try {
+      // Call backend logout endpoint
+      await apiRequest('POST', '/api/auth/logout');
+    } catch (error) {
+      console.warn('Erro ao fazer logout no backend:', error);
+    } finally {
+      // Always clear local state even if backend call fails
+      clearAuthToken();
+      setToken(null);
+      setUser(null);
+      setTrialActive(false);
+      setTrialDaysRemaining(0);
+    }
   };
 
   return (

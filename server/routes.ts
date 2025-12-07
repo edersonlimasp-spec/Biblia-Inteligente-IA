@@ -1191,14 +1191,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
               eq(bibleWords.chapter, parseInt(chapter)),
               eq(bibleWords.verse, parseInt(verse))
             )
-          );
+          )
+          .orderBy(bibleWords.wordPosition);
         
         if (bibleWordMappings.length > 0) {
-          // Find matching word by gloss (Portuguese translation)
-          const matchedWord = bibleWordMappings.find(bw => 
-            bw.gloss?.toLowerCase().includes(lowerQuery) ||
-            lowerQuery.includes(bw.gloss?.toLowerCase() || '')
+          // Normalize function for comparison
+          const normalize = (str: string) => str
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Remove accents
+            .replace(/[^a-z]/g, '');
+          
+          const normalizedQuery = normalize(lowerQuery);
+          
+          // Find matching word by gloss with deterministic priority
+          // Priority 1: Exact match after normalization
+          // Priority 2: Gloss contains query
+          // Priority 3: Query contains gloss
+          let matchedWord = bibleWordMappings.find(bw => 
+            normalize(bw.gloss || '') === normalizedQuery
           );
+          
+          if (!matchedWord) {
+            matchedWord = bibleWordMappings.find(bw => 
+              normalize(bw.gloss || '').includes(normalizedQuery)
+            );
+          }
+          
+          if (!matchedWord) {
+            matchedWord = bibleWordMappings.find(bw => 
+              normalizedQuery.includes(normalize(bw.gloss || ''))
+            );
+          }
           
           if (matchedWord && matchedWord.strongNumber) {
             // Get full Strong entry for this number

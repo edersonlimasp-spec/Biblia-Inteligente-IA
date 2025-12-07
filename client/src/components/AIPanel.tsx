@@ -8,6 +8,8 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { trackAIQuestion } from "@/lib/tracking";
+import { useAuth } from "@/contexts/AuthContext";
+import { getDeviceId } from "@/hooks/use-device-id";
 import {
   Sheet,
   SheetContent,
@@ -117,7 +119,9 @@ export function AIPanel() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [userSub, setUserSub] = useState<UserSubscription>({ hasPremium: false, hasGold: false, trialActive: false });
+  const [guestTrialInfo, setGuestTrialInfo] = useState<{ active: boolean; daysRemaining: number } | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // ===================================
   // STATE - Sessões e Mensagens
@@ -152,21 +156,32 @@ export function AIPanel() {
   useEffect(() => {
     async function fetchSubscriptionStatus() {
       try {
-        const res = await fetch('/api/user/subscription-status');
-        if (res.ok) {
-          const data = await res.json();
-          setUserSub({
-            hasPremium: data.hasPremium || false,
-            hasGold: data.hasGold || false,
-            trialActive: data.trialActive || false,
-          });
+        if (user) {
+          // Usuário logado: buscar status de assinatura
+          const res = await fetch('/api/user/subscription-status');
+          if (res.ok) {
+            const data = await res.json();
+            setUserSub({
+              hasPremium: data.hasPremium || false,
+              hasGold: data.hasGold || false,
+              trialActive: data.trialActive || false,
+            });
+          }
+        } else {
+          // Guest: buscar trial info por deviceId
+          const deviceId = getDeviceId();
+          const res = await fetch(`/api/guest/trial/${deviceId}`);
+          if (res.ok) {
+            const data = await res.json();
+            setGuestTrialInfo(data);
+          }
         }
       } catch (error) {
-        console.error('Erro ao carregar status de assinatura:', error);
+        console.error('Erro ao carregar status:', error);
       }
     }
     fetchSubscriptionStatus();
-  }, []);
+  }, [user]);
 
   // ===================================
   // INITIALIZATION - Carregar sessões do localStorage (com RESET automático)
@@ -352,10 +367,38 @@ export function AIPanel() {
   // ===================================
 
   const askAIMutation = useMutation({
-    mutationFn: async (request: AIRequest & { sessionId: string }) => {
-      const { sessionId, ...aiRequest } = request;
-      const res = await apiRequest('POST', '/api/ai/ask', aiRequest);
-      const data = await res.json() as AIResponse;
+    mutationFn: async (request: AIRequest & { sessionId: string; isGuest?: boolean }) => {
+      const { sessionId, isGuest, ...aiRequest } = request;
+      
+      let data: AIResponse;
+      
+      if (isGuest) {
+        // Guest: usar rota de guest (sem autenticação)
+        const deviceId = getDeviceId();
+        const res = await fetch('/api/guest/ai/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            deviceId,
+            question: aiRequest.question,
+            book: aiRequest.book,
+            chapter: aiRequest.chapter,
+            verse: aiRequest.verse,
+          }),
+        });
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw { status: res.status, data: errorData };
+        }
+        
+        data = await res.json() as AIResponse;
+      } else {
+        // Usuário logado: usar rota autenticada
+        const res = await apiRequest('POST', '/api/ai/ask', aiRequest);
+        data = await res.json() as AIResponse;
+      }
+      
       return { ...data, sessionId };
     },
     onSuccess: (data) => {
@@ -427,8 +470,9 @@ export function AIPanel() {
     
     setMessages(prev => [...prev, userMessage]);
 
-    // Determine mode based on subscription
-    const mode = userSub.hasPremium ? 'premium' : 'essential';
+    // Determine mode based on subscription (guests always use essential)
+    const isGuest = !user;
+    const mode = isGuest ? 'essential' : (userSub.hasPremium ? 'premium' : 'essential');
     
     // Track AI question
     trackAIQuestion(mode).catch(() => {});
@@ -438,6 +482,7 @@ export function AIPanel() {
       question: question.trim(),
       mode,
       sessionId: currentSessionId, // CRITICAL: Track which session this response belongs to
+      isGuest, // Flag para usar rota de guest
     });
   };
 

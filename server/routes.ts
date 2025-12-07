@@ -5,7 +5,7 @@ import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensur
 import { sendPasswordResetEmail } from "./email";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -1177,21 +1177,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
       const query = req.params.query;
-      const { book } = req.query as Record<string, string>;
+      const { book, chapter, verse } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Determine expected language based on book
+      // STRATEGY 1: Try exact match from bible_words table (most accurate)
+      if (book && chapter && verse) {
+        const bibleWordMappings = await db
+          .select()
+          .from(bibleWords)
+          .where(
+            and(
+              eq(bibleWords.book, book.toLowerCase()),
+              eq(bibleWords.chapter, parseInt(chapter)),
+              eq(bibleWords.verse, parseInt(verse))
+            )
+          );
+        
+        if (bibleWordMappings.length > 0) {
+          // Find matching word by gloss (Portuguese translation)
+          const matchedWord = bibleWordMappings.find(bw => 
+            bw.gloss?.toLowerCase().includes(lowerQuery) ||
+            lowerQuery.includes(bw.gloss?.toLowerCase() || '')
+          );
+          
+          if (matchedWord && matchedWord.strongNumber) {
+            // Get full Strong entry for this number
+            const strongEntry = await db
+              .select()
+              .from(strongEntries)
+              .where(eq(strongEntries.strongNumber, matchedWord.strongNumber))
+              .limit(1);
+            
+            if (strongEntry.length > 0) {
+              const e = strongEntry[0];
+              return res.json({
+                results: [{
+                  number: e.strongNumber,
+                  portugueseDefinition: e.portugueseDef || null,
+                  word: e.lemma,
+                  transliteration: e.translit || e.xlit || '',
+                  pronunciation: e.pron || '',
+                  definition: e.kjvDef || e.strongsDef || '',
+                  language: e.language,
+                }],
+                total: 1,
+                source: 'bible_words',
+                exactMatch: true
+              });
+            }
+          }
+        }
+      }
+      
+      // STRATEGY 2: Fallback to heuristic search in strong_entries
       const oldTestamentBooks = ['gen', 'exo', 'lev', 'num', 'deu', 'jos', 'jdg', 'rut', '1sa', '2sa', '1ki', '2ki', '1ch', '2ch', 'ezr', 'neh', 'est', 'job', 'psa', 'pro', 'ecc', 'sng', 'isa', 'jer', 'lam', 'eze', 'dan', 'hos', 'joe', 'amo', 'oba', 'jon', 'mic', 'nah', 'hab', 'zep', 'hag', 'zec', 'mal'];
       const isOldTestament = oldTestamentBooks.includes(book?.toLowerCase() || '');
       const strongPrefix = isOldTestament ? 'H' : 'G';
       
-      // Get all entries for this testament language
       const allEntries = await db
         .select()
         .from(strongEntries)
         .limit(10000);
       
-      // Filter by language prefix and score
       const scored = allEntries
         .filter(e => e.strongNumber?.startsWith(strongPrefix))
         .map(e => {
@@ -1201,22 +1248,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let score = 0;
           const wordRegex = new RegExp(`\\b${lowerQuery}\\b`);
           
-          // PRIORITY 1: Portuguese definition STARTS with word (main meaning = 500pts)
           if (ptDef.startsWith(lowerQuery)) {
             score = 500;
-          }
-          // PRIORITY 2: Word boundary match in Portuguese (300pts)
-          else if (wordRegex.test(ptDef)) {
+          } else if (wordRegex.test(ptDef)) {
             score = 300;
-          }
-          // PRIORITY 3: Word contained in Portuguese (100pts, but check if proper noun)
-          else if (ptDef.includes(lowerQuery)) {
-            // Penalty for proper nouns (names, places)
+          } else if (ptDef.includes(lowerQuery)) {
             const isProperNoun = /de um lugar|localidade|toponym|city|place|nome de/.test(ptDef);
             score = isProperNoun ? 10 : 100;
-          }
-          // PRIORITY 4: English definition fallback (20pts)
-          else if (wordRegex.test(enDef)) {
+          } else if (wordRegex.test(enDef)) {
             score = 20;
           }
           
@@ -1238,6 +1277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         results: scored.map(({ _score, ...rest }) => rest),
         total: scored.length,
+        source: 'heuristic',
         contextUsed: true
       });
     } catch (error) {

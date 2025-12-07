@@ -1177,58 +1177,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
       const query = req.params.query;
-      const { book } = req.query as Record<string, string>;
+      const { book, chapter, verse } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Determine expected language based on book (Old Testament = Hebrew, New Testament = Greek)
+      // Determine expected language based on book
       const oldTestamentBooks = ['gen', 'exo', 'lev', 'num', 'deu', 'jos', 'jdg', 'rut', '1sa', '2sa', '1ki', '2ki', '1ch', '2ch', 'ezr', 'neh', 'est', 'job', 'psa', 'pro', 'ecc', 'sng', 'isa', 'jer', 'lam', 'eze', 'dan', 'hos', 'joe', 'amo', 'oba', 'jon', 'mic', 'nah', 'hab', 'zep', 'hag', 'zec', 'mal'];
       const isOldTestament = oldTestamentBooks.includes(book?.toLowerCase() || '');
-      const expectedLanguage = isOldTestament ? 'hebrew' : 'greek';
       const strongPrefix = isOldTestament ? 'H' : 'G';
       
-      // Search with language filter for better accuracy
+      // Search strategy:
+      // 1. Try to match Portuguese definition START (most likely)
+      // 2. Then try word boundary match in Portuguese
+      // 3. Then general Portuguese match (avoid names/places)
+      // 4. Last resort: English definition
+      
       const results = await db
         .select()
         .from(strongEntries)
-        .where(
-          and(
-            // Filter by language based on testament
-            sql`${strongEntries.strongNumber} LIKE ${strongPrefix + '%'}`,
-            or(
-              // Exact word match in Portuguese definition (highest priority)
-              sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) ~ ${'\\m' + lowerQuery + '\\M'}`,
-              // Partial match in Portuguese definition
-              sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${'%' + lowerQuery + '%'}`,
-              // English definition fallback
-              sql`LOWER(COALESCE(${strongEntries.kjvDef}, '')) LIKE ${'%' + lowerQuery + '%'}`
-            )
-          )
-        )
-        .limit(10);
+        .where(and(sql`${strongEntries.strongNumber} LIKE ${strongPrefix + '%'}`))
+        .limit(50);
       
-      if (results.length === 0) {
-        return res.json({ results: [], total: 0, message: "Nenhuma entrada encontrada" });
-      }
-      
-      // Format and score results for relevance
-      const formattedResults = results.map(e => {
+      // Score results with advanced algorithm
+      const scored = results.map(e => {
         const ptDef = (e.portugueseDef || '').toLowerCase();
         const enDef = (e.kjvDef || '').toLowerCase();
+        const lemma = (e.lemma || '').toLowerCase();
+        const translit = (e.translit || '').toLowerCase();
         
-        // Calculate relevance score
         let score = 0;
-        
-        // Exact word match in Portuguese (highest score)
         const wordRegex = new RegExp(`\\b${lowerQuery}\\b`, 'i');
-        if (wordRegex.test(ptDef)) score += 100;
-        else if (ptDef.includes(lowerQuery)) score += 50;
         
-        // Check if the word appears at the beginning of definition
-        if (ptDef.startsWith(lowerQuery)) score += 30;
+        // 1. HIGHEST: Portuguese definition STARTS with the word (main meaning)
+        if (ptDef.startsWith(lowerQuery)) {
+          score += 500;
+        }
+        // 2. HIGH: Portuguese definition has word at boundary (not inside another word)
+        else if (wordRegex.test(ptDef)) {
+          score += 300;
+        }
+        // 3. MEDIUM: Portuguese definition contains word (but could be generic)
+        else if (ptDef.includes(lowerQuery)) {
+          score += 100;
+        }
         
-        // English definition match (lower priority)
-        if (wordRegex.test(enDef)) score += 20;
-        else if (enDef.includes(lowerQuery)) score += 10;
+        // 4. Bonus for being a common concept (not a name)
+        // Names/places typically end with specific patterns
+        const isProperNoun = /^[a-z]+\s+(and|ou|,)/.test(ptDef) || // Multiple names
+                            /de um (lugar|place|país|country)/.test(ptDef) || // Location indicator
+                            /localidade|toponym|cidade|local|place/.test(ptDef);
+        if (!isProperNoun && score > 0) score += 50;
+        
+        // 5. Penalize if it looks like a proper noun/name when looking for common words
+        if (isProperNoun && ptDef.length < 80) score = Math.max(0, score - 200);
+        
+        // 6. English definition fallback (low priority)
+        if (score === 0 && wordRegex.test(enDef)) {
+          score += 20;
+        }
         
         return {
           number: e.strongNumber,
@@ -1240,15 +1245,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           language: e.language,
           _score: score,
         };
+      }).filter(r => r._score > 0);
+      
+      // Sort by relevance (highest first)
+      scored.sort((a, b) => b._score - a._score);
+      
+      // Return top results
+      const cleanResults = scored.slice(0, 5).map(({ _score, ...rest }) => rest);
+      
+      res.json({ 
+        results: cleanResults.length > 0 ? cleanResults : [], 
+        total: cleanResults.length,
+        contextUsed: true,
+        query: lowerQuery
       });
-      
-      // Sort by relevance score (highest first)
-      formattedResults.sort((a, b) => b._score - a._score);
-      
-      // Remove internal score before sending
-      const cleanResults = formattedResults.map(({ _score, ...rest }) => rest);
-      
-      res.json({ results: cleanResults, total: cleanResults.length, contextUsed: true });
     } catch (error) {
       console.error("Search Strong error:", error);
       res.status(500).json({ error: "Erro ao buscar no dicionário" });

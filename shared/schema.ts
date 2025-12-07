@@ -367,3 +367,67 @@ export const insertReadingHistorySchema = createInsertSchema(readingHistory).omi
 
 export type InsertReadingHistory = z.infer<typeof insertReadingHistorySchema>;
 export type ReadingHistory = typeof readingHistory.$inferSelect;
+
+// Guests table (anonymous visitors tracked by deviceId)
+export const guests = pgTable("guests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  deviceId: text("device_id").notNull().unique(), // UUID generated on first visit
+  platform: text("platform").notNull().default("web"), // 'web', 'android', 'ios'
+  locale: text("locale"), // e.g., 'pt-BR', 'en-US'
+  firstSeenAt: timestamp("first_seen_at").notNull().defaultNow(),
+  lastSeenAt: timestamp("last_seen_at").notNull().defaultNow(),
+  totalSessions: integer("total_sessions").notNull().default(1),
+  trialStartAt: timestamp("trial_start_at").notNull().defaultNow(),
+  trialEndAt: timestamp("trial_end_at").notNull(), // firstSeenAt + 30 days
+  linkedUserId: varchar("linked_user_id").references(() => users.id, { onDelete: "set null" }), // When guest creates account
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  deviceIdIdx: index("guests_device_id_idx").on(table.deviceId),
+  linkedUserIdIdx: index("guests_linked_user_id_idx").on(table.linkedUserId),
+  trialEndAtIdx: index("guests_trial_end_at_idx").on(table.trialEndAt),
+}));
+
+export const insertGuestSchema = createInsertSchema(guests).omit({
+  id: true,
+  createdAt: true,
+  totalSessions: true,
+});
+
+export type InsertGuest = z.infer<typeof insertGuestSchema>;
+export type Guest = typeof guests.$inferSelect;
+
+// App Events table (analytics for both guests and users)
+export const appEvents = pgTable("app_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  deviceId: text("device_id").notNull(), // Always present (guest or logged user)
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }), // Optional: only if logged in
+  eventType: text("event_type").notNull(), // 'app_open', 'bible_read', 'strong_lookup', 'ia_question', 'subscribe_click', 'subscription_activated'
+  eventData: jsonb("event_data"), // { book, chapter, strongId, plan, etc. }
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  deviceIdIdx: index("app_events_device_id_idx").on(table.deviceId),
+  userIdIdx: index("app_events_user_id_idx").on(table.userId),
+  eventTypeIdx: index("app_events_event_type_idx").on(table.eventType),
+  createdAtIdx: index("app_events_created_at_idx").on(table.createdAt),
+}));
+
+export const insertAppEventSchema = createInsertSchema(appEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAppEvent = z.infer<typeof insertAppEventSchema>;
+export type AppEvent = typeof appEvents.$inferSelect;
+
+// Guest AI Usage Limits table (rate limiting for guests)
+export const guestAiUsageLimits = pgTable("guest_ai_usage_limits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  deviceId: text("device_id").notNull(),
+  date: timestamp("date").notNull().defaultNow(),
+  questionCount: integer("question_count").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  deviceDateIdx: index("guest_ai_usage_limits_device_date_idx").on(table.deviceId, table.date),
+}));
+
+export type GuestAIUsageLimit = typeof guestAiUsageLimits.$inferSelect;

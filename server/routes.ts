@@ -797,6 +797,177 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===================================
+  // GUEST ROUTES (anonymous visitors)
+  // ===================================
+
+  // Register or update guest device
+  app.post("/api/guest/register", async (req, res) => {
+    try {
+      const { deviceId, platform, locale } = req.body;
+      
+      if (!deviceId) {
+        return res.status(400).json({ error: "deviceId é obrigatório" });
+      }
+      
+      const guest = await storage.createOrUpdateGuest(deviceId, platform || 'web', locale);
+      
+      // Track app open event
+      await storage.trackAppEvent(deviceId, 'app_open', { platform, locale });
+      
+      res.json({
+        success: true,
+        trial: {
+          active: new Date() < guest.trialEndAt,
+          daysRemaining: Math.max(0, Math.ceil((guest.trialEndAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))),
+          endsAt: guest.trialEndAt.toISOString(),
+        },
+        isNewDevice: guest.totalSessions === 1,
+      });
+    } catch (error) {
+      console.error("Guest register error:", error);
+      res.status(500).json({ error: "Erro ao registrar dispositivo" });
+    }
+  });
+
+  // Get guest trial status
+  app.get("/api/guest/trial/:deviceId", async (req, res) => {
+    try {
+      const { deviceId } = req.params;
+      const trialInfo = await storage.getGuestTrialInfo(deviceId);
+      
+      if (!trialInfo) {
+        return res.json({ active: true, daysRemaining: 30, isNew: true });
+      }
+      
+      res.json(trialInfo);
+    } catch (error) {
+      console.error("Guest trial error:", error);
+      res.status(500).json({ error: "Erro ao verificar trial" });
+    }
+  });
+
+  // Track app event (for analytics)
+  app.post("/api/events/track", async (req, res) => {
+    try {
+      const { deviceId, eventType, eventData, userId } = req.body;
+      
+      if (!deviceId || !eventType) {
+        return res.status(400).json({ error: "deviceId e eventType são obrigatórios" });
+      }
+      
+      await storage.trackAppEvent(deviceId, eventType, eventData, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Track event error:", error);
+      res.status(500).json({ error: "Erro ao registrar evento" });
+    }
+  });
+
+  // Guest AI access check (for AI without login)
+  app.post("/api/guest/ai/check", async (req, res) => {
+    try {
+      const { deviceId } = req.body;
+      
+      if (!deviceId) {
+        return res.status(400).json({ error: "deviceId é obrigatório" });
+      }
+      
+      // Check if trial is active
+      const trialInfo = await storage.getGuestTrialInfo(deviceId);
+      if (!trialInfo) {
+        // New device, trial starts now
+        return res.json({ 
+          canAsk: true, 
+          remainingQuestions: 30,
+          mode: 'essential',
+          isNew: true,
+        });
+      }
+      
+      if (!trialInfo.active) {
+        return res.json({ 
+          canAsk: false, 
+          reason: 'trial_expired',
+          message: 'Seu período de teste expirou. Assine para continuar.',
+        });
+      }
+      
+      // Check daily usage limit (30 questions/day for guests)
+      const todayCount = await storage.getGuestTodayUsageCount(deviceId);
+      const limit = 30;
+      
+      if (todayCount >= limit) {
+        return res.json({
+          canAsk: false,
+          reason: 'daily_limit',
+          message: `Limite diário de ${limit} perguntas atingido. Tente novamente amanhã.`,
+        });
+      }
+      
+      res.json({
+        canAsk: true,
+        remainingQuestions: limit - todayCount,
+        mode: 'essential',
+        trial: trialInfo,
+      });
+    } catch (error) {
+      console.error("Guest AI check error:", error);
+      res.status(500).json({ error: "Erro ao verificar acesso IA" });
+    }
+  });
+
+  // Guest AI ask (AI without login)
+  app.post("/api/guest/ai/ask", async (req, res) => {
+    try {
+      const { deviceId, question, book, chapter, verse } = req.body;
+      
+      if (!deviceId || !question) {
+        return res.status(400).json({ error: "deviceId e question são obrigatórios" });
+      }
+      
+      // Check trial
+      const trialInfo = await storage.getGuestTrialInfo(deviceId);
+      if (trialInfo && !trialInfo.active) {
+        return res.status(403).json({ 
+          error: "Trial expirado",
+          message: "Seu período de teste expirou. Assine para continuar."
+        });
+      }
+      
+      // Check daily limit
+      const todayCount = await storage.getGuestTodayUsageCount(deviceId);
+      if (todayCount >= 30) {
+        return res.status(429).json({
+          error: "Limite diário atingido",
+          message: "Você atingiu o limite de 30 perguntas por dia."
+        });
+      }
+      
+      // Ask the AI (essential mode for guests)
+      const response = await askTheologicalQuestion(question, 'essential', book, chapter, verse);
+      
+      // Increment usage
+      await storage.incrementGuestUsageCount(deviceId);
+      
+      // Track event
+      await storage.trackAppEvent(deviceId, 'ia_question', { 
+        mode: 'essential', 
+        book, 
+        chapter, 
+        verse 
+      });
+      
+      res.json({
+        response,
+        remainingQuestions: 30 - todayCount - 1,
+      });
+    } catch (error) {
+      console.error("Guest AI ask error:", error);
+      res.status(500).json({ error: "Erro ao processar pergunta" });
+    }
+  });
+
+  // ===================================
   // BIBLE VERSIONS ROUTES
   // ===================================
   

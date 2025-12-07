@@ -12,6 +12,7 @@ import { AdminPanel } from "./AdminPanel";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
+import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
 
 type Screen = 
   | "splash"
@@ -79,12 +80,40 @@ export function MainNavigation() {
     }
   }, [showSplash]);
 
-  // Redirect to bible if authenticated, login if not
+  // Register guest device on first load
+  useEffect(() => {
+    const registerGuest = async () => {
+      try {
+        const deviceId = getDeviceId();
+        const platform = getPlatform();
+        const locale = getLocale();
+        
+        await fetch('/api/guest/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deviceId, platform, locale })
+        });
+      } catch (error) {
+        console.warn('Erro ao registrar guest:', error);
+      }
+    };
+    
+    if (!showSplash && !isLoading) {
+      registerGuest();
+    }
+  }, [showSplash, isLoading]);
+
+  // NOVO FLUXO: Ir direto para Bíblia (sem login obrigatório)
+  // Login só é exigido para Admin ou ao assinar
   useEffect(() => {
     if (!showSplash && !isLoading) {
-      if (user && currentScreen !== "bible" && currentScreen !== "subscriptions" && currentScreen !== "settings" && currentScreen !== "history" && currentScreen !== "admin") {
+      // Só redireciona para bible se está em splash/login/register
+      // e não está em telas especiais que precisam de login
+      if (currentScreen === "splash") {
         setCurrentScreen("bible");
-      } else if (!user && currentScreen !== "login" && currentScreen !== "register" && currentScreen !== "forgot-password" && currentScreen !== "reset-password") {
+      }
+      // Se tentando acessar admin sem ser admin, redireciona para bible
+      if (currentScreen === "admin" && !user) {
         setCurrentScreen("login");
       }
     }

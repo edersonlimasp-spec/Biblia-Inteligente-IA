@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits } from '@shared/schema';
 import type {
   User,
   InsertUser,
@@ -23,6 +23,11 @@ import type {
   SyncState,
   ReadingHistory,
   InsertReadingHistory,
+  Guest,
+  InsertGuest,
+  AppEvent,
+  InsertAppEvent,
+  GuestAIUsageLimit,
 } from '@shared/schema';
 import { eq, and, desc, gte, sql, like } from 'drizzle-orm';
 
@@ -109,6 +114,34 @@ export interface IStorage {
     highlights: Highlight[];
     readingHistory: ReadingHistory[];
     lastSyncAt: Date | null;
+  }>;
+
+  // Guests (anonymous visitors)
+  getGuestByDeviceId(deviceId: string): Promise<Guest | undefined>;
+  createOrUpdateGuest(deviceId: string, platform: string, locale?: string): Promise<Guest>;
+  updateGuestLastSeen(deviceId: string): Promise<void>;
+  linkGuestToUser(deviceId: string, userId: string): Promise<void>;
+  isGuestTrialActive(deviceId: string): Promise<boolean>;
+  getGuestTrialInfo(deviceId: string): Promise<{ active: boolean; daysRemaining: number } | null>;
+  
+  // Guest AI Usage Limits
+  getGuestTodayUsageCount(deviceId: string): Promise<number>;
+  incrementGuestUsageCount(deviceId: string): Promise<void>;
+
+  // App Events (analytics)
+  trackAppEvent(deviceId: string, eventType: string, eventData?: any, userId?: string): Promise<void>;
+  
+  // Admin Stats (guests)
+  getGuestStats(): Promise<{
+    totalGuests: number;
+    guestsInTrial: number;
+    trialExpired: number;
+    linkedToUsers: number;
+  }>;
+  getEventStats(days?: number): Promise<{
+    totalEvents: number;
+    byType: Record<string, number>;
+    uniqueDevices: number;
   }>;
 }
 
@@ -597,6 +630,181 @@ class PostgresStorage implements IStorage {
       highlights: userHighlights,
       readingHistory: userHistory,
       lastSyncAt: new Date(),
+    };
+  }
+
+  // Guests (anonymous visitors)
+  async getGuestByDeviceId(deviceId: string): Promise<Guest | undefined> {
+    const result = await db.select().from(guests).where(eq(guests.deviceId, deviceId));
+    return result[0];
+  }
+
+  async createOrUpdateGuest(deviceId: string, platform: string, locale?: string): Promise<Guest> {
+    const existing = await this.getGuestByDeviceId(deviceId);
+    
+    if (existing) {
+      const result = await db.update(guests)
+        .set({ 
+          lastSeenAt: new Date(),
+          totalSessions: sql`${guests.totalSessions} + 1`,
+          platform,
+          locale: locale || existing.locale,
+        })
+        .where(eq(guests.deviceId, deviceId))
+        .returning();
+      return result[0];
+    }
+    
+    const now = new Date();
+    const trialEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    
+    const result = await db.insert(guests).values({
+      deviceId,
+      platform,
+      locale,
+      firstSeenAt: now,
+      lastSeenAt: now,
+      totalSessions: 1,
+      trialStartAt: now,
+      trialEndAt: trialEnd,
+    }).returning();
+    return result[0];
+  }
+
+  async updateGuestLastSeen(deviceId: string): Promise<void> {
+    await db.update(guests)
+      .set({ lastSeenAt: new Date() })
+      .where(eq(guests.deviceId, deviceId));
+  }
+
+  async linkGuestToUser(deviceId: string, userId: string): Promise<void> {
+    await db.update(guests)
+      .set({ linkedUserId: userId })
+      .where(eq(guests.deviceId, deviceId));
+  }
+
+  async isGuestTrialActive(deviceId: string): Promise<boolean> {
+    const guest = await this.getGuestByDeviceId(deviceId);
+    if (!guest) return true;
+    return new Date() < guest.trialEndAt;
+  }
+
+  async getGuestTrialInfo(deviceId: string): Promise<{ active: boolean; daysRemaining: number } | null> {
+    const guest = await this.getGuestByDeviceId(deviceId);
+    if (!guest) return null;
+    
+    const now = new Date();
+    const active = now < guest.trialEndAt;
+    const daysRemaining = Math.max(0, Math.ceil((guest.trialEndAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+    
+    return { active, daysRemaining };
+  }
+
+  // Guest AI Usage Limits
+  async getGuestTodayUsageCount(deviceId: string): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const result = await db.select()
+      .from(guestAiUsageLimits)
+      .where(
+        and(
+          eq(guestAiUsageLimits.deviceId, deviceId),
+          gte(guestAiUsageLimits.date, today)
+        )
+      );
+    
+    return result[0]?.questionCount || 0;
+  }
+
+  async incrementGuestUsageCount(deviceId: string): Promise<void> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const existing = await db.select()
+      .from(guestAiUsageLimits)
+      .where(
+        and(
+          eq(guestAiUsageLimits.deviceId, deviceId),
+          gte(guestAiUsageLimits.date, today)
+        )
+      );
+    
+    if (existing[0]) {
+      await db.update(guestAiUsageLimits)
+        .set({ questionCount: sql`${guestAiUsageLimits.questionCount} + 1` })
+        .where(eq(guestAiUsageLimits.id, existing[0].id));
+    } else {
+      await db.insert(guestAiUsageLimits).values({
+        deviceId,
+        date: today,
+        questionCount: 1,
+      });
+    }
+  }
+
+  // App Events (analytics)
+  async trackAppEvent(deviceId: string, eventType: string, eventData?: any, userId?: string): Promise<void> {
+    await db.insert(appEvents).values({
+      deviceId,
+      eventType,
+      eventData: eventData || null,
+      userId: userId || null,
+    });
+  }
+
+  // Admin Stats (guests)
+  async getGuestStats(): Promise<{
+    totalGuests: number;
+    guestsInTrial: number;
+    trialExpired: number;
+    linkedToUsers: number;
+  }> {
+    const now = new Date();
+    
+    const [total, inTrial, expired, linked] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(guests),
+      db.select({ count: sql<number>`count(*)` }).from(guests).where(gte(guests.trialEndAt, now)),
+      db.select({ count: sql<number>`count(*)` }).from(guests).where(sql`${guests.trialEndAt} < ${now}`),
+      db.select({ count: sql<number>`count(*)` }).from(guests).where(sql`${guests.linkedUserId} IS NOT NULL`),
+    ]);
+    
+    return {
+      totalGuests: Number(total[0]?.count || 0),
+      guestsInTrial: Number(inTrial[0]?.count || 0),
+      trialExpired: Number(expired[0]?.count || 0),
+      linkedToUsers: Number(linked[0]?.count || 0),
+    };
+  }
+
+  async getEventStats(days: number = 30): Promise<{
+    totalEvents: number;
+    byType: Record<string, number>;
+    uniqueDevices: number;
+  }> {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    
+    const [total, byType, unique] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(appEvents).where(gte(appEvents.createdAt, since)),
+      db.select({ 
+        eventType: appEvents.eventType, 
+        count: sql<number>`count(*)` 
+      }).from(appEvents)
+        .where(gte(appEvents.createdAt, since))
+        .groupBy(appEvents.eventType),
+      db.select({ count: sql<number>`count(DISTINCT ${appEvents.deviceId})` }).from(appEvents).where(gte(appEvents.createdAt, since)),
+    ]);
+    
+    const byTypeMap: Record<string, number> = {};
+    byType.forEach(row => {
+      byTypeMap[row.eventType] = Number(row.count);
+    });
+    
+    return {
+      totalEvents: Number(total[0]?.count || 0),
+      byType: byTypeMap,
+      uniqueDevices: Number(unique[0]?.count || 0),
     };
   }
 }

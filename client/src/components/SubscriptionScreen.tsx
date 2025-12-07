@@ -1,14 +1,73 @@
+import { useState, useEffect } from "react";
 import { Check, Crown, Sparkles, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import appLogo from "@assets/logo/logo.png";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "./AuthModal";
+import { useToast } from "@/hooks/use-toast";
+import { getDeviceId } from "@/hooks/use-device-id";
 
 interface SubscriptionScreenProps {
   onBack?: () => void;
 }
 
 export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [trialDaysRemaining, setTrialDaysRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function fetchTrialInfo() {
+      try {
+        if (user) {
+          const res = await fetch('/api/user/subscription-status');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.trialActive && data.trialDaysRemaining) {
+              setTrialDaysRemaining(data.trialDaysRemaining);
+            }
+          }
+        } else {
+          const deviceId = getDeviceId();
+          const res = await fetch(`/api/guest/trial/${deviceId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.active) {
+              setTrialDaysRemaining(data.daysRemaining);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar trial:', error);
+      }
+    }
+    fetchTrialInfo();
+  }, [user]);
+
+  const handlePlanSelect = (planName: string) => {
+    if (!user) {
+      setSelectedPlan(planName);
+      setShowAuthModal(true);
+    } else {
+      toast({
+        title: "Em desenvolvimento",
+        description: `Pagamento para ${planName} será implementado em breve.`,
+      });
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    if (selectedPlan) {
+      toast({
+        title: "Conta criada!",
+        description: `Agora você pode assinar o ${selectedPlan}.`,
+      });
+    }
+  };
   const plans = [
     {
       name: "Strong Vitalício",
@@ -75,10 +134,12 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
             />
           </div>
           
-          <Badge variant="secondary" className="mb-4">
-            <Lock className="h-3 w-3 mr-1" />
-            Trial de 30 dias: 15 dias restantes
-          </Badge>
+          {trialDaysRemaining !== null && trialDaysRemaining > 0 && (
+            <Badge variant="secondary" className="mb-4">
+              <Lock className="h-3 w-3 mr-1" />
+              Trial de 30 dias: {trialDaysRemaining} dias restantes
+            </Badge>
+          )}
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3">
             Escolha seu Plano
           </h1>
@@ -136,9 +197,11 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                   <Button
                     className="w-full"
                     variant={plan.highlight ? "default" : "outline"}
+                    onClick={() => handlePlanSelect(plan.name)}
+                    disabled={plan.price === "Em breve"}
                     data-testid={`button-subscribe-${plan.name.toLowerCase().replace(/\s/g, "-")}`}
                   >
-                    {plan.highlight ? "Assinar Agora" : "Escolher Plano"}
+                    {plan.price === "Em breve" ? "Em Breve" : (plan.highlight ? "Assinar Agora" : "Escolher Plano")}
                   </Button>
                 </CardContent>
               </Card>
@@ -164,6 +227,14 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           </CardContent>
         </Card>
       </div>
+
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onAuthSuccess={handleAuthSuccess}
+        title="Criar conta para assinar"
+        description={selectedPlan ? `Para assinar o ${selectedPlan}, você precisa criar uma conta ou fazer login.` : undefined}
+      />
     </div>
   );
 }

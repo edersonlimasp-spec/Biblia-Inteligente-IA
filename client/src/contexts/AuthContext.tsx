@@ -7,7 +7,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, deviceId?: string) => Promise<void>;
   logout: () => void;
   trialActive: boolean;
   trialDaysRemaining: number;
@@ -67,8 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTrialDaysRemaining(data.trial.daysRemaining);
   };
 
-  const register = async (name: string, email: string, password: string) => {
-    const res = await apiRequest('POST', '/api/auth/register', { name, email, password });
+  const register = async (name: string, email: string, password: string, deviceId?: string) => {
+    const res = await apiRequest('POST', '/api/auth/register', { name, email, password, deviceId });
     const data = await res.json();
     
     setAuthToken(data.token);

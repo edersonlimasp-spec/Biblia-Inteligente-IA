@@ -42,7 +42,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const validatedData = insertUserSchema.parse(req.body);
+      const { deviceId, ...userData } = req.body;
+      const validatedData = insertUserSchema.parse(userData);
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(validatedData.email);
@@ -56,6 +57,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         password: hashedPassword,
       });
+
+      // Link deviceId to user if provided (guest converting to registered user)
+      if (deviceId && typeof storage.linkGuestToUser === 'function') {
+        try {
+          await storage.linkGuestToUser(deviceId, user.id);
+          console.log(`✅ Guest ${deviceId} vinculado ao usuário ${user.id}`);
+        } catch (linkError) {
+          console.warn('Erro ao vincular deviceId ao usuário:', linkError);
+        }
+      }
 
       // Generate token
       const token = generateToken(user.id, user.email, user.role || 'user');

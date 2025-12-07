@@ -192,10 +192,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Logout
-  app.post("/api/auth/logout", ensureAuthenticated, async (req: AuthRequest, res) => {
+  // Logout - não requer autenticação pois o token pode estar expirado
+  app.post("/api/auth/logout", async (req, res) => {
     try {
-      console.log(`🔓 Logout do usuário ${req.userId}`);
+      console.log(`🔓 Logout realizado`);
       res.json({ message: "Logout realizado com sucesso" });
     } catch (error) {
       console.error("Logout error:", error);

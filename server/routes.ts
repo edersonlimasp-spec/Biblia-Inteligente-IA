@@ -5,7 +5,7 @@ import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensur
 import { sendPasswordResetEmail } from "./email";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -345,7 +345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const currentUser = await storage.getUser(req.userId);
-      if (!currentUser?.isAdmin) {
+      if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'super_admin')) {
         return res.status(403).json({ error: "Apenas administradores podem criar outros administradores" });
       }
       
@@ -962,7 +962,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Ask the AI (essential mode for guests)
-      const response = await askTheologicalQuestion(question, 'essential', book, chapter, verse);
+      const response = await askTheologicalQuestion({
+        question,
+        mode: 'essential',
+        book,
+        chapter,
+        verse,
+      });
       
       // Increment usage
       await storage.incrementGuestUsageCount(deviceId);
@@ -1003,9 +1009,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's bible preferences
   app.get("/api/user/bible-preferences", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const prefs = await db.query.userBiblePreferences.findFirst({
-        where: eq(db.schema.userBiblePreferences.userId, req.userId!),
-      }).catch(() => null);
+      const [prefs] = await db.select().from(userBiblePreferences)
+        .where(eq(userBiblePreferences.userId, req.userId!))
+        .limit(1);
       
       res.json(prefs || {
         defaultVersionCode: 'ACF',
@@ -1024,16 +1030,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { defaultVersionCode, lastViewedVersionCode } = req.body;
       
-      const prefs = await db.query.userBiblePreferences.findFirst({
-        where: eq(db.schema.userBiblePreferences.userId, req.userId!),
-      }).catch(() => null);
+      const [prefs] = await db.select().from(userBiblePreferences)
+        .where(eq(userBiblePreferences.userId, req.userId!))
+        .limit(1);
       
       if (prefs) {
-        await db.update(db.schema.userBiblePreferences).set({
+        await db.update(userBiblePreferences).set({
           defaultVersionCode: defaultVersionCode || prefs.defaultVersionCode,
           lastViewedVersionCode: lastViewedVersionCode || prefs.lastViewedVersionCode,
           updatedAt: new Date(),
-        }).where(eq(db.schema.userBiblePreferences.userId, req.userId!));
+        }).where(eq(userBiblePreferences.userId, req.userId!));
       }
       
       res.json({ success: true });

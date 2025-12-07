@@ -1173,51 +1173,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
       const query = req.params.query;
-      const { book, chapter, verse } = req.query as Record<string, string>;
+      const { book } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Busca direta no banco por lemma (palavra grega), português, transliteração ou definição
-      // Funciona em produção e desenvolvimento
+      // Determine expected language based on book (Old Testament = Hebrew, New Testament = Greek)
+      const oldTestamentBooks = ['gen', 'exo', 'lev', 'num', 'deu', 'jos', 'jdg', 'rut', '1sa', '2sa', '1ki', '2ki', '1ch', '2ch', 'ezr', 'neh', 'est', 'job', 'psa', 'pro', 'ecc', 'sng', 'isa', 'jer', 'lam', 'eze', 'dan', 'hos', 'joe', 'amo', 'oba', 'jon', 'mic', 'nah', 'hab', 'zep', 'hag', 'zec', 'mal'];
+      const isOldTestament = oldTestamentBooks.includes(book?.toLowerCase() || '');
+      const expectedLanguage = isOldTestament ? 'hebrew' : 'greek';
+      const strongPrefix = isOldTestament ? 'H' : 'G';
+      
+      // Search with language filter for better accuracy
       const results = await db
         .select()
         .from(strongEntries)
         .where(
-          or(
-            // Portuguese definition first (most important)
-            sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${'%' + lowerQuery + '%'}`,
-            // Greek/Hebrew lemma
-            sql`LOWER(COALESCE(${strongEntries.lemma}, '')) LIKE ${'%' + lowerQuery + '%'}`,
-            // Transliteration
-            sql`LOWER(COALESCE(${strongEntries.translit}, '')) LIKE ${'%' + lowerQuery + '%'}`,
-            // English definition (fallback)
-            sql`LOWER(COALESCE(${strongEntries.kjvDef}, '')) LIKE ${'%' + lowerQuery + '%'}`
+          and(
+            // Filter by language based on testament
+            sql`${strongEntries.strongNumber} LIKE ${strongPrefix + '%'}`,
+            or(
+              // Exact word match in Portuguese definition (highest priority)
+              sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) ~ ${'\\m' + lowerQuery + '\\M'}`,
+              // Partial match in Portuguese definition
+              sql`LOWER(COALESCE(${strongEntries.portugueseDef}, '')) LIKE ${'%' + lowerQuery + '%'}`,
+              // English definition fallback
+              sql`LOWER(COALESCE(${strongEntries.kjvDef}, '')) LIKE ${'%' + lowerQuery + '%'}`
+            )
           )
         )
-        .limit(20);
+        .limit(10);
       
       if (results.length === 0) {
         return res.json({ results: [], total: 0, message: "Nenhuma entrada encontrada" });
       }
       
-      // Format results to match frontend expectations
-      const formattedResults = results.map(e => ({
-        number: e.strongNumber,
-        portugueseDefinition: e.portugueseDef || null,
-        word: e.lemma,
-        transliteration: e.translit || e.xlit || '',
-        pronunciation: e.pron || '',
-        definition: e.kjvDef || e.strongsDef || '',
-        language: e.language,
-      }));
-      
-      // Sort by relevance: Portuguese definitions first, then others
-      formattedResults.sort((a, b) => {
-        const aHasPortuguese = a.portugueseDefinition ? 1 : 0;
-        const bHasPortuguese = b.portugueseDefinition ? 1 : 0;
-        return bHasPortuguese - aHasPortuguese;
+      // Format and score results for relevance
+      const formattedResults = results.map(e => {
+        const ptDef = (e.portugueseDef || '').toLowerCase();
+        const enDef = (e.kjvDef || '').toLowerCase();
+        
+        // Calculate relevance score
+        let score = 0;
+        
+        // Exact word match in Portuguese (highest score)
+        const wordRegex = new RegExp(`\\b${lowerQuery}\\b`, 'i');
+        if (wordRegex.test(ptDef)) score += 100;
+        else if (ptDef.includes(lowerQuery)) score += 50;
+        
+        // Check if the word appears at the beginning of definition
+        if (ptDef.startsWith(lowerQuery)) score += 30;
+        
+        // English definition match (lower priority)
+        if (wordRegex.test(enDef)) score += 20;
+        else if (enDef.includes(lowerQuery)) score += 10;
+        
+        return {
+          number: e.strongNumber,
+          portugueseDefinition: e.portugueseDef || null,
+          word: e.lemma,
+          transliteration: e.translit || e.xlit || '',
+          pronunciation: e.pron || '',
+          definition: e.kjvDef || e.strongsDef || '',
+          language: e.language,
+          _score: score,
+        };
       });
       
-      res.json({ results: formattedResults, total: formattedResults.length, contextUsed: false });
+      // Sort by relevance score (highest first)
+      formattedResults.sort((a, b) => b._score - a._score);
+      
+      // Remove internal score before sending
+      const cleanResults = formattedResults.map(({ _score, ...rest }) => rest);
+      
+      res.json({ results: cleanResults, total: cleanResults.length, contextUsed: true });
     } catch (error) {
       console.error("Search Strong error:", error);
       res.status(500).json({ error: "Erro ao buscar no dicionário" });

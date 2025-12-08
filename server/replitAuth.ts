@@ -80,37 +80,58 @@ export async function setupAuth(app: Express) {
 
   const registeredStrategies = new Set<string>();
 
-  const ensureStrategy = (domain: string) => {
-    const strategyName = `replitauth:${domain}`;
+  passport.serializeUser((user: Express.User, cb) => cb(null, user));
+  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+
+  const getCallbackUrl = (req: any) => {
+    const protocol = req.protocol || 'https';
+    const host = req.get('host') || req.hostname;
+    return `${protocol}://${host}/api/callback`;
+  };
+
+  app.get("/api/login", (req, res, next) => {
+    const callbackUrl = getCallbackUrl(req);
+    const strategyName = `replitauth:${req.hostname}`;
+    
     if (!registeredStrategies.has(strategyName)) {
       const strategy = new Strategy(
         {
           name: strategyName,
           config,
           scope: "openid email profile offline_access",
-          callbackURL: `https://${domain}/api/callback`,
+          callbackURL: callbackUrl,
         },
         verify,
       );
       passport.use(strategy);
       registeredStrategies.add(strategyName);
     }
-  };
-
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
-
-  app.get("/api/login", (req, res, next) => {
-    ensureStrategy(req.hostname);
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    
+    passport.authenticate(strategyName, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    ensureStrategy(req.hostname);
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const strategyName = `replitauth:${req.hostname}`;
+    
+    if (!registeredStrategies.has(strategyName)) {
+      const callbackUrl = getCallbackUrl(req);
+      const strategy = new Strategy(
+        {
+          name: strategyName,
+          config,
+          scope: "openid email profile offline_access",
+          callbackURL: callbackUrl,
+        },
+        verify,
+      );
+      passport.use(strategy);
+      registeredStrategies.add(strategyName);
+    }
+    
+    passport.authenticate(strategyName, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
     })(req, res, next);
@@ -150,6 +171,18 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     const config = await getOidcConfig();
     const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
     updateUserSession(user, tokenResponse);
+    
+    // Persist refreshed tokens to session store
+    if (req.session) {
+      (req.session as any).passport = { user };
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
+    
     return next();
   } catch (error) {
     res.status(401).json({ message: "Unauthorized" });

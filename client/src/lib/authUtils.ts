@@ -4,9 +4,9 @@ export function getApiUrl(path: string): string {
 }
 
 export function getLoginUrl(): string {
-  return getApiUrl('/login');
+  return getApiUrl('/api/login');
 }
 
 export function getLogoutUrl(): string {
-  return getApiUrl('/logout');
+  return getApiUrl('/api/logout');
 }

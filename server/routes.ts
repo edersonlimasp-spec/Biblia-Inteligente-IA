@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
+import { setupAuth, isAuthenticated as isReplitAuthenticated } from "./replitAuth";
 import { sendPasswordResetEmail } from "./email";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
@@ -15,6 +16,8 @@ import path from "path";
 import fs from "fs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup Replit Auth (OpenID Connect with Google, GitHub, Apple, email)
+  await setupAuth(app);
   // Middleware: Cache control for static files (MUST be first!)
   // This prevents browser from caching the app shell and allows updates
   app.use((req, res, next) => {
@@ -165,7 +168,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get current user info
+  // Replit Auth: Get current user (for OpenID Connect login)
+  app.get('/api/auth/user', isReplitAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Get current user info (legacy JWT auth)
   app.get("/api/auth/me", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const user = await storage.getUser(req.userId!);

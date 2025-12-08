@@ -1,5 +1,13 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+// API Base URL - uses environment variable in production, empty string for development (same origin)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+// Get full API URL
+export function getApiUrl(path: string): string {
+  return `${API_BASE_URL}${path}`;
+}
+
 // Get token from localStorage
 function getAuthToken(): string | null {
   return localStorage.getItem('authToken');
@@ -52,7 +60,8 @@ export async function apiRequest(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(url, {
+  const fullUrl = getApiUrl(url);
+  const res = await fetch(fullUrl, {
     method,
     headers,
     body: data ? JSON.stringify(data) : undefined,
@@ -76,7 +85,9 @@ export const getQueryFn: <T>(options: {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const res = await fetch(queryKey.join("/") as string, {
+    const path = queryKey.join("/") as string;
+    const fullUrl = getApiUrl(path);
+    const res = await fetch(fullUrl, {
       credentials: "include",
       headers,
     });

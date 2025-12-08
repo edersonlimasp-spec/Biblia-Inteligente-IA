@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { setAuthToken, clearAuthToken, apiRequest } from '@/lib/queryClient';
+import { setAuthToken, clearAuthToken, apiRequest, queryClient } from '@/lib/queryClient';
 import type { User } from '@shared/schema';
 
 interface AuthContextType {
@@ -91,6 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setTrialActive(false);
       setTrialDaysRemaining(0);
+      
+      // Clear all React Query caches to prevent stale data
+      queryClient.clear();
     }
   };
 

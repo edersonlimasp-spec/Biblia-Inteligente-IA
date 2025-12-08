@@ -36,8 +36,8 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
     }
   }, [fontSize]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     onBack?.();
   };
 
@@ -66,7 +66,7 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
                 <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                  {user?.name.charAt(0).toUpperCase() || 'U'}
+                  {user?.name?.[0]?.toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div>

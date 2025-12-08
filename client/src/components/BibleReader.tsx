@@ -21,7 +21,7 @@ import { AnnotationPanel } from "@/components/AnnotationPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
@@ -135,7 +135,8 @@ export function BibleReader({
         chapter: selectedChapter.toString(),
         verse: searchingVerseNum!.toString(),
       });
-      const response = await fetch(`/api/strong/search/${encodeURIComponent(searchingWord!)}?${searchParams}`);
+      const url = getApiUrl(`/api/strong/search/${encodeURIComponent(searchingWord!)}?${searchParams}`);
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Strong search failed');
       return response.json();
     },

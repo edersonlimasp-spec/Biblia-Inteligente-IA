@@ -13,6 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ProfileMenu } from "@/components/ProfileMenu";
 import { AIPanel } from "@/components/AIPanel";
 import { StrongModal } from "@/components/StrongModal";
 import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
@@ -410,6 +411,7 @@ export function BibleReader({
           <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8 flex-shrink-0">
             <Settings className="h-4 w-4" />
           </Button>
+          <ProfileMenu />
         </div>
 
         {/* Bottom Row: Text Search - FULL WIDTH */}

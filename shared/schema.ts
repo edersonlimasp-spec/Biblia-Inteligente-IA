@@ -14,16 +14,17 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// Users table (compatible with both Replit Auth and legacy login)
+// Users table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name"), // Legacy field, now optional
+  name: text("name"),
   email: text("email").unique(),
-  password: text("password"), // Legacy field, now optional (Replit Auth doesn't use passwords)
-  firstName: varchar("first_name"), // Replit Auth field
-  lastName: varchar("last_name"), // Replit Auth field
-  profileImageUrl: varchar("profile_image_url"), // Replit Auth field
-  role: text("role").notNull().default("user"), // 'user', 'admin', 'super_admin'
+  password: text("password"),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  googleId: varchar("google_id"),
+  role: text("role").notNull().default("user"),
   isBlocked: boolean("is_blocked").notNull().default(false),
   trialStartDate: timestamp("trial_start_date").defaultNow(),
   lastLoginAt: timestamp("last_login_at"),
@@ -37,6 +38,10 @@ export const insertUserSchema = createInsertSchema(users).pick({
   name: true,
   email: true,
   password: true,
+  firstName: true,
+  lastName: true,
+  profileImageUrl: true,
+  googleId: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

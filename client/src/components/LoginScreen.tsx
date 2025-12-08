@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { SiGoogle } from "react-icons/si";
 import appLogo from "@assets/logo/logo.png";
 
 interface LoginScreenProps {
@@ -17,7 +18,8 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const { login, loginWithGoogle, isGoogleLoginAvailable } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,6 +41,26 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await loginWithGoogle();
+      toast({
+        title: "Login realizado",
+        description: "Bem-vindo!",
+      });
+      onLogin?.();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer login com Google",
+        description: error.message || "Tente novamente",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -86,6 +108,32 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
             >
               {isLoading ? "Entrando..." : "Entrar"}
             </Button>
+            
+            {isGoogleLoginAvailable && (
+              <>
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">ou</span>
+                  </div>
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={handleGoogleLogin}
+                  disabled={isGoogleLoading}
+                  data-testid="button-google-login"
+                >
+                  <SiGoogle className="h-4 w-4" />
+                  {isGoogleLoading ? "Entrando..." : "Entrar com Google"}
+                </Button>
+              </>
+            )}
+            
             <div className="text-center">
               <Button
                 type="button"

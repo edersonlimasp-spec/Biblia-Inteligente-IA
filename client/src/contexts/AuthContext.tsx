@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { setAuthToken, clearAuthToken, apiRequest, queryClient } from '@/lib/queryClient';
+import { signInWithGoogle, isFirebaseConfigured } from '@/lib/firebase';
 import type { User } from '@shared/schema';
 
 interface AuthContextType {
@@ -7,12 +8,14 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (name: string, email: string, password: string, deviceId?: string) => Promise<void>;
   logout: () => Promise<void>;
   trialActive: boolean;
   trialDaysRemaining: number;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  isGoogleLoginAvailable: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -78,6 +81,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTrialDaysRemaining(data.trial.daysRemaining);
   };
 
+  const loginWithGoogle = async () => {
+    const result = await signInWithGoogle();
+    if (!result) {
+      return;
+    }
+    
+    let deviceId: string | undefined;
+    try {
+      deviceId = localStorage.getItem('deviceId') || undefined;
+    } catch (e) {
+      console.warn('localStorage não disponível');
+    }
+    
+    const res = await apiRequest('POST', '/api/auth/google', { 
+      idToken: result.idToken,
+      deviceId 
+    });
+    const data = await res.json();
+    
+    setAuthToken(data.token);
+    setToken(data.token);
+    setUser(data.user);
+    setTrialActive(data.trial.active);
+    setTrialDaysRemaining(data.trial.daysRemaining);
+  };
+
   const logout = async () => {
     try {
       // Call backend logout endpoint
@@ -102,13 +131,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user, 
       token, 
       isLoading, 
-      login, 
+      login,
+      loginWithGoogle,
       register, 
       logout, 
       trialActive, 
       trialDaysRemaining,
       isAdmin: user?.role === 'admin' || user?.role === 'super_admin',
       isSuperAdmin: user?.role === 'super_admin',
+      isGoogleLoginAvailable: isFirebaseConfigured(),
     }}>
       {children}
     </AuthContext.Provider>

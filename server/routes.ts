@@ -2,8 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
-import { setupAuth, isAuthenticated as isReplitAuthenticated } from "./replitAuth";
 import { sendPasswordResetEmail } from "./email";
+import admin from "firebase-admin";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords } from "@shared/schema";
@@ -15,9 +15,34 @@ import { eq, or, like, sql, and } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
 
+// Initialize Firebase Admin SDK (only if configured)
+let firebaseInitialized = false;
+function initFirebaseAdmin() {
+  if (firebaseInitialized) return true;
+  
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  if (!projectId) {
+    console.log("⚠️ Firebase não configurado - login com Google desabilitado");
+    return false;
+  }
+  
+  try {
+    admin.initializeApp({
+      projectId: projectId,
+    });
+    firebaseInitialized = true;
+    console.log("✅ Firebase Admin inicializado");
+    return true;
+  } catch (error) {
+    console.error("❌ Erro ao inicializar Firebase Admin:", error);
+    return false;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup Replit Auth (OpenID Connect with Google, GitHub, Apple, email)
-  await setupAuth(app);
+  // Initialize Firebase Admin for Google login verification
+  initFirebaseAdmin();
+  
   // Middleware: Cache control for static files (MUST be first!)
   // This prevents browser from caching the app shell and allows updates
   app.use((req, res, next) => {
@@ -168,25 +193,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Replit Auth: Get current user (for OpenID Connect login)
-  app.get('/api/auth/user', isReplitAuthenticated, async (req: any, res) => {
+  // Google Firebase Authentication - verify Firebase ID token and create/login user
+  app.post("/api/auth/google", async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: "Unauthorized" });
+      const { idToken, deviceId } = req.body;
+      
+      if (!idToken) {
+        return res.status(400).json({ error: "Token do Google é obrigatório" });
       }
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      
+      if (!firebaseInitialized) {
+        return res.status(503).json({ error: "Login com Google não está disponível no momento" });
       }
-      res.json(user);
+      
+      // Verify the Firebase ID token
+      let decodedToken;
+      try {
+        decodedToken = await admin.auth().verifyIdToken(idToken);
+      } catch (verifyError) {
+        console.error("❌ Erro ao verificar token do Firebase:", verifyError);
+        return res.status(401).json({ error: "Token inválido" });
+      }
+      
+      const { email, name, picture, uid } = decodedToken;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email não disponível na conta Google" });
+      }
+      
+      console.log(`🔐 Login com Google: ${email}`);
+      
+      // Check if user already exists by email
+      let user = await storage.getUserByEmail(email);
+      
+      if (user) {
+        // Update profile info from Google if changed
+        if (picture && user.profileImageUrl !== picture) {
+          await storage.updateUser(user.id, { profileImageUrl: picture });
+        }
+        console.log(`✅ Usuário existente: ${email}`);
+      } else {
+        // Create new user with Google data
+        const [firstName, ...lastNameParts] = (name || email.split('@')[0]).split(' ');
+        const lastName = lastNameParts.join(' ') || null;
+        
+        user = await storage.createUser({
+          email,
+          name: name || email.split('@')[0],
+          password: '', // No password for Google users
+          firstName,
+          lastName,
+          profileImageUrl: picture || null,
+          googleId: uid,
+        });
+        console.log(`✅ Novo usuário criado via Google: ${email}`);
+      }
+      
+      // Link deviceId if provided (guest converting to registered)
+      if (deviceId && typeof storage.linkGuestToUser === 'function') {
+        try {
+          await storage.linkGuestToUser(deviceId, user.id);
+          console.log(`✅ Guest ${deviceId} vinculado ao usuário ${user.id}`);
+        } catch (linkError) {
+          console.warn('Erro ao vincular deviceId:', linkError);
+        }
+      }
+      
+      // Update last login
+      await storage.updateUserLastLogin(user.id);
+      
+      // Generate JWT token
+      const token = generateToken(user.id, user.email!, user.role || 'user');
+      
+      const { password: _, ...userWithoutPassword } = user;
+      const trialActive = isTrialActive(user.trialStartDate);
+      const daysRemaining = getTrialDaysRemaining(user.trialStartDate);
+      
+      res.json({
+        user: userWithoutPassword,
+        token,
+        trial: {
+          active: trialActive,
+          daysRemaining,
+        },
+      });
     } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      console.error("❌ Erro no login com Google:", error);
+      res.status(500).json({ error: "Erro ao fazer login com Google" });
     }
   });
 
-  // Get current user info (legacy JWT auth)
+  // Get current user info
   app.get("/api/auth/me", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const user = await storage.getUser(req.userId!);

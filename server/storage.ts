@@ -41,6 +41,7 @@ export interface IStorage {
   getAdminUsers(): Promise<User[]>;
   makeUserAdmin(userId: string): Promise<void>;
   updateUserPassword(userId: string, hashedPassword: string): Promise<void>;
+  updateUser(userId: string, data: Partial<{ profileImageUrl: string | null; firstName: string | null; lastName: string | null; googleId: string | null }>): Promise<void>;
   createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void>;
   getPasswordResetToken(token: string): Promise<{userId: string; expiresAt: Date; used: boolean} | undefined>;
   markResetTokenAsUsed(token: string): Promise<void>;
@@ -231,6 +232,10 @@ class PostgresStorage implements IStorage {
 
   async updateUserPassword(userId: string, hashedPassword: string): Promise<void> {
     await db.update(users).set({ password: hashedPassword }).where(eq(users.id, userId));
+  }
+
+  async updateUser(userId: string, data: Partial<{ profileImageUrl: string | null; firstName: string | null; lastName: string | null; googleId: string | null }>): Promise<void> {
+    await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, userId));
   }
 
   async createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void> {

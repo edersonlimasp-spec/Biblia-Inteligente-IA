@@ -3,18 +3,35 @@ import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index } fro
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table
+// Session storage table for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// Users table (compatible with both Replit Auth and legacy login)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
+  name: text("name"), // Legacy field, now optional
+  email: text("email").unique(),
+  password: text("password"), // Legacy field, now optional (Replit Auth doesn't use passwords)
+  firstName: varchar("first_name"), // Replit Auth field
+  lastName: varchar("last_name"), // Replit Auth field
+  profileImageUrl: varchar("profile_image_url"), // Replit Auth field
   role: text("role").notNull().default("user"), // 'user', 'admin', 'super_admin'
   isBlocked: boolean("is_blocked").notNull().default(false),
-  trialStartDate: timestamp("trial_start_date").notNull().defaultNow(),
+  trialStartDate: timestamp("trial_start_date").defaultNow(),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export type UpsertUser = typeof users.$inferInsert;
 
 export const insertUserSchema = createInsertSchema(users).pick({
   name: true,

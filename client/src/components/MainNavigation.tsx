@@ -154,6 +154,7 @@ export function MainNavigation() {
           onNavigateToSettings={() => setCurrentScreen("settings")}
           onNavigateToHistory={() => setCurrentScreen("history")}
           onNavigateToAdmin={() => setCurrentScreen("admin")}
+          onNavigateToLogin={() => setCurrentScreen("login")}
         />
       )}
       {currentScreen === "subscriptions" && (

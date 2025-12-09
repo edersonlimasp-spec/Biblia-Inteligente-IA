@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
+import { LogOut, LogIn } from "lucide-react";
 import { StrongModal } from "@/components/StrongModal";
 import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
 import { VerseActions, HIGHLIGHT_COLORS } from "@/components/VerseActions";
@@ -52,6 +53,7 @@ interface BibleReaderProps {
   onNavigateToSettings?: () => void;
   onNavigateToHistory?: () => void;
   onNavigateToAdmin?: () => void;
+  onNavigateToLogin?: () => void;
 }
 
 interface StrongSearchResult {
@@ -74,8 +76,9 @@ export function BibleReader({
   onNavigateToSettings,
   onNavigateToHistory,
   onNavigateToAdmin,
+  onNavigateToLogin,
 }: BibleReaderProps) {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const { toast } = useToast();
   
   const {
@@ -410,6 +413,29 @@ export function BibleReader({
           <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8 flex-shrink-0">
             <Settings className="h-4 w-4" />
           </Button>
+          {user ? (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              data-testid="button-logout" 
+              onClick={logout} 
+              className="h-8 w-8 flex-shrink-0"
+              title="Sair"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              data-testid="button-login" 
+              onClick={onNavigateToLogin} 
+              className="h-8 w-8 flex-shrink-0"
+              title="Entrar"
+            >
+              <LogIn className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {/* Bottom Row: Text Search - FULL WIDTH */}
@@ -455,7 +481,13 @@ export function BibleReader({
                 {chapterData.book.name} {selectedChapter}
               </h2>
               <div className="space-y-2 sm:space-y-3 text-lg sm:text-xl font-serif">
-                {chapterData?.chapter.verses.map((verse) => {
+                {chapterData?.chapter.verses
+                  .filter(verse => {
+                    if (!textSearchQuery) return true;
+                    const query = textSearchQuery.toLowerCase();
+                    return verse.text.toLowerCase().includes(query);
+                  })
+                  .map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 
                     ? HIGHLIGHT_COLORS.find(c => c.color === highlightColor)?.bg 

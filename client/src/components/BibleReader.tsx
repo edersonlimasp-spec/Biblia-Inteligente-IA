@@ -488,7 +488,7 @@ export function BibleReader({
               <h2 className="text-lg sm:text-2xl font-bold mb-2 sm:mb-4 text-foreground" data-testid="chapter-title">
                 {chapterData.book.name} {selectedChapter}
               </h2>
-              <div className="space-y-2 sm:space-y-3 text-lg sm:text-xl font-serif">
+              <div className="space-y-2 sm:space-y-3 text-2xl sm:text-3xl font-serif">
                 {chapterData?.chapter.verses
                   .filter(verse => {
                     if (!textSearchQuery) return true;

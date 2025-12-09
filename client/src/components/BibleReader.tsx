@@ -247,7 +247,7 @@ export function BibleReader({
 
   // Process search results
   useEffect(() => {
-    if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length > 0) {
+    if (wordSearchResults?.results && wordSearchResults.results.length > 0) {
       const testament = currentBook?.testament;
       const expectedLanguage = testament === 'old' ? 'hebrew' : 'greek';
       
@@ -257,7 +257,7 @@ export function BibleReader({
         matchingResult = wordSearchResults.results[0];
       }
       
-      if (matchingResult && matchingResult.number) {
+      if (matchingResult?.number) {
         setSelectedStrongNumber(matchingResult.number);
         if (searchingWord) {
           setWordsWithStrong(prev => {
@@ -269,7 +269,7 @@ export function BibleReader({
         setSearchingWord(null);
         setSearchingVerseNum(null);
       }
-    } else if (wordSearchResults && wordSearchResults.results && wordSearchResults.results.length === 0) {
+    } else if (wordSearchResults?.results?.length === 0) {
       setSearchingWord(null);
       setSearchingVerseNum(null);
     }

@@ -90,7 +90,7 @@ export function BibleReader({
     isAuthenticated,
   } = useSyncManager();
   
-  const { trackReading } = useReadingHistory();
+  const { trackReading, getLastReading } = useReadingHistory();
 
   // State management
   const [selectedBook, setSelectedBook] = useState("gen");
@@ -108,6 +108,16 @@ export function BibleReader({
   // Trial status
   const [trialActive, setTrialActive] = useState(false);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
+
+  // Initialize with last reading position
+  useEffect(() => {
+    const lastReading = getLastReading();
+    if (lastReading) {
+      setSelectedBook(lastReading.book);
+      setSelectedChapter(lastReading.chapter);
+      setSelectedVersion(lastReading.versionCode || "ACF");
+    }
+  }, [getLastReading]);
 
   // Save version preference to localStorage
   useEffect(() => {
@@ -546,7 +556,7 @@ export function BibleReader({
                         })}
                       </p>
                       
-                      {/* Verse Actions */}
+                      {/* Verse Actions - Only allow annotations for logged-in users */}
                       <VerseActions
                         bookName={chapterData?.book.name || ""}
                         chapter={selectedChapter}
@@ -557,7 +567,7 @@ export function BibleReader({
                         onBookmark={() => bookmarkMutation.mutate({ verse: verse.verse, isBookmarked: hasBookmark || false })}
                         onHighlight={(color) => handleHighlight(verse.verse, color)}
                         onRemoveHighlight={() => handleRemoveHighlight(verse.verse)}
-                        onAnnotate={() => handleAnnotate(verse.verse)}
+                        onAnnotate={() => user ? handleAnnotate(verse.verse) : toast({ title: "Faça login", description: "Comentários estão disponíveis apenas para usuários logados", variant: "destructive" })}
                       />
                     </div>
                   );

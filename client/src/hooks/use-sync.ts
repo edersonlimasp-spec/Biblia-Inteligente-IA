@@ -21,6 +21,8 @@ interface SyncState {
 const DEVICE_ID_KEY = 'bible-device-id';
 const HIGHLIGHTS_KEY = 'bible-highlights';
 const LAST_SYNC_KEY = 'bible-last-sync';
+const READING_HISTORY_KEY = 'bible-reading-history';
+const LAST_READING_KEY = 'bible-last-reading';
 
 function getDeviceId(): string {
   let deviceId = localStorage.getItem(DEVICE_ID_KEY);
@@ -200,19 +202,47 @@ export function useReadingHistory() {
     },
   });
 
-  const trackReading = useCallback(async (book: string, chapter: number, versionCode?: string) => {
-    if (!user || !token) return;
-
+  const saveReadingLocal = useCallback((book: string, chapter: number, versionCode?: string) => {
     try {
-      await addReadingMutation.mutateAsync({ book, chapter, versionCode });
+      const entry = {
+        book,
+        chapter,
+        versionCode: versionCode || 'ACF',
+        readAt: new Date().toISOString(),
+      };
+      localStorage.setItem(LAST_READING_KEY, JSON.stringify(entry));
     } catch (error) {
-      console.error("Error tracking reading:", error);
+      console.warn('Erro ao salvar leitura em localStorage:', error);
     }
-  }, [user, token, addReadingMutation]);
+  }, []);
+
+  const trackReading = useCallback(async (book: string, chapter: number, versionCode?: string) => {
+    // Para usuários logados: salvar no servidor
+    if (user && token) {
+      try {
+        await addReadingMutation.mutateAsync({ book, chapter, versionCode });
+      } catch (error) {
+        console.error("Error tracking reading:", error);
+      }
+    } else {
+      // Para guests: salvar apenas em localStorage
+      saveReadingLocal(book, chapter, versionCode);
+    }
+  }, [user, token, addReadingMutation, saveReadingLocal]);
+
+  const getLastReading = useCallback(() => {
+    try {
+      const stored = localStorage.getItem(LAST_READING_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   return {
     history: history || [],
     isLoading,
     trackReading,
+    getLastReading,
   };
 }

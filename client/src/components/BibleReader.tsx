@@ -148,10 +148,8 @@ export function BibleReader({
         chapter: selectedChapter.toString(),
         verse: searchingVerseNum!.toString(),
       });
-      const url = getApiUrl(`/api/strong/search/${encodeURIComponent(searchingWord!)}?${searchParams}`);
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Strong search failed');
-      return response.json();
+      return apiRequest('GET', `/api/strong/search/${encodeURIComponent(searchingWord!)}?${searchParams}`)
+        .then(res => res.json());
     },
   });
 

@@ -472,7 +472,7 @@ export function BibleReader({
 
       {/* Bible Text */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden pb-20 sm:pb-24 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
-        <div className="max-w-3xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5">
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-6 w-3/4" />
@@ -485,10 +485,10 @@ export function BibleReader({
             </div>
           ) : chapterData ? (
             <>
-              <h2 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4 text-foreground" data-testid="chapter-title">
+              <h2 className="text-xl sm:text-3xl font-bold mb-3 sm:mb-5 text-foreground" data-testid="chapter-title">
                 {chapterData.book.name} {selectedChapter}
               </h2>
-              <div className="space-y-2 sm:space-y-3 text-2xl sm:text-3xl font-serif">
+              <div className="space-y-2 sm:space-y-3 text-xl sm:text-2xl font-serif leading-relaxed">
                 {chapterData?.chapter.verses
                   .filter(verse => {
                     if (!textSearchQuery) return true;

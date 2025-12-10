@@ -13,7 +13,10 @@ import { Dashboard } from "./Dashboard";
 import { ZenMode } from "./ZenMode";
 import { AchievementsScreen } from "./AchievementsScreen";
 import { BibleGames } from "./BibleGames";
-import { ReadingProgressScreen } from "./ReadingProgressScreen";
+import { ProfessorScreen } from "./ProfessorScreen";
+import { AIModesScreen } from "./AIModesScreen";
+import { PlansProgressScreen } from "./PlansProgressScreen";
+import { CalendarScreen } from "./CalendarScreen";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
@@ -30,7 +33,10 @@ type Screen =
   | "zen"
   | "achievements"
   | "games"
-  | "progress"
+  | "professor"
+  | "ai-modes"
+  | "plans-progress"
+  | "calendar"
   | "subscriptions"
   | "settings"
   | "history"
@@ -38,7 +44,6 @@ type Screen =
 
 export function MainNavigation() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("splash");
-  const [aiMode, setAiMode] = useState<string | undefined>();
   const [showSplash, setShowSplash] = useState(() => {
     try {
       const hasVisited = sessionStorage.getItem('hasVisitedApp');
@@ -84,7 +89,6 @@ export function MainNavigation() {
         try {
           sessionStorage.setItem('hasVisitedApp', 'true');
         } catch {
-          // Ignore storage errors
         }
       }, 2000);
       return () => clearTimeout(timer);
@@ -124,11 +128,6 @@ export function MainNavigation() {
     }
   }, [showSplash, isLoading, user, currentScreen]);
 
-  const handleNavigateToAI = (mode?: string) => {
-    setAiMode(mode);
-    setCurrentScreen("bible");
-  };
-
   if (showSplash || isLoading) {
     return <SplashScreen />;
   }
@@ -164,9 +163,12 @@ export function MainNavigation() {
           onNavigateToZenMode={() => setCurrentScreen("zen")}
           onNavigateToAchievements={() => setCurrentScreen("achievements")}
           onNavigateToGames={() => setCurrentScreen("games")}
-          onNavigateToProgress={() => setCurrentScreen("progress")}
+          onNavigateToProfessor={() => setCurrentScreen("professor")}
+          onNavigateToAIModes={() => setCurrentScreen("ai-modes")}
+          onNavigateToPlansProgress={() => setCurrentScreen("plans-progress")}
+          onNavigateToCalendar={() => setCurrentScreen("calendar")}
           onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
-          onNavigateToAI={handleNavigateToAI}
+          onNavigateToAdmin={() => setCurrentScreen("admin")}
         />
       )}
       {currentScreen === "bible" && (
@@ -179,6 +181,24 @@ export function MainNavigation() {
           onNavigateToDashboard={() => setCurrentScreen("dashboard")}
         />
       )}
+      {currentScreen === "professor" && (
+        <ProfessorScreen onBack={() => setCurrentScreen("dashboard")} />
+      )}
+      {currentScreen === "ai-modes" && (
+        <AIModesScreen 
+          onBack={() => setCurrentScreen("dashboard")} 
+          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
+        />
+      )}
+      {currentScreen === "plans-progress" && (
+        <PlansProgressScreen 
+          onBack={() => setCurrentScreen("dashboard")} 
+          onNavigateToBible={() => setCurrentScreen("bible")}
+        />
+      )}
+      {currentScreen === "calendar" && (
+        <CalendarScreen onBack={() => setCurrentScreen("dashboard")} />
+      )}
       {currentScreen === "zen" && (
         <ZenMode onBack={() => setCurrentScreen("dashboard")} />
       )}
@@ -187,12 +207,6 @@ export function MainNavigation() {
       )}
       {currentScreen === "games" && (
         <BibleGames onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "progress" && (
-        <ReadingProgressScreen 
-          onBack={() => setCurrentScreen("dashboard")} 
-          onNavigateToBible={() => setCurrentScreen("bible")}
-        />
       )}
       {currentScreen === "subscriptions" && (
         <SubscriptionScreen onBack={() => setCurrentScreen("dashboard")} />

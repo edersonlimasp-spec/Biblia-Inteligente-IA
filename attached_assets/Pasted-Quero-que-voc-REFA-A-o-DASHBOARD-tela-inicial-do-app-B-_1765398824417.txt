@@ -1,0 +1,146 @@
+Quero que você REFAÇA o DASHBOARD (tela inicial) do app Bíblia Inteligente IA.  
+O layout atual está confuso, pouco profissional, com cards misturados, funcionalidades “em breve” e coisas que não funcionam.
+
+PRECISO de um painel inicial LIMPO, INTUITIVO, ELEGANTE e COMPLETAMENTE FUNCIONAL, como se fosse a tela inicial de um celular com vários apps.
+
+IMPORTANTE:
+- Não trate isso como nova funcionalidade cobrável, e sim como correção/organização daquilo que já foi iniciado (vários módulos foram criados de forma parcial, outros ficaram “em breve”).
+- Nada que estiver visível deve ficar quebrado ou “em breve”: ou funciona, ou fica oculto.
+
+====================================================
+1) NOVO LAYOUT DO DASHBOARD (GRADE DE CARDS)
+====================================================
+Transforme o dashboard em uma grade de CARDS (2 ou 3 por linha) com aparência de ícones de app, responsivo para celular.
+
+Cards obrigatórios na tela inicial:
+
+Linha 1:
+1. Card “Bíblia”
+   - Em destaque (maior ou em primeiro lugar).
+   - Ao entrar:
+     • leitura bíblica completa
+     • escolha de tradução
+     • acesso ao Strong/Hebraico/Grego
+     • campo “Pergunte ao Professor” no rodapé da tela de leitura.
+
+2. Card “Professor”
+   - Abre o chat da IA teológica (Professor).
+   - Mostrar chat contínuo com histórico e botão “Nova conversa”.
+
+Linha 2:
+3. Card “Modos IA Premium”
+   - Ao entrar, mostrar 4 modos de IA Premium:
+     • Modo Pregador
+     • Modo Professor
+     • Exegese Profunda
+     • Comparação Teológica
+   - Cada modo abre uma tela ou formulário específico usando a IA com prompts diferentes.
+   - Remover qualquer texto “em breve” aqui. Tudo que aparecer deve funcionar.
+
+4. Card “Planos & Progresso”
+   - Ao entrar:
+     • listar planos de leitura (anual, NT, AT, temas)
+     • mostrar progresso por livro/bíblia (barras ou círculos)
+     • destacar quantos capítulos lidos e percentual concluído.
+
+Linha 3:
+5. Card “Modo Zen”
+   - Ao entrar:
+     • opção de áudio ambiente (mesmo que seja uma lista simples pré-definida)
+     • temporizador de foco (ex.: 15, 25, 45 minutos)
+     • botão “Iniciar sessão de estudo”.
+   - Interface simples e agradável, com visual calmo.
+
+6. Card “Conquistas & Distintivos”
+   - Ao entrar:
+     • listar badges conquistados (ex.: completou plano, leu X capítulos)
+     • mostrar objetivos a alcançar.
+   - Se ainda não houver sistema completo, implemente um mínimo funcional (ex.: contar capítulos lidos e liberar 1 ou 2 badges).
+
+Linha 4:
+7. Card “Agenda & Calendário Bíblico”
+   - Integração básica com calendários:
+     • permitir criar eventos com base em planos de leitura (ex.: “Ler João 3 hoje”).
+   - Mesmo que num primeiro momento seja um link para Google Calendar/Apple Calendar com data e título, deve funcionar.
+
+8. Card “Jogos Bíblicos”
+   - Ao entrar:
+     • pelo menos 1 mini-jogo bíblico funcional (quiz de perguntas e respostas).
+   - NÃO deixar textos “em breve” sem funcionalidade básica.
+   - Se precisar, comece com um quiz simples 10 perguntas com pontuação.
+
+Linha 5:
+9. Card “Assinaturas & Conta”
+   - Gerenciar:
+     • Plano Gold
+     • Plano Premium
+     • Strong Vitalício
+     • Trial de 30 dias
+   - Mostrar claramente o plano atual, status do trial e botões para assinar.
+
+10. Card “Administração”
+    - SOMENTE visível para usuário admin.
+    - Restaurar o botão Admin que havia antes.
+    - Ao entrar, mostrar:
+      • número de usuários totais
+      • número de usuários ativos
+      • número de usuários por plano
+      • uso da IA
+    - Esta área foi criada parcialmente e depois sumiu – preciso que volte a funcionar.
+
+====================================================
+2) ORGANIZAÇÃO VISUAL E EXPERIÊNCIA
+====================================================
+- Layout deve ser moderno, limpo e intuitivo, com visual similar a uma tela de apps de celular.
+- Cada card deve ter:
+  • ícone
+  • título curto
+  • descrição resumida (opcional, pequena).
+- Manter tema geral azul/metálico do app, com tipografia legível.
+- Garantir boa usabilidade em CELULAR (breakpoints responsivos).
+
+====================================================
+3) FUNCIONALIDADES INCOMPLETAS / “EM BREVE”
+====================================================
+- Remover ou completar tudo que estiver marcado como “em breve”.
+- Se um módulo ainda estiver muito incompleto, ele NÃO deve aparecer no dashboard principal, para não confundir o usuário.
+- Jogos bíblicos, modos avançados da IA, progresso de leitura etc. devem ter pelo menos uma versão mínima funcional.
+
+====================================================
+4) EXPORTAÇÃO PARA EXPO / REACT NATIVE (PREPARAÇÃO)
+====================================================
+- Organizar o código de forma que seja possível exportar o projeto para React Native/Expo futuramente:
+  • separar ao máximo a camada de lógica (serviços, chamadas à IA, dicionário Strong) da camada de UI.
+  • evitar dependências muito acopladas ao navegador.
+  • preparar uma pasta ou módulo “mobile-ready” com componentes reutilizáveis.
+
+Não precisa fazer a exportação agora, apenas organizar o projeto e documentar quais partes já estarão prontas para reaproveitar no Expo/React Native.
+
+====================================================
+5) TESTES OBRIGATÓRIOS
+====================================================
+Antes de dizer que terminou:
+
+1. Testar TODOS os cards do dashboard:
+   - cada card precisa abrir tela funcional correspondente.
+2. Testar versão mobile (inspecionar no navegador em modo celular).
+3. Verificar se:
+   - o card da Bíblia abre a leitura normalmente
+   - o Professor abre o chat
+   - os modos IA Premium chamam a IA corretamente
+   - o mini-jogo funciona do início ao fim
+   - o painel Admin aparece só para admin e mostra dados.
+4. Testar tanto no PREVIEW quanto na VERSÃO PUBLICADA (URL pública).
+
+====================================================
+6) ENTREGA FINAL – O QUE EXPLICAR NA RESPOSTA
+====================================================
+Na sua resposta final, quero que você explique:
+
+1. Como ficou o novo dashboard (descrevendo a grade de cards).
+2. Quais cards e módulos estavam incompletos e foram corrigidos.
+3. O que foi feito para deixar tudo funcional (especialmente jogos, modos IA e admin).
+4. Como o projeto ficou mais pronto para futura exportação para Expo/React Native.
+5. Garantia de que isso foi tratado como organização/correção (não como funcionalidade completamente nova).
+
+Não finalize dizendo que está pronto se ainda houver card quebrado, botão “em breve” ou funcionalidade que não abre.

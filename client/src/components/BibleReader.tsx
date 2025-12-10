@@ -633,7 +633,7 @@ export function BibleReader({
             </div>
           ) : chapterData ? (
             <>
-              <h2 className="text-xl sm:text-3xl font-bold mb-3 sm:mb-5 text-foreground" data-testid="chapter-title">
+              <h2 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3 text-foreground" data-testid="chapter-title">
                 {chapterData.book.name} {selectedChapter}
               </h2>
               <div className="space-y-2 sm:space-y-3 text-xl sm:text-2xl font-serif leading-relaxed">

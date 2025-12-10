@@ -560,7 +560,7 @@ export function BibleReader({
       {/* Global Search Results */}
       {showGlobalResults && isGlobalSearch && (
         <div className="border-b bg-card/80 max-h-[50vh] overflow-y-auto">
-          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="w-full px-4 sm:px-8 lg:px-12 py-3">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-foreground">
                 {isGlobalSearching ? (
@@ -620,7 +620,7 @@ export function BibleReader({
 
       {/* Bible Text */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden pb-20 sm:pb-24 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
-        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5">
+        <div className="w-full px-4 sm:px-8 lg:px-12 py-3 sm:py-5">
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-6 w-3/4" />

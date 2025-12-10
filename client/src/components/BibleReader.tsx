@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Cloud, CloudOff, Loader2, Globe, BookOpen } from "lucide-react";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Cloud, CloudOff, Loader2, Globe, BookOpen, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,6 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
 import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
+import { getDeviceId } from "@/hooks/use-device-id";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
@@ -54,6 +55,7 @@ interface BibleReaderProps {
   onNavigateToHistory?: () => void;
   onNavigateToAdmin?: () => void;
   onNavigateToLogin?: () => void;
+  onNavigateToDashboard?: () => void;
 }
 
 interface GlobalSearchResult {
@@ -93,6 +95,7 @@ export function BibleReader({
   onNavigateToHistory,
   onNavigateToAdmin,
   onNavigateToLogin,
+  onNavigateToDashboard,
 }: BibleReaderProps) {
   const { user, isAdmin, logout } = useAuth();
   const { toast } = useToast();
@@ -144,6 +147,19 @@ export function BibleReader({
       localStorage.setItem("bible-version", selectedVersion);
     } catch {}
   }, [selectedVersion]);
+
+  // Track reading progress when chapter loads successfully
+  useEffect(() => {
+    if (chapterData && selectedBook && selectedChapter) {
+      const deviceId = getDeviceId();
+      apiRequest('POST', '/api/reading-progress', {
+        book: selectedBook,
+        chapter: selectedChapter,
+        deviceId,
+        userId: user?.id,
+      }).catch(() => {});
+    }
+  }, [chapterData, selectedBook, selectedChapter, user?.id]);
 
   // Core data queries
   const { data: books } = useQuery<BibleBook[]>({
@@ -458,6 +474,11 @@ export function BibleReader({
           {isAdmin && (
             <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-8 w-8 flex-shrink-0" title="Painel Admin">
               <Shield className="h-4 w-4" />
+            </Button>
+          )}
+          {onNavigateToDashboard && (
+            <Button variant="ghost" size="icon" data-testid="button-home" onClick={onNavigateToDashboard} className="h-8 w-8 flex-shrink-0" title="Início">
+              <Home className="h-4 w-4" />
             </Button>
           )}
           <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8 flex-shrink-0">

@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements } from '@shared/schema';
 import type {
   User,
   InsertUser,
@@ -845,6 +845,63 @@ class PostgresStorage implements IStorage {
       byType: byTypeMap,
       uniqueDevices: Number(unique[0]?.count || 0),
     };
+  }
+
+  async getReadingProgress(userId?: string, deviceId?: string) {
+    if (!userId && !deviceId) return [];
+    
+    const conditions = [];
+    if (userId) conditions.push(eq(readingProgress.userId, userId));
+    else if (deviceId) conditions.push(eq(readingProgress.deviceId, deviceId));
+    
+    const rows = await db.select().from(readingProgress).where(conditions[0]);
+    
+    const progressByBook: Record<string, Set<number>> = {};
+    rows.forEach(row => {
+      if (!progressByBook[row.book]) {
+        progressByBook[row.book] = new Set();
+      }
+      progressByBook[row.book].add(row.chapter);
+    });
+    
+    return Object.entries(progressByBook).map(([book, chapters]) => ({
+      book,
+      chaptersRead: Array.from(chapters).sort((a, b) => a - b),
+    }));
+  }
+
+  async trackChapterRead(userId: string | undefined, deviceId: string | undefined, book: string, chapter: number) {
+    if (!userId && !deviceId) return;
+    
+    const conditions = [eq(readingProgress.book, book), eq(readingProgress.chapter, chapter)];
+    if (userId) conditions.push(eq(readingProgress.userId, userId));
+    else if (deviceId) conditions.push(eq(readingProgress.deviceId, deviceId!));
+    
+    const existing = await db.select().from(readingProgress).where(and(...conditions)).limit(1);
+    
+    if (existing.length === 0) {
+      await db.insert(readingProgress).values({
+        userId: userId || null,
+        deviceId: deviceId || null,
+        book,
+        chapter,
+        readAt: new Date(),
+      });
+    } else {
+      await db.update(readingProgress)
+        .set({ readAt: new Date() })
+        .where(eq(readingProgress.id, existing[0].id));
+    }
+  }
+
+  async getAchievements(userId?: string, deviceId?: string) {
+    if (!userId && !deviceId) return [];
+    
+    const conditions = [];
+    if (userId) conditions.push(eq(achievements.userId, userId));
+    else if (deviceId) conditions.push(eq(achievements.deviceId, deviceId));
+    
+    return db.select().from(achievements).where(conditions[0]).orderBy(desc(achievements.unlockedAt));
   }
 }
 

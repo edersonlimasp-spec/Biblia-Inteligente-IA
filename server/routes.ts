@@ -443,6 +443,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User subscription status (used by AIPanel to check access)
+  app.get("/api/user/subscription-status", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      const trialActive = isTrialActive(user.trialStartDate);
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+
+      res.json({
+        hasPremium,
+        hasGold,
+        trialActive,
+        userId: req.userId,
+      });
+    } catch (error) {
+      console.error("Get subscription status error:", error);
+      res.status(500).json({ error: "Erro ao buscar status de assinatura" });
+    }
+  });
+
   // Admin Routes
   // IMPORTANT: This route allows the FIRST user to become admin without authentication
   // After the first admin exists, only authenticated admins can make others admin
@@ -583,10 +607,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Pergunta é obrigatória" });
       }
 
-      // Validate mode - only accept 'essential' or 'premium'
-      if (mode !== 'essential' && mode !== 'premium') {
-        return res.status(400).json({ error: "Modo inválido. Use 'essential' ou 'premium'." });
+      // Validate mode - accept all AI modes
+      const validModes = ['essential', 'premium', 'professor', 'pregador', 'exegese', 'teologica'];
+      if (!validModes.includes(mode)) {
+        return res.status(400).json({ error: "Modo inválido." });
       }
+      
+      // Premium modes that require premium subscription
+      const premiumModes = ['premium', 'pregador', 'exegese', 'teologica'];
 
       // Get user and check trial status
       const user = await storage.getUser(req.userId!);
@@ -601,16 +629,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
       // Enforce plan permissions BEFORE making OpenAI call
-      if (mode === 'premium' && !hasPremium) {
+      if (premiumModes.includes(mode) && !hasPremium) {
+        const modeNames: Record<string, string> = {
+          premium: 'Premium',
+          pregador: 'Pregador',
+          exegese: 'Exegese Profunda',
+          teologica: 'Comparação Teológica'
+        };
         return res.status(403).json({ 
-          error: "Acesso Premium necessário. Assine o plano Premium (R$ 19,90/mês) para acessar análises avançadas.",
+          error: `O modo "${modeNames[mode] || mode}" requer assinatura Premium (R$ 19,90/mês).`,
           requiresSubscription: true,
           subscriptionType: 'premium'
         });
       }
 
-      // Essential mode requires trial, Gold, or Premium
-      if (mode === 'essential' && !trialActive && !hasGold && !hasPremium) {
+      // Essential/Professor mode requires trial, Gold, or Premium
+      if ((mode === 'essential' || mode === 'professor') && !trialActive && !hasGold && !hasPremium) {
         return res.status(403).json({ 
           error: "Seu trial de 30 dias expirou. Assine um plano (Gold R$ 9,90/mês ou Premium R$ 19,90/mês) para continuar usando o Professor.",
           requiresSubscription: true,
@@ -1316,6 +1350,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get chapter error:", error);
       res.status(500).json({ error: "Erro ao buscar capítulo" });
+    }
+  });
+
+  // Reading Progress routes
+  app.get("/api/reading-progress", async (req, res) => {
+    try {
+      const deviceId = req.headers['x-device-id'] as string;
+      const userId = (req as AuthRequest).userId;
+      
+      if (!deviceId && !userId) {
+        return res.json([]);
+      }
+      
+      const progress = await storage.getReadingProgress(userId || undefined, deviceId || undefined);
+      res.json(progress);
+    } catch (error) {
+      console.error("Get reading progress error:", error);
+      res.status(500).json({ error: "Erro ao buscar progresso de leitura" });
+    }
+  });
+
+  app.post("/api/reading-progress", async (req, res) => {
+    try {
+      const { book, chapter, deviceId, userId } = req.body;
+      
+      if (!book || !chapter) {
+        return res.status(400).json({ error: "book e chapter são obrigatórios" });
+      }
+      
+      await storage.trackChapterRead(userId || undefined, deviceId || undefined, book, chapter);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Track reading progress error:", error);
+      res.status(500).json({ error: "Erro ao salvar progresso" });
+    }
+  });
+
+  // Achievements routes
+  app.get("/api/achievements", async (req, res) => {
+    try {
+      const deviceId = req.headers['x-device-id'] as string;
+      const userId = (req as AuthRequest).userId;
+      
+      if (!deviceId && !userId) {
+        return res.json([]);
+      }
+      
+      const achievements = await storage.getAchievements(userId || undefined, deviceId || undefined);
+      res.json(achievements);
+    } catch (error) {
+      console.error("Get achievements error:", error);
+      res.status(500).json({ error: "Erro ao buscar conquistas" });
     }
   });
 

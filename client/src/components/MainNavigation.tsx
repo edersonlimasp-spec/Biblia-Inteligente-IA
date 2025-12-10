@@ -9,6 +9,10 @@ import { SubscriptionScreen } from "./SubscriptionScreen";
 import { SettingsScreen } from "./SettingsScreen";
 import { AIHistoryScreen } from "./AIHistoryScreen";
 import { AdminPanel } from "./AdminPanel";
+import { Dashboard } from "./Dashboard";
+import { ZenMode } from "./ZenMode";
+import { AchievementsScreen } from "./AchievementsScreen";
+import { BibleGames } from "./BibleGames";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
@@ -20,7 +24,11 @@ type Screen =
   | "register"
   | "forgot-password"
   | "reset-password"
+  | "dashboard"
   | "bible"
+  | "zen"
+  | "achievements"
+  | "games"
   | "subscriptions"
   | "settings"
   | "history"
@@ -28,20 +36,22 @@ type Screen =
 
 export function MainNavigation() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("splash");
-  // Only show splash on first visit (not on page reload)
+  const [aiMode, setAiMode] = useState<string | undefined>();
   const [showSplash, setShowSplash] = useState(() => {
-    const hasVisited = sessionStorage.getItem('hasVisitedApp');
-    return !hasVisited;
+    try {
+      const hasVisited = sessionStorage.getItem('hasVisitedApp');
+      return !hasVisited;
+    } catch {
+      return true;
+    }
   });
   const { user, isLoading } = useAuth();
   const [location] = useLocation();
 
-  // MOBILE FIX: Dynamically measure header height for mobile padding
   useEffect(() => {
     const measureHeaderHeight = () => {
       const headerEl = document.querySelector('header') as HTMLElement | null;
       if (!headerEl) {
-        // Fallback: set default if header not found
         document.documentElement.style.setProperty('--mobile-header-height', '56px');
         return;
       }
@@ -50,10 +60,7 @@ export function MainNavigation() {
       document.documentElement.style.setProperty('--mobile-header-height', `${height}px`);
     };
 
-    // Measure after a small delay to ensure DOM is fully rendered
     const timer = setTimeout(measureHeaderHeight, 100);
-    
-    // Re-measure on resize (for orientation changes on mobile)
     window.addEventListener('resize', measureHeaderHeight);
     
     return () => {
@@ -62,25 +69,26 @@ export function MainNavigation() {
     };
   }, []);
 
-  // Handle URL-based routing for reset password
   useEffect(() => {
     if (location.includes("reset-password")) {
       setCurrentScreen("reset-password");
     }
   }, [location]);
 
-  // Show splash screen for 2 seconds (only on first visit)
   useEffect(() => {
     if (showSplash) {
       const timer = setTimeout(() => {
         setShowSplash(false);
-        sessionStorage.setItem('hasVisitedApp', 'true');
+        try {
+          sessionStorage.setItem('hasVisitedApp', 'true');
+        } catch {
+          // Ignore storage errors
+        }
       }, 2000);
       return () => clearTimeout(timer);
     }
   }, [showSplash]);
 
-  // Register guest device on first load
   useEffect(() => {
     const registerGuest = async () => {
       try {
@@ -103,21 +111,21 @@ export function MainNavigation() {
     }
   }, [showSplash, isLoading]);
 
-  // NOVO FLUXO: Ir direto para Bíblia (sem login obrigatório)
-  // Login só é exigido para Admin ou ao assinar
   useEffect(() => {
     if (!showSplash && !isLoading) {
-      // Só redireciona para bible se está em splash/login/register
-      // e não está em telas especiais que precisam de login
       if (currentScreen === "splash") {
-        setCurrentScreen("bible");
+        setCurrentScreen("dashboard");
       }
-      // Se tentando acessar admin sem ser admin, redireciona para bible
       if (currentScreen === "admin" && !user) {
         setCurrentScreen("login");
       }
     }
   }, [showSplash, isLoading, user, currentScreen]);
+
+  const handleNavigateToAI = (mode?: string) => {
+    setAiMode(mode);
+    setCurrentScreen("bible");
+  };
 
   if (showSplash || isLoading) {
     return <SplashScreen />;
@@ -127,14 +135,14 @@ export function MainNavigation() {
     <ThemeProvider>
       {currentScreen === "login" && (
         <LoginScreen
-          onLogin={() => setCurrentScreen("bible")}
+          onLogin={() => setCurrentScreen("dashboard")}
           onNavigateToRegister={() => setCurrentScreen("register")}
           onNavigateToForgotPassword={() => setCurrentScreen("forgot-password")}
         />
       )}
       {currentScreen === "register" && (
         <RegisterScreen
-          onRegister={() => setCurrentScreen("bible")}
+          onRegister={() => setCurrentScreen("dashboard")}
           onNavigateToLogin={() => setCurrentScreen("login")}
         />
       )}
@@ -148,6 +156,16 @@ export function MainNavigation() {
           onBackToLogin={() => setCurrentScreen("login")}
         />
       )}
+      {currentScreen === "dashboard" && (
+        <Dashboard
+          onNavigateToBible={() => setCurrentScreen("bible")}
+          onNavigateToZenMode={() => setCurrentScreen("zen")}
+          onNavigateToAchievements={() => setCurrentScreen("achievements")}
+          onNavigateToGames={() => setCurrentScreen("games")}
+          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
+          onNavigateToAI={handleNavigateToAI}
+        />
+      )}
       {currentScreen === "bible" && (
         <BibleReader 
           onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
@@ -155,22 +173,32 @@ export function MainNavigation() {
           onNavigateToHistory={() => setCurrentScreen("history")}
           onNavigateToAdmin={() => setCurrentScreen("admin")}
           onNavigateToLogin={() => setCurrentScreen("login")}
+          onNavigateToDashboard={() => setCurrentScreen("dashboard")}
         />
       )}
+      {currentScreen === "zen" && (
+        <ZenMode onBack={() => setCurrentScreen("dashboard")} />
+      )}
+      {currentScreen === "achievements" && (
+        <AchievementsScreen onBack={() => setCurrentScreen("dashboard")} />
+      )}
+      {currentScreen === "games" && (
+        <BibleGames onBack={() => setCurrentScreen("dashboard")} />
+      )}
       {currentScreen === "subscriptions" && (
-        <SubscriptionScreen onBack={() => setCurrentScreen("bible")} />
+        <SubscriptionScreen onBack={() => setCurrentScreen("dashboard")} />
       )}
       {currentScreen === "settings" && (
         <SettingsScreen 
-          onBack={() => setCurrentScreen("bible")}
+          onBack={() => setCurrentScreen("dashboard")}
           onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
         />
       )}
       {currentScreen === "history" && (
-        <AIHistoryScreen onBack={() => setCurrentScreen("bible")} />
+        <AIHistoryScreen onBack={() => setCurrentScreen("dashboard")} />
       )}
       {currentScreen === "admin" && (
-        <AdminPanel onBack={() => setCurrentScreen("bible")} />
+        <AdminPanel onBack={() => setCurrentScreen("dashboard")} />
       )}
     </ThemeProvider>
   );

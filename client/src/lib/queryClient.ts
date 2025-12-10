@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { getDeviceId } from "@/hooks/use-device-id";
 
 // API Base URL - uses environment variable in production, empty string for development (same origin)
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -54,10 +55,15 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   const token = getAuthToken();
+  const deviceId = getDeviceId();
   const headers: HeadersInit = data ? { "Content-Type": "application/json" } : {};
   
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  if (deviceId) {
+    headers['x-device-id'] = deviceId;
   }
 
   const fullUrl = getApiUrl(url);
@@ -79,10 +85,15 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const token = getAuthToken();
+    const deviceId = getDeviceId();
     const headers: HeadersInit = {};
     
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    if (deviceId) {
+      headers['x-device-id'] = deviceId;
     }
 
     const path = queryKey.join("/") as string;

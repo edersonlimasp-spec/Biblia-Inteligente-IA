@@ -454,3 +454,79 @@ export const guestAiUsageLimits = pgTable("guest_ai_usage_limits", {
 }));
 
 export type GuestAIUsageLimit = typeof guestAiUsageLimits.$inferSelect;
+
+// Reading Progress table (track chapters read per book)
+export const readingProgress = pgTable("reading_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"), // For guests
+  book: text("book").notNull(),
+  chaptersRead: jsonb("chapters_read").notNull().default('[]'), // Array of chapter numbers
+  totalChapters: integer("total_chapters").notNull(),
+  completedAt: timestamp("completed_at"), // When book was fully read
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("reading_progress_user_id_idx").on(table.userId),
+  deviceIdIdx: index("reading_progress_device_id_idx").on(table.deviceId),
+  bookIdx: index("reading_progress_book_idx").on(table.book),
+}));
+
+export const insertReadingProgressSchema = createInsertSchema(readingProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertReadingProgress = z.infer<typeof insertReadingProgressSchema>;
+export type ReadingProgress = typeof readingProgress.$inferSelect;
+
+// Achievements table
+export const achievements = pgTable("achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"), // For guests
+  achievementType: text("achievement_type").notNull(), // 'first_chapter', 'first_book', 'strong_explorer', 'ai_student', 'zen_master', etc.
+  achievementName: text("achievement_name").notNull(),
+  description: text("description"),
+  icon: text("icon"), // Emoji or icon name
+  unlockedAt: timestamp("unlocked_at").notNull().defaultNow(),
+  metadata: jsonb("metadata"), // Extra data like { book: "Genesis", chapters: 50 }
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("achievements_user_id_idx").on(table.userId),
+  deviceIdIdx: index("achievements_device_id_idx").on(table.deviceId),
+  typeIdx: index("achievements_type_idx").on(table.achievementType),
+}));
+
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Achievement = typeof achievements.$inferSelect;
+
+// Zen Sessions table
+export const zenSessions = pgTable("zen_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"),
+  durationMinutes: integer("duration_minutes").notNull(),
+  ambientSound: text("ambient_sound"), // 'rain', 'forest', 'ocean', 'fireplace', 'silence'
+  completedAt: timestamp("completed_at"),
+  book: text("book"),
+  chapter: integer("chapter"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("zen_sessions_user_id_idx").on(table.userId),
+  deviceIdIdx: index("zen_sessions_device_id_idx").on(table.deviceId),
+}));
+
+export const insertZenSessionSchema = createInsertSchema(zenSessions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertZenSession = z.infer<typeof insertZenSessionSchema>;
+export type ZenSession = typeof zenSessions.$inferSelect;

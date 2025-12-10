@@ -13,6 +13,7 @@ import { Dashboard } from "./Dashboard";
 import { ZenMode } from "./ZenMode";
 import { AchievementsScreen } from "./AchievementsScreen";
 import { BibleGames } from "./BibleGames";
+import { ReadingProgressScreen } from "./ReadingProgressScreen";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
@@ -29,6 +30,7 @@ type Screen =
   | "zen"
   | "achievements"
   | "games"
+  | "progress"
   | "subscriptions"
   | "settings"
   | "history"
@@ -162,6 +164,7 @@ export function MainNavigation() {
           onNavigateToZenMode={() => setCurrentScreen("zen")}
           onNavigateToAchievements={() => setCurrentScreen("achievements")}
           onNavigateToGames={() => setCurrentScreen("games")}
+          onNavigateToProgress={() => setCurrentScreen("progress")}
           onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
           onNavigateToAI={handleNavigateToAI}
         />
@@ -184,6 +187,12 @@ export function MainNavigation() {
       )}
       {currentScreen === "games" && (
         <BibleGames onBack={() => setCurrentScreen("dashboard")} />
+      )}
+      {currentScreen === "progress" && (
+        <ReadingProgressScreen 
+          onBack={() => setCurrentScreen("dashboard")} 
+          onNavigateToBible={() => setCurrentScreen("bible")}
+        />
       )}
       {currentScreen === "subscriptions" && (
         <SubscriptionScreen onBack={() => setCurrentScreen("dashboard")} />

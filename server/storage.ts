@@ -440,10 +440,21 @@ class PostgresStorage implements IStorage {
 
   async getOnlineUsers(minutesAgo: number = 5): Promise<number> {
     const cutoffTime = new Date(Date.now() - minutesAgo * 60000);
-    const result = await db.select({ count: sql<number>`count(distinct ${userSessions.userId})` })
+    
+    // Count registered users with active sessions
+    const registeredUserResult = await db.select({ count: sql<number>`count(distinct ${userSessions.userId})` })
       .from(userSessions)
       .where(gte(userSessions.lastActivityAt, cutoffTime));
-    return result[0]?.count || 0;
+    
+    // Count active guests in the last N minutes
+    const guestResult = await db.select({ count: sql<number>`count(distinct ${guests.deviceId})` })
+      .from(guests)
+      .where(gte(guests.lastSeenAt, cutoffTime));
+    
+    const registeredCount = registeredUserResult[0]?.count || 0;
+    const guestCount = guestResult[0]?.count || 0;
+    
+    return registeredCount + guestCount;
   }
 
   async trackPageEvent(userId: string, eventType: string, eventData?: any): Promise<void> {
@@ -471,12 +482,15 @@ class PostgresStorage implements IStorage {
 
     const userMap = new Map<string, number>();
     allAIEvents.forEach(e => {
-      userMap.set(e.userId, (userMap.get(e.userId) || 0) + 1);
+      if (e.userId) {
+        userMap.set(e.userId, (userMap.get(e.userId) || 0) + 1);
+      }
     });
 
     const byUser = Array.from(userMap.entries())
       .map(([userId, count]) => ({ userId, count }))
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
 
     return { total, byMode, byUser };
   }

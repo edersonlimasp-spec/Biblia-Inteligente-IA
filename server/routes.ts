@@ -995,6 +995,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "deviceId e eventType são obrigatórios" });
       }
       
+      // Update guest lastSeenAt to track online status
+      if (deviceId && !userId) {
+        await storage.updateGuestLastSeen(deviceId);
+      }
+      
       await storage.trackAppEvent(deviceId, eventType, eventData, userId);
       res.json({ success: true });
     } catch (error) {

@@ -148,6 +148,17 @@ export function BibleReader({
     } catch {}
   }, [selectedVersion]);
 
+  // Core data queries
+  const { data: books } = useQuery<BibleBook[]>({
+    queryKey: ['/api/bible/books'],
+  });
+
+  const { data: chapterData, isLoading, error } = useQuery<BibleChapterData>({
+    queryKey: ['/api/bible', selectedBook, selectedChapter],
+    enabled: !!selectedBook && !!selectedChapter,
+    retry: false,
+  });
+
   // Track reading progress when chapter loads successfully
   useEffect(() => {
     if (chapterData && selectedBook && selectedChapter) {
@@ -160,17 +171,6 @@ export function BibleReader({
       }).catch(() => {});
     }
   }, [chapterData, selectedBook, selectedChapter, user?.id]);
-
-  // Core data queries
-  const { data: books } = useQuery<BibleBook[]>({
-    queryKey: ['/api/bible/books'],
-  });
-
-  const { data: chapterData, isLoading, error } = useQuery<BibleChapterData>({
-    queryKey: ['/api/bible', selectedBook, selectedChapter],
-    enabled: !!selectedBook && !!selectedChapter,
-    retry: false,
-  });
 
   // Query to search for Strong's number when clicking a word
   const { data: wordSearchResults } = useQuery<StrongSearchResponse>({

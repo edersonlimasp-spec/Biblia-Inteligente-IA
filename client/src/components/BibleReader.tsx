@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Cloud, CloudOff, Loader2 } from "lucide-react";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Cloud, CloudOff, Loader2, Globe, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -56,6 +56,22 @@ interface BibleReaderProps {
   onNavigateToLogin?: () => void;
 }
 
+interface GlobalSearchResult {
+  book: string;
+  bookName: string;
+  chapter: number;
+  verse: number;
+  text: string;
+  reference: string;
+}
+
+interface GlobalSearchResponse {
+  query: string;
+  version: string;
+  total: number;
+  results: GlobalSearchResult[];
+}
+
 interface StrongSearchResult {
   number: string;
   word: string;
@@ -98,6 +114,9 @@ export function BibleReader({
   const [selectedVersion, setSelectedVersion] = useState("ACF");
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [textSearchQuery, setTextSearchQuery] = useState("");
+  const [isGlobalSearch, setIsGlobalSearch] = useState(false);
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
+  const [showGlobalResults, setShowGlobalResults] = useState(false);
   
   // Strong's search state
   const [searchingWord, setSearchingWord] = useState<string | null>(null);
@@ -152,6 +171,29 @@ export function BibleReader({
         .then(res => res.json());
     },
   });
+
+  // Global Bible search query
+  const { data: globalSearchResults, isLoading: isGlobalSearching } = useQuery<GlobalSearchResponse>({
+    queryKey: ['/api/bible/search-all', globalSearchTerm, selectedVersion],
+    enabled: isGlobalSearch && globalSearchTerm.length >= 2,
+    retry: false,
+    staleTime: 60000,
+    queryFn: async () => {
+      return apiRequest('GET', `/api/bible/search-all?q=${encodeURIComponent(globalSearchTerm)}&version=${selectedVersion}`)
+        .then(res => res.json());
+    },
+  });
+
+  // Navigate to a search result
+  const navigateToSearchResult = (result: GlobalSearchResult) => {
+    setSelectedBook(result.book);
+    setSelectedChapter(result.chapter);
+    setShowGlobalResults(false);
+    setIsGlobalSearch(false);
+    setGlobalSearchTerm("");
+    // Invalidate and refetch the chapter data immediately
+    queryClient.invalidateQueries({ queryKey: ['/api/bible', result.book, result.chapter] });
+  };
 
   const currentBook = books?.find(b => b.id === selectedBook);
 
@@ -448,19 +490,64 @@ export function BibleReader({
 
         {/* Bottom Row: Text Search - FULL WIDTH */}
         <div className="px-4 py-2 border-t bg-card/50 flex gap-2 items-center">
-          <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <Button
+            variant={isGlobalSearch ? "default" : "ghost"}
+            size="icon"
+            onClick={() => {
+              setIsGlobalSearch(!isGlobalSearch);
+              if (!isGlobalSearch) {
+                setTextSearchQuery("");
+              } else {
+                setGlobalSearchTerm("");
+                setShowGlobalResults(false);
+              }
+            }}
+            className="h-8 w-8 flex-shrink-0"
+            data-testid="button-toggle-global-search"
+            title={isGlobalSearch ? "Buscar só neste capítulo" : "Buscar na Bíblia toda"}
+          >
+            {isGlobalSearch ? <Globe className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
+          </Button>
           <Input
-            placeholder="Buscar por palavras-chave..."
-            value={textSearchQuery}
-            onChange={(e) => setTextSearchQuery(e.target.value)}
+            placeholder={isGlobalSearch ? "Buscar na Bíblia toda..." : "Buscar neste capítulo..."}
+            value={isGlobalSearch ? globalSearchTerm : textSearchQuery}
+            onChange={(e) => {
+              if (isGlobalSearch) {
+                setGlobalSearchTerm(e.target.value);
+                setShowGlobalResults(e.target.value.length >= 2);
+              } else {
+                setTextSearchQuery(e.target.value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && isGlobalSearch && globalSearchTerm.length >= 2) {
+                setShowGlobalResults(true);
+              }
+            }}
             className="flex-1 h-8 text-sm"
             data-testid="input-text-search"
           />
-          {textSearchQuery && (
+          {isGlobalSearch && globalSearchTerm.length >= 2 && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setShowGlobalResults(true)}
+              className="h-8 flex-shrink-0"
+              data-testid="button-execute-global-search"
+            >
+              <Search className="h-4 w-4 mr-1" />
+              Buscar
+            </Button>
+          )}
+          {(textSearchQuery || globalSearchTerm) && (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setTextSearchQuery("")}
+              onClick={() => {
+                setTextSearchQuery("");
+                setGlobalSearchTerm("");
+                setShowGlobalResults(false);
+              }}
               className="h-8 w-8"
               data-testid="button-clear-search"
             >
@@ -469,6 +556,67 @@ export function BibleReader({
           )}
         </div>
       </header>
+
+      {/* Global Search Results */}
+      {showGlobalResults && isGlobalSearch && (
+        <div className="border-b bg-card/80 max-h-[50vh] overflow-y-auto">
+          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-foreground">
+                {isGlobalSearching ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Buscando...
+                  </span>
+                ) : (
+                  <>
+                    Resultados para "{globalSearchTerm}"
+                    <Badge variant="secondary" className="ml-2">
+                      {globalSearchResults?.total || 0} encontrados
+                    </Badge>
+                  </>
+                )}
+              </h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowGlobalResults(false)}
+                data-testid="button-close-global-results"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {!isGlobalSearching && globalSearchResults?.results?.length === 0 && (
+              <p className="text-muted-foreground text-center py-4">
+                Nenhum resultado encontrado para "{globalSearchTerm}"
+              </p>
+            )}
+            
+            {!isGlobalSearching && globalSearchResults?.results && globalSearchResults.results.length > 0 && (
+              <div className="space-y-2">
+                {globalSearchResults.results.map((result, idx) => (
+                  <div
+                    key={`${result.book}-${result.chapter}-${result.verse}-${idx}`}
+                    className="p-3 rounded-lg bg-background hover-elevate cursor-pointer border"
+                    onClick={() => navigateToSearchResult(result)}
+                    data-testid={`button-search-result-${result.book}-${result.chapter}-${result.verse}`}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="outline" className="font-semibold" data-testid={`badge-reference-${result.book}-${result.chapter}-${result.verse}`}>
+                        {result.reference}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2" data-testid={`text-verse-preview-${result.book}-${result.chapter}-${result.verse}`}>
+                      {result.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Bible Text */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden pb-20 sm:pb-24 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">

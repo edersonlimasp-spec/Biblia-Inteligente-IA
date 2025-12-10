@@ -1189,6 +1189,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Global Bible search - search entire Bible for a word/phrase
+  app.get("/api/bible/search-all", async (req, res) => {
+    try {
+      const query = (req.query.q as string || '').trim();
+      const version = (req.query.version as string) || 'ACF';
+      const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
+      
+      if (!query || query.length < 2) {
+        return res.status(400).json({ error: "Termo de busca deve ter pelo menos 2 caracteres" });
+      }
+
+      // Search in bibleVerses table
+      const results = await db
+        .select({
+          book: bibleVerses.book,
+          chapter: bibleVerses.chapter,
+          verse: bibleVerses.verse,
+          text: bibleVerses.text,
+        })
+        .from(bibleVerses)
+        .where(
+          and(
+            eq(bibleVerses.versionCode, version),
+            sql`LOWER(${bibleVerses.text}) LIKE ${'%' + query.toLowerCase() + '%'}`
+          )
+        )
+        .orderBy(bibleVerses.book, bibleVerses.chapter, bibleVerses.verse)
+        .limit(limit);
+
+      // Map book IDs to names
+      const resultsWithNames = results.map(r => {
+        const bookData = getBookById(r.book);
+        return {
+          ...r,
+          bookName: bookData?.name || r.book,
+          reference: `${bookData?.name || r.book} ${r.chapter}:${r.verse}`,
+        };
+      });
+
+      res.json({
+        query,
+        version,
+        total: resultsWithNames.length,
+        results: resultsWithNames,
+      });
+    } catch (error) {
+      console.error("Global search error:", error);
+      res.status(500).json({ error: "Erro ao buscar na Bíblia" });
+    }
+  });
+
   app.get("/api/bible/:bookId/:chapter", async (req, res) => {
     try {
       const { bookId, chapter: chapterNum } = req.params;

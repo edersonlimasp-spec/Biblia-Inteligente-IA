@@ -212,7 +212,7 @@ export function Dashboard({
             className="text-center mb-6"
           >
             <h1 className="text-2xl sm:text-3xl font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent mb-1">
-              Bíblia Hebraico & Grego
+              Bíblia Inteligente
             </h1>
             <p className="text-muted-foreground text-sm">
               {user ? `Bem-vindo, ${user.name || 'estudante'}` : "Estudo bíblico com textos originais"}

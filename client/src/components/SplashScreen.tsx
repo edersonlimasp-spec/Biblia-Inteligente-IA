@@ -18,14 +18,14 @@ export function SplashScreen() {
           <div className="absolute inset-0 blur-2xl opacity-50 bg-white/20 rounded-full" />
           <img
             src={appLogo}
-            alt="Bíblia Hebraico & Grego"
+            alt="Bíblia Inteligente"
             className="relative w-32 h-32 md:w-40 md:h-40 animate-pulse drop-shadow-2xl"
             data-testid="img-splash-logo"
           />
         </div>
         <div className="text-center space-y-3">
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-white tracking-tight drop-shadow-lg">
-            Bíblia Hebraico & Grego
+            Bíblia Inteligente
           </h1>
           <p className="text-white/95 text-lg md:text-xl font-medium drop-shadow-md">
             Primeiros Textos + IA

@@ -151,24 +151,31 @@ export function BibleReader({
   // Core data queries
   const { data: books } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours - these never change
+    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days garbage collection
   });
 
   const { data: chapterData, isLoading, error } = useQuery<BibleChapterData>({
-    queryKey: ['/api/bible', selectedBook, selectedChapter],
+    queryKey: ['/api/bible', selectedBook, selectedChapter, selectedVersion],
     enabled: !!selectedBook && !!selectedChapter,
     retry: false,
+    staleTime: 1000 * 60 * 60, // 1 hour - cache aggressively
+    gcTime: 1000 * 60 * 60 * 24, // 24 hour garbage collection
   });
 
-  // Track reading progress when chapter loads successfully
+  // Track reading progress non-blocking (fire and forget)
   useEffect(() => {
     if (chapterData && selectedBook && selectedChapter) {
       const deviceId = getDeviceId();
-      apiRequest('POST', '/api/reading-progress', {
-        book: selectedBook,
-        chapter: selectedChapter,
-        deviceId,
-        userId: user?.id,
-      }).catch(() => {});
+      // Fire and forget - don't block rendering
+      setTimeout(() => {
+        apiRequest('POST', '/api/reading-progress', {
+          book: selectedBook,
+          chapter: selectedChapter,
+          deviceId,
+          userId: user?.id,
+        }).catch(() => {});
+      }, 100);
     }
   }, [chapterData, selectedBook, selectedChapter, user?.id]);
 
@@ -213,17 +220,32 @@ export function BibleReader({
 
   const currentBook = books?.find(b => b.id === selectedBook);
 
-  // Fetch bookmarks
+  // Lazy load bookmarks and annotations only when needed
+  const [loadBookmarksAnnotations, setLoadBookmarksAnnotations] = useState(false);
+  
+  // Fetch bookmarks - lazy loaded
   const { data: bookmarks } = useQuery<BookmarkType[]>({
     queryKey: ['/api/bookmarks'],
-    enabled: !!user,
+    enabled: !!user && loadBookmarksAnnotations,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minute garbage collection
   });
 
-  // Fetch annotations
+  // Fetch annotations - lazy loaded
   const { data: annotations } = useQuery<Annotation[]>({
     queryKey: ['/api/annotations'],
-    enabled: !!user,
+    enabled: !!user && loadBookmarksAnnotations,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minute garbage collection
   });
+
+  // Load bookmarks/annotations on first user action or after a delay
+  useEffect(() => {
+    if (!loadBookmarksAnnotations && user) {
+      const timer = setTimeout(() => setLoadBookmarksAnnotations(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, loadBookmarksAnnotations]);
 
   // Check if verse is bookmarked
   const isVerseBookmarked = (verse: number) => {

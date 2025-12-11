@@ -1,4 +1,3 @@
-import splashFullScreen from "@assets/logo/splash.png";
 import appLogo from "@assets/logo/logo.png";
 
 export function SplashScreen() {

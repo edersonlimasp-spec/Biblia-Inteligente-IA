@@ -161,6 +161,10 @@ export function BibleReader({
     retry: false,
     staleTime: 1000 * 60 * 60, // 1 hour - cache aggressively
     gcTime: 1000 * 60 * 60 * 24, // 24 hour garbage collection
+    queryFn: async () => {
+      return apiRequest('GET', `/api/bible/${selectedBook}/${selectedChapter}?version=${selectedVersion}`)
+        .then(res => res.json());
+    },
   });
 
   // Track reading progress non-blocking (fire and forget)

@@ -16,7 +16,7 @@ import { BibleGames } from "./BibleGames";
 import { ProfessorScreen } from "./ProfessorScreen";
 import { AIModesScreen } from "./AIModesScreen";
 import { PlansProgressScreen } from "./PlansProgressScreen";
-import { CalendarScreen } from "./CalendarScreen";
+import { AgendaScreen } from "./AgendaScreen";
 import { RecordingsScreen } from "./RecordingsScreen";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
@@ -203,7 +203,7 @@ export function MainNavigation() {
         />
       )}
       {currentScreen === "calendar" && (
-        <CalendarScreen onBack={() => setCurrentScreen("dashboard")} />
+        <AgendaScreen onBack={() => setCurrentScreen("dashboard")} />
       )}
       {currentScreen === "prayer" && (
         <PrayerMode onBack={() => setCurrentScreen("dashboard")} />

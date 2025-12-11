@@ -177,8 +177,8 @@ export function Dashboard({
     },
     {
       id: "calendar",
-      title: "Agenda Bíblica",
-      description: "Agende leituras no calendário",
+      title: "Minha Agenda",
+      description: "Eventos da igreja e compromissos",
       icon: Calendar,
       gradient: "bg-gradient-to-br from-cyan-600 to-blue-700",
       iconColor: "bg-cyan-500",

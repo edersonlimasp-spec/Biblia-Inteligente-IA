@@ -582,21 +582,6 @@ export function BibleReader({
               Buscar
             </Button>
           )}
-          {(textSearchQuery || globalSearchTerm) && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                setTextSearchQuery("");
-                setGlobalSearchTerm("");
-                setShowGlobalResults(false);
-              }}
-              className="h-8 w-8"
-              data-testid="button-clear-search"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </header>
 
@@ -620,14 +605,6 @@ export function BibleReader({
                   </>
                 )}
               </h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowGlobalResults(false)}
-                data-testid="button-close-global-results"
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
             
             {!isGlobalSearching && globalSearchResults?.results?.length === 0 && (

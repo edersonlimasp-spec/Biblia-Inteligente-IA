@@ -272,7 +272,11 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${recording.title}.webm`;
+      const extension = recording.mimeType.includes("mp4") ? "m4a" 
+        : recording.mimeType.includes("ogg") ? "ogg"
+        : recording.mimeType.includes("mpeg") || recording.mimeType.includes("aac") ? "mp3"
+        : "webm";
+      a.download = `${recording.title}.${extension}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

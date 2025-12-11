@@ -222,15 +222,29 @@ export function useAudioRecorder() {
         } 
       });
 
-      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-        ? "audio/webm;codecs=opus"
-        : MediaRecorder.isTypeSupported("audio/webm")
-        ? "audio/webm"
-        : MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")
-        ? "audio/ogg;codecs=opus"
-        : "audio/mp4";
+      const mimeTypes = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/ogg;codecs=opus",
+        "audio/mp4;codecs=mp4a.40.2",
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/aac",
+      ];
 
-      const recorder = new MediaRecorder(stream, { mimeType });
+      let mimeType = "";
+      for (const type of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          mimeType = type;
+          break;
+        }
+      }
+
+      const recorderOptions: MediaRecorderOptions = mimeType 
+        ? { mimeType } 
+        : {};
+
+      const recorder = new MediaRecorder(stream, recorderOptions);
       
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => {

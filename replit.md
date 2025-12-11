@@ -1,8 +1,8 @@
-# Bíblia Hebraico & Grego – Primeiros Textos + IA
+# Bíblia Inteligente – Primeiros Textos + IA
 
 ## Overview
 
-This fullstack Progressive Web App (PWA), developed in TypeScript with React, Express, and PostgreSQL, offers a comprehensive biblical reading experience. It integrates original Hebrew/Greek texts, Strong's Dictionary, and an AI Professor powered by OpenAI GPT-5 (specifically GPT-4o-mini). The application aims to make in-depth theological study accessible through modern technology, providing features like personal annotations, offline capabilities, and a seamless PWA experience for iOS and Android. A subscription model with a free trial monetizes advanced AI features and lifetime Strong's access, targeting a broad audience interested in biblical study.
+This fullstack Progressive Web App (PWA), developed in TypeScript with React, Express, and PostgreSQL, offers a comprehensive biblical reading experience. It integrates original Hebrew/Greek texts, Strong's Dictionary, and an AI Professor powered by OpenAI GPT-4o-mini. The application aims to make in-depth theological study accessible through modern technology, providing features like personal annotations, audio recordings for sermons, offline capabilities, and a seamless PWA experience for iOS and Android. A subscription model with a free trial monetizes advanced AI features and lifetime Strong's access, targeting a broad audience interested in biblical study.
 
 ## User Preferences
 
@@ -33,6 +33,7 @@ The application is a fullstack PWA comprising a React frontend and an Express ba
     - **Subscriptions:** Manages Gold and Premium plans.
     - **Trial System:** 30-day free trial providing access to Strong's and AI Essential.
     - **Bookmarks & Annotations:** Users can create and manage personal bookmarks and notes on verses.
+    - **Audio Recordings:** Record sermons/messages with IndexedDB local storage, playback controls, and sharing via WhatsApp, Email, and Web Share API.
 
 **System Design Choices:**
 - **Monorepo Structure:** Divided into `server/` (backend), `client/src/` (frontend), `shared/` (shared schemas), and `scripts/` (utilities).

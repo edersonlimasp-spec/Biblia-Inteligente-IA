@@ -917,12 +917,12 @@ END:VCALENDAR`;
 
             <div className="space-y-2">
               <Label>Tema (opcional)</Label>
-              <Select value={newTheme} onValueChange={setNewTheme}>
+              <Select value={newTheme || "none"} onValueChange={(v) => setNewTheme(v === "none" ? "" : v)}>
                 <SelectTrigger data-testid="select-event-theme">
                   <SelectValue placeholder="Selecione um tema" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum tema</SelectItem>
+                  <SelectItem value="none">Nenhum tema</SelectItem>
                   {THEMES.map((theme) => (
                     <SelectItem key={theme} value={theme}>
                       {theme}

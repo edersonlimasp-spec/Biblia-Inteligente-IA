@@ -10,7 +10,7 @@ import { SettingsScreen } from "./SettingsScreen";
 import { AIHistoryScreen } from "./AIHistoryScreen";
 import { AdminPanel } from "./AdminPanel";
 import { Dashboard } from "./Dashboard";
-import { ZenMode } from "./ZenMode";
+import { PrayerMode } from "./PrayerMode";
 import { AchievementsScreen } from "./AchievementsScreen";
 import { BibleGames } from "./BibleGames";
 import { ProfessorScreen } from "./ProfessorScreen";
@@ -31,7 +31,7 @@ type Screen =
   | "reset-password"
   | "dashboard"
   | "bible"
-  | "zen"
+  | "prayer"
   | "achievements"
   | "games"
   | "professor"
@@ -162,7 +162,7 @@ export function MainNavigation() {
       {currentScreen === "dashboard" && (
         <Dashboard
           onNavigateToBible={() => setCurrentScreen("bible")}
-          onNavigateToZenMode={() => setCurrentScreen("zen")}
+          onNavigateToPrayer={() => setCurrentScreen("prayer")}
           onNavigateToAchievements={() => setCurrentScreen("achievements")}
           onNavigateToGames={() => setCurrentScreen("games")}
           onNavigateToProfessor={() => setCurrentScreen("professor")}
@@ -205,8 +205,8 @@ export function MainNavigation() {
       {currentScreen === "calendar" && (
         <CalendarScreen onBack={() => setCurrentScreen("dashboard")} />
       )}
-      {currentScreen === "zen" && (
-        <ZenMode onBack={() => setCurrentScreen("dashboard")} />
+      {currentScreen === "prayer" && (
+        <PrayerMode onBack={() => setCurrentScreen("dashboard")} />
       )}
       {currentScreen === "achievements" && (
         <AchievementsScreen onBack={() => setCurrentScreen("dashboard")} />

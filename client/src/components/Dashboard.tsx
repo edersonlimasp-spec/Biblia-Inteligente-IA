@@ -10,7 +10,7 @@ import {
   Timer, 
   Gamepad2,
   TrendingUp,
-  Moon,
+  HandHeart,
   Calendar,
   CreditCard,
   Shield,
@@ -22,7 +22,7 @@ import { motion } from "framer-motion";
 
 interface DashboardProps {
   onNavigateToBible: () => void;
-  onNavigateToZenMode: () => void;
+  onNavigateToPrayer: () => void;
   onNavigateToAchievements: () => void;
   onNavigateToGames: () => void;
   onNavigateToSubscriptions: () => void;
@@ -97,7 +97,7 @@ function ModuleCard({
 
 export function Dashboard({
   onNavigateToBible,
-  onNavigateToZenMode,
+  onNavigateToPrayer,
   onNavigateToAchievements,
   onNavigateToGames,
   onNavigateToSubscriptions,
@@ -158,13 +158,13 @@ export function Dashboard({
       onClick: onNavigateToPlansProgress,
     },
     {
-      id: "zen",
-      title: "Modo Zen",
-      description: "Estudo focado com áudio ambiente",
-      icon: Moon,
-      gradient: "bg-gradient-to-br from-indigo-600 to-slate-700",
-      iconColor: "bg-indigo-500",
-      onClick: onNavigateToZenMode,
+      id: "prayer",
+      title: "Modo Oração",
+      description: "Pedidos de oração e temporizador",
+      icon: HandHeart,
+      gradient: "bg-gradient-to-br from-amber-600 to-orange-700",
+      iconColor: "bg-amber-500",
+      onClick: onNavigateToPrayer,
     },
     {
       id: "achievements",

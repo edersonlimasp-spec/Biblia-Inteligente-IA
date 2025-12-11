@@ -1,4 +1,4 @@
-import { Calendar, MessageSquare, Search } from "lucide-react";
+import { Calendar, MessageSquare, Search, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,17 +43,21 @@ export function AIHistoryScreen({ onBack }: AIHistoryScreenProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground p-4 md:p-8">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">
-            Histórico de IA
-          </h1>
-          <p className="text-muted-foreground">
-            Suas conversas anteriores com o Professor
-          </p>
+    <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground">
+      {/* Header com botão voltar */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">Histórico de IA</h1>
+            <p className="text-sm text-muted-foreground">Suas conversas anteriores</p>
+          </div>
         </div>
+      </header>
+
+      <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
 
         {/* Search */}
         <div className="relative">

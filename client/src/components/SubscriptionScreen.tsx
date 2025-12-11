@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, Crown, Sparkles, Lock } from "lucide-react";
+import { Check, Crown, Sparkles, Lock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -120,15 +120,28 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 dark:from-primary/20 dark:via-background dark:to-primary/20 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 dark:from-primary/20 dark:via-background dark:to-primary/20">
+      {/* Header com botão voltar */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">Assinaturas</h1>
+            <p className="text-sm text-muted-foreground">Escolha seu plano</p>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-6xl mx-auto p-4 md:p-8">
         {/* Header */}
         <div className="text-center mb-12">
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <img 
               src={appLogo} 
-              alt="Bíblia Hebraico & Grego" 
+              alt="Bíblia Inteligente" 
               className="h-20 w-20 md:h-24 md:w-24"
               data-testid="img-subscription-logo"
             />

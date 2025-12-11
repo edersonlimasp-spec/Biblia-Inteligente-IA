@@ -42,18 +42,21 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground p-4 md:p-8">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onBack}
-          data-testid="button-settings-back"
-          className="mb-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+    <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground">
+      {/* Header com botão voltar */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">Configurações</h1>
+            <p className="text-sm text-muted-foreground">Personalize o aplicativo</p>
+          </div>
+        </div>
+      </header>
+      
+      <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
         {/* Profile Section */}
         <Card>
           <CardHeader>

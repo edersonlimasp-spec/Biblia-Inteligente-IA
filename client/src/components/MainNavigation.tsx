@@ -17,6 +17,7 @@ import { ProfessorScreen } from "./ProfessorScreen";
 import { AIModesScreen } from "./AIModesScreen";
 import { PlansProgressScreen } from "./PlansProgressScreen";
 import { CalendarScreen } from "./CalendarScreen";
+import { RecordingsScreen } from "./RecordingsScreen";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
@@ -37,6 +38,7 @@ type Screen =
   | "ai-modes"
   | "plans-progress"
   | "calendar"
+  | "recordings"
   | "subscriptions"
   | "settings"
   | "history"
@@ -168,8 +170,12 @@ export function MainNavigation() {
           onNavigateToPlansProgress={() => setCurrentScreen("plans-progress")}
           onNavigateToCalendar={() => setCurrentScreen("calendar")}
           onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
+          onNavigateToRecordings={() => setCurrentScreen("recordings")}
           onNavigateToAdmin={() => setCurrentScreen("admin")}
         />
+      )}
+      {currentScreen === "recordings" && (
+        <RecordingsScreen onBack={() => setCurrentScreen("dashboard")} />
       )}
       {currentScreen === "bible" && (
         <BibleReader 

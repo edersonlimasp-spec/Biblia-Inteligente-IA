@@ -15,7 +15,8 @@ import {
   CreditCard,
   Shield,
   Sparkles,
-  GraduationCap
+  GraduationCap,
+  Mic
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -29,6 +30,7 @@ interface DashboardProps {
   onNavigateToAIModes: () => void;
   onNavigateToPlansProgress: () => void;
   onNavigateToCalendar: () => void;
+  onNavigateToRecordings: () => void;
   onNavigateToAdmin: () => void;
 }
 
@@ -103,6 +105,7 @@ export function Dashboard({
   onNavigateToAIModes,
   onNavigateToPlansProgress,
   onNavigateToCalendar,
+  onNavigateToRecordings,
   onNavigateToAdmin,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
@@ -189,6 +192,16 @@ export function Dashboard({
       gradient: "bg-gradient-to-br from-rose-500 to-red-600",
       iconColor: "bg-rose-500",
       onClick: onNavigateToGames,
+    },
+    {
+      id: "recordings",
+      title: "Gravações",
+      description: "Grave e organize seus sermões",
+      icon: Mic,
+      gradient: "bg-gradient-to-br from-red-600 to-orange-600",
+      iconColor: "bg-red-500",
+      onClick: onNavigateToRecordings,
+      badge: "Novo",
     },
     {
       id: "subscriptions",

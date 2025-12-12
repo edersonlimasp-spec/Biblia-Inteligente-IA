@@ -1965,6 +1965,160 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ==================== PROFESSOR PREMIUM (Study Modules) ====================
+  
+  // Get all study modules
+  app.get("/api/study/modules", async (req, res) => {
+    try {
+      const modules = await storage.getStudyModules();
+      
+      // Get user/guest info for progress
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      // Add progress info to each module
+      const modulesWithProgress = await Promise.all(modules.map(async (module) => {
+        const progress = await storage.getModuleProgress(module.id, userId, deviceId);
+        return { ...module, progress };
+      }));
+      
+      res.json(modulesWithProgress);
+    } catch (error) {
+      console.error("Get study modules error:", error);
+      res.status(500).json({ error: "Erro ao buscar módulos de estudo" });
+    }
+  });
+  
+  // Get a specific module with tracks
+  app.get("/api/study/modules/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const module = await storage.getStudyModuleById(id);
+      
+      if (!module) {
+        return res.status(404).json({ error: "Módulo não encontrado" });
+      }
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      const tracks = await storage.getModuleTracks(id);
+      
+      // Add lesson counts and progress to tracks
+      const tracksWithDetails = await Promise.all(tracks.map(async (track) => {
+        const lessons = await storage.getTrackLessons(track.id);
+        const userProgress = await storage.getUserStudyProgress(userId, deviceId);
+        const trackLessonIds = lessons.map(l => l.id);
+        const completedLessons = userProgress.filter(p => 
+          trackLessonIds.includes(p.lessonId) && p.completed
+        ).length;
+        
+        return {
+          ...track,
+          totalLessons: lessons.length,
+          completedLessons,
+          percentage: lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0,
+        };
+      }));
+      
+      const overallProgress = await storage.getModuleProgress(id, userId, deviceId);
+      
+      res.json({ 
+        module, 
+        tracks: tracksWithDetails,
+        progress: overallProgress,
+      });
+    } catch (error) {
+      console.error("Get study module error:", error);
+      res.status(500).json({ error: "Erro ao buscar módulo de estudo" });
+    }
+  });
+  
+  // Get track with lessons
+  app.get("/api/study/tracks/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const lessons = await storage.getTrackLessons(id);
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      const userProgress = await storage.getUserStudyProgress(userId, deviceId);
+      const lessonIds = lessons.map(l => l.id);
+      
+      const lessonsWithProgress = lessons.map(lesson => {
+        const progress = userProgress.find(p => p.lessonId === lesson.id);
+        return {
+          ...lesson,
+          completed: progress?.completed || false,
+          lastAccessAt: progress?.lastAccessAt || null,
+        };
+      });
+      
+      res.json({ lessons: lessonsWithProgress });
+    } catch (error) {
+      console.error("Get track lessons error:", error);
+      res.status(500).json({ error: "Erro ao buscar lições da trilha" });
+    }
+  });
+  
+  // Get a specific lesson
+  app.get("/api/study/lessons/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const lesson = await storage.getLessonById(id);
+      
+      if (!lesson) {
+        return res.status(404).json({ error: "Lição não encontrada" });
+      }
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      // Mark as accessed
+      if (userId || deviceId) {
+        await storage.updateStudyProgress(userId, deviceId, id, false);
+      }
+      
+      // Get progress info
+      const userProgress = await storage.getUserStudyProgress(userId, deviceId);
+      const progress = userProgress.find(p => p.lessonId === id);
+      
+      res.json({ 
+        lesson,
+        completed: progress?.completed || false,
+      });
+    } catch (error) {
+      console.error("Get lesson error:", error);
+      res.status(500).json({ error: "Erro ao buscar lição" });
+    }
+  });
+  
+  // Update study progress (mark lesson as completed/incomplete)
+  app.post("/api/study/progress", async (req, res) => {
+    try {
+      const { lessonId, completed } = req.body;
+      
+      if (!lessonId) {
+        return res.status(400).json({ error: "ID da lição é obrigatório" });
+      }
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      if (!userId && !deviceId) {
+        return res.status(401).json({ error: "Usuário não identificado" });
+      }
+      
+      const progress = await storage.updateStudyProgress(userId, deviceId, lessonId, completed === true);
+      
+      res.json({ success: true, progress });
+    } catch (error) {
+      console.error("Update study progress error:", error);
+      res.status(500).json({ error: "Erro ao atualizar progresso" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

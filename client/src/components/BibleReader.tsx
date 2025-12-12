@@ -339,9 +339,13 @@ export function BibleReader({
 
   // Process search results
   useEffect(() => {
+    console.log('[Strong Debug] wordSearchResults changed:', wordSearchResults);
+    
     if (wordSearchResults?.results && wordSearchResults.results.length > 0) {
       const testament = currentBook?.testament;
       const expectedLanguage = testament === 'old' ? 'hebrew' : 'greek';
+      
+      console.log('[Strong Debug] Processing results, testament:', testament, 'expected:', expectedLanguage);
       
       let matchingResult = wordSearchResults.results.find(r => r.language === expectedLanguage);
       
@@ -350,6 +354,7 @@ export function BibleReader({
       }
       
       if (matchingResult?.number) {
+        console.log('[Strong Debug] Setting selectedStrongNumber:', matchingResult.number);
         setSelectedStrongNumber(matchingResult.number);
         if (searchingWord) {
           setWordsWithStrong(prev => {
@@ -362,6 +367,7 @@ export function BibleReader({
         setSearchingVerseNum(null);
       }
     } else if (wordSearchResults?.results?.length === 0) {
+      console.log('[Strong Debug] No results found');
       setSearchingWord(null);
       setSearchingVerseNum(null);
     }
@@ -382,10 +388,14 @@ export function BibleReader({
   const handleWordClick = (word: string, verseNum: number) => {
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
     
+    console.log('[Strong Debug] Word clicked:', { word, cleanWord, verseNum, length: cleanWord.length });
+    
     if (cleanWord.length < 3) {
+      console.log('[Strong Debug] Word too short, skipping');
       return;
     }
     
+    console.log('[Strong Debug] Setting searchingWord:', cleanWord);
     setSearchingWord(cleanWord);
     setSearchingVerseNum(verseNum);
   };

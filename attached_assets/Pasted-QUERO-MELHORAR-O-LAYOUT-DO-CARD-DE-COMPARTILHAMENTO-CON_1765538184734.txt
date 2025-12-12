@@ -1,0 +1,64 @@
+QUERO MELHORAR O LAYOUT DO CARD DE COMPARTILHAMENTO (CONVITE/AGENDA) DO APP “Bíblia Inteligente IA”.
+
+Hoje o card está funcional, mas o layout precisa ficar MAIS BONITO, CONSERVADOR e MODERNO.
+
+✅ O QUE EU QUERO (AJUSTES VISUAIS):
+
+1) LOGO / ÍCONE (IMPORTANTE)
+- O ícone do app está GRANDE demais e “invadindo” o card.
+- Reduza o tamanho do ícone em ~40–50%.
+- O ícone deve ficar TOTALMENTE enquadrado dentro do cabeçalho do card.
+- Manter margens internas (padding) claras para não encostar nas bordas.
+- Se possível, colocar o ícone dentro de um “container” com borda sutil (ou leve sombra), mas sem exagero.
+
+2) HEADER MAIS PROFISSIONAL
+- Cabeçalho deve ter:
+  - Ícone pequeno à esquerda
+  - Nome do app e título do card à direita (em 2 linhas no máximo)
+  - Link do app embaixo, com aparência discreta (menor e cinza/azulado)
+- O header não pode roubar atenção do evento.
+
+3) CORPO DO EVENTO COM DESTAQUES (MUITO IMPORTANTE)
+Quero que as informações do evento fiquem mais legíveis e elegantes:
+
+- “TIPO DO EVENTO” (ex.: VISITA / CULTO / CEIA) deve ser um “badge” pequeno (tipo etiqueta), em caixa alta.
+- “NOME DO EVENTO” (ex.: Ceia) deve ser o maior destaque do card (fonte maior e em negrito).
+- Data deve ficar abaixo com fonte média.
+- HORÁRIO deve ter destaque visual claro:
+  - usar um bloco/linha com ícone de relógio
+  - ex.: 🕒 05:00 – 21:00
+  - com peso maior ou cor de destaque sutil (sem poluir)
+- “Tema:” deve ser exibido em uma linha bonita e alinhada:
+  - Tema: Vida Cristã (tema em negrito)
+
+4) ESTILO DO CARD (CONSERVADOR + MODERNO)
+- Layout minimalista, moderno, sem excesso de elementos.
+- Cores: manter padrão do app (azul/metalizado), mas o card deve ser legível mesmo em WhatsApp.
+- Evitar fundos muito escuros que prejudiquem leitura.
+- Bordas arredondadas suaves, sombra discreta, bom espaçamento.
+- Tipografia consistente e confortável.
+
+5) ASSINATURA DO COMPARTILHAMENTO (MANTER)
+Manter sempre no final:
+“Enviado por Bíblia Inteligente IA”
+“Conheça a BI: https://bibliainteligente.replit.app”
+
+Mas colocar essa assinatura visualmente menor e mais discreta (rodapé do card).
+
+✅ REQUISITOS TÉCNICOS:
+- Identificar o arquivo/componente responsável por gerar o card de compartilhamento.
+- Refatorar para um template único reutilizável (ex.: ShareEventCard).
+- Garantir que o card fique proporcional em celulares (telas pequenas).
+- Testar gerando card para:
+  - VISITA
+  - CEIA
+  - CULTO ESPECIAL
+  - EVENTO COM E SEM TEMA
+- Garantir que o card gerado não “corta” o topo nem o ícone em nenhuma resolução.
+
+📌 ENTREGA:
+Quando terminar, me diga:
+- quais arquivos você alterou
+- como ficou a hierarquia do layout
+- e me mostre um exemplo de card final (preview) com:
+  VISITA / Ceia / sexta-feira 12 de dezembro / 05:00–21:00 / Tema: Vida Cristã

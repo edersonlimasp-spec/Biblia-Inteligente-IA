@@ -687,51 +687,71 @@ END:VCALENDAR`;
     return (
       <div 
         ref={cardRef}
-        className="bg-gradient-to-br from-primary/90 to-primary rounded-2xl p-6 text-primary-foreground shadow-xl max-w-sm mx-auto"
+        className="bg-card border border-border rounded-xl shadow-lg max-w-sm mx-auto overflow-hidden"
+        data-testid="share-event-card"
       >
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 mx-auto bg-white/20 rounded-full flex items-center justify-center">
-            <IconComponent className="w-8 h-8" />
+        <div className="bg-gradient-to-r from-primary to-primary/80 px-4 py-3 flex items-center gap-3">
+          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center border border-white/30 shadow-sm flex-shrink-0">
+            <IconComponent className="w-5 h-5 text-primary-foreground" />
           </div>
-          
-          <div>
-            <Badge className="bg-white/20 text-primary-foreground border-0 mb-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold text-primary-foreground leading-tight">Biblia Inteligente IA</h3>
+            <p className="text-[10px] text-primary-foreground/60 truncate">bibliainteligente.replit.app</p>
+          </div>
+        </div>
+        
+        <div className="p-5 space-y-4">
+          <div className="space-y-2">
+            <Badge variant="secondary" className="uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5">
               {eventType.name}
             </Badge>
-            <h2 className="text-2xl font-bold">{event.title}</h2>
+            <h2 className="text-xl font-bold text-foreground leading-tight">{event.title}</h2>
           </div>
           
-          <div className="bg-white/10 rounded-xl p-4 space-y-2">
-            <div className="flex items-center justify-center gap-2">
-              <Calendar className="w-5 h-5" />
-              <span className="font-medium">{formatDate(event.date)}</span>
+          <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+            <div className="flex items-center gap-2 text-foreground">
+              <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="text-sm font-medium">{formatDate(event.date)}</span>
             </div>
-            <div className="flex items-center justify-center gap-2">
-              <Clock className="w-5 h-5" />
-              <span>{event.time}{event.endTime && ` - ${event.endTime}`}</span>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="text-sm font-semibold text-foreground">
+                {event.time}{event.endTime && ` - ${event.endTime}`}
+              </span>
             </div>
             {event.location && (
-              <div className="flex items-center justify-center gap-2">
-                <MapPin className="w-5 h-5" />
-                <span>{event.location}</span>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-sm">{event.location}</span>
               </div>
             )}
           </div>
           
           {event.theme && (
-            <div className="text-sm opacity-90">
-              <Sparkles className="w-4 h-4 inline mr-1" />
-              Tema: {event.theme}
+            <div className="flex items-center gap-2 text-sm">
+              <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
+              <span className="text-muted-foreground">Tema:</span>
+              <span className="font-semibold text-foreground">{event.theme}</span>
             </div>
           )}
           
           {event.description && (
-            <p className="text-sm opacity-80 italic">"{event.description}"</p>
+            <p className="text-sm text-muted-foreground italic border-l-2 border-primary/30 pl-3">
+              "{event.description}"
+            </p>
           )}
-          
-          <div className="pt-2 text-xs opacity-70">
-            Biblia Inteligente
-          </div>
+        </div>
+        
+        <div className="bg-muted/30 border-t border-border px-4 py-2.5 text-center">
+          <p className="text-[10px] text-muted-foreground leading-relaxed">
+            Enviado por Biblia Inteligente IA
+          </p>
+          <a 
+            href="https://bibliainteligente.replit.app" 
+            className="text-[10px] text-primary/70 hover:text-primary"
+          >
+            bibliainteligente.replit.app
+          </a>
         </div>
       </div>
     );

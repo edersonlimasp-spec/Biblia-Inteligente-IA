@@ -393,8 +393,27 @@ END:VCALENDAR`;
 
   const handleShareNative = async (event: AgendaEvent) => {
     const text = generateShareText(event);
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+      } catch (e) {
+        // User cancelled or error - copy to clipboard as fallback
+        if ((e as Error).name !== "AbortError") {
+          await navigator.clipboard.writeText(text);
+          toast({
+            title: "Copiado!",
+            description: "Texto copiado. Cole no WhatsApp ou outro app.",
+          });
+        }
+      }
+    } else {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copiado!",
+        description: "Texto copiado. Cole no WhatsApp ou outro app.",
+      });
+    }
   };
 
   const handleCopyText = async (event: AgendaEvent) => {
@@ -488,8 +507,26 @@ END:VCALENDAR`;
 
   const handleShareAgendaNative = async () => {
     const text = generateFullAgendaText();
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+      } catch (e) {
+        if ((e as Error).name !== "AbortError") {
+          await navigator.clipboard.writeText(text);
+          toast({
+            title: "Copiado!",
+            description: "Texto copiado. Cole no WhatsApp ou outro app.",
+          });
+        }
+      }
+    } else {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copiado!",
+        description: "Texto copiado. Cole no WhatsApp ou outro app.",
+      });
+    }
   };
 
   const handleCopyAgendaText = async () => {

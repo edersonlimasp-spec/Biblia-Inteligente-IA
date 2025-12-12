@@ -81,14 +81,14 @@ function ModuleCard({
         
         <div className="flex-1 flex flex-col justify-end relative z-10">
           <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="text-base font-bold text-white">{title}</h3>
+            <h3 className="text-lg font-bold text-white">{title}</h3>
             {badge && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-white/20 text-white border-0">
+              <Badge variant="secondary" className="text-xs px-1.5 py-0 bg-white/20 text-white border-0">
                 {badge}
               </Badge>
             )}
           </div>
-          <p className="text-xs text-white/75 line-clamp-2">{description}</p>
+          <p className="text-sm text-white/75 line-clamp-2">{description}</p>
         </div>
       </div>
     </motion.div>
@@ -296,12 +296,12 @@ export function Dashboard({
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-white">Desbloqueie Tudo</h3>
-                  <p className="text-xs text-white/80 truncate">
+                  <h3 className="text-lg font-bold text-white">Desbloqueie Tudo</h3>
+                  <p className="text-sm text-white/80 truncate">
                     IA ilimitada e Strong's completo
                   </p>
                 </div>
-                <div className="bg-white text-primary text-sm font-semibold px-4 py-2 rounded-lg shadow flex-shrink-0">
+                <div className="bg-white text-primary text-base font-semibold px-4 py-2 rounded-lg shadow flex-shrink-0">
                   Ver Planos
                 </div>
               </div>

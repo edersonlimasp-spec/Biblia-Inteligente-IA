@@ -71,7 +71,7 @@ const AI_MODES = [
 ];
 
 export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScreenProps) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const deviceId = getDeviceId();
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
@@ -83,7 +83,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
     enabled: !!user,
   });
 
-  const hasPremium = subStatus?.hasPremium || subStatus?.hasGold || false;
+  const hasPremium = isAdmin || subStatus?.hasPremium || subStatus?.hasGold || false;
 
   const askMutation = useMutation({
     mutationFn: async ({ mode, text }: { mode: string; text: string }) => {

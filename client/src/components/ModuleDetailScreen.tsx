@@ -74,16 +74,18 @@ const LEVEL_CONFIG: Record<string, { label: string; color: string; badgeClass: s
 function TrackCard({ 
   track, 
   userPlan,
+  isAdmin,
   onLessonClick,
   onUnlock
 }: { 
   track: Track; 
   userPlan: string | null;
+  isAdmin: boolean;
   onLessonClick: (lessonId: string) => void;
   onUnlock: () => void;
 }) {
   const levelConfig = LEVEL_CONFIG[track.level] || LEVEL_CONFIG.iniciante;
-  const isLocked = !canAccessTrack(track.requiredPlan, userPlan);
+  const isLocked = !canAccessTrack(track.requiredPlan, userPlan, isAdmin);
   
   const { data: lessonsData, isLoading } = useQuery<{ lessons: Lesson[] }>({
     queryKey: ['/api/study/tracks', track.id],
@@ -198,7 +200,8 @@ function LessonItemSkeleton() {
   );
 }
 
-function canAccessTrack(requiredPlan: string, userPlan: string | null): boolean {
+function canAccessTrack(requiredPlan: string, userPlan: string | null, isAdmin: boolean = false): boolean {
+  if (isAdmin) return true;
   if (!userPlan) return false;
   if (userPlan === 'premium') return true;
   if (userPlan === 'gold' && (requiredPlan === 'gold' || requiredPlan === 'iniciante')) return true;
@@ -217,7 +220,7 @@ export function ModuleDetailScreen({
   onNavigateToLesson,
   onNavigateToSubscriptions 
 }: ModuleDetailScreenProps) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const deviceId = getDeviceId();
   
   const { data: moduleDetail, isLoading: moduleLoading } = useQuery<ModuleDetail>({
@@ -311,12 +314,13 @@ export function ModuleDetailScreen({
               key={track.id}
               track={track}
               userPlan={userPlan}
+              isAdmin={isAdmin}
               onLessonClick={(lessonId) => onNavigateToLesson(lessonId, track.level)}
               onUnlock={onNavigateToSubscriptions}
             />
           ))}
 
-          {!userPlan && (
+          {!userPlan && !isAdmin && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

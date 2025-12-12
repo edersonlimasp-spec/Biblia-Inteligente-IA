@@ -369,7 +369,10 @@ END:VCALENDAR`;
     if (event.theme) lines.push(`Tema: ${event.theme}`);
     if (event.description) lines.push("", event.description);
     
-    lines.push("", "Enviado via Biblia Inteligente");
+    lines.push("");
+    lines.push("---");
+    lines.push("Enviado via Biblia Inteligente");
+    lines.push("https://biblia-inteligente.replit.app");
     
     return lines.join("\n");
   };
@@ -444,7 +447,9 @@ END:VCALENDAR`;
       lines.push("");
     });
     
+    lines.push("---");
     lines.push("Enviado via Biblia Inteligente");
+    lines.push("https://biblia-inteligente.replit.app");
     
     return lines.join("\n");
   };

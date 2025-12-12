@@ -229,7 +229,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
         const file = new File([blob], `${recording.title}.webm`, { type: blob.type });
         const shareData = {
           title: recording.title,
-          text: `Ouça este sermão gravado no app Bíblia Inteligente IA: "${recording.title}"`,
+          text: `Ouça este sermão gravado no app Bíblia Inteligente: "${recording.title}"\n\n---\nEnviado via Bíblia Inteligente\nhttps://biblia-inteligente.replit.app`,
           files: [file],
         };
 
@@ -249,7 +249,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
 
   const handleWhatsAppShare = async (recording: RecordingMetadata) => {
     const text = encodeURIComponent(
-      `Ouça este sermão gravado no app Bíblia Inteligente IA: "${recording.title}" (${formatDuration(recording.duration)})`
+      `Ouça este sermão gravado no app Bíblia Inteligente:\n\n"${recording.title}"\nDuração: ${formatDuration(recording.duration)}\n\n---\nEnviado via Bíblia Inteligente\nhttps://biblia-inteligente.replit.app`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
     setShareRecordingId(null);
@@ -258,7 +258,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const handleEmailShare = async (recording: RecordingMetadata) => {
     const subject = encodeURIComponent(`Sermão Gravado - ${recording.title}`);
     const body = encodeURIComponent(
-      `Olá!\n\nGostaria de compartilhar este sermão gravado no app Bíblia Inteligente IA:\n\nTítulo: ${recording.title}\nDuração: ${formatDuration(recording.duration)}\nData: ${formatDate(recording.createdAt)}\n\nPara ouvir, baixe o arquivo anexado ou acesse o app Bíblia Inteligente IA.`
+      `Olá!\n\nGostaria de compartilhar este sermão gravado no app Bíblia Inteligente:\n\nTítulo: ${recording.title}\nDuração: ${formatDuration(recording.duration)}\nData: ${formatDate(recording.createdAt)}\n\nPara ouvir, baixe o arquivo anexado ou acesse o app.\n\n---\nEnviado via Bíblia Inteligente\nhttps://biblia-inteligente.replit.app`
     );
     window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
     setShareRecordingId(null);

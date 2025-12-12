@@ -291,7 +291,7 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
     const details = [
       event.description,
       event.theme ? `Tema: ${event.theme}` : "",
-      "Enviado via Bíblia Inteligente",
+      "Enviado por Bíblia Inteligente IA\nConheça a BI: https://bibliainteligente.replit.app",
     ].filter(Boolean).join("\n\n");
     
     const params = new URLSearchParams({
@@ -369,10 +369,11 @@ END:VCALENDAR`;
     if (event.theme) lines.push(`Tema: ${event.theme}`);
     if (event.description) lines.push("", event.description);
     
+    // Standard app footer
     lines.push("");
     lines.push("---");
-    lines.push("Enviado via Biblia Inteligente");
-    lines.push("https://biblia-inteligente.replit.app");
+    lines.push("Enviado por Bíblia Inteligente IA");
+    lines.push("Conheça a BI: https://bibliainteligente.replit.app");
     
     return lines.join("\n");
   };
@@ -445,9 +446,10 @@ END:VCALENDAR`;
       lines.push("");
     });
     
+    // Standard app footer
     lines.push("---");
-    lines.push("Enviado via Biblia Inteligente");
-    lines.push("https://biblia-inteligente.replit.app");
+    lines.push("Enviado por Bíblia Inteligente IA");
+    lines.push("Conheça a BI: https://bibliainteligente.replit.app");
     
     return lines.join("\n");
   };

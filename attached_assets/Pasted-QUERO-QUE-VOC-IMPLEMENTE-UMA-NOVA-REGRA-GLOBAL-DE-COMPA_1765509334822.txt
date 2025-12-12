@@ -1,0 +1,60 @@
+QUERO QUE VOCÊ IMPLEMENTE UMA NOVA REGRA GLOBAL DE COMPARTILHAMENTO NO MEU APP “Bíblia Inteligente IA”.
+
+A PARTIR DE AGORA, TODOS os recursos que envolvem COMPARTILHAR qualquer conteúdo — incluindo:
+
+- Compartilhar agenda
+- Compartilhar eventos
+- Compartilhar card de convite
+- Compartilhar notas ou motivos de oração
+- Compartilhar versículos
+- Compartilhar palavra do Strong
+- Compartilhar trechos bíblicos
+- Compartilhar áudio, links ou mensagens internas
+- Compartilhamento automático para apps externos (WhatsApp, Telegram, E-mail etc.)
+
+DEVEM obrigatoriamente incluir, AO FINAL da mensagem enviada, o seguinte bloco padronizado:
+
+--------------------------------------------------
+Enviado por **Bíblia Inteligente IA**
+Conheça a BI: https://bibliainteligente.replit.app
+--------------------------------------------------
+
+**REQUISITOS TÉCNICOS:**
+
+1. Todos os métodos/funções de compartilhamento do app devem adicionar esse rodapé automaticamente, SEM QUE O USUÁRIO PRECISE DIGITAR NADA.
+
+2. Se o conteúdo compartilhado já possuir texto, o rodapé deve ser adicionado APÓS uma linha em branco, assim:
+
+[conteúdo original]
+
+Enviado por Bíblia Inteligente IA  
+Conheça a BI: https://bibliainteligente.replit.app
+
+3. Caso o compartilhamento seja em formato de CARD (imagem):
+   - Adicionar esse mesmo texto na parte inferior do card, com fonte discreta porém legível.
+
+4. Caso o app venha a gerar PDF, imagem ou outro arquivo compartilhável:
+   - O rodapé também deve aparecer no arquivo.
+
+5. O comportamento deve ser igual em:
+   - preview (desenvolvimento)
+   - app publicado (produção)
+   - celulares Android e iOS
+   - desktop
+
+6. Verifique todos os locais do código onde existe:
+   - navigator.share()
+   - share()
+   - window.open com conteúdo
+   - exportação de texto
+   - exportação de imagem ou HTML convertido
+   - compartilhamento de dados da agenda
+
+E aplique o rodapé em TODOS eles.
+
+7. Após implementar, me entregue:
+   - Lista dos arquivos modificados
+   - Trechos de código responsáveis pela interceptação do compartilhamento
+   - Confirmação de que o comportamento foi testado nos principais fluxos (agenda, Bíblia, Strong, IA, cards etc.)
+
+NÃO conclua o trabalho até garantir que 100% dos pontos de compartilhamento do app utilizam esse rodapé.

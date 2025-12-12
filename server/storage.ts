@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress } from '@shared/schema';
 import type {
   User,
   InsertUser,
@@ -29,6 +29,14 @@ import type {
   AppEvent,
   InsertAppEvent,
   GuestAIUsageLimit,
+  StudyModule,
+  InsertStudyModule,
+  StudyTrack,
+  InsertStudyTrack,
+  StudyLesson,
+  InsertStudyLesson,
+  UserStudyProgress,
+  InsertUserStudyProgress,
 } from '@shared/schema';
 import { eq, and, desc, gte, sql, like } from 'drizzle-orm';
 
@@ -146,6 +154,19 @@ export interface IStorage {
     byType: Record<string, number>;
     uniqueDevices: number;
   }>;
+
+  // Study Modules (Professor Premium)
+  getStudyModules(): Promise<StudyModule[]>;
+  getStudyModuleById(id: string): Promise<StudyModule | undefined>;
+  getModuleTracks(moduleId: string): Promise<StudyTrack[]>;
+  getTrackLessons(trackId: string): Promise<StudyLesson[]>;
+  getLessonById(id: string): Promise<StudyLesson | undefined>;
+  getUserStudyProgress(userId: string | null, deviceId: string | null): Promise<UserStudyProgress[]>;
+  updateStudyProgress(userId: string | null, deviceId: string | null, lessonId: string, completed: boolean): Promise<UserStudyProgress>;
+  getModuleProgress(moduleId: string, userId: string | null, deviceId: string | null): Promise<{ total: number; completed: number; percentage: number }>;
+  createStudyModule(module: InsertStudyModule): Promise<StudyModule>;
+  createStudyTrack(track: InsertStudyTrack): Promise<StudyTrack>;
+  createStudyLesson(lesson: InsertStudyLesson): Promise<StudyLesson>;
 }
 
 class PostgresStorage implements IStorage {
@@ -902,6 +923,112 @@ class PostgresStorage implements IStorage {
     else if (deviceId) conditions.push(eq(achievements.deviceId, deviceId));
     
     return db.select().from(achievements).where(conditions[0]).orderBy(desc(achievements.unlockedAt));
+  }
+
+  // Study Modules (Professor Premium)
+  async getStudyModules(): Promise<StudyModule[]> {
+    return db.select().from(studyModules).where(eq(studyModules.isActive, true)).orderBy(studyModules.order);
+  }
+
+  async getStudyModuleById(id: string): Promise<StudyModule | undefined> {
+    const result = await db.select().from(studyModules).where(eq(studyModules.id, id));
+    return result[0];
+  }
+
+  async getModuleTracks(moduleId: string): Promise<StudyTrack[]> {
+    return db.select().from(studyTracks).where(eq(studyTracks.moduleId, moduleId)).orderBy(studyTracks.order);
+  }
+
+  async getTrackLessons(trackId: string): Promise<StudyLesson[]> {
+    return db.select().from(studyLessons).where(eq(studyLessons.trackId, trackId)).orderBy(studyLessons.order);
+  }
+
+  async getLessonById(id: string): Promise<StudyLesson | undefined> {
+    const result = await db.select().from(studyLessons).where(eq(studyLessons.id, id));
+    return result[0];
+  }
+
+  async getUserStudyProgress(userId: string | null, deviceId: string | null): Promise<UserStudyProgress[]> {
+    if (!userId && !deviceId) return [];
+    
+    const conditions = [];
+    if (userId) conditions.push(eq(userStudyProgress.userId, userId));
+    else if (deviceId) conditions.push(eq(userStudyProgress.deviceId, deviceId));
+    
+    return db.select().from(userStudyProgress).where(conditions[0]);
+  }
+
+  async updateStudyProgress(userId: string | null, deviceId: string | null, lessonId: string, completed: boolean): Promise<UserStudyProgress> {
+    const conditions = [eq(userStudyProgress.lessonId, lessonId)];
+    if (userId) conditions.push(eq(userStudyProgress.userId, userId));
+    else if (deviceId) conditions.push(eq(userStudyProgress.deviceId, deviceId!));
+    
+    const existing = await db.select().from(userStudyProgress).where(and(...conditions)).limit(1);
+    
+    if (existing.length > 0) {
+      const [updated] = await db.update(userStudyProgress)
+        .set({ 
+          completed, 
+          completedAt: completed ? new Date() : null,
+          lastAccessAt: new Date() 
+        })
+        .where(eq(userStudyProgress.id, existing[0].id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(userStudyProgress).values({
+        userId: userId || null,
+        deviceId: deviceId || null,
+        lessonId,
+        completed,
+        completedAt: completed ? new Date() : null,
+        lastAccessAt: new Date(),
+      }).returning();
+      return created;
+    }
+  }
+
+  async getModuleProgress(moduleId: string, userId: string | null, deviceId: string | null): Promise<{ total: number; completed: number; percentage: number }> {
+    if (!userId && !deviceId) return { total: 0, completed: 0, percentage: 0 };
+    
+    const tracks = await this.getModuleTracks(moduleId);
+    const trackIds = tracks.map(t => t.id);
+    
+    if (trackIds.length === 0) return { total: 0, completed: 0, percentage: 0 };
+    
+    const lessons = await db.select().from(studyLessons).where(sql`${studyLessons.trackId} IN (${sql.join(trackIds.map(id => sql`${id}`), sql`, `)})`);
+    const total = lessons.length;
+    
+    if (total === 0) return { total: 0, completed: 0, percentage: 0 };
+    
+    const lessonIds = lessons.map(l => l.id);
+    const conditions = [sql`${userStudyProgress.lessonId} IN (${sql.join(lessonIds.map(id => sql`${id}`), sql`, `)})`];
+    if (userId) conditions.push(eq(userStudyProgress.userId, userId));
+    else if (deviceId) conditions.push(eq(userStudyProgress.deviceId, deviceId));
+    
+    const progress = await db.select().from(userStudyProgress).where(and(...conditions));
+    const completed = progress.filter(p => p.completed).length;
+    
+    return { 
+      total, 
+      completed, 
+      percentage: Math.round((completed / total) * 100) 
+    };
+  }
+
+  async createStudyModule(module: InsertStudyModule): Promise<StudyModule> {
+    const [created] = await db.insert(studyModules).values(module).returning();
+    return created;
+  }
+
+  async createStudyTrack(track: InsertStudyTrack): Promise<StudyTrack> {
+    const [created] = await db.insert(studyTracks).values(track).returning();
+    return created;
+  }
+
+  async createStudyLesson(lesson: InsertStudyLesson): Promise<StudyLesson> {
+    const [created] = await db.insert(studyLessons).values(lesson).returning();
+    return created;
   }
 }
 

@@ -392,30 +392,9 @@ END:VCALENDAR`;
   };
 
   const handleShareNative = async (event: AgendaEvent) => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: event.title,
-          text: generateShareText(event),
-        });
-        setShareEvent(null);
-      } catch (e) {
-        if ((e as Error).name !== "AbortError") {
-          toast({
-            title: "Erro",
-            description: "Não foi possível compartilhar",
-            variant: "destructive",
-          });
-        }
-      }
-    } else {
-      await navigator.clipboard.writeText(generateShareText(event));
-      toast({
-        title: "Copiado",
-        description: "Texto copiado para a área de transferência",
-      });
-      setShareEvent(null);
-    }
+    const text = generateShareText(event);
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
   };
 
   const handleCopyText = async (event: AgendaEvent) => {
@@ -508,30 +487,9 @@ END:VCALENDAR`;
   };
 
   const handleShareAgendaNative = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "Minha Agenda",
-          text: generateFullAgendaText(),
-        });
-        setShowShareAgenda(false);
-      } catch (e) {
-        if ((e as Error).name !== "AbortError") {
-          toast({
-            title: "Erro",
-            description: "Nao foi possivel compartilhar",
-            variant: "destructive",
-          });
-        }
-      }
-    } else {
-      await navigator.clipboard.writeText(generateFullAgendaText());
-      toast({
-        title: "Copiado",
-        description: "Texto copiado para a area de transferencia",
-      });
-      setShowShareAgenda(false);
-    }
+    const text = generateFullAgendaText();
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
   };
 
   const handleCopyAgendaText = async () => {

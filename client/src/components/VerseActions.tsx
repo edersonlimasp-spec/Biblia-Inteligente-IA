@@ -52,7 +52,7 @@ export function VerseActions({
   const [justCopied, setJustCopied] = useState(false);
 
   const reference = `${bookName} ${chapter}:${verse}`;
-  const shareText = `"${text}" - ${reference}`;
+  const shareText = `"${text}"\n\n${reference}\n\n---\nEnviado via Biblia Inteligente\nhttps://biblia-inteligente.replit.app`;
 
   const handleShare = async () => {
     // Try Web Share API first (mobile-friendly)

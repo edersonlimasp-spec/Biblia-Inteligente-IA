@@ -530,3 +530,98 @@ export const insertZenSessionSchema = createInsertSchema(zenSessions).omit({
 
 export type InsertZenSession = z.infer<typeof insertZenSessionSchema>;
 export type ZenSession = typeof zenSessions.$inferSelect;
+
+// Study Modules table (Professor Premium)
+export const studyModules = pgTable("study_modules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon").notNull(),
+  color: text("color").notNull().default("#1A5299"),
+  order: integer("order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  orderIdx: index("study_modules_order_idx").on(table.order),
+}));
+
+export const insertStudyModuleSchema = createInsertSchema(studyModules).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertStudyModule = z.infer<typeof insertStudyModuleSchema>;
+export type StudyModule = typeof studyModules.$inferSelect;
+
+// Study Tracks table (Iniciante, Moderado, Avançado)
+export const studyTracks = pgTable("study_tracks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id").notNull().references(() => studyModules.id, { onDelete: "cascade" }),
+  level: text("level").notNull(), // 'iniciante', 'moderado', 'avancado'
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  requiredPlan: text("required_plan").notNull().default("gold"), // 'gold' or 'premium'
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  moduleIdIdx: index("study_tracks_module_id_idx").on(table.moduleId),
+  levelIdx: index("study_tracks_level_idx").on(table.level),
+}));
+
+export const insertStudyTrackSchema = createInsertSchema(studyTracks).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertStudyTrack = z.infer<typeof insertStudyTrackSchema>;
+export type StudyTrack = typeof studyTracks.$inferSelect;
+
+// Study Lessons table
+export const studyLessons = pgTable("study_lessons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  trackId: varchar("track_id").notNull().references(() => studyTracks.id, { onDelete: "cascade" }),
+  order: integer("order").notNull().default(0),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  references: text("references").notNull(), // Bible references (e.g., "Gênesis 1:1, João 3:16")
+  questions: text("questions").notNull(), // Reflection questions
+  application: text("application").notNull(), // Practical application
+  summary: text("summary").notNull(),
+  estimatedMinutes: integer("estimated_minutes").notNull().default(10),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  trackIdIdx: index("study_lessons_track_id_idx").on(table.trackId),
+  orderIdx: index("study_lessons_order_idx").on(table.order),
+}));
+
+export const insertStudyLessonSchema = createInsertSchema(studyLessons).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertStudyLesson = z.infer<typeof insertStudyLessonSchema>;
+export type StudyLesson = typeof studyLessons.$inferSelect;
+
+// User Study Progress table
+export const userStudyProgress = pgTable("user_study_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"),
+  lessonId: varchar("lesson_id").notNull().references(() => studyLessons.id, { onDelete: "cascade" }),
+  completed: boolean("completed").notNull().default(false),
+  completedAt: timestamp("completed_at"),
+  lastAccessAt: timestamp("last_access_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("user_study_progress_user_id_idx").on(table.userId),
+  deviceIdIdx: index("user_study_progress_device_id_idx").on(table.deviceId),
+  lessonIdIdx: index("user_study_progress_lesson_id_idx").on(table.lessonId),
+}));
+
+export const insertUserStudyProgressSchema = createInsertSchema(userStudyProgress).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertUserStudyProgress = z.infer<typeof insertUserStudyProgressSchema>;
+export type UserStudyProgress = typeof userStudyProgress.$inferSelect;

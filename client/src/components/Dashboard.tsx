@@ -70,25 +70,25 @@ function ModuleCard({
       onClick={onClick}
       data-testid={testId}
     >
-      <div className={`relative overflow-visible rounded-2xl ${gradient} p-5 h-full min-h-[140px] flex flex-col shadow-lg border border-white/10 dark:border-white/5 hover-elevate active-elevate-2`}>
-        <div className="absolute top-0 right-0 w-24 h-24 opacity-10">
+      <div className={`relative overflow-visible rounded-xl ${gradient} p-3 h-full min-h-[85px] flex flex-col shadow-lg border border-white/10 dark:border-white/5 hover-elevate active-elevate-2`}>
+        <div className="absolute top-0 right-0 w-14 h-14 opacity-10">
           <Icon className="w-full h-full" />
         </div>
         
-        <div className={`w-12 h-12 rounded-xl ${iconColor} flex items-center justify-center mb-3 shadow-md`}>
-          <Icon className="w-6 h-6 text-white" />
+        <div className={`w-8 h-8 rounded-lg ${iconColor} flex items-center justify-center mb-2 shadow-md`}>
+          <Icon className="w-4 h-4 text-white" />
         </div>
         
         <div className="flex-1 flex flex-col justify-end relative z-10">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="text-lg font-bold text-white">{title}</h3>
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <h3 className="text-base font-bold text-white">{title}</h3>
             {badge && (
-              <Badge variant="secondary" className="text-xs px-1.5 py-0 bg-white/20 text-white border-0">
+              <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-white/20 text-white border-0">
                 {badge}
               </Badge>
             )}
           </div>
-          <p className="text-sm text-white/75 line-clamp-2">{description}</p>
+          <p className="text-xs text-white/75 line-clamp-2">{description}</p>
         </div>
       </div>
     </motion.div>
@@ -284,24 +284,24 @@ export function Dashboard({
             className="mt-6"
           >
             <div 
-              className="relative overflow-visible rounded-2xl bg-gradient-to-r from-primary/90 to-blue-600 p-4 shadow-lg cursor-pointer hover-elevate active-elevate-2"
+              className="relative overflow-visible rounded-xl bg-gradient-to-r from-primary/90 to-blue-600 p-3 shadow-lg cursor-pointer hover-elevate active-elevate-2"
               onClick={onNavigateToSubscriptions}
               data-testid="banner-upgrade"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+              <div className="absolute top-0 right-0 w-20 h-20 opacity-10">
                 <Sparkles className="w-full h-full" />
               </div>
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-6 h-6 text-white" />
+              <div className="flex items-center gap-2 relative z-10">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-bold text-white">Desbloqueie Tudo</h3>
-                  <p className="text-sm text-white/80 truncate">
+                  <h3 className="text-base font-bold text-white">Desbloqueie Tudo</h3>
+                  <p className="text-xs text-white/80 truncate">
                     IA ilimitada e Strong's completo
                   </p>
                 </div>
-                <div className="bg-white text-primary text-base font-semibold px-4 py-2 rounded-lg shadow flex-shrink-0">
+                <div className="bg-white text-primary text-sm font-semibold px-3 py-1.5 rounded-lg shadow flex-shrink-0">
                   Ver Planos
                 </div>
               </div>

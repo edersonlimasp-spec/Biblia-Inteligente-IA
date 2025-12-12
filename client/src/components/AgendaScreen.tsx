@@ -639,7 +639,7 @@ END:VCALENDAR`;
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => setShareEvent(event)}
+                onClick={() => handleShareNative(event)}
                 data-testid={`button-share-event-${event.id}`}
               >
                 <Share2 className="w-4 h-4" />
@@ -763,7 +763,7 @@ END:VCALENDAR`;
               <Button 
                 variant="outline" 
                 size="icon"
-                onClick={() => setShowShareAgenda(true)} 
+                onClick={handleShareAgendaNative} 
                 data-testid="button-share-agenda"
               >
                 <Share2 className="w-4 h-4" />

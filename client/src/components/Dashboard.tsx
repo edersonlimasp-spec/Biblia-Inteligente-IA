@@ -16,7 +16,8 @@ import {
   Shield,
   Sparkles,
   GraduationCap,
-  Mic
+  Mic,
+  Library
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -32,6 +33,7 @@ interface DashboardProps {
   onNavigateToCalendar: () => void;
   onNavigateToRecordings: () => void;
   onNavigateToAdmin: () => void;
+  onNavigateToProfessorPremium: () => void;
 }
 
 interface ModuleCardProps {
@@ -107,6 +109,7 @@ export function Dashboard({
   onNavigateToCalendar,
   onNavigateToRecordings,
   onNavigateToAdmin,
+  onNavigateToProfessorPremium,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
   const deviceId = getDeviceId();
@@ -147,6 +150,16 @@ export function Dashboard({
       iconColor: "bg-fuchsia-500",
       onClick: onNavigateToAIModes,
       badge: "4 modos",
+    },
+    {
+      id: "professor-premium",
+      title: "Professor Premium",
+      description: "Estudos estruturados com IA",
+      icon: Library,
+      gradient: "bg-gradient-to-br from-indigo-600 to-purple-700",
+      iconColor: "bg-indigo-500",
+      onClick: onNavigateToProfessorPremium,
+      badge: "6 módulos",
     },
     {
       id: "plans-progress",

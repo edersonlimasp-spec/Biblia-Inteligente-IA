@@ -18,6 +18,9 @@ import { AIModesScreen } from "./AIModesScreen";
 import { PlansProgressScreen } from "./PlansProgressScreen";
 import { AgendaScreen } from "./AgendaScreen";
 import { RecordingsScreen } from "./RecordingsScreen";
+import { StudyModulesScreen } from "./StudyModulesScreen";
+import { ModuleDetailScreen } from "./ModuleDetailScreen";
+import { LessonScreen } from "./LessonScreen";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
@@ -42,10 +45,16 @@ type Screen =
   | "subscriptions"
   | "settings"
   | "history"
-  | "admin";
+  | "admin"
+  | "professor-premium"
+  | "module-detail"
+  | "lesson";
 
 export function MainNavigation() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("splash");
+  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+  const [selectedTrackLevel, setSelectedTrackLevel] = useState<string>("iniciante");
   const [showSplash, setShowSplash] = useState(() => {
     try {
       const hasVisited = sessionStorage.getItem('hasVisitedApp');
@@ -172,6 +181,7 @@ export function MainNavigation() {
           onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
           onNavigateToRecordings={() => setCurrentScreen("recordings")}
           onNavigateToAdmin={() => setCurrentScreen("admin")}
+          onNavigateToProfessorPremium={() => setCurrentScreen("professor-premium")}
         />
       )}
       {currentScreen === "recordings" && (
@@ -228,6 +238,39 @@ export function MainNavigation() {
       )}
       {currentScreen === "admin" && (
         <AdminPanel onBack={() => setCurrentScreen("dashboard")} />
+      )}
+      {currentScreen === "professor-premium" && (
+        <StudyModulesScreen 
+          onBack={() => setCurrentScreen("dashboard")}
+          onNavigateToModule={(moduleId) => {
+            setSelectedModuleId(moduleId);
+            setCurrentScreen("module-detail");
+          }}
+        />
+      )}
+      {currentScreen === "module-detail" && selectedModuleId && (
+        <ModuleDetailScreen
+          moduleId={selectedModuleId}
+          onBack={() => {
+            setCurrentScreen("professor-premium");
+          }}
+          onNavigateToLesson={(lessonId, trackLevel) => {
+            setSelectedLessonId(lessonId);
+            setSelectedTrackLevel(trackLevel);
+            setCurrentScreen("lesson");
+          }}
+          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
+        />
+      )}
+      {currentScreen === "lesson" && selectedLessonId && (
+        <LessonScreen
+          lessonId={selectedLessonId}
+          trackLevel={selectedTrackLevel}
+          onBack={() => {
+            setSelectedLessonId(null);
+            setCurrentScreen("module-detail");
+          }}
+        />
       )}
     </ThemeProvider>
   );

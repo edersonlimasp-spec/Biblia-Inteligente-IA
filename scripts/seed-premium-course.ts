@@ -2,45 +2,23 @@ import { db } from "../server/db";
 import { studyModules, studyTracks, studyLessons } from "../shared/schema";
 import { eq } from "drizzle-orm";
 
+import { ModuleData } from "./course-data/types";
+import { NIVEL_1_MODULOS_4_8 } from "./course-data/nivel1-modulos4-8";
+import { NIVEL_1_MODULOS_9_15 } from "./course-data/nivel1-modulos9-15";
+import { NIVEL_1_MODULOS_13_15 } from "./course-data/nivel1-modulos13-15";
+import { NIVEL_2_MODULOS_1_5 } from "./course-data/nivel2-modulos1-5";
+import { NIVEL_2_MODULOS_6_10 } from "./course-data/nivel2-modulos6-10";
+import { NIVEL_2_MODULOS_11_15 } from "./course-data/nivel2-modulos11-15";
+import { NIVEL_3_MODULOS_1_5 } from "./course-data/nivel3-modulos1-5";
+import { NIVEL_3_MODULOS_6_10 } from "./course-data/nivel3-modulos6-10";
+import { NIVEL_3_MODULOS_11_15 } from "./course-data/nivel3-modulos11-15";
+
 // ============================================================================
 // PROFESSOR TEOLÓGICO PREMIUM – FORMAÇÃO BÍBLICA AVANÇADA
 // ============================================================================
 // Curso completo com 3 níveis, 45 módulos e 450+ lições
 // Base doutrinária: Cristocêntrica, Autoridade das Escrituras, Espírito Santo
 // ============================================================================
-
-// Helper function to generate lesson content
-interface LessonData {
-  id: string;
-  title: string;
-  content: string;
-  references: string;
-  questions: string;
-  application: string;
-  summary: string;
-  estimatedMinutes: number;
-  order: number;
-}
-
-interface TrackData {
-  id: string;
-  level: "iniciante" | "moderado" | "avancado";
-  name: string;
-  description: string;
-  requiredPlan: string;
-  order: number;
-  lessons: LessonData[];
-}
-
-interface ModuleData {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-  order: number;
-  tracks: TrackData[];
-}
 
 // ============================================================================
 // NÍVEL 1 - FORMAÇÃO BÍBLICA FUNDAMENTAL (INICIANTE)
@@ -756,20 +734,38 @@ Ler a Bíblia como unidade nos faz ver a grandiosidade do plano de Deus e adorá
 ];
 
 // ============================================================================
-// Continue with more modules...
-// Modules 1.4 through 1.15 will be added in subsequent files due to size
+// COMBINE ALL MODULES (45 Total)
 // ============================================================================
+// Level 1 (Iniciante): Modules 1-15 (order 1-15)
+// Level 2 (Moderado): Modules 16-30 (order 16-30)
+// Level 3 (Avançado): Modules 31-45 (order 31-45)
+// ============================================================================
+
+const ALL_MODULES: ModuleData[] = [
+  ...NIVEL_1_INICIANTE,      // Modules 1-3 (inline above)
+  ...NIVEL_1_MODULOS_4_8,    // Modules 4-8
+  ...NIVEL_1_MODULOS_9_15,   // Modules 9-12 (some overlap handling)
+  ...NIVEL_1_MODULOS_13_15,  // Modules 13-15
+  ...NIVEL_2_MODULOS_1_5,    // Modules 16-20
+  ...NIVEL_2_MODULOS_6_10,   // Modules 21-25
+  ...NIVEL_2_MODULOS_11_15,  // Modules 26-30
+  ...NIVEL_3_MODULOS_1_5,    // Modules 31-35
+  ...NIVEL_3_MODULOS_6_10,   // Modules 36-40
+  ...NIVEL_3_MODULOS_11_15,  // Modules 41-45
+];
 
 // Export the module data
 export const PREMIUM_COURSE_DATA = {
-  nivel1: NIVEL_1_INICIANTE,
-  nivel2: [], // To be populated
-  nivel3: [], // To be populated
+  nivel1: [...NIVEL_1_INICIANTE, ...NIVEL_1_MODULOS_4_8, ...NIVEL_1_MODULOS_9_15, ...NIVEL_1_MODULOS_13_15],
+  nivel2: [...NIVEL_2_MODULOS_1_5, ...NIVEL_2_MODULOS_6_10, ...NIVEL_2_MODULOS_11_15],
+  nivel3: [...NIVEL_3_MODULOS_1_5, ...NIVEL_3_MODULOS_6_10, ...NIVEL_3_MODULOS_11_15],
+  all: ALL_MODULES,
 };
 
 // Seed function
 async function seedPremiumCourse() {
   console.log("Starting Premium Course seed...");
+  console.log(`Total modules to seed: ${ALL_MODULES.length}`);
 
   try {
     // Clear existing data
@@ -778,9 +774,12 @@ async function seedPremiumCourse() {
     await db.delete(studyTracks);
     await db.delete(studyModules);
 
-    // Seed Level 1 modules
-    for (const moduleData of NIVEL_1_INICIANTE) {
-      console.log(`Seeding module: ${moduleData.name}`);
+    let totalLessons = 0;
+    let totalTracks = 0;
+
+    // Seed all modules
+    for (const moduleData of ALL_MODULES) {
+      console.log(`Seeding module ${moduleData.order}: ${moduleData.name}`);
       
       // Insert module
       await db.insert(studyModules).values({
@@ -803,6 +802,7 @@ async function seedPremiumCourse() {
           requiredPlan: track.requiredPlan,
           order: track.order,
         });
+        totalTracks++;
 
         for (const lesson of track.lessons) {
           await db.insert(studyLessons).values({
@@ -817,12 +817,17 @@ async function seedPremiumCourse() {
             estimatedMinutes: lesson.estimatedMinutes,
             order: lesson.order,
           });
+          totalLessons++;
         }
       }
     }
 
+    console.log("\n========================================");
     console.log("Premium Course seed completed successfully!");
-    console.log(`Seeded ${NIVEL_1_INICIANTE.length} modules with full lesson content.`);
+    console.log(`Seeded ${ALL_MODULES.length} modules`);
+    console.log(`Seeded ${totalTracks} tracks`);
+    console.log(`Seeded ${totalLessons} lessons`);
+    console.log("========================================\n");
     
   } catch (error) {
     console.error("Error seeding premium course:", error);

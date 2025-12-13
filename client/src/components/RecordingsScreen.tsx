@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { LoginPromptModal } from "@/components/LoginPromptModal";
 import {
   useRecordings,
   useAudioRecorder,
@@ -38,6 +40,7 @@ import {
   Download,
   Mail,
   MessageCircle,
+  LogIn,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -46,7 +49,9 @@ interface RecordingsScreenProps {
 }
 
 export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const {
     recordings,
     isLoading,
@@ -79,6 +84,11 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleStartRecording = async () => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
     const success = await startRecording();
     if (success) {
       toast({
@@ -683,6 +693,19 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <LoginPromptModal
+        open={showLoginPrompt}
+        onOpenChange={setShowLoginPrompt}
+        featureName="as Gravações"
+        onAuthSuccess={() => {
+          setShowLoginPrompt(false);
+          toast({
+            title: "Login realizado!",
+            description: "Agora você pode gravar seus sermões.",
+          });
+        }}
+      />
     </div>
   );
 }

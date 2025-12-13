@@ -182,6 +182,8 @@ export function MainNavigation() {
           onNavigateToRecordings={() => setCurrentScreen("recordings")}
           onNavigateToAdmin={() => setCurrentScreen("admin")}
           onNavigateToProfessorPremium={() => setCurrentScreen("professor-premium")}
+          onNavigateToLogin={() => setCurrentScreen("login")}
+          onNavigateToSettings={() => setCurrentScreen("settings")}
         />
       )}
       {currentScreen === "recordings" && (

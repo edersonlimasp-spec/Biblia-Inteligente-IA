@@ -17,8 +17,11 @@ import {
   Sparkles,
   GraduationCap,
   Mic,
-  Library
+  Library,
+  LogIn,
+  User
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 interface DashboardProps {
@@ -34,6 +37,8 @@ interface DashboardProps {
   onNavigateToRecordings: () => void;
   onNavigateToAdmin: () => void;
   onNavigateToProfessorPremium: () => void;
+  onNavigateToLogin: () => void;
+  onNavigateToSettings: () => void;
 }
 
 interface ModuleCardProps {
@@ -110,6 +115,8 @@ export function Dashboard({
   onNavigateToRecordings,
   onNavigateToAdmin,
   onNavigateToProfessorPremium,
+  onNavigateToLogin,
+  onNavigateToSettings,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
   const deviceId = getDeviceId();
@@ -229,35 +236,50 @@ export function Dashboard({
 
   return (
     <div className="min-h-screen bg-background">
-      <ScrollArea className="h-screen">
-        <div className="max-w-2xl mx-auto px-4 py-6 sm:px-6">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="text-center mb-6"
-          >
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent mb-1">
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex-1">
+            <h1 className="text-lg font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent">
               Bíblia Inteligente
             </h1>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-xs">
               {user ? `Bem-vindo, ${user.name || 'estudante'}` : "Estudo bíblico com textos originais"}
             </p>
-            {!user && trialInfo && trialInfo.active && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mt-3"
-              >
-                <Badge variant="outline" className="text-xs py-1 px-3 border-primary/30">
-                  <Timer className="w-3 h-3 mr-1.5" />
-                  {trialInfo.daysRemaining} dias de avaliação
-                </Badge>
-              </motion.div>
-            )}
-          </motion.div>
+          </div>
+          
+          {!user && trialInfo && trialInfo.active && (
+            <Badge variant="outline" className="text-xs py-1 px-2 border-primary/30">
+              <Timer className="w-3 h-3 mr-1" />
+              {trialInfo.daysRemaining}d
+            </Badge>
+          )}
+          
+          {user ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onNavigateToSettings}
+              data-testid="button-settings"
+            >
+              <User className="w-5 h-5" />
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNavigateToLogin}
+              data-testid="button-login"
+              className="gap-1.5"
+            >
+              <LogIn className="w-4 h-4" />
+              Entrar
+            </Button>
+          )}
+        </div>
+      </header>
 
+      <ScrollArea className="h-[calc(100vh-60px)]">
+        <div className="max-w-2xl mx-auto px-4 py-6 sm:px-6">
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             {modules.map((module, index) => (
               <ModuleCard

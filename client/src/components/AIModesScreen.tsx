@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { LoginPromptModal } from "@/components/LoginPromptModal";
 import { 
   ArrowLeft, 
   GraduationCap, 
@@ -18,7 +19,8 @@ import {
   Send,
   Loader2,
   Lock,
-  Sparkles
+  Sparkles,
+  LogIn
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -77,6 +79,8 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   const { data: subStatus } = useQuery<{ hasPremium: boolean; hasGold: boolean }>({
     queryKey: ['/api/user/subscription-status'],
@@ -110,6 +114,12 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
   const handleSubmit = () => {
     if (!question.trim() || !selectedMode) return;
     
+    if (!user) {
+      setPendingSubmit(true);
+      setShowLoginPrompt(true);
+      return;
+    }
+    
     const mode = AI_MODES.find(m => m.id === selectedMode);
     if (mode?.premium && !hasPremium) {
       toast({
@@ -121,6 +131,24 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
     
     setResponse("");
     askMutation.mutate({ mode: selectedMode, text: question });
+  };
+  
+  const handleAuthSuccess = () => {
+    setShowLoginPrompt(false);
+    if (pendingSubmit && question.trim() && selectedMode) {
+      setPendingSubmit(false);
+      const mode = AI_MODES.find(m => m.id === selectedMode);
+      if (mode?.premium) {
+        queryClient.invalidateQueries({ queryKey: ['/api/user/subscription-status'] });
+        toast({
+          title: "Login realizado!",
+          description: "Verifique sua assinatura para acessar modos premium.",
+        });
+      } else {
+        setResponse("");
+        askMutation.mutate({ mode: selectedMode, text: question });
+      }
+    }
   };
 
   const selectedModeData = AI_MODES.find(m => m.id === selectedMode);
@@ -298,6 +326,13 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
           )}
         </div>
       </ScrollArea>
+      
+      <LoginPromptModal
+        open={showLoginPrompt}
+        onOpenChange={setShowLoginPrompt}
+        featureName="os Modos IA Premium"
+        onAuthSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

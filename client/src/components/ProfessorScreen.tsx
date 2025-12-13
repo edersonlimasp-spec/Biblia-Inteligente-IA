@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { LoginPromptModal } from "@/components/LoginPromptModal";
 import { 
   ArrowLeft, 
   Send,
@@ -15,7 +16,8 @@ import {
   GraduationCap,
   User,
   Trash2,
-  Plus
+  Plus,
+  LogIn
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -36,6 +38,8 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [pendingQuestion, setPendingQuestion] = useState("");
 
   useEffect(() => {
     try {
@@ -96,6 +100,12 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
   const handleSubmit = () => {
     if (!input.trim() || askMutation.isPending) return;
     
+    if (!user) {
+      setPendingQuestion(input.trim());
+      setShowLoginPrompt(true);
+      return;
+    }
+    
     const userMessage: Message = {
       role: "user",
       content: input.trim(),
@@ -105,6 +115,22 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     askMutation.mutate(input.trim());
+  };
+  
+  const handleAuthSuccess = () => {
+    setShowLoginPrompt(false);
+    if (pendingQuestion) {
+      const userMessage: Message = {
+        role: "user",
+        content: pendingQuestion,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, userMessage]);
+      setInput("");
+      const questionToSend = pendingQuestion;
+      setPendingQuestion("");
+      askMutation.mutate(questionToSend);
+    }
   };
 
   const handleNewConversation = () => {
@@ -267,6 +293,13 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
           </Button>
         </div>
       </div>
+      
+      <LoginPromptModal
+        open={showLoginPrompt}
+        onOpenChange={setShowLoginPrompt}
+        featureName="o Professor IA"
+        onAuthSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

@@ -1,0 +1,143 @@
+PROMPT PARA O REPLIT (AGENT) — CRIAR CURSO TEOLÓGICO PREMIUM COMPLETO, ROBUSTO E VENDÁVEL
+
+CONTEXTO:
+Você está trabalhando no meu app “Bíblia Inteligente IA”. Já existe um módulo/tela “Professor Premium”, porém ele foi criado só com a estrutura e NÃO possui cursos/aulas reais. Agora quero que você gere CONTEÚDO REAL e robusto, pronto para comercialização, com progressão pedagógica e integração com a IA do app.
+
+REGRAS IMPORTANTES (OBRIGATÓRIAS):
+1) NÃO citar nomes de denominações/igrejas (ex.: “Igreja Cristã Maranata”).
+2) Porém o conteúdo deve respeitar e refletir uma base doutrinária cristocêntrica com ênfases:
+   - Centralidade absoluta de Cristo
+   - Autoridade plena das Escrituras
+   - Palavra como revelação viva (aplicação pelo Espírito Santo)
+   - Ação contínua do Espírito Santo na Igreja e no cristão
+   - Santificação e vida cristã prática
+   - Igreja como Corpo vivo de Cristo
+   - Escatologia bíblica equilibrada
+   - Unidade do Corpo de Cristo
+3) O curso deve ser PROFISSIONAL (nível seminário), robusto e edificante.
+4) Não gerar apenas títulos: é obrigatório gerar CONTEÚDO COMPLETO em cada módulo.
+5) Cada MÓDULO deve conter no mínimo 10 “matérias”/lições (subaulas) para estudo.
+6) Cada “matéria” deve ter referências bíblicas e aplicação prática.
+7) Toda a experiência deve ser “premium”, com IA ajudando o aluno a tirar dúvidas.
+
+OBJETIVO:
+Criar dentro do app um produto chamado:
+“Professor Teológico Premium – Formação Bíblica Avançada”
+com cursos estruturados em 3 níveis (iniciante, moderado, avançado), e cada nível contendo módulos robustos.
+
+===============================
+1) ESTRUTURA DO CURSO (OBRIGATÓRIO)
+===============================
+Crie 3 níveis:
+
+NÍVEL 1 – Fundamentos (Iniciante)
+NÍVEL 2 – Consolidação (Moderado)
+NÍVEL 3 – Avançado / Ministerial (Avançado)
+
+Para cada nível, crie 15 MÓDULOS.
+TOTAL: 45 MÓDULOS.
+
+Cada MÓDULO deve conter no mínimo 10 MATÉRIAS (lições).
+TOTAL mínimo de lições: 45 x 10 = 450 lições.
+
+===============================
+2) FORMATO OBRIGATÓRIO DE CADA MÓDULO
+===============================
+Para cada módulo, gere:
+
+A) Título do Módulo
+B) Objetivo do Módulo
+C) Pré-requisitos (se houver)
+D) 10 MATÉRIAS (no mínimo), e para cada matéria:
+
+   1. Título da Matéria
+   2. Objetivo pedagógico
+   3. Conteúdo (texto bem desenvolvido, não superficial)
+   4. Base bíblica (referências claras)
+   5. Contexto histórico/teológico (quando aplicável)
+   6. Aplicação prática para vida cristã
+   7. Perguntas para reflexão (3 a 5)
+   8. Atividade sugerida (leitura, devocional, prática, memorizar)
+   9. Como a IA “Professor Teológico” deve ajudar (exemplos de perguntas + aprofundamentos)
+   10. Sugestão de leitura bíblica da semana (plano simples)
+
+===============================
+3) GRANDES ÁREAS QUE OS MÓDULOS DEVEM COBRIR
+===============================
+Distribua ao longo dos níveis (progressão crescente):
+
+- Teologia Bíblica (AT e NT)
+- Cristologia (Pessoa e obra de Cristo)
+- Pneumatologia (Espírito Santo)
+- Hermenêutica e Interpretação bíblica
+- Escatologia bíblica
+- Igreja e Missão (Eclesiologia)
+- Vida cristã prática e santificação
+- História da Igreja (sem viés denominacional explícito)
+- Doutrinas centrais (soteriologia, graça, fé, justificação)
+- Tipologia e leitura cristocêntrica do AT
+- Liderança, serviço e ministério (no nível avançado)
+- Desafios contemporâneos (cultura, família, ética, tecnologia) com base bíblica
+
+===============================
+4) IA INTEGRADA (OBRIGATÓRIO)
+===============================
+O app tem um agente/IA (“Professor”) via API.
+Você deve criar, junto do conteúdo, as regras de uso da IA no curso:
+
+- A IA deve adaptar respostas ao nível do aluno.
+- Deve responder com reverência e linguagem acessível.
+- Deve explicar contexto cultural e histórico.
+- Deve explicar termos em hebraico/grego quando solicitado.
+- Deve apresentar visões teológicas com respeito, sem polemizar, mantendo base bíblica.
+
+Crie também “prompts internos” por nível para a IA (iniciante, moderado, avançado), com:
+- tom
+- profundidade
+- limites (não inventar citações, não afirmar fatos sem base)
+- método de resposta (sempre citar referências bíblicas quando possível)
+
+===============================
+5) IMPLEMENTAÇÃO NO APP (OBRIGATÓRIO)
+===============================
+Você deve:
+
+1) Criar tabelas/coleções para armazenar:
+   - Cursos
+   - Níveis
+   - Módulos
+   - Matérias (lições)
+   - Progresso do aluno (marcar lição como concluída)
+   - Avaliações simples (quiz opcional)
+   - Notas/anotações do aluno por lição
+
+2) Criar UI/UX Premium:
+   - Lista de cursos
+   - Tela do curso → níveis
+   - Tela do nível → módulos
+   - Tela do módulo → lista das 10+ matérias
+   - Tela da matéria → conteúdo, referências, perguntas, atividade
+   - Botão “Perguntar ao Professor” (IA) contextual (já sabendo qual matéria/versículo o aluno está estudando)
+   - Progresso e percentuais concluídos
+
+3) Conteúdo deve estar no banco (seed) e não apenas hardcoded:
+   - Criar um script de seed que populará os 45 módulos e 450+ matérias.
+
+4) Garantir que isso funciona em:
+   - Preview
+   - Produção publicada
+
+===============================
+6) ENTREGA E VALIDAÇÃO (OBRIGATÓRIO)
+===============================
+Antes de dizer que terminou:
+
+- Confirme que existem cursos com conteúdo real preenchido.
+- Abra pelo menos 3 módulos em cada nível e mostre amostras das matérias.
+- Confirme que cada módulo tem 10+ matérias.
+- Confirme que o botão “Perguntar ao Professor” passa o contexto (curso/nivel/módulo/matéria) para a IA.
+- Confirme que progresso do aluno está salvando corretamente.
+
+IMPORTANTE:
+Não encerrar o trabalho enquanto os cursos estiverem “vazios” ou apenas com títulos.
+Eu preciso de CONTEÚDO REAL e ROBUSTO para comercialização.

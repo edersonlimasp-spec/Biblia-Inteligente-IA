@@ -17,8 +17,18 @@ import {
   User,
   Trash2,
   Plus,
-  LogIn
+  LogIn,
+  Share2,
+  Copy,
+  Mail,
+  MessageCircle
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 
 interface ProfessorScreenProps {
@@ -151,6 +161,64 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
     }
   };
 
+  const getShareText = (assistantMessage: Message, index: number) => {
+    const userMessage = messages[index - 1];
+    const question = userMessage?.role === 'user' ? userMessage.content : '';
+    return `Pergunta: ${question}
+
+Resposta do Professor IA: ${assistantMessage.content}
+
+---
+Enviado por Bíblia Inteligente IA
+Conheça: https://bibliainteligente.replit.app`;
+  };
+
+  const handleShare = async (message: Message, index: number, method: 'whatsapp' | 'email' | 'copy' | 'native') => {
+    const shareText = getShareText(message, index);
+    
+    switch (method) {
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+        break;
+      case 'email':
+        window.open(`mailto:?subject=${encodeURIComponent('Resposta do Professor IA - Bíblia Inteligente')}&body=${encodeURIComponent(shareText)}`, '_blank');
+        break;
+      case 'copy':
+        try {
+          await navigator.clipboard.writeText(shareText);
+          toast({
+            title: "Copiado!",
+            description: "Resposta copiada para a área de transferência",
+          });
+        } catch {
+          toast({
+            title: "Erro",
+            description: "Não foi possível copiar",
+            variant: "destructive",
+          });
+        }
+        break;
+      case 'native':
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Resposta do Professor IA',
+              text: shareText,
+            });
+          } catch (err) {
+            if ((err as Error).name !== 'AbortError') {
+              toast({
+                title: "Erro",
+                description: "Não foi possível compartilhar",
+                variant: "destructive",
+              });
+            }
+          }
+        }
+        break;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
@@ -235,9 +303,45 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                <span className="text-[10px] opacity-60 mt-1 block">
-                  {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                </span>
+                <div className="flex items-center justify-between mt-1 gap-2">
+                  <span className="text-[10px] opacity-60">
+                    {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                  {message.role === 'assistant' && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 opacity-60 hover:opacity-100"
+                          data-testid={`button-share-message-${index}`}
+                        >
+                          <Share2 className="w-3 h-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleShare(message, index, 'whatsapp')} data-testid="share-whatsapp">
+                          <MessageCircle className="w-4 h-4 mr-2 text-green-500" />
+                          WhatsApp
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleShare(message, index, 'email')} data-testid="share-email">
+                          <Mail className="w-4 h-4 mr-2 text-blue-500" />
+                          E-mail
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleShare(message, index, 'copy')} data-testid="share-copy">
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copiar texto
+                        </DropdownMenuItem>
+                        {'share' in navigator && (
+                          <DropdownMenuItem onClick={() => handleShare(message, index, 'native')} data-testid="share-native">
+                            <Share2 className="w-4 h-4 mr-2" />
+                            Mais opções...
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
               </div>
               {message.role === 'user' && (
                 <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">

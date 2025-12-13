@@ -470,9 +470,10 @@ export function AIPanel() {
     
     setMessages(prev => [...prev, userMessage]);
 
-    // Determine mode based on subscription (guests always use essential)
+    // Determine mode based on subscription (admins get full premium, guests use essential)
     const isGuest = !user;
-    const mode = isGuest ? 'essential' : (userSub.hasPremium ? 'premium' : 'essential');
+    const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
+    const mode = isGuest ? 'essential' : (isAdminUser || userSub.hasPremium ? 'premium' : 'essential');
     
     // Track AI question
     trackAIQuestion(mode).catch(() => {});
@@ -500,12 +501,12 @@ export function AIPanel() {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
                 <span className="font-semibold text-primary">Professor</span>
-                {userSub.hasPremium && (
+                {(userSub.hasPremium || user?.role === 'admin' || user?.role === 'super_admin') && (
                   <Badge variant="default" className="text-xs bg-amber-600">
                     Premium
                   </Badge>
                 )}
-                {!userSub.hasPremium && userSub.hasGold && (
+                {!userSub.hasPremium && userSub.hasGold && !(user?.role === 'admin' || user?.role === 'super_admin') && (
                   <Badge variant="secondary" className="text-xs">
                     Gold
                   </Badge>

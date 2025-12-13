@@ -549,13 +549,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
+      // Admin bypass - admins have full access
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      
       // Check trial or lifetime subscription
       const trialActive = isTrialActive(user.trialStartDate);
       const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
       
       res.json({ 
-        hasAccess: trialActive || hasLifetime,
-        reason: trialActive ? 'trial' : hasLifetime ? 'subscription' : 'none',
+        hasAccess: isAdmin || trialActive || hasLifetime,
+        reason: isAdmin ? 'admin' : trialActive ? 'trial' : hasLifetime ? 'subscription' : 'none',
       });
     } catch (error) {
       console.error("Check strong access error:", error);
@@ -572,6 +575,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
+      // Admin bypass - admins have full access to all modes
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      
       // Check trial (gives access to essential mode during 30 days)
       const trialActive = isTrialActive(user.trialStartDate);
       
@@ -579,7 +585,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
       let hasAccess = false;
-      if (mode === 'essential') {
+      if (isAdmin) {
+        // Admins have full access to all modes
+        hasAccess = true;
+      } else if (mode === 'essential') {
         // Trial grants access to essential mode
         hasAccess = trialActive || hasGold || hasPremium;
       } else if (mode === 'premium') {
@@ -589,7 +598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         hasAccess,
-        reason: trialActive ? 'trial' : hasPremium ? 'premium' : hasGold ? 'gold' : 'none'
+        reason: isAdmin ? 'admin' : trialActive ? 'trial' : hasPremium ? 'premium' : hasGold ? 'gold' : 'none'
       });
     } catch (error) {
       console.error("Check AI access error:", error);
@@ -624,12 +633,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const trialActive = isTrialActive(user.trialStartDate);
       
+      // Admin bypass - admins have full access to all features
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      
       // Check subscription status
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
-      // Enforce plan permissions BEFORE making OpenAI call
-      if (premiumModes.includes(mode) && !hasPremium) {
+      // Enforce plan permissions BEFORE making OpenAI call (admins bypass all restrictions)
+      if (premiumModes.includes(mode) && !hasPremium && !isAdmin) {
         const modeNames: Record<string, string> = {
           premium: 'Premium',
           pregador: 'Pregador',
@@ -643,8 +655,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Essential/Professor mode requires trial, Gold, or Premium
-      if ((mode === 'essential' || mode === 'professor') && !trialActive && !hasGold && !hasPremium) {
+      // Essential/Professor mode requires trial, Gold, or Premium (admins bypass)
+      if ((mode === 'essential' || mode === 'professor') && !trialActive && !hasGold && !hasPremium && !isAdmin) {
         return res.status(403).json({ 
           error: "Seu trial de 30 dias expirou. Assine um plano (Gold R$ 9,90/mês ou Premium R$ 19,90/mês) para continuar usando o Professor.",
           requiresSubscription: true,
@@ -652,11 +664,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Enforce rate limits BEFORE making OpenAI call
+      // Enforce rate limits BEFORE making OpenAI call (admins have no limit)
       const todayCount = await storage.getTodayUsageCount(req.userId!);
-      const limit = hasPremium ? 100 : (hasGold || trialActive) ? 30 : 0;
+      const limit = isAdmin ? 999999 : (hasPremium ? 100 : (hasGold || trialActive) ? 30 : 0);
 
-      if (todayCount >= limit) {
+      if (todayCount >= limit && !isAdmin) {
         return res.status(429).json({ 
           error: `Você atingiu o limite diário de ${limit} perguntas. ${
             hasGold ? 'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.' : 

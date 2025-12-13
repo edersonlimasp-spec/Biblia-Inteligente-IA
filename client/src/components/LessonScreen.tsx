@@ -177,9 +177,9 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="prose prose-sm dark:prose-invert max-w-none mb-6"
+            className="prose prose-sm dark:prose-invert max-w-none mb-6 overflow-hidden"
           >
-            <p className="text-base leading-relaxed">{lesson?.content}</p>
+            <p className="text-base leading-relaxed break-words">{lesson?.content}</p>
           </motion.div>
 
           <Section

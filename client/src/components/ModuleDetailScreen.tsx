@@ -101,22 +101,22 @@ function TrackCard({
       className="mb-6"
       data-testid={`track-card-${track.id}`}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+        <div className="flex items-center gap-2 min-w-0 flex-wrap">
           <Badge variant="outline" className={levelConfig.badgeClass}>
             {levelConfig.label}
           </Badge>
-          <h3 className="font-semibold">{track.name}</h3>
-          {isLocked && <Lock className="w-4 h-4 text-muted-foreground" />}
+          <h3 className="font-semibold truncate">{track.name}</h3>
+          {isLocked && <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
         </div>
         {!isLocked && track.totalLessons > 0 && (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground flex-shrink-0">
             {track.completedLessons}/{track.totalLessons}
           </span>
         )}
       </div>
       
-      <p className="text-sm text-muted-foreground mb-3">{track.description}</p>
+      <p className="text-sm text-muted-foreground mb-3 break-words">{track.description}</p>
       
       {isLocked ? (
         <div className="bg-muted/50 rounded-xl p-4 text-center">

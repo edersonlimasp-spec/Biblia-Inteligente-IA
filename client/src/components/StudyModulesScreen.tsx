@@ -150,10 +150,10 @@ function ModuleCard({
             <Icon className={`w-5 h-5 ${isLocked ? 'text-muted-foreground' : 'text-white'}`} />
           </div>
           
-          <h3 className={`text-lg font-bold mb-1 ${isLocked ? 'text-muted-foreground' : 'text-white'}`}>
+          <h3 className={`text-lg font-bold mb-1 truncate ${isLocked ? 'text-muted-foreground' : 'text-white'}`}>
             {module.name}
           </h3>
-          <p className={`text-sm mb-3 line-clamp-2 flex-1 ${isLocked ? 'text-muted-foreground/70' : 'text-white/75'}`}>
+          <p className={`text-sm mb-3 line-clamp-2 flex-1 break-words ${isLocked ? 'text-muted-foreground/70' : 'text-white/75'}`}>
             {module.description}
           </p>
           

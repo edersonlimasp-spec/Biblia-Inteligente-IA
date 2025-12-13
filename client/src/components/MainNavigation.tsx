@@ -246,6 +246,7 @@ export function MainNavigation() {
             setSelectedModuleId(moduleId);
             setCurrentScreen("module-detail");
           }}
+          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
         />
       )}
       {currentScreen === "module-detail" && selectedModuleId && (

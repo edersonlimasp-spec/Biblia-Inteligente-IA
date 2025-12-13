@@ -34,6 +34,15 @@ fi
 echo "💾 Maintaining backup in dist/public..."
 mkdir -p dist/public || true
 
+# Step 6.5: Copy Strong's dictionary data to dist for production
+echo "📚 Copying Strong's dictionary data..."
+if [ -f "server/strong-data.json" ]; then
+  cp server/strong-data.json dist/
+  echo "✅ strong-data.json copied to dist/"
+else
+  echo "⚠️  Warning: server/strong-data.json not found!"
+fi
+
 # Step 7: Verify files exist
 if [ ! -f "server/public/index.html" ]; then
   echo "❌ ERROR: index.html not found in server/public"

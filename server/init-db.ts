@@ -4,6 +4,10 @@ import { seedAdminUsers } from './seed-admins';
 import { seedBibleVersions } from './seed-versions';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const GENESIS_1_WORD_MAPPINGS = [
   { book: "gen", chapter: 1, verse: 1, word_position: 1, original_word: "בְּרֵאשִׁית", strong_number: "H7225", gloss: "No princípio" },
@@ -110,12 +114,14 @@ export async function initializeDatabase() {
       
       // Import Strong dictionary data from embedded JSON file
       // Try multiple paths for dev and production environments
+      // In Replit Autoscale: only dist/ folder is deployed, cwd is /app
       const possiblePaths = [
-        path.resolve(__dirname, '../server/strong-data.json'),  // dev: when running from dist/
-        path.resolve(__dirname, './server/strong-data.json'),   // prod: if running from root
-        path.resolve(__dirname, 'strong-data.json'),            // prod: if copied to dist/
-        path.resolve(process.cwd(), 'server/strong-data.json'), // fallback: from project root
-        path.resolve(process.cwd(), 'strong-data.json'),        // fallback: if in root
+        path.resolve(__dirname, 'strong-data.json'),            // PROD: /app/dist/strong-data.json (bundled code runs from dist/)
+        path.resolve(__dirname, '../server/strong-data.json'),  // DEV: when running tsx from project root
+        path.resolve(process.cwd(), 'dist/strong-data.json'),   // PROD fallback: /app/dist/strong-data.json
+        path.resolve(process.cwd(), 'server/strong-data.json'), // DEV fallback: from project root
+        '/app/dist/strong-data.json',                           // PROD absolute: Replit autoscale path
+        '/app/server/strong-data.json',                         // PROD fallback: if server/ copied
       ];
       
       console.log('🔍 Tentando encontrar strong-data.json nos seguintes caminhos:');

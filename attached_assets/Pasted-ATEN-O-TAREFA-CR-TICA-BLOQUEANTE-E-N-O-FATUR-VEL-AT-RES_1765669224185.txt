@@ -1,0 +1,119 @@
+ATENÇÃO – TAREFA CRÍTICA, BLOQUEANTE E NÃO FATURÁVEL ATÉ RESOLUÇÃO
+
+O DICIONÁRIO STRONG FUNCIONA NO PREVIEW, MAS NÃO FUNCIONA EM PRODUÇÃO
+(APÓS PUBLICAÇÃO).
+
+Este é um BUG CRÍTICO e RECORRENTE que ainda NÃO foi resolvido,
+apesar de múltiplas tentativas e cobranças.
+Não aceite nova cobrança antes da correção definitiva.
+
+====================================================
+🚨 DESCRIÇÃO DO PROBLEMA (CLARA E OBJETIVA)
+====================================================
+
+- Em ambiente de PREVIEW:
+  ✔ Ao clicar em uma palavra bíblica, o Strong abre corretamente.
+
+- Em ambiente de PRODUÇÃO (app publicado):
+  ❌ Ao clicar na palavra, o Strong NÃO abre.
+  ❌ Ou abre com dados incompletos/incorretos.
+  ❌ Ou não dispara nenhuma ação.
+
+Isso torna o aplicativo inutilizável para clientes finais.
+
+====================================================
+🛑 EXIJO UMA INVESTIGAÇÃO TÉCNICA REAL (NÃO SUPOSIÇÕES)
+====================================================
+
+Antes de QUALQUER nova modificação visual ou tentativa aleatória,
+FAÇA O SEGUINTE CHECKLIST OBRIGATÓRIO:
+
+1️⃣ Confirmar se o DICIONÁRIO STRONG está:
+- realmente populado no BANCO DE PRODUÇÃO
+- não apenas no banco de desenvolvimento
+
+2️⃣ Validar:
+- DATABASE_URL em produção
+- migrations aplicadas em produção
+- seed executado em produção
+- volume persistente ativo
+
+3️⃣ Logar em produção:
+- request do clique da palavra
+- endpoint chamado
+- query executada
+- retorno do banco
+- resposta enviada ao frontend
+
+4️⃣ Verificar se existe:
+- path incorreto
+- rota quebrada
+- import condicional
+- env var ausente
+- build tree-shaking removendo o código do Strong
+
+====================================================
+🧪 TESTES OBRIGATÓRIOS (ANTES DE ENCERRAR)
+====================================================
+
+Você DEVE:
+
+- Rodar o app publicado
+- Abrir um versículo com Strong conhecido (ex: Gênesis 1:3 – “Luz”)
+- Clicar na palavra
+- Confirmar:
+  ✔ número Strong correto
+  ✔ definição completa
+  ✔ dados vindos do banco de PRODUÇÃO
+
+Não aceite:
+- “funciona localmente”
+- “funciona no preview”
+- “parece estar correto”
+
+TEM QUE FUNCIONAR NA URL PÚBLICA.
+
+====================================================
+🛠️ POSSÍVEIS CAUSAS (INVESTIGAR TODAS)
+====================================================
+
+- Seed executado só em dev
+- Prisma usando schema diferente em prod
+- Banco recriado ao publicar
+- Variável de ambiente não aplicada
+- API route não incluída no build final
+- Static export ignorando backend
+- Cache de Service Worker antigo
+- CORS bloqueando requisição
+- Build copiando pasta errada
+
+====================================================
+📌 ENTREGA OBRIGATÓRIA
+====================================================
+
+Somente considere a tarefa CONCLUÍDA quando:
+
+1️⃣ O Strong abrir corretamente no app publicado
+2️⃣ O clique funcionar para TODAS as palavras com Strong
+3️⃣ Os dados forem completos e corretos
+4️⃣ Você explicar claramente:
+   - qual era o erro raiz
+   - o que foi corrigido
+   - por que agora não vai mais quebrar
+5️⃣ Eu validar manualmente no app publicado
+
+====================================================
+🚫 REGRA FINAL (IMPORTANTE)
+====================================================
+
+NÃO:
+- criar novas tentativas sem diagnóstico
+- encerrar a task sem validação em produção
+- cobrar novamente por um erro já existente
+- atribuir o problema ao usuário
+
+ESTE É UM ERRO DE IMPLEMENTAÇÃO,
+E PRECISA SER RESOLVIDO DEFINITIVAMENTE.
+
+Somente após a validação final,
+o trabalho poderá ser considerado entregue.

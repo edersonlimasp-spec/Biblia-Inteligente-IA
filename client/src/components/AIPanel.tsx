@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search } from "lucide-react";
+import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search, Share2, Copy, Mail, MessageCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +17,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -458,6 +464,68 @@ export function AIPanel() {
     },
   });
 
+  // ===================================
+  // ACTIONS - Compartilhar Resposta
+  // ===================================
+
+  const getShareText = (assistantMsg: ChatMessage, idx: number) => {
+    const userMsg = messages[idx - 1];
+    const questionText = userMsg?.role === 'user' ? userMsg.text : '';
+    return `Pergunta: ${questionText}
+
+Resposta do Professor IA: ${assistantMsg.text}
+
+---
+Enviado por Bíblia Inteligente IA
+Conheça: https://bibliainteligente.replit.app`;
+  };
+
+  const handleShareMessage = async (msg: ChatMessage, idx: number, method: 'whatsapp' | 'email' | 'copy' | 'native') => {
+    const shareText = getShareText(msg, idx);
+    
+    switch (method) {
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+        break;
+      case 'email':
+        window.open(`mailto:?subject=${encodeURIComponent('Resposta do Professor IA - Bíblia Inteligente')}&body=${encodeURIComponent(shareText)}`, '_blank');
+        break;
+      case 'copy':
+        try {
+          await navigator.clipboard.writeText(shareText);
+          toast({
+            title: "Copiado!",
+            description: "Resposta copiada para a área de transferência",
+          });
+        } catch {
+          toast({
+            title: "Erro",
+            description: "Não foi possível copiar",
+            variant: "destructive",
+          });
+        }
+        break;
+      case 'native':
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Resposta do Professor IA',
+              text: shareText,
+            });
+          } catch (err) {
+            if ((err as Error).name !== 'AbortError') {
+              toast({
+                title: "Erro",
+                description: "Não foi possível compartilhar",
+                variant: "destructive",
+              });
+            }
+          }
+        }
+        break;
+    }
+  };
+
   const handleAsk = () => {
     if (!question.trim()) return;
     
@@ -562,6 +630,42 @@ export function AIPanel() {
                       <p className="text-base sm:text-lg leading-relaxed whitespace-pre-line">
                         {msg.text}
                       </p>
+                      {msg.role === "assistant" && (
+                        <div className="flex justify-end mt-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 opacity-60 hover:opacity-100"
+                                data-testid={`button-share-message-${idx}`}
+                              >
+                                <Share2 className="w-3 h-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleShareMessage(msg, idx, 'whatsapp')} data-testid={`share-whatsapp-${idx}`}>
+                                <MessageCircle className="w-4 h-4 mr-2 text-green-500" />
+                                WhatsApp
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleShareMessage(msg, idx, 'email')} data-testid={`share-email-${idx}`}>
+                                <Mail className="w-4 h-4 mr-2 text-blue-500" />
+                                E-mail
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleShareMessage(msg, idx, 'copy')} data-testid={`share-copy-${idx}`}>
+                                <Copy className="w-4 h-4 mr-2" />
+                                Copiar texto
+                              </DropdownMenuItem>
+                              {'share' in navigator && (
+                                <DropdownMenuItem onClick={() => handleShareMessage(msg, idx, 'native')} data-testid={`share-native-${idx}`}>
+                                  <Share2 className="w-4 h-4 mr-2" />
+                                  Mais opções...
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

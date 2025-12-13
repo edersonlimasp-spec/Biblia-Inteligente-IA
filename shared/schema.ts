@@ -538,11 +538,14 @@ export const studyModules = pgTable("study_modules", {
   description: text("description").notNull(),
   icon: text("icon").notNull(),
   color: text("color").notNull().default("#1A5299"),
+  level: text("level").notNull().default("iniciante"), // 'iniciante', 'moderado', 'avancado'
+  requiredPlan: text("required_plan").notNull().default("gold"), // 'gold' = iniciante, 'premium' = moderado/avancado
   order: integer("order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   orderIdx: index("study_modules_order_idx").on(table.order),
+  levelIdx: index("study_modules_level_idx").on(table.level),
 }));
 
 export const insertStudyModuleSchema = createInsertSchema(studyModules).omit({

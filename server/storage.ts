@@ -989,8 +989,6 @@ class PostgresStorage implements IStorage {
   }
 
   async getModuleProgress(moduleId: string, userId: string | null, deviceId: string | null): Promise<{ total: number; completed: number; percentage: number }> {
-    if (!userId && !deviceId) return { total: 0, completed: 0, percentage: 0 };
-    
     const tracks = await this.getModuleTracks(moduleId);
     const trackIds = tracks.map(t => t.id);
     
@@ -1000,6 +998,11 @@ class PostgresStorage implements IStorage {
     const total = lessons.length;
     
     if (total === 0) return { total: 0, completed: 0, percentage: 0 };
+    
+    // Se não há usuário/dispositivo, retorna apenas o total (sem progresso)
+    if (!userId && !deviceId) {
+      return { total, completed: 0, percentage: 0 };
+    }
     
     const lessonIds = lessons.map(l => l.id);
     const conditions = [sql`${userStudyProgress.lessonId} IN (${sql.join(lessonIds.map(id => sql`${id}`), sql`, `)})`];

@@ -40,7 +40,7 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
       }
 
       setIsSubmitted(true);
-      setResetLink(data.resetLink);
+      setResetLink(data.devLink || data.resetLink);
       toast({
         title: "Link de reset gerado",
         description: "Use o link abaixo para redefinir sua senha",

@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { UserButton } from "@/components/UserButton";
 
 interface SubscriptionScreenProps {
   onBack?: () => void;
@@ -131,6 +132,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
             <h1 className="text-xl font-bold">Assinaturas</h1>
             <p className="text-sm text-muted-foreground">Escolha seu plano</p>
           </div>
+          <UserButton />
         </div>
       </header>
 

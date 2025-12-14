@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChangePasswordModal } from "@/components/ChangePasswordModal";
+import { UserButton } from "@/components/UserButton";
 
 interface SettingsScreenProps {
   onBack?: () => void;
@@ -53,6 +54,7 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
             <h1 className="text-xl font-bold">Configurações</h1>
             <p className="text-sm text-muted-foreground">Personalize o aplicativo</p>
           </div>
+          <UserButton onNavigateToSubscriptions={onNavigateToSubscriptions} showSubscriptionOption />
         </div>
       </header>
       

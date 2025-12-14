@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRequireAuth } from "@/contexts/AuthGateContext";
+import { UserButton } from "@/components/UserButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -128,6 +130,7 @@ const savePrayerRequests = (requests: PrayerRequest[]) => {
 
 export function PrayerMode({ onBack }: PrayerModeProps) {
   const { toast } = useToast();
+  const { requireAuth } = useRequireAuth();
   const [activeTab, setActiveTab] = useState("timer");
   
   const [timerMinutes, setTimerMinutes] = useState(15);
@@ -251,24 +254,26 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
       return;
     }
 
-    const newRequest: PrayerRequest = {
-      id: Date.now().toString(),
-      title: newTitle.trim(),
-      description: newDescription.trim(),
-      category: newCategory,
-      createdAt: new Date().toISOString(),
-      dueDate: newDueDate || undefined,
-      answered: false,
-    };
+    requireAuth(() => {
+      const newRequest: PrayerRequest = {
+        id: Date.now().toString(),
+        title: newTitle.trim(),
+        description: newDescription.trim(),
+        category: newCategory,
+        createdAt: new Date().toISOString(),
+        dueDate: newDueDate || undefined,
+        answered: false,
+      };
 
-    setPrayerRequests((prev) => [newRequest, ...prev]);
-    resetForm();
-    setShowAddDialog(false);
-    
-    toast({
-      title: "Pedido adicionado",
-      description: "Seu motivo de oração foi registrado",
-    });
+      setPrayerRequests((prev) => [newRequest, ...prev]);
+      resetForm();
+      setShowAddDialog(false);
+      
+      toast({
+        title: "Pedido adicionado",
+        description: "Seu motivo de oração foi registrado",
+      });
+    }, "adicionar pedido de oração");
   };
 
   const handleEditRequest = () => {
@@ -281,55 +286,61 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
       return;
     }
 
-    setPrayerRequests((prev) =>
-      prev.map((req) =>
-        req.id === editingRequest.id
-          ? { 
-              ...req, 
-              title: newTitle.trim(), 
-              description: newDescription.trim(), 
-              category: newCategory,
-              dueDate: newDueDate || undefined
-            }
-          : req
-      )
-    );
-    
-    setEditingRequest(null);
-    resetForm();
-    
-    toast({
-      title: "Pedido atualizado",
-      description: "As alterações foram salvas",
-    });
+    requireAuth(() => {
+      setPrayerRequests((prev) =>
+        prev.map((req) =>
+          req.id === editingRequest.id
+            ? { 
+                ...req, 
+                title: newTitle.trim(), 
+                description: newDescription.trim(), 
+                category: newCategory,
+                dueDate: newDueDate || undefined
+              }
+            : req
+        )
+      );
+      
+      setEditingRequest(null);
+      resetForm();
+      
+      toast({
+        title: "Pedido atualizado",
+        description: "As alterações foram salvas",
+      });
+    }, "editar pedido de oração");
   };
 
   const handleDeleteRequest = () => {
     if (!deleteConfirmId) return;
-    setPrayerRequests((prev) => prev.filter((req) => req.id !== deleteConfirmId));
-    setDeleteConfirmId(null);
-    toast({
-      title: "Pedido removido",
-      description: "O motivo de oração foi excluído",
-    });
+    requireAuth(() => {
+      setPrayerRequests((prev) => prev.filter((req) => req.id !== deleteConfirmId));
+      setDeleteConfirmId(null);
+      toast({
+        title: "Pedido removido",
+        description: "O motivo de oração foi excluído",
+      });
+    }, "excluir pedido de oração");
   };
 
   const handleMarkAnswered = (id: string) => {
-    setPrayerRequests((prev) =>
-      prev.map((req) =>
-        req.id === id
-          ? { ...req, answered: !req.answered, answeredAt: req.answered ? undefined : new Date().toISOString() }
-          : req
-      )
-    );
-    
-    const request = prayerRequests.find((r) => r.id === id);
-    if (request && !request.answered) {
-      toast({
-        title: "Oração respondida!",
-        description: "Glória a Deus pela resposta!",
-      });
-    }
+    requireAuth(() => {
+      setPrayerRequests((prev) =>
+        prev.map((req) =>
+          req.id === id
+            ? { ...req, answered: !req.answered, answeredAt: req.answered ? undefined : new Date().toISOString() }
+            : req
+        )
+      );
+      
+      const request = prayerRequests.find((r) => r.id === id);
+      if (request && !request.answered) {
+        toast({
+          title: "Oração respondida!",
+          description: "Glória a Deus pela resposta!",
+        });
+      }
+    }, "marcar oração como respondida");
   };
 
   const openEditDialog = (request: PrayerRequest) => {
@@ -435,7 +446,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
             <HandHeart className="w-5 h-5 text-amber-500" />
             Modo Oração
           </h1>
-          <div className="w-10" />
+          <UserButton />
         </div>
       </header>
 

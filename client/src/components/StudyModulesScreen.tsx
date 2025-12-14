@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { UserButton } from "@/components/UserButton";
 
 interface StudyModulesScreenProps {
   onBack: () => void;
@@ -353,6 +354,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
               Admin
             </Badge>
           )}
+          <UserButton onNavigateToSubscriptions={onNavigateToSubscriptions} showSubscriptionOption />
           {!user && (
             <Badge variant="outline" className="text-xs border-primary/30">
               <Clock className="w-3 h-3 mr-1" />

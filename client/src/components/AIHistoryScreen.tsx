@@ -9,6 +9,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { UserButton } from "@/components/UserButton";
 
 interface AIHistoryScreenProps {
   onBack?: () => void;
@@ -54,6 +55,7 @@ export function AIHistoryScreen({ onBack }: AIHistoryScreenProps) {
             <h1 className="text-xl font-bold">Histórico de IA</h1>
             <p className="text-sm text-muted-foreground">Suas conversas anteriores</p>
           </div>
+          <UserButton />
         </div>
       </header>
 

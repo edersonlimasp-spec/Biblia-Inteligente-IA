@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
-import { LogOut, LogIn } from "lucide-react";
+import { UserButton } from "@/components/UserButton";
 import { StrongModal } from "@/components/StrongModal";
 import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
 import { VerseActions, HIGHLIGHT_COLORS } from "@/components/VerseActions";
@@ -520,29 +520,13 @@ export function BibleReader({
           <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8 flex-shrink-0">
             <Settings className="h-4 w-4" />
           </Button>
-          {user ? (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              data-testid="button-logout" 
-              onClick={logout} 
-              className="h-8 w-8 flex-shrink-0"
-              title="Sair"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              data-testid="button-login" 
-              onClick={onNavigateToLogin} 
-              className="h-8 w-8 flex-shrink-0"
-              title="Entrar"
-            >
-              <LogIn className="h-4 w-4" />
-            </Button>
-          )}
+          <UserButton 
+            onNavigateToLogin={onNavigateToLogin}
+            onNavigateToSettings={onNavigateToSettings}
+            onNavigateToSubscriptions={onNavigateToSubscriptions}
+            showSettingsOption
+            showSubscriptionOption
+          />
         </div>
 
         {/* Bottom Row: Text Search - FULL WIDTH */}

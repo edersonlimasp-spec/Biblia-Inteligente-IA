@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { LoginPromptModal } from "@/components/LoginPromptModal";
+import { UserButton } from "@/components/UserButton";
 import { 
   ArrowLeft, 
   GraduationCap, 
@@ -164,6 +165,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
             <h1 className="text-xl font-bold">Modos IA Premium</h1>
             <p className="text-sm text-muted-foreground">4 modos especializados de estudo</p>
           </div>
+          <UserButton onNavigateToSubscriptions={onNavigateToSubscriptions} showSubscriptionOption />
         </div>
       </header>
 

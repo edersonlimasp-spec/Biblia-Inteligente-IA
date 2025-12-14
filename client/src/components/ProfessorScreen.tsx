@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { LoginPromptModal } from "@/components/LoginPromptModal";
+import { UserButton } from "@/components/UserButton";
 import { 
   ArrowLeft, 
   Send,
@@ -244,6 +245,7 @@ Conheça: https://bibliainteligente.replit.app`;
             <Plus className="w-4 h-4 mr-1" />
             Nova
           </Button>
+          <UserButton />
         </div>
       </header>
 

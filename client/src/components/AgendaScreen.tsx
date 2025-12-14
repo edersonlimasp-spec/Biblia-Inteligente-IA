@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { useRequireAuth } from "@/contexts/AuthGateContext";
+import { UserButton } from "@/components/UserButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -124,6 +126,7 @@ function isFuture(dateStr: string): boolean {
 
 export function AgendaScreen({ onBack }: AgendaScreenProps) {
   const { toast } = useToast();
+  const { requireAuth } = useRequireAuth();
   const cardRef = useRef<HTMLDivElement>(null);
   
   const [events, setEvents] = useState<AgendaEvent[]>([]);
@@ -183,30 +186,32 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
       return;
     }
 
-    const event: AgendaEvent = {
-      id: Date.now().toString(),
-      title: newTitle.trim(),
-      description: newDescription.trim(),
-      date: newDate,
-      time: newTime,
-      endTime: newEndTime || undefined,
-      location: newLocation.trim() || undefined,
-      type: newType,
-      theme: newTheme || undefined,
-      createdAt: new Date().toISOString(),
-    };
+    requireAuth(() => {
+      const event: AgendaEvent = {
+        id: Date.now().toString(),
+        title: newTitle.trim(),
+        description: newDescription.trim(),
+        date: newDate,
+        time: newTime,
+        endTime: newEndTime || undefined,
+        location: newLocation.trim() || undefined,
+        type: newType,
+        theme: newTheme || undefined,
+        createdAt: new Date().toISOString(),
+      };
 
-    setEvents((prev) => [...prev, event].sort((a, b) => 
-      new Date(a.date + "T" + a.time).getTime() - new Date(b.date + "T" + b.time).getTime()
-    ));
-    
-    setShowAddDialog(false);
-    resetForm();
-    
-    toast({
-      title: "Evento adicionado",
-      description: "O evento foi adicionado à sua agenda",
-    });
+      setEvents((prev) => [...prev, event].sort((a, b) => 
+        new Date(a.date + "T" + a.time).getTime() - new Date(b.date + "T" + b.time).getTime()
+      ));
+      
+      setShowAddDialog(false);
+      resetForm();
+      
+      toast({
+        title: "Evento adicionado",
+        description: "O evento foi adicionado à sua agenda",
+      });
+    }, "adicionar evento na agenda");
   };
 
   const handleEditEvent = () => {
@@ -219,43 +224,47 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
       return;
     }
 
-    setEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === editingEvent.id
-          ? {
-              ...ev,
-              title: newTitle.trim(),
-              description: newDescription.trim(),
-              date: newDate,
-              time: newTime,
-              endTime: newEndTime || undefined,
-              location: newLocation.trim() || undefined,
-              type: newType,
-              theme: newTheme || undefined,
-            }
-          : ev
-      ).sort((a, b) => 
-        new Date(a.date + "T" + a.time).getTime() - new Date(b.date + "T" + b.time).getTime()
-      )
-    );
+    requireAuth(() => {
+      setEvents((prev) =>
+        prev.map((ev) =>
+          ev.id === editingEvent.id
+            ? {
+                ...ev,
+                title: newTitle.trim(),
+                description: newDescription.trim(),
+                date: newDate,
+                time: newTime,
+                endTime: newEndTime || undefined,
+                location: newLocation.trim() || undefined,
+                type: newType,
+                theme: newTheme || undefined,
+              }
+            : ev
+        ).sort((a, b) => 
+          new Date(a.date + "T" + a.time).getTime() - new Date(b.date + "T" + b.time).getTime()
+        )
+      );
 
-    setEditingEvent(null);
-    resetForm();
+      setEditingEvent(null);
+      resetForm();
 
-    toast({
-      title: "Evento atualizado",
-      description: "As alterações foram salvas",
-    });
+      toast({
+        title: "Evento atualizado",
+        description: "As alterações foram salvas",
+      });
+    }, "editar evento na agenda");
   };
 
   const handleDeleteEvent = () => {
     if (!deleteConfirmId) return;
-    setEvents((prev) => prev.filter((ev) => ev.id !== deleteConfirmId));
-    setDeleteConfirmId(null);
-    toast({
-      title: "Evento removido",
-      description: "O evento foi excluído da agenda",
-    });
+    requireAuth(() => {
+      setEvents((prev) => prev.filter((ev) => ev.id !== deleteConfirmId));
+      setDeleteConfirmId(null);
+      toast({
+        title: "Evento removido",
+        description: "O evento foi excluído da agenda",
+      });
+    }, "excluir evento da agenda");
   };
 
   const openEditDialog = (event: AgendaEvent) => {
@@ -790,6 +799,7 @@ END:VCALENDAR`;
               <Plus className="w-4 h-4 mr-2" />
               Novo
             </Button>
+            <UserButton />
           </div>
         </div>
       </header>

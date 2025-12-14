@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useRequireAuth } from "@/contexts/AuthGateContext";
+import { UserButton } from "@/components/UserButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LoginPromptModal } from "@/components/LoginPromptModal";
 import {
   useRecordings,
   useAudioRecorder,
@@ -40,7 +40,6 @@ import {
   Download,
   Mail,
   MessageCircle,
-  LogIn,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -49,9 +48,8 @@ interface RecordingsScreenProps {
 }
 
 export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
-  const { user } = useAuth();
+  const { requireAuth } = useRequireAuth();
   const { toast } = useToast();
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const {
     recordings,
     isLoading,
@@ -83,19 +81,16 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  const handleStartRecording = async () => {
-    if (!user) {
-      setShowLoginPrompt(true);
-      return;
-    }
-    
-    const success = await startRecording();
-    if (success) {
-      toast({
-        title: "Gravação iniciada",
-        description: "Fale próximo ao microfone",
-      });
-    }
+  const handleStartRecording = () => {
+    requireAuth(async () => {
+      const success = await startRecording();
+      if (success) {
+        toast({
+          title: "Gravação iniciada",
+          description: "Fale próximo ao microfone",
+        });
+      }
+    }, "gravar sermões");
   };
 
   const handleStopRecording = async () => {
@@ -319,21 +314,24 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-        <div className="flex items-center gap-3 p-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            data-testid="button-back-recordings"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-lg font-bold">Gravações de Sermões</h1>
-            <p className="text-xs text-muted-foreground">
-              Grave e organize suas mensagens
-            </p>
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onBack}
+              data-testid="button-back-recordings"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-lg font-bold">Gravações de Sermões</h1>
+              <p className="text-xs text-muted-foreground">
+                Grave e organize suas mensagens
+              </p>
+            </div>
           </div>
+          <UserButton />
         </div>
       </header>
 

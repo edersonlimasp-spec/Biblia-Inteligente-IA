@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useRequireAuth } from "@/contexts/AuthGateContext";
 import type { Annotation } from "@shared/schema";
 
 interface AnnotationPanelProps {
@@ -25,6 +26,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse }: Anno
   const [noteText, setNoteText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { requireAuth } = useRequireAuth();
 
   // Fetch annotations for current chapter
   const { data: annotations, isLoading } = useQuery<Annotation[]>({
@@ -100,15 +102,19 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse }: Anno
 
   const handleSave = () => {
     if (!noteText.trim()) return;
-    saveMutation.mutate({ 
-      note: noteText.trim(), 
-      verse: selectedVerse || 1 
-    });
+    requireAuth(() => {
+      saveMutation.mutate({ 
+        note: noteText.trim(), 
+        verse: selectedVerse || 1 
+      });
+    }, "salvar anotações");
   };
 
   const handleDelete = () => {
     if (editingId) {
-      deleteMutation.mutate(editingId);
+      requireAuth(() => {
+        deleteMutation.mutate(editingId);
+      }, "excluir anotações");
     }
   };
 

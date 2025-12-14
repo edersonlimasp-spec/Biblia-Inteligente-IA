@@ -75,8 +75,10 @@ Bíblia Hebraico & Grego
 
     console.log(`📧 Enviando email de reset para: ${email}`);
     
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'Bíblia Hebraico & Grego <onboarding@resend.dev>';
+    
     const { data, error } = await resend.emails.send({
-      from: 'Bíblia Hebraico & Grego <onboarding@resend.dev>',
+      from: fromEmail,
       to: [email],
       subject: subject,
       html: htmlBody,

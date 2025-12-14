@@ -280,22 +280,22 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
 
       <ScrollArea className="h-[calc(100vh-65px)]">
         <main className="max-w-4xl mx-auto p-4 space-y-6">
-          <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-4 rounded-2xl bg-amber-500/10">
-                  <Trophy className="w-10 h-10 text-amber-500" />
+          <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent overflow-hidden">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="p-3 sm:p-4 rounded-2xl bg-amber-500/10 shrink-0">
+                  <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-amber-500" />
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold">{unlockedAchievements.length} / {ALL_ACHIEVEMENTS.length}</h2>
+                <div className="flex-1 min-w-0 text-center sm:text-left w-full">
+                  <h2 className="text-xl sm:text-2xl font-bold">{unlockedAchievements.length} / {ALL_ACHIEVEMENTS.length}</h2>
                   <p className="text-sm text-muted-foreground">conquistas desbloqueadas</p>
                   <Progress 
                     value={(unlockedAchievements.length / ALL_ACHIEVEMENTS.length) * 100} 
                     className="h-2 mt-2"
                   />
                 </div>
-                <div className="text-right">
-                  <span className="text-3xl font-bold text-amber-500">{totalPoints}</span>
+                <div className="text-center sm:text-right shrink-0">
+                  <span className="text-2xl sm:text-3xl font-bold text-amber-500">{totalPoints}</span>
                   <p className="text-sm text-muted-foreground">pontos</p>
                 </div>
               </div>

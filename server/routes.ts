@@ -14,6 +14,7 @@ import { db } from "./db";
 import { eq, or, like, sql, and } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
+import { forceSeedStrongEntries } from "./init-db";
 
 // Initialize Firebase Admin SDK (only if configured)
 let firebaseInitialized = false;
@@ -1414,6 +1415,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get achievements error:", error);
       res.status(500).json({ error: "Erro ao buscar conquistas" });
+    }
+  });
+
+  // Admin endpoint to force seed Strong entries in production
+  app.post("/api/admin/seed-strong", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      console.log(`[Admin] User ${req.userId} iniciando seed forçado do Strong...`);
+      const result = await forceSeedStrongEntries();
+      res.json(result);
+    } catch (error) {
+      console.error("[Admin] Erro no seed Strong:", error);
+      res.status(500).json({ success: false, error: String(error) });
     }
   });
 

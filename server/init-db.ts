@@ -94,6 +94,73 @@ async function seedBibleWords() {
   }
 }
 
+// Exported function to force seed Strong entries (can be called from admin endpoint)
+export async function forceSeedStrongEntries(): Promise<{ success: boolean; count: number; message: string }> {
+  try {
+    console.log('[Force Seed] Iniciando importação forçada do Strong...');
+    console.log(`[Force Seed] __dirname: ${__dirname}`);
+    console.log(`[Force Seed] process.cwd(): ${process.cwd()}`);
+    
+    const possiblePaths = [
+      path.resolve(__dirname, 'strong-data.json'),
+      path.resolve(__dirname, '../server/strong-data.json'),
+      path.resolve(process.cwd(), 'dist/strong-data.json'),
+      path.resolve(process.cwd(), 'server/strong-data.json'),
+      '/app/dist/strong-data.json',
+      '/app/server/strong-data.json',
+      '/home/runner/workspace/dist/strong-data.json',
+      '/home/runner/workspace/server/strong-data.json',
+      './dist/strong-data.json',
+      './server/strong-data.json',
+    ];
+    
+    console.log('[Force Seed] Caminhos verificados:');
+    possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
+    
+    let strongDataPath = null;
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        strongDataPath = testPath;
+        break;
+      }
+    }
+    
+    if (!strongDataPath) {
+      return { success: false, count: 0, message: 'strong-data.json não encontrado em nenhum caminho' };
+    }
+    
+    console.log(`[Force Seed] Usando arquivo: ${strongDataPath}`);
+    const strongDataRaw = JSON.parse(fs.readFileSync(strongDataPath, 'utf-8'));
+    
+    const strongData = strongDataRaw.map((row: any) => ({
+      id: row.id,
+      strongNumber: row.strong_number,
+      language: row.language,
+      lemma: row.lemma,
+      translit: row.translit,
+      xlit: row.xlit,
+      pron: row.pron,
+      kjvDef: row.kjv_def,
+      strongsDef: row.strongs_def,
+      portugueseDef: row.portuguese_def,
+      derivation: row.derivation,
+      createdAt: row.created_at,
+    }));
+    
+    const batchSize = 500;
+    for (let i = 0; i < strongData.length; i += batchSize) {
+      const batch = strongData.slice(i, i + batchSize);
+      await db.insert(strongEntries).values(batch).onConflictDoNothing();
+      console.log(`[Force Seed] Importados ${Math.min(i + batchSize, strongData.length)} / ${strongData.length}`);
+    }
+    
+    return { success: true, count: strongData.length, message: `Importados ${strongData.length} entradas com sucesso` };
+  } catch (error) {
+    console.error('[Force Seed] Erro:', error);
+    return { success: false, count: 0, message: String(error) };
+  }
+}
+
 export async function initializeDatabase() {
   try {
     console.log('🔍 Verificando se banco de dados precisa de inicialização...');
@@ -122,6 +189,10 @@ export async function initializeDatabase() {
         path.resolve(process.cwd(), 'server/strong-data.json'), // DEV fallback: from project root
         '/app/dist/strong-data.json',                           // PROD absolute: Replit autoscale path
         '/app/server/strong-data.json',                         // PROD fallback: if server/ copied
+        '/home/runner/workspace/dist/strong-data.json',         // Replit workspace path
+        '/home/runner/workspace/server/strong-data.json',       // Replit workspace fallback
+        './dist/strong-data.json',                              // Relative from cwd
+        './server/strong-data.json',                            // Relative from cwd
       ];
       
       console.log('🔍 Tentando encontrar strong-data.json nos seguintes caminhos:');

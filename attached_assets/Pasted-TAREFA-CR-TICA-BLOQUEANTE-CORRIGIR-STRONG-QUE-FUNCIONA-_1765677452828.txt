@@ -1,0 +1,88 @@
+TAREFA CRÍTICA (BLOQUEANTE): CORRIGIR STRONG QUE FUNCIONA NO PREVIEW MAS FALHA NO PUBLICADO.
+
+SINTOMA
+- No PREVIEW: ao clicar na palavra, abre Strong.
+- No PUBLICADO (produção): ao clicar na palavra, NÃO abre / não retorna dados / retorna incompleto / erro silencioso.
+
+OBJETIVO
+Strong deve funcionar 100% na URL pública (produção), sem depender de cache, sem diferença entre preview e publicado.
+
+REGRA
+NÃO finalize o trabalho sem:
+1) Identificar a CAUSA RAIZ
+2) Corrigir
+3) PROVAR com logs e teste na URL publicada
+
+PASSO 1 — DIAGNÓSTICO OBRIGATÓRIO (sem chute)
+1) Confirmar se o banco de PRODUÇÃO contém a tabela/coleção Strong e se há registros.
+   - Rodar query real em produção:
+     - contar registros (ex: SELECT COUNT(*) FROM strong;)
+     - buscar por um Strong conhecido (ex: H216 / G5457 etc.)
+2) Confirmar se o PUBLICADO está apontando para o MESMO DATABASE_URL esperado.
+3) Confirmar se migrations foram aplicadas em produção.
+4) Confirmar se seed/import do Strong roda também em produção (e não só no dev).
+
+PASSO 2 — TESTE DO CLIQUE (front → API → DB)
+Instrumentar logs (temporários) em produção:
+- Ao clicar numa palavra, logar:
+  A) palavra clicada + referência (livro/cap/vers)
+  B) número strong esperado (se houver)
+  C) endpoint chamado (URL)
+  D) status HTTP e payload retornado
+- No backend, logar:
+  A) entrada recebida
+  B) query executada
+  C) tempo de resposta
+  D) quantidade de resultados
+
+PASSO 3 — VERIFICAR ROTAS/BUILD (causa comum)
+Verificar se no build de produção:
+- a rota/endpoint do Strong existe e responde
+- não está sendo removido por tree-shaking
+- não está apontando para caminho errado (ex: /api/strong vs /strong)
+- não há CORS bloqueando
+- não há service worker entregando versão antiga
+
+PASSO 4 — CORREÇÕES MAIS PROVÁVEIS (implementar a correta)
+Você deve detectar e aplicar a correção adequada entre estas causas:
+
+A) Produção sem dados do Strong
+- Solução: criar script de bootstrap em produção:
+  - ao iniciar, se strong_count = 0 -> importar/seed do arquivo fonte
+  - garantir idempotência (não duplicar)
+
+B) Produção usando outro banco/URL
+- Solução: ajustar secrets/env do Published App (Production) e confirmar em runtime.
+
+C) Endpoint não sendo servido em produção
+- Solução: corrigir server start/build para garantir que o backend serve rotas e o frontend aponta corretamente.
+
+D) Cache/Service Worker servindo bundle antigo
+- Solução: versionar SW e forçar update:
+  - alterar cache name com versão
+  - ativar skipWaiting + clientsClaim
+  - limpar caches antigos
+  - garantir que nova publicação invalida SW antigo sem o usuário precisar “limpar cache”
+
+PASSO 5 — VALIDAÇÃO OBRIGATÓRIA (na URL pública)
+Testar na URL publicada:
+1) Abrir Gênesis 1:3 (“luz”) e clicar numa palavra com Strong (se aplicável no dataset)
+2) Abrir NT e clicar em palavra grega com Strong
+3) Confirmar que abre painel/modal com:
+   - Número Strong correto
+   - Palavra original (hebraico/grego)
+   - Transliteração
+   - Definição completa (não curta)
+4) Confirmar via logs que o dado veio do DB de PRODUÇÃO.
+
+ENTREGA
+Ao concluir, você deve me retornar:
+- Causa raiz (1 frase objetiva)
+- Arquivos alterados
+- Como a correção evita recidiva
+- Evidências (contagem de registros em produção + logs do endpoint)
+
+IMPORTANTE
+- Não aceitar “funciona no preview”.
+- Não encerrar sem funcionar no publicado.
+- Não cobrar novas tentativas sem correção definitiva e validação em produção.

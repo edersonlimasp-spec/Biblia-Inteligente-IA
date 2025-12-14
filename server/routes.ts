@@ -1417,11 +1417,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Strong's Dictionary diagnostic endpoint
+  app.get("/api/strong/diagnostics", async (req, res) => {
+    try {
+      const countResult = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);
+      const totalCount = Number(countResult[0]?.count) || 0;
+      
+      // Get sample entries
+      const sampleHebrew = await db.select().from(strongEntries).where(like(strongEntries.strongNumber, 'H%')).limit(3);
+      const sampleGreek = await db.select().from(strongEntries).where(like(strongEntries.strongNumber, 'G%')).limit(3);
+      
+      res.json({
+        status: totalCount > 0 ? 'OK' : 'EMPTY',
+        totalEntries: totalCount,
+        hebrewCount: sampleHebrew.length,
+        greekCount: sampleGreek.length,
+        sampleHebrew: sampleHebrew.map(e => ({ number: e.strongNumber, word: e.lemma })),
+        sampleGreek: sampleGreek.map(e => ({ number: e.strongNumber, word: e.lemma })),
+        environment: process.env.NODE_ENV || 'unknown',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("[Strong Diagnostics] Error:", error);
+      res.status(500).json({ status: 'ERROR', error: String(error) });
+    }
+  });
+
   // Strong's Dictionary routes (Database-driven)
   app.get("/api/strong/:number", async (req, res) => {
+    const startTime = Date.now();
     try {
       const { number } = req.params;
       const upperNumber = number.toUpperCase();
+      
+      console.log(`[Strong API] Buscando Strong #${upperNumber}`);
+      
+      // First, check total count in database for diagnostic
+      const countResult = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);
+      const totalCount = countResult[0]?.count || 0;
+      console.log(`[Strong API] Total de entradas no banco: ${totalCount}`);
       
       // Query database for Strong's entry
       const [entry] = await db
@@ -1430,10 +1464,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(strongEntries.strongNumber, upperNumber))
         .limit(1);
       
+      const elapsed = Date.now() - startTime;
+      console.log(`[Strong API] Query completa em ${elapsed}ms, encontrou: ${entry ? 'SIM' : 'NÃO'}`);
+      
       if (!entry) {
+        console.log(`[Strong API] ERRO: Strong #${upperNumber} não encontrado. Total no banco: ${totalCount}`);
         return res.status(404).json({ 
           error: "Entrada não encontrada",
-          message: "Este número Strong ainda não está disponível no dicionário. Temos 60 termos principais no MVP."
+          message: `Este número Strong (${upperNumber}) não foi encontrado. Total de entradas no banco: ${totalCount}`,
+          diagnostics: {
+            requestedNumber: upperNumber,
+            totalEntriesInDatabase: totalCount,
+            queryTimeMs: elapsed
+          }
         });
       }
       

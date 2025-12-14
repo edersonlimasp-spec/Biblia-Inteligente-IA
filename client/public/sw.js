@@ -1,6 +1,7 @@
-// Generate cache name with timestamp to force update on each deployment
-const CACHE_VERSION = new Date().toISOString().split('T')[0]; // Date format: YYYY-MM-DD
-const CACHE_NAME = `biblia-hg-${CACHE_VERSION}`;
+// Generate cache name with build timestamp to force update on each deployment
+// BUILD_TIMESTAMP is replaced during build process, falls back to date
+const BUILD_TIMESTAMP = '20241214-020500';
+const CACHE_NAME = `biblia-hg-v${BUILD_TIMESTAMP}`;
 
 // Only cache static assets, NOT index.html
 const urlsToCache = [

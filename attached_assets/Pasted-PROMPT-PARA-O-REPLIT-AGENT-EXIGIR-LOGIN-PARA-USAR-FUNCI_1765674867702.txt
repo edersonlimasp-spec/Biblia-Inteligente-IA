@@ -1,0 +1,87 @@
+PROMPT PARA O REPLIT (AGENT) — EXIGIR LOGIN PARA USAR FUNCIONALIDADES (GATE GLOBAL)
+
+OBJETIVO
+Quero implementar uma regra GLOBAL no app: o usuário pode navegar e visualizar conteúdo básico, mas QUALQUER funcionalidade (usar módulos, criar/editar dados, salvar, compartilhar, perguntar à IA, Strong avançado, agenda, oração, gravações, anotações, favoritos etc.) só pode ser utilizada se o usuário estiver LOGADO (conta criada + sessão ativa).
+
+Se o usuário tentar usar uma funcionalidade sem estar logado, o app deve:
+1) Exibir uma mensagem clara explicando que é necessário login.
+2) Levar automaticamente para a tela de Login/Criar Conta.
+3) Após login/cadastro bem-sucedido, retornar para a tela/ação que ele estava tentando executar (deep link / redirect back).
+
+REQUISITOS FUNCIONAIS (OBRIGATÓRIOS)
+1) Gate global de autenticação:
+   - Criar um componente/guard reutilizável (ex.: `requireAuth()` ou `<AuthGuard/>`) para proteger ações e rotas.
+   - Toda ação “interativa” deve ser bloqueada quando `!isAuthenticated`.
+
+2) Login acessível em todas as telas:
+   - Adicionar no topo (header) um botão “Entrar” quando deslogado.
+   - Quando logado, mostrar avatar/menu com “Perfil” e “Sair”.
+   - Em mobile, ter isso no menu hambúrguer / barra inferior.
+
+3) Mensagem padrão (UX):
+   - Ao tentar usar algo bloqueado, abrir um modal/toast:
+     “Para usar este recurso, faça login ou crie uma conta.”
+   - Botões: [Fazer login] [Criar conta]
+   - Ao clicar em qualquer um, redirecionar para a tela correta.
+
+4) Retorno automático após login:
+   - Salvar o destino original (route + parâmetros + ação) antes de redirecionar.
+   - Após autenticar, retornar automaticamente para o ponto inicial e executar a ação pendente quando fizer sentido (ex.: abrir o módulo, salvar favorito, criar item etc.).
+
+5) Cobertura total de módulos:
+   Implementar bloqueio para, no mínimo:
+   - Minha Agenda (criar/editar/compartilhar)
+   - Modo Oração (motivos, temporizador, salvar histórico)
+   - Gravações de sermões (gravar/salvar/compartilhar)
+   - Anotações (criar/salvar/editar)
+   - Favoritos/Marcações (salvar/editar)
+   - Compartilhar cards avançados (geração do card)
+   - IA “Professor” (perguntar e histórico)
+   - Strong avançado / hebraico / grego (se for recurso premium ou recurso interativo)
+   - Qualquer persistência de dados do usuário
+
+6) Leitura livre (opcional, mas recomendado):
+   - Usuário pode ler a Bíblia sem login.
+   - Mas qualquer coisa que envolva salvar/usar recursos avançados exige login.
+
+REQUISITOS TÉCNICOS (OBRIGATÓRIOS)
+1) Backend:
+   - Garantir endpoints protegidos com middleware (JWT):
+     - bloquear POST/PUT/DELETE e endpoints de dados do usuário sem token válido.
+   - Padronizar retorno 401/403 com mensagem clara.
+
+2) Frontend:
+   - Implementar interceptação de 401:
+     - se receber 401 da API, abrir modal de login e redirecionar.
+   - Implementar guard de rotas:
+     - páginas/módulos que exigem login devem estar protegidos.
+
+3) Criar Conta / Login:
+   - Cadastro com:
+     - nome
+     - e-mail
+     - senha
+     - confirmar senha
+   - Mensagens de erro claras:
+     - “E-mail inválido”
+     - “Usuário não encontrado”
+     - “Senha inválida”
+     - “Senha e confirmação não coincidem”
+   - Botão “Esqueci minha senha” deve continuar funcionando.
+
+4) Sessão:
+   - Persistir login (token) com segurança (httpOnly cookie se possível; senão storage seguro).
+   - Implementar logout global que limpa sessão e volta para tela inicial.
+
+ENTREGAS / VALIDAÇÃO
+Antes de concluir, você deve testar em PREVIEW e em PRODUÇÃO (publicado):
+1) Usuário deslogado tenta:
+   - criar anotação → deve pedir login e redirecionar
+   - abrir Agenda e criar evento → deve pedir login e redirecionar
+   - usar IA Professor → deve pedir login e redirecionar
+2) Após login, deve retornar à tela correta e permitir a ação.
+3) Verificar que nenhuma funcionalidade “passa” sem autenticação.
+
+IMPORTANTE
+- Não quero apenas “travar o menu”; quero travar o uso REAL (rotas + ações + APIs).
+- Não finalize enquanto não cobrir todas as telas/módulos principais e enquanto não houver retorno automático após login.

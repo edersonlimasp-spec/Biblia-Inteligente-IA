@@ -33,7 +33,6 @@ interface AchievementsScreenProps {
 const ACHIEVEMENT_CATEGORIES = [
   { id: "reading", name: "Leitura", icon: BookOpen },
   { id: "study", name: "Estudo", icon: Brain },
-  { id: "zen", name: "Zen", icon: Moon },
   { id: "special", name: "Especiais", icon: Crown },
 ];
 
@@ -153,33 +152,6 @@ const ALL_ACHIEVEMENTS = [
     description: "Faça 100 perguntas ao Professor IA",
     icon: Zap,
     points: 300,
-    rarity: "épico",
-  },
-  {
-    id: "zen_first",
-    category: "zen",
-    name: "Momento de Paz",
-    description: "Complete sua primeira sessão Zen",
-    icon: Moon,
-    points: 15,
-    rarity: "comum",
-  },
-  {
-    id: "zen_week",
-    category: "zen",
-    name: "Semana de Foco",
-    description: "Complete 7 sessões Zen em uma semana",
-    icon: Flame,
-    points: 100,
-    rarity: "raro",
-  },
-  {
-    id: "zen_master",
-    category: "zen",
-    name: "Mestre Zen",
-    description: "Acumule 10 horas de sessões Zen",
-    icon: Moon,
-    points: 500,
     rarity: "épico",
   },
   {
@@ -325,29 +297,29 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
                   return (
                     <motion.div key={achievement.id} variants={itemVariants}>
                       <Card className={`transition-all ${isUnlocked ? "" : "opacity-60"}`}>
-                        <CardContent className="p-3 sm:p-4 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
-                          <div className={`p-2 sm:p-3 rounded-xl shrink-0 ${isUnlocked ? RARITY_COLORS[achievement.rarity as keyof typeof RARITY_COLORS] : "bg-muted text-muted-foreground"}`}>
-                            {isUnlocked ? (
-                              <achievement.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                            ) : (
-                              <Lock className="w-5 h-5 sm:w-6 sm:h-6" />
-                            )}
-                          </div>
-                          <div className="basis-full sm:flex-1 min-w-0 order-last sm:order-none">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-medium text-sm sm:text-base">{achievement.name}</h3>
-                              <Badge variant="outline" className="text-xs capitalize shrink-0">
+                        <CardContent className="p-3 sm:p-4">
+                          <div className="flex items-start gap-3">
+                            <div className={`p-2.5 rounded-xl shrink-0 ${isUnlocked ? RARITY_COLORS[achievement.rarity as keyof typeof RARITY_COLORS] : "bg-muted text-muted-foreground"}`}>
+                              {isUnlocked ? (
+                                <achievement.icon className="w-5 h-5" />
+                              ) : (
+                                <Lock className="w-5 h-5" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <h3 className="font-medium text-sm truncate">{achievement.name}</h3>
+                                <span className={`text-sm font-bold shrink-0 ${isUnlocked ? "text-amber-500" : "text-muted-foreground"}`}>
+                                  +{achievement.points}
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                                {achievement.description}
+                              </p>
+                              <Badge variant="outline" className="text-xs capitalize mt-1.5">
                                 {achievement.rarity}
                               </Badge>
                             </div>
-                            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-                              {achievement.description}
-                            </p>
-                          </div>
-                          <div className="text-right shrink-0 ml-auto sm:ml-0">
-                            <span className={`text-base sm:text-lg font-bold ${isUnlocked ? "text-amber-500" : "text-muted-foreground"}`}>
-                              +{achievement.points}
-                            </span>
                           </div>
                         </CardContent>
                       </Card>
@@ -370,29 +342,29 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
                     return (
                       <motion.div key={achievement.id} variants={itemVariants}>
                         <Card className={`transition-all ${isUnlocked ? "" : "opacity-60"}`}>
-                          <CardContent className="p-3 sm:p-4 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
-                            <div className={`p-2 sm:p-3 rounded-xl shrink-0 ${isUnlocked ? RARITY_COLORS[achievement.rarity as keyof typeof RARITY_COLORS] : "bg-muted text-muted-foreground"}`}>
-                              {isUnlocked ? (
-                                <achievement.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                              ) : (
-                                <Lock className="w-5 h-5 sm:w-6 sm:h-6" />
-                              )}
-                            </div>
-                            <div className="basis-full sm:flex-1 min-w-0 order-last sm:order-none">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="font-medium text-sm sm:text-base">{achievement.name}</h3>
-                                <Badge variant="outline" className="text-xs capitalize shrink-0">
+                          <CardContent className="p-3 sm:p-4">
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2.5 rounded-xl shrink-0 ${isUnlocked ? RARITY_COLORS[achievement.rarity as keyof typeof RARITY_COLORS] : "bg-muted text-muted-foreground"}`}>
+                                {isUnlocked ? (
+                                  <achievement.icon className="w-5 h-5" />
+                                ) : (
+                                  <Lock className="w-5 h-5" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <h3 className="font-medium text-sm truncate">{achievement.name}</h3>
+                                  <span className={`text-sm font-bold shrink-0 ${isUnlocked ? "text-amber-500" : "text-muted-foreground"}`}>
+                                    +{achievement.points}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                                  {achievement.description}
+                                </p>
+                                <Badge variant="outline" className="text-xs capitalize mt-1.5">
                                   {achievement.rarity}
                                 </Badge>
                               </div>
-                              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-                                {achievement.description}
-                              </p>
-                            </div>
-                            <div className="text-right shrink-0 ml-auto sm:ml-0">
-                              <span className={`text-base sm:text-lg font-bold ${isUnlocked ? "text-amber-500" : "text-muted-foreground"}`}>
-                                +{achievement.points}
-                              </span>
                             </div>
                           </CardContent>
                         </Card>

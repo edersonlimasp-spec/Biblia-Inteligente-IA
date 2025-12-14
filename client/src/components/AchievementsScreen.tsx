@@ -325,27 +325,27 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
                   return (
                     <motion.div key={achievement.id} variants={itemVariants}>
                       <Card className={`transition-all ${isUnlocked ? "" : "opacity-60"}`}>
-                        <CardContent className="p-4 flex items-center gap-4">
-                          <div className={`p-3 rounded-xl ${isUnlocked ? RARITY_COLORS[achievement.rarity as keyof typeof RARITY_COLORS] : "bg-muted text-muted-foreground"}`}>
+                        <CardContent className="p-3 sm:p-4 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
+                          <div className={`p-2 sm:p-3 rounded-xl shrink-0 ${isUnlocked ? RARITY_COLORS[achievement.rarity as keyof typeof RARITY_COLORS] : "bg-muted text-muted-foreground"}`}>
                             {isUnlocked ? (
-                              <achievement.icon className="w-6 h-6" />
+                              <achievement.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                             ) : (
-                              <Lock className="w-6 h-6" />
+                              <Lock className="w-5 h-5 sm:w-6 sm:h-6" />
                             )}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-medium truncate">{achievement.name}</h3>
+                          <div className="basis-full sm:flex-1 min-w-0 order-last sm:order-none">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-medium text-sm sm:text-base">{achievement.name}</h3>
                               <Badge variant="outline" className="text-xs capitalize shrink-0">
                                 {achievement.rarity}
                               </Badge>
                             </div>
-                            <p className="text-sm text-muted-foreground truncate">
+                            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                               {achievement.description}
                             </p>
                           </div>
-                          <div className="text-right shrink-0">
-                            <span className={`text-lg font-bold ${isUnlocked ? "text-amber-500" : "text-muted-foreground"}`}>
+                          <div className="text-right shrink-0 ml-auto sm:ml-0">
+                            <span className={`text-base sm:text-lg font-bold ${isUnlocked ? "text-amber-500" : "text-muted-foreground"}`}>
                               +{achievement.points}
                             </span>
                           </div>
@@ -370,27 +370,27 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
                     return (
                       <motion.div key={achievement.id} variants={itemVariants}>
                         <Card className={`transition-all ${isUnlocked ? "" : "opacity-60"}`}>
-                          <CardContent className="p-4 flex items-center gap-4">
-                            <div className={`p-3 rounded-xl ${isUnlocked ? RARITY_COLORS[achievement.rarity as keyof typeof RARITY_COLORS] : "bg-muted text-muted-foreground"}`}>
+                          <CardContent className="p-3 sm:p-4 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
+                            <div className={`p-2 sm:p-3 rounded-xl shrink-0 ${isUnlocked ? RARITY_COLORS[achievement.rarity as keyof typeof RARITY_COLORS] : "bg-muted text-muted-foreground"}`}>
                               {isUnlocked ? (
-                                <achievement.icon className="w-6 h-6" />
+                                <achievement.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                               ) : (
-                                <Lock className="w-6 h-6" />
+                                <Lock className="w-5 h-5 sm:w-6 sm:h-6" />
                               )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-medium truncate">{achievement.name}</h3>
+                            <div className="basis-full sm:flex-1 min-w-0 order-last sm:order-none">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="font-medium text-sm sm:text-base">{achievement.name}</h3>
                                 <Badge variant="outline" className="text-xs capitalize shrink-0">
                                   {achievement.rarity}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-muted-foreground truncate">
+                              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                                 {achievement.description}
                               </p>
                             </div>
-                            <div className="text-right shrink-0">
-                              <span className={`text-lg font-bold ${isUnlocked ? "text-amber-500" : "text-muted-foreground"}`}>
+                            <div className="text-right shrink-0 ml-auto sm:ml-0">
+                              <span className={`text-base sm:text-lg font-bold ${isUnlocked ? "text-amber-500" : "text-muted-foreground"}`}>
                                 +{achievement.points}
                               </span>
                             </div>

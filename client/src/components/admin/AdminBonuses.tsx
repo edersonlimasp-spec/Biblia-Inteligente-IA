@@ -92,7 +92,7 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
           <select
             value={bonusType}
             onChange={(e) => setBonusType(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
+            className="w-full border rounded-md px-3 py-2 text-sm bg-background text-foreground"
             data-testid="select-bonus-type"
           >
             <option value="trial_extend">Estender Trial (dias)</option>

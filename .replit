@@ -53,4 +53,4 @@ integrations = ["javascript_database:1.0.0", "javascript_openai_ai_integrations:
 [userenv]
 
 [userenv.shared]
-RESEND_FROM_EMAIL = "Bíblia Inteligente <noreply@bibliainteligente.com.br>"
+RESEND_FROM_EMAIL = "re_TuiyhupX_P12eQyQAktAubXraTz7CwWXf"

@@ -120,7 +120,7 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
               </div>
 
               <p className="text-xs text-muted-foreground text-center">
-                Este link expira em 1 hora. Se expirar, você poderá solicitar um novo.
+                Este link expira em 30 minutos. Se expirar, você poderá solicitar um novo.
               </p>
 
               <Button

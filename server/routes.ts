@@ -339,9 +339,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Generate reset token (valid for 1 hour)
+      // Generate reset token (valid for 30 minutes)
       const resetToken = crypto.randomBytes(32).toString('hex');
-      const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+      const expiresAt = new Date(Date.now() + 1800000); // 30 minutes
 
       await storage.createPasswordResetToken(user.id, resetToken, expiresAt);
 

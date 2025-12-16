@@ -352,10 +352,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email with reset link
       const emailResult = await sendPasswordResetEmail(email, resetLink, user.name);
 
+      // Only show dev link if email was NOT sent successfully via Resend
+      const showDevLink = !emailResult.success && process.env.NODE_ENV !== 'production';
+      
       res.json({ 
-        message: emailResult.message,
-        // For development: also include token so developers can test
-        ...(process.env.NODE_ENV !== 'production' && { devToken: resetToken, devLink: resetLink })
+        message: emailResult.success 
+          ? "Se existe uma conta com esse email, você receberá um link de reset em breve."
+          : emailResult.message,
+        emailSent: emailResult.success,
+        ...(showDevLink && { devToken: resetToken, devLink: resetLink })
       });
     } catch (error) {
       console.error("Forgot password error:", error);

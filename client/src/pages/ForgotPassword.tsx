@@ -40,10 +40,15 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
       }
 
       setIsSubmitted(true);
-      setResetLink(data.devLink || data.resetLink);
+      // Only show link if email was NOT sent (dev mode fallback)
+      if (!data.emailSent && (data.devLink || data.resetLink)) {
+        setResetLink(data.devLink || data.resetLink);
+      }
       toast({
-        title: "Link de reset gerado",
-        description: "Use o link abaixo para redefinir sua senha",
+        title: data.emailSent ? "Email enviado!" : "Link de reset gerado",
+        description: data.emailSent 
+          ? "Verifique sua caixa de entrada e spam"
+          : "Use o link abaixo para redefinir sua senha",
       });
     } catch (error: any) {
       toast({
@@ -84,43 +89,53 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
           {isSubmitted ? (
             <div className="space-y-4">
               <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                <p className="text-sm text-green-900 dark:text-green-100 mb-3">
-                  ✓ Link de reset de senha gerado com sucesso!
-                </p>
-                
-                {resetLink && (
-                  <div className="space-y-3">
-                    <div className="bg-white dark:bg-slate-900 p-3 rounded border border-gray-200 dark:border-gray-700 break-all">
-                      <p className="text-xs text-muted-foreground mb-2">Link de reset:</p>
-                      <p className="text-xs font-mono text-primary">{resetLink}</p>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Button
-                        onClick={handleCopyLink}
-                        variant="default"
-                        className="w-full"
-                        data-testid="button-copy-reset-link"
-                      >
-                        Copiar Link
-                      </Button>
+                {resetLink ? (
+                  <>
+                    <p className="text-sm text-green-900 dark:text-green-100 mb-3">
+                      Link de reset de senha gerado:
+                    </p>
+                    <div className="space-y-3">
+                      <div className="bg-white dark:bg-slate-900 p-3 rounded border border-gray-200 dark:border-gray-700 break-all">
+                        <p className="text-xs text-muted-foreground mb-2">Link de reset:</p>
+                        <p className="text-xs font-mono text-primary">{resetLink}</p>
+                      </div>
                       
-                      <a href={resetLink} className="block">
+                      <div className="space-y-2">
                         <Button
-                          variant="outline"
+                          onClick={handleCopyLink}
+                          variant="default"
                           className="w-full"
-                          data-testid="button-use-reset-link"
+                          data-testid="button-copy-reset-link"
                         >
-                          Usar Link de Reset
+                          Copiar Link
                         </Button>
-                      </a>
+                        
+                        <a href={resetLink} className="block">
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            data-testid="button-use-reset-link"
+                          >
+                            Usar Link de Reset
+                          </Button>
+                        </a>
+                      </div>
                     </div>
+                  </>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-sm text-green-900 dark:text-green-100 mb-2">
+                      Email enviado com sucesso!
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Verifique sua caixa de entrada e pasta de spam.
+                    </p>
                   </div>
                 )}
               </div>
 
               <p className="text-xs text-muted-foreground text-center">
-                Este link expira em 30 minutos. Se expirar, você poderá solicitar um novo.
+                O link expira em 30 minutos. Se não receber, verifique o spam ou solicite novamente.
               </p>
 
               <Button

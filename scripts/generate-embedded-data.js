@@ -13,16 +13,22 @@ const serverDir = path.join(__dirname, '..', 'server');
 
 console.log('📦 Generating embedded data modules...');
 
-// Generate Strong data module
+// Generate Strong data module - wrap in object for consistency with study modules
 const strongPath = path.join(serverDir, 'strong-data.json');
 if (fs.existsSync(strongPath)) {
-  const strongData = fs.readFileSync(strongPath, 'utf-8');
+  const strongDataRaw = fs.readFileSync(strongPath, 'utf-8');
+  const strongArray = JSON.parse(strongDataRaw);
+  const wrappedData = {
+    exportedAt: new Date().toISOString(),
+    entries: strongArray
+  };
   const strongModule = `// Auto-generated - DO NOT EDIT
 // Generated at: ${new Date().toISOString()}
-export const STRONG_DATA = ${strongData};
+// Total entries: ${strongArray.length}
+export const STRONG_DATA = ${JSON.stringify(wrappedData)};
 `;
   fs.writeFileSync(path.join(serverDir, 'strong-data-embedded.ts'), strongModule);
-  console.log('✅ Generated strong-data-embedded.ts');
+  console.log(`✅ Generated strong-data-embedded.ts (${strongArray.length} entries)`);
 } else {
   console.log('⚠️ strong-data.json not found');
 }

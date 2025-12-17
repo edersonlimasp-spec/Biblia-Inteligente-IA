@@ -200,37 +200,44 @@ export async function forceSeedStudyModules(): Promise<{ success: boolean; count
 // Exported function to force seed Strong entries (can be called from admin endpoint)
 export async function forceSeedStrongEntries(): Promise<{ success: boolean; count: number; message: string }> {
   try {
-    console.log('[Force Seed] Iniciando importação forçada do Strong...');
-    console.log(`[Force Seed] __dirname: ${__dirname}`);
-    console.log(`[Force Seed] process.cwd(): ${process.cwd()}`);
+    console.log('[Force Seed Strong] Iniciando importação forçada do Strong...');
     
     let strongDataRaw: any[] | null = null;
     
-    // First try to load from embedded data (always available in bundle)
-    if (STRONG_DATA && Array.isArray(STRONG_DATA) && STRONG_DATA.length > 0) {
-      console.log(`[Force Seed] ✅ Usando dados embutidos: ${STRONG_DATA.length} entradas`);
-      strongDataRaw = STRONG_DATA;
-    } else {
-      // Fallback to file system (for development)
+    // Log what STRONG_DATA looks like for debugging
+    console.log(`[Force Seed Strong] STRONG_DATA type: ${typeof STRONG_DATA}`);
+    console.log(`[Force Seed Strong] STRONG_DATA is null/undefined: ${STRONG_DATA == null}`);
+    
+    // STRONG_DATA is now wrapped in object format: { exportedAt, entries: [...] }
+    // Support both old array format and new object format for compatibility
+    const strongDataAny = STRONG_DATA as any;
+    if (strongDataAny) {
+      if (Array.isArray(strongDataAny) && strongDataAny.length > 0) {
+        // Old format: raw array
+        console.log(`[Force Seed Strong] ✅ Usando dados embutidos (array): ${strongDataAny.length} entradas`);
+        strongDataRaw = strongDataAny;
+      } else if (strongDataAny.entries && Array.isArray(strongDataAny.entries) && strongDataAny.entries.length > 0) {
+        // New format: { entries: [...] }
+        console.log(`[Force Seed Strong] ✅ Usando dados embutidos (objeto): ${strongDataAny.entries.length} entradas`);
+        console.log(`[Force Seed Strong] Exportado em: ${strongDataAny.exportedAt}`);
+        strongDataRaw = strongDataAny.entries;
+      } else {
+        console.log(`[Force Seed Strong] ⚠️ STRONG_DATA presente mas formato inválido`);
+        console.log(`[Force Seed Strong] Keys: ${Object.keys(strongDataAny || {}).join(', ')}`);
+      }
+    }
+    
+    // Fallback to file system only if embedded data not available
+    if (!strongDataRaw) {
+      console.log('[Force Seed Strong] Dados embutidos não disponíveis, tentando arquivos...');
       const possiblePaths = [
-        path.resolve(__dirname, 'strong-data.json'),
-        path.resolve(__dirname, '../server/strong-data.json'),
-        path.resolve(process.cwd(), 'dist/strong-data.json'),
         path.resolve(process.cwd(), 'server/strong-data.json'),
-        '/app/dist/strong-data.json',
-        '/app/server/strong-data.json',
-        '/home/runner/workspace/dist/strong-data.json',
-        '/home/runner/workspace/server/strong-data.json',
-        './dist/strong-data.json',
-        './server/strong-data.json',
+        path.resolve(__dirname, 'strong-data.json'),
       ];
-      
-      console.log('[Force Seed] Dados embutidos não disponíveis, tentando arquivos:');
-      possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
       
       for (const testPath of possiblePaths) {
         if (fs.existsSync(testPath)) {
-          console.log(`[Force Seed] Usando arquivo: ${testPath}`);
+          console.log(`[Force Seed Strong] Usando arquivo: ${testPath}`);
           strongDataRaw = JSON.parse(fs.readFileSync(testPath, 'utf-8'));
           break;
         }

@@ -149,14 +149,11 @@ export async function forceSeedStudyModules(): Promise<{ success: boolean; count
     }
     
     for (const track of data.tracks || []) {
-      await db.insert(studyTracks).values({
-        moduleId: track.moduleId,
-        level: track.level,
-        name: track.name,
-        description: track.description,
-        requiredPlan: track.requiredPlan,
-        order: track.order,
-      }).onConflictDoNothing();
+      await db.execute(sql`
+        INSERT INTO study_tracks (id, module_id, level, name, description, required_plan, "order", created_at)
+        VALUES (${track.id}, ${track.moduleId}, ${track.level}, ${track.name}, ${track.description}, ${track.requiredPlan}, ${track.order}, NOW())
+        ON CONFLICT (id) DO NOTHING
+      `);
       tracksCount++;
     }
     
@@ -353,14 +350,21 @@ export async function initializeDatabase() {
   }
 }
 
-// Auto-seed study modules on startup if empty
+// Auto-seed study modules on startup if empty or incomplete
 async function autoSeedStudyModules() {
   try {
     const moduleCount = await db.select().from(studyModules).limit(1);
+    const lessonCount = await db.select().from(studyLessons).limit(1);
     
-    if (moduleCount.length > 0) {
+    // Check if we have both modules AND lessons (complete seed)
+    if (moduleCount.length > 0 && lessonCount.length > 0) {
       console.log('✅ Study modules já populados');
       return;
+    }
+    
+    // If we have modules but no lessons, we need to reseed
+    if (moduleCount.length > 0 && lessonCount.length === 0) {
+      console.log('⚠️ Módulos existem mas lições estão vazias - fazendo reseed...');
     }
     
     console.log('📥 Populando study modules automaticamente...');
@@ -413,16 +417,13 @@ async function autoSeedStudyModules() {
     }
     console.log(`  ✓ ${(data.modules || []).length} módulos importados`);
     
-    // Import tracks
+    // Import tracks - must include ID for lesson references to work
     for (const track of data.tracks || []) {
-      await db.insert(studyTracks).values({
-        moduleId: track.moduleId,
-        level: track.level,
-        name: track.name,
-        description: track.description,
-        requiredPlan: track.requiredPlan,
-        order: track.order,
-      }).onConflictDoNothing();
+      await db.execute(sql`
+        INSERT INTO study_tracks (id, module_id, level, name, description, required_plan, "order", created_at)
+        VALUES (${track.id}, ${track.moduleId}, ${track.level}, ${track.name}, ${track.description}, ${track.requiredPlan}, ${track.order}, NOW())
+        ON CONFLICT (id) DO NOTHING
+      `);
     }
     console.log(`  ✓ ${(data.tracks || []).length} trilhas importadas`);
     

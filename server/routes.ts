@@ -1463,6 +1463,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Study modules diagnostic endpoint
+  app.get("/api/study/diagnostics", async (req, res) => {
+    try {
+      const { studyModules, studyTracks, studyLessons } = await import("@shared/schema");
+      
+      const modulesCount = await db.select({ count: sql<number>`count(*)` }).from(studyModules);
+      const tracksCount = await db.select({ count: sql<number>`count(*)` }).from(studyTracks);
+      const lessonsCount = await db.select({ count: sql<number>`count(*)` }).from(studyLessons);
+      
+      const sampleModules = await db.select().from(studyModules).limit(3);
+      const sampleTracks = await db.select().from(studyTracks).limit(3);
+      const sampleLessons = await db.select().from(studyLessons).limit(3);
+      
+      res.json({
+        status: Number(lessonsCount[0]?.count) > 0 ? 'OK' : 'INCOMPLETE',
+        modules: Number(modulesCount[0]?.count) || 0,
+        tracks: Number(tracksCount[0]?.count) || 0,
+        lessons: Number(lessonsCount[0]?.count) || 0,
+        sampleModules: sampleModules.map(m => ({ id: m.id, name: m.name })),
+        sampleTracks: sampleTracks.map(t => ({ id: t.id, name: t.name, moduleId: t.moduleId })),
+        sampleLessons: sampleLessons.map(l => ({ id: l.id, title: l.title, trackId: l.trackId })),
+        environment: process.env.NODE_ENV || 'unknown',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("[Study Diagnostics] Error:", error);
+      res.status(500).json({ status: 'ERROR', error: String(error) });
+    }
+  });
+
+  // Admin endpoint to reset and reseed study modules completely
+  app.post("/api/admin/reset-study", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      console.log(`[Admin] User ${req.userId} iniciando RESET completo dos módulos de estudo...`);
+      
+      // Delete all existing data in correct order (lessons first, then tracks, then modules)
+      await db.execute(sql`DELETE FROM study_lessons`);
+      console.log('[Admin Reset] Lições deletadas');
+      await db.execute(sql`DELETE FROM study_tracks`);
+      console.log('[Admin Reset] Trilhas deletadas');
+      await db.execute(sql`DELETE FROM study_modules`);
+      console.log('[Admin Reset] Módulos deletados');
+      
+      // Now reseed
+      const result = await forceSeedStudyModules();
+      res.json({ ...result, message: 'Reset completo + ' + result.message });
+    } catch (error) {
+      console.error("[Admin] Erro no reset módulos:", error);
+      res.status(500).json({ success: false, error: String(error) });
+    }
+  });
+
   // Strong's Dictionary diagnostic endpoint
   app.get("/api/strong/diagnostics", async (req, res) => {
     try {

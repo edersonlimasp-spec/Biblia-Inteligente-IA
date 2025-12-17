@@ -1665,6 +1665,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export Strong data as valid JSON (admin only, for regenerating data file)
+  app.get("/api/admin/export-strong", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      console.log(`[Admin] User ${req.userId} exportando Strong data...`);
+      const allEntries = await db.select().from(strongEntries).orderBy(strongEntries.strongNumber);
+      console.log(`[Export] ${allEntries.length} entradas Strong exportadas`);
+      res.json(allEntries);
+    } catch (error) {
+      console.error("[Export Strong] Error:", error);
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
   // Strong's Dictionary diagnostic endpoint
   app.get("/api/strong/diagnostics", async (req, res) => {
     try {

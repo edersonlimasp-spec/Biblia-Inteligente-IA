@@ -1,0 +1,3 @@
+#!/bin/bash
+# Build script for Replit deployment
+npm run build && node post-build.js

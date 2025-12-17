@@ -229,18 +229,21 @@ export async function forceSeedStrongEntries(): Promise<{ success: boolean; coun
     
     const strongData = strongDataRaw.map((row: any) => ({
       id: row.id,
-      strongNumber: row.strong_number,
+      strongNumber: row.strong_number ?? row.strongNumber,
       language: row.language,
       lemma: row.lemma,
       translit: row.translit,
       xlit: row.xlit,
       pron: row.pron,
-      kjvDef: row.kjv_def,
-      strongsDef: row.strongs_def,
-      portugueseDef: row.portuguese_def,
+      kjvDef: row.kjv_def ?? row.kjvDef,
+      strongsDef: row.strongs_def ?? row.strongsDef,
+      portugueseDef: row.portuguese_def ?? row.portugueseDef,
       derivation: row.derivation,
-      createdAt: row.created_at,
+      extendedDefinition: row.extended_definition ?? row.extendedDefinition,
+      createdAt: row.created_at ?? row.createdAt,
     }));
+    
+    console.log(`[Force Seed] Primeiro registro: ${JSON.stringify(strongData[0])}`);
     
     const batchSize = 500;
     for (let i = 0; i < strongData.length; i += batchSize) {
@@ -309,20 +312,21 @@ export async function initializeDatabase() {
         console.log(`📂 ✅ Encontrado strong-data.json em: ${strongDataPath}`);
         const strongDataRaw = JSON.parse(fs.readFileSync(strongDataPath, 'utf-8'));
         
-        // Map from snake_case (DB export) to the schema field names
+        // Map from snake_case OR camelCase to the schema field names (supports both formats)
         const strongData = strongDataRaw.map((row: any) => ({
           id: row.id,
-          strongNumber: row.strong_number,
+          strongNumber: row.strong_number ?? row.strongNumber,
           language: row.language,
           lemma: row.lemma,
           translit: row.translit,
           xlit: row.xlit,
           pron: row.pron,
-          kjvDef: row.kjv_def,
-          strongsDef: row.strongs_def,
-          portugueseDef: row.portuguese_def,
+          kjvDef: row.kjv_def ?? row.kjvDef,
+          strongsDef: row.strongs_def ?? row.strongsDef,
+          portugueseDef: row.portuguese_def ?? row.portugueseDef,
           derivation: row.derivation,
-          createdAt: row.created_at,
+          extendedDefinition: row.extended_definition ?? row.extendedDefinition,
+          createdAt: row.created_at ?? row.createdAt,
         }));
         
         // Import in batches to avoid overwhelming the database

@@ -1,10 +1,11 @@
 import { db } from './db';
-import { strongEntries, bibleWords } from '@shared/schema';
+import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons } from '@shared/schema';
 import { seedAdminUsers } from './seed-admins';
 import { seedBibleVersions } from './seed-versions';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { sql } from 'drizzle-orm';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -91,6 +92,105 @@ async function seedBibleWords() {
     console.log(`✅ ${inserted} mapeamentos inseridos para Gênesis 1`);
   } catch (error) {
     console.error('Erro ao seed bible_words:', error);
+  }
+}
+
+// Exported function to force seed study modules (can be called from admin endpoint)
+export async function forceSeedStudyModules(): Promise<{ success: boolean; count: number; message: string }> {
+  try {
+    console.log('[Force Seed Study] Iniciando importação dos módulos de estudo...');
+    
+    const possiblePaths = [
+      path.resolve(__dirname, 'study-modules-data.json'),
+      path.resolve(__dirname, '../server/study-modules-data.json'),
+      path.resolve(process.cwd(), 'dist/study-modules-data.json'),
+      path.resolve(process.cwd(), 'server/study-modules-data.json'),
+      '/app/dist/study-modules-data.json',
+      '/app/server/study-modules-data.json',
+      './dist/study-modules-data.json',
+      './server/study-modules-data.json',
+    ];
+    
+    console.log('[Force Seed Study] Caminhos verificados:');
+    possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
+    
+    let dataPath = null;
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        dataPath = testPath;
+        break;
+      }
+    }
+    
+    if (!dataPath) {
+      return { success: false, count: 0, message: 'study-modules-data.json não encontrado. Execute o script de exportação primeiro.' };
+    }
+    
+    console.log(`[Force Seed Study] Usando arquivo: ${dataPath}`);
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    
+    let modulesCount = 0;
+    let tracksCount = 0;
+    let lessonsCount = 0;
+    
+    for (const module of data.modules || []) {
+      await db.insert(studyModules).values({
+        id: module.id,
+        name: module.name,
+        description: module.description,
+        icon: module.icon,
+        color: module.color,
+        order: module.order,
+        level: module.level || 'iniciante',
+        requiredPlan: module.requiredPlan || 'gold',
+        isActive: true,
+      }).onConflictDoNothing();
+      modulesCount++;
+    }
+    
+    for (const track of data.tracks || []) {
+      await db.insert(studyTracks).values({
+        id: track.id,
+        moduleId: track.moduleId,
+        level: track.level,
+        name: track.name,
+        description: track.description,
+        requiredPlan: track.requiredPlan,
+        order: track.order,
+        isActive: true,
+      }).onConflictDoNothing();
+      tracksCount++;
+    }
+    
+    const batchSize = 100;
+    const lessons = data.lessons || [];
+    for (let i = 0; i < lessons.length; i += batchSize) {
+      const batch = lessons.slice(i, i + batchSize).map((lesson: any) => ({
+        id: lesson.id,
+        trackId: lesson.trackId,
+        title: lesson.title,
+        content: lesson.content,
+        references: lesson.references,
+        questions: lesson.questions,
+        application: lesson.application,
+        summary: lesson.summary,
+        estimatedMinutes: lesson.estimatedMinutes,
+        order: lesson.order,
+        isActive: true,
+      }));
+      await db.insert(studyLessons).values(batch).onConflictDoNothing();
+      lessonsCount += batch.length;
+      console.log(`[Force Seed Study] Lições: ${Math.min(i + batchSize, lessons.length)} / ${lessons.length}`);
+    }
+    
+    return { 
+      success: true, 
+      count: modulesCount + tracksCount + lessonsCount, 
+      message: `Importados ${modulesCount} módulos, ${tracksCount} trilhas, ${lessonsCount} lições` 
+    };
+  } catch (error) {
+    console.error('[Force Seed Study] Erro:', error);
+    return { success: false, count: 0, message: String(error) };
   }
 }
 

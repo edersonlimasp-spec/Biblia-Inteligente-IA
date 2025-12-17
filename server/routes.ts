@@ -14,7 +14,7 @@ import { db } from "./db";
 import { eq, or, like, sql, and } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
-import { forceSeedStrongEntries } from "./init-db";
+import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
 
 // Initialize Firebase Admin SDK (only if configured)
 let firebaseInitialized = false;
@@ -1431,6 +1431,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(result);
     } catch (error) {
       console.error("[Admin] Erro no seed Strong:", error);
+      res.status(500).json({ success: false, error: String(error) });
+    }
+  });
+
+  // Admin endpoint to force seed study modules in production
+  app.post("/api/admin/seed-study", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      console.log(`[Admin] User ${req.userId} iniciando seed dos módulos de estudo...`);
+      const result = await forceSeedStudyModules();
+      res.json(result);
+    } catch (error) {
+      console.error("[Admin] Erro no seed módulos:", error);
       res.status(500).json({ success: false, error: String(error) });
     }
   });

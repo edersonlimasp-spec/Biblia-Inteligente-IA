@@ -26,6 +26,24 @@ if (!fs.existsSync(sourceDir)) {
   process.exit(1);
 }
 
+// Copy data files to dist/ for production seeding
+const dataFiles = [
+  { src: 'server/strong-data.json', dest: 'dist/strong-data.json' },
+  { src: 'server/study-modules-data.json', dest: 'dist/study-modules-data.json' },
+];
+
+console.log('📦 Copying data files for production seeding...');
+for (const { src, dest } of dataFiles) {
+  const srcPath = path.join(__dirname, src);
+  const destPath = path.join(__dirname, dest);
+  if (fs.existsSync(srcPath)) {
+    fs.copyFileSync(srcPath, destPath);
+    console.log(`   ✓ Copied: ${src} -> ${dest}`);
+  } else {
+    console.warn(`   ⚠️ Source not found: ${src}`);
+  }
+}
+
 for (const destDir of destinations) {
   try {
     // Ensure destination exists

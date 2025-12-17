@@ -15,6 +15,7 @@ import { eq, or, like, sql, and } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
 import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
+import { STRONG_DATA } from "./strong-data-embedded";
 
 // Initialize Firebase Admin SDK (only if configured)
 let firebaseInitialized = false;
@@ -66,6 +67,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     next();
+  });
+
+  // DEBUG: Diagnostic endpoint to check embedded data state (temporary)
+  app.get("/api/debug/strong-status", async (req, res) => {
+    try {
+      const strongDataAny = STRONG_DATA as any;
+      const dbCount = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);
+      
+      res.json({
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV,
+        strongData: {
+          exists: !!strongDataAny,
+          type: typeof strongDataAny,
+          isArray: Array.isArray(strongDataAny),
+          hasEntries: !!(strongDataAny?.entries),
+          entriesIsArray: Array.isArray(strongDataAny?.entries),
+          entriesLength: strongDataAny?.entries?.length ?? (Array.isArray(strongDataAny) ? strongDataAny.length : 0),
+          exportedAt: strongDataAny?.exportedAt ?? 'N/A',
+          keys: strongDataAny ? Object.keys(strongDataAny).slice(0, 10) : [],
+          firstEntry: strongDataAny?.entries?.[0] ?? (Array.isArray(strongDataAny) ? strongDataAny[0] : null),
+        },
+        database: {
+          strongEntriesCount: Number(dbCount[0]?.count) || 0,
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
   });
 
   // Authentication routes

@@ -6,6 +6,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { sql } from 'drizzle-orm';
+import { STRONG_DATA } from './strong-data-embedded';
+import { STUDY_MODULES_DATA } from './study-modules-data-embedded';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -100,34 +102,40 @@ export async function forceSeedStudyModules(): Promise<{ success: boolean; count
   try {
     console.log('[Force Seed Study] Iniciando importação dos módulos de estudo...');
     
-    const possiblePaths = [
-      path.resolve(__dirname, 'study-modules-data.json'),
-      path.resolve(__dirname, '../server/study-modules-data.json'),
-      path.resolve(process.cwd(), 'dist/study-modules-data.json'),
-      path.resolve(process.cwd(), 'server/study-modules-data.json'),
-      '/app/dist/study-modules-data.json',
-      '/app/server/study-modules-data.json',
-      './dist/study-modules-data.json',
-      './server/study-modules-data.json',
-    ];
+    let data: any = null;
     
-    console.log('[Force Seed Study] Caminhos verificados:');
-    possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
-    
-    let dataPath = null;
-    for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        dataPath = testPath;
-        break;
+    // First try to load from embedded data (always available in bundle)
+    if (STUDY_MODULES_DATA && STUDY_MODULES_DATA.modules && STUDY_MODULES_DATA.modules.length > 0) {
+      console.log(`[Force Seed Study] ✅ Usando dados embutidos: ${STUDY_MODULES_DATA.modules.length} módulos`);
+      data = STUDY_MODULES_DATA;
+    } else {
+      // Fallback to file system (for development)
+      const possiblePaths = [
+        path.resolve(__dirname, 'study-modules-data.json'),
+        path.resolve(__dirname, '../server/study-modules-data.json'),
+        path.resolve(process.cwd(), 'dist/study-modules-data.json'),
+        path.resolve(process.cwd(), 'server/study-modules-data.json'),
+        '/app/dist/study-modules-data.json',
+        '/app/server/study-modules-data.json',
+        './dist/study-modules-data.json',
+        './server/study-modules-data.json',
+      ];
+      
+      console.log('[Force Seed Study] Dados embutidos não disponíveis, tentando arquivos:');
+      possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
+      
+      for (const testPath of possiblePaths) {
+        if (fs.existsSync(testPath)) {
+          console.log(`[Force Seed Study] Usando arquivo: ${testPath}`);
+          data = JSON.parse(fs.readFileSync(testPath, 'utf-8'));
+          break;
+        }
       }
     }
     
-    if (!dataPath) {
-      return { success: false, count: 0, message: 'study-modules-data.json não encontrado. Execute o script de exportação primeiro.' };
+    if (!data || !data.modules) {
+      return { success: false, count: 0, message: 'Dados de estudo não encontrados (nem embutidos, nem em arquivo)' };
     }
-    
-    console.log(`[Force Seed Study] Usando arquivo: ${dataPath}`);
-    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
     
     let modulesCount = 0;
     let tracksCount = 0;
@@ -196,36 +204,42 @@ export async function forceSeedStrongEntries(): Promise<{ success: boolean; coun
     console.log(`[Force Seed] __dirname: ${__dirname}`);
     console.log(`[Force Seed] process.cwd(): ${process.cwd()}`);
     
-    const possiblePaths = [
-      path.resolve(__dirname, 'strong-data.json'),
-      path.resolve(__dirname, '../server/strong-data.json'),
-      path.resolve(process.cwd(), 'dist/strong-data.json'),
-      path.resolve(process.cwd(), 'server/strong-data.json'),
-      '/app/dist/strong-data.json',
-      '/app/server/strong-data.json',
-      '/home/runner/workspace/dist/strong-data.json',
-      '/home/runner/workspace/server/strong-data.json',
-      './dist/strong-data.json',
-      './server/strong-data.json',
-    ];
+    let strongDataRaw: any[] | null = null;
     
-    console.log('[Force Seed] Caminhos verificados:');
-    possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
-    
-    let strongDataPath = null;
-    for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        strongDataPath = testPath;
-        break;
+    // First try to load from embedded data (always available in bundle)
+    if (STRONG_DATA && Array.isArray(STRONG_DATA) && STRONG_DATA.length > 0) {
+      console.log(`[Force Seed] ✅ Usando dados embutidos: ${STRONG_DATA.length} entradas`);
+      strongDataRaw = STRONG_DATA;
+    } else {
+      // Fallback to file system (for development)
+      const possiblePaths = [
+        path.resolve(__dirname, 'strong-data.json'),
+        path.resolve(__dirname, '../server/strong-data.json'),
+        path.resolve(process.cwd(), 'dist/strong-data.json'),
+        path.resolve(process.cwd(), 'server/strong-data.json'),
+        '/app/dist/strong-data.json',
+        '/app/server/strong-data.json',
+        '/home/runner/workspace/dist/strong-data.json',
+        '/home/runner/workspace/server/strong-data.json',
+        './dist/strong-data.json',
+        './server/strong-data.json',
+      ];
+      
+      console.log('[Force Seed] Dados embutidos não disponíveis, tentando arquivos:');
+      possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
+      
+      for (const testPath of possiblePaths) {
+        if (fs.existsSync(testPath)) {
+          console.log(`[Force Seed] Usando arquivo: ${testPath}`);
+          strongDataRaw = JSON.parse(fs.readFileSync(testPath, 'utf-8'));
+          break;
+        }
       }
     }
     
-    if (!strongDataPath) {
-      return { success: false, count: 0, message: 'strong-data.json não encontrado em nenhum caminho' };
+    if (!strongDataRaw || strongDataRaw.length === 0) {
+      return { success: false, count: 0, message: 'Dados do Strong não encontrados (nem embutidos, nem em arquivo)' };
     }
-    
-    console.log(`[Force Seed] Usando arquivo: ${strongDataPath}`);
-    const strongDataRaw = JSON.parse(fs.readFileSync(strongDataPath, 'utf-8'));
     
     const strongData = strongDataRaw.map((row: any) => ({
       id: row.id,
@@ -278,68 +292,12 @@ export async function initializeDatabase() {
     
     if (strongCount < EXPECTED_STRONG_MIN) {
       console.log('📥 Banco está vazio, importando dados...');
-      console.log(`🔍 __dirname: ${__dirname}`);
-      console.log(`🔍 process.cwd(): ${process.cwd()}`);
-      
-      // Import Strong dictionary data from embedded JSON file
-      // Try multiple paths for dev and production environments
-      // In Replit Autoscale: only dist/ folder is deployed, cwd is /app
-      const possiblePaths = [
-        path.resolve(__dirname, 'strong-data.json'),            // PROD: /app/dist/strong-data.json (bundled code runs from dist/)
-        path.resolve(__dirname, '../server/strong-data.json'),  // DEV: when running tsx from project root
-        path.resolve(process.cwd(), 'dist/strong-data.json'),   // PROD fallback: /app/dist/strong-data.json
-        path.resolve(process.cwd(), 'server/strong-data.json'), // DEV fallback: from project root
-        '/app/dist/strong-data.json',                           // PROD absolute: Replit autoscale path
-        '/app/server/strong-data.json',                         // PROD fallback: if server/ copied
-        '/home/runner/workspace/dist/strong-data.json',         // Replit workspace path
-        '/home/runner/workspace/server/strong-data.json',       // Replit workspace fallback
-        './dist/strong-data.json',                              // Relative from cwd
-        './server/strong-data.json',                            // Relative from cwd
-      ];
-      
-      console.log('🔍 Tentando encontrar strong-data.json nos seguintes caminhos:');
-      possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
-      
-      let strongDataPath = null;
-      for (const testPath of possiblePaths) {
-        if (fs.existsSync(testPath)) {
-          strongDataPath = testPath;
-          break;
-        }
-      }
-      
-      if (strongDataPath) {
-        console.log(`📂 ✅ Encontrado strong-data.json em: ${strongDataPath}`);
-        const strongDataRaw = JSON.parse(fs.readFileSync(strongDataPath, 'utf-8'));
-        
-        // Map from snake_case OR camelCase to the schema field names (supports both formats)
-        const strongData = strongDataRaw.map((row: any) => ({
-          id: row.id,
-          strongNumber: row.strong_number ?? row.strongNumber,
-          language: row.language,
-          lemma: row.lemma,
-          translit: row.translit,
-          xlit: row.xlit,
-          pron: row.pron,
-          kjvDef: row.kjv_def ?? row.kjvDef,
-          strongsDef: row.strongs_def ?? row.strongsDef,
-          portugueseDef: row.portuguese_def ?? row.portugueseDef,
-          derivation: row.derivation,
-          extendedDefinition: row.extended_definition ?? row.extendedDefinition,
-          createdAt: row.created_at ?? row.createdAt,
-        }));
-        
-        // Import in batches to avoid overwhelming the database
-        const batchSize = 500;
-        for (let i = 0; i < strongData.length; i += batchSize) {
-          const batch = strongData.slice(i, i + batchSize);
-          await db.insert(strongEntries).values(batch).onConflictDoNothing();
-          const processed = Math.min(i + batchSize, strongData.length);
-          console.log(`  ✓ Importados ${processed} / ${strongData.length}`);
-        }
-        console.log(`✅ Importados ${strongData.length} Strong dictionary entries`);
+      // Use the forceSeedStrongEntries function which handles embedded data
+      const result = await forceSeedStrongEntries();
+      if (result.success) {
+        console.log(`✅ ${result.message}`);
       } else {
-        console.log('⚠️ strong-data.json não encontrado - Dicionário Strong estará vazio');
+        console.log(`⚠️ ${result.message}`);
       }
     } else {
       console.log(`✅ Banco de dados já inicializado com ${strongCount} Strong entries`);
@@ -393,86 +351,13 @@ async function autoSeedStudyModules() {
     
     console.log('📥 Populando study modules automaticamente...');
     
-    const possiblePaths = [
-      path.resolve(__dirname, 'study-modules-data.json'),
-      path.resolve(__dirname, '../server/study-modules-data.json'),
-      path.resolve(process.cwd(), 'dist/study-modules-data.json'),
-      path.resolve(process.cwd(), 'server/study-modules-data.json'),
-      '/app/dist/study-modules-data.json',
-      '/app/server/study-modules-data.json',
-      '/home/runner/workspace/dist/study-modules-data.json',
-      '/home/runner/workspace/server/study-modules-data.json',
-      './dist/study-modules-data.json',
-      './server/study-modules-data.json',
-    ];
-    
-    console.log('🔍 Tentando encontrar study-modules-data.json:');
-    possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
-    
-    let dataPath = null;
-    for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        dataPath = testPath;
-        break;
-      }
+    // Use the forceSeedStudyModules function which handles embedded data
+    const result = await forceSeedStudyModules();
+    if (result.success) {
+      console.log(`✅ ${result.message}`);
+    } else {
+      console.log(`⚠️ ${result.message}`);
     }
-    
-    if (!dataPath) {
-      console.log('⚠️ study-modules-data.json não encontrado - Cursos estarão vazios');
-      return;
-    }
-    
-    console.log(`📂 ✅ Encontrado study-modules-data.json em: ${dataPath}`);
-    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-    
-    // Import modules
-    for (const module of data.modules || []) {
-      await db.insert(studyModules).values({
-        id: module.id,
-        name: module.name,
-        description: module.description,
-        icon: module.icon,
-        color: module.color,
-        order: module.order,
-        level: module.level || 'iniciante',
-        requiredPlan: module.requiredPlan || 'gold',
-        isActive: true,
-      }).onConflictDoNothing();
-    }
-    console.log(`  ✓ ${(data.modules || []).length} módulos importados`);
-    
-    // Import tracks - must include ID for lesson references to work
-    for (const track of data.tracks || []) {
-      await db.execute(sql`
-        INSERT INTO study_tracks (id, module_id, level, name, description, required_plan, "order", created_at)
-        VALUES (${track.id}, ${track.moduleId}, ${track.level}, ${track.name}, ${track.description}, ${track.requiredPlan}, ${track.order}, NOW())
-        ON CONFLICT (id) DO NOTHING
-      `);
-    }
-    console.log(`  ✓ ${(data.tracks || []).length} trilhas importadas`);
-    
-    // Import lessons in batches
-    const batchSize = 100;
-    const lessons = data.lessons || [];
-    for (let i = 0; i < lessons.length; i += batchSize) {
-      const batch = lessons.slice(i, i + batchSize).map((lesson: any) => ({
-        id: lesson.id,
-        trackId: lesson.trackId,
-        title: lesson.title,
-        content: lesson.content,
-        references: lesson.references,
-        questions: lesson.questions,
-        application: lesson.application,
-        summary: lesson.summary,
-        estimatedMinutes: lesson.estimatedMinutes,
-        order: lesson.order,
-        isActive: true,
-      }));
-      await db.insert(studyLessons).values(batch).onConflictDoNothing();
-    }
-    console.log(`  ✓ ${lessons.length} lições importadas`);
-    
-    console.log('✅ Study modules populados com sucesso!');
   } catch (error) {
     console.error('❌ Erro ao auto-seed study modules:', error);
   }

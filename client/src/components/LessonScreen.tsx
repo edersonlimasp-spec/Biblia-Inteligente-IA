@@ -137,9 +137,9 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
   const questionsList = lesson?.questions.split('\n').filter(q => q.trim()) || [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      <header className="flex-shrink-0 sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
+        <div className="px-3 py-2 flex items-center gap-2">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -149,12 +149,12 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-base font-serif font-bold truncate">{lesson?.title}</h1>
+            <h1 className="text-sm font-serif font-bold truncate">{lesson?.title}</h1>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Clock className="w-3 h-3" />
               <span>{lesson?.estimatedMinutes} min</span>
               {isCompleted && (
-                <Badge variant="outline" className="ml-1 text-green-600 border-green-500/30">
+                <Badge variant="outline" className="ml-1 text-green-600 border-green-500/30 text-xs py-0">
                   <Check className="w-3 h-3 mr-1" />
                   Concluída
                 </Badge>
@@ -172,14 +172,14 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
         </div>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-60px)]">
-        <div className="max-w-2xl mx-auto px-4 py-6">
+      <ScrollArea className="flex-1 overflow-auto">
+        <div className="px-3 py-4 pb-24">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="prose prose-sm dark:prose-invert max-w-none mb-6 overflow-hidden"
+            className="prose prose-sm dark:prose-invert max-w-none mb-4 overflow-hidden"
           >
-            <p className="text-base leading-relaxed break-words">{lesson?.content}</p>
+            <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">{lesson?.content}</p>
           </motion.div>
 
           <Section
@@ -236,16 +236,16 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="mt-8"
+              className="mt-6 mb-4"
             >
               <Button 
                 className="w-full" 
-                size="lg"
+                size="default"
                 onClick={() => markCompletedMutation.mutate()}
                 disabled={markCompletedMutation.isPending}
                 data-testid="button-mark-completed"
               >
-                <Check className="w-5 h-5 mr-2" />
+                <Check className="w-4 h-4 mr-2" />
                 {markCompletedMutation.isPending ? "Salvando..." : "Marcar como Concluída"}
               </Button>
             </motion.div>
@@ -335,16 +335,16 @@ function Section({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-4"
+      className="mb-3"
     >
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-3 bg-card border rounded-lg hover-elevate"
+        className="w-full flex items-center justify-between p-2.5 bg-card border rounded-lg hover-elevate"
         data-testid={`section-toggle-${title.toLowerCase().replace(/\s+/g, '-')}`}
       >
         <div className="flex items-center gap-2">
           {icon}
-          <span className="font-medium text-sm">{title}</span>
+          <span className="font-medium text-xs">{title}</span>
         </div>
         {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
@@ -352,7 +352,7 @@ function Section({
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="p-3 border-x border-b rounded-b-lg"
+          className="p-2.5 border-x border-b rounded-b-lg text-sm"
         >
           {children}
         </motion.div>

@@ -266,10 +266,14 @@ export async function initializeDatabase() {
     // SEMPRE seed versões de Bíblia
     await seedBibleVersions();
     
-    // Check if strong_entries table has data
-    const strongCount = await db.select().from(strongEntries).limit(1);
+    // Check if strong_entries table has SUFFICIENT data (expect ~14000 entries)
+    const strongCountResult = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);
+    const strongCount = Number(strongCountResult[0]?.count) || 0;
+    const EXPECTED_STRONG_MIN = 10000; // Should have at least 10k entries (we have 14k total)
     
-    if (strongCount.length === 0) {
+    console.log(`📊 Strong entries: ${strongCount} (esperado: ${EXPECTED_STRONG_MIN}+)`);
+    
+    if (strongCount < EXPECTED_STRONG_MIN) {
       console.log('📥 Banco está vazio, importando dados...');
       console.log(`🔍 __dirname: ${__dirname}`);
       console.log(`🔍 process.cwd(): ${process.cwd()}`);
@@ -334,7 +338,7 @@ export async function initializeDatabase() {
         console.log('⚠️ strong-data.json não encontrado - Dicionário Strong estará vazio');
       }
     } else {
-      console.log('✅ Banco de dados já inicializado com Strong entries');
+      console.log(`✅ Banco de dados já inicializado com ${strongCount} Strong entries`);
     }
 
     // SEMPRE seed bible_words (mapeamentos Genesis 1) se ainda não tiver
@@ -353,18 +357,34 @@ export async function initializeDatabase() {
 // Auto-seed study modules on startup if empty or incomplete
 async function autoSeedStudyModules() {
   try {
-    const moduleCount = await db.select().from(studyModules).limit(1);
-    const lessonCount = await db.select().from(studyLessons).limit(1);
+    // Validate COMPLETENESS - not just existence
+    const moduleCountResult = await db.select({ count: sql<number>`count(*)` }).from(studyModules);
+    const trackCountResult = await db.select({ count: sql<number>`count(*)` }).from(studyTracks);
+    const lessonCountResult = await db.select({ count: sql<number>`count(*)` }).from(studyLessons);
     
-    // Check if we have both modules AND lessons (complete seed)
-    if (moduleCount.length > 0 && lessonCount.length > 0) {
-      console.log('✅ Study modules já populados');
+    const moduleCount = Number(moduleCountResult[0]?.count) || 0;
+    const trackCount = Number(trackCountResult[0]?.count) || 0;
+    const lessonCount = Number(lessonCountResult[0]?.count) || 0;
+    
+    console.log(`📊 Estado atual Study: ${moduleCount} módulos, ${trackCount} trilhas, ${lessonCount} lições`);
+    
+    // Check completeness: ALL three must have data
+    const isComplete = moduleCount > 0 && trackCount > 0 && lessonCount > 0;
+    
+    if (isComplete) {
+      console.log('✅ Study modules já populados completamente');
       return;
     }
     
-    // If we have modules but no lessons, we need to reseed
-    if (moduleCount.length > 0 && lessonCount.length === 0) {
-      console.log('⚠️ Módulos existem mas lições estão vazias - fazendo reseed...');
+    // If INCOMPLETE (any is 0), we need to do a FULL reseed
+    console.log('⚠️ Dados incompletos detectados - fazendo reseed completo...');
+    
+    // TRUNCATE existing partial data to ensure clean state
+    if (lessonCount > 0 || trackCount > 0 || moduleCount > 0) {
+      console.log('🗑️ Limpando dados parciais...');
+      await db.execute(sql`DELETE FROM study_lessons`);
+      await db.execute(sql`DELETE FROM study_tracks`);
+      await db.execute(sql`DELETE FROM study_modules`);
     }
     
     console.log('📥 Populando study modules automaticamente...');

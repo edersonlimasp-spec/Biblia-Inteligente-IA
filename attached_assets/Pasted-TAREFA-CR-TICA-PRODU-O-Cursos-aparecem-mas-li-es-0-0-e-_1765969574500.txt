@@ -1,0 +1,116 @@
+TAREFA CRÍTICA (PRODUÇÃO): Cursos aparecem, mas lições = 0/0 e Strong não abre.
+NO PREVIEW funciona. NO PUBLICADO falha. Isso indica seed/dados inconsistentes no BANCO DE PRODUÇÃO.
+
+OBJETIVO
+1) Em PRODUÇÃO, módulos devem abrir com tracks + lições (não pode aparecer 0/0).
+2) Em PRODUÇÃO, Strong deve abrir ao clicar na palavra e retornar dados completos.
+3) O comportamento deve ser idêntico em Preview e Publicado.
+
+CENÁRIO CONFIRMADO
+- Produção usa DB separado do desenvolvimento.
+- Existe seed “parcial”: módulos existem, porém sem tracks/lições, e/ou Strong não carregado.
+- Já foi identificado um bug: track IDs do JSON existem (ex.: "n1-rev-track"), mas estão sendo inseridos sem o ID, enquanto lições referenciam esse ID => relações quebradas.
+
+========================================================
+PASSO 1 — CORRIGIR DEFINITIVAMENTE O SEED (NÃO PARCIAL)
+========================================================
+A) Ajuste o autoSeed para validar COMPLETUDE, não só existência.
+- Não basta `count(modules) > 0`.
+- Deve validar também:
+  - count(tracks) > 0
+  - count(lessons) > 0
+  - count(strong) > 0 (ou acima de um mínimo esperado)
+Se qualquer um for 0, rodar seed completo.
+
+B) GARANTIR IDs CONSISTENTES
+- Ao inserir tracks e lessons, respeitar o ID do JSON quando existir.
+- Ex.: track JSON tem id "n1-rev-track". Esse mesmo ID deve ser persistido no banco.
+- Garantir que o schema permite definir ID manualmente (default só se não informado).
+- Garantir que lesson.trackId referencie um track.id existente.
+
+C) Seed idempotente e seguro
+- Se dados inconsistentes, permitir “reseed” completo:
+  - apagar (truncate) tabelas relacionadas a curso (modules, tracks, lessons, progress etc.) e reinserir.
+  - NÃO duplicar dados.
+  - executar dentro de transação quando possível.
+
+========================================================
+PASSO 2 — STRONG: GARANTIR DADOS E ENDPOINT EM PRODUÇÃO
+========================================================
+A) Validar DB produção:
+- SELECT COUNT(*) strong;
+- Garantir que há milhares de entradas (não zero).
+B) Validar endpoint:
+- Criar/confirmar endpoint GET /api/strong?query=... ou /api/strong/:id
+- Logar request/response em produção (temporariamente) para provar que a rota responde.
+C) Se Strong depende de arquivos JSON/CSV:
+- Garantir que esses arquivos estão inclusos no build de produção (path correto).
+- Garantir que a rotina de import roda no published environment.
+
+========================================================
+PASSO 3 — CRIAR ENDPOINTS DE DIAGNÓSTICO (SOMENTE ADMIN)
+========================================================
+Criar endpoints ADMIN (protegidos por JWT role=ADMIN) para diagnosticar e corrigir produção SEM “chute”:
+
+1) GET /api/admin/diagnostics/data-health
+Deve retornar:
+- env (dev/prod)
+- database host/name (sem vazar credenciais)
+- counts:
+  - modules_count
+  - tracks_count
+  - lessons_count
+  - strong_count
+- status: OK / INCOMPLETO / QUEBRADO
+- warnings (ex.: tracks sem ID do JSON, lessons com trackId inexistente)
+
+2) POST /api/admin/diagnostics/reseed-study
+- Faz truncate seguro e seed completo de modules/tracks/lessons.
+- Retorna resumo do que inseriu (quantidades).
+- Deve ser idempotente.
+
+3) POST /api/admin/diagnostics/reseed-strong
+- Reimporta/seed Strong no DB produção se strong_count estiver baixo/0.
+- Retorna quantidade inserida.
+
+OBS: Esses endpoints devem existir e funcionar em PRODUÇÃO PUBLICADA.
+
+========================================================
+PASSO 4 — UI ADMIN PARA “SAÚDE DO SISTEMA”
+========================================================
+Na área Admin (se existir), criar uma página “Saúde do Sistema”:
+- Botão “Verificar dados”
+- Mostrar contagens
+- Botões:
+  - “Reseed Cursos”
+  - “Reseed Strong”
+- Mostrar logs/resultados do processo
+- Restringir a ADMIN
+
+========================================================
+PASSO 5 — VALIDAÇÃO OBRIGATÓRIA (NA URL PUBLICADA)
+========================================================
+Você só pode concluir após PROVAR:
+
+1) Em PRODUÇÃO:
+- abrir módulo do curso
+- abrir uma trilha/track
+- abrir lições (não pode ser 0/0)
+- abrir uma lição e ver conteúdo
+
+2) Em PRODUÇÃO:
+- abrir um versículo com palavra com Strong
+- clicar na palavra
+- abrir painel/modal com:
+  - strongId correto
+  - original (grego/hebraico)
+  - transliteração
+  - definição completa
+- Confirmar via logs do endpoint que veio do DB produção
+
+========================================================
+REGRA FINAL
+========================================================
+- Não encerrar como “resolvido” se funcionar apenas no Preview.
+- Não cobrar novamente por ajustes enquanto o problema persistir em produção.
+- Entregar causa raiz + arquivos alterados + evidência (counts e testes em produção).

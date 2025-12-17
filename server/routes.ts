@@ -6,7 +6,7 @@ import { sendPasswordResetEmail } from "./email";
 import admin from "firebase-admin";
 import crypto from "crypto";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -1463,7 +1463,157 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Study modules diagnostic endpoint
+  // UNIFIED DATA HEALTH DIAGNOSTIC ENDPOINT (for admin UI)
+  app.get("/api/admin/diagnostics/data-health", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      console.log(`[Admin] User ${req.userId} consultando saúde dos dados...`);
+      
+      // Get all counts
+      const modulesCount = await db.select({ count: sql<number>`count(*)` }).from(studyModules);
+      const tracksCount = await db.select({ count: sql<number>`count(*)` }).from(studyTracks);
+      const lessonsCount = await db.select({ count: sql<number>`count(*)` }).from(studyLessons);
+      const strongCount = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);
+      
+      const modules = Number(modulesCount[0]?.count) || 0;
+      const tracks = Number(tracksCount[0]?.count) || 0;
+      const lessons = Number(lessonsCount[0]?.count) || 0;
+      const strong = Number(strongCount[0]?.count) || 0;
+      
+      // Expected minimums
+      const EXPECTED_MODULES = 40;
+      const EXPECTED_TRACKS = 40;
+      const EXPECTED_LESSONS = 400;
+      const EXPECTED_STRONG = 10000;
+      
+      // Check for warnings
+      const warnings: string[] = [];
+      
+      if (modules === 0) warnings.push('Nenhum módulo de estudo encontrado');
+      else if (modules < EXPECTED_MODULES) warnings.push(`Módulos abaixo do esperado: ${modules}/${EXPECTED_MODULES}`);
+      
+      if (tracks === 0) warnings.push('Nenhuma trilha encontrada');
+      else if (tracks < EXPECTED_TRACKS) warnings.push(`Trilhas abaixo do esperado: ${tracks}/${EXPECTED_TRACKS}`);
+      
+      if (lessons === 0) warnings.push('Nenhuma lição encontrada');
+      else if (lessons < EXPECTED_LESSONS) warnings.push(`Lições abaixo do esperado: ${lessons}/${EXPECTED_LESSONS}`);
+      
+      if (strong === 0) warnings.push('Dicionário Strong vazio');
+      else if (strong < EXPECTED_STRONG) warnings.push(`Strong abaixo do esperado: ${strong}/${EXPECTED_STRONG}`);
+      
+      // Check for orphaned lessons (trackId references non-existent track)
+      const orphanedLessons = await db.execute(sql`
+        SELECT COUNT(*) as count FROM study_lessons l 
+        LEFT JOIN study_tracks t ON l.track_id = t.id 
+        WHERE t.id IS NULL
+      `);
+      const orphanCount = Number((orphanedLessons.rows[0] as any)?.count) || 0;
+      if (orphanCount > 0) warnings.push(`${orphanCount} lições órfãs (trackId inválido)`);
+      
+      // Determine overall status
+      let status: 'OK' | 'INCOMPLETE' | 'BROKEN' = 'OK';
+      if (orphanCount > 0) status = 'BROKEN';
+      else if (modules === 0 || tracks === 0 || lessons === 0 || strong === 0) status = 'INCOMPLETE';
+      else if (warnings.length > 0) status = 'INCOMPLETE';
+      
+      res.json({
+        status,
+        environment: process.env.NODE_ENV || 'unknown',
+        database: {
+          host: process.env.PGHOST ? `${process.env.PGHOST.substring(0, 15)}...` : 'unknown',
+          name: process.env.PGDATABASE || 'unknown'
+        },
+        counts: {
+          modules,
+          tracks,
+          lessons,
+          strong,
+          orphanedLessons: orphanCount
+        },
+        expected: {
+          modules: EXPECTED_MODULES,
+          tracks: EXPECTED_TRACKS,
+          lessons: EXPECTED_LESSONS,
+          strong: EXPECTED_STRONG
+        },
+        warnings,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("[Admin Data Health] Error:", error);
+      res.status(500).json({ status: 'ERROR', error: String(error) });
+    }
+  });
+
+  // Admin endpoint for COMPLETE reseed of study data (truncate + insert)
+  app.post("/api/admin/diagnostics/reseed-study", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      console.log(`[Admin] User ${req.userId} iniciando RESEED COMPLETO dos cursos...`);
+      
+      // Step 1: Clear progress data (references lessons)
+      await db.execute(sql`DELETE FROM user_lesson_progress`);
+      console.log('[Reseed Study] Progresso de lições deletado');
+      
+      // Step 2: Clear all study data in correct order
+      await db.execute(sql`DELETE FROM study_lessons`);
+      console.log('[Reseed Study] Lições deletadas');
+      await db.execute(sql`DELETE FROM study_tracks`);
+      console.log('[Reseed Study] Trilhas deletadas');
+      await db.execute(sql`DELETE FROM study_modules`);
+      console.log('[Reseed Study] Módulos deletados');
+      
+      // Step 3: Reseed
+      const result = await forceSeedStudyModules();
+      
+      // Step 4: Verify
+      const modulesCount = await db.select({ count: sql<number>`count(*)` }).from(studyModules);
+      const tracksCount = await db.select({ count: sql<number>`count(*)` }).from(studyTracks);
+      const lessonsCount = await db.select({ count: sql<number>`count(*)` }).from(studyLessons);
+      
+      res.json({
+        success: result.success,
+        message: 'Reseed completo executado',
+        counts: {
+          modules: Number(modulesCount[0]?.count) || 0,
+          tracks: Number(tracksCount[0]?.count) || 0,
+          lessons: Number(lessonsCount[0]?.count) || 0
+        },
+        details: result.message
+      });
+    } catch (error) {
+      console.error("[Admin Reseed Study] Error:", error);
+      res.status(500).json({ success: false, error: String(error) });
+    }
+  });
+
+  // Admin endpoint for COMPLETE reseed of Strong dictionary
+  app.post("/api/admin/diagnostics/reseed-strong", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      console.log(`[Admin] User ${req.userId} iniciando RESEED do Strong...`);
+      
+      // Step 1: Clear existing Strong data
+      await db.execute(sql`DELETE FROM strong_entries`);
+      console.log('[Reseed Strong] Entradas existentes deletadas');
+      
+      // Step 2: Reseed
+      const result = await forceSeedStrongEntries();
+      
+      // Step 3: Verify
+      const countResult = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);
+      const count = Number(countResult[0]?.count) || 0;
+      
+      res.json({
+        success: result.success,
+        message: 'Reseed Strong completo executado',
+        count,
+        details: result.message
+      });
+    } catch (error) {
+      console.error("[Admin Reseed Strong] Error:", error);
+      res.status(500).json({ success: false, error: String(error) });
+    }
+  });
+
+  // Study modules diagnostic endpoint (public for debugging)
   app.get("/api/study/diagnostics", async (req, res) => {
     try {
       const { studyModules, studyTracks, studyLessons } = await import("@shared/schema");

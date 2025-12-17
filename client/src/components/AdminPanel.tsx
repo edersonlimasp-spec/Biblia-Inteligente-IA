@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft } from "lucide-react";
+import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,6 +7,7 @@ import { AdminDashboard } from "./admin/AdminDashboard";
 import { AdminUsers } from "./admin/AdminUsers";
 import { AdminMonetization } from "./admin/AdminMonetization";
 import { AdminBonuses } from "./admin/AdminBonuses";
+import { AdminSystemHealth } from "./admin/AdminSystemHealth";
 
 interface AdminPanelProps {
   onBack?: () => void;
@@ -53,7 +54,7 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
       {/* Admin Tabs */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="dashboard" data-testid="tab-dashboard">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
@@ -69,6 +70,10 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
             <TabsTrigger value="bonuses" data-testid="tab-bonuses">
               <Gift className="h-4 w-4 mr-2" />
               Bônus
+            </TabsTrigger>
+            <TabsTrigger value="health" data-testid="tab-health">
+              <HeartPulse className="h-4 w-4 mr-2" />
+              Sistema
             </TabsTrigger>
           </TabsList>
 
@@ -86,6 +91,10 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
 
           <TabsContent value="bonuses" className="mt-6">
             <AdminBonuses isSuperAdmin={isSuperAdmin} />
+          </TabsContent>
+
+          <TabsContent value="health" className="mt-6">
+            <AdminSystemHealth />
           </TabsContent>
         </Tabs>
       </div>

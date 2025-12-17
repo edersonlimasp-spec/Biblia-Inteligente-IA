@@ -160,13 +160,13 @@ export function Dashboard({
     },
     {
       id: "professor-premium",
-      title: "Professor Premium",
+      title: "Cursos Premium",
       description: "Estudos estruturados com IA",
       icon: Library,
       gradient: "bg-gradient-to-br from-indigo-600 to-purple-700",
       iconColor: "bg-indigo-500",
       onClick: onNavigateToProfessorPremium,
-      badge: "6 módulos",
+      badge: "45 módulos",
     },
     {
       id: "plans-progress",

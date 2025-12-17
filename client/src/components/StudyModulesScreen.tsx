@@ -345,7 +345,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-lg font-serif font-bold">Professor Premium</h1>
+            <h1 className="text-lg font-serif font-bold">Cursos Premium</h1>
             <p className="text-xs text-muted-foreground">Estudos bíblicos estruturados</p>
           </div>
           {isAdmin && (

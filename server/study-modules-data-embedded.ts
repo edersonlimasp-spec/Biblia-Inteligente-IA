@@ -1,5 +1,5 @@
 // Auto-generated - DO NOT EDIT
-// Generated at: 2025-12-17T20:15:29.538Z
+// Generated at: 2025-12-17T23:21:31.160Z
 export const STUDY_MODULES_DATA = {
   "exportedAt": "2025-12-17T02:58:06.083Z",
   "modules": [

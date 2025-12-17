@@ -150,14 +150,12 @@ export async function forceSeedStudyModules(): Promise<{ success: boolean; count
     
     for (const track of data.tracks || []) {
       await db.insert(studyTracks).values({
-        id: track.id,
         moduleId: track.moduleId,
         level: track.level,
         name: track.name,
         description: track.description,
         requiredPlan: track.requiredPlan,
         order: track.order,
-        isActive: true,
       }).onConflictDoNothing();
       tracksCount++;
     }

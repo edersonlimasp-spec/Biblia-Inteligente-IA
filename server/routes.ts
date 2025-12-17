@@ -74,6 +74,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { deviceId, ...userData } = req.body;
       const validatedData = insertUserSchema.parse(userData);
       
+      if (!validatedData.email || !validatedData.password) {
+        return res.status(400).json({ error: "Email e senha são obrigatórios" });
+      }
+      
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(validatedData.email);
       if (existingUser) {
@@ -98,7 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Generate token
-      const token = generateToken(user.id, user.email, user.role || 'user');
+      const token = generateToken(user.id, user.email || '', user.role || 'user');
 
       // Return user without password + trial info
       const { password: _, ...userWithoutPassword } = user;
@@ -150,6 +154,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`   - ID: ${user.id}`);
       console.log(`   - Nome: ${user.name}`);
       console.log(`   - Role: ${user.role}`);
+      
+      if (!user.password) {
+        console.log(`❌ Usuário sem senha (possivelmente login social)`);
+        return res.status(401).json({ 
+          error: "Esta conta usa login social. Por favor, faça login com Google.",
+          errorType: "social_login"
+        });
+      }
+      
       // Não logamos o hash em produção por segurança
       if (process.env.NODE_ENV !== 'production') {
         console.log(`   - Hash no banco: ${user.password.substring(0, 25)}...`);
@@ -168,7 +181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`✅ LOGIN BEM-SUCEDIDO para ${email}!`);
-      const token = generateToken(user.id, user.email, user.role || 'user');
+      const token = generateToken(user.id, user.email || '', user.role || 'user');
       const { password: _, ...userWithoutPassword } = user;
       
       // Update last login
@@ -350,7 +363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
       
       // Send email with reset link
-      const emailResult = await sendPasswordResetEmail(email, resetLink, user.name);
+      const emailResult = await sendPasswordResetEmail(email, resetLink, user.name || undefined);
 
       // Only show dev link if email was NOT sent successfully via Resend
       const showDevLink = !emailResult.success && process.env.NODE_ENV !== 'production';
@@ -427,6 +440,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Verify current password
+      if (!user.password) {
+        return res.status(400).json({ error: "Esta conta usa login social e não possui senha" });
+      }
       const isCurrentPasswordValid = await verifyPassword(currentPassword, user.password);
       if (!isCurrentPasswordValid) {
         return res.status(401).json({ error: "Senha atual está incorreta" });

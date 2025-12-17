@@ -119,7 +119,8 @@ export function ensureSuperAdmin(
 }
 
 // Check if trial is still active (within 30 days)
-export function isTrialActive(trialStartDate: Date): boolean {
+export function isTrialActive(trialStartDate: Date | null | undefined): boolean {
+  if (!trialStartDate) return false;
   const now = new Date();
   const trialEnd = new Date(trialStartDate);
   trialEnd.setDate(trialEnd.getDate() + TRIAL_DURATION_DAYS);
@@ -127,7 +128,8 @@ export function isTrialActive(trialStartDate: Date): boolean {
 }
 
 // Get days remaining in trial
-export function getTrialDaysRemaining(trialStartDate: Date): number {
+export function getTrialDaysRemaining(trialStartDate: Date | null | undefined): number {
+  if (!trialStartDate) return 0;
   const now = new Date();
   const trialEnd = new Date(trialStartDate);
   trialEnd.setDate(trialEnd.getDate() + TRIAL_DURATION_DAYS);

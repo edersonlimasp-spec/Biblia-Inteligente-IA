@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { SplashScreen } from "./SplashScreen";
@@ -24,45 +24,23 @@ import { LessonScreen } from "./LessonScreen";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
+import { ExitConfirmDialog } from "./ExitConfirmDialog";
+import { NavigationProvider, useNavigation } from "@/contexts/NavigationContext";
 import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
 
-type Screen = 
-  | "splash"
-  | "login"
-  | "register"
-  | "forgot-password"
-  | "reset-password"
-  | "dashboard"
-  | "bible"
-  | "prayer"
-  | "achievements"
-  | "games"
-  | "professor"
-  | "ai-modes"
-  | "plans-progress"
-  | "calendar"
-  | "recordings"
-  | "subscriptions"
-  | "settings"
-  | "history"
-  | "admin"
-  | "professor-premium"
-  | "module-detail"
-  | "lesson";
-
-export function MainNavigation() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("splash");
-  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
-  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
-  const [selectedTrackLevel, setSelectedTrackLevel] = useState<string>("iniciante");
-  const [showSplash, setShowSplash] = useState(() => {
-    try {
-      const hasVisited = sessionStorage.getItem('hasVisitedApp');
-      return !hasVisited;
-    } catch {
-      return true;
-    }
-  });
+function NavigationContent() {
+  const { 
+    currentScreen, 
+    navigate, 
+    goBack,
+    selectedModuleId,
+    setSelectedModuleId,
+    selectedLessonId,
+    setSelectedLessonId,
+    selectedTrackLevel,
+    setSelectedTrackLevel,
+  } = useNavigation();
+  
   const { user, isLoading } = useAuth();
   const [location] = useLocation();
 
@@ -89,9 +67,168 @@ export function MainNavigation() {
 
   useEffect(() => {
     if (location.includes("reset-password")) {
-      setCurrentScreen("reset-password");
+      navigate("reset-password");
     }
-  }, [location]);
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (currentScreen === "splash") {
+        navigate("dashboard");
+      }
+      if (currentScreen === "admin" && !user) {
+        navigate("login");
+      }
+    }
+  }, [isLoading, user, currentScreen, navigate]);
+
+  return (
+    <>
+      {currentScreen === "login" && (
+        <LoginScreen
+          onLogin={() => navigate("dashboard")}
+          onNavigateToRegister={() => navigate("register")}
+          onNavigateToForgotPassword={() => navigate("forgot-password")}
+        />
+      )}
+      {currentScreen === "register" && (
+        <RegisterScreen
+          onRegister={() => navigate("dashboard")}
+          onNavigateToLogin={() => navigate("login")}
+        />
+      )}
+      {currentScreen === "forgot-password" && (
+        <ForgotPassword
+          onBackToLogin={() => goBack()}
+        />
+      )}
+      {currentScreen === "reset-password" && (
+        <ResetPassword
+          onBackToLogin={() => navigate("login")}
+        />
+      )}
+      {currentScreen === "dashboard" && (
+        <Dashboard
+          onNavigateToBible={() => navigate("bible")}
+          onNavigateToPrayer={() => navigate("prayer")}
+          onNavigateToAchievements={() => navigate("achievements")}
+          onNavigateToGames={() => navigate("games")}
+          onNavigateToProfessor={() => navigate("professor")}
+          onNavigateToAIModes={() => navigate("ai-modes")}
+          onNavigateToPlansProgress={() => navigate("plans-progress")}
+          onNavigateToCalendar={() => navigate("calendar")}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+          onNavigateToRecordings={() => navigate("recordings")}
+          onNavigateToAdmin={() => navigate("admin")}
+          onNavigateToProfessorPremium={() => navigate("professor-premium")}
+          onNavigateToLogin={() => navigate("login")}
+          onNavigateToSettings={() => navigate("settings")}
+        />
+      )}
+      {currentScreen === "recordings" && (
+        <RecordingsScreen onBack={() => goBack()} />
+      )}
+      {currentScreen === "bible" && (
+        <BibleReader 
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+          onNavigateToSettings={() => navigate("settings")}
+          onNavigateToHistory={() => navigate("history")}
+          onNavigateToAdmin={() => navigate("admin")}
+          onNavigateToLogin={() => navigate("login")}
+          onNavigateToDashboard={() => goBack()}
+        />
+      )}
+      {currentScreen === "professor" && (
+        <ProfessorScreen onBack={() => goBack()} />
+      )}
+      {currentScreen === "ai-modes" && (
+        <AIModesScreen 
+          onBack={() => goBack()} 
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+        />
+      )}
+      {currentScreen === "plans-progress" && (
+        <PlansProgressScreen 
+          onBack={() => goBack()} 
+          onNavigateToBible={() => navigate("bible")}
+        />
+      )}
+      {currentScreen === "calendar" && (
+        <AgendaScreen onBack={() => goBack()} />
+      )}
+      {currentScreen === "prayer" && (
+        <PrayerMode onBack={() => goBack()} />
+      )}
+      {currentScreen === "achievements" && (
+        <AchievementsScreen onBack={() => goBack()} />
+      )}
+      {currentScreen === "games" && (
+        <BibleGames onBack={() => goBack()} />
+      )}
+      {currentScreen === "subscriptions" && (
+        <SubscriptionScreen onBack={() => goBack()} />
+      )}
+      {currentScreen === "settings" && (
+        <SettingsScreen 
+          onBack={() => goBack()}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+        />
+      )}
+      {currentScreen === "history" && (
+        <AIHistoryScreen onBack={() => goBack()} />
+      )}
+      {currentScreen === "admin" && (
+        <AdminPanel onBack={() => goBack()} />
+      )}
+      {currentScreen === "professor-premium" && (
+        <StudyModulesScreen 
+          onBack={() => goBack()}
+          onNavigateToModule={(moduleId) => {
+            setSelectedModuleId(moduleId);
+            navigate("module-detail");
+          }}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+        />
+      )}
+      {currentScreen === "module-detail" && selectedModuleId && (
+        <ModuleDetailScreen
+          moduleId={selectedModuleId}
+          onBack={() => {
+            goBack();
+          }}
+          onNavigateToLesson={(lessonId, trackLevel) => {
+            setSelectedLessonId(lessonId);
+            setSelectedTrackLevel(trackLevel);
+            navigate("lesson");
+          }}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+        />
+      )}
+      {currentScreen === "lesson" && selectedLessonId && (
+        <LessonScreen
+          lessonId={selectedLessonId}
+          trackLevel={selectedTrackLevel}
+          onBack={() => {
+            setSelectedLessonId(null);
+            goBack();
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+export function MainNavigation() {
+  const [showSplash, setShowSplash] = useState(() => {
+    try {
+      const hasVisited = sessionStorage.getItem('hasVisitedApp');
+      return !hasVisited;
+    } catch {
+      return true;
+    }
+  });
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const { isLoading } = useAuth();
 
   useEffect(() => {
     if (showSplash) {
@@ -128,16 +265,18 @@ export function MainNavigation() {
     }
   }, [showSplash, isLoading]);
 
-  useEffect(() => {
-    if (!showSplash && !isLoading) {
-      if (currentScreen === "splash") {
-        setCurrentScreen("dashboard");
-      }
-      if (currentScreen === "admin" && !user) {
-        setCurrentScreen("login");
-      }
+  const handleExitRequest = useCallback(() => {
+    setShowExitDialog(true);
+  }, []);
+
+  const handleExitConfirm = useCallback(() => {
+    setShowExitDialog(false);
+    if (typeof window !== 'undefined' && (window as any).Android?.exitApp) {
+      (window as any).Android.exitApp();
+    } else if (typeof window !== 'undefined' && window.close) {
+      window.close();
     }
-  }, [showSplash, isLoading, user, currentScreen]);
+  }, []);
 
   if (showSplash || isLoading) {
     return <SplashScreen />;
@@ -145,136 +284,14 @@ export function MainNavigation() {
 
   return (
     <ThemeProvider>
-      {currentScreen === "login" && (
-        <LoginScreen
-          onLogin={() => setCurrentScreen("dashboard")}
-          onNavigateToRegister={() => setCurrentScreen("register")}
-          onNavigateToForgotPassword={() => setCurrentScreen("forgot-password")}
+      <NavigationProvider onExitRequest={handleExitRequest}>
+        <NavigationContent />
+        <ExitConfirmDialog
+          open={showExitDialog}
+          onOpenChange={setShowExitDialog}
+          onConfirm={handleExitConfirm}
         />
-      )}
-      {currentScreen === "register" && (
-        <RegisterScreen
-          onRegister={() => setCurrentScreen("dashboard")}
-          onNavigateToLogin={() => setCurrentScreen("login")}
-        />
-      )}
-      {currentScreen === "forgot-password" && (
-        <ForgotPassword
-          onBackToLogin={() => setCurrentScreen("login")}
-        />
-      )}
-      {currentScreen === "reset-password" && (
-        <ResetPassword
-          onBackToLogin={() => setCurrentScreen("login")}
-        />
-      )}
-      {currentScreen === "dashboard" && (
-        <Dashboard
-          onNavigateToBible={() => setCurrentScreen("bible")}
-          onNavigateToPrayer={() => setCurrentScreen("prayer")}
-          onNavigateToAchievements={() => setCurrentScreen("achievements")}
-          onNavigateToGames={() => setCurrentScreen("games")}
-          onNavigateToProfessor={() => setCurrentScreen("professor")}
-          onNavigateToAIModes={() => setCurrentScreen("ai-modes")}
-          onNavigateToPlansProgress={() => setCurrentScreen("plans-progress")}
-          onNavigateToCalendar={() => setCurrentScreen("calendar")}
-          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
-          onNavigateToRecordings={() => setCurrentScreen("recordings")}
-          onNavigateToAdmin={() => setCurrentScreen("admin")}
-          onNavigateToProfessorPremium={() => setCurrentScreen("professor-premium")}
-          onNavigateToLogin={() => setCurrentScreen("login")}
-          onNavigateToSettings={() => setCurrentScreen("settings")}
-        />
-      )}
-      {currentScreen === "recordings" && (
-        <RecordingsScreen onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "bible" && (
-        <BibleReader 
-          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
-          onNavigateToSettings={() => setCurrentScreen("settings")}
-          onNavigateToHistory={() => setCurrentScreen("history")}
-          onNavigateToAdmin={() => setCurrentScreen("admin")}
-          onNavigateToLogin={() => setCurrentScreen("login")}
-          onNavigateToDashboard={() => setCurrentScreen("dashboard")}
-        />
-      )}
-      {currentScreen === "professor" && (
-        <ProfessorScreen onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "ai-modes" && (
-        <AIModesScreen 
-          onBack={() => setCurrentScreen("dashboard")} 
-          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
-        />
-      )}
-      {currentScreen === "plans-progress" && (
-        <PlansProgressScreen 
-          onBack={() => setCurrentScreen("dashboard")} 
-          onNavigateToBible={() => setCurrentScreen("bible")}
-        />
-      )}
-      {currentScreen === "calendar" && (
-        <AgendaScreen onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "prayer" && (
-        <PrayerMode onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "achievements" && (
-        <AchievementsScreen onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "games" && (
-        <BibleGames onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "subscriptions" && (
-        <SubscriptionScreen onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "settings" && (
-        <SettingsScreen 
-          onBack={() => setCurrentScreen("dashboard")}
-          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
-        />
-      )}
-      {currentScreen === "history" && (
-        <AIHistoryScreen onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "admin" && (
-        <AdminPanel onBack={() => setCurrentScreen("dashboard")} />
-      )}
-      {currentScreen === "professor-premium" && (
-        <StudyModulesScreen 
-          onBack={() => setCurrentScreen("dashboard")}
-          onNavigateToModule={(moduleId) => {
-            setSelectedModuleId(moduleId);
-            setCurrentScreen("module-detail");
-          }}
-          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
-        />
-      )}
-      {currentScreen === "module-detail" && selectedModuleId && (
-        <ModuleDetailScreen
-          moduleId={selectedModuleId}
-          onBack={() => {
-            setCurrentScreen("professor-premium");
-          }}
-          onNavigateToLesson={(lessonId, trackLevel) => {
-            setSelectedLessonId(lessonId);
-            setSelectedTrackLevel(trackLevel);
-            setCurrentScreen("lesson");
-          }}
-          onNavigateToSubscriptions={() => setCurrentScreen("subscriptions")}
-        />
-      )}
-      {currentScreen === "lesson" && selectedLessonId && (
-        <LessonScreen
-          lessonId={selectedLessonId}
-          trackLevel={selectedTrackLevel}
-          onBack={() => {
-            setSelectedLessonId(null);
-            setCurrentScreen("module-detail");
-          }}
-        />
-      )}
+      </NavigationProvider>
     </ThemeProvider>
   );
 }

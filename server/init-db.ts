@@ -343,9 +343,112 @@ export async function initializeDatabase() {
     // SEMPRE seed bible_words (mapeamentos Genesis 1) se ainda não tiver
     await seedBibleWords();
 
+    // Auto-seed Study Modules if table is empty
+    await autoSeedStudyModules();
+
   } catch (error) {
     console.error('❌ Erro ao inicializar banco de dados:', error);
     // Don't throw - app should still run even if data import fails
     console.log('⚠️ App continuará rodando mas com funcionalidade limitada');
+  }
+}
+
+// Auto-seed study modules on startup if empty
+async function autoSeedStudyModules() {
+  try {
+    const moduleCount = await db.select().from(studyModules).limit(1);
+    
+    if (moduleCount.length > 0) {
+      console.log('✅ Study modules já populados');
+      return;
+    }
+    
+    console.log('📥 Populando study modules automaticamente...');
+    
+    const possiblePaths = [
+      path.resolve(__dirname, 'study-modules-data.json'),
+      path.resolve(__dirname, '../server/study-modules-data.json'),
+      path.resolve(process.cwd(), 'dist/study-modules-data.json'),
+      path.resolve(process.cwd(), 'server/study-modules-data.json'),
+      '/app/dist/study-modules-data.json',
+      '/app/server/study-modules-data.json',
+      '/home/runner/workspace/dist/study-modules-data.json',
+      '/home/runner/workspace/server/study-modules-data.json',
+      './dist/study-modules-data.json',
+      './server/study-modules-data.json',
+    ];
+    
+    console.log('🔍 Tentando encontrar study-modules-data.json:');
+    possiblePaths.forEach((p, i) => console.log(`  ${i + 1}. ${p} - ${fs.existsSync(p) ? '✅ EXISTE' : '❌ não existe'}`));
+    
+    let dataPath = null;
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        dataPath = testPath;
+        break;
+      }
+    }
+    
+    if (!dataPath) {
+      console.log('⚠️ study-modules-data.json não encontrado - Cursos estarão vazios');
+      return;
+    }
+    
+    console.log(`📂 ✅ Encontrado study-modules-data.json em: ${dataPath}`);
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    
+    // Import modules
+    for (const module of data.modules || []) {
+      await db.insert(studyModules).values({
+        id: module.id,
+        name: module.name,
+        description: module.description,
+        icon: module.icon,
+        color: module.color,
+        order: module.order,
+        level: module.level || 'iniciante',
+        requiredPlan: module.requiredPlan || 'gold',
+        isActive: true,
+      }).onConflictDoNothing();
+    }
+    console.log(`  ✓ ${(data.modules || []).length} módulos importados`);
+    
+    // Import tracks
+    for (const track of data.tracks || []) {
+      await db.insert(studyTracks).values({
+        moduleId: track.moduleId,
+        level: track.level,
+        name: track.name,
+        description: track.description,
+        requiredPlan: track.requiredPlan,
+        order: track.order,
+      }).onConflictDoNothing();
+    }
+    console.log(`  ✓ ${(data.tracks || []).length} trilhas importadas`);
+    
+    // Import lessons in batches
+    const batchSize = 100;
+    const lessons = data.lessons || [];
+    for (let i = 0; i < lessons.length; i += batchSize) {
+      const batch = lessons.slice(i, i + batchSize).map((lesson: any) => ({
+        id: lesson.id,
+        trackId: lesson.trackId,
+        title: lesson.title,
+        content: lesson.content,
+        references: lesson.references,
+        questions: lesson.questions,
+        application: lesson.application,
+        summary: lesson.summary,
+        estimatedMinutes: lesson.estimatedMinutes,
+        order: lesson.order,
+        isActive: true,
+      }));
+      await db.insert(studyLessons).values(batch).onConflictDoNothing();
+    }
+    console.log(`  ✓ ${lessons.length} lições importadas`);
+    
+    console.log('✅ Study modules populados com sucesso!');
+  } catch (error) {
+    console.error('❌ Erro ao auto-seed study modules:', error);
   }
 }

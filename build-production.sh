@@ -43,6 +43,15 @@ else
   echo "⚠️  Warning: server/strong-data.json not found!"
 fi
 
+# Step 6.6: Copy Study Modules data to dist for production
+echo "📖 Copying Study Modules data..."
+if [ -f "server/study-modules-data.json" ]; then
+  cp server/study-modules-data.json dist/
+  echo "✅ study-modules-data.json copied to dist/"
+else
+  echo "⚠️  Warning: server/study-modules-data.json not found!"
+fi
+
 # Step 7: Verify files exist
 if [ ! -f "server/public/index.html" ]; then
   echo "❌ ERROR: index.html not found in server/public"

@@ -409,6 +409,7 @@ export function BibleReader({
 
   // Populate wordsWithStrong from pre-fetched data when chapter changes
   useEffect(() => {
+    console.log('[Strong Highlight] chapterStrongWords:', chapterStrongWords);
     if (chapterStrongWords?.strongWords) {
       // Collect all words from all verses that have Strong numbers
       const allStrongWords = new Set<string>();
@@ -426,8 +427,10 @@ export function BibleReader({
           }
         }
       }
+      console.log('[Strong Highlight] Setting wordsWithStrong:', Array.from(allStrongWords).slice(0, 20));
       setWordsWithStrong(allStrongWords);
     } else {
+      console.log('[Strong Highlight] No strongWords data, clearing set');
       setWordsWithStrong(new Set());
     }
   }, [chapterStrongWords, selectedBook, selectedChapter]);
@@ -801,6 +804,11 @@ export function BibleReader({
                           const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
                           const isClickable = cleanWord.length > 2;
                           const hasStrong = wordsWithStrong.has(cleanWord);
+                          
+                          // Debug first verse, first 3 words
+                          if (verse.verse === 1 && idx < 5) {
+                            console.log('[Strong Render]', { word, cleanWord, hasStrong, setSize: wordsWithStrong.size });
+                          }
                           
                           return (
                             <span

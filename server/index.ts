@@ -91,6 +91,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static files from public folder (for .well-known, etc.)
+app.use(express.static(path.join(process.cwd(), "public")));
+
+// Explicit route for Digital Asset Links (Google Play domain verification)
+app.get("/.well-known/assetlinks.json", (_req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.sendFile(path.join(process.cwd(), "public", ".well-known", "assetlinks.json"));
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

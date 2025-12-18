@@ -184,11 +184,12 @@ export function BibleReader({
   }, [chapterData, selectedBook, selectedChapter, user?.id]);
 
   // Query to search for Strong's number when clicking a word
-  const { data: wordSearchResults } = useQuery<StrongSearchResponse>({
+  const { data: wordSearchResults, error: wordSearchError, isLoading: isWordSearchLoading } = useQuery<StrongSearchResponse>({
     queryKey: ['/api/strong/search', searchingWord, selectedBook, selectedChapter, searchingVerseNum],
     enabled: !!searchingWord && searchingVerseNum !== null,
     retry: false,
     queryFn: async () => {
+      console.log('[Strong Debug] Query running for:', searchingWord, 'verse:', searchingVerseNum);
       const deviceId = getDeviceId();
       const searchParams = new URLSearchParams({
         book: selectedBook,
@@ -198,10 +199,19 @@ export function BibleReader({
       if (deviceId) {
         searchParams.set('deviceId', deviceId);
       }
-      return apiRequest('GET', `/api/strong/search/${encodeURIComponent(searchingWord!)}?${searchParams}`)
-        .then(res => res.json());
+      const response = await apiRequest('GET', `/api/strong/search/${encodeURIComponent(searchingWord!)}?${searchParams}`);
+      const data = await response.json();
+      console.log('[Strong Debug] Query response:', data);
+      return data;
     },
   });
+  
+  // Log query errors
+  useEffect(() => {
+    if (wordSearchError) {
+      console.error('[Strong Debug] Query error:', wordSearchError);
+    }
+  }, [wordSearchError]);
 
   // Global Bible search query
   const { data: globalSearchResults, isLoading: isGlobalSearching } = useQuery<GlobalSearchResponse>({

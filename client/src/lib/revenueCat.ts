@@ -57,7 +57,7 @@ class RevenueCatService {
           },
           {
             id: 'strong_lifetime',
-            price: 'Em breve',
+            price: 'R$ 59,90',
             currency: 'BRL',
             title: 'Strong Vitalício',
             description: 'Strong + Hebraico/Grego para sempre',

@@ -72,8 +72,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const plans = [
     {
       name: "Strong Vitalício",
-      price: "Em breve",
-      period: "",
+      price: "R$ 59,90",
+      period: "pagamento único",
       icon: Crown,
       features: [
         "Dicionário Strong completo",
@@ -213,10 +213,9 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     className="w-full"
                     variant={plan.highlight ? "default" : "outline"}
                     onClick={() => handlePlanSelect(plan.name)}
-                    disabled={plan.price === "Em breve"}
                     data-testid={`button-subscribe-${plan.name.toLowerCase().replace(/\s/g, "-")}`}
                   >
-                    {plan.price === "Em breve" ? "Em Breve" : (plan.highlight ? "Assinar Agora" : "Escolher Plano")}
+                    {plan.highlight ? "Assinar Agora" : "Escolher Plano"}
                   </Button>
                 </CardContent>
               </Card>

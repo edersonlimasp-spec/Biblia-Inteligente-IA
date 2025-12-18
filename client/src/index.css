@@ -165,15 +165,33 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* Strong's Words - palavras com entrada no dicionário Strong */
-/* Tema claro: azul acinzentado original (sem alteração) */
-/* Tema escuro: azul acinzentado ~30% mais escuro */
+/* Strong's Words - Visual emphasis for words with dictionary entries */
+/* Uses lighter, grayish-blue tint for subtle identification */
 .strong-word {
-  color: hsl(210, 20%, 55%);
+  transition: color 0.15s ease;
+  color: hsl(210, 25%, 55%);
+}
+
+.strong-word:hover {
+  color: hsl(210, 40%, 45%);
+  cursor: pointer;
 }
 
 .dark .strong-word {
-  color: hsl(210, 20%, 38%);
+  color: hsl(210, 20%, 68%);
+}
+
+.dark .strong-word:hover {
+  color: hsl(210, 35%, 72%);
+}
+
+/* Alternative subtle indicator for first 3 letters - also using grayish-blue tint */
+.strong-mark {
+  color: hsl(210, 25%, 55%);
+}
+
+.dark .strong-mark {
+  color: hsl(210, 20%, 68%);
 }
 
 @layer base {

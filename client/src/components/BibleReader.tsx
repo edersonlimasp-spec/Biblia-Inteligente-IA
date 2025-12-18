@@ -24,7 +24,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
 import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
 import { getDeviceId } from "@/hooks/use-device-id";
-import { getCachedSummaries, cacheSummaries } from "@/lib/strongCache";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
@@ -409,77 +408,19 @@ export function BibleReader({
 
   // Populate wordsWithStrong from pre-fetched data when chapter changes
   useEffect(() => {
-    console.log('[Strong Highlight] chapterStrongWords:', chapterStrongWords);
     if (chapterStrongWords?.strongWords) {
       // Collect all words from all verses that have Strong numbers
       const allStrongWords = new Set<string>();
       for (const verseWords of Object.values(chapterStrongWords.strongWords)) {
-        for (const phrase of verseWords) {
-          // Add the full phrase
-          allStrongWords.add(phrase.toLowerCase());
-          // Also add individual words from multi-word phrases
-          const words = phrase.toLowerCase().split(/\s+/);
-          for (const word of words) {
-            const cleaned = word.replace(/[.,;:!?—\-'"()]/g, '').trim();
-            if (cleaned.length >= 2) {
-              allStrongWords.add(cleaned);
-            }
-          }
+        for (const word of verseWords) {
+          allStrongWords.add(word.toLowerCase());
         }
       }
-      console.log('[Strong Highlight] Setting wordsWithStrong:', Array.from(allStrongWords).slice(0, 20));
       setWordsWithStrong(allStrongWords);
     } else {
-      console.log('[Strong Highlight] No strongWords data, clearing set');
       setWordsWithStrong(new Set());
     }
   }, [chapterStrongWords, selectedBook, selectedChapter]);
-
-  // Pre-fetch Strong summaries for chapter words (background, non-blocking)
-  useEffect(() => {
-    if (!chapterData?.chapter?.verses) return;
-    
-    // Collect unique Strong numbers from bible_words endpoint if available
-    const prefetchStrong = async () => {
-      try {
-        // Get strong words for current chapter
-        const response = await apiRequest('GET', `/api/bible/${selectedBook}/${selectedChapter}/strong-numbers`);
-        const data = await response.json() as { strongNumbers: string[] };
-        
-        if (!data.strongNumbers?.length) return;
-        
-        // Take first 30 to prefetch
-        const numbersToFetch = data.strongNumbers.slice(0, 30);
-        
-        // Check which are already cached
-        const cached = await getCachedSummaries(numbersToFetch);
-        const uncached = numbersToFetch.filter(n => !cached[n.toUpperCase()]);
-        
-        if (uncached.length === 0) {
-          console.log('[Strong Prefetch] All summaries cached');
-          return;
-        }
-        
-        // Batch fetch uncached summaries
-        const batchResponse = await apiRequest('POST', '/api/strong/batch-summary', { 
-          strongNumbers: uncached 
-        });
-        const batchData = await batchResponse.json() as { entries: Record<string, any> };
-        
-        if (batchData.entries && Object.keys(batchData.entries).length > 0) {
-          await cacheSummaries(batchData.entries);
-          console.log(`[Strong Prefetch] Cached ${Object.keys(batchData.entries).length} summaries`);
-        }
-      } catch (error) {
-        // Silent fail - prefetch is optional
-        console.warn('[Strong Prefetch] Failed:', error);
-      }
-    };
-    
-    // Delay prefetch to not block initial render
-    const timer = setTimeout(prefetchStrong, 500);
-    return () => clearTimeout(timer);
-  }, [chapterData, selectedBook, selectedChapter]);
 
   // Track reading history when chapter changes (cloud sync)
   useEffect(() => {
@@ -803,17 +744,27 @@ export function BibleReader({
                         {verse.text.split(" ").map((word, idx) => {
                           const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
                           const isClickable = cleanWord.length > 2;
-                          const hasStrong = wordsWithStrong.has(cleanWord);
+                          const hasStrongInCache = wordsWithStrong.has(cleanWord);
                           
-                          // Debug first verse, first 3 words
-                          if (verse.verse === 1 && idx < 5) {
-                            console.log('[Strong Render]', { word, cleanWord, hasStrong, setSize: wordsWithStrong.size });
-                          }
+                          // Render with subtle indicator on first 3 letters if word has Strong
+                          const renderWord = () => {
+                            if (hasStrongInCache && word.length > 0) {
+                              const markLength = Math.min(3, word.length);
+                              const first = word.slice(0, markLength);
+                              const rest = word.slice(markLength);
+                              return (
+                                <>
+                                  <span className="strong-mark">{first}</span>{rest}
+                                </>
+                              );
+                            }
+                            return word;
+                          };
                           
                           return (
                             <span
                               key={idx}
-                              className={`${isClickable ? 'cursor-pointer' : ''} ${hasStrong ? 'strong-word' : ''}`}
+                              className={`${isClickable ? 'cursor-pointer transition-colors' : 'cursor-default'} ${hasStrongInCache ? 'strong-word' : ''}`}
                               onClick={(e) => {
                                 if (isClickable) {
                                   e.stopPropagation();
@@ -822,7 +773,7 @@ export function BibleReader({
                               }}
                               data-testid={`word-${verse.verse}-${idx}`}
                             >
-                              {word}{" "}
+                              {renderWord()}{" "}
                             </span>
                           );
                         })}

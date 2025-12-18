@@ -261,7 +261,7 @@ export async function forceSeedStrongEntries(): Promise<{ success: boolean; coun
       portugueseDef: row.portuguese_def ?? row.portugueseDef,
       derivation: row.derivation,
       extendedDefinition: row.extended_definition ?? row.extendedDefinition,
-      createdAt: row.created_at ?? row.createdAt,
+      // Let database set createdAt automatically (string from JSON causes toISOString error)
     }));
     
     console.log(`[Force Seed] Primeiro registro: ${JSON.stringify(strongData[0])}`);

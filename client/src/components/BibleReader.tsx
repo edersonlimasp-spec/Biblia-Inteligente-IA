@@ -245,26 +245,6 @@ export function BibleReader({
     },
   });
 
-  // Fetch Strong keywords for automatic highlighting
-  interface StrongKeywordsResponse {
-    keywords: string[];
-    count: number;
-    cached: boolean;
-  }
-  
-  const { data: strongKeywords } = useQuery<StrongKeywordsResponse>({
-    queryKey: ['/api/strong/keywords'],
-    staleTime: 1000 * 60 * 60 * 24, // 24 hours
-    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
-  });
-
-  // Populate wordsWithStrong from Strong keywords
-  useEffect(() => {
-    if (strongKeywords?.keywords) {
-      setWordsWithStrong(new Set(strongKeywords.keywords));
-    }
-  }, [strongKeywords]);
-
   // Navigate to a search result
   const navigateToSearchResult = (result: GlobalSearchResult) => {
     setSelectedBook(result.book);
@@ -433,8 +413,17 @@ export function BibleReader({
       // Collect all words from all verses that have Strong numbers
       const allStrongWords = new Set<string>();
       for (const verseWords of Object.values(chapterStrongWords.strongWords)) {
-        for (const word of verseWords) {
-          allStrongWords.add(word.toLowerCase());
+        for (const phrase of verseWords) {
+          // Add the full phrase
+          allStrongWords.add(phrase.toLowerCase());
+          // Also add individual words from multi-word phrases
+          const words = phrase.toLowerCase().split(/\s+/);
+          for (const word of words) {
+            const cleaned = word.replace(/[.,;:!?—\-'"()]/g, '').trim();
+            if (cleaned.length >= 2) {
+              allStrongWords.add(cleaned);
+            }
+          }
         }
       }
       setWordsWithStrong(allStrongWords);

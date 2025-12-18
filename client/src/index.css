@@ -165,83 +165,15 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* Strong's Words - Visual emphasis for clickable words that can be searched */
-/* All clickable words (length > 2) get subtle styling to indicate they're searchable */
-.strong-word-clickable {
-  transition: color 0.15s ease;
-  color: hsl(210, 20%, 50%);
-}
-
-.strong-word-clickable:hover {
-  color: hsl(210, 40%, 40%);
-  cursor: pointer;
-}
-
-.dark .strong-word-clickable {
-  color: hsl(210, 18%, 62%);
-}
-
-.dark .strong-word-clickable:hover {
-  color: hsl(210, 30%, 70%);
-}
-
-/* Confirmed Strong words - stronger emphasis after a match is found */
-.strong-word-confirmed {
-  transition: color 0.15s ease;
-  color: hsl(210, 35%, 45%);
-  font-weight: 500;
-}
-
-.strong-word-confirmed:hover {
-  color: hsl(210, 50%, 35%);
-  cursor: pointer;
-}
-
-.dark .strong-word-confirmed {
-  color: hsl(210, 30%, 72%);
-  font-weight: 500;
-}
-
-.dark .strong-word-confirmed:hover {
-  color: hsl(210, 45%, 78%);
-}
-
-/* Confirmed mark on first 3 letters of confirmed Strong words */
-.strong-mark-confirmed {
-  color: hsl(210, 45%, 40%);
-  font-weight: 600;
-}
-
-.dark .strong-mark-confirmed {
-  color: hsl(210, 40%, 75%);
-  font-weight: 600;
-}
-
-/* Legacy classes for backwards compatibility */
+/* Strong's Words - palavras clicáveis com Strong */
+/* Tema claro: cor ~30% mais escura que o texto normal */
+/* Tema escuro: mesma cor do texto normal (sem alteração) */
 .strong-word {
-  transition: color 0.15s ease;
-  color: hsl(210, 25%, 55%);
-}
-
-.strong-word:hover {
-  color: hsl(210, 40%, 45%);
-  cursor: pointer;
+  color: hsl(0, 0%, 15%);
 }
 
 .dark .strong-word {
-  color: hsl(210, 20%, 68%);
-}
-
-.dark .strong-word:hover {
-  color: hsl(210, 35%, 72%);
-}
-
-.strong-mark {
-  color: hsl(210, 25%, 55%);
-}
-
-.dark .strong-mark {
-  color: hsl(210, 20%, 68%);
+  color: inherit;
 }
 
 @layer base {

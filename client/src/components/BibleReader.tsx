@@ -791,29 +791,11 @@ export function BibleReader({
                         {verse.text.split(" ").map((word, idx) => {
                           const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
                           const isClickable = cleanWord.length > 2;
-                          const hasConfirmedStrong = wordsWithStrong.has(cleanWord);
-                          
-                          // All clickable words get subtle Strong styling (they can all be searched)
-                          // Words confirmed to have Strong get the stronger mark
-                          const renderWord = () => {
-                            if (hasConfirmedStrong && word.length > 0) {
-                              // Confirmed Strong match - show with mark on first 3 letters
-                              const markLength = Math.min(3, word.length);
-                              const first = word.slice(0, markLength);
-                              const rest = word.slice(markLength);
-                              return (
-                                <>
-                                  <span className="strong-mark-confirmed">{first}</span>{rest}
-                                </>
-                              );
-                            }
-                            return word;
-                          };
                           
                           return (
                             <span
                               key={idx}
-                              className={`${isClickable ? 'cursor-pointer transition-colors strong-word-clickable' : 'cursor-default'} ${hasConfirmedStrong ? 'strong-word-confirmed' : ''}`}
+                              className={`${isClickable ? 'cursor-pointer strong-word' : ''}`}
                               onClick={(e) => {
                                 if (isClickable) {
                                   e.stopPropagation();
@@ -822,7 +804,7 @@ export function BibleReader({
                               }}
                               data-testid={`word-${verse.verse}-${idx}`}
                             >
-                              {renderWord()}{" "}
+                              {word}{" "}
                             </span>
                           );
                         })}

@@ -122,8 +122,8 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
     {
       id: 'strong_lifetime',
       name: 'Strong Vitalício',
-      price: 'Em breve',
-      period: '',
+      price: 'R$ 59,90',
+      period: ' único',
       description: 'Acesso permanente',
       features: [
         '✓ Strong + Hebraico/Grego (Permanente)',

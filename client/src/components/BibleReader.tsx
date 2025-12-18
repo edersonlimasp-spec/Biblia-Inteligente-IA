@@ -189,11 +189,15 @@ export function BibleReader({
     enabled: !!searchingWord && searchingVerseNum !== null,
     retry: false,
     queryFn: async () => {
+      const deviceId = getDeviceId();
       const searchParams = new URLSearchParams({
         book: selectedBook,
         chapter: selectedChapter.toString(),
         verse: searchingVerseNum!.toString(),
       });
+      if (deviceId) {
+        searchParams.set('deviceId', deviceId);
+      }
       return apiRequest('GET', `/api/strong/search/${encodeURIComponent(searchingWord!)}?${searchParams}`)
         .then(res => res.json());
     },

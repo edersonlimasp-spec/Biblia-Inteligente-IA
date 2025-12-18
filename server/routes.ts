@@ -5,6 +5,7 @@ import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensur
 import { sendPasswordResetEmail } from "./email";
 import admin from "firebase-admin";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { askTheologicalQuestion } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons } from "@shared/schema";
 import { z } from "zod";
@@ -165,6 +166,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (linkError) {
           console.warn('Erro ao vincular deviceId ao usuário:', linkError);
         }
+      }
+
+      // Auto-grant registration bonus (trial extension)
+      // This ensures that email-registered users get immediate bonus activation
+      try {
+        await storage.createBonus({
+          userId: user.id,
+          bonusType: 'REGISTRATION_BONUS',
+          startAt: new Date(),
+          endAt: null, // Permanent until end of trial
+          reason: 'Bônus automático por cadastro com email',
+          grantedByAdminId: user.id, // Self-granted system bonus
+        });
+        console.log(`🎁 Bônus de registro concedido ao usuário ${user.email}`);
+      } catch (bonusError) {
+        console.warn('Erro ao conceder bônus de registro:', bonusError);
       }
 
       // Generate token
@@ -743,20 +760,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Essential/Professor mode requires trial, Gold, or Premium (admins bypass)
-      if ((mode === 'essential' || mode === 'professor') && !trialActive && !hasGold && !hasPremium && !isAdmin) {
-        return res.status(403).json({ 
-          error: "Seu trial de 30 dias expirou. Assine um plano (Gold R$ 9,90/mês ou Premium R$ 19,90/mês) para continuar usando o Professor.",
-          requiresSubscription: true,
-          subscriptionType: 'gold'
-        });
-      }
+      // Check for active bonus (extends trial/access)
+      const hasActiveBonus = await storage.hasActiveBonus(req.userId!);
+      const hasFullAccess = trialActive || hasGold || hasPremium || hasActiveBonus;
 
       // Enforce rate limits BEFORE making OpenAI call (admins have no limit)
       const todayCount = await storage.getTodayUsageCount(req.userId!);
-      const limit = isAdmin ? 999999 : (hasPremium ? 100 : (hasGold || trialActive) ? 30 : 0);
+      
+      // Limits: Premium=100, Gold/Trial/Bonus=30, Expired trial (free)=3
+      const FREE_DAILY_LIMIT = 3;
+      const limit = isAdmin ? 999999 : (hasPremium ? 100 : hasFullAccess ? 30 : FREE_DAILY_LIMIT);
 
       if (todayCount >= limit && !isAdmin) {
+        // Special message for expired trial users on 4th attempt
+        if (!hasFullAccess && todayCount >= FREE_DAILY_LIMIT) {
+          return res.status(429).json({ 
+            error: `Você atingiu o limite diário de ${FREE_DAILY_LIMIT} perguntas gratuitas. Assine um plano para perguntas ilimitadas, ou aguarde até amanhã para mais ${FREE_DAILY_LIMIT} perguntas.`,
+            requiresSubscription: true,
+            subscriptionType: 'gold',
+            dailyLimit: FREE_DAILY_LIMIT,
+            usedToday: todayCount,
+            upgradeRequired: true
+          });
+        }
+        
         return res.status(429).json({ 
           error: `Você atingiu o limite diário de ${limit} perguntas. ${
             hasGold ? 'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.' : 
@@ -1829,8 +1856,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
       const query = req.params.query;
-      const { book, chapter, verse } = req.query as Record<string, string>;
+      const { book, chapter, verse, deviceId } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
+      
+      // Strong lookup limit enforcement
+      const STRONG_FREE_DAILY_LIMIT = 3;
+      let canLookup = true;
+      let lookupInfo: { isLimited: boolean; remaining: number; total: number } | null = null;
+      
+      // Check if authenticated user
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+          const user = await storage.getUser(decoded.userId);
+          
+          if (user) {
+            const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+            const trialActive = isTrialActive(user.trialStartDate);
+            const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
+            const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
+            const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
+            const hasFullAccess = trialActive || hasGold || hasPremium || hasActiveBonus || isAdmin;
+            
+            if (!hasFullAccess) {
+              const todayStrongLookups = await storage.getTodayStrongLookups(decoded.userId);
+              
+              if (todayStrongLookups >= STRONG_FREE_DAILY_LIMIT) {
+                return res.status(429).json({
+                  error: `Limite diário de ${STRONG_FREE_DAILY_LIMIT} consultas Strong atingido. Assine um plano para acesso ilimitado, ou aguarde até amanhã.`,
+                  requiresSubscription: true,
+                  subscriptionType: 'gold',
+                  dailyLimit: STRONG_FREE_DAILY_LIMIT,
+                  usedToday: todayStrongLookups,
+                  upgradeRequired: true
+                });
+              }
+              
+              lookupInfo = { isLimited: true, remaining: STRONG_FREE_DAILY_LIMIT - todayStrongLookups - 1, total: STRONG_FREE_DAILY_LIMIT };
+              // Increment after successful lookup
+              await storage.incrementStrongLookups(decoded.userId);
+            }
+          }
+        } catch (tokenError) {
+          // Invalid token, treat as guest
+        }
+      } else if (deviceId) {
+        // Guest user - check guest trial and limits
+        const guestTrialInfo = await storage.getGuestTrialInfo(deviceId);
+        const guestTrialActive = guestTrialInfo?.active ?? true;
+        
+        if (!guestTrialActive) {
+          const todayStrongLookups = await storage.getGuestTodayStrongLookups(deviceId);
+          
+          if (todayStrongLookups >= STRONG_FREE_DAILY_LIMIT) {
+            return res.status(429).json({
+              error: `Limite diário de ${STRONG_FREE_DAILY_LIMIT} consultas Strong atingido. Cadastre-se para continuar usando, ou aguarde até amanhã.`,
+              requiresSubscription: true,
+              dailyLimit: STRONG_FREE_DAILY_LIMIT,
+              usedToday: todayStrongLookups,
+              upgradeRequired: true
+            });
+          }
+          
+          lookupInfo = { isLimited: true, remaining: STRONG_FREE_DAILY_LIMIT - todayStrongLookups - 1, total: STRONG_FREE_DAILY_LIMIT };
+          await storage.incrementGuestStrongLookups(deviceId);
+        }
+      }
       
       // STRATEGY 1: Try exact match from bible_words table (most accurate)
       if (book && chapter && verse) {

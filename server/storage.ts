@@ -498,20 +498,23 @@ class PostgresStorage implements IStorage {
 
   async hasActiveBonus(userId: string, bonusType?: string): Promise<boolean> {
     const now = new Date();
-    let query = db.select().from(bonuses)
-      .where(
-        and(
-          eq(bonuses.userId, userId),
-          eq(bonuses.isActive, true),
-          sql`(${bonuses.endAt} IS NULL OR ${bonuses.endAt} > ${now})`
-        )
-      );
+    
+    // Query for active bonuses that have started and haven't expired
+    const conditions = [
+      eq(bonuses.userId, userId),
+      eq(bonuses.isActive, true),
+      sql`${bonuses.startAt} <= ${now}`,
+      sql`(${bonuses.endAt} IS NULL OR ${bonuses.endAt} > ${now})`
+    ];
     
     if (bonusType) {
-      query = query.where(eq(bonuses.bonusType, bonusType)) as typeof query;
+      conditions.push(eq(bonuses.bonusType, bonusType));
     }
     
-    const result = await query.limit(1);
+    const result = await db.select().from(bonuses)
+      .where(and(...conditions))
+      .limit(1);
+    
     return result.length > 0;
   }
 

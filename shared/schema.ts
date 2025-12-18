@@ -248,7 +248,8 @@ export const aiUsageLimits = pgTable("ai_usage_limits", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   date: timestamp("date").notNull().defaultNow(), // Date of usage (daily reset)
-  questionCount: integer("question_count").notNull().default(0), // Number of questions asked today
+  questionCount: integer("question_count").notNull().default(0), // Number of AI questions asked today
+  strongLookups: integer("strong_lookups").notNull().default(0), // Number of Strong lookups today
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   // Index for efficient lookups by user and date
@@ -449,7 +450,8 @@ export const guestAiUsageLimits = pgTable("guest_ai_usage_limits", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   deviceId: text("device_id").notNull(),
   date: timestamp("date").notNull().defaultNow(),
-  questionCount: integer("question_count").notNull().default(0),
+  questionCount: integer("question_count").notNull().default(0), // Number of AI questions asked today
+  strongLookups: integer("strong_lookups").notNull().default(0), // Number of Strong lookups today
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   deviceDateIdx: index("guest_ai_usage_limits_device_date_idx").on(table.deviceId, table.date),

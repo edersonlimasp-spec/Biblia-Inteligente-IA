@@ -78,6 +78,8 @@ export interface IStorage {
   // AI Usage Limits (Rate Limiting)
   getTodayUsageCount(userId: string): Promise<number>;
   incrementUsageCount(userId: string): Promise<void>;
+  getTodayStrongLookups(userId: string): Promise<number>;
+  incrementStrongLookups(userId: string): Promise<void>;
 
   // Admin Operations
   getAllUsers(searchEmail?: string, limit?: number, offset?: number): Promise<{ users: User[], total: number }>;
@@ -89,6 +91,7 @@ export interface IStorage {
   // Bonuses
   createBonus(bonus: InsertBonus): Promise<Bonus>;
   getUserBonuses(userId: string): Promise<Bonus[]>;
+  hasActiveBonus(userId: string, bonusType?: string): Promise<boolean>;
   revokeBonus(bonusId: string): Promise<void>;
   getActiveBonuses(): Promise<Bonus[]>;
 
@@ -138,6 +141,8 @@ export interface IStorage {
   // Guest AI Usage Limits
   getGuestTodayUsageCount(deviceId: string): Promise<number>;
   incrementGuestUsageCount(deviceId: string): Promise<void>;
+  getGuestTodayStrongLookups(deviceId: string): Promise<number>;
+  incrementGuestStrongLookups(deviceId: string): Promise<void>;
 
   // App Events (analytics)
   trackAppEvent(deviceId: string, eventType: string, eventData?: any, userId?: string): Promise<void>;
@@ -435,6 +440,52 @@ class PostgresStorage implements IStorage {
     }
   }
 
+  async getTodayStrongLookups(userId: string): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const result = await db
+      .select()
+      .from(aiUsageLimits)
+      .where(
+        and(
+          eq(aiUsageLimits.userId, userId),
+          gte(aiUsageLimits.date, today)
+        )
+      );
+
+    return result[0]?.strongLookups || 0;
+  }
+
+  async incrementStrongLookups(userId: string): Promise<void> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const existing = await db
+      .select()
+      .from(aiUsageLimits)
+      .where(
+        and(
+          eq(aiUsageLimits.userId, userId),
+          gte(aiUsageLimits.date, today)
+        )
+      );
+
+    if (existing.length > 0) {
+      await db
+        .update(aiUsageLimits)
+        .set({ strongLookups: sql`${aiUsageLimits.strongLookups} + 1` })
+        .where(eq(aiUsageLimits.id, existing[0].id));
+    } else {
+      await db.insert(aiUsageLimits).values({
+        userId,
+        date: today,
+        questionCount: 0,
+        strongLookups: 1,
+      });
+    }
+  }
+
   // Bonuses
   async createBonus(bonus: InsertBonus): Promise<Bonus> {
     const result = await db.insert(bonuses).values(bonus).returning();
@@ -443,6 +494,25 @@ class PostgresStorage implements IStorage {
 
   async getUserBonuses(userId: string): Promise<Bonus[]> {
     return db.select().from(bonuses).where(eq(bonuses.userId, userId)).orderBy(desc(bonuses.createdAt));
+  }
+
+  async hasActiveBonus(userId: string, bonusType?: string): Promise<boolean> {
+    const now = new Date();
+    let query = db.select().from(bonuses)
+      .where(
+        and(
+          eq(bonuses.userId, userId),
+          eq(bonuses.isActive, true),
+          sql`(${bonuses.endAt} IS NULL OR ${bonuses.endAt} > ${now})`
+        )
+      );
+    
+    if (bonusType) {
+      query = query.where(eq(bonuses.bonusType, bonusType)) as typeof query;
+    }
+    
+    const result = await query.limit(1);
+    return result.length > 0;
   }
 
   async revokeBonus(bonusId: string): Promise<void> {
@@ -824,6 +894,49 @@ class PostgresStorage implements IStorage {
         deviceId,
         date: today,
         questionCount: 1,
+      });
+    }
+  }
+
+  async getGuestTodayStrongLookups(deviceId: string): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const result = await db.select()
+      .from(guestAiUsageLimits)
+      .where(
+        and(
+          eq(guestAiUsageLimits.deviceId, deviceId),
+          gte(guestAiUsageLimits.date, today)
+        )
+      );
+    
+    return result[0]?.strongLookups || 0;
+  }
+
+  async incrementGuestStrongLookups(deviceId: string): Promise<void> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const existing = await db.select()
+      .from(guestAiUsageLimits)
+      .where(
+        and(
+          eq(guestAiUsageLimits.deviceId, deviceId),
+          gte(guestAiUsageLimits.date, today)
+        )
+      );
+    
+    if (existing[0]) {
+      await db.update(guestAiUsageLimits)
+        .set({ strongLookups: sql`${guestAiUsageLimits.strongLookups} + 1` })
+        .where(eq(guestAiUsageLimits.id, existing[0].id));
+    } else {
+      await db.insert(guestAiUsageLimits).values({
+        deviceId,
+        date: today,
+        questionCount: 0,
+        strongLookups: 1,
       });
     }
   }

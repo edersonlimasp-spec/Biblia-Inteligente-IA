@@ -1539,6 +1539,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get unique Strong numbers for a chapter (for prefetching)
+  app.get("/api/bible/:bookId/:chapter/strong-numbers", async (req, res) => {
+    try {
+      const { bookId, chapter: chapterNum } = req.params;
+      const chapterInt = parseInt(chapterNum);
+      
+      if (isNaN(chapterInt)) {
+        return res.status(400).json({ error: "Capítulo inválido" });
+      }
+
+      // Query unique Strong numbers for this chapter
+      const strongNumbersResult = await db
+        .selectDistinct({ strongNumber: bibleWords.strongNumber })
+        .from(bibleWords)
+        .where(
+          and(
+            eq(bibleWords.book, bookId.toLowerCase()),
+            eq(bibleWords.chapter, chapterInt),
+            sql`${bibleWords.strongNumber} IS NOT NULL AND ${bibleWords.strongNumber} != ''`
+          )
+        );
+
+      const strongNumbers = strongNumbersResult
+        .map(r => r.strongNumber)
+        .filter((n): n is string => !!n);
+
+      res.json({
+        book: bookId,
+        chapter: chapterInt,
+        strongNumbers,
+        count: strongNumbers.length,
+      });
+    } catch (error) {
+      console.error("Get Strong numbers error:", error);
+      res.status(500).json({ error: "Erro ao buscar números Strong" });
+    }
+  });
+
   // Reading Progress routes
   app.get("/api/reading-progress", async (req, res) => {
     try {
@@ -1827,6 +1865,179 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[Export Strong] Error:", error);
       res.status(500).json({ error: String(error) });
+    }
+  });
+
+  // OPTIMIZED: Summary endpoint for instant modal opening (< 2KB response)
+  app.get("/api/strong/summary/:strongNumber", async (req, res) => {
+    const startTime = Date.now();
+    try {
+      const { strongNumber } = req.params;
+      const upperNumber = strongNumber.toUpperCase();
+      
+      // Check cache first
+      const cacheKey = `summary_${upperNumber}`;
+      const cached = getFromStrongCache(cacheKey);
+      if (cached) {
+        res.set('X-Strong-Cache', 'HIT');
+        res.set('X-Strong-Time', `${Date.now() - startTime}ms`);
+        return res.json(cached);
+      }
+      
+      // Query only essential fields for fast loading
+      const [entry] = await db
+        .select({
+          strongNumber: strongEntries.strongNumber,
+          lemma: strongEntries.lemma,
+          translit: strongEntries.translit,
+          xlit: strongEntries.xlit,
+          language: strongEntries.language,
+          portugueseDef: strongEntries.portugueseDef,
+          kjvDef: strongEntries.kjvDef,
+        })
+        .from(strongEntries)
+        .where(eq(strongEntries.strongNumber, upperNumber))
+        .limit(1);
+      
+      if (!entry) {
+        return res.status(404).json({ error: "Entrada não encontrada" });
+      }
+      
+      // Minimal summary response (< 2KB)
+      const summary = {
+        number: entry.strongNumber,
+        word: entry.lemma,
+        transliteration: entry.translit || entry.xlit || '',
+        language: entry.language,
+        shortDefinition: (entry.portugueseDef || entry.kjvDef || '').substring(0, 200),
+      };
+      
+      setInStrongCache(cacheKey, summary);
+      
+      res.set('X-Strong-Cache', 'MISS');
+      res.set('X-Strong-Time', `${Date.now() - startTime}ms`);
+      res.json(summary);
+    } catch (error) {
+      console.error("[Strong Summary] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar resumo" });
+    }
+  });
+
+  // OPTIMIZED: Detail endpoint for full information (loaded in background)
+  app.get("/api/strong/detail/:strongNumber", async (req, res) => {
+    const startTime = Date.now();
+    try {
+      const { strongNumber } = req.params;
+      const upperNumber = strongNumber.toUpperCase();
+      
+      // Check cache first
+      const cacheKey = `detail_${upperNumber}`;
+      const cached = getFromStrongCache(cacheKey);
+      if (cached) {
+        res.set('X-Strong-Cache', 'HIT');
+        res.set('X-Strong-Time', `${Date.now() - startTime}ms`);
+        return res.json(cached);
+      }
+      
+      // Query all fields
+      const [entry] = await db
+        .select()
+        .from(strongEntries)
+        .where(eq(strongEntries.strongNumber, upperNumber))
+        .limit(1);
+      
+      if (!entry) {
+        return res.status(404).json({ error: "Entrada não encontrada" });
+      }
+      
+      // Full detail response
+      const detail = {
+        number: entry.strongNumber,
+        word: entry.lemma,
+        transliteration: entry.translit || entry.xlit || '',
+        pronunciation: entry.pron || '',
+        definition: entry.kjvDef || entry.strongsDef || '',
+        portugueseDefinition: entry.portugueseDef || null,
+        strongsDefinition: entry.strongsDef || null,
+        kjvDefinition: entry.kjvDef || null,
+        derivation: entry.derivation || null,
+        extendedDefinition: entry.extendedDefinition || null,
+        language: entry.language,
+      };
+      
+      setInStrongCache(cacheKey, detail);
+      
+      res.set('X-Strong-Cache', 'MISS');
+      res.set('X-Strong-Time', `${Date.now() - startTime}ms`);
+      res.json(detail);
+    } catch (error) {
+      console.error("[Strong Detail] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar detalhes" });
+    }
+  });
+
+  // Batch prefetch endpoint for chapter Strong numbers
+  app.post("/api/strong/batch-summary", async (req, res) => {
+    const startTime = Date.now();
+    try {
+      const { strongNumbers } = req.body as { strongNumbers: string[] };
+      
+      if (!Array.isArray(strongNumbers) || strongNumbers.length === 0) {
+        return res.json({ entries: {} });
+      }
+      
+      // Limit to 50 entries per batch
+      const limitedNumbers = strongNumbers.slice(0, 50).map(n => n.toUpperCase());
+      
+      // Check cache for all, collect misses
+      const result: Record<string, any> = {};
+      const cacheMisses: string[] = [];
+      
+      for (const num of limitedNumbers) {
+        const cacheKey = `summary_${num}`;
+        const cached = getFromStrongCache(cacheKey);
+        if (cached) {
+          result[num] = cached;
+        } else {
+          cacheMisses.push(num);
+        }
+      }
+      
+      // Fetch cache misses from DB
+      if (cacheMisses.length > 0) {
+        const entries = await db
+          .select({
+            strongNumber: strongEntries.strongNumber,
+            lemma: strongEntries.lemma,
+            translit: strongEntries.translit,
+            xlit: strongEntries.xlit,
+            language: strongEntries.language,
+            portugueseDef: strongEntries.portugueseDef,
+            kjvDef: strongEntries.kjvDef,
+          })
+          .from(strongEntries)
+          .where(sql`${strongEntries.strongNumber} = ANY(${cacheMisses})`);
+        
+        for (const entry of entries) {
+          const summary = {
+            number: entry.strongNumber,
+            word: entry.lemma,
+            transliteration: entry.translit || entry.xlit || '',
+            language: entry.language,
+            shortDefinition: (entry.portugueseDef || entry.kjvDef || '').substring(0, 200),
+          };
+          
+          setInStrongCache(`summary_${entry.strongNumber}`, summary);
+          result[entry.strongNumber] = summary;
+        }
+      }
+      
+      res.set('X-Strong-Time', `${Date.now() - startTime}ms`);
+      res.set('X-Strong-Cache-Hits', `${limitedNumbers.length - cacheMisses.length}`);
+      res.json({ entries: result, fetchedAt: Date.now() });
+    } catch (error) {
+      console.error("[Strong Batch] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar lote" });
     }
   });
 

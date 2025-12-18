@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
 import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { getCachedSummaries, cacheSummaries } from "@/lib/strongCache";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
@@ -421,6 +422,52 @@ export function BibleReader({
       setWordsWithStrong(new Set());
     }
   }, [chapterStrongWords, selectedBook, selectedChapter]);
+
+  // Pre-fetch Strong summaries for chapter words (background, non-blocking)
+  useEffect(() => {
+    if (!chapterData?.chapter?.verses) return;
+    
+    // Collect unique Strong numbers from bible_words endpoint if available
+    const prefetchStrong = async () => {
+      try {
+        // Get strong words for current chapter
+        const response = await apiRequest('GET', `/api/bible/${selectedBook}/${selectedChapter}/strong-numbers`);
+        const data = await response.json() as { strongNumbers: string[] };
+        
+        if (!data.strongNumbers?.length) return;
+        
+        // Take first 30 to prefetch
+        const numbersToFetch = data.strongNumbers.slice(0, 30);
+        
+        // Check which are already cached
+        const cached = await getCachedSummaries(numbersToFetch);
+        const uncached = numbersToFetch.filter(n => !cached[n.toUpperCase()]);
+        
+        if (uncached.length === 0) {
+          console.log('[Strong Prefetch] All summaries cached');
+          return;
+        }
+        
+        // Batch fetch uncached summaries
+        const batchResponse = await apiRequest('POST', '/api/strong/batch-summary', { 
+          strongNumbers: uncached 
+        });
+        const batchData = await batchResponse.json() as { entries: Record<string, any> };
+        
+        if (batchData.entries && Object.keys(batchData.entries).length > 0) {
+          await cacheSummaries(batchData.entries);
+          console.log(`[Strong Prefetch] Cached ${Object.keys(batchData.entries).length} summaries`);
+        }
+      } catch (error) {
+        // Silent fail - prefetch is optional
+        console.warn('[Strong Prefetch] Failed:', error);
+      }
+    };
+    
+    // Delay prefetch to not block initial render
+    const timer = setTimeout(prefetchStrong, 500);
+    return () => clearTimeout(timer);
+  }, [chapterData, selectedBook, selectedChapter]);
 
   // Track reading history when chapter changes (cloud sync)
   useEffect(() => {

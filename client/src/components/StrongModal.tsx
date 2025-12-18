@@ -1,12 +1,20 @@
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useCallback } from "react";
 import { AlertCircle, X, Search, Crown, BookOpen, Infinity } from "lucide-react";
-import { ApiError } from "@/lib/queryClient";
+import { apiRequest, ApiError } from "@/lib/queryClient";
+import { 
+  getCachedSummary, 
+  getCachedDetail, 
+  cacheSummary, 
+  cacheDetail,
+  createPerfTracker,
+  logPerfMetrics,
+  type StrongPerfMetrics 
+} from "@/lib/strongCache";
 
 interface StrongModalProps {
   strongNumber: string;
@@ -14,37 +22,159 @@ interface StrongModalProps {
   onNavigateToSubscriptions?: () => void;
 }
 
-interface StrongEntry {
+interface StrongSummary {
+  number: string;
+  word: string;
+  transliteration: string;
+  language: string;
+  shortDefinition: string;
+}
+
+interface StrongDetail {
   number: string;
   word: string;
   transliteration: string;
   pronunciation: string;
   definition: string;
-  portugueseDefinition?: string | null;
-  strongsDefinition?: string | null;
-  kjvDefinition?: string | null;
-  derivation?: string | null;
-  extendedDefinition?: string | null;
+  portugueseDefinition: string | null;
+  strongsDefinition: string | null;
+  kjvDefinition: string | null;
+  derivation: string | null;
+  extendedDefinition: string | null;
   language: string;
 }
 
+type LoadingState = 'loading' | 'summary' | 'detail' | 'error' | 'subscription';
+
 export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }: StrongModalProps) {
-  const { data: strongData, isLoading, error } = useQuery<StrongEntry>({
-    queryKey: ['/api/strong', strongNumber],
-    staleTime: 1000 * 60 * 60 * 24, // 24 hours - cache aggressively
-    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days garbage collection
-  });
+  const [loadingState, setLoadingState] = useState<LoadingState>('loading');
+  const [summary, setSummary] = useState<StrongSummary | null>(null);
+  const [detail, setDetail] = useState<StrongDetail | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [perf, setPerf] = useState<StrongPerfMetrics | null>(null);
 
-  const apiError = error as ApiError;
-  const requiresSubscription = apiError?.data?.requiresSubscription;
+  const loadStrongData = useCallback(async () => {
+    const metrics = createPerfTracker();
+    setPerf(metrics);
+    
+    try {
+      // STEP 1: Check IndexedDB cache first (instant)
+      const cachedDetail = await getCachedDetail(strongNumber);
+      if (cachedDetail) {
+        metrics.cacheHit = true;
+        metrics.t1_modalOpen = performance.now();
+        setDetail(cachedDetail as StrongDetail);
+        setSummary({
+          number: cachedDetail.number,
+          word: cachedDetail.word,
+          transliteration: cachedDetail.transliteration,
+          language: cachedDetail.language,
+          shortDefinition: cachedDetail.portugueseDefinition?.substring(0, 200) || cachedDetail.definition?.substring(0, 200) || '',
+        });
+        setLoadingState('detail');
+        metrics.t5_renderComplete = performance.now();
+        logPerfMetrics(metrics);
+        return;
+      }
 
-  const isHebrew = strongData?.number?.startsWith('H');
+      // Check summary cache
+      const cachedSummary = await getCachedSummary(strongNumber);
+      if (cachedSummary) {
+        metrics.cacheHit = true;
+        metrics.t1_modalOpen = performance.now();
+        setSummary(cachedSummary as StrongSummary);
+        setLoadingState('summary');
+      }
 
-  if (isLoading) {
+      // STEP 2: Fetch summary from server (fast, < 2KB)
+      metrics.t2_requestStart = performance.now();
+      
+      try {
+        const summaryRes = await apiRequest('GET', `/api/strong/summary/${encodeURIComponent(strongNumber)}`);
+        metrics.t3_firstByte = performance.now();
+        const summaryData = await summaryRes.json() as StrongSummary;
+        metrics.t4_jsonParse = performance.now();
+        
+        setSummary(summaryData);
+        setLoadingState('summary');
+        metrics.t1_modalOpen = performance.now();
+        
+        // Cache summary
+        cacheSummary(summaryData);
+        
+        // STEP 3: Fetch detail in background
+        try {
+          const detailRes = await apiRequest('GET', `/api/strong/detail/${encodeURIComponent(strongNumber)}`);
+          const detailData = await detailRes.json() as StrongDetail;
+          
+          setDetail(detailData);
+          setLoadingState('detail');
+          
+          // Cache detail
+          cacheDetail(detailData);
+          
+          metrics.t5_renderComplete = performance.now();
+          logPerfMetrics(metrics);
+        } catch (detailError) {
+          // Detail fetch failed, but we have summary - that's OK
+          console.warn('[Strong] Detail fetch failed, showing summary only');
+          metrics.t5_renderComplete = performance.now();
+          logPerfMetrics(metrics);
+        }
+      } catch (fetchError: any) {
+        // Check if it's a subscription error
+        if (fetchError instanceof ApiError && fetchError.data?.requiresSubscription) {
+          setErrorMessage(fetchError.data.error || 'Limite de consultas atingido');
+          setLoadingState('subscription');
+          return;
+        }
+        
+        // If we had cached summary, show it
+        if (cachedSummary) {
+          setLoadingState('summary');
+          metrics.t5_renderComplete = performance.now();
+          logPerfMetrics(metrics);
+          return;
+        }
+        
+        throw fetchError;
+      }
+    } catch (error: any) {
+      console.error('[Strong] Load error:', error);
+      setErrorMessage(error.message || 'Erro ao carregar entrada');
+      setLoadingState('error');
+    }
+  }, [strongNumber]);
+
+  useEffect(() => {
+    loadStrongData();
+  }, [loadStrongData]);
+
+  const handleSubscribe = () => {
+    onClose();
+    if (onNavigateToSubscriptions) {
+      onNavigateToSubscriptions();
+    }
+  };
+
+  const displayData = detail || summary;
+  const isHebrew = displayData?.number?.startsWith('H');
+
+  // LOADING STATE - Shows skeleton immediately
+  if (loadingState === 'loading') {
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="w-[95vw] max-w-3xl h-[85vh] max-h-[85vh] flex flex-col p-0 gap-0 bg-background" data-testid="modal-strong">
           <DialogTitle className="sr-only">Carregando Strong</DialogTitle>
+          <DialogClose asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute right-2 top-2 z-50 h-8 w-8"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </DialogClose>
           <div className="flex-1 p-6 space-y-6">
             <Skeleton className="h-20 w-48 mx-auto" />
             <Skeleton className="h-8 w-40 mx-auto" />
@@ -56,16 +186,8 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
     );
   }
 
-  if (error && requiresSubscription) {
-    const errorMessage = apiError?.data?.error || "Limite de consultas atingido";
-    
-    const handleSubscribe = () => {
-      onClose();
-      if (onNavigateToSubscriptions) {
-        onNavigateToSubscriptions();
-      }
-    };
-    
+  // SUBSCRIPTION REQUIRED STATE
+  if (loadingState === 'subscription') {
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="w-[95vw] max-w-md bg-background" data-testid="modal-strong-upgrade">
@@ -136,7 +258,8 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
     );
   }
 
-  if (error || !strongData) {
+  // ERROR STATE
+  if (loadingState === 'error' || !displayData) {
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="w-[95vw] max-w-2xl bg-background" data-testid="modal-strong">
@@ -151,10 +274,13 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
     );
   }
 
+  // CONTENT STATE - Shows summary immediately, then detail
+  const hasFullDetail = loadingState === 'detail' && detail;
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="w-[95vw] max-w-3xl h-[88vh] max-h-[88vh] flex flex-col p-0 gap-0 bg-background border-primary/20" data-testid="modal-strong">
-        <DialogTitle className="sr-only">Strong Dictionary - {strongData.number}</DialogTitle>
+        <DialogTitle className="sr-only">Strong Dictionary - {displayData.number}</DialogTitle>
         <DialogClose asChild>
           <Button 
             variant="ghost" 
@@ -177,19 +303,19 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
                   style={{ direction: isHebrew ? 'rtl' : 'ltr' }}
                   data-testid="text-strong-word"
                 >
-                  {strongData.word}
+                  {displayData.word}
                 </h1>
               </div>
               
               {/* Transliteration - Medium size */}
               <p className="text-xl text-muted-foreground font-semibold mb-1">
-                {strongData.transliteration}
+                {displayData.transliteration}
               </p>
               
-              {/* Pronunciation */}
-              {strongData.pronunciation && (
+              {/* Pronunciation - only in detail */}
+              {hasFullDetail && detail.pronunciation && (
                 <p className="text-sm text-muted-foreground italic">
-                  Pronúncia: {strongData.pronunciation}
+                  Pronúncia: {detail.pronunciation}
                 </p>
               )}
             </div>
@@ -198,64 +324,80 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
             <div className="bg-primary/10 border-l-4 border-primary px-4 py-3 my-3">
               <p className="text-sm font-semibold text-muted-foreground">STRONG'S NUMBER</p>
               <p className="text-2xl font-mono font-bold text-primary" data-testid="text-strong-number">
-                {strongData.number}
+                {displayData.number}
               </p>
             </div>
 
-            {/* Dictionary Definition Section */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-bold text-foreground">Dictionary Definition</h2>
-              
-              {/* Main Definition (Portuguese if available, else English) */}
-              {strongData.portugueseDefinition && (
-                <div className="bg-card border border-border rounded p-4 space-y-2">
-                  <p className="text-sm font-semibold text-muted-foreground">Definição Portuguesa</p>
-                  <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground">
-                    {strongData.word} {strongData.transliteration && `(${strongData.transliteration})`} — {strongData.portugueseDefinition}
-                  </p>
+            {/* Quick Definition (from summary) */}
+            {!hasFullDetail && summary?.shortDefinition && (
+              <div className="bg-card border border-border rounded p-4 space-y-2">
+                <p className="text-sm font-semibold text-muted-foreground">Definição Rápida</p>
+                <p className="text-base leading-relaxed text-foreground">
+                  {summary.shortDefinition}
+                </p>
+                <div className="pt-2">
+                  <Skeleton className="h-24 w-full" />
+                  <p className="text-xs text-muted-foreground text-center mt-2">Carregando detalhes completos...</p>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Extended Theological Definition - Main content */}
-              {strongData.extendedDefinition && (
-                <div className="bg-primary/5 border border-primary/20 rounded p-4 space-y-3">
-                  <p className="text-sm font-semibold text-foreground">Explicação Teológica Completa</p>
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground space-y-2">
-                    {strongData.extendedDefinition}
+            {/* Full Definition Section (from detail) */}
+            {hasFullDetail && (
+              <div className="space-y-3">
+                <h2 className="text-lg font-bold text-foreground">Dictionary Definition</h2>
+                
+                {/* Main Definition (Portuguese if available, else English) */}
+                {detail.portugueseDefinition && (
+                  <div className="bg-card border border-border rounded p-4 space-y-2">
+                    <p className="text-sm font-semibold text-muted-foreground">Definição Portuguesa</p>
+                    <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground">
+                      {detail.word} {detail.transliteration && `(${detail.transliteration})`} — {detail.portugueseDefinition}
+                    </p>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Strong's Definition */}
-              {strongData.strongsDefinition && (
-                <div className="bg-card border border-border rounded p-4">
-                  <p className="text-sm font-semibold text-muted-foreground mb-2">Definição do Dicionário Strong</p>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                    {strongData.strongsDefinition}
-                  </p>
-                </div>
-              )}
+                {/* Extended Theological Definition - Main content */}
+                {detail.extendedDefinition && (
+                  <div className="bg-primary/5 border border-primary/20 rounded p-4 space-y-3">
+                    <p className="text-sm font-semibold text-foreground">Explicação Teológica Completa</p>
+                    <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground space-y-2">
+                      {detail.extendedDefinition}
+                    </div>
+                  </div>
+                )}
 
-              {/* KJV Definition */}
-              {strongData.kjvDefinition && strongData.kjvDefinition !== strongData.strongsDefinition && (
-                <div className="bg-card border border-border rounded p-4">
-                  <p className="text-sm font-semibold text-muted-foreground mb-2">King James Definition</p>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                    {strongData.kjvDefinition}
-                  </p>
-                </div>
-              )}
+                {/* Strong's Definition */}
+                {detail.strongsDefinition && (
+                  <div className="bg-card border border-border rounded p-4">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">Definição do Dicionário Strong</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                      {detail.strongsDefinition}
+                    </p>
+                  </div>
+                )}
 
-              {/* Derivation / Etymology */}
-              {strongData.derivation && (
-                <div className="bg-card border border-border rounded p-4">
-                  <p className="text-sm font-semibold text-muted-foreground mb-2">Derivação</p>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                    {strongData.derivation}
-                  </p>
-                </div>
-              )}
-            </div>
+                {/* KJV Definition */}
+                {detail.kjvDefinition && detail.kjvDefinition !== detail.strongsDefinition && (
+                  <div className="bg-card border border-border rounded p-4">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">King James Definition</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                      {detail.kjvDefinition}
+                    </p>
+                  </div>
+                )}
+
+                {/* Derivation / Etymology */}
+                {detail.derivation && (
+                  <div className="bg-card border border-border rounded p-4">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2">Derivação</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                      {detail.derivation}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Search/Action Section */}
             <div className="bg-muted/50 border border-border rounded p-4 mt-4">
@@ -267,24 +409,18 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
                 <Button 
                   variant="outline" 
                   className="w-full text-sm"
-                  onClick={() => {
-                    // Placeholder for search functionality
-                    console.log('Search for:', strongData.number);
-                  }}
+                  onClick={() => console.log('Search for:', displayData.number)}
                   data-testid="button-search-strong"
                 >
-                  Pesquisar por {strongData.number}
+                  Pesquisar por {displayData.number}
                 </Button>
                 <Button 
                   variant="outline" 
                   className="w-full text-sm"
-                  onClick={() => {
-                    // Placeholder for search original word
-                    console.log('Search for word:', strongData.word);
-                  }}
+                  onClick={() => console.log('Search for word:', displayData.word)}
                   data-testid="button-search-word"
                 >
-                  Procurar "{strongData.transliteration}"
+                  Procurar "{displayData.transliteration}"
                 </Button>
               </div>
             </div>

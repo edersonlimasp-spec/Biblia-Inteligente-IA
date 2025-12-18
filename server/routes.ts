@@ -1512,17 +1512,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )
         .orderBy(bibleWords.verse, bibleWords.wordPosition);
 
-      // Create a map of verse -> list of words with Strong
+      // Create a map of verse -> list of individual words with Strong
+      // Split multi-word glosses into individual words for matching
       const verseWordsMap: Record<number, string[]> = {};
       for (const w of wordsWithStrong) {
         if (w.gloss) {
           if (!verseWordsMap[w.verse]) {
             verseWordsMap[w.verse] = [];
           }
-          // Normalize the gloss word for matching
-          const normalizedWord = w.gloss.toLowerCase().trim();
-          if (!verseWordsMap[w.verse].includes(normalizedWord)) {
-            verseWordsMap[w.verse].push(normalizedWord);
+          // Split multi-word glosses and add each word individually
+          const glossWords = w.gloss.toLowerCase().trim().split(/\s+/);
+          for (const word of glossWords) {
+            // Only add words with 3+ characters to avoid common articles
+            const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
+            if (cleanWord.length >= 3 && !verseWordsMap[w.verse].includes(cleanWord)) {
+              verseWordsMap[w.verse].push(cleanWord);
+            }
           }
         }
       }

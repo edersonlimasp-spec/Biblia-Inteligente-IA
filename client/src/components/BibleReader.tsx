@@ -233,16 +233,26 @@ export function BibleReader({
     totalWords: number;
   }
   
-  const { data: chapterStrongWords } = useQuery<StrongWordsResponse>({
+  const { data: chapterStrongWords, error: chapterStrongError } = useQuery<StrongWordsResponse>({
     queryKey: ['/api/bible', selectedBook, selectedChapter, 'strong-words'],
     enabled: !!selectedBook && !!selectedChapter,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
     gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
     queryFn: async () => {
-      return apiRequest('GET', `/api/bible/${selectedBook}/${selectedChapter}/strong-words`)
-        .then(res => res.json());
+      console.log('[Strong Words] Fetching for:', selectedBook, selectedChapter);
+      const response = await apiRequest('GET', `/api/bible/${selectedBook}/${selectedChapter}/strong-words`);
+      const data = await response.json();
+      console.log('[Strong Words] Response:', data);
+      return data;
     },
   });
+  
+  // Log chapterStrongWords errors
+  useEffect(() => {
+    if (chapterStrongError) {
+      console.error('[Strong Words] Error:', chapterStrongError);
+    }
+  }, [chapterStrongError]);
 
   // Navigate to a search result
   const navigateToSearchResult = (result: GlobalSearchResult) => {

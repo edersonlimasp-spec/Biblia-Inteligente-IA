@@ -168,18 +168,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Auto-grant registration bonus (trial extension)
-      // This ensures that email-registered users get immediate bonus activation
+      // Auto-grant registration bonus (7-day trial extension)
+      // System admin ID for auto-granted bonuses
+      const SYSTEM_ADMIN_ID = '54a45c5b-7364-47dc-b1dd-0cd824384ec4';
+      const now = new Date();
+      const bonusEndDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
+      
       try {
         await storage.createBonus({
           userId: user.id,
-          bonusType: 'REGISTRATION_BONUS',
-          startAt: new Date(),
-          endAt: null, // Permanent until end of trial
-          reason: 'Bônus automático por cadastro com email',
-          grantedByAdminId: user.id, // Self-granted system bonus
+          bonusType: 'TRIAL_EXTEND',
+          startAt: now,
+          endAt: bonusEndDate,
+          reason: 'Bônus automático por cadastro com email (+7 dias)',
+          grantedByAdminId: SYSTEM_ADMIN_ID,
         });
-        console.log(`🎁 Bônus de registro concedido ao usuário ${user.email}`);
+        console.log(`🎁 Bônus de 7 dias concedido ao usuário ${user.email}`);
       } catch (bonusError) {
         console.warn('Erro ao conceder bônus de registro:', bonusError);
       }

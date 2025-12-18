@@ -55,13 +55,18 @@ export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
   }
 
   if (error && requiresSubscription) {
+    const errorMessage = apiError?.data?.error || "Limite de consultas atingido";
+    const upgradeMessage = apiError?.data?.upgradeMessage || "Faça upgrade para acesso ilimitado ao dicionário Strong";
+    
     return (
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="w-[95vw] max-w-2xl bg-background" data-testid="modal-strong">
           <DialogTitle className="sr-only">Strong Premium</DialogTitle>
           <div className="flex flex-col items-center justify-center p-8 text-center gap-4">
-            <AlertCircle className="w-12 h-12 text-primary" />
-            <h3 className="text-lg font-semibold">Recurso Premium</h3>
+            <AlertCircle className="w-12 h-12 text-amber-500" />
+            <h3 className="text-lg font-semibold text-primary">Limite Diário Atingido</h3>
+            <p className="text-sm text-muted-foreground">{errorMessage}</p>
+            <p className="text-sm font-medium mt-2">{upgradeMessage}</p>
             <Button onClick={onClose} data-testid="button-close-paywall">Entendi</Button>
           </div>
         </DialogContent>

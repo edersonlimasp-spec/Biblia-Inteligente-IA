@@ -454,12 +454,14 @@ export function AIPanel() {
     },
     onError: (error: any) => {
       const errorMessage = error?.data?.error || error?.message || "Erro ao processar pergunta";
-      const needsSubscription = error?.status === 403;
+      const upgradeMessage = error?.data?.upgradeMessage;
+      const needsSubscription = error?.status === 403 || error?.data?.requiresSubscription;
       
       toast({
-        title: needsSubscription ? "Assinatura Necessária" : "Erro",
-        description: errorMessage,
+        title: needsSubscription ? "Limite Diário Atingido" : "Erro",
+        description: upgradeMessage || errorMessage,
         variant: "destructive",
+        duration: 5000,
       });
     },
   });

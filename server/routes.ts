@@ -17,6 +17,42 @@ import fs from "fs";
 import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
 import { STRONG_DATA } from "./strong-data-embedded";
 
+// In-memory cache for Strong entries (true LRU with TTL)
+interface StrongCacheEntry {
+  data: any;
+  timestamp: number;
+}
+const strongCache = new Map<string, StrongCacheEntry>();
+const STRONG_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+const STRONG_CACHE_MAX_SIZE = 2000; // Max entries in cache
+
+function getFromStrongCache(key: string): any | null {
+  const entry = strongCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > STRONG_CACHE_TTL) {
+    strongCache.delete(key);
+    return null;
+  }
+  // True LRU: move to end by re-inserting (Map preserves insertion order)
+  strongCache.delete(key);
+  strongCache.set(key, entry);
+  return entry.data;
+}
+
+function setInStrongCache(key: string, data: any): void {
+  // If key exists, delete first to move to end
+  if (strongCache.has(key)) {
+    strongCache.delete(key);
+  }
+  // True LRU: evict oldest (first) entries when full
+  while (strongCache.size >= STRONG_CACHE_MAX_SIZE) {
+    const oldestKey = strongCache.keys().next().value;
+    if (oldestKey) strongCache.delete(oldestKey);
+    else break;
+  }
+  strongCache.set(key, { data, timestamp: Date.now() });
+}
+
 // Initialize Firebase Admin SDK (only if configured)
 let firebaseInitialized = false;
 function initFirebaseAdmin() {
@@ -1734,21 +1770,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Strong's Dictionary routes (Database-driven)
+  // Strong's Dictionary routes (Database-driven with in-memory cache)
   app.get("/api/strong/:number", async (req, res) => {
     const startTime = Date.now();
     try {
       const { number } = req.params;
       const upperNumber = number.toUpperCase();
       
-      console.log(`[Strong API] Buscando Strong #${upperNumber}`);
+      // Check cache first (instant response)
+      const cached = getFromStrongCache(upperNumber);
+      if (cached) {
+        console.log(`[Strong API] Cache HIT for ${upperNumber} (${Date.now() - startTime}ms)`);
+        return res.json(cached);
+      }
       
-      // First, check total count in database for diagnostic
-      const countResult = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);
-      const totalCount = countResult[0]?.count || 0;
-      console.log(`[Strong API] Total de entradas no banco: ${totalCount}`);
-      
-      // Query database for Strong's entry
+      // Query database for Strong's entry (single optimized query with index)
       const [entry] = await db
         .select()
         .from(strongEntries)
@@ -1756,23 +1792,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .limit(1);
       
       const elapsed = Date.now() - startTime;
-      console.log(`[Strong API] Query completa em ${elapsed}ms, encontrou: ${entry ? 'SIM' : 'NÃO'}`);
+      console.log(`[Strong API] DB query for ${upperNumber}: ${elapsed}ms`);
       
       if (!entry) {
-        console.log(`[Strong API] ERRO: Strong #${upperNumber} não encontrado. Total no banco: ${totalCount}`);
         return res.status(404).json({ 
           error: "Entrada não encontrada",
-          message: `Este número Strong (${upperNumber}) não foi encontrado. Total de entradas no banco: ${totalCount}`,
-          diagnostics: {
-            requestedNumber: upperNumber,
-            totalEntriesInDatabase: totalCount,
-            queryTimeMs: elapsed
-          }
+          message: `Número Strong ${upperNumber} não encontrado`
         });
       }
       
       // Format response with ALL available fields for rich display
-      res.json({
+      const response = {
         number: entry.strongNumber,
         word: entry.lemma,
         transliteration: entry.translit || entry.xlit || '',
@@ -1784,7 +1814,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         derivation: entry.derivation || null,
         extendedDefinition: entry.extendedDefinition || null,
         language: entry.language,
-      });
+      };
+      
+      // Cache the result
+      setInStrongCache(upperNumber, response);
+      
+      res.json(response);
     } catch (error) {
       console.error("Get Strong entry error:", error);
       res.status(500).json({ error: "Erro ao buscar entrada do dicionário" });

@@ -29,8 +29,8 @@ interface StrongEntry {
 export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
   const { data: strongData, isLoading, error } = useQuery<StrongEntry>({
     queryKey: ['/api/strong', strongNumber],
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours - cache aggressively
+    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days garbage collection
   });
 
   const apiError = error as ApiError;

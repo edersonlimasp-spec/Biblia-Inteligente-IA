@@ -167,23 +167,25 @@
 
 /* Strong's Words - Subtle emphasis for words with dictionary entries */
 .strong-word {
-  color: hsl(215 25% 12%);
-  font-weight: 500;
-  border-bottom: 1px dotted hsl(215 15% 60%);
   transition: background-color 0.15s ease;
 }
 
 .strong-word:hover {
-  background-color: hsl(210 80% 95% / 0.5);
-}
-
-.dark .strong-word {
-  color: hsl(215 15% 95%);
-  border-bottom-color: hsl(215 15% 50%);
+  background-color: hsl(210 80% 95% / 0.4);
 }
 
 .dark .strong-word:hover {
-  background-color: hsl(210 60% 15% / 0.5);
+  background-color: hsl(210 60% 20% / 0.4);
+}
+
+/* Subtle indicator on first 3 letters of words with Strong */
+.strong-mark {
+  border-bottom: 1px solid hsl(215 20% 70% / 0.5);
+  text-decoration: none;
+}
+
+.dark .strong-mark {
+  border-bottom-color: hsl(215 15% 50% / 0.5);
 }
 
 @layer base {

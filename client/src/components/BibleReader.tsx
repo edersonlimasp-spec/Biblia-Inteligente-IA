@@ -702,6 +702,21 @@ export function BibleReader({
                           const isClickable = cleanWord.length > 2;
                           const hasStrongInCache = wordsWithStrong.has(cleanWord);
                           
+                          // Render with subtle indicator on first 3 letters if word has Strong
+                          const renderWord = () => {
+                            if (hasStrongInCache && word.length > 0) {
+                              const markLength = Math.min(3, word.length);
+                              const first = word.slice(0, markLength);
+                              const rest = word.slice(markLength);
+                              return (
+                                <>
+                                  <span className="strong-mark">{first}</span>{rest}
+                                </>
+                              );
+                            }
+                            return word;
+                          };
+                          
                           return (
                             <span
                               key={idx}
@@ -714,7 +729,7 @@ export function BibleReader({
                               }}
                               data-testid={`word-${verse.verse}-${idx}`}
                             >
-                              {word}{" "}
+                              {renderWord()}{" "}
                             </span>
                           );
                         })}

@@ -1484,6 +1484,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get words with Strong numbers for a chapter (for pre-highlighting)
+  app.get("/api/bible/:bookId/:chapter/strong-words", async (req, res) => {
+    try {
+      const { bookId, chapter: chapterNum } = req.params;
+      const chapterInt = parseInt(chapterNum);
+      
+      if (isNaN(chapterInt)) {
+        return res.status(400).json({ error: "Capítulo inválido" });
+      }
+
+      // Query bible_words for this chapter that have Strong numbers
+      const wordsWithStrong = await db
+        .select({
+          verse: bibleWords.verse,
+          wordPosition: bibleWords.wordPosition,
+          gloss: bibleWords.gloss,
+          strongNumber: bibleWords.strongNumber,
+        })
+        .from(bibleWords)
+        .where(
+          and(
+            eq(bibleWords.book, bookId.toLowerCase()),
+            eq(bibleWords.chapter, chapterInt),
+            sql`${bibleWords.strongNumber} IS NOT NULL AND ${bibleWords.strongNumber} != ''`
+          )
+        )
+        .orderBy(bibleWords.verse, bibleWords.wordPosition);
+
+      // Create a map of verse -> list of words with Strong
+      const verseWordsMap: Record<number, string[]> = {};
+      for (const w of wordsWithStrong) {
+        if (w.gloss) {
+          if (!verseWordsMap[w.verse]) {
+            verseWordsMap[w.verse] = [];
+          }
+          // Normalize the gloss word for matching
+          const normalizedWord = w.gloss.toLowerCase().trim();
+          if (!verseWordsMap[w.verse].includes(normalizedWord)) {
+            verseWordsMap[w.verse].push(normalizedWord);
+          }
+        }
+      }
+
+      res.json({
+        book: bookId,
+        chapter: chapterInt,
+        strongWords: verseWordsMap,
+        totalWords: wordsWithStrong.length,
+      });
+    } catch (error) {
+      console.error("Get Strong words error:", error);
+      res.status(500).json({ error: "Erro ao buscar palavras Strong" });
+    }
+  });
+
   // Reading Progress routes
   app.get("/api/reading-progress", async (req, res) => {
     try {

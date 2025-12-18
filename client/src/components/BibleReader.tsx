@@ -211,6 +211,25 @@ export function BibleReader({
     },
   });
 
+  // Pre-fetch Strong words for current chapter (for highlighting before click)
+  interface StrongWordsResponse {
+    book: string;
+    chapter: number;
+    strongWords: Record<number, string[]>;
+    totalWords: number;
+  }
+  
+  const { data: chapterStrongWords } = useQuery<StrongWordsResponse>({
+    queryKey: ['/api/bible', selectedBook, selectedChapter, 'strong-words'],
+    enabled: !!selectedBook && !!selectedChapter,
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+    queryFn: async () => {
+      return apiRequest('GET', `/api/bible/${selectedBook}/${selectedChapter}/strong-words`)
+        .then(res => res.json());
+    },
+  });
+
   // Navigate to a search result
   const navigateToSearchResult = (result: GlobalSearchResult) => {
     setSelectedBook(result.book);
@@ -373,10 +392,21 @@ export function BibleReader({
     }
   }, [wordSearchResults, currentBook, searchingWord]);
 
-  // Reset words tracking when chapter changes
+  // Populate wordsWithStrong from pre-fetched data when chapter changes
   useEffect(() => {
-    setWordsWithStrong(new Set());
-  }, [selectedBook, selectedChapter]);
+    if (chapterStrongWords?.strongWords) {
+      // Collect all words from all verses that have Strong numbers
+      const allStrongWords = new Set<string>();
+      for (const verseWords of Object.values(chapterStrongWords.strongWords)) {
+        for (const word of verseWords) {
+          allStrongWords.add(word.toLowerCase());
+        }
+      }
+      setWordsWithStrong(allStrongWords);
+    } else {
+      setWordsWithStrong(new Set());
+    }
+  }, [chapterStrongWords, selectedBook, selectedChapter]);
 
   // Track reading history when chapter changes (cloud sync)
   useEffect(() => {
@@ -775,6 +805,7 @@ export function BibleReader({
         <StrongModal
           strongNumber={selectedStrongNumber}
           onClose={() => setSelectedStrongNumber(null)}
+          onNavigateToSubscriptions={onNavigateToSubscriptions}
         />
       )}
     </div>

@@ -3,13 +3,15 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, X, Search } from "lucide-react";
+import { AlertCircle, X, Search, Crown, BookOpen, Infinity } from "lucide-react";
 import { ApiError } from "@/lib/queryClient";
 
 interface StrongModalProps {
   strongNumber: string;
   onClose: () => void;
+  onNavigateToSubscriptions?: () => void;
 }
 
 interface StrongEntry {
@@ -26,7 +28,7 @@ interface StrongEntry {
   language: string;
 }
 
-export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
+export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }: StrongModalProps) {
   const { data: strongData, isLoading, error } = useQuery<StrongEntry>({
     queryKey: ['/api/strong', strongNumber],
     staleTime: 1000 * 60 * 60 * 24, // 24 hours - cache aggressively
@@ -56,18 +58,78 @@ export function StrongModal({ strongNumber, onClose }: StrongModalProps) {
 
   if (error && requiresSubscription) {
     const errorMessage = apiError?.data?.error || "Limite de consultas atingido";
-    const upgradeMessage = apiError?.data?.upgradeMessage || "Faça upgrade para acesso ilimitado ao dicionário Strong";
+    
+    const handleSubscribe = () => {
+      onClose();
+      if (onNavigateToSubscriptions) {
+        onNavigateToSubscriptions();
+      }
+    };
     
     return (
       <Dialog open={true} onOpenChange={onClose}>
-        <DialogContent className="w-[95vw] max-w-2xl bg-background" data-testid="modal-strong">
-          <DialogTitle className="sr-only">Strong Premium</DialogTitle>
-          <div className="flex flex-col items-center justify-center p-8 text-center gap-4">
-            <AlertCircle className="w-12 h-12 text-amber-500" />
-            <h3 className="text-lg font-semibold text-primary">Limite Diário Atingido</h3>
-            <p className="text-sm text-muted-foreground">{errorMessage}</p>
-            <p className="text-sm font-medium mt-2">{upgradeMessage}</p>
-            <Button onClick={onClose} data-testid="button-close-paywall">Entendi</Button>
+        <DialogContent className="w-[95vw] max-w-md bg-background" data-testid="modal-strong-upgrade">
+          <DialogTitle className="sr-only">Upgrade Strong</DialogTitle>
+          <div className="flex flex-col items-center p-4 text-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <BookOpen className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-bold text-foreground">Limite Diário Atingido</h3>
+              <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
+            </div>
+            
+            <div className="w-full space-y-3 mt-2">
+              <Card className="p-4 border-2 border-primary bg-primary/5">
+                <div className="flex items-center gap-3">
+                  <Infinity className="w-6 h-6 text-primary flex-shrink-0" />
+                  <div className="text-left flex-1">
+                    <div className="font-semibold text-foreground">Strong Vitalício</div>
+                    <div className="text-xs text-muted-foreground">Acesso ilimitado para sempre</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-primary">R$ 59,90</div>
+                    <div className="text-xs text-muted-foreground">único</div>
+                  </div>
+                </div>
+                <Button 
+                  className="w-full mt-3" 
+                  onClick={handleSubscribe}
+                  data-testid="button-strong-lifetime"
+                >
+                  Assinar Vitalício
+                </Button>
+              </Card>
+              
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <Crown className="w-6 h-6 text-amber-500 flex-shrink-0" />
+                  <div className="text-left flex-1">
+                    <div className="font-semibold text-foreground">Plano Gold ou Premium</div>
+                    <div className="text-xs text-muted-foreground">Inclui Strong + IA + Cursos</div>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-3"
+                  onClick={handleSubscribe}
+                  data-testid="button-view-plans"
+                >
+                  Ver Planos
+                </Button>
+              </Card>
+            </div>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={onClose} 
+              className="text-muted-foreground"
+              data-testid="button-close-paywall"
+            >
+              Fechar
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

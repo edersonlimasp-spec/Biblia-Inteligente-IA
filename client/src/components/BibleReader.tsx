@@ -791,17 +791,19 @@ export function BibleReader({
                         {verse.text.split(" ").map((word, idx) => {
                           const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
                           const isClickable = cleanWord.length > 2;
-                          const hasStrongInCache = wordsWithStrong.has(cleanWord);
+                          const hasConfirmedStrong = wordsWithStrong.has(cleanWord);
                           
-                          // Render with subtle indicator on first 3 letters if word has Strong
+                          // All clickable words get subtle Strong styling (they can all be searched)
+                          // Words confirmed to have Strong get the stronger mark
                           const renderWord = () => {
-                            if (hasStrongInCache && word.length > 0) {
+                            if (hasConfirmedStrong && word.length > 0) {
+                              // Confirmed Strong match - show with mark on first 3 letters
                               const markLength = Math.min(3, word.length);
                               const first = word.slice(0, markLength);
                               const rest = word.slice(markLength);
                               return (
                                 <>
-                                  <span className="strong-mark">{first}</span>{rest}
+                                  <span className="strong-mark-confirmed">{first}</span>{rest}
                                 </>
                               );
                             }
@@ -811,7 +813,7 @@ export function BibleReader({
                           return (
                             <span
                               key={idx}
-                              className={`${isClickable ? 'cursor-pointer transition-colors' : 'cursor-default'} ${hasStrongInCache ? 'strong-word' : ''}`}
+                              className={`${isClickable ? 'cursor-pointer transition-colors strong-word-clickable' : 'cursor-default'} ${hasConfirmedStrong ? 'strong-word-confirmed' : ''}`}
                               onClick={(e) => {
                                 if (isClickable) {
                                   e.stopPropagation();

@@ -165,15 +165,15 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* Strong's Words - palavras clicáveis com Strong */
-/* Tema claro: cor ~30% mais escura que o texto normal */
-/* Tema escuro: mesma cor do texto normal (sem alteração) */
+/* Strong's Words - palavras com entrada no dicionário Strong */
+/* Tema claro: azul acinzentado original (sem alteração) */
+/* Tema escuro: azul acinzentado ~30% mais escuro */
 .strong-word {
-  color: hsl(0, 0%, 15%);
+  color: hsl(210, 20%, 55%);
 }
 
 .dark .strong-word {
-  color: inherit;
+  color: hsl(210, 20%, 38%);
 }
 
 @layer base {

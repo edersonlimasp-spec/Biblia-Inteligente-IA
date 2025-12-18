@@ -791,11 +791,12 @@ export function BibleReader({
                         {verse.text.split(" ").map((word, idx) => {
                           const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
                           const isClickable = cleanWord.length > 2;
+                          const hasStrong = wordsWithStrong.has(cleanWord);
                           
                           return (
                             <span
                               key={idx}
-                              className={`${isClickable ? 'cursor-pointer strong-word' : ''}`}
+                              className={`${isClickable ? 'cursor-pointer' : ''} ${hasStrong ? 'strong-word' : ''}`}
                               onClick={(e) => {
                                 if (isClickable) {
                                   e.stopPropagation();

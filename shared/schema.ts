@@ -156,6 +156,8 @@ export const strongEntries = pgTable("strong_entries", {
   extendedDefinition: text("extended_definition"), // Rich theological explanation in Portuguese (AI-generated)
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
+  // PRIMARY index for Strong lookups by number (critical for performance)
+  strongNumberIdx: index("strong_entries_strong_number_idx").on(table.strongNumber),
   // Indexes for search performance (optimized for LIKE queries)
   lemmaIdx: index("strong_entries_lemma_idx").on(table.lemma),
   translitIdx: index("strong_entries_translit_idx").on(table.translit),

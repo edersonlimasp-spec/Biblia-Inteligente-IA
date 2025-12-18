@@ -1,0 +1,112 @@
+PROMPT PARA REPLIT (AGENT) — OTIMIZAR PERFORMANCE DO STRONG + SINALIZAÇÃO SUTIL DAS PALAVRAS
+
+CENÁRIO ATUAL
+O Strong voltou a funcionar em produção, porém está MUITO LENTO (leva ~1 minuto para abrir).
+Preciso que a abertura do Strong seja QUASE INSTANTÂNEA (percepção “Spotify/Olive Tree”: 0.3s–2s na maioria dos casos).
+
+OBJETIVOS
+1) Reduzir drasticamente o tempo de abertura do Strong (meta: < 2s).
+2) Implementar um destaque sutil em TODAS as palavras que possuem Strong:
+   - “um traço bem sutil nas 3 primeiras letras” (estilo sublinhado discreto só no começo da palavra)
+   - sem poluir a leitura e sem deixar a palavra “azul/link” chamativo demais.
+3) Manter funcionando em Preview e Publicado.
+
+========================================================
+PARTE 1 — PERFORMANCE (OBRIGATÓRIO)
+========================================================
+
+A) MEDIR E IDENTIFICAR A CAUSA (sem chute)
+1) Instrumentar logs com tempo:
+   - tempo total do clique até exibir modal
+   - tempo do fetch da API
+   - tempo da query no banco
+   - tempo de render do componente
+2) Descobrir qual gargalo é o maior:
+   - query lenta? rede? cold start? carregamento de arquivo? serialização?
+
+B) CORREÇÕES OBRIGATÓRIAS (aplicar as necessárias)
+1) INDEXAÇÃO NO BANCO (Provável)
+- Criar/garantir índices:
+  - strong_number / strongNumber (campo principal de busca)
+  - lemma / original_word (se existe busca por palavra)
+  - book/chapter/verse + token (se usa lookup por referência)
+- Garantir que a query usa WHERE por coluna indexada.
+
+2) OTIMIZAR O ENDPOINT DO STRONG
+- O endpoint deve retornar SOMENTE o necessário:
+  - strongNumber, lemma, transliteration, shortDefinition, longDefinition (se houver), references essenciais
+- Evitar retornar campos enormes ou listas longas quando não necessário.
+- Usar compressão (gzip/br) se suportado.
+
+3) CACHE DE RESULTADOS (MUITO IMPORTANTE)
+Implementar cache no backend + frontend:
+- Backend: cache in-memory por strongNumber (LRU) com TTL (ex: 24h)
+- Frontend: cache em memória (Map) e persistente (IndexedDB/localStorage) para reutilizar os Strong já abertos.
+- Fluxo:
+  - Ao clicar: primeiro tenta cache local → se existir, abre instantâneo
+  - Se não: faz fetch → salva em cache → abre
+
+4) “PRELOAD” INTELIGENTE (PERCEPÇÃO DE INSTANTÂNEO)
+- Assim que o usuário abrir um capítulo, pré-carregar em background os Strong dos 10–20 primeiros termos clicáveis (apenas IDs, ou primeiros detalhes).
+- Alternativa leve: pré-buscar apenas 5 mais prováveis e expandir sob demanda.
+
+5) EVITAR “COLD START”/BUILD PESADO
+- Garantir que o Strong não depende de ler um arquivo gigante em runtime a cada clique.
+- Se hoje carrega JSON grande a cada request, mudar para:
+  - banco com índices + query direta
+  - ou carregar uma vez no startup e usar cache
+
+C) UX PARA NÃO PARECER TRAVADO (OBRIGATÓRIO)
+- Ao clicar, abrir o modal imediatamente com “Carregando…” + skeleton
+- Mostrar tempo estimado se passar de 2s (“Otimizando consulta…”)
+- Porém o objetivo é reduzir para quase instantâneo.
+
+D) VALIDAÇÃO
+- Medir e registrar: tempo médio e p95 antes/depois
+- Confirmar em produção (URL publicada) que abre em segundos, não em 1 minuto.
+
+========================================================
+PARTE 2 — SINALIZAÇÃO SUTIL DAS PALAVRAS COM STRONG
+========================================================
+
+REQUISITO VISUAL
+- Toda palavra que possui Strong deve ter um destaque discreto:
+  ✅ um “traço sutil” nas 3 primeiras letras
+  ✅ cor discreta (ex: cinza/azul metálico bem suave)
+  ✅ não pode prejudicar leitura
+  ✅ não pode parecer um link exagerado
+
+IMPLEMENTAÇÃO TÉCNICA (sugestão)
+1) Durante a renderização do versículo, cada token/palavra deve ter a propriedade:
+   - hasStrong: boolean
+   - strongNumber: string (se houver)
+2) Se hasStrong:
+   - envolver as 3 primeiras letras em um <span class="strong-mark">ABC</span>
+   - manter o restante normal
+3) CSS recomendado (sutil):
+   - strong-mark: underline fino OU border-bottom 1px com opacity baixa
+   - sem aumentar peso da fonte
+   - sem mudar muito a cor do texto
+
+EXEMPLO DE COMPORTAMENTO
+Texto: “Disse Deus: haja luz…”
+Se “luz” tem Strong:
+- “luz” aparece como “luz” mas com um traço discreto sob “luz” (ou sob “luz” parcial, 3 letras).
+Se palavra tiver menos de 3 letras, aplicar no tamanho total.
+
+IMPORTANTE
+- O destaque deve aparecer apenas em palavras realmente clicáveis (com Strong).
+- Clique na palavra continua abrindo o Strong.
+
+========================================================
+ENTREGAS
+========================================================
+1) Relatório curto: qual era o gargalo e o que foi otimizado.
+2) Código com cache + índices + endpoint otimizado.
+3) Implementação do destaque sutil nas palavras (3 primeiras letras).
+4) Teste real em produção mostrando tempo de abertura reduzido.
+
+NÃO FINALIZAR sem:
+- Strong abrir rápido em produção
+- palavras com Strong marcadas corretamente
+- sem quebrar layout e leitura

@@ -27,6 +27,7 @@ import { ResetPassword } from "@/pages/ResetPassword";
 import { ExitConfirmDialog } from "./ExitConfirmDialog";
 import { NavigationProvider, useNavigation } from "@/contexts/NavigationContext";
 import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
+import { RequireAuthScreen } from "./RequireAuthScreen";
 
 function NavigationContent() {
   const { 
@@ -74,7 +75,12 @@ function NavigationContent() {
   useEffect(() => {
     if (!isLoading) {
       if (currentScreen === "splash") {
-        navigate("dashboard");
+        // Guests go directly to Bible, logged users go to dashboard
+        navigate(user ? "dashboard" : "bible");
+      }
+      // Redirect guests away from dashboard to Bible
+      if (currentScreen === "dashboard" && !user) {
+        navigate("bible");
       }
       if (currentScreen === "admin" && !user) {
         navigate("login");
@@ -126,7 +132,9 @@ function NavigationContent() {
         />
       )}
       {currentScreen === "recordings" && (
-        <RecordingsScreen onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Gravações" onAuthCancel={() => goBack()}>
+          <RecordingsScreen onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "bible" && (
         <BibleReader 
@@ -139,80 +147,108 @@ function NavigationContent() {
         />
       )}
       {currentScreen === "professor" && (
-        <ProfessorScreen onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Professor IA" onAuthCancel={() => goBack()}>
+          <ProfessorScreen onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "ai-modes" && (
-        <AIModesScreen 
-          onBack={() => goBack()} 
-          onNavigateToSubscriptions={() => navigate("subscriptions")}
-        />
+        <RequireAuthScreen featureName="Modos de IA" onAuthCancel={() => goBack()}>
+          <AIModesScreen 
+            onBack={() => goBack()} 
+            onNavigateToSubscriptions={() => navigate("subscriptions")}
+          />
+        </RequireAuthScreen>
       )}
       {currentScreen === "plans-progress" && (
-        <PlansProgressScreen 
-          onBack={() => goBack()} 
-          onNavigateToBible={() => navigate("bible")}
-        />
+        <RequireAuthScreen featureName="Progresso de Leitura" onAuthCancel={() => goBack()}>
+          <PlansProgressScreen 
+            onBack={() => goBack()} 
+            onNavigateToBible={() => navigate("bible")}
+          />
+        </RequireAuthScreen>
       )}
       {currentScreen === "calendar" && (
-        <AgendaScreen onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Agenda" onAuthCancel={() => goBack()}>
+          <AgendaScreen onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "prayer" && (
-        <PrayerMode onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Modo Oração" onAuthCancel={() => goBack()}>
+          <PrayerMode onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "achievements" && (
-        <AchievementsScreen onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Conquistas" onAuthCancel={() => goBack()}>
+          <AchievementsScreen onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "games" && (
-        <BibleGames onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Jogos Bíblicos" onAuthCancel={() => goBack()}>
+          <BibleGames onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "subscriptions" && (
-        <SubscriptionScreen onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Assinaturas" onAuthCancel={() => goBack()}>
+          <SubscriptionScreen onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "settings" && (
-        <SettingsScreen 
-          onBack={() => goBack()}
-          onNavigateToSubscriptions={() => navigate("subscriptions")}
-        />
+        <RequireAuthScreen featureName="Configurações" onAuthCancel={() => goBack()}>
+          <SettingsScreen 
+            onBack={() => goBack()}
+            onNavigateToSubscriptions={() => navigate("subscriptions")}
+          />
+        </RequireAuthScreen>
       )}
       {currentScreen === "history" && (
-        <AIHistoryScreen onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Histórico de IA" onAuthCancel={() => goBack()}>
+          <AIHistoryScreen onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "admin" && (
-        <AdminPanel onBack={() => goBack()} />
+        <RequireAuthScreen featureName="Painel Admin" onAuthCancel={() => goBack()}>
+          <AdminPanel onBack={() => goBack()} />
+        </RequireAuthScreen>
       )}
       {currentScreen === "professor-premium" && (
-        <StudyModulesScreen 
-          onBack={() => goBack()}
-          onNavigateToModule={(moduleId) => {
-            setSelectedModuleId(moduleId);
-            navigate("module-detail");
-          }}
-          onNavigateToSubscriptions={() => navigate("subscriptions")}
-        />
+        <RequireAuthScreen featureName="Cursos Premium" onAuthCancel={() => goBack()}>
+          <StudyModulesScreen 
+            onBack={() => goBack()}
+            onNavigateToModule={(moduleId) => {
+              setSelectedModuleId(moduleId);
+              navigate("module-detail");
+            }}
+            onNavigateToSubscriptions={() => navigate("subscriptions")}
+          />
+        </RequireAuthScreen>
       )}
       {currentScreen === "module-detail" && selectedModuleId && (
-        <ModuleDetailScreen
-          moduleId={selectedModuleId}
-          onBack={() => {
-            goBack();
-          }}
-          onNavigateToLesson={(lessonId, trackLevel) => {
-            setSelectedLessonId(lessonId);
-            setSelectedTrackLevel(trackLevel);
-            navigate("lesson");
-          }}
-          onNavigateToSubscriptions={() => navigate("subscriptions")}
-        />
+        <RequireAuthScreen featureName="Detalhes do Módulo" onAuthCancel={() => goBack()}>
+          <ModuleDetailScreen
+            moduleId={selectedModuleId}
+            onBack={() => {
+              goBack();
+            }}
+            onNavigateToLesson={(lessonId, trackLevel) => {
+              setSelectedLessonId(lessonId);
+              setSelectedTrackLevel(trackLevel);
+              navigate("lesson");
+            }}
+            onNavigateToSubscriptions={() => navigate("subscriptions")}
+          />
+        </RequireAuthScreen>
       )}
       {currentScreen === "lesson" && selectedLessonId && (
-        <LessonScreen
-          lessonId={selectedLessonId}
-          trackLevel={selectedTrackLevel}
-          onBack={() => {
-            setSelectedLessonId(null);
-            goBack();
-          }}
-        />
+        <RequireAuthScreen featureName="Lição" onAuthCancel={() => goBack()}>
+          <LessonScreen
+            lessonId={selectedLessonId}
+            trackLevel={selectedTrackLevel}
+            onBack={() => {
+              setSelectedLessonId(null);
+              goBack();
+            }}
+          />
+        </RequireAuthScreen>
       )}
     </>
   );

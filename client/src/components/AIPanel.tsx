@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search, Share2, Copy, Mail, MessageCircle } from "lucide-react";
+import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search, Share2, Copy, Mail, MessageCircle, LogIn } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { trackAIQuestion } from "@/lib/tracking";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRequireAuth } from "@/contexts/AuthGateContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import {
   Sheet,
@@ -128,6 +129,7 @@ export function AIPanel() {
   const [guestTrialInfo, setGuestTrialInfo] = useState<{ active: boolean; daysRemaining: number } | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { requireAuth, isAuthenticated } = useRequireAuth();
 
   // ===================================
   // STATE - Sessões e Mensagens
@@ -531,30 +533,32 @@ Conheça: https://bibliainteligente.replit.app`;
   const handleAsk = () => {
     if (!question.trim()) return;
     
-    // APPEND pergunta do usuário (NÃO substituir)
-    const userMessage: ChatMessage = {
-      role: "user",
-      text: question.trim(),
-      createdAt: new Date(),
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
+    // REQUIRE LOGIN to use AI
+    requireAuth(() => {
+      // APPEND pergunta do usuário (NÃO substituir)
+      const userMessage: ChatMessage = {
+        role: "user",
+        text: question.trim(),
+        createdAt: new Date(),
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
 
-    // Determine mode based on subscription (admins get full premium, guests use essential)
-    const isGuest = !user;
-    const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
-    const mode = isGuest ? 'essential' : (isAdminUser || userSub.hasPremium ? 'premium' : 'essential');
-    
-    // Track AI question
-    trackAIQuestion(mode).catch(() => {});
+      // Determine mode based on subscription (admins get full premium)
+      const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
+      const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
+      
+      // Track AI question
+      trackAIQuestion(mode).catch(() => {});
 
-    // Fazer pergunta à API, capturando sessionId atual para prevenir race conditions
-    askAIMutation.mutate({
-      question: question.trim(),
-      mode,
-      sessionId: currentSessionId, // CRITICAL: Track which session this response belongs to
-      isGuest, // Flag para usar rota de guest
-    });
+      // Fazer pergunta à API, capturando sessionId atual para prevenir race conditions
+      askAIMutation.mutate({
+        question: question.trim(),
+        mode,
+        sessionId: currentSessionId, // CRITICAL: Track which session this response belongs to
+        isGuest: false, // Always logged in now
+      });
+    }, "Professor IA");
   };
 
   // ===================================
@@ -776,7 +780,7 @@ Conheça: https://bibliainteligente.replit.app`;
           {/* Input Field */}
           <div className="flex-1 flex gap-2">
             <Input
-              placeholder="Pergunte ao Professor..."
+              placeholder={isAuthenticated ? "Pergunte ao Professor..." : "Faça login para usar o Professor IA..."}
               aria-label="Pergunte ao Professor"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
@@ -791,16 +795,18 @@ Conheça: https://bibliainteligente.replit.app`;
             />
             <Button
               onClick={handleAsk}
-              disabled={!question.trim() || askAIMutation.isPending}
+              disabled={askAIMutation.isPending}
               data-testid="button-ask-ai"
               className="mobile-search-button text-base sm:text-lg"
             >
               {askAIMutation.isPending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
+              ) : isAuthenticated ? (
                 <Search className="h-4 w-4 mr-2" />
+              ) : (
+                <LogIn className="h-4 w-4 mr-2" />
               )}
-              {askAIMutation.isPending ? 'Pensando...' : 'Buscar'}
+              {askAIMutation.isPending ? 'Pensando...' : isAuthenticated ? 'Buscar' : 'Entrar'}
             </Button>
           </div>
 

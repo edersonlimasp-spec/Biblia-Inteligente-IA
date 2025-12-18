@@ -245,6 +245,26 @@ export function BibleReader({
     },
   });
 
+  // Fetch Strong keywords for automatic highlighting
+  interface StrongKeywordsResponse {
+    keywords: string[];
+    count: number;
+    cached: boolean;
+  }
+  
+  const { data: strongKeywords } = useQuery<StrongKeywordsResponse>({
+    queryKey: ['/api/strong/keywords'],
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+  });
+
+  // Populate wordsWithStrong from Strong keywords
+  useEffect(() => {
+    if (strongKeywords?.keywords) {
+      setWordsWithStrong(new Set(strongKeywords.keywords));
+    }
+  }, [strongKeywords]);
+
   // Navigate to a search result
   const navigateToSearchResult = (result: GlobalSearchResult) => {
     setSelectedBook(result.book);

@@ -2041,6 +2041,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get Portuguese keywords from Strong definitions for highlighting
+  // This endpoint returns a Set of Portuguese words that have Strong entries
+  let strongKeywordsCache: string[] | null = null;
+  let strongKeywordsCacheTime = 0;
+  const KEYWORDS_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+  app.get("/api/strong/keywords", async (req, res) => {
+    try {
+      const now = Date.now();
+      
+      // Return cached if valid
+      if (strongKeywordsCache && (now - strongKeywordsCacheTime) < KEYWORDS_CACHE_TTL) {
+        return res.json({ keywords: strongKeywordsCache, cached: true });
+      }
+      
+      // Query all Portuguese definitions
+      const entries = await db
+        .select({ portugueseDef: strongEntries.portugueseDef })
+        .from(strongEntries)
+        .where(sql`${strongEntries.portugueseDef} IS NOT NULL AND ${strongEntries.portugueseDef} != ''`);
+      
+      // Extract unique Portuguese words (first word of each definition, cleaned)
+      const keywordSet = new Set<string>();
+      
+      for (const entry of entries) {
+        if (entry.portugueseDef) {
+          // Extract meaningful words from definition
+          // Take first few words before any punctuation or number
+          const cleanDef = entry.portugueseDef
+            .replace(/^\d+\)\s*/, '') // Remove leading numbers like "1) "
+            .replace(/\([^)]*\)/g, '') // Remove parentheses content
+            .split(/[,;:.\-–—]/)[0] // Take first segment
+            .trim()
+            .toLowerCase();
+          
+          // Split into words and add significant ones
+          const words = cleanDef.split(/\s+/);
+          for (const word of words.slice(0, 3)) { // First 3 words
+            const cleaned = word.replace(/[^a-záàâãéêíóôõúüç]/gi, '').toLowerCase();
+            if (cleaned.length >= 3) {
+              keywordSet.add(cleaned);
+            }
+          }
+        }
+      }
+      
+      strongKeywordsCache = Array.from(keywordSet);
+      strongKeywordsCacheTime = now;
+      
+      res.json({ 
+        keywords: strongKeywordsCache, 
+        count: strongKeywordsCache.length,
+        cached: false 
+      });
+    } catch (error) {
+      console.error("[Strong Keywords] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar palavras-chave" });
+    }
+  });
+
   // Strong's Dictionary diagnostic endpoint
   app.get("/api/strong/diagnostics", async (req, res) => {
     try {

@@ -77,7 +77,7 @@ Bíblia Inteligente IA
 
     console.log(`📧 Enviando email de reset para: ${email}`);
     
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'Bíblia Inteligente IA <noreply@bibliainteligente.com.br>';
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'Bíblia Inteligente IA <noreply@bibliainteligente.replit.app>';
     
     const { data, error } = await resend.emails.send({
       from: fromEmail,

@@ -166,36 +166,31 @@
 }
 
 /* Strong's Words - Visual emphasis for words with dictionary entries */
-/* Uses a more saturated blue color for clear identification */
+/* Grayish-blue color visible by default, no underline */
 .strong-word {
-  transition: color 0.15s ease;
-  color: hsl(210, 70%, 50%);
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-underline-offset: 2px;
+  color: hsl(210, 35%, 55%);
+  cursor: pointer;
 }
 
 .strong-word:hover {
-  color: hsl(210, 80%, 45%);
-  cursor: pointer;
-  text-decoration-style: solid;
+  color: hsl(210, 50%, 45%);
 }
 
 .dark .strong-word {
-  color: hsl(210, 70%, 65%);
+  color: hsl(210, 40%, 65%);
 }
 
 .dark .strong-word:hover {
-  color: hsl(210, 80%, 70%);
+  color: hsl(210, 55%, 70%);
 }
 
-/* Alternative subtle indicator for first 3 letters - also using blue tint */
+/* Alternative subtle indicator - grayish-blue tint */
 .strong-mark {
-  color: hsl(210, 70%, 50%);
+  color: hsl(210, 35%, 55%);
 }
 
 .dark .strong-mark {
-  color: hsl(210, 70%, 65%);
+  color: hsl(210, 40%, 65%);
 }
 
 @layer base {

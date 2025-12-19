@@ -59,6 +59,7 @@ interface AIRequest {
   book?: string;
   chapter?: number;
   mode: 'essential' | 'premium';
+  deviceId?: string;
 }
 
 interface AIResponse {
@@ -71,39 +72,76 @@ interface AIResponse {
 
 const STORAGE_KEY = "bible-ai-chat-sessions";
 const CURRENT_SESSION_KEY = "bible-ai-current-session-id";
-const FREE_QUESTIONS_KEY = "bible-ai-free-questions-count";
-const FREE_QUESTIONS_DATE_KEY = "bible-ai-free-questions-date";
-const FREE_QUESTIONS_LIMIT = 3;
 
 // ===================================
-// STORAGE - Free Questions Counter
+// QUOTA SYSTEM - Dual tracking: Guest (2) + User (3)
 // ===================================
+const GUEST_QUESTIONS_KEY = "bible-ai-guest-questions-count";
+const GUEST_QUESTIONS_DATE_KEY = "bible-ai-guest-questions-date";
+const USER_QUESTIONS_KEY = "bible-ai-user-questions-count";
+const USER_QUESTIONS_DATE_KEY = "bible-ai-user-questions-date";
 
-function getFreeQuestionsUsed(): number {
+const GUEST_QUESTIONS_LIMIT = 2; // Guests get 2 free questions before login
+const USER_QUESTIONS_LIMIT = 3;  // Logged-in users get 3 more free questions
+
+// Get guest questions used (before login)
+function getGuestQuestionsUsed(): number {
   try {
     const today = new Date().toISOString().split('T')[0];
-    const savedDate = localStorage.getItem(FREE_QUESTIONS_DATE_KEY);
+    const savedDate = localStorage.getItem(GUEST_QUESTIONS_DATE_KEY);
     
-    // Reset count if it's a new day
     if (savedDate !== today) {
-      localStorage.setItem(FREE_QUESTIONS_DATE_KEY, today);
-      localStorage.setItem(FREE_QUESTIONS_KEY, "0");
+      localStorage.setItem(GUEST_QUESTIONS_DATE_KEY, today);
+      localStorage.setItem(GUEST_QUESTIONS_KEY, "0");
       return 0;
     }
     
-    return parseInt(localStorage.getItem(FREE_QUESTIONS_KEY) || "0", 10);
+    return parseInt(localStorage.getItem(GUEST_QUESTIONS_KEY) || "0", 10);
   } catch {
     return 0;
   }
 }
 
-function incrementFreeQuestionsUsed(): number {
+// Get user questions used (after login)
+function getUserQuestionsUsed(): number {
   try {
     const today = new Date().toISOString().split('T')[0];
-    localStorage.setItem(FREE_QUESTIONS_DATE_KEY, today);
-    const current = getFreeQuestionsUsed();
+    const savedDate = localStorage.getItem(USER_QUESTIONS_DATE_KEY);
+    
+    if (savedDate !== today) {
+      localStorage.setItem(USER_QUESTIONS_DATE_KEY, today);
+      localStorage.setItem(USER_QUESTIONS_KEY, "0");
+      return 0;
+    }
+    
+    return parseInt(localStorage.getItem(USER_QUESTIONS_KEY) || "0", 10);
+  } catch {
+    return 0;
+  }
+}
+
+// Increment guest question count
+function incrementGuestQuestionsUsed(): number {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    localStorage.setItem(GUEST_QUESTIONS_DATE_KEY, today);
+    const current = getGuestQuestionsUsed();
     const newCount = current + 1;
-    localStorage.setItem(FREE_QUESTIONS_KEY, newCount.toString());
+    localStorage.setItem(GUEST_QUESTIONS_KEY, newCount.toString());
+    return newCount;
+  } catch {
+    return 1;
+  }
+}
+
+// Increment user question count
+function incrementUserQuestionsUsed(): number {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    localStorage.setItem(USER_QUESTIONS_DATE_KEY, today);
+    const current = getUserQuestionsUsed();
+    const newCount = current + 1;
+    localStorage.setItem(USER_QUESTIONS_KEY, newCount.toString());
     return newCount;
   } catch {
     return 1;
@@ -173,8 +211,10 @@ export function AIPanel() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [userSub, setUserSub] = useState<UserSubscription>({ hasPremium: false, hasGold: false, trialActive: false });
   const [guestTrialInfo, setGuestTrialInfo] = useState<{ active: boolean; daysRemaining: number } | null>(null);
-  const [freeQuestionsUsed, setFreeQuestionsUsed] = useState(0);
+  const [guestQuestionsUsed, setGuestQuestionsUsed] = useState(0);
+  const [userQuestionsUsed, setUserQuestionsUsed] = useState(0);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -212,8 +252,9 @@ export function AIPanel() {
   // ===================================
 
   useEffect(() => {
-    // Load free questions count on mount
-    setFreeQuestionsUsed(getFreeQuestionsUsed());
+    // Load both quota counts on mount
+    setGuestQuestionsUsed(getGuestQuestionsUsed());
+    setUserQuestionsUsed(getUserQuestionsUsed());
   }, []);
 
   useEffect(() => {
@@ -270,7 +311,9 @@ export function AIPanel() {
     return false;
   };
   
-  const remainingFreeQuestions = FREE_QUESTIONS_LIMIT - freeQuestionsUsed;
+  // Calculate remaining questions based on auth state
+  const remainingGuestQuestions = GUEST_QUESTIONS_LIMIT - guestQuestionsUsed;
+  const remainingUserQuestions = USER_QUESTIONS_LIMIT - userQuestionsUsed;
 
   // ===================================
   // INITIALIZATION - Carregar sessões do localStorage (com RESET automático)
@@ -614,20 +657,60 @@ Conheça: https://bibliainteligente.replit.app`;
   const handleAsk = () => {
     if (!question.trim()) return;
     
-    // If not authenticated, show login prompt first
+    // ===================================
+    // FLOW: Guest (2 perguntas) → Login → User (3 perguntas) → Upgrade
+    // ===================================
+    
+    // Refresh quota counts from localStorage (handles day reset)
+    const currentGuestUsed = getGuestQuestionsUsed();
+    const currentUserUsed = getUserQuestionsUsed();
+    
+    if (currentGuestUsed !== guestQuestionsUsed) {
+      setGuestQuestionsUsed(currentGuestUsed);
+    }
+    if (currentUserUsed !== userQuestionsUsed) {
+      setUserQuestionsUsed(currentUserUsed);
+    }
+    
+    // ===================================
+    // CASE 1: Guest (not authenticated)
+    // ===================================
     if (!isAuthenticated) {
-      requireAuth(() => {
-        // After successful auth, user needs to click again to ask
-        // This ensures subscription status is fetched first
-        toast({
-          title: "Login realizado!",
-          description: "Agora você pode fazer sua pergunta ao Professor IA.",
-        });
-      }, "Professor IA");
+      // Check if guest has remaining questions (2 total)
+      if (currentGuestUsed >= GUEST_QUESTIONS_LIMIT) {
+        // Guest limit reached - require login
+        setShowLoginPrompt(true);
+        return;
+      }
+      
+      // Guest can ask - proceed with question
+      const userMessage: ChatMessage = {
+        role: "user",
+        text: question.trim(),
+        createdAt: new Date(),
+      };
+      setMessages(prev => [...prev, userMessage]);
+      
+      // Increment guest count
+      const newGuestCount = incrementGuestQuestionsUsed();
+      setGuestQuestionsUsed(newGuestCount);
+      
+      // Track and send question as guest
+      trackAIQuestion('essential').catch(() => {});
+      
+      askAIMutation.mutate({
+        question: question.trim(),
+        mode: 'essential',
+        sessionId: currentSessionId,
+        isGuest: true,
+        deviceId: getDeviceId(),
+      });
       return;
     }
     
-    // Wait for subscription status to load after login
+    // ===================================
+    // CASE 2: Authenticated user - wait for subscription to load
+    // ===================================
     if (subscriptionLoading) {
       toast({
         title: "Aguarde",
@@ -636,49 +719,63 @@ Conheça: https://bibliainteligente.replit.app`;
       return;
     }
     
-    // User is authenticated - check subscription and limits
+    // ===================================
+    // CASE 3: Authenticated with unlimited access (Gold/Premium/Trial/Admin)
+    // ===================================
     const unlimited = hasUnlimitedAccess();
     
-    // Refresh free questions count from localStorage (handles day reset)
-    const currentFreeUsed = getFreeQuestionsUsed();
-    if (currentFreeUsed !== freeQuestionsUsed) {
-      setFreeQuestionsUsed(currentFreeUsed);
+    if (unlimited) {
+      // Unlimited access - proceed without counting
+      const userMessage: ChatMessage = {
+        role: "user",
+        text: question.trim(),
+        createdAt: new Date(),
+      };
+      setMessages(prev => [...prev, userMessage]);
+      
+      const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
+      const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
+      
+      trackAIQuestion(mode).catch(() => {});
+      
+      askAIMutation.mutate({
+        question: question.trim(),
+        mode,
+        sessionId: currentSessionId,
+        isGuest: false,
+      });
+      return;
     }
     
-    // Check free question limit for non-premium users
-    if (!unlimited && currentFreeUsed >= FREE_QUESTIONS_LIMIT) {
+    // ===================================
+    // CASE 4: Free user (3 perguntas após login)
+    // ===================================
+    if (currentUserUsed >= USER_QUESTIONS_LIMIT) {
+      // User limit reached - show upgrade prompt
       setShowUpgradePrompt(true);
       return;
     }
     
-    // APPEND pergunta do usuário (NÃO substituir)
+    // Free user can ask - proceed with question
     const userMessage: ChatMessage = {
       role: "user",
       text: question.trim(),
       createdAt: new Date(),
     };
-    
     setMessages(prev => [...prev, userMessage]);
-
-    // Determine mode based on subscription (admins get full premium)
-    const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
-    const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
     
-    // Increment free question count for free users
-    if (!unlimited) {
-      const newCount = incrementFreeQuestionsUsed();
-      setFreeQuestionsUsed(newCount);
-    }
+    // Increment user count
+    const newUserCount = incrementUserQuestionsUsed();
+    setUserQuestionsUsed(newUserCount);
     
-    // Track AI question
-    trackAIQuestion(mode).catch(() => {});
-
-    // Fazer pergunta à API, capturando sessionId atual para prevenir race conditions
+    // Track and send question
+    trackAIQuestion('essential').catch(() => {});
+    
     askAIMutation.mutate({
       question: question.trim(),
-      mode,
-      sessionId: currentSessionId, // CRITICAL: Track which session this response belongs to
-      isGuest: false, // Always logged in now
+      mode: 'essential',
+      sessionId: currentSessionId,
+      isGuest: false,
     });
   };
 
@@ -901,7 +998,7 @@ Conheça: https://bibliainteligente.replit.app`;
           {/* Input Field */}
           <div className="flex-1 flex gap-2">
             <Input
-              placeholder={isAuthenticated ? "Pergunte ao Professor..." : "Faça login para usar o Professor IA..."}
+              placeholder="Pergunte ao Professor..."
               aria-label="Pergunte ao Professor"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
@@ -922,26 +1019,35 @@ Conheça: https://bibliainteligente.replit.app`;
             >
               {askAIMutation.isPending || subscriptionLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : isAuthenticated ? (
-                <Search className="h-4 w-4 mr-2" />
               ) : (
-                <LogIn className="h-4 w-4 mr-2" />
+                <Search className="h-4 w-4 mr-2" />
               )}
-              {askAIMutation.isPending ? 'Pensando...' : subscriptionLoading ? 'Carregando...' : isAuthenticated ? 'Buscar' : 'Entrar'}
+              {askAIMutation.isPending ? 'Pensando...' : subscriptionLoading ? 'Carregando...' : 'Buscar'}
             </Button>
           </div>
 
           {/* Remaining Free Questions Badge */}
-          {isAuthenticated && !hasUnlimitedAccess() && (
+          {!hasUnlimitedAccess() && (
             <Badge 
-              variant={remainingFreeQuestions > 0 ? "secondary" : "destructive"} 
+              variant={isAuthenticated 
+                ? (remainingUserQuestions > 0 ? "secondary" : "destructive")
+                : (remainingGuestQuestions > 0 ? "secondary" : "outline")
+              } 
               className="text-xs whitespace-nowrap"
               data-testid="badge-remaining-questions"
             >
-              {remainingFreeQuestions > 0 ? (
-                <>{remainingFreeQuestions}/{FREE_QUESTIONS_LIMIT}</>
+              {isAuthenticated ? (
+                remainingUserQuestions > 0 ? (
+                  <>{remainingUserQuestions}/{USER_QUESTIONS_LIMIT}</>
+                ) : (
+                  <><Lock className="h-3 w-3 mr-1" />Limite</>
+                )
               ) : (
-                <><Lock className="h-3 w-3 mr-1" />Limite</>
+                remainingGuestQuestions > 0 ? (
+                  <>{remainingGuestQuestions}/{GUEST_QUESTIONS_LIMIT}</>
+                ) : (
+                  <><LogIn className="h-3 w-3 mr-1" />Login</>
+                )
               )}
             </Badge>
           )}
@@ -974,7 +1080,7 @@ Conheça: https://bibliainteligente.replit.app`;
             </DialogTitle>
             <DialogDescription className="pt-2 space-y-3">
               <p>
-                Você utilizou suas <strong>{FREE_QUESTIONS_LIMIT} perguntas gratuitas</strong> do dia para o Professor IA.
+                Você utilizou suas <strong>{USER_QUESTIONS_LIMIT} perguntas gratuitas</strong> do dia para o Professor IA.
               </p>
               <p>
                 Para continuar usando a IA ilimitadamente, faça upgrade para um plano <strong>Gold</strong> ou <strong>Premium</strong>.
@@ -997,6 +1103,51 @@ Conheça: https://bibliainteligente.replit.app`;
               variant="outline" 
               onClick={() => setShowUpgradePrompt(false)}
               data-testid="button-close-upgrade"
+            >
+              Voltar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Login Prompt Dialog - shows when guest uses all 2 questions */}
+      <Dialog open={showLoginPrompt} onOpenChange={setShowLoginPrompt}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <LogIn className="w-5 h-5 text-primary" />
+              Faça login para continuar
+            </DialogTitle>
+            <DialogDescription className="pt-2 space-y-3">
+              <p>
+                Você utilizou suas <strong>{GUEST_QUESTIONS_LIMIT} perguntas gratuitas</strong> como visitante.
+              </p>
+              <p>
+                Faça login ou crie uma conta para ganhar mais <strong>{USER_QUESTIONS_LIMIT} perguntas gratuitas</strong> hoje!
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 mt-4">
+            <Button 
+              onClick={() => {
+                setShowLoginPrompt(false);
+                requireAuth(() => {
+                  toast({
+                    title: "Login realizado!",
+                    description: `Você ganhou mais ${USER_QUESTIONS_LIMIT} perguntas gratuitas!`,
+                  });
+                }, "Professor IA");
+              }}
+              className="w-full"
+              data-testid="button-login-continue"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              Entrar / Criar Conta
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowLoginPrompt(false)}
+              data-testid="button-close-login"
             >
               Voltar
             </Button>

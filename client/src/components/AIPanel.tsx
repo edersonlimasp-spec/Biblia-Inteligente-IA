@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search, Share2, Copy, Mail, MessageCircle, LogIn } from "lucide-react";
+import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -11,6 +11,7 @@ import { trackAIQuestion } from "@/lib/tracking";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { useLocation } from "wouter";
 import {
   Sheet,
   SheetContent,
@@ -24,6 +25,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -63,6 +71,44 @@ interface AIResponse {
 
 const STORAGE_KEY = "bible-ai-chat-sessions";
 const CURRENT_SESSION_KEY = "bible-ai-current-session-id";
+const FREE_QUESTIONS_KEY = "bible-ai-free-questions-count";
+const FREE_QUESTIONS_DATE_KEY = "bible-ai-free-questions-date";
+const FREE_QUESTIONS_LIMIT = 3;
+
+// ===================================
+// STORAGE - Free Questions Counter
+// ===================================
+
+function getFreeQuestionsUsed(): number {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const savedDate = localStorage.getItem(FREE_QUESTIONS_DATE_KEY);
+    
+    // Reset count if it's a new day
+    if (savedDate !== today) {
+      localStorage.setItem(FREE_QUESTIONS_DATE_KEY, today);
+      localStorage.setItem(FREE_QUESTIONS_KEY, "0");
+      return 0;
+    }
+    
+    return parseInt(localStorage.getItem(FREE_QUESTIONS_KEY) || "0", 10);
+  } catch {
+    return 0;
+  }
+}
+
+function incrementFreeQuestionsUsed(): number {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    localStorage.setItem(FREE_QUESTIONS_DATE_KEY, today);
+    const current = getFreeQuestionsUsed();
+    const newCount = current + 1;
+    localStorage.setItem(FREE_QUESTIONS_KEY, newCount.toString());
+    return newCount;
+  } catch {
+    return 1;
+  }
+}
 
 function saveSessions(sessions: ChatSession[]): void {
   try {
@@ -127,9 +173,13 @@ export function AIPanel() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [userSub, setUserSub] = useState<UserSubscription>({ hasPremium: false, hasGold: false, trialActive: false });
   const [guestTrialInfo, setGuestTrialInfo] = useState<{ active: boolean; daysRemaining: number } | null>(null);
+  const [freeQuestionsUsed, setFreeQuestionsUsed] = useState(0);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { requireAuth, isAuthenticated } = useRequireAuth();
+  const [, navigate] = useLocation();
 
   // ===================================
   // STATE - Sessões e Mensagens
@@ -158,13 +208,20 @@ export function AIPanel() {
   }, [messages, isExpanded]);
 
   // ===================================
-  // INITIALIZATION - Carregar status de assinatura
+  // INITIALIZATION - Carregar status de assinatura e contagem de perguntas
   // ===================================
 
   useEffect(() => {
+    // Load free questions count on mount
+    setFreeQuestionsUsed(getFreeQuestionsUsed());
+  }, []);
+
+  useEffect(() => {
     async function fetchSubscriptionStatus() {
-      try {
-        if (user) {
+      if (user) {
+        // Set loading while fetching subscription
+        setSubscriptionLoading(true);
+        try {
           // Usuário logado: buscar status de assinatura
           const res = await fetch('/api/user/subscription-status');
           if (res.ok) {
@@ -175,21 +232,45 @@ export function AIPanel() {
               trialActive: data.trialActive || false,
             });
           }
-        } else {
-          // Guest: buscar trial info por deviceId
+        } catch (error) {
+          console.error('Erro ao carregar status:', error);
+        } finally {
+          setSubscriptionLoading(false);
+        }
+      } else {
+        // Reset subscription state for guests
+        setUserSub({ hasPremium: false, hasGold: false, trialActive: false });
+        // Guest: buscar trial info por deviceId
+        try {
           const deviceId = getDeviceId();
           const res = await fetch(`/api/guest/trial/${deviceId}`);
           if (res.ok) {
             const data = await res.json();
             setGuestTrialInfo(data);
           }
+        } catch (error) {
+          console.error('Erro ao carregar status:', error);
         }
-      } catch (error) {
-        console.error('Erro ao carregar status:', error);
       }
     }
     fetchSubscriptionStatus();
   }, [user]);
+  
+  // ===================================
+  // HELPERS - Check if user has unlimited AI access
+  // ===================================
+  
+  const hasUnlimitedAccess = (): boolean => {
+    // Admins always have unlimited access
+    if (user?.role === 'admin' || user?.role === 'super_admin') return true;
+    // Premium or Gold subscribers have unlimited access
+    if (userSub.hasPremium || userSub.hasGold) return true;
+    // Active trial gives unlimited access
+    if (userSub.trialActive) return true;
+    return false;
+  };
+  
+  const remainingFreeQuestions = FREE_QUESTIONS_LIMIT - freeQuestionsUsed;
 
   // ===================================
   // INITIALIZATION - Carregar sessões do localStorage (com RESET automático)
@@ -533,32 +614,72 @@ Conheça: https://bibliainteligente.replit.app`;
   const handleAsk = () => {
     if (!question.trim()) return;
     
-    // REQUIRE LOGIN to use AI
-    requireAuth(() => {
-      // APPEND pergunta do usuário (NÃO substituir)
-      const userMessage: ChatMessage = {
-        role: "user",
-        text: question.trim(),
-        createdAt: new Date(),
-      };
-      
-      setMessages(prev => [...prev, userMessage]);
-
-      // Determine mode based on subscription (admins get full premium)
-      const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
-      const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
-      
-      // Track AI question
-      trackAIQuestion(mode).catch(() => {});
-
-      // Fazer pergunta à API, capturando sessionId atual para prevenir race conditions
-      askAIMutation.mutate({
-        question: question.trim(),
-        mode,
-        sessionId: currentSessionId, // CRITICAL: Track which session this response belongs to
-        isGuest: false, // Always logged in now
+    // If not authenticated, show login prompt first
+    if (!isAuthenticated) {
+      requireAuth(() => {
+        // After successful auth, user needs to click again to ask
+        // This ensures subscription status is fetched first
+        toast({
+          title: "Login realizado!",
+          description: "Agora você pode fazer sua pergunta ao Professor IA.",
+        });
+      }, "Professor IA");
+      return;
+    }
+    
+    // Wait for subscription status to load after login
+    if (subscriptionLoading) {
+      toast({
+        title: "Aguarde",
+        description: "Carregando seu plano...",
       });
-    }, "Professor IA");
+      return;
+    }
+    
+    // User is authenticated - check subscription and limits
+    const unlimited = hasUnlimitedAccess();
+    
+    // Refresh free questions count from localStorage (handles day reset)
+    const currentFreeUsed = getFreeQuestionsUsed();
+    if (currentFreeUsed !== freeQuestionsUsed) {
+      setFreeQuestionsUsed(currentFreeUsed);
+    }
+    
+    // Check free question limit for non-premium users
+    if (!unlimited && currentFreeUsed >= FREE_QUESTIONS_LIMIT) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+    
+    // APPEND pergunta do usuário (NÃO substituir)
+    const userMessage: ChatMessage = {
+      role: "user",
+      text: question.trim(),
+      createdAt: new Date(),
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+
+    // Determine mode based on subscription (admins get full premium)
+    const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
+    const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
+    
+    // Increment free question count for free users
+    if (!unlimited) {
+      const newCount = incrementFreeQuestionsUsed();
+      setFreeQuestionsUsed(newCount);
+    }
+    
+    // Track AI question
+    trackAIQuestion(mode).catch(() => {});
+
+    // Fazer pergunta à API, capturando sessionId atual para prevenir race conditions
+    askAIMutation.mutate({
+      question: question.trim(),
+      mode,
+      sessionId: currentSessionId, // CRITICAL: Track which session this response belongs to
+      isGuest: false, // Always logged in now
+    });
   };
 
   // ===================================
@@ -795,20 +916,35 @@ Conheça: https://bibliainteligente.replit.app`;
             />
             <Button
               onClick={handleAsk}
-              disabled={askAIMutation.isPending}
+              disabled={askAIMutation.isPending || subscriptionLoading}
               data-testid="button-ask-ai"
               className="mobile-search-button text-base sm:text-lg"
             >
-              {askAIMutation.isPending ? (
+              {askAIMutation.isPending || subscriptionLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : isAuthenticated ? (
                 <Search className="h-4 w-4 mr-2" />
               ) : (
                 <LogIn className="h-4 w-4 mr-2" />
               )}
-              {askAIMutation.isPending ? 'Pensando...' : isAuthenticated ? 'Buscar' : 'Entrar'}
+              {askAIMutation.isPending ? 'Pensando...' : subscriptionLoading ? 'Carregando...' : isAuthenticated ? 'Buscar' : 'Entrar'}
             </Button>
           </div>
+
+          {/* Remaining Free Questions Badge */}
+          {isAuthenticated && !hasUnlimitedAccess() && (
+            <Badge 
+              variant={remainingFreeQuestions > 0 ? "secondary" : "destructive"} 
+              className="text-xs whitespace-nowrap"
+              data-testid="badge-remaining-questions"
+            >
+              {remainingFreeQuestions > 0 ? (
+                <>{remainingFreeQuestions}/{FREE_QUESTIONS_LIMIT}</>
+              ) : (
+                <><Lock className="h-3 w-3 mr-1" />Limite</>
+              )}
+            </Badge>
+          )}
 
           {/* Toggle Expand/Collapse */}
           {messages.length > 0 && (
@@ -827,6 +963,46 @@ Conheça: https://bibliainteligente.replit.app`;
           )}
         </div>
       </div>
+      
+      {/* Upgrade Prompt Dialog */}
+      <Dialog open={showUpgradePrompt} onOpenChange={setShowUpgradePrompt}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Crown className="w-5 h-5 text-amber-500" />
+              Limite de perguntas atingido
+            </DialogTitle>
+            <DialogDescription className="pt-2 space-y-3">
+              <p>
+                Você utilizou suas <strong>{FREE_QUESTIONS_LIMIT} perguntas gratuitas</strong> do dia para o Professor IA.
+              </p>
+              <p>
+                Para continuar usando a IA ilimitadamente, faça upgrade para um plano <strong>Gold</strong> ou <strong>Premium</strong>.
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 mt-4">
+            <Button 
+              onClick={() => {
+                setShowUpgradePrompt(false);
+                navigate("/subscription");
+              }}
+              className="w-full"
+              data-testid="button-upgrade-plan"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Ver Planos
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowUpgradePrompt(false)}
+              data-testid="button-close-upgrade"
+            >
+              Voltar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

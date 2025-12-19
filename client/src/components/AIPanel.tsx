@@ -82,7 +82,7 @@ const USER_QUESTIONS_KEY = "bible-ai-user-questions-count";
 const USER_QUESTIONS_DATE_KEY = "bible-ai-user-questions-date";
 
 const GUEST_QUESTIONS_LIMIT = 2; // Guests get 2 free questions before login
-const USER_QUESTIONS_LIMIT = 3;  // Logged-in users get 3 more free questions
+const USER_QUESTIONS_LIMIT = 5;  // Logged-in users get 5 total free questions (2 + 3 additional)
 
 // Get guest questions used (before login)
 function getGuestQuestionsUsed(): number {
@@ -1079,7 +1079,7 @@ Conheça: https://bibliainteligente.replit.app`;
             </DialogTitle>
             <DialogDescription className="pt-2 space-y-3">
               <p>
-                Você utilizou suas <strong>{USER_QUESTIONS_LIMIT} perguntas gratuitas</strong> do dia para o Professor IA.
+                Você utilizou suas <strong>{USER_QUESTIONS_LIMIT} perguntas gratuitas</strong> para o Professor IA.
               </p>
               <p>
                 Para continuar usando a IA ilimitadamente, faça upgrade para um plano <strong>Gold</strong> ou <strong>Premium</strong>.

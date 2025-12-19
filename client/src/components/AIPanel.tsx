@@ -499,19 +499,18 @@ export function AIPanel() {
   // ===================================
 
   const askAIMutation = useMutation({
-    mutationFn: async (request: AIRequest & { sessionId: string; isGuest?: boolean }) => {
-      const { sessionId, isGuest, ...aiRequest } = request;
+    mutationFn: async (request: AIRequest & { sessionId: string; isGuest?: boolean; deviceId?: string }) => {
+      const { sessionId, isGuest, deviceId, ...aiRequest } = request;
       
       let data: AIResponse;
       
       if (isGuest) {
         // Guest: usar rota de guest (sem autenticação)
-        const deviceId = getDeviceId();
         const res = await fetch('/api/guest/ai/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            deviceId,
+            deviceId: deviceId || getDeviceId(),
             question: aiRequest.question,
             book: aiRequest.book,
             chapter: aiRequest.chapter,

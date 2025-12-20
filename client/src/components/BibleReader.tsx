@@ -814,17 +814,17 @@ export function BibleReader({
         </div>
       </main>
 
-      {/* AI Panel */}
-      <AIPanel />
+      {/* AI Panel - oculto quando AnnotationPanel está aberto */}
+      <AIPanel hidden={showAnnotationPanel} />
 
-      {/* Annotation Panel */}
-      {user && currentBook && (
+      {/* Annotation Panel - só renderizado quando aberto */}
+      {user && currentBook && showAnnotationPanel && (
         <AnnotationPanel
           book={selectedBook}
           bookName={currentBook.name}
           chapter={selectedChapter}
           selectedVerse={selectedVerse}
-          isInitiallyExpanded={showAnnotationPanel}
+          isInitiallyExpanded={true}
           onClose={() => setShowAnnotationPanel(false)}
         />
       )}

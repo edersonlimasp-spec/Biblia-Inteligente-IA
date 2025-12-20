@@ -137,7 +137,14 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
       {/* Collapsible Header */}
       <button
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => {
+          const newExpanded = !isExpanded;
+          setIsExpanded(newExpanded);
+          // Quando fechar, notificar o parent para restaurar AIPanel
+          if (!newExpanded && onClose) {
+            onClose();
+          }
+        }}
         data-testid="button-toggle-annotations"
       >
         <div className="flex items-center gap-2">

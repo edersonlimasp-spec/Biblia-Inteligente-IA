@@ -205,7 +205,11 @@ interface UserSubscription {
   trialActive: boolean;
 }
 
-export function AIPanel() {
+interface AIPanelProps {
+  hidden?: boolean;
+}
+
+export function AIPanel({ hidden = false }: AIPanelProps) {
   const [question, setQuestion] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -781,6 +785,11 @@ Conheça: https://bibliainteligente.replit.app`;
   // ===================================
   // RENDER
   // ===================================
+
+  // Ocultar completamente quando hidden=true (ex: AnnotationPanel aberto)
+  if (hidden) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg">

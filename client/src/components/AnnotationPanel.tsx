@@ -129,16 +129,16 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
   const notesCount = chapterAnnotations.length;
 
   return (
-    <div className="border-t bg-card/50">
+    <div className="border-t bg-background dark:bg-slate-950">
       {/* Collapsible Header */}
       <button
-        className="w-full flex items-center justify-between px-4 py-2 hover:bg-muted/50 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
         data-testid="button-toggle-annotations"
       >
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium">Minhas Anotações</span>
+          <span className="text-sm font-medium text-foreground">Minhas Anotações</span>
           {notesCount > 0 && (
             <Badge variant="secondary" className="text-xs">
               {notesCount}
@@ -154,10 +154,10 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-4 pb-4 space-y-3">
+        <div className="px-4 py-4 space-y-4 bg-muted/20">
           {/* Current Verse Context */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>
+            <span className="font-medium">
               {selectedVerse 
                 ? `Nota para ${bookName} ${chapter}:${selectedVerse}`
                 : `Nota geral para ${bookName} ${chapter}`
@@ -170,12 +170,12 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
             placeholder="Escreva sua anotação aqui..."
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
-            className="min-h-[80px] text-sm resize-none"
+            className="min-h-[100px] text-sm resize-none bg-background dark:bg-slate-900 text-foreground dark:text-white border border-border placeholder:text-muted-foreground"
             data-testid="input-annotation"
           />
 
           {/* Action Buttons */}
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-2 justify-end pt-2">
             {editingId && (
               <Button
                 variant="destructive"
@@ -208,16 +208,18 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
 
           {/* List of existing notes for this chapter */}
           {chapterAnnotations.length > 0 && (
-            <div className="border-t pt-3 mt-3">
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                Notas neste capítulo:
+            <div className="border-t border-border pt-4 mt-4">
+              <p className="text-xs font-medium text-foreground mb-3">
+                📝 Notas neste capítulo ({chapterAnnotations.length}):
               </p>
-              <div className="space-y-2 max-h-32 overflow-y-auto">
+              <div className="space-y-2 max-h-40 overflow-y-auto">
                 {chapterAnnotations.map((ann) => (
                   <div
                     key={ann.id}
-                    className={`text-xs p-2 rounded border cursor-pointer hover:bg-muted/50 ${
-                      editingId === ann.id ? "bg-primary/10 border-primary" : ""
+                    className={`text-xs p-3 rounded-md border transition-colors cursor-pointer ${
+                      editingId === ann.id 
+                        ? "bg-primary/15 border-primary text-foreground" 
+                        : "bg-background dark:bg-slate-800 border-border text-foreground hover:bg-muted/50 dark:hover:bg-slate-700"
                     }`}
                     onClick={() => {
                       setNoteText(ann.note);
@@ -225,8 +227,8 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
                     }}
                     data-testid={`annotation-item-${ann.id}`}
                   >
-                    <span className="font-medium text-primary">v.{ann.verse}:</span>{" "}
-                    <span className="text-muted-foreground line-clamp-2">{ann.note}</span>
+                    <span className="font-semibold text-primary">v.{ann.verse}:</span>{" "}
+                    <span className="text-foreground/90 line-clamp-2">{ann.note}</span>
                   </div>
                 ))}
               </div>

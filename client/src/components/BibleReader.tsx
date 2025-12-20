@@ -358,6 +358,15 @@ export function BibleReader({
     setShowAnnotationPanel(true);
   };
 
+  // Handle bookmark click - opens annotations for that verse
+  const handleBookmarkClick = (verse: number, isBookmarked: boolean) => {
+    // First toggle the bookmark
+    bookmarkMutation.mutate({ verse, isBookmarked });
+    // Then open annotations panel to show notes for this verse
+    setSelectedVerse(verse);
+    setShowAnnotationPanel(true);
+  };
+
   const handlePreviousChapter = () => {
     if (selectedChapter > 1) {
       setSelectedChapter(selectedChapter - 1);
@@ -781,7 +790,7 @@ export function BibleReader({
                         text={verse.text}
                         isBookmarked={hasBookmark || false}
                         isHighlighted={!!highlightColor}
-                        onBookmark={() => bookmarkMutation.mutate({ verse: verse.verse, isBookmarked: hasBookmark || false })}
+                        onBookmark={() => user ? handleBookmarkClick(verse.verse, hasBookmark || false) : toast({ title: "Faça login", description: "Marcadores estão disponíveis apenas para usuários logados", variant: "destructive" })}
                         onHighlight={(color) => handleHighlight(verse.verse, color)}
                         onRemoveHighlight={() => handleRemoveHighlight(verse.verse)}
                         onAnnotate={() => user ? handleAnnotate(verse.verse) : toast({ title: "Faça login", description: "Comentários estão disponíveis apenas para usuários logados", variant: "destructive" })}

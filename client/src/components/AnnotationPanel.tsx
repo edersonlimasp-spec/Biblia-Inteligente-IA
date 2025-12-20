@@ -129,7 +129,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
   const notesCount = chapterAnnotations.length;
 
   return (
-    <div className="border-t bg-background dark:bg-slate-950">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background dark:bg-slate-950 shadow-lg">
       {/* Collapsible Header */}
       <button
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"

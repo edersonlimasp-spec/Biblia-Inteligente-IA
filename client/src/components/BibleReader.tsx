@@ -707,7 +707,7 @@ export function BibleReader({
       )}
 
       {/* Bible Text */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-20 sm:pb-24 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 sm:pb-32 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
         <div className="w-full px-4 sm:px-8 lg:px-12 py-3 sm:py-5">
           {isLoading ? (
             <div className="space-y-4">
@@ -804,6 +804,9 @@ export function BibleReader({
         </div>
       </main>
 
+      {/* AI Panel */}
+      <AIPanel />
+
       {/* Annotation Panel */}
       {user && currentBook && (
         <AnnotationPanel
@@ -814,9 +817,6 @@ export function BibleReader({
           isInitiallyExpanded={showAnnotationPanel}
         />
       )}
-
-      {/* AI Panel */}
-      <AIPanel />
 
       {/* Strong Modal */}
       {selectedStrongNumber && (

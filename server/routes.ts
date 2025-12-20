@@ -445,8 +445,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.createPasswordResetToken(user.id, resetToken, expiresAt);
 
-      // Generate reset link
-      const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+      // Generate reset link using request origin or configured URL
+      const origin = req.get('origin') || req.get('referer')?.split('?')[0].split('#')[0] || process.env.FRONTEND_URL || 'http://localhost:5000';
+      const baseUrl = origin.endsWith('/') ? origin.slice(0, -1) : origin;
       const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
       
       // Send email with reset link

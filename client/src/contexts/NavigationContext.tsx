@@ -8,6 +8,7 @@ type Screen =
   | "reset-password"
   | "dashboard"
   | "bible"
+  | "bookmarks"
   | "prayer"
   | "achievements"
   | "games"
@@ -49,6 +50,7 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "reset-password": "login",
   "dashboard": null,
   "bible": "dashboard",
+  "bookmarks": "bible",
   "prayer": "dashboard",
   "achievements": "dashboard",
   "games": "dashboard",

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Cloud, CloudOff, Loader2, Globe, BookOpen, Home } from "lucide-react";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Loader2, Globe, BookOpen, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -547,34 +547,38 @@ export function BibleReader({
             </Badge>
           )}
 
-          {/* Cloud Sync Indicator */}
-          {isAuthenticated && (
+          {/* Sync status indicator */}
+          {user && (
             <div 
               className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0" 
               data-testid="sync-indicator"
-              title={isSyncing ? 'Sincronizando...' : 'Sincronizado com a nuvem'}
+              title={!isAuthenticated ? 'Modo offline' : isSyncing ? 'Sincronizando...' : 'Sincronizado'}
             >
               {isSyncing ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+              ) : isAuthenticated ? (
+                <span className="h-2 w-2 rounded-full bg-green-500" />
               ) : (
-                <Cloud className="h-3.5 w-3.5 text-green-500" />
+                <span className="h-2 w-2 rounded-full bg-yellow-500" />
               )}
-            </div>
-          )}
-          {!isAuthenticated && user && (
-            <div 
-              className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0" 
-              data-testid="sync-indicator-offline"
-              title="Modo offline"
-            >
-              <CloudOff className="h-3.5 w-3.5 text-muted-foreground" />
             </div>
           )}
 
           <div className="flex-1"></div>
 
-          <Button variant="ghost" size="icon" data-testid="button-bookmarks" className="h-8 w-8 flex-shrink-0">
+          {/* Bookmarks/Annotations Button - opens all marks page */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            data-testid="button-bookmarks" 
+            className="h-8 w-8 flex-shrink-0 relative"
+            onClick={onNavigateToHistory}
+            title="Minhas Marcações"
+          >
             <Bookmark className="h-4 w-4" />
+            {(bookmarks && bookmarks.length > 0) || (annotations && annotations.length > 0) ? (
+              <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-blue-500" />
+            ) : null}
           </Button>
           <ThemeToggle />
           {isAdmin && (
@@ -752,17 +756,20 @@ export function BibleReader({
                       onClick={() => setSelectedVerse(verse.verse)}
                       data-testid={`verse-${verse.verse}`}
                     >
-                      {/* Verse Number + Icons */}
+                      {/* Verse Number + Icons with colored markers */}
                       <div className="flex flex-col items-center gap-0.5 min-w-[20px]">
                         <span className="text-xs font-sans text-muted-foreground select-none">
                           {verse.verse}
                         </span>
-                        {hasBookmark && (
-                          <Bookmark className="h-3 w-3 fill-primary text-primary" />
-                        )}
-                        {hasNote && (
-                          <MessageSquare className="h-3 w-3 text-primary" />
-                        )}
+                        {/* AZUL para anotação (com ou sem bookmark), VERDE para só bookmark */}
+                        {hasNote ? (
+                          <div className="flex items-center gap-0.5">
+                            <Bookmark className="h-3 w-3 fill-blue-500 text-blue-500" />
+                            <MessageSquare className="h-3 w-3 text-blue-500" />
+                          </div>
+                        ) : hasBookmark ? (
+                          <Bookmark className="h-3 w-3 fill-green-500 text-green-500" />
+                        ) : null}
                       </div>
                       
                       {/* Verse Text - Using unified tokenization */}
@@ -815,6 +822,7 @@ export function BibleReader({
           chapter={selectedChapter}
           selectedVerse={selectedVerse}
           isInitiallyExpanded={showAnnotationPanel}
+          onClose={() => setShowAnnotationPanel(false)}
         />
       )}
 

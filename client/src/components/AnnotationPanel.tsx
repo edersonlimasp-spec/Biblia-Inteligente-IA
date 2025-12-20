@@ -20,9 +20,10 @@ interface AnnotationPanelProps {
   chapter: number;
   selectedVerse?: number | null;
   isInitiallyExpanded?: boolean;
+  onClose?: () => void;
 }
 
-export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInitiallyExpanded = false }: AnnotationPanelProps) {
+export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInitiallyExpanded = false, onClose }: AnnotationPanelProps) {
   const [isExpanded, setIsExpanded] = useState(isInitiallyExpanded);
   const [noteText, setNoteText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -82,6 +83,9 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
         title: "Nota salva",
         description: `Anotação para ${bookName} ${chapter}:${selectedVerse || 1} salva com sucesso`,
       });
+      // Fechar painel após salvar
+      setIsExpanded(false);
+      if (onClose) onClose();
     },
     onError: () => {
       toast({

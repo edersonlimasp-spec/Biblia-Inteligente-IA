@@ -25,6 +25,7 @@ import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
 import { ExitConfirmDialog } from "./ExitConfirmDialog";
+import { BookmarksPage } from "@/pages/BookmarksPage";
 import { NavigationProvider, useNavigation } from "@/contexts/NavigationContext";
 import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
 import { RequireAuthScreen } from "./RequireAuthScreen";
@@ -140,11 +141,21 @@ function NavigationContent() {
         <BibleReader 
           onNavigateToSubscriptions={() => navigate("subscriptions")}
           onNavigateToSettings={() => navigate("settings")}
-          onNavigateToHistory={() => navigate("history")}
+          onNavigateToHistory={() => navigate("bookmarks")}
           onNavigateToAdmin={() => navigate("admin")}
           onNavigateToLogin={() => navigate("login")}
           onNavigateToDashboard={() => goBack()}
         />
+      )}
+      {currentScreen === "bookmarks" && (
+        <RequireAuthScreen featureName="Marcações" onAuthCancel={() => goBack()}>
+          <BookmarksPage 
+            onBack={() => goBack()} 
+            onNavigateToVerse={(book, chapter, verse) => {
+              navigate("bible");
+            }}
+          />
+        </RequireAuthScreen>
       )}
       {currentScreen === "professor" && (
         <RequireAuthScreen featureName="Professor IA" onAuthCancel={() => goBack()}>

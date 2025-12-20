@@ -576,8 +576,11 @@ export function BibleReader({
             title="Minhas Marcações"
           >
             <Bookmark className="h-4 w-4" />
-            {(bookmarks && bookmarks.length > 0) || (annotations && annotations.length > 0) ? (
-              <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-blue-500" />
+            {/* Indicadores DENTRO do ícone: azul=anotação, verde=só bookmark */}
+            {annotations && annotations.length > 0 ? (
+              <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
+            ) : bookmarks && bookmarks.length > 0 ? (
+              <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-green-500" />
             ) : null}
           </Button>
           <ThemeToggle />

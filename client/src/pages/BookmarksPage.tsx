@@ -35,6 +35,11 @@ interface BookmarksPageProps {
 }
 
 export function BookmarksPage({ onBack, onNavigateToVerse }: BookmarksPageProps) {
+  // Handler para navegar ao verso e sair da tela de marcações
+  const handleNavigateToVerse = (book: string, chapter: number, verse: number) => {
+    // Navega para o verso no leitor - isso automaticamente sai da tela de marcações
+    onNavigateToVerse(book, chapter, verse);
+  };
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBook, setSelectedBook] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"chronological" | "biblical">("chronological");
@@ -155,9 +160,9 @@ export function BookmarksPage({ onBack, onNavigateToVerse }: BookmarksPageProps)
   const totalCount = bookmarksCount + annotationsCount;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background fixed inset-0 z-50 overflow-auto">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-card border-b shadow-sm">
+      <header className="sticky top-0 z-50 bg-card border-b shadow-sm">
         <div className="flex items-center gap-3 px-4 py-3">
           <Button 
             variant="ghost" 
@@ -263,7 +268,7 @@ export function BookmarksPage({ onBack, onNavigateToVerse }: BookmarksPageProps)
               <Card 
                 key={`${mark.type}-${mark.id}`}
                 className="hover-elevate cursor-pointer transition-all"
-                onClick={() => onNavigateToVerse(mark.book, mark.chapter, mark.verse)}
+                onClick={() => handleNavigateToVerse(mark.book, mark.chapter, mark.verse)}
                 data-testid={`card-mark-${index}`}
               >
                 <CardContent className="p-4">

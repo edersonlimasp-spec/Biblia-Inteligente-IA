@@ -19,10 +19,11 @@ interface AnnotationPanelProps {
   bookName: string;
   chapter: number;
   selectedVerse?: number | null;
+  isInitiallyExpanded?: boolean;
 }
 
-export function AnnotationPanel({ book, bookName, chapter, selectedVerse }: AnnotationPanelProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInitiallyExpanded = false }: AnnotationPanelProps) {
+  const [isExpanded, setIsExpanded] = useState(isInitiallyExpanded);
   const [noteText, setNoteText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -53,6 +54,13 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse }: Anno
       setEditingId(null);
     }
   }, [selectedVerse, verseAnnotation]);
+
+  // Expand panel when initially expanded flag is true
+  useEffect(() => {
+    if (isInitiallyExpanded && !isExpanded) {
+      setIsExpanded(true);
+    }
+  }, [isInitiallyExpanded]);
 
   // Save annotation
   const saveMutation = useMutation({

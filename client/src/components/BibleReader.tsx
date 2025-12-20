@@ -122,6 +122,7 @@ export function BibleReader({
   const [isGlobalSearch, setIsGlobalSearch] = useState(false);
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const [showGlobalResults, setShowGlobalResults] = useState(false);
+  const [showAnnotationPanel, setShowAnnotationPanel] = useState(false);
   
   // Strong's search state
   const [searchingWord, setSearchingWord] = useState<string | null>(null);
@@ -354,6 +355,7 @@ export function BibleReader({
   // Handle annotate
   const handleAnnotate = (verse: number) => {
     setSelectedVerse(verse);
+    setShowAnnotationPanel(true);
   };
 
   const handlePreviousChapter = () => {
@@ -800,6 +802,7 @@ export function BibleReader({
           bookName={currentBook.name}
           chapter={selectedChapter}
           selectedVerse={selectedVerse}
+          isInitiallyExpanded={showAnnotationPanel}
         />
       )}
 

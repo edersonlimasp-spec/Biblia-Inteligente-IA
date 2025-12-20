@@ -165,32 +165,25 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* Strong's Words - Visual emphasis for words with dictionary entries */
-/* Grayish-blue color visible by default, no underline */
+/* Strong's Words - Standardized color across all books, chapters, verses */
+/* Grayish-blue color, consistent in light and dark modes */
 .strong-word {
-  color: hsl(210, 35%, 55%);
+  color: hsl(210, 45%, 50%);
   cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s ease;
 }
 
 .strong-word:hover {
-  color: hsl(210, 50%, 45%);
+  color: hsl(210, 55%, 42%);
 }
 
 .dark .strong-word {
-  color: hsl(210, 40%, 65%);
+  color: hsl(210, 50%, 62%);
 }
 
 .dark .strong-word:hover {
-  color: hsl(210, 55%, 70%);
-}
-
-/* Alternative subtle indicator - grayish-blue tint */
-.strong-mark {
-  color: hsl(210, 35%, 55%);
-}
-
-.dark .strong-mark {
-  color: hsl(210, 40%, 65%);
+  color: hsl(210, 60%, 70%);
 }
 
 @layer base {

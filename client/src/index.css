@@ -165,25 +165,55 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* Strong's Words - Standardized color across all books, chapters, verses */
-/* Grayish-blue color, consistent in light and dark modes */
+/* ========================================
+   STRONG'S DICTIONARY WORDS - GLOBAL UNIFIED STYLE
+   Padronização consistente em toda a Bíblia (Antigo e Novo Testamento)
+   
+   Regras de aplicação:
+   - Mesma cor em TODOS os livros, capítulos e versículos
+   - Cor alterada apenas no hover (feedback visual)
+   - Sem alteração de tamanho, espaçamento ou layout
+   - Clicável = sempre abre dicionário Strong
+   
+   ======================================== */
+   
 .strong-word {
+  /* Cor base azul-acinzentada: visível, profissional, consistente */
   color: hsl(210, 45%, 50%);
+  
+  /* Propriedades de interação */
   cursor: pointer;
   font-weight: 500;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease-in-out;
+  
+  /* Sem sublinhado ou background - apenas cor */
+  text-decoration: none;
+  background-color: transparent;
 }
 
+/* Hover: mais claro e escuro conforme o tema */
 .strong-word:hover {
   color: hsl(210, 55%, 42%);
 }
 
+/* Dark mode: cor complementar mantendo o mesmo tom */
 .dark .strong-word {
   color: hsl(210, 50%, 62%);
 }
 
 .dark .strong-word:hover {
   color: hsl(210, 60%, 70%);
+}
+
+/* Focus state para acessibilidade (quando navegado com teclado) */
+.strong-word:focus-visible {
+  outline: 2px solid hsl(210, 45%, 50%);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.dark .strong-word:focus-visible {
+  outline-color: hsl(210, 50%, 62%);
 }
 
 @layer base {

@@ -16,6 +16,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { UserButton } from "@/components/UserButton";
 import { StrongModal } from "@/components/StrongModal";
+import { StrongWord } from "@/components/StrongWord";
 import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
 import { VerseActions, HIGHLIGHT_COLORS } from "@/components/VerseActions";
 import { AnnotationPanel } from "@/components/AnnotationPanel";
@@ -24,6 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
 import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { tokenizeVerse, normalizeWordForLookup } from "@/lib/verse-utils";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
@@ -752,29 +754,21 @@ export function BibleReader({
                         )}
                       </div>
                       
-                      {/* Verse Text */}
+                      {/* Verse Text - Using unified tokenization */}
                       <p className="flex-1">
-                        {verse.text.split(" ").map((word, idx) => {
-                          const cleanWord = word.replace(/[.,;:!?—\-'"()]/g, '').toLowerCase();
-                          const isClickable = cleanWord.length > 2;
-                          const hasStrongInCache = wordsWithStrong.has(cleanWord);
-                          
-                          return (
-                            <span
-                              key={idx}
-                              className={`${isClickable ? 'cursor-pointer transition-colors' : 'cursor-default'} ${hasStrongInCache ? 'strong-word' : ''}`}
-                              onClick={(e) => {
-                                if (isClickable) {
-                                  e.stopPropagation();
-                                  handleWordClick(cleanWord, verse.verse);
-                                }
+                        {tokenizeVerse(verse.text, wordsWithStrong).map((token, idx) => (
+                          <span key={idx}>
+                            <StrongWord
+                              text={token.text}
+                              hasStrong={token.hasStrong}
+                              onWordClick={(word) => {
+                                const cleanWord = normalizeWordForLookup(word);
+                                handleWordClick(cleanWord, verse.verse);
                               }}
-                              data-testid={`word-${verse.verse}-${idx}`}
-                            >
-                              {word}{" "}
-                            </span>
-                          );
-                        })}
+                            />
+                            {" "}
+                          </span>
+                        ))}
                       </p>
                       
                       {/* Verse Actions - Only allow annotations for logged-in users */}

@@ -1486,6 +1486,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get words with Strong numbers for a chapter (for pre-highlighting)
+  // STRATEGY 1: Use bible_words table (for Genesis and other mapped chapters)
+  // STRATEGY 2: Fallback to heuristic matching against strong_entries.portugueseDef (for all books)
   app.get("/api/bible/:bookId/:chapter/strong-words", async (req, res) => {
     try {
       const { bookId, chapter: chapterNum } = req.params;
@@ -1495,7 +1497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Capítulo inválido" });
       }
 
-      // Query bible_words for this chapter that have Strong numbers
+      // STRATEGY 1: Try exact match from bible_words table (most accurate)
       const wordsWithStrong = await db
         .select({
           verse: bibleWords.verse,
@@ -1514,17 +1516,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .orderBy(bibleWords.verse, bibleWords.wordPosition);
 
       // Create a map of verse -> list of individual words with Strong
-      // Split multi-word glosses into individual words for matching
       const verseWordsMap: Record<number, string[]> = {};
       for (const w of wordsWithStrong) {
         if (w.gloss) {
           if (!verseWordsMap[w.verse]) {
             verseWordsMap[w.verse] = [];
           }
-          // Split multi-word glosses and add each word individually
           const glossWords = w.gloss.toLowerCase().trim().split(/\s+/);
           for (const word of glossWords) {
-            // Only add words with 3+ characters to avoid common articles
             const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
             if (cleanWord.length >= 3 && !verseWordsMap[w.verse].includes(cleanWord)) {
               verseWordsMap[w.verse].push(cleanWord);
@@ -1533,11 +1532,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // STRATEGY 2: Fallback to heuristic matching when bible_words is empty
+      // This allows Strong highlighting to work on ALL books, not just Genesis
+      if (wordsWithStrong.length === 0) {
+        try {
+          // Get all Strong entries for heuristic matching
+          const allStrongEntries = await db.select({
+            strongNumber: strongEntries.strongNumber,
+            portugueseDef: strongEntries.portugueseDef,
+          }).from(strongEntries).limit(14197); // Load all Strong entries
+
+          // Get the chapter text to extract words
+          const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
+          if (chapter && chapter.verses) {
+            // Build a map of Portuguese definition words -> Strong number
+            const defWordsToStrong = new Map<string, string>();
+            for (const entry of allStrongEntries) {
+              if (entry.portugueseDef) {
+                // Extract individual words from definition
+                const words = entry.portugueseDef.toLowerCase()
+                  .split(/[,;.:\s\-—()'"]/g)
+                  .filter((w: string) => w.length >= 3);
+                for (const word of words) {
+                  const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
+                  if (cleanWord.length >= 3 && !defWordsToStrong.has(cleanWord)) {
+                    defWordsToStrong.set(cleanWord, entry.strongNumber);
+                  }
+                }
+              }
+            }
+
+            // Now match verse words against Strong definitions
+            for (const verse of chapter.verses) {
+              const verseWords = verse.text.toLowerCase()
+                .split(/\s+/)
+                .map((w: string) => w.replace(/[.,;:!?"'()]/g, '').trim())
+                .filter((w: string) => w.length >= 3);
+
+              for (const word of verseWords) {
+                if (defWordsToStrong.has(word) && !verseWordsMap[verse.verse]?.includes(word)) {
+                  if (!verseWordsMap[verse.verse]) {
+                    verseWordsMap[verse.verse] = [];
+                  }
+                  verseWordsMap[verse.verse].push(word);
+                }
+              }
+            }
+          }
+        } catch (fallbackError) {
+          console.warn("Fallback Strong matching failed:", fallbackError);
+          // Continue with empty result - don't crash
+        }
+      }
+
       res.json({
         book: bookId,
         chapter: chapterInt,
         strongWords: verseWordsMap,
-        totalWords: wordsWithStrong.length,
+        totalWords: Object.values(verseWordsMap).flat().length,
       });
     } catch (error) {
       console.error("Get Strong words error:", error);

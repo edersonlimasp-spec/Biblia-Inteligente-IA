@@ -18,11 +18,12 @@ export function RequireAuthScreen({
   const [hasTriedAuth, setHasTriedAuth] = useState(false);
 
   useEffect(() => {
+    console.log(`[RequireAuthScreen:${featureName}] isLoading=${isLoading}, user=${user?.id || 'null'}, hasTriedAuth=${hasTriedAuth}`);
     if (!isLoading && !user && !hasTriedAuth) {
       setShowLoginModal(true);
       setHasTriedAuth(true);
     }
-  }, [isLoading, user, hasTriedAuth]);
+  }, [isLoading, user, hasTriedAuth, featureName]);
 
   const handleModalClose = (open: boolean) => {
     setShowLoginModal(open);

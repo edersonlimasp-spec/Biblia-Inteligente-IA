@@ -1,5 +1,6 @@
 import { db } from './db';
 import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress } from '@shared/schema';
+import { getBookById } from './bible-data/books';
 import type {
   User,
   InsertUser,
@@ -1018,24 +1019,22 @@ class PostgresStorage implements IStorage {
     
     const rows = await db.select().from(readingProgress).where(conditions[0]);
     
-    const progressByBook: Record<string, Set<number>> = {};
-    rows.forEach(row => {
-      if (!progressByBook[row.book]) {
-        progressByBook[row.book] = new Set();
-      }
-      progressByBook[row.book].add(row.chapter);
-    });
-    
-    return Object.entries(progressByBook).map(([book, chapters]) => ({
-      book,
-      chaptersRead: Array.from(chapters).sort((a, b) => a - b),
+    return rows.map(row => ({
+      book: row.book,
+      chaptersRead: (row.chaptersRead as number[]) || [],
+      totalChapters: row.totalChapters,
+      completedAt: row.completedAt,
     }));
   }
 
   async trackChapterRead(userId: string | undefined, deviceId: string | undefined, book: string, chapter: number) {
     if (!userId && !deviceId) return;
     
-    const conditions = [eq(readingProgress.book, book), eq(readingProgress.chapter, chapter)];
+    // Get actual chapter count for this book
+    const bookData = getBookById(book);
+    const totalChapters = bookData?.chapters || 50; // Fallback to 50 if book not found
+    
+    const conditions = [eq(readingProgress.book, book)];
     if (userId) conditions.push(eq(readingProgress.userId, userId));
     else if (deviceId) conditions.push(eq(readingProgress.deviceId, deviceId!));
     
@@ -1046,13 +1045,28 @@ class PostgresStorage implements IStorage {
         userId: userId || null,
         deviceId: deviceId || null,
         book,
-        chapter,
-        readAt: new Date(),
+        chaptersRead: [chapter],
+        totalChapters,
+        updatedAt: new Date(),
       });
     } else {
-      await db.update(readingProgress)
-        .set({ readAt: new Date() })
-        .where(eq(readingProgress.id, existing[0].id));
+      const currentChapters = (existing[0].chaptersRead as number[]) || [];
+      const needsChapterUpdate = !currentChapters.includes(chapter);
+      const needsTotalFix = existing[0].totalChapters !== totalChapters;
+      
+      if (needsChapterUpdate || needsTotalFix) {
+        const updatedChapters = needsChapterUpdate 
+          ? [...currentChapters, chapter].sort((a, b) => a - b) 
+          : currentChapters;
+        await db.update(readingProgress)
+          .set({ 
+            chaptersRead: updatedChapters,
+            totalChapters, // Fix incorrect totalChapters in existing records
+            updatedAt: new Date(),
+            completedAt: updatedChapters.length >= totalChapters ? new Date() : null,
+          })
+          .where(eq(readingProgress.id, existing[0].id));
+      }
     }
   }
 

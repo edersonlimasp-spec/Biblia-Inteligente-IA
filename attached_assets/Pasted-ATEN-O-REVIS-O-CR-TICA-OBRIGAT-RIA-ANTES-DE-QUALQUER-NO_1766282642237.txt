@@ -1,0 +1,101 @@
+ATENÇÃO – REVISÃO CRÍTICA OBRIGATÓRIA ANTES DE QUALQUER NOVA COBRANÇA
+
+Após a mudança para WebView wrapper (Capacitor), o aplicativo PAROU DE FUNCIONAR corretamente em produção.
+Atualmente, os seguintes módulos estão QUEBRADOS:
+
+1) IA “Professor”
+- Não responde ou não inicializa
+- Conversas não funcionam corretamente
+- Fluxo de perguntas está inconsistente
+
+2) Dicionário Strong
+- Clique nas palavras não abre o Strong
+- Em alguns casos abre, mas com grande lentidão
+- Em produção o comportamento é diferente do preview
+
+⚠️ ISSO É INACEITÁVEL.
+O preview NÃO pode divergir da versão publicada.
+
+━━━━━━━━━━━━━━━━━━━━━━
+OBJETIVO DESTA TAREFA
+━━━━━━━━━━━━━━━━━━━━━━
+Revisar TODO o app, corrigir as falhas e VALIDAR em ambiente equivalente à produção antes de considerar o trabalho concluído.
+
+━━━━━━━━━━━━━━━━━━━━━━
+PASSOS OBRIGATÓRIOS
+━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣ AUDITORIA COMPLETA DO APP
+- Revisar inicialização do app no WebView (Capacitor)
+- Verificar carregamento de scripts, assets e dados
+- Verificar Service Worker / cache / preload
+- Garantir que IA e Strong NÃO dependam de estado quebrável
+
+2️⃣ IA “PROFESSOR”
+- Confirmar:
+  ✔ chamada correta da API
+  ✔ chave carregada em produção
+  ✔ estado isolado por sessão
+  ✔ nova conversa ao abrir o app
+- Testar:
+  ✔ pergunta simples
+  ✔ perguntas sequenciais
+  ✔ retorno após navegação entre telas
+
+3️⃣ DICIONÁRIO STRONG
+- Garantir:
+  ✔ mapeamento correto palavra → strong_number
+  ✔ dataset carregado no ambiente de produção
+  ✔ NÃO depender de seed manual após publish
+- Otimizar:
+  ✔ cache local (IndexedDB / memória)
+  ✔ preload dos Strong mais usados
+  ✔ abertura quase instantânea (milissegundos, não segundos)
+
+4️⃣ PRODUÇÃO ≠ PREVIEW (PROBLEMA GRAVE)
+- Investigar por que:
+  ✔ preview funciona
+  ✔ publicação NÃO funciona
+- Corrigir build para que:
+  ✔ os mesmos dados e lógica rodem em produção
+  ✔ nenhum conteúdo fique “faltando” após publish
+
+5️⃣ TESTES OBRIGATÓRIOS (ANTES DE DIZER “PRONTO”)
+Rodar TODOS os testes abaixo:
+
+- Teste em ambiente publicado (URL pública)
+- Teste em Android
+- Teste em iOS
+- Teste:
+  ✔ abrir app
+  ✔ abrir Bíblia
+  ✔ clicar palavra com Strong
+  ✔ abrir definição
+  ✔ usar IA
+  ✔ navegar e voltar
+  ✔ fechar e reabrir app
+
+━━━━━━━━━━━━━━━━━━━━━━
+REGRA ABSOLUTA
+━━━━━━━━━━━━━━━━━━━━━━
+🚫 NÃO COBRAR
+🚫 NÃO AVANÇAR
+🚫 NÃO CONSIDERAR CONCLUÍDO
+
+até que:
+- IA funcione corretamente em produção
+- Strong funcione corretamente em produção
+- Preview e produção estejam 100% sincronizados
+- Testes reais sejam executados e validados
+
+━━━━━━━━━━━━━━━━━━━━━━
+ENTREGA ESPERADA
+━━━━━━━━━━━━━━━━━━━━━━
+Antes de qualquer conclusão, apresentar:
+
+1) Lista do que estava quebrado
+2) O que foi corrigido
+3) Como foi testado
+4) Evidência de que funciona EM PRODUÇÃO
+
+Somente após isso o trabalho pode ser considerado entregue.

@@ -825,10 +825,12 @@ export function BibleReader({
         </div>
       </main>
 
-      {/* AI Panel - oculto quando AnnotationPanel está aberto */}
-      <AIPanel hidden={showAnnotationPanel} shouldResetAI={shouldResetAI} onResetComplete={clearResetAI} />
+      {/* AI Panel - completamente desmontado quando AnnotationPanel está aberto para garantir isolamento de estado */}
+      {!showAnnotationPanel && (
+        <AIPanel shouldResetAI={shouldResetAI} onResetComplete={clearResetAI} />
+      )}
 
-      {/* Annotation Panel - só renderizado quando aberto */}
+      {/* Annotation Panel - completamente isolado do AIPanel */}
       {user && currentBook && showAnnotationPanel && (
         <AnnotationPanel
           book={selectedBook}

@@ -588,20 +588,35 @@ class PostgresStorage implements IStorage {
   async getAIUsageStats(days: number = 30): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}> {
     const cutoffDate = new Date(Date.now() - days * 86400000);
     
-    const allAIEvents = await db.select().from(pageEvents)
+    // Get AI events from logged-in users (pageEvents table)
+    const userAIEvents = await db.select().from(pageEvents)
       .where(and(
         eq(pageEvents.eventType, 'AI_QUESTION'),
         gte(pageEvents.createdAt, cutoffDate)
       ));
 
-    const total = allAIEvents.length;
+    // Get AI events from guests (appEvents table) - they use 'ia_question' event type
+    const guestAIEvents = await db.select().from(appEvents)
+      .where(and(
+        eq(appEvents.eventType, 'ia_question'),
+        gte(appEvents.createdAt, cutoffDate)
+      ));
+
+    // Combine both sources
+    const total = userAIEvents.length + guestAIEvents.length;
+    
     const byMode = {
-      essential: allAIEvents.filter(e => e.eventData?.mode === 'essential').length,
-      premium: allAIEvents.filter(e => e.eventData?.mode === 'premium').length,
+      essential: userAIEvents.filter(e => (e.eventData as any)?.mode === 'essential').length + 
+                 guestAIEvents.filter(e => (e.eventData as any)?.mode === 'essential').length,
+      premium: userAIEvents.filter(e => {
+        const mode = (e.eventData as any)?.mode;
+        return mode === 'premium' || mode === 'pregador' || mode === 'exegese' || mode === 'teologica';
+      }).length,
     };
 
+    // Count by user (only logged-in users)
     const userMap = new Map<string, number>();
-    allAIEvents.forEach(e => {
+    userAIEvents.forEach(e => {
       if (e.userId) {
         userMap.set(e.userId, (userMap.get(e.userId) || 0) + 1);
       }

@@ -813,6 +813,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Only increment usage count after successful response
       await storage.incrementUsageCount(req.userId!);
 
+      // Track AI usage event for admin stats
+      await storage.trackPageEvent(req.userId!, 'AI_QUESTION', {
+        mode,
+        book,
+        chapter,
+        verse,
+      });
+
       // Save to history
       await storage.createAIHistory({
         userId: req.userId!,

@@ -797,8 +797,8 @@ Conheça: https://bibliainteligente.replit.app`;
       {isExpanded && messages.length > 0 && (
         <div className="border-b bg-background">
           <div className="max-w-3xl mx-auto px-4 py-3">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Sparkles className="h-5 w-5 text-primary" />
                 <span className="font-semibold text-primary">Professor</span>
                 {(userSub.hasPremium || user?.role === 'admin' || user?.role === 'super_admin') && (
@@ -811,7 +811,7 @@ Conheça: https://bibliainteligente.replit.app`;
                     Gold
                   </Badge>
                 )}
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs hidden sm:inline-flex">
                   {messages.length} {messages.length === 1 ? 'mensagem' : 'mensagens'}
                 </Badge>
               </div>
@@ -821,9 +821,10 @@ Conheça: https://bibliainteligente.replit.app`;
                   size="sm"
                   onClick={handleNewConversation}
                   data-testid="button-new-conversation"
+                  className="text-xs sm:text-sm"
                 >
-                  <MessageSquarePlus className="h-4 w-4 mr-2" />
-                  Nova Conversa
+                  <MessageSquarePlus className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Nova Conversa</span>
                 </Button>
                 <Button
                   variant="ghost"

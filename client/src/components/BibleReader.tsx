@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Loader2, Globe, BookOpen, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -297,20 +297,30 @@ export function BibleReader({
     }
   }, [user, loadBookmarksAnnotations]);
 
-  // Check if verse is bookmarked
-  const isVerseBookmarked = (verse: number) => {
+  // Check if verse is bookmarked - memoizado para performance
+  const isVerseBookmarked = useCallback((verse: number) => {
     return bookmarks?.some(b => b.book === selectedBook && b.chapter === selectedChapter && b.verse === verse);
-  };
+  }, [bookmarks, selectedBook, selectedChapter]);
 
-  // Get highlight color for verse
-  const getVerseHighlight = (verse: number) => {
+  // Get highlight color for verse - memoizado para performance
+  const getVerseHighlight = useCallback((verse: number) => {
     return getHighlightColor(selectedBook, selectedChapter, verse);
-  };
+  }, [getHighlightColor, selectedBook, selectedChapter]);
 
-  // Check if verse has annotation
-  const verseHasAnnotation = (verse: number) => {
+  // Check if verse has annotation - memoizado para performance
+  const verseHasAnnotation = useCallback((verse: number) => {
     return annotations?.some(a => a.book === selectedBook && a.chapter === selectedChapter && a.verse === verse);
-  };
+  }, [annotations, selectedBook, selectedChapter]);
+
+  // Memoizar lista de versículos filtrados para performance em iOS
+  const filteredVerses = useMemo(() => {
+    if (!chapterData?.chapter?.verses) return [];
+    if (!textSearchQuery) return chapterData.chapter.verses;
+    const query = textSearchQuery.toLowerCase();
+    return chapterData.chapter.verses.filter(verse => 
+      verse.text.toLowerCase().includes(query)
+    );
+  }, [chapterData?.chapter?.verses, textSearchQuery]);
 
   // Toggle bookmark mutation
   const bookmarkMutation = useMutation({
@@ -547,22 +557,7 @@ export function BibleReader({
             </Badge>
           )}
 
-          {/* Sync status indicator */}
-          {user && (
-            <div 
-              className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0" 
-              data-testid="sync-indicator"
-              title={!isAuthenticated ? 'Modo offline' : isSyncing ? 'Sincronizando...' : 'Sincronizado'}
-            >
-              {isSyncing ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-              ) : isAuthenticated ? (
-                <span className="h-2 w-2 rounded-full bg-green-500" />
-              ) : (
-                <span className="h-2 w-2 rounded-full bg-yellow-500" />
-              )}
-            </div>
-          )}
+          {/* Sync status indicator - removido do header por solicitação do usuário */}
 
           <div className="flex-1"></div>
 
@@ -732,13 +727,7 @@ export function BibleReader({
                 {chapterData.book.name} {selectedChapter}
               </h2>
               <div className="space-y-2 sm:space-y-3 text-xl sm:text-2xl font-serif leading-relaxed">
-                {chapterData?.chapter.verses
-                  .filter(verse => {
-                    if (!textSearchQuery) return true;
-                    const query = textSearchQuery.toLowerCase();
-                    return verse.text.toLowerCase().includes(query);
-                  })
-                  .map((verse) => {
+                {filteredVerses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 
                     ? HIGHLIGHT_COLORS.find(c => c.color === highlightColor)?.bg 

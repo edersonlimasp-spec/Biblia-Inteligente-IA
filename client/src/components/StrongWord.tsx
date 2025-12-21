@@ -2,8 +2,10 @@
  * Strong Word Component - Reutilizável
  * Palavra individual com suporte a Strong's Dictionary
  * Aplicação unificada de cor/estilo em TODA a Bíblia
+ * OTIMIZADO com React.memo para performance em iOS
  */
 
+import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface StrongWordProps {
@@ -13,7 +15,7 @@ interface StrongWordProps {
   className?: string;
 }
 
-export function StrongWord({
+export const StrongWord = memo(function StrongWord({
   text,
   hasStrong,
   onWordClick,
@@ -41,4 +43,4 @@ export function StrongWord({
       {text}
     </span>
   );
-}
+});

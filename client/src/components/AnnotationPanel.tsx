@@ -167,7 +167,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
       {isExpanded && (
         <div className="px-4 py-4 space-y-4 bg-muted/20">
           {/* Current Verse Context */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="font-medium">
               {selectedVerse 
                 ? `Nota para ${bookName} ${chapter}:${selectedVerse}`
@@ -181,7 +181,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
             placeholder="Escreva sua anotação aqui..."
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
-            className="min-h-[100px] text-sm resize-none bg-background dark:bg-slate-900 text-foreground dark:text-white border border-border placeholder:text-muted-foreground"
+            className="min-h-[120px] text-base leading-relaxed resize-none bg-background dark:bg-slate-900 text-foreground dark:text-white border border-border placeholder:text-muted-foreground"
             data-testid="input-annotation"
           />
 
@@ -220,14 +220,14 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
           {/* List of existing notes for this chapter */}
           {chapterAnnotations.length > 0 && (
             <div className="border-t border-border pt-4 mt-4">
-              <p className="text-xs font-medium text-foreground mb-3">
-                📝 Notas neste capítulo ({chapterAnnotations.length}):
+              <p className="text-sm font-medium text-foreground mb-3">
+                Notas neste capítulo ({chapterAnnotations.length}):
               </p>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+              <div className="space-y-2 max-h-48 overflow-y-auto">
                 {chapterAnnotations.map((ann) => (
                   <div
                     key={ann.id}
-                    className={`text-xs p-3 rounded-md border transition-colors cursor-pointer ${
+                    className={`text-sm p-3 rounded-md border transition-colors cursor-pointer ${
                       editingId === ann.id 
                         ? "bg-primary/15 border-primary text-foreground" 
                         : "bg-background dark:bg-slate-800 border-border text-foreground hover:bg-muted/50 dark:hover:bg-slate-700"

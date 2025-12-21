@@ -56,12 +56,20 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
     ? chapterAnnotations.find(a => a.verse === selectedVerse)
     : null;
 
+  // Debug logging
+  console.log('[AnnotationPanel] RENDER - book:', book, 'chapter:', chapter, 'selectedVerse:', selectedVerse);
+  console.log('[AnnotationPanel] chapterAnnotations count:', chapterAnnotations.length, 'verseAnnotation:', verseAnnotation?.id);
+  console.log('[AnnotationPanel] Current editingId:', editingId, 'noteText length:', noteText.length);
+
   // Update noteText when verse changes
   useEffect(() => {
+    console.log('[AnnotationPanel] useEffect triggered - verseAnnotation:', verseAnnotation?.id, 'selectedVerse:', selectedVerse);
     if (verseAnnotation) {
+      console.log('[AnnotationPanel] Loading annotation into editor:', verseAnnotation.id, verseAnnotation.note.substring(0, 50));
       setNoteText(verseAnnotation.note);
       setEditingId(verseAnnotation.id);
     } else {
+      console.log('[AnnotationPanel] No verseAnnotation found, clearing editor');
       setNoteText("");
       setEditingId(null);
     }

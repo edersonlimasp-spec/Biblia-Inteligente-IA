@@ -362,9 +362,22 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
 
   // ===================================
   // INITIALIZATION - Carregar sessões do localStorage (com RESET automático)
+  // IMPORTANTE: Respeitar shouldResetAI para não restaurar sessão quando vindo de anotações
   // ===================================
   
   useEffect(() => {
+    console.log('[AIPanel] INITIALIZATION effect - shouldResetAI:', shouldResetAI);
+    
+    // Se shouldResetAI está ativo, NÃO restaurar sessão anterior
+    // O efeito de reset vai cuidar de criar nova sessão limpa
+    if (shouldResetAI) {
+      console.log('[AIPanel] INITIALIZATION skipped - shouldResetAI is true, waiting for reset effect');
+      // Apenas carregar sessões para o histórico, mas não ativar nenhuma
+      const loadedSessions = loadSessions();
+      setChatSessions(loadedSessions);
+      return;
+    }
+    
     // RESET AUTOMÁTICO: Detectar se app foi reaberto (nova sessão do navegador)
     try {
       const isFirstVisitThisSession = !sessionStorage.getItem('bible-app-session-initialized');
@@ -428,7 +441,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       setChatSessions([]);
       saveCurrentSessionId(newSessionId);
     }
-  }, []);
+  }, [shouldResetAI]);
 
   // ===================================
   // AUTO-SAVE - Salvar sempre que mensagens mudarem

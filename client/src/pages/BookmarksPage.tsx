@@ -38,6 +38,7 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
   const { navigateToVerse } = useNavigation();
   
   const handleNavigateToVerse = (book: string, chapter: number, verse: number, source: 'bookmark' | 'annotation') => {
+    console.log('[BookmarksPage] NOTE_CLICKED - book:', book, 'chapter:', chapter, 'verse:', verse, 'source:', source);
     navigateToVerse(book, chapter, verse, source);
   };
   const [searchTerm, setSearchTerm] = useState("");

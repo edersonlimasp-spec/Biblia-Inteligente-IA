@@ -151,6 +151,7 @@ export function BibleReader({
   // Navigate to target verse from annotations/bookmarks page
   useEffect(() => {
     if (targetVerse) {
+      console.log('[BibleReader] TARGET_VERSE_RECEIVED - book:', targetVerse.book, 'chapter:', targetVerse.chapter, 'verse:', targetVerse.verse, 'source:', targetVerse.source, 'shouldResetAI:', shouldResetAI);
       setSelectedBook(targetVerse.book);
       setSelectedChapter(targetVerse.chapter);
       setSelectedVerse(targetVerse.verse);

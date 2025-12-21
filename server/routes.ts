@@ -1493,6 +1493,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cache for Strong word mappings (definition word -> Strong number)
+  // Loaded once on first request, avoids repeated 14k+ row queries
+  let strongWordMappingCache: Map<string, string> | null = null;
+  let strongCacheLoadTime: number = 0;
+  const STRONG_CACHE_TTL = 3600000; // 1 hour in milliseconds
+
+  async function getStrongWordMapping(): Promise<Map<string, string>> {
+    const now = Date.now();
+    if (strongWordMappingCache && (now - strongCacheLoadTime) < STRONG_CACHE_TTL) {
+      return strongWordMappingCache;
+    }
+
+    console.log('[Strong Cache] Loading Strong word mappings...');
+    const startTime = Date.now();
+    
+    const allStrongEntries = await db.select({
+      strongNumber: strongEntries.strongNumber,
+      portugueseDef: strongEntries.portugueseDef,
+    }).from(strongEntries);
+
+    const defWordsToStrong = new Map<string, string>();
+    for (const entry of allStrongEntries) {
+      if (entry.portugueseDef) {
+        const words = entry.portugueseDef.toLowerCase()
+          .split(/[,;.:\s\-—()'"]/g)
+          .filter((w: string) => w.length >= 3);
+        for (const word of words) {
+          const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
+          if (cleanWord.length >= 3 && !defWordsToStrong.has(cleanWord)) {
+            defWordsToStrong.set(cleanWord, entry.strongNumber);
+          }
+        }
+      }
+    }
+
+    strongWordMappingCache = defWordsToStrong;
+    strongCacheLoadTime = now;
+    console.log(`[Strong Cache] Loaded ${defWordsToStrong.size} word mappings in ${Date.now() - startTime}ms`);
+    
+    return defWordsToStrong;
+  }
+
   // Get words with Strong numbers for a chapter (for pre-highlighting)
   // STRATEGY 1: Use bible_words table (for Genesis and other mapped chapters)
   // STRATEGY 2: Fallback to heuristic matching against strong_entries.portugueseDef (for all books)
@@ -1541,35 +1583,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // STRATEGY 2: Fallback to heuristic matching when bible_words is empty
-      // This allows Strong highlighting to work on ALL books, not just Genesis
+      // Uses cached Strong mappings for fast performance
       if (wordsWithStrong.length === 0) {
         try {
-          // Get all Strong entries for heuristic matching
-          const allStrongEntries = await db.select({
-            strongNumber: strongEntries.strongNumber,
-            portugueseDef: strongEntries.portugueseDef,
-          }).from(strongEntries).limit(14197); // Load all Strong entries
+          // Get cached Strong word mappings (fast after first load)
+          const defWordsToStrong = await getStrongWordMapping();
 
           // Get the chapter text to extract words
           const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
           if (chapter && chapter.verses) {
-            // Build a map of Portuguese definition words -> Strong number
-            const defWordsToStrong = new Map<string, string>();
-            for (const entry of allStrongEntries) {
-              if (entry.portugueseDef) {
-                // Extract individual words from definition
-                const words = entry.portugueseDef.toLowerCase()
-                  .split(/[,;.:\s\-—()'"]/g)
-                  .filter((w: string) => w.length >= 3);
-                for (const word of words) {
-                  const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
-                  if (cleanWord.length >= 3 && !defWordsToStrong.has(cleanWord)) {
-                    defWordsToStrong.set(cleanWord, entry.strongNumber);
-                  }
-                }
-              }
-            }
-
             // Now match verse words against Strong definitions
             for (const verse of chapter.verses) {
               const verseWords = verse.text.toLowerCase()
@@ -1768,7 +1790,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[Admin] User ${req.userId} iniciando RESEED COMPLETO dos cursos...`);
       
       // Step 1: Clear progress data (references lessons)
-      await db.execute(sql`DELETE FROM user_lesson_progress`);
+      await db.execute(sql`DELETE FROM user_study_progress`);
       console.log('[Reseed Study] Progresso de lições deletado');
       
       // Step 2: Clear all study data in correct order
@@ -1866,7 +1888,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log(`[Admin] User ${req.userId} iniciando RESET completo dos módulos de estudo...`);
       
-      // Delete all existing data in correct order (lessons first, then tracks, then modules)
+      // Delete all existing data in correct order (progress first, then lessons, tracks, modules)
+      await db.execute(sql`DELETE FROM user_study_progress`);
+      console.log('[Admin Reset] Progresso deletado');
       await db.execute(sql`DELETE FROM study_lessons`);
       console.log('[Admin Reset] Lições deletadas');
       await db.execute(sql`DELETE FROM study_tracks`);

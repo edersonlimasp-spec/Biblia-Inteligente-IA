@@ -227,19 +227,40 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
                 {chapterAnnotations.map((ann) => (
                   <div
                     key={ann.id}
-                    className={`text-sm p-3 rounded-md border transition-colors cursor-pointer ${
+                    className={`text-sm p-3 rounded-md border transition-colors ${
                       editingId === ann.id 
                         ? "bg-primary/15 border-primary text-foreground" 
                         : "bg-background dark:bg-slate-800 border-border text-foreground hover:bg-muted/50 dark:hover:bg-slate-700"
                     }`}
-                    onClick={() => {
-                      setNoteText(ann.note);
-                      setEditingId(ann.id);
-                    }}
                     data-testid={`annotation-item-${ann.id}`}
                   >
-                    <span className="font-semibold text-primary">v.{ann.verse}:</span>{" "}
-                    <span className="text-foreground/90 line-clamp-2">{ann.note}</span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div 
+                        className="flex-1 cursor-pointer"
+                        onClick={() => {
+                          setNoteText(ann.note);
+                          setEditingId(ann.id);
+                        }}
+                      >
+                        <span className="font-semibold text-primary">v.{ann.verse}:</span>{" "}
+                        <span className="text-foreground/90 line-clamp-2">{ann.note}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 flex-shrink-0 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          requireAuth(() => {
+                            deleteMutation.mutate(ann.id);
+                          }, "excluir anotações");
+                        }}
+                        disabled={deleteMutation.isPending}
+                        data-testid={`button-delete-annotation-${ann.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

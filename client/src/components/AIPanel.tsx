@@ -251,6 +251,17 @@ export function AIPanel({ hidden = false }: AIPanelProps) {
     }
   }, [messages, isExpanded]);
 
+  // Colapsar painel quando estava oculto e volta a aparecer
+  // Isso evita conflito com AnnotationPanel
+  const prevHiddenRef = useRef(hidden);
+  useEffect(() => {
+    if (prevHiddenRef.current && !hidden) {
+      // Voltou de oculto para visível - manter colapsado para evitar conflito
+      setIsExpanded(false);
+    }
+    prevHiddenRef.current = hidden;
+  }, [hidden]);
+
   // ===================================
   // INITIALIZATION - Carregar status de assinatura e contagem de perguntas
   // ===================================

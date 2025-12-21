@@ -4,7 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.bibliainteligente.app',
   appName: 'Bíblia Inteligente',
   webDir: 'dist/public',
-  bundledWebRuntime: false,
   
   // Server configuration for development
   // Uncomment and set your local IP for live reload testing:

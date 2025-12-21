@@ -437,3 +437,23 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;             /* Chrome, Safari and Opera */
 }
+
+/* Capacitor Native App Support */
+.keyboard-visible .ai-panel-footer,
+.keyboard-visible .chat-footer,
+.keyboard-visible .bottom-bar {
+  padding-bottom: 8px !important;
+}
+
+/* iOS notch and safe area support */
+@supports (padding: max(0px)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .app-header {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
+}

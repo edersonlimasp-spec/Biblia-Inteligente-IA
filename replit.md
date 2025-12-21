@@ -40,10 +40,35 @@ The application is a fullstack PWA comprising a React frontend and an Express ba
 - **Database Schema:** Includes tables for `Users`, `Subscriptions`, `AIUsageLimits`, `Bookmarks`, `Annotations`, `AIHistory`, `strong_entries` (with `portugueseDef` fully populated), `guests`, `guest_ai_usage_limits`, and `app_events`.
 - **APIs:** Comprehensive RESTful API endpoints for authentication, subscriptions, AI interactions, content, and dictionary lookups.
 
+## Mobile App Distribution (Capacitor)
+
+The project is configured with **Capacitor** to wrap the existing React web app for publication on iOS App Store and Google Play Store.
+
+**Configuration:**
+- `capacitor.config.ts` - Main Capacitor configuration
+- `client/src/lib/capacitor.ts` - Platform detection utilities
+- `CAPACITOR_SETUP.md` - Complete build and publication guide
+
+**Installed Plugins:**
+- `@capacitor/splash-screen` - Native splash screen
+- `@capacitor/status-bar` - Status bar styling
+- `@capacitor/app` - App lifecycle events, deep linking
+- `@capacitor/keyboard` - Keyboard visibility handling
+- `@capacitor/haptics` - Haptic feedback
+
+**Build Commands:**
+```bash
+npm run build        # Build web assets
+npx cap sync         # Sync to native projects
+npx cap open android # Open in Android Studio
+npx cap open ios     # Open in Xcode
+```
+
 ## External Dependencies
 
 - **Database:** PostgreSQL (Neon)
 - **ORM:** Drizzle ORM
 - **AI:** OpenAI GPT-4o-mini (via Replit AI Integrations)
 - **Build Tool:** Vite
+- **Mobile Wrapper:** Capacitor 6
 - **Packages:** `bcryptjs`, `jsonwebtoken`, `@neondatabase/serverless`, `openai`.

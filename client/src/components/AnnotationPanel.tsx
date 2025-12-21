@@ -134,14 +134,17 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
   };
 
   const handleDelete = () => {
+    console.log('[AnnotationPanel] handleDelete called, editingId:', editingId);
     if (editingId) {
       requireAuth(() => {
+        console.log('[AnnotationPanel] Setting deleteConfirmId to:', editingId);
         setDeleteConfirmId(editingId);
       }, "excluir anotações");
     }
   };
 
   const confirmDelete = () => {
+    console.log('[AnnotationPanel] confirmDelete called, deleteConfirmId:', deleteConfirmId);
     if (deleteConfirmId) {
       deleteMutation.mutate(deleteConfirmId);
       setDeleteConfirmId(null);

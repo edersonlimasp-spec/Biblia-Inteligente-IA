@@ -161,9 +161,11 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
   }, [currentScreen, performBack]);
 
   const navigateToVerse = useCallback((book: string, chapter: number, verse: number, source?: 'bookmark' | 'annotation') => {
+    console.log('[NavigationContext] navigateToVerse called - book:', book, 'chapter:', chapter, 'verse:', verse, 'source:', source);
     setTargetVerse({ book, chapter, verse, source });
     // Só resetar AI se vier de anotações (não de bookmarks)
     if (source === 'annotation') {
+      console.log('[NavigationContext] Setting shouldResetAI to TRUE');
       setShouldResetAI(true);
     }
     navigate("bible");

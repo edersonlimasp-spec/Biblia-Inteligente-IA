@@ -268,8 +268,10 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   // Usar ref para garantir que o reset só aconteça uma vez por ciclo
   const hasProcessedResetRef = useRef(false);
   useEffect(() => {
+    console.log('[AIPanel] Reset effect triggered - shouldResetAI:', shouldResetAI, 'hasProcessedResetRef:', hasProcessedResetRef.current);
     if (shouldResetAI && !hasProcessedResetRef.current) {
       hasProcessedResetRef.current = true;
+      console.log('[AIPanel] PERFORMING RESET - creating new session');
       
       // Criar nova sessão para limpar conversa
       const newSessionId = `session-${Date.now()}`;
@@ -281,6 +283,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       saveCurrentSessionId(newSessionId);
       
       // Notificar que o reset foi concluído para limpar a flag
+      console.log('[AIPanel] Calling onResetComplete');
       onResetComplete?.();
     }
     // Resetar a ref quando shouldResetAI voltar a false

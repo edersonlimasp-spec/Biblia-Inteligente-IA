@@ -146,8 +146,10 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
   const confirmDelete = () => {
     console.log('[AnnotationPanel] confirmDelete called, deleteConfirmId:', deleteConfirmId);
     if (deleteConfirmId) {
-      deleteMutation.mutate(deleteConfirmId);
+      const idToDelete = deleteConfirmId;
       setDeleteConfirmId(null);
+      console.log('[AnnotationPanel] Calling deleteMutation.mutate with id:', idToDelete);
+      deleteMutation.mutate(idToDelete);
     }
   };
 
@@ -291,7 +293,9 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
       )}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => {
+        if (!open) setDeleteConfirmId(null);
+      }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir anotação?</AlertDialogTitle>
@@ -302,7 +306,10 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
           <AlertDialogFooter>
             <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={confirmDelete}
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDelete();
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-delete"
             >

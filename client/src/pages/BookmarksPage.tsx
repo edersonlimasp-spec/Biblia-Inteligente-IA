@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useNavigation } from "@/contexts/NavigationContext";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
 interface BibleBook {
@@ -31,14 +32,13 @@ interface BibleBook {
 
 interface BookmarksPageProps {
   onBack: () => void;
-  onNavigateToVerse: (book: string, chapter: number, verse: number) => void;
 }
 
-export function BookmarksPage({ onBack, onNavigateToVerse }: BookmarksPageProps) {
-  // Handler para navegar ao verso e sair da tela de marcações
-  const handleNavigateToVerse = (book: string, chapter: number, verse: number) => {
-    // Navega para o verso no leitor - isso automaticamente sai da tela de marcações
-    onNavigateToVerse(book, chapter, verse);
+export function BookmarksPage({ onBack }: BookmarksPageProps) {
+  const { navigateToVerse } = useNavigation();
+  
+  const handleNavigateToVerse = (book: string, chapter: number, verse: number, source: 'bookmark' | 'annotation') => {
+    navigateToVerse(book, chapter, verse, source);
   };
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBook, setSelectedBook] = useState<string>("all");
@@ -268,7 +268,7 @@ export function BookmarksPage({ onBack, onNavigateToVerse }: BookmarksPageProps)
               <Card 
                 key={`${mark.type}-${mark.id}`}
                 className="hover-elevate cursor-pointer transition-all"
-                onClick={() => handleNavigateToVerse(mark.book, mark.chapter, mark.verse)}
+                onClick={() => handleNavigateToVerse(mark.book, mark.chapter, mark.verse, mark.type)}
                 data-testid={`card-mark-${index}`}
               >
                 <CardContent className="p-4">

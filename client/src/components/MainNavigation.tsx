@@ -151,9 +151,6 @@ function NavigationContent() {
         <RequireAuthScreen featureName="Marcações" onAuthCancel={() => goBack()}>
           <BookmarksPage 
             onBack={() => goBack()} 
-            onNavigateToVerse={(book, chapter, verse) => {
-              navigate("bible");
-            }}
           />
         </RequireAuthScreen>
       )}

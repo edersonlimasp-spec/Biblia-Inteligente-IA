@@ -9,6 +9,16 @@ import { ChevronDown, ChevronUp, MessageSquare, Save, Trash2, Loader2 } from "lu
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
@@ -27,6 +37,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
   const [isExpanded, setIsExpanded] = useState(isInitiallyExpanded);
   const [noteText, setNoteText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const { toast } = useToast();
   const { requireAuth } = useRequireAuth();
 
@@ -125,8 +136,15 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
   const handleDelete = () => {
     if (editingId) {
       requireAuth(() => {
-        deleteMutation.mutate(editingId);
+        setDeleteConfirmId(editingId);
       }, "excluir anotações");
+    }
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirmId) {
+      deleteMutation.mutate(deleteConfirmId);
+      setDeleteConfirmId(null);
     }
   };
 
@@ -252,7 +270,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
                         onClick={(e) => {
                           e.stopPropagation();
                           requireAuth(() => {
-                            deleteMutation.mutate(ann.id);
+                            setDeleteConfirmId(ann.id);
                           }, "excluir anotações");
                         }}
                         disabled={deleteMutation.isPending}
@@ -268,6 +286,28 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
           )}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir anotação?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja excluir esta anotação? Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -25,6 +25,13 @@ type Screen =
   | "module-detail"
   | "lesson";
 
+interface TargetVerse {
+  book: string;
+  chapter: number;
+  verse: number;
+  source?: 'bookmark' | 'annotation';
+}
+
 interface NavigationContextValue {
   currentScreen: Screen;
   navigate: (screen: Screen) => void;
@@ -36,6 +43,11 @@ interface NavigationContextValue {
   setSelectedLessonId: (id: string | null) => void;
   selectedTrackLevel: string;
   setSelectedTrackLevel: (level: string) => void;
+  targetVerse: TargetVerse | null;
+  navigateToVerse: (book: string, chapter: number, verse: number, source?: 'bookmark' | 'annotation') => void;
+  clearTargetVerse: () => void;
+  shouldResetAI: boolean;
+  clearResetAI: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextValue | null>(null);
@@ -78,6 +90,8 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [selectedTrackLevel, setSelectedTrackLevel] = useState<string>("iniciante");
+  const [targetVerse, setTargetVerse] = useState<TargetVerse | null>(null);
+  const [shouldResetAI, setShouldResetAI] = useState(false);
   
   const historyStack = useRef<Screen[]>(["splash"]);
   const isHandlingPopState = useRef(false);
@@ -146,6 +160,23 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
     return false;
   }, [currentScreen, performBack]);
 
+  const navigateToVerse = useCallback((book: string, chapter: number, verse: number, source?: 'bookmark' | 'annotation') => {
+    setTargetVerse({ book, chapter, verse, source });
+    // Só resetar AI se vier de anotações (não de bookmarks)
+    if (source === 'annotation') {
+      setShouldResetAI(true);
+    }
+    navigate("bible");
+  }, [navigate]);
+
+  const clearTargetVerse = useCallback(() => {
+    setTargetVerse(null);
+  }, []);
+
+  const clearResetAI = useCallback(() => {
+    setShouldResetAI(false);
+  }, []);
+
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       event.preventDefault();
@@ -193,6 +224,11 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
     setSelectedLessonId,
     selectedTrackLevel,
     setSelectedTrackLevel,
+    targetVerse,
+    navigateToVerse,
+    clearTargetVerse,
+    shouldResetAI,
+    clearResetAI,
   };
 
   return (

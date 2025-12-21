@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Loader2, Globe, BookOpen, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
 import { VerseActions, HIGHLIGHT_COLORS } from "@/components/VerseActions";
 import { AnnotationPanel } from "@/components/AnnotationPanel";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigation } from "@/contexts/NavigationContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
 import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
@@ -101,6 +102,7 @@ export function BibleReader({
 }: BibleReaderProps) {
   const { user, isAdmin, logout } = useAuth();
   const { toast } = useToast();
+  const { targetVerse, clearTargetVerse, shouldResetAI, clearResetAI } = useNavigation();
   
   const {
     isSyncing,
@@ -112,6 +114,8 @@ export function BibleReader({
   } = useSyncManager();
   
   const { trackReading, getLastReading } = useReadingHistory();
+  
+  const verseRef = useRef<HTMLDivElement>(null);
 
   // State management
   const [selectedBook, setSelectedBook] = useState("gen");
@@ -143,6 +147,24 @@ export function BibleReader({
       setSelectedVersion(lastReading.versionCode || "ACF");
     }
   }, [getLastReading]);
+
+  // Navigate to target verse from annotations/bookmarks page
+  useEffect(() => {
+    if (targetVerse) {
+      setSelectedBook(targetVerse.book);
+      setSelectedChapter(targetVerse.chapter);
+      setSelectedVerse(targetVerse.verse);
+      clearTargetVerse();
+      
+      // Scroll to verse after data loads
+      setTimeout(() => {
+        const verseElement = document.querySelector(`[data-verse="${targetVerse.verse}"]`);
+        if (verseElement) {
+          verseElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 500);
+    }
+  }, [targetVerse, clearTargetVerse]);
 
   // Save version preference to localStorage
   useEffect(() => {
@@ -804,7 +826,7 @@ export function BibleReader({
       </main>
 
       {/* AI Panel - oculto quando AnnotationPanel está aberto */}
-      <AIPanel hidden={showAnnotationPanel} />
+      <AIPanel hidden={showAnnotationPanel} shouldResetAI={shouldResetAI} onResetComplete={clearResetAI} />
 
       {/* Annotation Panel - só renderizado quando aberto */}
       {user && currentBook && showAnnotationPanel && (

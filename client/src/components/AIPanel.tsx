@@ -207,9 +207,11 @@ interface UserSubscription {
 
 interface AIPanelProps {
   hidden?: boolean;
+  shouldResetAI?: boolean;
+  onResetComplete?: () => void;
 }
 
-export function AIPanel({ hidden = false }: AIPanelProps) {
+export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete }: AIPanelProps) {
   const [question, setQuestion] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -261,6 +263,31 @@ export function AIPanel({ hidden = false }: AIPanelProps) {
     }
     prevHiddenRef.current = hidden;
   }, [hidden]);
+
+  // Reset completo do Professor quando vindo de Anotações
+  // Usar ref para garantir que o reset só aconteça uma vez por ciclo
+  const hasProcessedResetRef = useRef(false);
+  useEffect(() => {
+    if (shouldResetAI && !hasProcessedResetRef.current) {
+      hasProcessedResetRef.current = true;
+      
+      // Criar nova sessão para limpar conversa
+      const newSessionId = `session-${Date.now()}`;
+      setCurrentSessionId(newSessionId);
+      setMessages([]);
+      setQuestion("");
+      setIsExpanded(false);
+      setIsHistoryOpen(false);
+      saveCurrentSessionId(newSessionId);
+      
+      // Notificar que o reset foi concluído para limpar a flag
+      onResetComplete?.();
+    }
+    // Resetar a ref quando shouldResetAI voltar a false
+    if (!shouldResetAI) {
+      hasProcessedResetRef.current = false;
+    }
+  }, [shouldResetAI, onResetComplete]);
 
   // ===================================
   // INITIALIZATION - Carregar status de assinatura e contagem de perguntas

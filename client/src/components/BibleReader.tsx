@@ -155,6 +155,14 @@ export function BibleReader({
       setSelectedBook(targetVerse.book);
       setSelectedChapter(targetVerse.chapter);
       setSelectedVerse(targetVerse.verse);
+      
+      // Se veio de uma anotação, abrir o painel de anotações automaticamente
+      // Isso garante que o usuário veja a anotação e não o chat da IA
+      if (targetVerse.source === 'annotation' && user) {
+        console.log('[BibleReader] Opening AnnotationPanel because source is annotation');
+        setShowAnnotationPanel(true);
+      }
+      
       clearTargetVerse();
       
       // Scroll to verse after data loads
@@ -165,7 +173,7 @@ export function BibleReader({
         }
       }, 500);
     }
-  }, [targetVerse, clearTargetVerse]);
+  }, [targetVerse, clearTargetVerse, user]);
 
   // Save version preference to localStorage
   useEffect(() => {

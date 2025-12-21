@@ -419,10 +419,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
           setMessages(sessionToLoad.messages);
           setChatSessions(loadedSessions);
           
-          // Expandir painel se já houver mensagens
-          if (sessionToLoad.messages.length > 0) {
-            setIsExpanded(true);
-          }
+          // NÃO expandir painel automaticamente - deixar o usuário controlar
+          // Isso evita conflito com anotações e comportamento invasivo
+          // O usuário pode clicar no painel para expandir quando quiser
         } else {
           // Criar primeira sessão vazia
           const newSessionId = `session-${Date.now()}`;

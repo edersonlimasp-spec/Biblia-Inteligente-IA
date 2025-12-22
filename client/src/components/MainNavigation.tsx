@@ -29,6 +29,7 @@ import { BookmarksPage } from "@/pages/BookmarksPage";
 import { NavigationProvider, useNavigation } from "@/contexts/NavigationContext";
 import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
 import { RequireAuthScreen } from "./RequireAuthScreen";
+import { PaymentSuccess, PaymentError, PaymentPending } from "@/pages/PaymentResult";
 
 function NavigationContent() {
   const { 
@@ -72,6 +73,17 @@ function NavigationContent() {
       navigate("reset-password");
     }
   }, [location, navigate]);
+
+  // Handle payment result pages from Mercado Pago redirect
+  const isPaymentPage = location.startsWith("/pagamento/");
+  const paymentStatus = isPaymentPage ? location.split("/pagamento/")[1]?.split("?")[0] : null;
+
+  // Render payment result pages directly (bypass normal navigation)
+  if (isPaymentPage && paymentStatus) {
+    if (paymentStatus === "sucesso") return <PaymentSuccess />;
+    if (paymentStatus === "erro") return <PaymentError />;
+    if (paymentStatus === "pendente") return <PaymentPending />;
+  }
 
   useEffect(() => {
     if (!isLoading) {

@@ -2742,6 +2742,195 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============================================
+  // MERCADO PAGO CHECKOUT PRO INTEGRATION
+  // ============================================
+  
+  // Plan configuration with fixed prices (BRL)
+  const MP_PLAN_CONFIG: Record<string, { title: string; price: number; days: number | null }> = {
+    gold: { title: "Bíblia Inteligente - Plano Gold", price: 9.90, days: 30 },
+    premium: { title: "Bíblia Inteligente - Plano Premium", price: 19.90, days: 30 },
+    vitalicio: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
+    strong_lifetime: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
+  };
+  
+  // Get APP_URL from environment (supports both development and production)
+  function getAppUrl(): string {
+    if (process.env.APP_URL) {
+      return process.env.APP_URL.replace(/\/$/, '');
+    }
+    if (process.env.REPLIT_DEV_DOMAIN) {
+      return `https://${process.env.REPLIT_DEV_DOMAIN}`;
+    }
+    if (process.env.REPLIT_DOMAINS) {
+      const domains = process.env.REPLIT_DOMAINS.split(',');
+      if (domains.length > 0) {
+        return `https://${domains[0]}`;
+      }
+    }
+    return 'https://localhost:5000';
+  }
+  
+  // Create Mercado Pago Checkout preference
+  app.post("/api/mp/create-checkout", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+      }
+      
+      const { plan } = req.body;
+      if (!plan || !MP_PLAN_CONFIG[plan]) {
+        return res.status(400).json({ error: "Plano inválido. Escolha: gold, premium ou vitalicio" });
+      }
+      
+      const mpAccessToken = process.env.MP_ACCESS_TOKEN;
+      if (!mpAccessToken) {
+        console.error("[MP] MP_ACCESS_TOKEN não configurado");
+        return res.status(500).json({ error: "Configuração de pagamento não disponível" });
+      }
+      
+      const planConfig = MP_PLAN_CONFIG[plan];
+      const appUrl = getAppUrl();
+      
+      // Create external reference with user and plan info
+      const externalReference = JSON.stringify({
+        userId,
+        plan: plan === 'strong_lifetime' ? 'vitalicio' : plan,
+        days: planConfig.days,
+        lifetime: planConfig.days === null,
+      });
+      
+      // Create Mercado Pago preference
+      const preference = {
+        items: [{
+          title: planConfig.title,
+          quantity: 1,
+          currency_id: "BRL",
+          unit_price: planConfig.price,
+        }],
+        external_reference: externalReference,
+        back_urls: {
+          success: `${appUrl}/pagamento/sucesso`,
+          failure: `${appUrl}/pagamento/erro`,
+          pending: `${appUrl}/pagamento/pendente`,
+        },
+        auto_return: "approved",
+        notification_url: `${appUrl}/api/mp/webhook`,
+      };
+      
+      console.log(`[MP] Creating checkout for user ${userId}, plan: ${plan}, price: ${planConfig.price}`);
+      
+      const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${mpAccessToken}`,
+        },
+        body: JSON.stringify(preference),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[MP] Erro ao criar preferência: ${response.status} - ${errorText}`);
+        return res.status(500).json({ error: "Erro ao criar checkout" });
+      }
+      
+      const data = await response.json();
+      console.log(`[MP] Checkout criado: preference_id=${data.id}`);
+      
+      res.json({
+        init_point: data.init_point,
+        preference_id: data.id,
+      });
+    } catch (error) {
+      console.error("[MP] Erro ao criar checkout:", error);
+      res.status(500).json({ error: "Erro interno ao processar pagamento" });
+    }
+  });
+  
+  // Mercado Pago Webhook - receives payment notifications
+  app.post("/api/mp/webhook", async (req, res) => {
+    try {
+      // Always respond 200 to acknowledge receipt
+      res.status(200).send("ok");
+      
+      // Get payment ID from query or body
+      const paymentId = req.query['data.id'] || req.body?.data?.id;
+      const topic = req.query.topic || req.body?.type;
+      
+      console.log(`[MP Webhook] Received: topic=${topic}, paymentId=${paymentId}`);
+      
+      if (!paymentId || (topic !== 'payment' && req.body?.type !== 'payment')) {
+        console.log("[MP Webhook] Ignorando notificação não relacionada a pagamento");
+        return;
+      }
+      
+      const mpAccessToken = process.env.MP_ACCESS_TOKEN;
+      if (!mpAccessToken) {
+        console.error("[MP Webhook] MP_ACCESS_TOKEN não configurado");
+        return;
+      }
+      
+      // Fetch payment details from Mercado Pago
+      const paymentResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+        headers: {
+          "Authorization": `Bearer ${mpAccessToken}`,
+        },
+      });
+      
+      if (!paymentResponse.ok) {
+        console.error(`[MP Webhook] Erro ao buscar pagamento: ${paymentResponse.status}`);
+        return;
+      }
+      
+      const payment = await paymentResponse.json();
+      console.log(`[MP Webhook] Payment status: ${payment.status}, external_reference: ${payment.external_reference}`);
+      
+      if (payment.status !== "approved") {
+        console.log(`[MP Webhook] Pagamento não aprovado: ${payment.status}`);
+        return;
+      }
+      
+      // Parse external reference
+      let refData: { userId: string; plan: string; days: number | null; lifetime: boolean };
+      try {
+        refData = JSON.parse(payment.external_reference);
+      } catch (e) {
+        console.error("[MP Webhook] Erro ao parsear external_reference:", payment.external_reference);
+        return;
+      }
+      
+      const { userId, plan, days, lifetime } = refData;
+      
+      // Calculate subscription end date
+      let endDate: Date | null = null;
+      if (!lifetime && days) {
+        endDate = new Date();
+        endDate.setDate(endDate.getDate() + days);
+      }
+      
+      // Map plan name to planType used in database
+      const planType = plan === 'vitalicio' ? 'strong_lifetime' : plan;
+      const amount = MP_PLAN_CONFIG[plan]?.price.toFixed(2) || MP_PLAN_CONFIG[planType]?.price.toFixed(2) || "0.00";
+      
+      // Create subscription in database
+      const subscription = await storage.createSubscription({
+        userId,
+        planType,
+        status: 'active',
+        startDate: new Date(),
+        endDate,
+        amount,
+      });
+      
+      console.log(`[MP Webhook] ✅ Assinatura ativada: userId=${userId}, plan=${planType}, subscriptionId=${subscription.id}`);
+      
+    } catch (error) {
+      console.error("[MP Webhook] Erro ao processar webhook:", error);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

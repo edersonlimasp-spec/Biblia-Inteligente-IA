@@ -64,11 +64,38 @@ npx cap open android # Open in Android Studio
 npx cap open ios     # Open in Xcode
 ```
 
+## Mercado Pago Integration (Checkout Pro)
+
+The application uses Mercado Pago Checkout Pro for subscription payments.
+
+**Endpoints:**
+- `POST /api/mp/create-checkout` - Creates a Mercado Pago checkout preference (requires authentication)
+- `POST /api/mp/webhook` - Webhook to receive payment confirmations from Mercado Pago
+
+**Plans and Prices (Fixed - BRL):**
+- **Gold:** R$ 9,90/mês (30 days)
+- **Premium:** R$ 19,90/mês (30 days)
+- **Vitalício (Strong Lifetime):** R$ 49,90 único (lifetime access)
+
+**Environment Variables Required:**
+- `MP_ACCESS_TOKEN` - Mercado Pago Access Token (Secret)
+- `APP_URL` - Optional, auto-detected from REPLIT_DOMAINS if not set
+
+**Return Pages:**
+- `/pagamento/sucesso` - Payment successful
+- `/pagamento/erro` - Payment failed
+- `/pagamento/pendente` - Payment pending
+
+**Webhook Configuration:**
+Configure the webhook URL in Mercado Pago Dashboard:
+`https://<your-domain>/api/mp/webhook`
+
 ## External Dependencies
 
 - **Database:** PostgreSQL (Neon)
 - **ORM:** Drizzle ORM
 - **AI:** OpenAI GPT-4o-mini (via Replit AI Integrations)
+- **Payments:** Mercado Pago Checkout Pro
 - **Build Tool:** Vite
 - **Mobile Wrapper:** Capacitor 6
 - **Packages:** `bcryptjs`, `jsonwebtoken`, `@neondatabase/serverless`, `openai`.

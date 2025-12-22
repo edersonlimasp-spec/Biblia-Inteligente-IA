@@ -140,8 +140,8 @@ export function Dashboard({
     },
     {
       id: "professor",
-      title: "Professor",
-      description: "Chat com IA teológica",
+      title: "Chat com Professor",
+      description: "Tire suas dúvidas e agregue conhecimentos",
       icon: GraduationCap,
       gradient: "bg-gradient-to-br from-violet-600 to-purple-800",
       iconColor: "bg-violet-500",

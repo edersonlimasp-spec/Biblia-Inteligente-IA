@@ -2851,6 +2851,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Mercado Pago Webhook - receives payment notifications
   app.post("/api/mp/webhook", async (req, res) => {
+    console.log("WEBHOOK CHEGOU");
+    console.log("headers:", req.headers);
+    console.log("query:", req.query);
+    console.log("body:", req.body);
+    
     try {
       // Always respond 200 to acknowledge receipt
       res.status(200).send("ok");
@@ -2859,6 +2864,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const paymentId = req.query['data.id'] || req.body?.data?.id;
       const topic = req.query.topic || req.body?.type;
       
+      console.log("paymentId recebido:", paymentId);
       console.log(`[MP Webhook] Received: topic=${topic}, paymentId=${paymentId}`);
       
       if (!paymentId || (topic !== 'payment' && req.body?.type !== 'payment')) {
@@ -2885,6 +2891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const payment = await paymentResponse.json();
+      console.log("status do pagamento:", payment.status);
       console.log(`[MP Webhook] Payment status: ${payment.status}, external_reference: ${payment.external_reference}`);
       
       if (payment.status !== "approved") {
@@ -2902,6 +2909,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const { userId, plan, days, lifetime } = refData;
+      console.log("PAGAMENTO APROVADO - userId:", userId, "plan:", plan);
       
       // Calculate subscription end date
       let endDate: Date | null = null;

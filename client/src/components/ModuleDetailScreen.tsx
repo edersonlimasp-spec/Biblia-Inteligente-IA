@@ -214,6 +214,11 @@ interface SubscriptionStatus {
   status?: string;
 }
 
+interface GuestTrialInfo {
+  active: boolean;
+  daysRemaining: number;
+}
+
 export function ModuleDetailScreen({ 
   moduleId, 
   onBack, 
@@ -232,7 +237,16 @@ export function ModuleDetailScreen({
     enabled: !!user,
   });
 
-  const userPlan = subscriptionData?.planType || null;
+  // Fetch guest trial info when not logged in
+  const { data: guestTrialData } = useQuery<GuestTrialInfo>({
+    queryKey: ['/api/guest/trial', deviceId],
+    enabled: !user && !!deviceId,
+  });
+
+  // Determine user plan: logged in user's subscription OR guest with active trial gets 'gold' access
+  const userPlan = user 
+    ? (subscriptionData?.planType || null)
+    : (guestTrialData?.active ? 'gold' : null);
 
   if (moduleLoading) {
     return (

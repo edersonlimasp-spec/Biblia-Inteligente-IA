@@ -231,44 +231,38 @@ function NavigationContent() {
         </RequireAuthScreen>
       )}
       {currentScreen === "professor-premium" && (
-        <RequireAuthScreen featureName="Cursos Premium" onAuthCancel={() => goBack()}>
-          <StudyModulesScreen 
-            onBack={() => goBack()}
-            onNavigateToModule={(moduleId) => {
-              setSelectedModuleId(moduleId);
-              navigate("module-detail");
-            }}
-            onNavigateToSubscriptions={() => navigate("subscriptions")}
-          />
-        </RequireAuthScreen>
+        <StudyModulesScreen 
+          onBack={() => goBack()}
+          onNavigateToModule={(moduleId) => {
+            setSelectedModuleId(moduleId);
+            navigate("module-detail");
+          }}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+        />
       )}
       {currentScreen === "module-detail" && selectedModuleId && (
-        <RequireAuthScreen featureName="Detalhes do Módulo" onAuthCancel={() => goBack()}>
-          <ModuleDetailScreen
-            moduleId={selectedModuleId}
-            onBack={() => {
-              goBack();
-            }}
-            onNavigateToLesson={(lessonId, trackLevel) => {
-              setSelectedLessonId(lessonId);
-              setSelectedTrackLevel(trackLevel);
-              navigate("lesson");
-            }}
-            onNavigateToSubscriptions={() => navigate("subscriptions")}
-          />
-        </RequireAuthScreen>
+        <ModuleDetailScreen
+          moduleId={selectedModuleId}
+          onBack={() => {
+            goBack();
+          }}
+          onNavigateToLesson={(lessonId, trackLevel) => {
+            setSelectedLessonId(lessonId);
+            setSelectedTrackLevel(trackLevel);
+            navigate("lesson");
+          }}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+        />
       )}
       {currentScreen === "lesson" && selectedLessonId && (
-        <RequireAuthScreen featureName="Lição" onAuthCancel={() => goBack()}>
-          <LessonScreen
-            lessonId={selectedLessonId}
-            trackLevel={selectedTrackLevel}
-            onBack={() => {
-              setSelectedLessonId(null);
-              goBack();
-            }}
-          />
-        </RequireAuthScreen>
+        <LessonScreen
+          lessonId={selectedLessonId}
+          trackLevel={selectedTrackLevel}
+          onBack={() => {
+            setSelectedLessonId(null);
+            goBack();
+          }}
+        />
       )}
     </>
   );

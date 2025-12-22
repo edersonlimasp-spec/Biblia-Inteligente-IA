@@ -304,6 +304,11 @@ function LevelSection({
   );
 }
 
+interface GuestTrialInfo {
+  active: boolean;
+  daysRemaining: number;
+}
+
 export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSubscriptions }: StudyModulesScreenProps) {
   const { user, isAdmin } = useAuth();
   const deviceId = getDeviceId();
@@ -316,8 +321,17 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
   });
+
+  // Fetch guest trial info when not logged in
+  const { data: guestTrialData } = useQuery<GuestTrialInfo>({
+    queryKey: ['/api/guest/trial', deviceId],
+    enabled: !user && !!deviceId,
+  });
   
-  const userPlan = subscriptionData?.hasPremium ? 'premium' : subscriptionData?.hasGold ? 'gold' : null;
+  // Determine user plan: logged in user's subscription OR guest with active trial gets 'gold' access
+  const userPlan = user
+    ? (subscriptionData?.hasPremium ? 'premium' : subscriptionData?.hasGold ? 'gold' : null)
+    : (guestTrialData?.active ? 'gold' : null);
   
   const allModulesSorted = [...(modules || [])].sort((a, b) => a.order - b.order);
   const inicianteModules = allModulesSorted.filter(m => m.level === 'iniciante');

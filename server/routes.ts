@@ -564,10 +564,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const trialActive = isTrialActive(user.trialStartDate);
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
 
       res.json({
         hasPremium,
         hasGold,
+        hasLifetime,
         trialActive,
         userId: req.userId,
       });

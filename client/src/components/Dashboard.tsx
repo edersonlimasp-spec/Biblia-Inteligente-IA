@@ -19,7 +19,10 @@ import {
   Mic,
   Library,
   LogIn,
-  User
+  User,
+  Crown,
+  Gem,
+  Infinity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -126,6 +129,58 @@ export function Dashboard({
     queryKey: ['/api/guest/trial', deviceId],
     enabled: !!deviceId && !user,
   });
+
+  const { data: subscriptionStatus } = useQuery<{ 
+    hasGold: boolean; 
+    hasPremium: boolean; 
+    hasLifetime: boolean;
+    trialActive: boolean;
+  }>({
+    queryKey: ['/api/user/subscription-status'],
+    enabled: !!user,
+  });
+
+  const getSubscriptionBadge = () => {
+    if (!user || !subscriptionStatus) return null;
+    
+    if (subscriptionStatus.hasPremium) {
+      return (
+        <Badge 
+          className="text-xs py-1 px-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 gap-1"
+          data-testid="badge-premium"
+        >
+          <Gem className="w-3 h-3" />
+          Premium
+        </Badge>
+      );
+    }
+    
+    if (subscriptionStatus.hasLifetime) {
+      return (
+        <Badge 
+          className="text-xs py-1 px-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 gap-1"
+          data-testid="badge-lifetime"
+        >
+          <Infinity className="w-3 h-3" />
+          Vitalício
+        </Badge>
+      );
+    }
+    
+    if (subscriptionStatus.hasGold) {
+      return (
+        <Badge 
+          className="text-xs py-1 px-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0 gap-1"
+          data-testid="badge-gold"
+        >
+          <Crown className="w-3 h-3" />
+          Gold
+        </Badge>
+      );
+    }
+    
+    return null;
+  };
 
   const modules = [
     {
@@ -253,6 +308,8 @@ export function Dashboard({
               {trialInfo.daysRemaining}d
             </Badge>
           )}
+
+          {user && getSubscriptionBadge()}
           
           {user ? (
             <Button

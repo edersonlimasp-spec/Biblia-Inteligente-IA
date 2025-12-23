@@ -32,15 +32,15 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
   return (
     <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground">
       {/* Admin Header */}
-      <div className="border-b bg-card dark:bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <BarChart3 className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl font-bold text-foreground">Painel Administrativo</h1>
+      <div className="border-b bg-card dark:bg-card sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <BarChart3 className="h-7 w-7 text-primary flex-shrink-0" />
+              <h1 className="text-2xl font-bold text-foreground whitespace-nowrap overflow-hidden text-ellipsis">Painel Administrativo</h1>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <span className="text-sm text-muted-foreground hidden sm:inline">
                 {user?.role === 'super_admin' ? '👑 Super Admin' : '🔑 Admin'}
               </span>
               <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-admin-back">

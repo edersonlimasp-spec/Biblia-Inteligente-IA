@@ -252,26 +252,38 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Top Usuários IA */}
+      {/* Top 10 Usuários Mais Ativos */}
       <Card>
         <CardHeader>
-          <CardTitle>Usuários Mais Ativos em IA</CardTitle>
-          <CardDescription>Top 10 por número de perguntas</CardDescription>
+          <CardTitle>Top 10 Usuários Mais Ativos</CardTitle>
+          <CardDescription>Ranking dos usuários com maior engajamento em IA</CardDescription>
         </CardHeader>
         <CardContent>
           {aiLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : aiUsage?.byUser && aiUsage.byUser.length > 0 ? (
-            <div className="space-y-2">
-              {aiUsage.byUser.slice(0, 10).map((user, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Usuário {idx + 1}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 bg-primary rounded h-2" style={{width: `${(user.count / (aiUsage.byUser[0]?.count || 1)) * 100}px`}} />
-                    <span className="text-sm font-semibold">{user.count} perguntas</span>
+            <div className="space-y-3">
+              {aiUsage.byUser.slice(0, 10).map((user, idx) => {
+                const maxCount = aiUsage.byUser[0]?.count || 1;
+                const percentage = (user.count / maxCount) * 100;
+                return (
+                  <div key={idx} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold w-6">#{idx + 1}</span>
+                        <span className="text-sm text-muted-foreground truncate">ID: {user.userId.slice(0, 8)}...</span>
+                      </div>
+                      <span className="text-sm font-bold text-primary">{user.count} perguntas</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                      <div 
+                        className="bg-primary h-full rounded-full transition-all" 
+                        style={{width: `${percentage}%`}}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Nenhuma pergunta registrada</p>
@@ -401,8 +413,8 @@ export function AdminDashboard() {
               <div className="p-3 bg-muted rounded-lg">
                 <p className="text-xs text-muted-foreground mb-1">Usuários Inativos</p>
                 <p className="text-lg font-semibold">
-                  {stats?.totalUsers && stats?.totalGuests
-                    ? Math.max(0, stats.totalUsers - (stats.onlineUsers || 0) - stats.totalGuests)
+                  {stats?.totalUsers && online
+                    ? Math.max(0, stats.totalUsers - (online.onlineUsers || 0))
                     : '—'}
                 </p>
               </div>

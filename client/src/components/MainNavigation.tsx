@@ -88,12 +88,8 @@ function NavigationContent() {
   useEffect(() => {
     if (!isLoading) {
       if (currentScreen === "splash") {
-        // Guests go directly to Bible, logged users go to dashboard
-        navigate(user ? "dashboard" : "bible");
-      }
-      // Redirect guests away from dashboard to Bible
-      if (currentScreen === "dashboard" && !user) {
-        navigate("bible");
+        // All users (logged or guest) go to dashboard
+        navigate("dashboard");
       }
       if (currentScreen === "admin" && !user) {
         navigate("login");

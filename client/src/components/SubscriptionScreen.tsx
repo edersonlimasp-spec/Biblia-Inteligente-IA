@@ -82,7 +82,27 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       const data = await response.json();
       
       if (data.init_point) {
-        window.location.href = data.init_point;
+        console.log('[MP] Redirecionando para checkout:', data.init_point);
+        
+        // Detecta se está em iframe (preview do Replit ou webview)
+        const isInIframe = window.self !== window.top;
+        
+        if (isInIframe) {
+          // Se em iframe, abre em nova aba para evitar problemas de CORS/CSP
+          const newWindow = window.open(data.init_point, '_blank');
+          if (!newWindow) {
+            // Popup bloqueado - mostra mensagem
+            toast({
+              title: 'Abrir Pagamento',
+              description: 'Clique no link para abrir o checkout do Mercado Pago em nova aba.',
+            });
+            // Fallback: tenta top-level
+            window.top?.location.assign(data.init_point);
+          }
+        } else {
+          // Navegação top-level normal
+          window.location.assign(data.init_point);
+        }
       } else {
         throw new Error('Erro ao criar checkout');
       }

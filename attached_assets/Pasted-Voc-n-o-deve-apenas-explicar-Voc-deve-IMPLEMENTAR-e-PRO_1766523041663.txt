@@ -1,0 +1,55 @@
+Você não deve apenas explicar. Você deve IMPLEMENTAR e PROVAR.
+
+Contexto: ao clicar em “Assinar Agora”, o checkout do Mercado Pago abre mas fica branco ou sem CSS/JS, e no Console aparecem erros como:
+- Refused to apply style … strict MIME type checking
+- net::ERR_ABORTED 503 (Service Unavailable) em assets.mstatic.com
+Isso costuma acontecer quando o checkout é aberto em contexto errado (iframe/embed/webview/preview) ou com URL errada (payment/redirect) em vez do init_point.
+
+OBJETIVO:
+Corrigir de forma definitiva para o checkout abrir com layout completo do Mercado Pago (sem tela branca e sem HTML cru).
+
+REGRAS:
+1) NÃO alterar layout do app nem regras de planos.
+2) NÃO mudar preços:
+   - gold 9,90/mês
+   - premium 19,90/mês
+   - vitalício strong 49,90 único
+3) NÃO mexer no webhook além do necessário para logs.
+4) NÃO “apenas explicar”. Quero commits/alterações em arquivos.
+
+TAREFAS OBRIGATÓRIAS:
+A) FRONTEND
+1) Localize a função do botão de assinatura (handleSubscribe / onClick do botão Premium/Gold/Vitalício).
+2) Garanta que o checkout NÃO seja aberto em iframe, modal, embed ou componente WebView.
+3) Garanta que o redirecionamento seja TOP-LEVEL apenas com:
+   - window.location.assign(init_point)
+   (não usar fetch para renderizar html, não usar iframe)
+4) Se hoje estiver abrindo algum link do tipo:
+   /checkout/v1/payment/redirect/...
+   substitua para usar o init_point retornado do Mercado Pago SEM alterar.
+
+B) BACKEND
+1) No endpoint /api/mp/create-checkout:
+   - Logar no console:
+     "[MP] create-checkout plan=... userId=..."
+     "[MP] init_point=..."
+2) Confirmar que está retornando init_point correto (URL do Mercado Pago).
+3) Não retornar “payment/redirect” manualmente.
+
+C) TESTE (PROVA)
+1) Após as alterações, execute o fluxo e registre no console do backend:
+   - log do init_point gerado
+2) Adicione um endpoint GET /api/health só para confirmar que o servidor está ativo (retornar {ok:true}).
+3) Me diga exatamente quais arquivos foram modificados e quais linhas principais mudaram.
+
+IMPORTANTE:
+Se o problema for porque o usuário está testando dentro do “Preview” do Replit ou iframe, então:
+- adicione uma detecção simples no frontend:
+  se window.self !== window.top, exibir aviso “Abra em nova aba” e um botão “Abrir pagamento” que usa window.open(init_point, "_blank")
+Mas o fluxo principal deve continuar sendo window.location.assign(init_point) quando não estiver em iframe.
+
+ENTREGA:
+- Implementação feita
+- Arquivos/trechos mostrados
+- Logs adicionados
+- Instruções de teste no navegador normal (não preview)

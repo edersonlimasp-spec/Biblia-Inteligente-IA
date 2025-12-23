@@ -2819,7 +2819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         notification_url: `${appUrl}/api/mp/webhook`,
       };
       
-      console.log(`[MP] Creating checkout for user ${userId}, plan: ${plan}, price: ${planConfig.price}`);
+      console.log(`[MP] create-checkout plan=${plan} userId=${userId} price=${planConfig.price}`);
       
       const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
         method: "POST",
@@ -2838,6 +2838,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const data = await response.json();
       console.log(`[MP] Checkout criado: preference_id=${data.id}`);
+      console.log(`[MP] init_point=${data.init_point}`);
       
       res.json({
         init_point: data.init_point,
@@ -2943,6 +2944,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[MP Webhook] Erro ao processar webhook:", error);
     }
+  });
+
+  // Health check endpoint
+  app.get("/api/health", (_req, res) => {
+    res.json({ ok: true, timestamp: new Date().toISOString() });
   });
 
   const httpServer = createServer(app);

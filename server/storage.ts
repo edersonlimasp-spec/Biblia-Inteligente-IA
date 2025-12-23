@@ -293,7 +293,9 @@ class PostgresStorage implements IStorage {
   }
 
   async hasActiveSubscription(userId: string, planType: string): Promise<boolean> {
-    // Check regular subscriptions
+    const now = new Date();
+    
+    // Check regular subscriptions - IMPORTANT: verify endDate is not expired
     const subResult = await db
       .select()
       .from(subscriptions)
@@ -304,12 +306,18 @@ class PostgresStorage implements IStorage {
           eq(subscriptions.status, 'active')
         )
       );
-    if (subResult.length > 0) return true;
+    
+    // Only return true if subscription hasn't expired
+    for (const sub of subResult) {
+      // If no endDate (lifetime), always active
+      if (!sub.endDate) return true;
+      // If endDate exists and is in the future, it's active
+      if (new Date(sub.endDate) > now) return true;
+    }
 
     // Check active bonuses
     const bonusType = planType === 'gold' ? 'gold_free' : planType === 'premium' ? 'premium_free' : null;
     if (bonusType) {
-      const now = new Date();
       const bonusResult = await db
         .select()
         .from(bonuses)

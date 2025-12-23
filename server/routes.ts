@@ -2922,6 +2922,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const planType = plan === 'vitalicio' ? 'strong_lifetime' : plan;
       const amount = MP_PLAN_CONFIG[plan]?.price.toFixed(2) || MP_PLAN_CONFIG[planType]?.price.toFixed(2) || "0.00";
       
+      console.log(`[MP Webhook] Criando subscrição - planType: ${planType}, dias: ${days}, lifetime: ${lifetime}, endDate: ${endDate?.toISOString()}`);
+      
       // Create subscription in database
       const subscription = await storage.createSubscription({
         userId,
@@ -2932,7 +2934,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount,
       });
       
-      console.log(`[MP Webhook] ✅ Assinatura ativada: userId=${userId}, plan=${planType}, subscriptionId=${subscription.id}`);
+      console.log(`[MP Webhook] ✅ Assinatura ativada: userId=${userId}, plan=${planType}, subscriptionId=${subscription.id}, endDate=${subscription.endDate}`);
+      
+      // Verify subscription was created correctly
+      const verify = await storage.hasActiveSubscription(userId, planType);
+      console.log(`[MP Webhook] ✅ VERIFICAÇÃO: hasActiveSubscription(${userId}, ${planType}) = ${verify}`);
       
     } catch (error) {
       console.error("[MP Webhook] Erro ao processar webhook:", error);

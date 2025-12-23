@@ -38,7 +38,7 @@ const AI_MODES = [
     icon: GraduationCap,
     color: "from-blue-500 to-blue-700",
     iconBg: "bg-blue-500",
-    premium: false,
+    requiredPlan: "gold",
     prompt: "Você é um professor de teologia. Explique de forma didática e clara:",
   },
   {
@@ -48,7 +48,7 @@ const AI_MODES = [
     icon: Church,
     color: "from-purple-500 to-purple-700",
     iconBg: "bg-purple-500",
-    premium: true,
+    requiredPlan: "gold",
     prompt: "Você é um pregador experiente. Crie uma mensagem inspiradora sobre:",
   },
   {
@@ -58,7 +58,7 @@ const AI_MODES = [
     icon: Microscope,
     color: "from-emerald-500 to-emerald-700",
     iconBg: "bg-emerald-500",
-    premium: true,
+    requiredPlan: "premium",
     prompt: "Você é um exegeta bíblico. Faça uma análise profunda do texto original:",
   },
   {
@@ -68,7 +68,7 @@ const AI_MODES = [
     icon: Scale,
     color: "from-amber-500 to-amber-700",
     iconBg: "bg-amber-500",
-    premium: true,
+    requiredPlan: "premium",
     prompt: "Compare as interpretações teológicas de diferentes denominações sobre:",
   },
 ];
@@ -83,12 +83,24 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState(false);
 
-  const { data: subStatus } = useQuery<{ hasPremium: boolean; hasGold: boolean }>({
+  const { data: subStatus } = useQuery<{ hasPremium: boolean; hasGold: boolean; hasLifetime: boolean }>({
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
   });
 
-  const hasPremium = isAdmin || subStatus?.hasPremium || subStatus?.hasGold || false;
+  const hasPremium = isAdmin || subStatus?.hasPremium || false;
+  const hasGold = subStatus?.hasGold || subStatus?.hasLifetime || false;
+  
+  const canAccessMode = (mode: typeof AI_MODES[0]): boolean => {
+    if (isAdmin) return true;
+    if (mode.requiredPlan === "gold") {
+      return hasPremium || hasGold;
+    }
+    if (mode.requiredPlan === "premium") {
+      return hasPremium;
+    }
+    return true;
+  };
 
   const askMutation = useMutation({
     mutationFn: async ({ mode, text }: { mode: string; text: string }) => {
@@ -122,10 +134,12 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
     }
     
     const mode = AI_MODES.find(m => m.id === selectedMode);
-    if (mode?.premium && !hasPremium) {
+    if (mode && !canAccessMode(mode)) {
       toast({
-        title: "Modo Premium",
-        description: "Este modo requer uma assinatura Premium ou Gold",
+        title: mode.requiredPlan === "premium" ? "Modo Premium" : "Modo Gold+",
+        description: mode.requiredPlan === "premium" 
+          ? "Este modo requer uma assinatura Premium" 
+          : "Este modo requer uma assinatura Gold ou Premium",
       });
       return;
     }
@@ -139,11 +153,11 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
     if (pendingSubmit && question.trim() && selectedMode) {
       setPendingSubmit(false);
       const mode = AI_MODES.find(m => m.id === selectedMode);
-      if (mode?.premium) {
+      if (mode && !canAccessMode(mode)) {
         queryClient.invalidateQueries({ queryKey: ['/api/user/subscription-status'] });
         toast({
           title: "Login realizado!",
-          description: "Verifique sua assinatura para acessar modos premium.",
+          description: "Verifique sua assinatura para acessar este modo.",
         });
       } else {
         setResponse("");
@@ -178,7 +192,8 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
               className="grid grid-cols-1 sm:grid-cols-2 gap-4"
             >
               {AI_MODES.map((mode, index) => {
-                const isLocked = mode.premium && !hasPremium;
+                const isLocked = !canAccessMode(mode);
+                const planLabel = mode.requiredPlan === "premium" ? "Premium" : "Gold+";
                 return (
                   <motion.div
                     key={mode.id}
@@ -199,11 +214,10 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="font-bold text-white">{mode.name}</h3>
-                              {mode.premium && (
-                                <Badge className="bg-white/20 text-white border-0 text-xs">
-                                  {isLocked ? <Lock className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-                                </Badge>
-                              )}
+                              <Badge className="bg-white/20 text-white border-0 text-xs">
+                                {isLocked ? <Lock className="w-3 h-3 mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                                {planLabel}
+                              </Badge>
                             </div>
                             <p className="text-sm text-white/80">{mode.description}</p>
                           </div>

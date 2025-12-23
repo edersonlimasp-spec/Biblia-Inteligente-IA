@@ -83,18 +83,24 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState(false);
 
-  const { data: subStatus } = useQuery<{ hasPremium: boolean; hasGold: boolean; hasLifetime: boolean }>({
+  const { data: subStatus } = useQuery<{ hasPremium: boolean; hasGold: boolean; hasLifetime: boolean; trialActive: boolean }>({
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
   });
 
+  const { data: guestTrialInfo } = useQuery<{ active: boolean; daysRemaining: number }>({
+    queryKey: ['/api/guest/trial', deviceId],
+    enabled: !user && !!deviceId,
+  });
+
   const hasPremium = isAdmin || subStatus?.hasPremium || false;
-  const hasGold = subStatus?.hasGold || subStatus?.hasLifetime || false;
+  const hasGold = subStatus?.hasGold || subStatus?.hasLifetime || subStatus?.trialActive || false;
+  const hasGuestTrial = !user && guestTrialInfo?.active;
   
   const canAccessMode = (mode: typeof AI_MODES[0]): boolean => {
     if (isAdmin) return true;
     if (mode.requiredPlan === "gold") {
-      return hasPremium || hasGold;
+      return hasPremium || hasGold || hasGuestTrial;
     }
     if (mode.requiredPlan === "premium") {
       return hasPremium;

@@ -2010,9 +2010,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { book, chapter, verse, deviceId } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Strong lookup limit enforcement
+      // Strong lookup limit enforcement - tiered by plan
       const STRONG_FREE_DAILY_LIMIT = 3;
-      let canLookup = true;
+      const STRONG_GOLD_DAILY_LIMIT = 20;
+      // Premium/Lifetime = unlimited
+      
       let lookupInfo: { isLimited: boolean; remaining: number; total: number } | null = null;
       
       // Check if authenticated user
@@ -2028,25 +2030,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const trialActive = isTrialActive(user.trialStartDate);
             const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
             const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
+            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
             const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
-            const hasFullAccess = trialActive || hasGold || hasPremium || hasActiveBonus || isAdmin;
             
-            if (!hasFullAccess) {
+            // Premium, Lifetime and Admin have unlimited access
+            const hasUnlimitedAccess = hasPremium || hasLifetime || hasActiveBonus || isAdmin;
+            // Gold and Trial have 20/day limit
+            const hasGoldAccess = hasGold || trialActive;
+            
+            if (!hasUnlimitedAccess) {
               const todayStrongLookups = await storage.getTodayStrongLookups(decoded.userId);
+              const dailyLimit = hasGoldAccess ? STRONG_GOLD_DAILY_LIMIT : STRONG_FREE_DAILY_LIMIT;
               
-              if (todayStrongLookups >= STRONG_FREE_DAILY_LIMIT) {
+              if (todayStrongLookups >= dailyLimit) {
+                const upgradeMsg = hasGoldAccess 
+                  ? "Limite diário de 20 consultas Strong atingido. Assine Premium para acesso ilimitado, ou aguarde até amanhã."
+                  : "Limite diário de 3 consultas Strong atingido. Assine Gold para 20 consultas/dia ou Premium para ilimitado.";
                 return res.status(429).json({
-                  error: `Limite diário de ${STRONG_FREE_DAILY_LIMIT} consultas Strong atingido. Assine um plano para acesso ilimitado, ou aguarde até amanhã.`,
+                  error: upgradeMsg,
                   requiresSubscription: true,
-                  subscriptionType: 'gold',
-                  dailyLimit: STRONG_FREE_DAILY_LIMIT,
+                  subscriptionType: hasGoldAccess ? 'premium' : 'gold',
+                  dailyLimit: dailyLimit,
                   usedToday: todayStrongLookups,
                   upgradeRequired: true
                 });
               }
               
-              lookupInfo = { isLimited: true, remaining: STRONG_FREE_DAILY_LIMIT - todayStrongLookups - 1, total: STRONG_FREE_DAILY_LIMIT };
-              // Increment after successful lookup
+              lookupInfo = { isLimited: true, remaining: dailyLimit - todayStrongLookups - 1, total: dailyLimit };
               await storage.incrementStrongLookups(decoded.userId);
             }
           }
@@ -2058,22 +2068,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const guestTrialInfo = await storage.getGuestTrialInfo(deviceId);
         const guestTrialActive = guestTrialInfo?.active ?? true;
         
-        if (!guestTrialActive) {
-          const todayStrongLookups = await storage.getGuestTodayStrongLookups(deviceId);
-          
-          if (todayStrongLookups >= STRONG_FREE_DAILY_LIMIT) {
-            return res.status(429).json({
-              error: `Limite diário de ${STRONG_FREE_DAILY_LIMIT} consultas Strong atingido. Cadastre-se para continuar usando, ou aguarde até amanhã.`,
-              requiresSubscription: true,
-              dailyLimit: STRONG_FREE_DAILY_LIMIT,
-              usedToday: todayStrongLookups,
-              upgradeRequired: true
-            });
-          }
-          
-          lookupInfo = { isLimited: true, remaining: STRONG_FREE_DAILY_LIMIT - todayStrongLookups - 1, total: STRONG_FREE_DAILY_LIMIT };
-          await storage.incrementGuestStrongLookups(deviceId);
+        // Guests with active trial get Gold-level access (20/day)
+        const dailyLimit = guestTrialActive ? STRONG_GOLD_DAILY_LIMIT : STRONG_FREE_DAILY_LIMIT;
+        const todayStrongLookups = await storage.getGuestTodayStrongLookups(deviceId);
+        
+        if (todayStrongLookups >= dailyLimit) {
+          const upgradeMsg = guestTrialActive
+            ? "Limite diário de 20 consultas Strong atingido. Aguarde até amanhã ou assine para acesso ilimitado."
+            : "Limite diário de 3 consultas Strong atingido. Cadastre-se para continuar usando, ou aguarde até amanhã.";
+          return res.status(429).json({
+            error: upgradeMsg,
+            requiresSubscription: true,
+            dailyLimit: dailyLimit,
+            usedToday: todayStrongLookups,
+            upgradeRequired: true
+          });
         }
+        
+        lookupInfo = { isLimited: true, remaining: dailyLimit - todayStrongLookups - 1, total: dailyLimit };
+        await storage.incrementGuestStrongLookups(deviceId);
       }
       
       // STRATEGY 1: Try exact match from bible_words table (most accurate)

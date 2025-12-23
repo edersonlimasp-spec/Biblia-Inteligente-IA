@@ -89,7 +89,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
                     <div className="text-xs text-muted-foreground">Acesso ilimitado para sempre</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-primary">R$ 59,90</div>
+                    <div className="text-lg font-bold text-primary">R$ 49,90</div>
                     <div className="text-xs text-muted-foreground">único</div>
                   </div>
                 </div>

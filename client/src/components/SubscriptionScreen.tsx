@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, Crown, Sparkles, Lock, ArrowLeft } from "lucide-react";
+import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { AuthModal } from "./AuthModal";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
+import { apiRequest } from "@/lib/queryClient";
 
 interface SubscriptionScreenProps {
   onBack?: () => void;
@@ -20,6 +21,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState<number | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchTrialInfo() {
@@ -49,15 +51,49 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     fetchTrialInfo();
   }, [user]);
 
-  const handlePlanSelect = (planName: string) => {
+  // Map plan names to backend plan IDs
+  const planNameToId: Record<string, string> = {
+    'Strong Vitalício': 'vitalicio',
+    'Plano Gold': 'gold',
+    'Plano Premium': 'premium',
+  };
+
+  const handlePlanSelect = async (planName: string) => {
     if (!user) {
       setSelectedPlan(planName);
       setShowAuthModal(true);
-    } else {
+      return;
+    }
+    
+    const planId = planNameToId[planName];
+    if (!planId) {
       toast({
-        title: "Em desenvolvimento",
-        description: `Pagamento para ${planName} será implementado em breve.`,
+        title: 'Erro',
+        description: 'Plano inválido',
+        variant: 'destructive',
       });
+      return;
+    }
+    
+    setIsPurchasing(planName);
+    
+    try {
+      const response = await apiRequest('POST', '/api/mp/create-checkout', { plan: planId });
+      const data = await response.json();
+      
+      if (data.init_point) {
+        window.location.href = data.init_point;
+      } else {
+        throw new Error('Erro ao criar checkout');
+      }
+    } catch (error: any) {
+      console.error('Erro ao processar pagamento:', error);
+      toast({
+        title: 'Erro',
+        description: error.message || 'Falha ao processar o pagamento',
+        variant: 'destructive',
+      });
+      setIsPurchasing(null);
     }
   };
 
@@ -72,7 +108,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const plans = [
     {
       name: "Strong Vitalício",
-      price: "R$ 59,90",
+      price: "R$ 49,90",
       period: "pagamento único",
       icon: Crown,
       features: [
@@ -213,9 +249,15 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     className="w-full"
                     variant={plan.highlight ? "default" : "outline"}
                     onClick={() => handlePlanSelect(plan.name)}
+                    disabled={isPurchasing === plan.name}
                     data-testid={`button-subscribe-${plan.name.toLowerCase().replace(/\s/g, "-")}`}
                   >
-                    {plan.highlight ? "Assinar Agora" : "Escolher Plano"}
+                    {isPurchasing === plan.name ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Processando...
+                      </>
+                    ) : plan.highlight ? "Assinar Agora" : "Escolher Plano"}
                   </Button>
                 </CardContent>
               </Card>

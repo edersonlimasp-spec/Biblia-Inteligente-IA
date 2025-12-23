@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck } from "lucide-react";
+import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface DashboardStats {
@@ -300,6 +300,111 @@ export function AdminDashboard() {
               <div>
                 <p className="text-sm text-muted-foreground">Premium (Acesso Completo IA)</p>
                 <p className="text-lg font-semibold">{stats?.activePremiumSubscriptions || 0} ativos</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Acessos e Performance */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Canceladas (mês)</CardTitle>
+            <Activity className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats?.cancelledThisMonth || 0}</div>
+                <p className="text-xs text-muted-foreground">Churn rate</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Gold Ativos</CardTitle>
+            <CreditCard className="h-4 w-4 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats?.activeGoldSubscriptions || 0}</div>
+                <p className="text-xs text-muted-foreground">Plano Gold</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Premium Ativos</CardTitle>
+            <Crown className="h-4 w-4 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats?.activePremiumSubscriptions || 0}</div>
+                <p className="text-xs text-muted-foreground">Plano Premium</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Métricas Profissionais Avançadas */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Métricas Profissionais Avançadas</CardTitle>
+          <CardDescription>Análise detalhada de engajamento e retenção</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {statsLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Taxa de Conversão Guest→User</p>
+                <p className="text-lg font-semibold">
+                  {stats?.totalGuests && stats.totalGuests > 0 
+                    ? `${((stats.convertedGuests / stats.totalGuests) * 100).toFixed(1)}%`
+                    : '0%'}
+                </p>
+              </div>
+
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Usuários Novos (mês)</p>
+                <p className="text-lg font-semibold">{stats?.newUsersThisMonth || 0}</p>
+              </div>
+
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Adesão Gold/Premium</p>
+                <p className="text-lg font-semibold">
+                  {stats?.totalUsers && stats.totalUsers > 0
+                    ? `${(((stats.activeGoldSubscriptions + stats.activePremiumSubscriptions) / stats.totalUsers) * 100).toFixed(1)}%`
+                    : '0%'}
+                </p>
+              </div>
+
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Usuários Inativos</p>
+                <p className="text-lg font-semibold">
+                  {stats?.totalUsers && stats?.totalGuests
+                    ? Math.max(0, stats.totalUsers - (stats.onlineUsers || 0) - stats.totalGuests)
+                    : '—'}
+                </p>
               </div>
             </div>
           )}

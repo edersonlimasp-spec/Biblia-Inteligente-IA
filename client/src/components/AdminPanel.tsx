@@ -33,19 +33,21 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
     <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground">
       {/* Admin Header */}
       <div className="border-b bg-card dark:bg-card sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <BarChart3 className="h-7 w-7 text-primary flex-shrink-0" />
-              <h1 className="text-2xl font-bold text-foreground whitespace-nowrap overflow-hidden text-ellipsis">Painel Administrativo</h1>
-            </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <span className="text-sm text-muted-foreground hidden sm:inline">
-                {user?.role === 'super_admin' ? '👑 Super Admin' : '🔑 Admin'}
-              </span>
+        <div className="max-w-7xl mx-auto px-4 py-5">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <BarChart3 className="h-8 w-8 text-primary flex-shrink-0" />
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">Painel Administrativo</h1>
+              </div>
               <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-admin-back">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {user?.role === 'super_admin' ? '👑 Super Admin' : '🔑 Admin'}
+              </span>
             </div>
           </div>
         </div>

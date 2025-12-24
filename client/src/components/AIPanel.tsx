@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useLocation } from "wouter";
+import { useAIQuota } from "@/hooks/useAIQuota";
 import {
   Sheet,
   SheetContent,
@@ -72,81 +73,6 @@ interface AIResponse {
 
 const STORAGE_KEY = "bible-ai-chat-sessions";
 const CURRENT_SESSION_KEY = "bible-ai-current-session-id";
-
-// ===================================
-// QUOTA SYSTEM - Dual tracking: Guest (2) + User (3)
-// ===================================
-const GUEST_QUESTIONS_KEY = "bible-ai-guest-questions-count";
-const GUEST_QUESTIONS_DATE_KEY = "bible-ai-guest-questions-date";
-const USER_QUESTIONS_KEY = "bible-ai-user-questions-count";
-const USER_QUESTIONS_DATE_KEY = "bible-ai-user-questions-date";
-
-const GUEST_QUESTIONS_LIMIT = 2; // Guests get 2 free questions before login
-const USER_QUESTIONS_LIMIT = 5;  // Logged-in users get 5 total free questions (2 + 3 additional)
-
-// Get guest questions used (before login)
-function getGuestQuestionsUsed(): number {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const savedDate = localStorage.getItem(GUEST_QUESTIONS_DATE_KEY);
-    
-    if (savedDate !== today) {
-      localStorage.setItem(GUEST_QUESTIONS_DATE_KEY, today);
-      localStorage.setItem(GUEST_QUESTIONS_KEY, "0");
-      return 0;
-    }
-    
-    return parseInt(localStorage.getItem(GUEST_QUESTIONS_KEY) || "0", 10);
-  } catch {
-    return 0;
-  }
-}
-
-// Get user questions used (after login)
-function getUserQuestionsUsed(): number {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const savedDate = localStorage.getItem(USER_QUESTIONS_DATE_KEY);
-    
-    if (savedDate !== today) {
-      localStorage.setItem(USER_QUESTIONS_DATE_KEY, today);
-      localStorage.setItem(USER_QUESTIONS_KEY, "0");
-      return 0;
-    }
-    
-    return parseInt(localStorage.getItem(USER_QUESTIONS_KEY) || "0", 10);
-  } catch {
-    return 0;
-  }
-}
-
-// Increment guest question count
-function incrementGuestQuestionsUsed(): number {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    localStorage.setItem(GUEST_QUESTIONS_DATE_KEY, today);
-    const current = getGuestQuestionsUsed();
-    const newCount = current + 1;
-    localStorage.setItem(GUEST_QUESTIONS_KEY, newCount.toString());
-    return newCount;
-  } catch {
-    return 1;
-  }
-}
-
-// Increment user question count
-function incrementUserQuestionsUsed(): number {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    localStorage.setItem(USER_QUESTIONS_DATE_KEY, today);
-    const current = getUserQuestionsUsed();
-    const newCount = current + 1;
-    localStorage.setItem(USER_QUESTIONS_KEY, newCount.toString());
-    return newCount;
-  } catch {
-    return 1;
-  }
-}
 
 function saveSessions(sessions: ChatSession[]): void {
   try {
@@ -217,8 +143,6 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [userSub, setUserSub] = useState<UserSubscription>({ hasPremium: false, hasGold: false, trialActive: false });
   const [guestTrialInfo, setGuestTrialInfo] = useState<{ active: boolean; daysRemaining: number } | null>(null);
-  const [guestQuestionsUsed, setGuestQuestionsUsed] = useState(0);
-  const [userQuestionsUsed, setUserQuestionsUsed] = useState(0);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
@@ -226,6 +150,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   const { user } = useAuth();
   const { requireAuth, isAuthenticated } = useRequireAuth();
   const [, navigate] = useLocation();
+  
+  // Centralized quota system
+  const { quotaInfo, consumeQuestion, isLoading: quotaLoading } = useAIQuota();
 
   // ===================================
   // STATE - Sessões e Mensagens
@@ -293,14 +220,8 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   }, [shouldResetAI, onResetComplete]);
 
   // ===================================
-  // INITIALIZATION - Carregar status de assinatura e contagem de perguntas
+  // INITIALIZATION - Carregar status de assinatura
   // ===================================
-
-  useEffect(() => {
-    // Load both quota counts on mount
-    setGuestQuestionsUsed(getGuestQuestionsUsed());
-    setUserQuestionsUsed(getUserQuestionsUsed());
-  }, []);
 
   useEffect(() => {
     async function fetchSubscriptionStatus() {
@@ -343,22 +264,12 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   }, [user]);
   
   // ===================================
-  // HELPERS - Check if user has unlimited AI access
+  // HELPERS - Check if user has unlimited AI access (uses centralized quota)
   // ===================================
   
   const hasUnlimitedAccess = (): boolean => {
-    // Admins always have unlimited access
-    if (user?.role === 'admin' || user?.role === 'super_admin') return true;
-    // Premium or Gold subscribers have unlimited access
-    if (userSub.hasPremium || userSub.hasGold) return true;
-    // Active trial gives unlimited access
-    if (userSub.trialActive) return true;
-    return false;
+    return quotaInfo.hasUnlimitedAccess;
   };
-  
-  // Calculate remaining questions based on auth state
-  const remainingGuestQuestions = GUEST_QUESTIONS_LIMIT - guestQuestionsUsed;
-  const remainingUserQuestions = USER_QUESTIONS_LIMIT - userQuestionsUsed;
 
   // ===================================
   // INITIALIZATION - Carregar sessões do localStorage (com RESET automático)
@@ -713,125 +624,75 @@ Conheça: https://bibliainteligente.replit.app`;
   const handleAsk = () => {
     if (!question.trim()) return;
     
-    // ===================================
-    // FLOW: Guest (2 perguntas) → Login → User (3 perguntas) → Upgrade
-    // ===================================
+    // Store question before clearing
+    const currentQuestion = question.trim();
     
-    // Refresh quota counts from localStorage (handles day reset)
-    const currentGuestUsed = getGuestQuestionsUsed();
-    const currentUserUsed = getUserQuestionsUsed();
-    
-    if (currentGuestUsed !== guestQuestionsUsed) {
-      setGuestQuestionsUsed(currentGuestUsed);
-    }
-    if (currentUserUsed !== userQuestionsUsed) {
-      setUserQuestionsUsed(currentUserUsed);
-    }
+    // Clear input immediately for better UX
+    setQuestion("");
     
     // ===================================
-    // CASE 1: Guest (not authenticated)
+    // CHECK QUOTA (Centralized system)
+    // Guest: 2 permanent questions, User: 5 permanent total
     // ===================================
-    if (!isAuthenticated) {
-      // Check if guest has remaining questions (2 total)
-      if (currentGuestUsed >= GUEST_QUESTIONS_LIMIT) {
-        // Guest limit reached - require login
-        setShowLoginPrompt(true);
-        return;
-      }
-      
-      // Guest can ask - proceed with question
-      const userMessage: ChatMessage = {
-        role: "user",
-        text: question.trim(),
-        createdAt: new Date(),
-      };
-      setMessages(prev => [...prev, userMessage]);
-      
-      // Increment guest count
-      const newGuestCount = incrementGuestQuestionsUsed();
-      setGuestQuestionsUsed(newGuestCount);
-      
-      // Track and send question as guest
-      trackAIQuestion('essential').catch(() => {});
-      
-      askAIMutation.mutate({
-        question: question.trim(),
-        mode: 'essential',
-        sessionId: currentSessionId,
-        isGuest: true,
-        deviceId: getDeviceId(),
-      });
-      return;
-    }
     
-    // ===================================
-    // CASE 2: Authenticated user - wait for subscription to load
-    // ===================================
-    if (subscriptionLoading) {
+    // Wait for quota to load if authenticated
+    if (isAuthenticated && quotaLoading) {
       toast({
         title: "Aguarde",
         description: "Carregando seu plano...",
       });
+      setQuestion(currentQuestion); // Restore question
       return;
     }
     
     // ===================================
-    // CASE 3: Authenticated with unlimited access (Gold/Premium/Trial/Admin)
+    // CASE 1: Guest - require login if limit reached
     // ===================================
-    const unlimited = hasUnlimitedAccess();
-    
-    if (unlimited) {
-      // Unlimited access - proceed without counting
-      const userMessage: ChatMessage = {
-        role: "user",
-        text: question.trim(),
-        createdAt: new Date(),
-      };
-      setMessages(prev => [...prev, userMessage]);
-      
-      const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
-      const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
-      
-      trackAIQuestion(mode).catch(() => {});
-      
-      askAIMutation.mutate({
-        question: question.trim(),
-        mode,
-        sessionId: currentSessionId,
-        isGuest: false,
-      });
+    if (quotaInfo.requiresLogin) {
+      setQuestion(currentQuestion); // Restore question
+      setShowLoginPrompt(true);
       return;
     }
     
     // ===================================
-    // CASE 4: Free user (3 perguntas após login)
+    // CASE 2: User without subscription - require upgrade if limit reached
     // ===================================
-    if (currentUserUsed >= USER_QUESTIONS_LIMIT) {
-      // User limit reached - show upgrade prompt
+    if (quotaInfo.requiresSubscription) {
+      setQuestion(currentQuestion); // Restore question
       setShowUpgradePrompt(true);
       return;
     }
     
-    // Free user can ask - proceed with question
+    // ===================================
+    // PROCEED - User has quota or unlimited access
+    // ===================================
+    
+    // Add user message to chat
     const userMessage: ChatMessage = {
       role: "user",
-      text: question.trim(),
+      text: currentQuestion,
       createdAt: new Date(),
     };
     setMessages(prev => [...prev, userMessage]);
     
-    // Increment user count
-    const newUserCount = incrementUserQuestionsUsed();
-    setUserQuestionsUsed(newUserCount);
+    // Consume quota (unless unlimited)
+    if (!quotaInfo.hasUnlimitedAccess) {
+      consumeQuestion();
+    }
+    
+    // Determine mode based on access
+    const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
+    const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
     
     // Track and send question
-    trackAIQuestion('essential').catch(() => {});
+    trackAIQuestion(mode).catch(() => {});
     
     askAIMutation.mutate({
-      question: question.trim(),
-      mode: 'essential',
+      question: currentQuestion,
+      mode,
       sessionId: currentSessionId,
-      isGuest: false,
+      isGuest: !isAuthenticated,
+      deviceId: getDeviceId(),
     });
   };
 
@@ -1089,27 +950,18 @@ Conheça: https://bibliainteligente.replit.app`;
           </div>
 
           {/* Remaining Free Questions Badge */}
-          {!hasUnlimitedAccess() && (
+          {!quotaInfo.hasUnlimitedAccess && (
             <Badge 
-              variant={isAuthenticated 
-                ? (remainingUserQuestions > 0 ? "secondary" : "destructive")
-                : (remainingGuestQuestions > 0 ? "secondary" : "outline")
-              } 
+              variant={quotaInfo.remaining > 0 ? "secondary" : (quotaInfo.isGuest ? "outline" : "destructive")} 
               className="text-xs whitespace-nowrap"
               data-testid="badge-remaining-questions"
             >
-              {isAuthenticated ? (
-                remainingUserQuestions > 0 ? (
-                  <>{remainingUserQuestions}/{USER_QUESTIONS_LIMIT}</>
-                ) : (
-                  <><Lock className="h-3 w-3 mr-1" />Limite</>
-                )
+              {quotaInfo.remaining > 0 ? (
+                <>{quotaInfo.remaining}/{quotaInfo.limit}</>
+              ) : quotaInfo.isGuest ? (
+                <><LogIn className="h-3 w-3 mr-1" />Login</>
               ) : (
-                remainingGuestQuestions > 0 ? (
-                  <>{remainingGuestQuestions}/{GUEST_QUESTIONS_LIMIT}</>
-                ) : (
-                  <><LogIn className="h-3 w-3 mr-1" />Login</>
-                )
+                <><Lock className="h-3 w-3 mr-1" />Limite</>
               )}
             </Badge>
           )}
@@ -1142,7 +994,7 @@ Conheça: https://bibliainteligente.replit.app`;
             </DialogTitle>
             <DialogDescription className="pt-2 space-y-3">
               <p>
-                Você utilizou suas <strong>{USER_QUESTIONS_LIMIT} perguntas gratuitas</strong> para o Professor IA.
+                Você utilizou suas <strong>5 perguntas gratuitas</strong> para o Professor IA.
               </p>
               <p>
                 Para continuar usando a IA ilimitadamente, faça upgrade para um plano <strong>Gold</strong> ou <strong>Premium</strong>.
@@ -1182,10 +1034,10 @@ Conheça: https://bibliainteligente.replit.app`;
             </DialogTitle>
             <DialogDescription className="pt-2 space-y-3">
               <p>
-                Você utilizou suas <strong>{GUEST_QUESTIONS_LIMIT} perguntas gratuitas</strong> como visitante.
+                Você utilizou suas <strong>2 perguntas gratuitas</strong> como visitante.
               </p>
               <p>
-                Faça login ou crie uma conta para ganhar mais <strong>{USER_QUESTIONS_LIMIT} perguntas gratuitas</strong> hoje!
+                Faça login ou crie uma conta para ganhar mais <strong>3 perguntas gratuitas</strong>!
               </p>
             </DialogDescription>
           </DialogHeader>
@@ -1196,7 +1048,7 @@ Conheça: https://bibliainteligente.replit.app`;
                 requireAuth(() => {
                   toast({
                     title: "Login realizado!",
-                    description: `Você ganhou mais ${USER_QUESTIONS_LIMIT} perguntas gratuitas!`,
+                    description: "Você ganhou mais 3 perguntas gratuitas!",
                   });
                 }, "Professor IA");
               }}

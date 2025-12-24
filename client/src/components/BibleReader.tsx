@@ -138,7 +138,7 @@ export function BibleReader({
   const [trialActive, setTrialActive] = useState(false);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
 
-  // Initialize with last reading position
+  // Initialize with last reading position - only runs once on mount
   useEffect(() => {
     const lastReading = getLastReading();
     if (lastReading) {
@@ -146,7 +146,8 @@ export function BibleReader({
       setSelectedChapter(lastReading.chapter);
       setSelectedVersion(lastReading.versionCode || "ACF");
     }
-  }, [getLastReading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Navigate to target verse from annotations/bookmarks page
   useEffect(() => {
@@ -489,12 +490,12 @@ export function BibleReader({
     }
   }, [chapterStrongWords, selectedBook, selectedChapter]);
 
-  // Track reading history when chapter changes (cloud sync)
+  // Track reading history when chapter/version changes (cloud sync for logged users, localStorage for guests)
   useEffect(() => {
-    if (selectedBook && selectedChapter && isAuthenticated) {
+    if (selectedBook && selectedChapter) {
       trackReading(selectedBook, selectedChapter, selectedVersion);
     }
-  }, [selectedBook, selectedChapter, selectedVersion, isAuthenticated, trackReading]);
+  }, [selectedBook, selectedChapter, selectedVersion, trackReading]);
 
   const handleWordClick = (word: string, verseNum: number) => {
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();

@@ -220,9 +220,11 @@ function LevelSection({
   const levelCompleted = modules.reduce((sum, m) => sum + m.progress.completed, 0);
   const levelPercentage = levelLessons > 0 ? Math.round((levelCompleted / levelLessons) * 100) : 0;
   
-  const canAccessLevel = isAdmin || 
-    (level === 'iniciante' && (userPlan === 'gold' || userPlan === 'premium')) ||
-    ((level === 'moderado' || level === 'avancado') && userPlan === 'premium');
+  // Regras de acesso aos MÓDULOS (visualização):
+  // - Todos podem ABRIR qualquer módulo e ver a lista de aulas
+  // - O bloqueio acontece no nível de AULA em ModuleDetailScreen
+  // - Isto é essencial para conversão (usuário vê o conteúdo disponível)
+  const canAccessLevel = true; // Sempre pode abrir o módulo para ver a lista de aulas
   
   const getGlobalPreviousModule = (module: StudyModule): StudyModule | undefined => {
     const globalIndex = allModulesSorted.findIndex(m => m.id === module.id);
@@ -230,31 +232,14 @@ function LevelSection({
     return allModulesSorted[globalIndex - 1];
   };
   
-  const getLockReason = (module: StudyModule): string | undefined => {
-    if (isAdmin) return undefined;
-    
-    if (!canAccessLevel) {
-      return level === 'iniciante' 
-        ? 'Assine Gold ou Premium' 
-        : 'Exclusivo para Premium';
-    }
-    
-    const prevModule = getGlobalPreviousModule(module);
-    if (prevModule && !completedModuleIds.has(prevModule.id)) {
-      return `Complete "${prevModule.name}" primeiro`;
-    }
-    
+  // Módulos nunca são bloqueados - o bloqueio é no nível de aula
+  const getLockReason = (_module: StudyModule): string | undefined => {
     return undefined;
   };
   
-  const isModuleLocked = (module: StudyModule): boolean => {
-    if (isAdmin) return false;
-    if (!canAccessLevel) return true;
-    
-    const prevModule = getGlobalPreviousModule(module);
-    if (!prevModule) return false;
-    
-    return !completedModuleIds.has(prevModule.id);
+  // Módulos nunca são bloqueados - usuário pode abrir qualquer módulo para ver aulas
+  const isModuleLocked = (_module: StudyModule): boolean => {
+    return false;
   };
   
   return (
@@ -276,7 +261,7 @@ function LevelSection({
             {!canAccessLevel && (
               <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600">
                 <Crown className="w-3 h-3 mr-1" />
-                {level === 'iniciante' ? 'Gold+' : 'Premium'}
+                Gold
               </Badge>
             )}
           </div>
@@ -453,7 +438,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
             </>
           )}
 
-          {!userPlan && !isAdmin && (
+          {userPlan !== 'gold' && !isAdmin && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -463,8 +448,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
               <Crown className="w-8 h-8 mx-auto text-amber-500 mb-2" />
               <h3 className="font-semibold mb-1">Desbloqueie todo o conteúdo</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                <strong>Gold:</strong> Acesso aos módulos Iniciantes<br />
-                <strong>Premium:</strong> Acesso completo a todos os níveis
+                Assine <strong>Gold</strong> para acessar todos os módulos e lições
               </p>
               <Button onClick={onNavigateToSubscriptions} data-testid="button-subscribe-cta">
                 <Crown className="w-4 h-4 mr-1" />

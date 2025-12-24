@@ -85,14 +85,24 @@ function TrackCard({
   onUnlock: () => void;
 }) {
   const levelConfig = LEVEL_CONFIG[track.level] || LEVEL_CONFIG.iniciante;
-  const isLocked = !canAccessTrack(track.requiredPlan, userPlan, isAdmin);
+  // Usa track.level para determinar acesso (não requiredPlan que pode estar errado nos dados)
+  const canAccess = canAccessLesson(track.level, userPlan, isAdmin);
   
+  // Sempre buscar lições - todos podem VER a lista
   const { data: lessonsData, isLoading } = useQuery<{ lessons: Lesson[] }>({
     queryKey: ['/api/study/tracks', track.id],
-    enabled: !isLocked,
   });
   
   const lessons = lessonsData?.lessons || [];
+  
+  // Ao clicar na aula: se não tem acesso, mostra modal de assinatura
+  const handleLessonClick = (lessonId: string) => {
+    if (canAccess) {
+      onLessonClick(lessonId);
+    } else {
+      onUnlock(); // Redireciona para tela de assinatura
+    }
+  };
   
   return (
     <motion.div
@@ -107,9 +117,14 @@ function TrackCard({
             {levelConfig.label}
           </Badge>
           <h3 className="font-semibold truncate">{track.name}</h3>
-          {isLocked && <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+          {!canAccess && (
+            <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600">
+              <Crown className="w-3 h-3 mr-1" />
+              Gold
+            </Badge>
+          )}
         </div>
-        {!isLocked && track.totalLessons > 0 && (
+        {track.totalLessons > 0 && (
           <span className="text-xs text-muted-foreground flex-shrink-0">
             {track.completedLessons}/{track.totalLessons}
           </span>
@@ -118,47 +133,34 @@ function TrackCard({
       
       <p className="text-sm text-muted-foreground mb-3 break-words">{track.description}</p>
       
-      {isLocked ? (
-        <div className="bg-muted/50 rounded-xl p-4 text-center">
-          <Lock className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground mb-3">
-            {track.requiredPlan === 'premium' 
-              ? 'Conteúdo exclusivo para assinantes Premium'
-              : 'Assine Gold ou Premium para acessar'}
-          </p>
-          <Button size="sm" onClick={onUnlock} data-testid={`button-unlock-track-${track.id}`}>
-            <Crown className="w-4 h-4 mr-1" />
-            Desbloquear
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {isLoading ? (
-            <>
-              <LessonItemSkeleton />
-              <LessonItemSkeleton />
-            </>
-          ) : (
-            lessons.map((lesson) => (
-              <LessonItem 
-                key={lesson.id} 
-                lesson={lesson} 
-                onClick={() => onLessonClick(lesson.id)} 
-              />
-            ))
-          )}
-          {!isLoading && track.percentage > 0 && (
-            <div className="pt-2">
-              <Progress value={track.percentage} className="h-1.5" />
-            </div>
-          )}
-        </div>
-      )}
+      {/* Sempre mostra lista de aulas - bloqueio é no clique */}
+      <div className="space-y-2">
+        {isLoading ? (
+          <>
+            <LessonItemSkeleton />
+            <LessonItemSkeleton />
+          </>
+        ) : (
+          lessons.map((lesson) => (
+            <LessonItem 
+              key={lesson.id} 
+              lesson={lesson} 
+              onClick={() => handleLessonClick(lesson.id)}
+              isLocked={!canAccess}
+            />
+          ))
+        )}
+        {!isLoading && track.percentage > 0 && (
+          <div className="pt-2">
+            <Progress value={track.percentage} className="h-1.5" />
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
 
-function LessonItem({ lesson, onClick }: { lesson: Lesson; onClick: () => void }) {
+function LessonItem({ lesson, onClick, isLocked = false }: { lesson: Lesson; onClick: () => void; isLocked?: boolean }) {
   return (
     <div
       onClick={onClick}
@@ -168,10 +170,14 @@ function LessonItem({ lesson, onClick }: { lesson: Lesson; onClick: () => void }
       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
         lesson.completed 
           ? 'bg-green-500 text-white' 
-          : 'bg-muted'
+          : isLocked
+            ? 'bg-amber-500/20'
+            : 'bg-muted'
       }`}>
         {lesson.completed ? (
           <Check className="w-4 h-4" />
+        ) : isLocked ? (
+          <Lock className="w-3 h-3 text-amber-600" />
         ) : (
           <span className="text-sm font-medium">{lesson.order}</span>
         )}
@@ -183,7 +189,11 @@ function LessonItem({ lesson, onClick }: { lesson: Lesson; onClick: () => void }
           <span>{lesson.estimatedMinutes} min</span>
         </div>
       </div>
-      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+      {isLocked ? (
+        <Crown className="w-4 h-4 text-amber-500" />
+      ) : (
+        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+      )}
     </div>
   );
 }
@@ -200,18 +210,25 @@ function LessonItemSkeleton() {
   );
 }
 
-function canAccessTrack(requiredPlan: string, userPlan: string | null, isAdmin: boolean = false): boolean {
+// Regras de acesso às AULAS:
+// - FREE: Acesso TOTAL aos conteúdos INICIANTES (level = 'iniciante')
+// - PREMIUM: Pode VER lista de aulas, mas NÃO pode abrir aulas moderado/avançado
+// - GOLD: Acesso TOTAL a tudo
+// IMPORTANTE: Usa o campo 'level' do track, não o 'requiredPlan' (que pode estar incorreto nos dados)
+function canAccessLesson(trackLevel: string, userPlan: string | null, isAdmin: boolean = false): boolean {
   if (isAdmin) return true;
-  if (!userPlan) return false;
-  if (userPlan === 'premium') return true;
-  if (userPlan === 'gold' && (requiredPlan === 'gold' || requiredPlan === 'iniciante')) return true;
+  // Gold tem acesso total
+  if (userPlan === 'gold') return true;
+  // Conteúdo iniciante é acessível por TODOS (FREE, PREMIUM, sem plano)
+  if (trackLevel === 'iniciante') return true;
+  // Módulos moderado/avançado - somente Gold pode abrir aulas
   return false;
 }
 
 interface SubscriptionStatus {
-  hasSubscription: boolean;
-  planType?: string;
-  status?: string;
+  hasGold?: boolean;
+  hasPremium?: boolean;
+  trialActive?: boolean;
 }
 
 interface GuestTrialInfo {
@@ -244,8 +261,9 @@ export function ModuleDetailScreen({
   });
 
   // Determine user plan: logged in user's subscription OR guest with active trial gets 'gold' access
+  // GOLD = acesso total, PREMIUM = acesso moderado/avançado bloqueado
   const userPlan = user 
-    ? (subscriptionData?.planType || null)
+    ? (subscriptionData?.hasGold ? 'gold' : subscriptionData?.hasPremium ? 'premium' : null)
     : (guestTrialData?.active ? 'gold' : null);
 
   if (moduleLoading) {
@@ -334,7 +352,7 @@ export function ModuleDetailScreen({
             />
           ))}
 
-          {!userPlan && !isAdmin && (
+          {userPlan !== 'gold' && !isAdmin && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -344,7 +362,7 @@ export function ModuleDetailScreen({
               <Sparkles className="w-8 h-8 mx-auto text-amber-500 mb-2" />
               <h3 className="font-semibold mb-1">Desbloqueie todo o conteúdo</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Assine Gold ou Premium para acessar todas as trilhas e lições
+                Assine <strong>Gold</strong> para acessar todos os módulos e lições
               </p>
               <Button onClick={onNavigateToSubscriptions} data-testid="button-subscribe-cta">
                 <Crown className="w-4 h-4 mr-1" />

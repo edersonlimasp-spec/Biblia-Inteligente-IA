@@ -2808,7 +2808,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get track with lessons
+  // Get track with lessons (metadata only - no content for security)
   app.get("/api/study/tracks/:id", async (req, res) => {
     try {
       const { id } = req.params;
@@ -2818,12 +2818,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const deviceId = req.headers['x-device-id'] as string || null;
       
       const userProgress = await storage.getUserStudyProgress(userId, deviceId);
-      const lessonIds = lessons.map(l => l.id);
       
+      // Return only metadata - NOT content (content is protected in /api/study/lessons/:id)
       const lessonsWithProgress = lessons.map(lesson => {
         const progress = userProgress.find(p => p.lessonId === lesson.id);
         return {
-          ...lesson,
+          id: lesson.id,
+          title: lesson.title,
+          order: lesson.order,
+          estimatedMinutes: lesson.estimatedMinutes,
           completed: progress?.completed || false,
           lastAccessAt: progress?.lastAccessAt || null,
         };

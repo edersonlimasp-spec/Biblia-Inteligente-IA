@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, BookOpen, ChevronRight, Check, Clock, Crown, Sparkles } from "lucide-react";
+import { ArrowLeft, Lock, BookOpen, ChevronRight, Check, Clock, Crown, Sparkles, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { LoginPromptModal } from "@/components/LoginPromptModal";
+import { canOpenLesson, type UserPlan, type CourseLevel } from "@shared/courseAccess";
 
 interface ModuleDetailScreenProps {
   moduleId: string;
@@ -44,6 +48,8 @@ interface ModuleDetail {
     description: string;
     icon: string;
     color: string;
+    level: string;
+    order: number;
   };
   tracks: Track[];
   progress: {
@@ -71,37 +77,87 @@ const LEVEL_CONFIG: Record<string, { label: string; color: string; badgeClass: s
   },
 };
 
+interface SubscriptionStatus {
+  hasGold?: boolean;
+  hasPremium?: boolean;
+  trialActive?: boolean;
+}
+
+interface GuestTrialInfo {
+  active: boolean;
+  daysRemaining: number;
+}
+
 function TrackCard({ 
   track, 
   userPlan,
+  isLoggedIn,
   isAdmin,
+  moduleIndex,
   onLessonClick,
-  onUnlock
+  onLoginRequired,
+  onUpgradeRequired
 }: { 
   track: Track; 
-  userPlan: string | null;
+  userPlan: UserPlan;
+  isLoggedIn: boolean;
   isAdmin: boolean;
+  moduleIndex: number;
   onLessonClick: (lessonId: string) => void;
-  onUnlock: () => void;
+  onLoginRequired: () => void;
+  onUpgradeRequired: (requiredPlan: 'gold' | 'premium', message: string) => void;
 }) {
   const levelConfig = LEVEL_CONFIG[track.level] || LEVEL_CONFIG.iniciante;
-  // Usa track.level para determinar acesso (não requiredPlan que pode estar errado nos dados)
-  const canAccess = canAccessLesson(track.level, userPlan, isAdmin);
   
-  // Sempre buscar lições - todos podem VER a lista
   const { data: lessonsData, isLoading } = useQuery<{ lessons: Lesson[] }>({
     queryKey: ['/api/study/tracks', track.id],
   });
   
   const lessons = lessonsData?.lessons || [];
   
-  // Ao clicar na aula: se não tem acesso, mostra modal de assinatura
-  const handleLessonClick = (lessonId: string) => {
-    if (canAccess) {
-      onLessonClick(lessonId);
+  const handleLessonClick = (lesson: Lesson) => {
+    const courseLevel = track.level as CourseLevel;
+    const lessonIndex = lesson.order;
+    
+    const accessResult = canOpenLesson({
+      isLoggedIn,
+      plan: userPlan,
+      courseLevel,
+      moduleIndex,
+      lessonIndex,
+      isAdmin,
+    });
+    
+    if (accessResult.allowed) {
+      onLessonClick(lesson.id);
+    } else if (accessResult.reason === 'NOT_AUTHENTICATED') {
+      onLoginRequired();
     } else {
-      onUnlock(); // Redireciona para tela de assinatura
+      onUpgradeRequired(accessResult.requiredPlan || 'gold', accessResult.message || 'Assine para continuar');
     }
+  };
+  
+  const getLessonLockInfo = (lesson: Lesson): { isLocked: boolean; requiredPlan?: 'gold' | 'premium' } => {
+    const courseLevel = track.level as CourseLevel;
+    const lessonIndex = lesson.order;
+    
+    const accessResult = canOpenLesson({
+      isLoggedIn,
+      plan: userPlan,
+      courseLevel,
+      moduleIndex,
+      lessonIndex,
+      isAdmin,
+    });
+    
+    if (accessResult.allowed) {
+      return { isLocked: false };
+    }
+    
+    return { 
+      isLocked: true, 
+      requiredPlan: accessResult.requiredPlan 
+    };
   };
   
   return (
@@ -117,12 +173,6 @@ function TrackCard({
             {levelConfig.label}
           </Badge>
           <h3 className="font-semibold truncate">{track.name}</h3>
-          {!canAccess && (
-            <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600">
-              <Crown className="w-3 h-3 mr-1" />
-              Gold
-            </Badge>
-          )}
         </div>
         {track.totalLessons > 0 && (
           <span className="text-xs text-muted-foreground flex-shrink-0">
@@ -133,7 +183,6 @@ function TrackCard({
       
       <p className="text-sm text-muted-foreground mb-3 break-words">{track.description}</p>
       
-      {/* Sempre mostra lista de aulas - bloqueio é no clique */}
       <div className="space-y-2">
         {isLoading ? (
           <>
@@ -141,14 +190,18 @@ function TrackCard({
             <LessonItemSkeleton />
           </>
         ) : (
-          lessons.map((lesson) => (
-            <LessonItem 
-              key={lesson.id} 
-              lesson={lesson} 
-              onClick={() => handleLessonClick(lesson.id)}
-              isLocked={!canAccess}
-            />
-          ))
+          lessons.map((lesson) => {
+            const lockInfo = getLessonLockInfo(lesson);
+            return (
+              <LessonItem 
+                key={lesson.id} 
+                lesson={lesson} 
+                onClick={() => handleLessonClick(lesson)}
+                isLocked={lockInfo.isLocked}
+                requiredPlan={lockInfo.requiredPlan}
+              />
+            );
+          })
         )}
         {!isLoading && track.percentage > 0 && (
           <div className="pt-2">
@@ -160,7 +213,17 @@ function TrackCard({
   );
 }
 
-function LessonItem({ lesson, onClick, isLocked = false }: { lesson: Lesson; onClick: () => void; isLocked?: boolean }) {
+function LessonItem({ 
+  lesson, 
+  onClick, 
+  isLocked = false,
+  requiredPlan
+}: { 
+  lesson: Lesson; 
+  onClick: () => void; 
+  isLocked?: boolean;
+  requiredPlan?: 'gold' | 'premium';
+}) {
   return (
     <div
       onClick={onClick}
@@ -171,13 +234,13 @@ function LessonItem({ lesson, onClick, isLocked = false }: { lesson: Lesson; onC
         lesson.completed 
           ? 'bg-green-500 text-white' 
           : isLocked
-            ? 'bg-amber-500/20'
+            ? requiredPlan === 'premium' ? 'bg-purple-500/20' : 'bg-amber-500/20'
             : 'bg-muted'
       }`}>
         {lesson.completed ? (
           <Check className="w-4 h-4" />
         ) : isLocked ? (
-          <Lock className="w-3 h-3 text-amber-600" />
+          <Lock className={`w-3 h-3 ${requiredPlan === 'premium' ? 'text-purple-600' : 'text-amber-600'}`} />
         ) : (
           <span className="text-sm font-medium">{lesson.order}</span>
         )}
@@ -190,7 +253,7 @@ function LessonItem({ lesson, onClick, isLocked = false }: { lesson: Lesson; onC
         </div>
       </div>
       {isLocked ? (
-        <Crown className="w-4 h-4 text-amber-500" />
+        <Crown className={`w-4 h-4 ${requiredPlan === 'premium' ? 'text-purple-500' : 'text-amber-500'}`} />
       ) : (
         <ChevronRight className="w-4 h-4 text-muted-foreground" />
       )}
@@ -210,32 +273,6 @@ function LessonItemSkeleton() {
   );
 }
 
-// Regras de acesso às AULAS:
-// - FREE: Acesso TOTAL aos conteúdos INICIANTES (level = 'iniciante')
-// - PREMIUM: Pode VER lista de aulas, mas NÃO pode abrir aulas moderado/avançado
-// - GOLD: Acesso TOTAL a tudo
-// IMPORTANTE: Usa o campo 'level' do track, não o 'requiredPlan' (que pode estar incorreto nos dados)
-function canAccessLesson(trackLevel: string, userPlan: string | null, isAdmin: boolean = false): boolean {
-  if (isAdmin) return true;
-  // Gold tem acesso total
-  if (userPlan === 'gold') return true;
-  // Conteúdo iniciante é acessível por TODOS (FREE, PREMIUM, sem plano)
-  if (trackLevel === 'iniciante') return true;
-  // Módulos moderado/avançado - somente Gold pode abrir aulas
-  return false;
-}
-
-interface SubscriptionStatus {
-  hasGold?: boolean;
-  hasPremium?: boolean;
-  trialActive?: boolean;
-}
-
-interface GuestTrialInfo {
-  active: boolean;
-  daysRemaining: number;
-}
-
 export function ModuleDetailScreen({ 
   moduleId, 
   onBack, 
@@ -244,6 +281,14 @@ export function ModuleDetailScreen({
 }: ModuleDetailScreenProps) {
   const { user, isAdmin } = useAuth();
   const deviceId = getDeviceId();
+  const isLoggedIn = !!user;
+  
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [paywallInfo, setPaywallInfo] = useState<{ requiredPlan: 'gold' | 'premium'; message: string }>({ 
+    requiredPlan: 'gold', 
+    message: '' 
+  });
   
   const { data: moduleDetail, isLoading: moduleLoading } = useQuery<ModuleDetail>({
     queryKey: ['/api/study/modules', moduleId],
@@ -254,17 +299,33 @@ export function ModuleDetailScreen({
     enabled: !!user,
   });
 
-  // Fetch guest trial info when not logged in
   const { data: guestTrialData } = useQuery<GuestTrialInfo>({
     queryKey: ['/api/guest/trial', deviceId],
     enabled: !user && !!deviceId,
   });
 
-  // Determine user plan: logged in user's subscription OR guest with active trial gets 'gold' access
-  // GOLD = acesso total, PREMIUM = acesso moderado/avançado bloqueado
-  const userPlan = user 
-    ? (subscriptionData?.hasGold ? 'gold' : subscriptionData?.hasPremium ? 'premium' : null)
-    : (guestTrialData?.active ? 'gold' : null);
+  const getUserPlan = (): UserPlan => {
+    if (!user) return 'free';
+    if (subscriptionData?.hasPremium) return 'premium';
+    if (subscriptionData?.hasGold) return 'gold';
+    return 'free';
+  };
+  
+  const userPlan = getUserPlan();
+  
+  const getModuleIndex = (): number => {
+    if (!moduleDetail?.module) return 1;
+    return moduleDetail.module.order || 1;
+  };
+
+  const handleLoginRequired = () => {
+    setShowLoginModal(true);
+  };
+  
+  const handleUpgradeRequired = (requiredPlan: 'gold' | 'premium', message: string) => {
+    setPaywallInfo({ requiredPlan, message });
+    setShowPaywallModal(true);
+  };
 
   if (moduleLoading) {
     return (
@@ -289,6 +350,7 @@ export function ModuleDetailScreen({
   const module = moduleDetail?.module;
   const tracks = moduleDetail?.tracks || [];
   const progress = moduleDetail?.progress;
+  const moduleIndex = getModuleIndex();
 
   return (
     <div className="min-h-screen bg-background">
@@ -308,6 +370,12 @@ export function ModuleDetailScreen({
               {progress?.completed}/{progress?.total} lições concluídas
             </p>
           </div>
+          {isAdmin && (
+            <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
+              <Sparkles className="w-3 h-3 mr-1" />
+              Admin
+            </Badge>
+          )}
         </div>
       </header>
 
@@ -346,13 +414,16 @@ export function ModuleDetailScreen({
               key={track.id}
               track={track}
               userPlan={userPlan}
+              isLoggedIn={isLoggedIn}
               isAdmin={isAdmin}
+              moduleIndex={moduleIndex}
               onLessonClick={(lessonId) => onNavigateToLesson(lessonId, track.level)}
-              onUnlock={onNavigateToSubscriptions}
+              onLoginRequired={handleLoginRequired}
+              onUpgradeRequired={handleUpgradeRequired}
             />
           ))}
 
-          {userPlan !== 'gold' && !isAdmin && (
+          {userPlan === 'free' && !isAdmin && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -362,7 +433,7 @@ export function ModuleDetailScreen({
               <Sparkles className="w-8 h-8 mx-auto text-amber-500 mb-2" />
               <h3 className="font-semibold mb-1">Desbloqueie todo o conteúdo</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Assine <strong>Gold</strong> para acessar todos os módulos e lições
+                Assine <strong>Gold</strong> para acessar todos os módulos e lições do Iniciante e Moderado
               </p>
               <Button onClick={onNavigateToSubscriptions} data-testid="button-subscribe-cta">
                 <Crown className="w-4 h-4 mr-1" />
@@ -370,8 +441,91 @@ export function ModuleDetailScreen({
               </Button>
             </motion.div>
           )}
+          
+          {userPlan === 'gold' && !isAdmin && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl text-center mt-6"
+            >
+              <Crown className="w-8 h-8 mx-auto text-purple-500 mb-2" />
+              <h3 className="font-semibold mb-1">Upgrade para Premium</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Desbloqueie o Moderado completo e todo o conteúdo Avançado
+              </p>
+              <Button onClick={onNavigateToSubscriptions} variant="outline" className="border-purple-500/30" data-testid="button-upgrade-premium">
+                <Sparkles className="w-4 h-4 mr-1" />
+                Ver Premium
+              </Button>
+            </motion.div>
+          )}
         </div>
       </ScrollArea>
+
+      <LoginPromptModal
+        open={showLoginModal}
+        onOpenChange={setShowLoginModal}
+        featureName="as lições do curso"
+        onAuthSuccess={() => setShowLoginModal(false)}
+      />
+
+      <Dialog open={showPaywallModal} onOpenChange={setShowPaywallModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {paywallInfo.requiredPlan === 'premium' ? (
+                <Sparkles className="w-5 h-5 text-purple-500" />
+              ) : (
+                <Crown className="w-5 h-5 text-amber-500" />
+              )}
+              Conteúdo Bloqueado
+            </DialogTitle>
+            <DialogDescription>
+              {paywallInfo.message}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className={`p-4 rounded-lg ${
+              paywallInfo.requiredPlan === 'premium' 
+                ? 'bg-purple-500/10 border border-purple-500/20' 
+                : 'bg-amber-500/10 border border-amber-500/20'
+            }`}>
+              <h4 className="font-semibold mb-2">
+                {paywallInfo.requiredPlan === 'premium' ? 'Plano Premium' : 'Plano Gold'}
+              </h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                {paywallInfo.requiredPlan === 'gold' ? (
+                  <>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 100% do Iniciante</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 7 lições do Moderado</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Strong's Dicionário</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> IA Essencial</li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Tudo do Gold</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 100% do Moderado</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 100% do Avançado</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> IA Premium</li>
+                  </>
+                )}
+              </ul>
+            </div>
+            <Button 
+              className="w-full" 
+              onClick={() => {
+                setShowPaywallModal(false);
+                onNavigateToSubscriptions();
+              }}
+              data-testid="button-paywall-subscribe"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Ver Planos
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

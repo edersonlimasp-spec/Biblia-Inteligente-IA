@@ -1465,7 +1465,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const { bookId, chapter: chapterNum } = req.params;
-      const requestedVersion = (req.query.version as string) || 'ACF';
+      const requestedVersion = (req.query.version as string);
+      
+      // OBRIGATÓRIO: Log de entrada com todos os parâmetros
+      console.log(`[Bible API] REQUEST: book=${bookId}, chapter=${chapterNum}, version=${requestedVersion || '(não enviado)'}`);
+      
+      // WARNING: Se version não for enviado, retornar erro em vez de default silencioso
+      if (!requestedVersion) {
+        console.warn(`[Bible API] WARNING: version não fornecida, usando ACF como fallback`);
+      }
+      
+      const version_to_use = requestedVersion || 'ACF';
       const book = getBookById(bookId);
       
       if (!book) {
@@ -1481,19 +1491,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Resolve version - use fallback if no data available
-      let version = requestedVersion;
+      let version = version_to_use;
       let fallbackUsed = false;
       let fallbackFrom: string | undefined;
 
       // Check if requested version has data
-      const translation = getTranslation(requestedVersion);
-      if (!hasDataAvailable(requestedVersion) && translation) {
+      const translation = getTranslation(version_to_use);
+      if (!hasDataAvailable(version_to_use) && translation) {
         // Fallback to default for same language
         version = getDefaultTranslation(translation.language);
         fallbackUsed = true;
-        fallbackFrom = requestedVersion;
-        console.log(`[Bible API] Fallback: ${requestedVersion} -> ${version}`);
+        fallbackFrom = version_to_use;
+        console.log(`[Bible API] Fallback: ${version_to_use} -> ${version} (versão sem dados)`);
       }
+      
+      console.log(`[Bible API] RESOLVING: requested=${version_to_use}, resolved=${version}, fallback=${fallbackUsed}`);
+      
 
       // Try to fetch from database
       let verses = await db
@@ -3071,6 +3084,141 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error) {
       console.error("[MP Webhook] Erro ao processar webhook:", error);
+    }
+  });
+
+  // ===================================
+  // DEBUG ENDPOINTS (Obrigatórios para validação)
+  // ===================================
+
+  // Build info endpoint - para validar versão em produção
+  app.get("/api/debug/build-info", (_req, res) => {
+    res.json({
+      buildVersion: process.env.REPL_ID || "dev-local",
+      buildTime: new Date().toISOString(),
+      nodeEnv: process.env.NODE_ENV || "development",
+      replSlug: process.env.REPL_SLUG || "unknown",
+    });
+  });
+
+  // Bible debug endpoint - para validar dados por versão
+  app.get("/api/debug/bible", async (req, res) => {
+    try {
+      const translationId = req.query.translationId as string || req.query.version as string;
+      const book = req.query.book as string || "gen";
+      const chapter = parseInt(req.query.chapter as string) || 1;
+
+      if (!translationId) {
+        console.warn("[DEBUG] WARNING: translationId não fornecido!");
+        return res.status(400).json({ 
+          error: "translationId é obrigatório",
+          warning: "Versão não pode ser default silencioso"
+        });
+      }
+
+      console.log(`[DEBUG Bible] Request: translationId=${translationId}, book=${book}, chapter=${chapter}`);
+
+      // Check translation registry
+      const translation = getTranslation(translationId);
+      const hasData = hasDataAvailable(translationId);
+
+      // Fetch first verse from database
+      const verses = await db
+        .select()
+        .from(bibleVerses)
+        .where(
+          and(
+            eq(bibleVerses.versionCode, translationId),
+            eq(bibleVerses.book, book),
+            eq(bibleVerses.chapter, chapter)
+          )
+        )
+        .orderBy(bibleVerses.verse)
+        .limit(1);
+
+      const sampleVerse1 = verses[0]?.text || "(não encontrado)";
+
+      // Count total verses for this version
+      const countResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(bibleVerses)
+        .where(eq(bibleVerses.versionCode, translationId));
+
+      res.json({
+        translationId,
+        book,
+        chapter,
+        sampleVerse1,
+        source: verses.length > 0 ? "db" : "not_found",
+        translationRegistry: translation ? {
+          name: translation.name,
+          hasData: translation.hasData,
+          licenseType: translation.licenseType,
+          enabled: translation.enabled,
+        } : null,
+        totalVersesInDb: countResult[0]?.count || 0,
+        buildVersion: process.env.REPL_ID || "dev-local",
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[DEBUG Bible] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar debug bible" });
+    }
+  });
+
+  // Admin debug subscriptions endpoint
+  app.get("/api/admin/debug/subscriptions", async (req, res) => {
+    try {
+      // Count total users
+      const userCount = await db.select({ count: sql<number>`count(*)` }).from(users);
+      
+      // Count subscriptions by plan
+      const subsByPlan = await db
+        .select({
+          planType: subscriptions.planType,
+          count: sql<number>`count(*)`
+        })
+        .from(subscriptions)
+        .groupBy(subscriptions.planType);
+
+      // Count subscriptions by status
+      const subsByStatus = await db
+        .select({
+          status: subscriptions.status,
+          count: sql<number>`count(*)`
+        })
+        .from(subscriptions)
+        .groupBy(subscriptions.status);
+
+      // Count active subscriptions only
+      const activeCount = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(subscriptions)
+        .where(eq(subscriptions.status, 'active'));
+
+      const byPlan: Record<string, number> = {};
+      for (const row of subsByPlan) {
+        byPlan[row.planType || 'unknown'] = Number(row.count);
+      }
+
+      const byStatus: Record<string, number> = {};
+      for (const row of subsByStatus) {
+        byStatus[row.status || 'unknown'] = Number(row.count);
+      }
+
+      res.json({
+        totalUsers: Number(userCount[0]?.count || 0),
+        totalSubscriptions: Object.values(byPlan).reduce((a, b) => a + b, 0),
+        activeSubscriptions: Number(activeCount[0]?.count || 0),
+        byPlan,
+        byStatus,
+        dbNameOrUrlMasked: process.env.PGDATABASE || "unknown",
+        buildVersion: process.env.REPL_ID || "dev-local",
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[DEBUG Subscriptions] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar debug subscriptions" });
     }
   });
 

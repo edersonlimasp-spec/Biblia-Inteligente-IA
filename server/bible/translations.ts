@@ -66,7 +66,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "pt",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: false,
+    enabled: true,
     hasData: false,
     notes: "Dados pendentes de importação."
   },
@@ -77,7 +77,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "pt",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: false,
+    enabled: true,
     hasData: false,
     notes: "Domínio público. Dados pendentes de importação."
   },
@@ -88,7 +88,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "pt",
     licenseType: "commercial_pending",
     source: "pending",
-    enabled: false,
+    enabled: true,
     hasData: false,
     sourceUrl: "https://www.kingmessiahbible.com",
     notes: "Licença comercial necessária. Aguardando autorização."
@@ -100,7 +100,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "pt",
     licenseType: "commercial_pending",
     source: "pending",
-    enabled: false,
+    enabled: true,
     hasData: false,
     sourceUrl: "https://www.sbb.org.br",
     notes: "Licença SBB necessária. Aguardando autorização."
@@ -112,7 +112,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "pt",
     licenseType: "commercial_pending",
     source: "pending",
-    enabled: false,
+    enabled: true,
     hasData: false,
     sourceUrl: "https://www.sbb.org.br",
     notes: "Licença SBB necessária. Aguardando autorização."
@@ -124,7 +124,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "pt",
     licenseType: "commercial_pending",
     source: "pending",
-    enabled: false,
+    enabled: true,
     hasData: false,
     sourceUrl: "https://www.sbb.org.br",
     notes: "Licença SBB necessária. Aguardando autorização."
@@ -150,7 +150,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "en",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: false,
+    enabled: true,
     hasData: false,
     sourceUrl: "https://github.com/thiagobodruk/bible",
     notes: "Domínio público (1901). Dados pendentes de importação."
@@ -162,7 +162,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "en",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: false,
+    enabled: true,
     hasData: false,
     sourceUrl: "https://github.com/WorldEnglishBible/WEB",
     notes: "Domínio público. Dados pendentes de importação."
@@ -174,7 +174,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "en",
     licenseType: "commercial_pending",
     source: "pending",
-    enabled: false,
+    enabled: true,
     hasData: false,
     sourceUrl: "https://www.crossway.org",
     notes: "Licença Crossway necessária. Aguardando autorização."
@@ -186,7 +186,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "en",
     licenseType: "commercial_pending",
     source: "pending",
-    enabled: false,
+    enabled: true,
     hasData: false,
     sourceUrl: "https://www.lockman.org",
     notes: "Licença Lockman Foundation necessária. Aguardando autorização."
@@ -212,7 +212,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "es",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: false,
+    enabled: true,
     hasData: false,
     notes: "Domínio público. Dados pendentes de importação."
   }

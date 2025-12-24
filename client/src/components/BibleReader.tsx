@@ -138,21 +138,31 @@ export function BibleReader({
   const [trialActive, setTrialActive] = useState(false);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
 
-  // Valid versions with data in the database
-  const VALID_VERSIONS = ["ACF", "ARC", "NVI", "RVR1960", "KJV"];
-
   // Initialize with last reading position - only runs once on mount
   useEffect(() => {
     const lastReading = getLastReading();
     if (lastReading) {
       setSelectedBook(lastReading.book);
       setSelectedChapter(lastReading.chapter);
-      // Validate version - use ACF as fallback if invalid
+      // Usar versão salva (não validar - backend faz fallback)
       const version = lastReading.versionCode || "ACF";
-      setSelectedVersion(VALID_VERSIONS.includes(version) ? version : "ACF");
+      setSelectedVersion(version);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handler para mudança de versão com invalidação de cache
+  const handleVersionChange = (newVersion: string) => {
+    console.log(`[BibleReader] VERSION_CHANGE: from=${selectedVersion} to=${newVersion} book=${selectedBook} chapter=${selectedChapter}`);
+    
+    // Invalida o cache do capítulo atual para forçar refetch
+    queryClient.invalidateQueries({ 
+      queryKey: ['/api/bible/chapter', selectedBook, selectedChapter, selectedVersion] 
+    });
+    
+    // Muda a versão
+    setSelectedVersion(newVersion);
+  };
 
   // Navigate to target verse from annotations/bookmarks page
   useEffect(() => {
@@ -538,7 +548,7 @@ export function BibleReader({
           
           <AlmeidaVersionSelector 
             selectedVersion={selectedVersion} 
-            onVersionChange={setSelectedVersion}
+            onVersionChange={handleVersionChange}
           />
 
           <Select value={selectedBook} onValueChange={setSelectedBook}>

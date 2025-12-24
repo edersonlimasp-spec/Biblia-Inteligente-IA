@@ -26,7 +26,10 @@ The application is a fullstack PWA comprising a React frontend and an Express ba
 **Technical Implementations & Feature Specifications:**
 - **Authentication:** JWT with bcrypt for secure password hashing.
 - **State Management:** TanStack Query v5 for server state management in the frontend.
-- **Bible Data:** Includes the full ACF (Almeida Corrigida Fiel) Bible, with an automated import script.
+- **Bible Data:** Multiple Bible versions available with automated import scripts:
+  - **Portuguese:** ACF (31,106 verses), ARC (29,779 verses), NVI (29,779 verses)
+  - **Spanish:** RVR1960 Reina Valera (30,819 verses)
+  - **English:** KJV King James (31,102 verses)
 - **Strong's Dictionary:** Contains 14,197 entries (5,523 Greek + 8,674 Hebrew) with complete Brazilian Portuguese translations (`portugueseDef` field). The word-to-Strong lookup uses a database-only search with relevance-based ordering, prioritizing Portuguese definitions and filtering by testament.
 - **AI Professor:** Integrates OpenAI GPT-4o-mini via Replit AI Integrations, offering "Essential" (basic explanations, 1024 tokens) and "Premium" (deep exegesis, 2048 tokens) modes. Features include mode validation, rate limiting (30 questions/day for trial/Gold, 100 for Premium), and a multi-session chat system with persistent, append-only conversation history stored in localStorage.
 - **User Features:**

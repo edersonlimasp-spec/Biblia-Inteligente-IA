@@ -860,6 +860,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Free Questions Quota (permanent count, not daily reset)
+  // Rules: Guest=2 questions, User=5 questions total (includes guest questions migrated)
+  const FREE_QUESTIONS_LIMIT = 5;
+  
+  app.get("/api/ai/quota", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      // Check if user has unlimited access (admin, subscription, or trial)
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const trialActive = isTrialActive(user.trialStartDate);
+      const hasActiveBonus = await storage.hasActiveBonus(req.userId!);
+      
+      const hasUnlimitedAccess = isAdmin || hasGold || hasPremium || trialActive || hasActiveBonus;
+      
+      if (hasUnlimitedAccess) {
+        return res.json({
+          used: 0,
+          limit: Infinity,
+          remaining: Infinity,
+          hasUnlimitedAccess: true,
+        });
+      }
+      
+      // Get quota from database
+      const quota = await storage.getFreeAiQuota(req.userId!);
+      const used = quota?.questionsUsed || 0;
+      const remaining = Math.max(0, FREE_QUESTIONS_LIMIT - used);
+      
+      res.json({
+        used,
+        limit: FREE_QUESTIONS_LIMIT,
+        remaining,
+        hasUnlimitedAccess: false,
+      });
+    } catch (error) {
+      console.error("Get AI quota error:", error);
+      res.status(500).json({ error: "Erro ao buscar quota" });
+    }
+  });
+  
+  app.post("/api/ai/migrate-guest-quota", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { guestQuestionsUsed } = req.body;
+      
+      if (typeof guestQuestionsUsed !== 'number' || guestQuestionsUsed < 0) {
+        return res.status(400).json({ error: "Valor inválido" });
+      }
+      
+      await storage.migrateGuestQuotaToUser(req.userId!, guestQuestionsUsed);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Migrate guest quota error:", error);
+      res.status(500).json({ error: "Erro ao migrar quota" });
+    }
+  });
+
   // Bookmarks
   app.get("/api/bookmarks", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {

@@ -632,3 +632,18 @@ export const insertUserStudyProgressSchema = createInsertSchema(userStudyProgres
 
 export type InsertUserStudyProgress = z.infer<typeof insertUserStudyProgressSchema>;
 export type UserStudyProgress = typeof userStudyProgress.$inferSelect;
+
+// Free AI Questions Quota table (permanent count - NOT daily reset)
+// Tracks the cumulative number of free AI questions used by users
+export const freeAiQuota = pgTable("free_ai_quota", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  questionsUsed: integer("questions_used").notNull().default(0),
+  guestQuestionsImported: integer("guest_questions_imported").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("free_ai_quota_user_id_idx").on(table.userId),
+}));
+
+export type FreeAiQuota = typeof freeAiQuota.$inferSelect;

@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota } from '@shared/schema';
 import { getBookById } from './bible-data/books';
 import type {
   User,
@@ -38,6 +38,7 @@ import type {
   InsertStudyLesson,
   UserStudyProgress,
   InsertUserStudyProgress,
+  FreeAiQuota,
 } from '@shared/schema';
 import { eq, and, desc, gte, sql, like } from 'drizzle-orm';
 
@@ -174,6 +175,11 @@ export interface IStorage {
   createStudyModule(module: InsertStudyModule): Promise<StudyModule>;
   createStudyTrack(track: InsertStudyTrack): Promise<StudyTrack>;
   createStudyLesson(lesson: InsertStudyLesson): Promise<StudyLesson>;
+
+  // Free AI Questions Quota (permanent, not daily reset)
+  getFreeAiQuota(userId: string): Promise<{ questionsUsed: number; guestQuestionsImported: number } | undefined>;
+  incrementFreeAiQuota(userId: string): Promise<number>;
+  migrateGuestQuotaToUser(userId: string, guestQuestionsUsed: number): Promise<void>;
 }
 
 class PostgresStorage implements IStorage {
@@ -1283,6 +1289,58 @@ class PostgresStorage implements IStorage {
   async createStudyLesson(lesson: InsertStudyLesson): Promise<StudyLesson> {
     const [created] = await db.insert(studyLessons).values(lesson).returning();
     return created;
+  }
+
+  // Free AI Questions Quota (permanent count, not daily reset)
+  async getFreeAiQuota(userId: string): Promise<{ questionsUsed: number; guestQuestionsImported: number } | undefined> {
+    const result = await db.select().from(freeAiQuota).where(eq(freeAiQuota.userId, userId));
+    if (result.length === 0) return undefined;
+    return {
+      questionsUsed: result[0].questionsUsed,
+      guestQuestionsImported: result[0].guestQuestionsImported,
+    };
+  }
+
+  async incrementFreeAiQuota(userId: string): Promise<number> {
+    const existing = await db.select().from(freeAiQuota).where(eq(freeAiQuota.userId, userId));
+    
+    if (existing.length === 0) {
+      const [created] = await db.insert(freeAiQuota).values({
+        userId,
+        questionsUsed: 1,
+        guestQuestionsImported: 0,
+      }).returning();
+      return created.questionsUsed;
+    }
+    
+    const [updated] = await db.update(freeAiQuota)
+      .set({ 
+        questionsUsed: existing[0].questionsUsed + 1,
+        updatedAt: new Date(),
+      })
+      .where(eq(freeAiQuota.userId, userId))
+      .returning();
+    return updated.questionsUsed;
+  }
+
+  async migrateGuestQuotaToUser(userId: string, guestQuestionsUsed: number): Promise<void> {
+    const existing = await db.select().from(freeAiQuota).where(eq(freeAiQuota.userId, userId));
+    
+    if (existing.length === 0) {
+      await db.insert(freeAiQuota).values({
+        userId,
+        questionsUsed: guestQuestionsUsed,
+        guestQuestionsImported: guestQuestionsUsed,
+      });
+    } else if (existing[0].guestQuestionsImported === 0) {
+      await db.update(freeAiQuota)
+        .set({ 
+          questionsUsed: existing[0].questionsUsed + guestQuestionsUsed,
+          guestQuestionsImported: guestQuestionsUsed,
+          updatedAt: new Date(),
+        })
+        .where(eq(freeAiQuota.userId, userId));
+    }
   }
 }
 

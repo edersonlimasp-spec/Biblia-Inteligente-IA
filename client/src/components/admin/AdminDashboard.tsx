@@ -16,6 +16,7 @@ interface DashboardStats {
   totalGuests: number;
   activeGuestTrials: number;
   convertedGuests: number;
+  inactiveUsers: number;
 }
 
 interface OnlineMetrics {
@@ -411,11 +412,9 @@ export function AdminDashboard() {
               </div>
 
               <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Usuários Inativos</p>
+                <p className="text-xs text-muted-foreground mb-1">Usuários Inativos (30 dias)</p>
                 <p className="text-lg font-semibold">
-                  {stats?.totalUsers && online
-                    ? Math.max(0, stats.totalUsers - (online.onlineUsers || 0))
-                    : '—'}
+                  {stats?.inactiveUsers ?? '—'}
                 </p>
               </div>
             </div>

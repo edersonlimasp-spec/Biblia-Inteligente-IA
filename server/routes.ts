@@ -2336,6 +2336,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
         .toFixed(2);
 
+      // Inactive users - users who haven't accessed in 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const inactiveUsers = allUsers.filter(u => {
+        const lastAccess = u.lastLoginAt ? new Date(u.lastLoginAt) : null;
+        // If never logged in, check createdAt
+        if (!lastAccess) {
+          return new Date(u.createdAt) < thirtyDaysAgo;
+        }
+        return lastAccess < thirtyDaysAgo;
+      }).length;
+
       // Guest stats
       let totalGuests = 0;
       let activeGuestTrials = 0;
@@ -2351,18 +2363,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.warn('Erro ao buscar guest stats:', e);
       }
 
+      // Ensure all values are numbers (not strings)
       res.json({
-        totalUsers: totalCount,
+        totalUsers: Number(totalCount) || 0,
         newUsersThisMonth: recentUsers.length,
         activeTrials,
         activeGoldSubscriptions: activeGold,
         activePremiumSubscriptions: activePremium,
         lifetimeStrong,
         estimatedMonthlyRevenue: monthlyRevenue,
-        cancelledThisMonth: 0, // Would need subscription history
-        totalGuests,
-        activeGuestTrials,
-        convertedGuests,
+        cancelledThisMonth: 0,
+        totalGuests: Number(totalGuests) || 0,
+        activeGuestTrials: Number(activeGuestTrials) || 0,
+        convertedGuests: Number(convertedGuests) || 0,
+        inactiveUsers,
       });
     } catch (error) {
       console.error("Admin stats error:", error);

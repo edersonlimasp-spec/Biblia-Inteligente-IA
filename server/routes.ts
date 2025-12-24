@@ -17,6 +17,7 @@ import path from "path";
 import fs from "fs";
 import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
 import { STRONG_DATA } from "./strong-data-embedded";
+import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTranslation, getDefaultTranslation } from "./bible/translations";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -1305,14 +1306,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // BIBLE VERSIONS ROUTES
   // ===================================
   
-  // Get all available versions
+  // Get all available versions from Translation Registry
   app.get("/api/versions", async (req, res) => {
     try {
-      const versions = await db.select().from(bibleVersions).where(eq(bibleVersions.isActive, true));
-      res.json(versions);
+      // Get verse counts from database to verify data availability
+      const verseCounts = await db
+        .select({
+          versionCode: bibleVerses.versionCode,
+          count: sql<number>`count(*)`
+        })
+        .from(bibleVerses)
+        .groupBy(bibleVerses.versionCode);
+      
+      const countMap = verseCounts.reduce((acc, row) => {
+        acc[row.versionCode] = Number(row.count);
+        return acc;
+      }, {} as Record<string, number>);
+
+      // Return enabled translations with actual data status
+      const translations = getEnabledTranslations().map(t => ({
+        code: t.code,
+        name: t.name,
+        language: t.language,
+        licenseType: t.licenseType,
+        hasData: (countMap[t.code] || 0) > 1000,
+        verseCount: countMap[t.code] || 0,
+        notes: t.notes,
+        sourceUrl: t.sourceUrl
+      }));
+
+      res.json(translations);
     } catch (error) {
       console.error("Get versions error:", error);
       res.status(500).json({ error: "Erro ao buscar versões" });
+    }
+  });
+
+  // Get full translation registry (for admin)
+  app.get("/api/versions/registry", async (req, res) => {
+    try {
+      res.json(TRANSLATION_REGISTRY);
+    } catch (error) {
+      console.error("Get registry error:", error);
+      res.status(500).json({ error: "Erro ao buscar registro" });
     }
   });
 
@@ -1424,7 +1460,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/bible/:bookId/:chapter", async (req, res) => {
     try {
       const { bookId, chapter: chapterNum } = req.params;
-      const version = (req.query.version as string) || 'ACF';
+      const requestedVersion = (req.query.version as string) || 'ACF';
       const book = getBookById(bookId);
       
       if (!book) {
@@ -1439,7 +1475,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Try to fetch from database first
+      // Resolve version - use fallback if no data available
+      let version = requestedVersion;
+      let fallbackUsed = false;
+      let fallbackFrom: string | undefined;
+
+      // Check if requested version has data
+      const translation = getTranslation(requestedVersion);
+      if (!hasDataAvailable(requestedVersion) && translation) {
+        // Fallback to default for same language
+        version = getDefaultTranslation(translation.language);
+        fallbackUsed = true;
+        fallbackFrom = requestedVersion;
+        console.log(`[Bible API] Fallback: ${requestedVersion} -> ${version}`);
+      }
+
+      // Try to fetch from database
       let verses = await db
         .select()
         .from(bibleVerses)
@@ -1452,23 +1503,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )
         .orderBy(bibleVerses.verse);
 
-      // If database has no verses for this version, fall back to hardcoded data
+      // If still no verses, try ACF as ultimate fallback
+      if (!verses || verses.length === 0) {
+        if (version !== 'ACF') {
+          verses = await db
+            .select()
+            .from(bibleVerses)
+            .where(
+              and(
+                eq(bibleVerses.versionCode, 'ACF'),
+                eq(bibleVerses.book, bookId),
+                eq(bibleVerses.chapter, chapterInt)
+              )
+            )
+            .orderBy(bibleVerses.verse);
+          
+          if (verses && verses.length > 0) {
+            fallbackUsed = true;
+            fallbackFrom = requestedVersion;
+            version = 'ACF';
+          }
+        }
+      }
+
+      // If still no data, try hardcoded fallback
       if (!verses || verses.length === 0) {
         const fallbackChapterData = getBookChapter(bookId, chapterInt);
         if (!fallbackChapterData) {
           return res.status(404).json({ 
             error: "Capítulo não encontrado",
-            message: `Nenhum dado disponível para ${book.name} ${chapterInt} na versão ${version}`
+            message: `Nenhum dado disponível para ${book.name} ${chapterInt}`
           });
         }
         
-        // Return fallback data with version info
         res.json({ 
           book, 
           chapter: fallbackChapterData, 
           available: true, 
-          version,
-          source: 'fallback'
+          version: 'ACF',
+          requestedVersion,
+          source: 'fallback',
+          fallbackUsed: true,
+          fallbackFrom: requestedVersion
         });
         return;
       }
@@ -1487,7 +1563,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         available: true, 
         version,
-        source: 'database'
+        requestedVersion,
+        source: 'database',
+        fallbackUsed,
+        fallbackFrom
       });
     } catch (error) {
       console.error("Get chapter error:", error);

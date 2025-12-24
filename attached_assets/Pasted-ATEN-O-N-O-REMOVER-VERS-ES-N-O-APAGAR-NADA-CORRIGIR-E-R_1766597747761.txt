@@ -1,0 +1,122 @@
+ATENÇÃO: NÃO REMOVER VERSÕES. NÃO APAGAR NADA. CORRIGIR E RESTAURAR.
+O erro anterior foi “tirar versões” em vez de fazê-las funcionar. Isso é inaceitável.
+Quero TODAS as versões possíveis, MAS somente as que forem:
+(A) domínio público OU
+(B) com licença/API oficial que permita uso no app.
+Se não houver licença, NÃO incluir. Em vez disso, listar e pedir decisão.
+
+OBJETIVO:
+1) Voltar a ter seletor completo de versões (PT/EN/ES) e TODAS funcionarem ao trocar.
+2) Não pode ficar preso na versão padrão.
+3) Não pode quebrar Strong.
+4) Não pode depender de “preview”; tem que funcionar na PUBLICAÇÃO.
+
+========================================
+A) ARQUITETURA OBRIGATÓRIA (PARAR DE QUEBRAR)
+========================================
+Implementar “Translation Registry” (catálogo único de versões) e “Content Provider” (fonte única de dados).
+
+1) Criar um arquivo único de registro:
+   - /server/bible/translations.ts (ou equivalente)
+   contendo:
+   - id (ex: "pt-acf", "pt-arc", "en-kjv", "es-rvr1909")
+   - name
+   - language (pt/en/es)
+   - licenseType: "public_domain" | "licensed_api"
+   - source: "local_db" | "api"
+   - enabled: boolean
+
+2) Criar camada “BibleProvider”:
+   - getVerseText(translationId, book, chapter, verse)
+   - getChapter(translationId, book, chapter)
+   - search(translationId, query)
+   Esta camada define de onde vem o texto:
+   - local DB (para versões que já temos)
+   - API licenciada (para versões externas)
+
+3) UI:
+   - dropdown deve alterar translationId no state GLOBAL
+   - ao trocar translationId, deve disparar refetch do capítulo atual
+   - salvar preferência:
+     a) localStorage (anon)
+     b) e se logado, salvar em user_profile
+
+4) NÃO usar cache bugado:
+   - revisar Service Worker / cache do PWA
+   - garantir “cache busting” com build version
+   - garantir que API responses variam por translationId (chave de cache deve incluir translationId)
+
+========================================
+B) RESTAURAR VERSÕES E GARANTIR FUNCIONAMENTO
+========================================
+1) Restaurar o dropdown com as versões já listadas anteriormente (as que existiam no app) e NÃO remover nenhuma sem motivo técnico.
+2) Identificar por que não troca:
+   - verificar se API endpoint ignora translationId
+   - verificar se frontend sempre envia translationId = default
+   - verificar se backend faz fallback silencioso
+   - verificar se o cache está retornando sempre o mesmo payload
+
+3) Corrigir o problema e provar:
+   - Em produção: trocar ACF -> ARC -> NVI -> KJV e ver texto mudar visivelmente.
+
+========================================
+C) “TODAS AS VERSÕES POSSÍVEIS” (COM LICENÇA)
+========================================
+Regra: não “baixar da internet” sem licença.
+
+Quero adicionar o máximo de traduções, mas do jeito certo:
+1) Montar uma lista recomendada por idioma:
+   - Português: incluir apenas as de domínio público ou com licença validada
+   - Inglês: incluir versões de domínio público (ex.: KJV) e/ou APIs licenciadas
+   - Espanhol: incluir ao menos 1 de domínio público (ex.: Reina-Valera antiga de domínio público) e/ou APIs licenciadas
+
+2) Se precisar de API licenciada:
+   - implementar integração com uma API de Bíblia com licença clara (config por ENV)
+   - adicionar no README quais APIs foram usadas e as condições
+   - criar tabela/arquivo “sources.md” com:
+     - versão
+     - fonte
+     - tipo de licença
+     - link/observação
+
+3) Se não houver como licenciar, não incluir.
+   Em vez disso, mostrar no Admin uma tela “Fontes & Licenças” e marcar como “pendente”.
+
+IMPORTANTE:
+- NÃO usar ChatGPT para gerar texto bíblico como se fosse tradução.
+- ChatGPT pode apenas ajudar a:
+  a) normalizar nomes de livros
+  b) mapear abreviações
+  c) corrigir parser
+  d) traduzir definições de dicionário (se permitido)
+Mas NÃO para gerar capítulos/versos de traduções protegidas.
+
+========================================
+D) STRONG NÃO PODE QUEBRAR COM VERSÕES/IDIOMAS
+========================================
+1) Strong é baseado no original (Hxxxx/Gxxxx).
+2) Ao trocar translationId, o Strong:
+   - continua abrindo
+   - busca pelo strongNumber
+3) Adicionar “definition_language”:
+   - se UI estiver em Espanhol -> tentar definição ES
+   - se não existir -> fallback EN com aviso
+
+========================================
+E) TESTE E GARANTIA ANTES DE FINALIZAR
+========================================
+ANTES DE DIZER “CONCLUÍDO”:
+1) Testar em PREVIEW e em PRODUÇÃO (publicado):
+   - trocar 5 versões seguidas e ver texto mudar
+2) Confirmar que:
+   - o dropdown não some
+   - versões não foram removidas
+   - strong abre após troca
+   - preference salva e persiste ao recarregar
+3) Se algo falhar, corrigir e retestar.
+
+ENTREGAR NO FINAL:
+- Causa raiz do bug
+- Quais arquivos alterou
+- Como testou em PRODUÇÃO (passos)
+- Lista final de versões ativas por idioma + fonte/licença

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent } from "lucide-react";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ComposedChart } from "recharts";
 
 interface DashboardStats {
   totalUsers: number;
@@ -39,6 +39,13 @@ interface AbandonedSubscription {
   lastSeenAt: string;
 }
 
+interface ConversionMetrics {
+  today: { redirects: number; conversions: number; rate: number };
+  thisMonth: { redirects: number; conversions: number; rate: number };
+  lastMonth: { redirects: number; conversions: number; rate: number };
+  dailyTrend: Array<{ date: string; redirects: number; conversions: number }>;
+}
+
 export function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/stats'],
@@ -62,6 +69,12 @@ export function AdminDashboard() {
 
   const { data: abandonedData, isLoading: abandonedLoading } = useQuery<{abandoned: AbandonedSubscription[]}> ({
     queryKey: ['/api/admin/metrics/abandoned-subscriptions'],
+  });
+
+  const { data: conversionMetrics, isLoading: conversionLoading } = useQuery<ConversionMetrics>({
+    queryKey: ['/api/admin/metrics/conversion'],
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const StatCard = ({ 
@@ -167,6 +180,119 @@ export function AdminDashboard() {
                   <p className="text-sm text-muted-foreground">Convertidos (criaram conta)</p>
                 </div>
                 <p className="text-2xl font-semibold">{stats?.convertedGuests || 0}</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Métricas de Conversão */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-primary" />
+            Métricas de Conversão para Assinatura
+          </CardTitle>
+          <CardDescription>Redirecionamentos para página de assinatura e taxa de conversão</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {conversionLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="p-4 bg-accent/30 rounded-lg border-l-4 border-primary">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ArrowUpRight className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-medium">Hoje</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Redirect</p>
+                      <p className="text-xl font-bold">{conversionMetrics?.today.redirects || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Conversão</p>
+                      <p className="text-xl font-bold text-green-600">{conversionMetrics?.today.conversions || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Taxa</p>
+                      <p className="text-xl font-bold text-primary">{conversionMetrics?.today.rate || 0}%</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-accent/30 rounded-lg border-l-4 border-blue-500">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="h-4 w-4 text-blue-500" />
+                    <p className="text-sm font-medium">Este Mês</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Redirect</p>
+                      <p className="text-xl font-bold">{conversionMetrics?.thisMonth.redirects || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Conversão</p>
+                      <p className="text-xl font-bold text-green-600">{conversionMetrics?.thisMonth.conversions || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Taxa</p>
+                      <p className="text-xl font-bold text-blue-500">{conversionMetrics?.thisMonth.rate || 0}%</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-accent/30 rounded-lg border-l-4 border-muted-foreground">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm font-medium">Mês Anterior</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Redirect</p>
+                      <p className="text-xl font-bold">{conversionMetrics?.lastMonth.redirects || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Conversão</p>
+                      <p className="text-xl font-bold text-green-600">{conversionMetrics?.lastMonth.conversions || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Taxa</p>
+                      <p className="text-xl font-bold">{conversionMetrics?.lastMonth.rate || 0}%</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium mb-3">Tendência dos Últimos 30 Dias</p>
+                <ResponsiveContainer width="100%" height={250}>
+                  <ComposedChart data={conversionMetrics?.dailyTrend || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="date" 
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return `${date.getDate()}/${date.getMonth() + 1}`;
+                      }}
+                      fontSize={12}
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      labelFormatter={(value) => {
+                        const date = new Date(value as string);
+                        return date.toLocaleDateString('pt-BR');
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="redirects" fill="#3b82f6" name="Redirecionamentos" />
+                    <Line type="monotone" dataKey="conversions" stroke="#22c55e" strokeWidth={2} name="Conversões" dot={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
               </div>
             </div>
           )}

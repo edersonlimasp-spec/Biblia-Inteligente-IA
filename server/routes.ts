@@ -2601,6 +2601,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Metrics - Conversion Metrics
+  app.get("/api/admin/metrics/conversion", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const metrics = await storage.getConversionMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Conversion metrics error:", error);
+      res.status(500).json({ error: "Erro ao buscar métricas de conversão" });
+    }
+  });
+
   // Track Event (Authenticated)
   app.post("/api/admin/events/track", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {

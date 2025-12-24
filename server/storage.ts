@@ -108,6 +108,12 @@ export interface IStorage {
   getAIUsageStats(days?: number): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}>;
   getUsageHeatmap(days?: number): Promise<Array<{hour: number; count: number}>>;
   getAbandonedSubscriptions(): Promise<Array<{userId: string; email: string; lastSeenAt: string}>>;
+  getConversionMetrics(): Promise<{
+    today: { redirects: number; conversions: number; rate: number };
+    thisMonth: { redirects: number; conversions: number; rate: number };
+    lastMonth: { redirects: number; conversions: number; rate: number };
+    dailyTrend: Array<{ date: string; redirects: number; conversions: number }>;
+  }>;
 
   // Highlights (Cloud Sync)
   getUserHighlights(userId: string): Promise<Highlight[]>;
@@ -690,6 +696,82 @@ class PostgresStorage implements IStorage {
         lastSeenAt: data.lastSeenAt.toISOString(),
       }))
       .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
+  }
+
+  async getConversionMetrics(): Promise<{
+    today: { redirects: number; conversions: number; rate: number };
+    thisMonth: { redirects: number; conversions: number; rate: number };
+    lastMonth: { redirects: number; conversions: number; rate: number };
+    dailyTrend: Array<{ date: string; redirects: number; conversions: number }>;
+  }> {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const redirectEvents = ['SUBSCRIPTION_PAGE_VISIT', 'subscribe_cta_click', 'subscription_redirect'];
+    const conversionEvents = ['subscription_activated', 'SUBSCRIPTION_ACTIVATED', 'payment_success'];
+
+    const allPageEvents = await db.select().from(pageEvents)
+      .where(gte(pageEvents.createdAt, lastMonthStart));
+    
+    const allAppEvents = await db.select().from(appEvents)
+      .where(gte(appEvents.createdAt, lastMonthStart));
+
+    const countEvents = (events: any[], types: string[], start: Date, end: Date) => {
+      return events.filter(e => 
+        types.includes(e.eventType) && 
+        new Date(e.createdAt) >= start && 
+        new Date(e.createdAt) <= end
+      ).length;
+    };
+
+    const countUniqueRedirects = (pageEvts: any[], appEvts: any[], start: Date, end: Date) => {
+      const pageCount = countEvents(pageEvts, redirectEvents, start, end);
+      const appCount = countEvents(appEvts, redirectEvents, start, end);
+      return pageCount + appCount;
+    };
+
+    const countConversions = (pageEvts: any[], appEvts: any[], start: Date, end: Date) => {
+      const pageCount = countEvents(pageEvts, conversionEvents, start, end);
+      const appCount = countEvents(appEvts, conversionEvents, start, end);
+      return pageCount + appCount;
+    };
+
+    const calcRate = (redirects: number, conversions: number) => {
+      return redirects > 0 ? Math.round((conversions / redirects) * 10000) / 100 : 0;
+    };
+
+    const todayRedirects = countUniqueRedirects(allPageEvents, allAppEvents, todayStart, now);
+    const todayConversions = countConversions(allPageEvents, allAppEvents, todayStart, now);
+
+    const monthRedirects = countUniqueRedirects(allPageEvents, allAppEvents, monthStart, now);
+    const monthConversions = countConversions(allPageEvents, allAppEvents, monthStart, now);
+
+    const lastMonthRedirects = countUniqueRedirects(allPageEvents, allAppEvents, lastMonthStart, lastMonthEnd);
+    const lastMonthConversions = countConversions(allPageEvents, allAppEvents, lastMonthStart, lastMonthEnd);
+
+    const dailyTrend: Array<{ date: string; redirects: number; conversions: number }> = [];
+    for (let i = 29; i >= 0; i--) {
+      const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
+      const redirects = countUniqueRedirects(allPageEvents, allAppEvents, dayStart, dayEnd);
+      const conversions = countConversions(allPageEvents, allAppEvents, dayStart, dayEnd);
+      dailyTrend.push({
+        date: dayStart.toISOString().split('T')[0],
+        redirects,
+        conversions,
+      });
+    }
+
+    return {
+      today: { redirects: todayRedirects, conversions: todayConversions, rate: calcRate(todayRedirects, todayConversions) },
+      thisMonth: { redirects: monthRedirects, conversions: monthConversions, rate: calcRate(monthRedirects, monthConversions) },
+      lastMonth: { redirects: lastMonthRedirects, conversions: lastMonthConversions, rate: calcRate(lastMonthRedirects, lastMonthConversions) },
+      dailyTrend,
+    };
   }
 
   // Highlights (Cloud Sync)

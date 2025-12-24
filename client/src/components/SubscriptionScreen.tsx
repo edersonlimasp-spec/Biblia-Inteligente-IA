@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 import { apiRequest } from "@/lib/queryClient";
+import { trackSubscriptionPageVisit } from "@/lib/tracking";
 
 interface SubscriptionScreenProps {
   onBack?: () => void;
@@ -22,6 +23,10 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState<number | null>(null);
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
+
+  useEffect(() => {
+    trackSubscriptionPageVisit();
+  }, []);
 
   useEffect(() => {
     async function fetchTrialInfo() {

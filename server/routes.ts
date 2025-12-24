@@ -2306,9 +2306,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/stats", ensureAdmin, async (req: AuthRequest, res) => {
     try {
       const { users: allUsers, total: totalCount } = await storage.getAllUsers(undefined, 10000, 0);
-      const activeSubscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
       
+      // Get all subscriptions with status 'active' and valid end_date (or lifetime with null end_date)
       const now = new Date();
+      const allActiveSubscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
+      
+      // Filter to only truly active subscriptions (not expired)
+      const activeSubscriptions = allActiveSubscriptions.filter(s => {
+        // Lifetime subscriptions have no end_date
+        if (s.planType === 'strong_lifetime' || !s.endDate) return true;
+        // Check if end_date is in the future
+        return new Date(s.endDate) > now;
+      });
+      
+      console.log(`[Admin Stats] Total subscriptions: ${allActiveSubscriptions.length}, Active (not expired): ${activeSubscriptions.length}`);
+      
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const recentUsers = allUsers.filter(u => new Date(u.createdAt) >= monthStart);
 
@@ -2316,6 +2328,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const activeGold = activeSubscriptions.filter(s => s.planType === 'gold').length;
       const activePremium = activeSubscriptions.filter(s => s.planType === 'premium').length;
       const lifetimeStrong = activeSubscriptions.filter(s => s.planType === 'strong_lifetime').length;
+      
+      console.log(`[Admin Stats] Gold: ${activeGold}, Premium: ${activePremium}, Lifetime: ${lifetimeStrong}`);
 
       const monthlyRevenue = activeSubscriptions
         .filter(s => new Date(s.createdAt) >= monthStart)

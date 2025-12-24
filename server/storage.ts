@@ -978,7 +978,55 @@ class PostgresStorage implements IStorage {
     });
   }
 
-  // Admin Stats (guests)
+  async getDashboardStats() {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalUsers,
+      newUsers,
+      activeGold,
+      activePremium,
+      lifetimeStrong,
+      cancelled,
+      guestStats,
+      inactiveUsers
+    ] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(users),
+      db.select({ count: sql<number>`count(*)` }).from(users).where(gte(users.trialStartDate, firstDayOfMonth)),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'gold'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'premium'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'strong_lifetime'), eq(subscriptions.status, 'active'))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.status, 'cancelled'), gte(subscriptions.updatedAt, firstDayOfMonth))),
+      this.getGuestStats(),
+      db.select({ count: sql<number>`count(*)` }).from(users).where(sql`${users.lastLoginAt} < ${thirtyDaysAgo} OR ${users.lastLoginAt} IS NULL`),
+    ]);
+
+    // Calcular faturamento estimado
+    // Gold: R$ 9.90, Premium: R$ 19.90, Lifetime: R$ 49.90
+    const goldCount = Number(activeGold[0]?.count || 0);
+    const premiumCount = Number(activePremium[0]?.count || 0);
+    const lifetimeCount = Number(lifetimeStrong[0]?.count || 0);
+    
+    const revenue = (goldCount * 9.90) + (premiumCount * 19.90) + (lifetimeCount * 49.90);
+
+    return {
+      totalUsers: Number(totalUsers[0]?.count || 0),
+      newUsersThisMonth: Number(newUsers[0]?.count || 0),
+      activeTrials: Number(totalUsers[0]?.count || 0), // Simplificado: todos os usuários novos/ativos estão em trial se não assinaram
+      activeGoldSubscriptions: goldCount,
+      activePremiumSubscriptions: premiumCount,
+      lifetimeStrong: lifetimeCount,
+      estimatedMonthlyRevenue: revenue.toFixed(2),
+      cancelledThisMonth: Number(cancelled[0]?.count || 0),
+      totalGuests: guestStats.totalGuests,
+      activeGuestTrials: guestStats.guestsInTrial,
+      convertedGuests: guestStats.linkedToUsers,
+      inactiveUsers: Number(inactiveUsers[0]?.count || 0)
+    };
+  }
+
   async getGuestStats(): Promise<{
     totalGuests: number;
     guestsInTrial: number;

@@ -50,6 +50,9 @@ The application is a fullstack PWA comprising a React frontend and an Express ba
 - Enhanced AlmeidaVersionSelector with Dialog modal for unavailable versions
 - Added debug endpoints: `/api/debug/bible`, `/api/debug/build-info`, `/api/admin/debug/subscriptions`
 - Version selector shows all 16 versions with proper indicators (Check=available, Lock=commercial, AlertCircle=fallback pending)
+- **Centralized AI Quota System:** Permanent quota for AI questions (Guest: 2 questions, User: 5 total including migrated guest count). Counter displayed as "X/Y" format next to Send button.
+- **Admin Conversion Metrics Dashboard:** New section showing subscription redirects and conversions per day/month with conversion rate (%) and 30-day trend chart. Endpoint: `/api/admin/metrics/conversion`
+- **Event Tracking:** SubscriptionScreen now tracks page visits for conversion analytics
 
 ## Mobile App Distribution (Capacitor)
 

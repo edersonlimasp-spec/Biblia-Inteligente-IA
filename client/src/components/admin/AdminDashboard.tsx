@@ -42,6 +42,9 @@ interface AbandonedSubscription {
 export function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/stats'],
+    staleTime: 0, // Always refetch
+    gcTime: 0, // Don't cache
+    refetchOnMount: 'always',
   });
 
   const { data: online, isLoading: onlineLoading } = useQuery<OnlineMetrics>({

@@ -491,8 +491,12 @@ export function BibleReader({
   }, [chapterStrongWords, selectedBook, selectedChapter]);
 
   // Track reading history when chapter/version changes (cloud sync for logged users, localStorage for guests)
+  // Use a ref to debounce and avoid excessive calls
+  const lastTrackedRef = useRef<string>("");
   useEffect(() => {
-    if (selectedBook && selectedChapter) {
+    const key = `${selectedBook}-${selectedChapter}-${selectedVersion}`;
+    if (selectedBook && selectedChapter && key !== lastTrackedRef.current) {
+      lastTrackedRef.current = key;
       trackReading(selectedBook, selectedChapter, selectedVersion);
     }
   }, [selectedBook, selectedChapter, selectedVersion, trackReading]);

@@ -191,14 +191,15 @@ export function BibleReader({
   });
 
   const { data: chapterData, isLoading, error } = useQuery<BibleChapterData>({
-    queryKey: ['/api/bible', selectedBook, selectedChapter, selectedVersion],
+    queryKey: ['/api/bible/chapter', selectedBook, selectedChapter, selectedVersion],
     enabled: !!selectedBook && !!selectedChapter,
     retry: false,
-    staleTime: 1000 * 60 * 60, // 1 hour - cache aggressively
-    gcTime: 1000 * 60 * 60 * 24, // 24 hour garbage collection
+    staleTime: 0, // Always refetch when version changes
+    gcTime: 1000 * 60 * 60, // 1 hour garbage collection
     queryFn: async () => {
-      return apiRequest('GET', `/api/bible/${selectedBook}/${selectedChapter}?version=${selectedVersion}`)
-        .then(res => res.json());
+      console.log('[BibleReader] Fetching chapter:', selectedBook, selectedChapter, 'version:', selectedVersion);
+      const url = `/api/bible/${selectedBook}/${selectedChapter}?version=${selectedVersion}`;
+      return apiRequest('GET', url).then(res => res.json());
     },
   });
 

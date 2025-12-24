@@ -691,19 +691,6 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
-      <LoginPromptModal
-        open={showLoginPrompt}
-        onOpenChange={setShowLoginPrompt}
-        featureName="as Gravações"
-        onAuthSuccess={() => {
-          setShowLoginPrompt(false);
-          toast({
-            title: "Login realizado!",
-            description: "Agora você pode gravar seus sermões.",
-          });
-        }}
-      />
     </div>
   );
 }

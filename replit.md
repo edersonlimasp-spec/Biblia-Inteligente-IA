@@ -42,6 +42,14 @@ The application is a fullstack PWA comprising a React frontend and an Express ba
 - **Monorepo Structure:** Divided into `server/` (backend), `client/src/` (frontend), `shared/` (shared schemas), and `scripts/` (utilities).
 - **Database Schema:** Includes tables for `Users`, `Subscriptions`, `AIUsageLimits`, `Bookmarks`, `Annotations`, `AIHistory`, `strong_entries` (with `portugueseDef` fully populated), `guests`, `guest_ai_usage_limits`, and `app_events`.
 - **APIs:** Comprehensive RESTful API endpoints for authentication, subscriptions, AI interactions, content, and dictionary lookups.
+- **Bible Version Selector:** All 16 versions visible in dropdown. Commercial versions show lock icon and trigger license modal on selection attempt. Backend handles fallback to language default if version has no data.
+
+**Recent Changes (Dec 24, 2025):**
+- Added comprehensive logging to Bible API (`[Bible API]` prefixed logs)
+- Implemented `handleVersionChange` in BibleReader with React Query cache invalidation
+- Enhanced AlmeidaVersionSelector with Dialog modal for unavailable versions
+- Added debug endpoints: `/api/debug/bible`, `/api/debug/build-info`, `/api/admin/debug/subscriptions`
+- Version selector shows all 16 versions with proper indicators (Check=available, Lock=commercial, AlertCircle=fallback pending)
 
 ## Mobile App Distribution (Capacitor)
 

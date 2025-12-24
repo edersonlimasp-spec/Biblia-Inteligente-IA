@@ -2319,6 +2319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return new Date(s.endDate) > now;
       });
       
+      console.log(`[Admin Stats] Raw subscriptions from DB:`, allActiveSubscriptions.map(s => ({ id: s.id, planType: s.planType, status: s.status, endDate: s.endDate })));
       console.log(`[Admin Stats] Total subscriptions: ${allActiveSubscriptions.length}, Active (not expired): ${activeSubscriptions.length}`);
       
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -2329,7 +2330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const activePremium = activeSubscriptions.filter(s => s.planType === 'premium').length;
       const lifetimeStrong = activeSubscriptions.filter(s => s.planType === 'strong_lifetime').length;
       
-      console.log(`[Admin Stats] Gold: ${activeGold}, Premium: ${activePremium}, Lifetime: ${lifetimeStrong}`);
+      console.log(`[Admin Stats] Filtered counts - Gold: ${activeGold}, Premium: ${activePremium}, Lifetime: ${lifetimeStrong}`);
 
       const monthlyRevenue = activeSubscriptions
         .filter(s => new Date(s.createdAt) >= monthStart)

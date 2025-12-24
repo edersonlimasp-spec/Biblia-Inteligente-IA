@@ -13,6 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useUsageLimits, getAgendaLimitMessage } from "@/hooks/useUsageLimits";
+import { SubscriptionLimitModal } from "@/components/SubscriptionLimitModal";
+import { useNavigation } from "@/contexts/NavigationContext";
 import { 
   ArrowLeft, 
   Calendar,
@@ -127,6 +130,8 @@ function isFuture(dateStr: string): boolean {
 export function AgendaScreen({ onBack }: AgendaScreenProps) {
   const { toast } = useToast();
   const { requireAuth } = useRequireAuth();
+  const { navigate } = useNavigation();
+  const { agendaLimit, subscriptionType, isLoading: isLoadingLimits } = useUsageLimits();
   const cardRef = useRef<HTMLDivElement>(null);
   
   const [events, setEvents] = useState<AgendaEvent[]>([]);
@@ -135,6 +140,7 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [shareEvent, setShareEvent] = useState<AgendaEvent | null>(null);
   const [showShareAgenda, setShowShareAgenda] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const [activeTab, setActiveTab] = useState("upcoming");
   
   const [newTitle, setNewTitle] = useState("");
@@ -145,6 +151,21 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
   const [newLocation, setNewLocation] = useState("");
   const [newType, setNewType] = useState("culto");
   const [newTheme, setNewTheme] = useState("");
+  
+  const isAtLimit = events.length >= agendaLimit;
+
+  const handleGoToSubscription = () => {
+    setShowLimitModal(false);
+    navigate('subscriptions');
+  };
+
+  const handleOpenAddDialog = () => {
+    if (isAtLimit) {
+      setShowLimitModal(true);
+      return;
+    }
+    setShowAddDialog(true);
+  };
 
   useEffect(() => {
     try {
@@ -781,7 +802,16 @@ END:VCALENDAR`;
             </Button>
             <div>
               <h1 className="font-semibold text-lg">Minha Agenda</h1>
-              <p className="text-xs text-muted-foreground">{events.length} eventos</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-muted-foreground">{events.length} eventos</p>
+                <Badge 
+                  variant={isAtLimit && !isLoadingLimits ? "destructive" : "secondary"} 
+                  className="text-xs"
+                  data-testid="badge-events-count"
+                >
+                  {isLoadingLimits ? `${events.length}` : `${events.length}/${agendaLimit}`}
+                </Badge>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -795,7 +825,7 @@ END:VCALENDAR`;
                 <Share2 className="w-4 h-4" />
               </Button>
             )}
-            <Button onClick={() => setShowAddDialog(true)} data-testid="button-add-event">
+            <Button onClick={handleOpenAddDialog} data-testid="button-add-event">
               <Plus className="w-4 h-4 mr-2" />
               Novo
             </Button>
@@ -825,7 +855,7 @@ END:VCALENDAR`;
                     <p className="text-sm text-muted-foreground mb-4">
                       Adicione eventos da igreja, estudos biblicos e mais
                     </p>
-                    <Button onClick={() => setShowAddDialog(true)} data-testid="button-add-first-event">
+                    <Button onClick={handleOpenAddDialog} data-testid="button-add-first-event">
                       <Plus className="w-4 h-4 mr-2" />
                       Criar Primeiro Evento
                     </Button>
@@ -1163,6 +1193,15 @@ END:VCALENDAR`;
           </div>
         </DialogContent>
       </Dialog>
+
+      <SubscriptionLimitModal
+        open={showLimitModal}
+        onOpenChange={setShowLimitModal}
+        title="Limite de Eventos Atingido"
+        message={getAgendaLimitMessage(subscriptionType)}
+        onSubscribe={handleGoToSubscription}
+        subscriptionType={subscriptionType}
+      />
     </div>
   );
 }

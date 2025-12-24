@@ -24,6 +24,9 @@ import {
   formatDate,
   type RecordingMetadata,
 } from "@/hooks/use-recordings";
+import { useUsageLimits, getRecordingsLimitMessage } from "@/hooks/useUsageLimits";
+import { SubscriptionLimitModal } from "@/components/SubscriptionLimitModal";
+import { useNavigation } from "@/contexts/NavigationContext";
 import {
   Mic,
   Square,
@@ -50,6 +53,8 @@ interface RecordingsScreenProps {
 export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const { requireAuth } = useRequireAuth();
   const { toast } = useToast();
+  const { navigate } = useNavigation();
+  const { recordingsLimit, subscriptionType, isLoading: isLoadingLimits } = useUsageLimits();
   const {
     recordings,
     isLoading,
@@ -78,10 +83,18 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [shareRecordingId, setShareRecordingId] = useState<string | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
+  const isAtLimit = recordings.length >= recordingsLimit;
+
   const handleStartRecording = () => {
+    if (isAtLimit) {
+      setShowLimitModal(true);
+      return;
+    }
+    
     requireAuth(async () => {
       const success = await startRecording();
       if (success) {
@@ -91,6 +104,11 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
         });
       }
     }, "gravar sermões");
+  };
+
+  const handleGoToSubscription = () => {
+    setShowLimitModal(false);
+    navigate('subscriptions');
   };
 
   const handleStopRecording = async () => {
@@ -446,7 +464,12 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Gravações Salvas</h2>
-              <Badge variant="secondary">{recordings.length}</Badge>
+              <Badge 
+                variant={isAtLimit && !isLoadingLimits ? "destructive" : "secondary"}
+                data-testid="badge-recordings-count"
+              >
+                {isLoadingLimits ? `${recordings.length}` : `${recordings.length}/${recordingsLimit}`}
+              </Badge>
             </div>
 
             {isLoading ? (
@@ -691,6 +714,15 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <SubscriptionLimitModal
+        open={showLimitModal}
+        onOpenChange={setShowLimitModal}
+        title="Limite de Gravações Atingido"
+        message={getRecordingsLimitMessage(subscriptionType)}
+        onSubscribe={handleGoToSubscription}
+        subscriptionType={subscriptionType}
+      />
     </div>
   );
 }

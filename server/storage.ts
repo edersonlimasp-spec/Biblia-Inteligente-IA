@@ -167,6 +167,7 @@ export interface IStorage {
   getModuleTracks(moduleId: string): Promise<StudyTrack[]>;
   getTrackLessons(trackId: string): Promise<StudyLesson[]>;
   getLessonById(id: string): Promise<StudyLesson | undefined>;
+  getLessonWithContext(id: string): Promise<{ lesson: StudyLesson; track: StudyTrack; module: StudyModule; lessonIndex: number; moduleIndex: number } | undefined>;
   getUserStudyProgress(userId: string | null, deviceId: string | null): Promise<UserStudyProgress[]>;
   updateStudyProgress(userId: string | null, deviceId: string | null, lessonId: string, completed: boolean): Promise<UserStudyProgress>;
   getModuleProgress(moduleId: string, userId: string | null, deviceId: string | null): Promise<{ total: number; completed: number; percentage: number }>;
@@ -1172,6 +1173,30 @@ class PostgresStorage implements IStorage {
   async getLessonById(id: string): Promise<StudyLesson | undefined> {
     const result = await db.select().from(studyLessons).where(eq(studyLessons.id, id));
     return result[0];
+  }
+
+  async getLessonWithContext(id: string): Promise<{ lesson: StudyLesson; track: StudyTrack; module: StudyModule; lessonIndex: number; moduleIndex: number } | undefined> {
+    const lesson = await this.getLessonById(id);
+    if (!lesson) return undefined;
+    
+    const trackResult = await db.select().from(studyTracks).where(eq(studyTracks.id, lesson.trackId));
+    const track = trackResult[0];
+    if (!track) return undefined;
+    
+    const moduleResult = await db.select().from(studyModules).where(eq(studyModules.id, track.moduleId));
+    const module = moduleResult[0];
+    if (!module) return undefined;
+    
+    const allLessons = await this.getTrackLessons(track.id);
+    const lessonIndex = allLessons.findIndex(l => l.id === id) + 1;
+    
+    const allModulesInLevel = await db.select()
+      .from(studyModules)
+      .where(eq(studyModules.level, module.level))
+      .orderBy(studyModules.order);
+    const moduleIndex = allModulesInLevel.findIndex(m => m.id === module.id) + 1;
+    
+    return { lesson, track, module, lessonIndex, moduleIndex };
   }
 
   async getUserStudyProgress(userId: string | null, deviceId: string | null): Promise<UserStudyProgress[]> {

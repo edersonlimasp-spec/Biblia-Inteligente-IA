@@ -2836,18 +2836,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get a specific lesson
+  // Get a specific lesson (with access control)
   app.get("/api/study/lessons/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const lesson = await storage.getLessonById(id);
       
-      if (!lesson) {
+      // Get lesson with full context (track, module, indices)
+      const lessonContext = await storage.getLessonWithContext(id);
+      
+      if (!lessonContext) {
         return res.status(404).json({ error: "Lição não encontrada" });
       }
       
+      const { lesson, track, module, lessonIndex, moduleIndex } = lessonContext;
       const userId = (req as any).userId || null;
       const deviceId = req.headers['x-device-id'] as string || null;
+      const isLoggedIn = !!userId;
+      
+      // Check if admin
+      let isAdmin = false;
+      if (userId) {
+        const user = await storage.getUser(userId);
+        isAdmin = user?.role === 'admin';
+      }
+      
+      // Get user plan
+      let userPlan: 'free' | 'gold' | 'premium' = 'free';
+      if (userId) {
+        const subs = await storage.getUserSubscriptions(userId);
+        const now = new Date();
+        const activeSubs = subs.filter(s => 
+          s.status === 'active' && 
+          (!s.endDate || new Date(s.endDate) > now)
+        );
+        if (activeSubs.some(s => s.planType === 'premium')) {
+          userPlan = 'premium';
+        } else if (activeSubs.some(s => s.planType === 'gold' || s.planType === 'strong_lifetime')) {
+          userPlan = 'gold';
+        }
+      }
+      
+      // Import and use canOpenLesson
+      const { canOpenLesson } = await import("@shared/courseAccess");
+      const courseLevel = track.level as 'iniciante' | 'moderado' | 'avancado';
+      
+      const accessResult = canOpenLesson({
+        isLoggedIn,
+        plan: userPlan,
+        courseLevel,
+        moduleIndex,
+        lessonIndex,
+        isAdmin,
+      });
+      
+      if (!accessResult.allowed) {
+        if (accessResult.reason === 'NOT_AUTHENTICATED') {
+          return res.status(401).json({ 
+            error: accessResult.message,
+            reason: 'NOT_AUTHENTICATED',
+          });
+        }
+        return res.status(403).json({ 
+          error: accessResult.message,
+          reason: 'UPGRADE_REQUIRED',
+          requiredPlan: accessResult.requiredPlan,
+        });
+      }
       
       // Mark as accessed
       if (userId || deviceId) {

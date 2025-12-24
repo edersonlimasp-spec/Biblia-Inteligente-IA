@@ -66,7 +66,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "pt",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: true,
+    enabled: false,
     hasData: false,
     notes: "Dados pendentes de importação."
   },
@@ -77,7 +77,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "pt",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: true,
+    enabled: false,
     hasData: false,
     notes: "Domínio público. Dados pendentes de importação."
   },
@@ -150,7 +150,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "en",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: true,
+    enabled: false,
     hasData: false,
     sourceUrl: "https://github.com/thiagobodruk/bible",
     notes: "Domínio público (1901). Dados pendentes de importação."
@@ -162,7 +162,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "en",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: true,
+    enabled: false,
     hasData: false,
     sourceUrl: "https://github.com/WorldEnglishBible/WEB",
     notes: "Domínio público. Dados pendentes de importação."
@@ -212,7 +212,7 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     language: "es",
     licenseType: "public_domain",
     source: "local_db",
-    enabled: true,
+    enabled: false,
     hasData: false,
     notes: "Domínio público. Dados pendentes de importação."
   }

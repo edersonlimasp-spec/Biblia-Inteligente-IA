@@ -351,6 +351,7 @@ export function BibleReader({
   }, [annotations, selectedBook, selectedChapter]);
 
   // Memoizar lista de versículos filtrados para performance em iOS
+  // Inclui selectedVersion para forçar recálculo quando a versão muda
   const filteredVerses = useMemo(() => {
     if (!chapterData?.chapter?.verses) return [];
     if (!textSearchQuery) return chapterData.chapter.verses;
@@ -358,7 +359,7 @@ export function BibleReader({
     return chapterData.chapter.verses.filter(verse => 
       verse.text.toLowerCase().includes(query)
     );
-  }, [chapterData?.chapter?.verses, textSearchQuery]);
+  }, [chapterData?.chapter?.verses, textSearchQuery, selectedVersion]);
 
   // Toggle bookmark mutation
   const bookmarkMutation = useMutation({

@@ -138,13 +138,18 @@ export function BibleReader({
   const [trialActive, setTrialActive] = useState(false);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
 
+  // Valid versions with data in the database
+  const VALID_VERSIONS = ["ACF", "ARC", "NVI", "RVR1960", "KJV"];
+
   // Initialize with last reading position - only runs once on mount
   useEffect(() => {
     const lastReading = getLastReading();
     if (lastReading) {
       setSelectedBook(lastReading.book);
       setSelectedChapter(lastReading.chapter);
-      setSelectedVersion(lastReading.versionCode || "ACF");
+      // Validate version - use ACF as fallback if invalid
+      const version = lastReading.versionCode || "ACF";
+      setSelectedVersion(VALID_VERSIONS.includes(version) ? version : "ACF");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

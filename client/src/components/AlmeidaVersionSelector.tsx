@@ -1,6 +1,6 @@
 /**
  * Bible Version Selector Component
- * Permite ao usuário escolher entre múltiplas versões
+ * Mostra apenas versões com dados completos no banco
  */
 
 import { Button } from "@/components/ui/button";
@@ -19,16 +19,11 @@ interface VersionSelectorProps {
   disabled?: boolean;
 }
 
+// Apenas versões com dados completos importados no banco
 const PORTUGUESE_VERSIONS = [
   { code: "ACF", label: "Almeida Corrigida Fiel", short: "ACF" },
   { code: "ARC", label: "Almeida Revista e Corrigida", short: "ARC" },
-  { code: "AA", label: "Almeida Atualizada", short: "AA" },
-  { code: "ALMEIDA_1911", label: "Almeida 1911", short: "1911" },
   { code: "NVI", label: "Nova Versão Internacional", short: "NVI" },
-  { code: "NTLH", label: "Nova Tradução Linguagem de Hoje", short: "NTLH" },
-  { code: "NBV", label: "Nova Bíblia Viva", short: "NBV" },
-  { code: "TLA", label: "Tradução Linguagem Atual", short: "TLA" },
-  { code: "KJA", label: "King James Atualizada", short: "KJA" },
 ];
 
 const SPANISH_VERSIONS = [
@@ -37,10 +32,6 @@ const SPANISH_VERSIONS = [
 
 const ENGLISH_VERSIONS = [
   { code: "KJV", label: "King James Version", short: "KJV" },
-  { code: "ASV", label: "American Standard Version", short: "ASV" },
-  { code: "ESV", label: "English Standard Version", short: "ESV" },
-  { code: "NASB", label: "New American Standard Bible", short: "NASB" },
-  { code: "WEB", label: "World English Bible", short: "WEB" },
 ];
 
 export function AlmeidaVersionSelector({
@@ -65,7 +56,7 @@ export function AlmeidaVersionSelector({
           {displayText}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 max-h-80 overflow-y-auto">
+      <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel className="text-xs font-semibold text-primary">
           Português
         </DropdownMenuLabel>

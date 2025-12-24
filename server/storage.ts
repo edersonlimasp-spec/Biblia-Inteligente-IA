@@ -237,7 +237,7 @@ class PostgresStorage implements IStorage {
     if (take) query = query.limit(take);
     if (skip) query = query.offset(skip);
 
-    const usersList = await query;
+    const usersList = (await query) as User[];
     return { users: usersList, total };
   }
 
@@ -998,7 +998,7 @@ class PostgresStorage implements IStorage {
       db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'gold'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
       db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'premium'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
       db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'strong_lifetime'), eq(subscriptions.status, 'active'))),
-      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.status, 'cancelled'), gte(subscriptions.updatedAt, firstDayOfMonth))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.status, 'cancelled'), gte(subscriptions.createdAt, firstDayOfMonth))),
       this.getGuestStats(),
       db.select({ count: sql<number>`count(*)` }).from(users).where(sql`${users.lastLoginAt} < ${thirtyDaysAgo} OR ${users.lastLoginAt} IS NULL`),
     ]);
@@ -1200,7 +1200,7 @@ class PostgresStorage implements IStorage {
         })
         .where(eq(userStudyProgress.id, existing[0].id))
         .returning();
-      return updated;
+      return updated as UserStudyProgress;
     } else {
       const [created] = await db.insert(userStudyProgress).values({
         userId: userId || null,
@@ -1210,7 +1210,7 @@ class PostgresStorage implements IStorage {
         completedAt: completed ? new Date() : null,
         lastAccessAt: new Date(),
       }).returning();
-      return created;
+      return created as UserStudyProgress;
     }
   }
 

@@ -109,11 +109,20 @@ function TrackCard({
 }) {
   const levelConfig = LEVEL_CONFIG[track.level] || LEVEL_CONFIG.iniciante;
   
-  const { data: lessonsData, isLoading } = useQuery<{ lessons: Lesson[] }>({
+  const { data: lessonsData, isLoading, error } = useQuery<{ lessons: Lesson[] }>({
     queryKey: ['/api/study/tracks', track.id],
   });
   
   const lessons = lessonsData?.lessons || [];
+  
+  // Debug logging for lesson visibility
+  console.log('[TrackCard]', {
+    trackId: track.id,
+    lessonsCount: lessons.length,
+    isLoading,
+    error: error ? String(error) : null,
+    lessonsData,
+  });
   
   const handleLessonClick = (lesson: Lesson) => {
     const courseLevel = track.level as CourseLevel;

@@ -60,6 +60,7 @@ export interface IStorage {
   // Subscriptions
   getUserSubscriptions(userId: string): Promise<Subscription[]>;
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
+  upsertSubscription(subscription: InsertSubscription): Promise<Subscription>;
   hasActiveSubscription(userId: string, planType: string): Promise<boolean>;
 
   // Bookmarks
@@ -311,6 +312,41 @@ class PostgresStorage implements IStorage {
 
   async createSubscription(subscription: InsertSubscription): Promise<Subscription> {
     const result = await db.insert(subscriptions).values(subscription).returning();
+    return result[0];
+  }
+
+  async upsertSubscription(subscription: InsertSubscription): Promise<Subscription> {
+    // Check if user already has a subscription for this plan type
+    const existing = await db
+      .select()
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.userId, subscription.userId),
+          eq(subscriptions.planType, subscription.planType)
+        )
+      )
+      .limit(1);
+    
+    if (existing.length > 0) {
+      // Update existing subscription
+      const updated = await db
+        .update(subscriptions)
+        .set({
+          status: subscription.status || 'active',
+          startDate: subscription.startDate || new Date(),
+          endDate: subscription.endDate,
+          amount: subscription.amount,
+        })
+        .where(eq(subscriptions.id, existing[0].id))
+        .returning();
+      console.log(`[Storage] Updated existing subscription: ${updated[0].id}`);
+      return updated[0];
+    }
+    
+    // Create new subscription
+    const result = await db.insert(subscriptions).values(subscription).returning();
+    console.log(`[Storage] Created new subscription: ${result[0].id}`);
     return result[0];
   }
 

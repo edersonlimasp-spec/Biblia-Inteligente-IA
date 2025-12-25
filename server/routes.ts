@@ -12,7 +12,7 @@ import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
 import { db } from "./db";
-import { eq, or, like, sql, and } from "drizzle-orm";
+import { eq, or, like, sql, and, inArray, gte } from "drizzle-orm";
 import path from "path";
 import fs from "fs";
 import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
@@ -1335,10 +1335,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Track app event (for analytics)
   app.post("/api/events/track", async (req, res) => {
     try {
-      const { deviceId, eventType, eventData, userId } = req.body;
+      const { deviceId, eventType, eventData } = req.body;
       
       if (!deviceId || !eventType) {
         return res.status(400).json({ error: "deviceId e eventType são obrigatórios" });
+      }
+      
+      // Try to extract userId from auth token if provided
+      let userId: string | undefined;
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith('Bearer ')) {
+        try {
+          const token = authHeader.substring(7);
+          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+          userId = decoded.userId;
+        } catch {}
       }
       
       // Update guest lastSeenAt to track online status
@@ -2676,28 +2687,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { users: allUsers, total: totalCount } = await storage.getAllUsers(undefined, 10000, 0);
       
-      // Get all subscriptions with status 'active' and valid end_date (or lifetime with null end_date)
       const now = new Date();
-      const allActiveSubscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
+      
+      // Efficient SQL query: get subscriptions with active-like status
+      const allActiveSubscriptions = await db
+        .select()
+        .from(subscriptions)
+        .where(
+          or(
+            eq(subscriptions.status, 'active'),
+            eq(subscriptions.status, 'Active'),
+            eq(subscriptions.status, 'ACTIVE'),
+            eq(subscriptions.status, 'approved'),
+            eq(subscriptions.status, 'Approved'),
+            eq(subscriptions.status, 'APPROVED'),
+            eq(subscriptions.status, 'authorized')
+          )
+        );
       
       // Filter to only truly active subscriptions (not expired)
       const activeSubscriptions = allActiveSubscriptions.filter(s => {
         // Lifetime subscriptions have no end_date
-        if (s.planType === 'strong_lifetime' || !s.endDate) return true;
+        if (s.planType?.toLowerCase() === 'strong_lifetime' || !s.endDate) return true;
         // Check if end_date is in the future
         return new Date(s.endDate) > now;
       });
       
-      console.log(`[Admin Stats] Raw subscriptions from DB:`, allActiveSubscriptions.map(s => ({ id: s.id, planType: s.planType, status: s.status, endDate: s.endDate })));
-      console.log(`[Admin Stats] Total subscriptions: ${allActiveSubscriptions.length}, Active (not expired): ${activeSubscriptions.length}`);
+      console.log(`[Admin Stats] Active subs: ${activeSubscriptions.length}, Plans: ${activeSubscriptions.map(s => s.planType).join(', ')}`);
       
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const recentUsers = allUsers.filter(u => new Date(u.createdAt) >= monthStart);
 
       const activeTrials = allUsers.filter(u => isTrialActive(u.trialStartDate)).length;
-      const activeGold = activeSubscriptions.filter(s => s.planType === 'gold').length;
-      const activePremium = activeSubscriptions.filter(s => s.planType === 'premium').length;
-      const lifetimeStrong = activeSubscriptions.filter(s => s.planType === 'strong_lifetime').length;
+      // Case-insensitive plan type matching
+      const activeGold = activeSubscriptions.filter(s => s.planType?.toLowerCase() === 'gold').length;
+      const activePremium = activeSubscriptions.filter(s => s.planType?.toLowerCase() === 'premium').length;
+      const lifetimeStrong = activeSubscriptions.filter(s => s.planType?.toLowerCase() === 'strong_lifetime').length;
       
       console.log(`[Admin Stats] Filtered counts - Gold: ${activeGold}, Premium: ${activePremium}, Lifetime: ${lifetimeStrong}`);
 
@@ -3404,10 +3429,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const planType = plan === 'vitalicio' ? 'strong_lifetime' : plan;
       const amount = MP_PLAN_CONFIG[plan]?.price.toFixed(2) || MP_PLAN_CONFIG[planType]?.price.toFixed(2) || "0.00";
       
-      console.log(`[MP Webhook] Criando subscrição - planType: ${planType}, dias: ${days}, lifetime: ${lifetime}, endDate: ${endDate?.toISOString()}`);
+      console.log(`[MP Webhook] Criando/Atualizando subscrição - planType: ${planType}, dias: ${days}, lifetime: ${lifetime}, endDate: ${endDate?.toISOString()}`);
       
-      // Create subscription in database
-      const subscription = await storage.createSubscription({
+      // Upsert subscription in database (avoids duplicates)
+      const subscription = await storage.upsertSubscription({
         userId,
         planType,
         status: 'active',
@@ -3417,6 +3442,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       console.log(`[MP Webhook] ✅ Assinatura ativada: userId=${userId}, plan=${planType}, subscriptionId=${subscription.id}, endDate=${subscription.endDate}`);
+      
+      // Track conversion event for admin metrics
+      await storage.trackPageEvent(userId, 'SUBSCRIPTION_ACTIVATED', { 
+        planType, 
+        paymentId,
+        amount,
+      });
+      console.log(`[MP Webhook] ✅ Evento de conversão rastreado: SUBSCRIPTION_ACTIVATED`);
       
       // Verify subscription was created correctly
       const verify = await storage.hasActiveSubscription(userId, planType);

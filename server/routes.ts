@@ -2755,16 +2755,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin Metrics - Online Users
-  app.get("/api/admin/stats", ensureAdmin, async (req: AuthRequest, res) => {
-    try {
-      const stats = await storage.getDashboardStats();
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching admin stats:", error);
-      res.status(500).json({ error: "Erro ao buscar estatísticas" });
-    }
-  });
-
   app.get("/api/admin/metrics/online-users", ensureAdmin, async (req: AuthRequest, res) => {
     try {
       const onlineCount = await storage.getOnlineUsers(5); // Last 5 minutes

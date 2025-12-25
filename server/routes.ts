@@ -3139,11 +3139,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const deviceId = req.headers['x-device-id'] as string || null;
       const isLoggedIn = !!userId;
       
-      // Check if admin
+      // Check if admin (including super_admin)
       let isAdmin = false;
       if (userId) {
         const user = await storage.getUser(userId);
-        isAdmin = user?.role === 'admin';
+        isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
       }
       
       // Get user plan

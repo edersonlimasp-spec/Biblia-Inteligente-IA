@@ -116,6 +116,9 @@ export function BibleReader({
   const { trackReading, getLastReading } = useReadingHistory();
   
   const verseRef = useRef<HTMLDivElement>(null);
+  
+  // Flag to prevent tracking on initial load (before restoring last reading)
+  const hasRestoredReadingRef = useRef(false);
 
   // State management
   const [selectedBook, setSelectedBook] = useState("gen");
@@ -141,13 +144,15 @@ export function BibleReader({
   // Initialize with last reading position - only runs once on mount
   useEffect(() => {
     const lastReading = getLastReading();
-    if (lastReading) {
+    if (lastReading && lastReading.book && lastReading.chapter) {
       setSelectedBook(lastReading.book);
       setSelectedChapter(lastReading.chapter);
       // Usar versão salva (não validar - backend faz fallback)
       const version = lastReading.versionCode || "ACF";
       setSelectedVersion(version);
     }
+    // Mark as restored so tracking can begin
+    hasRestoredReadingRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -520,8 +525,13 @@ export function BibleReader({
 
   // Track reading history when chapter/version changes (cloud sync for logged users, localStorage for guests)
   // Use a ref to debounce and avoid excessive calls
+  // Only track AFTER the initial reading position has been restored
   const lastTrackedRef = useRef<string>("");
   useEffect(() => {
+    // Don't track until initial reading position is restored
+    if (!hasRestoredReadingRef.current) {
+      return;
+    }
     const key = `${selectedBook}-${selectedChapter}-${selectedVersion}`;
     if (selectedBook && selectedChapter && key !== lastTrackedRef.current) {
       lastTrackedRef.current = key;

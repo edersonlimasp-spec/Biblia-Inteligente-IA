@@ -198,9 +198,12 @@ function TrackCard({
             <LessonItemSkeleton />
             <LessonItemSkeleton />
           </>
+        ) : lessons.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhuma lição encontrada</p>
         ) : (
           lessons.map((lesson) => {
             const lockInfo = getLessonLockInfo(lesson);
+            console.log('[LessonItem render]', lesson.id, lesson.title);
             return (
               <LessonItem 
                 key={lesson.id} 

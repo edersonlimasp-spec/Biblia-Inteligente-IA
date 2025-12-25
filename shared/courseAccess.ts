@@ -20,10 +20,17 @@ export interface AccessResult {
 export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
   const { isLoggedIn, plan, courseLevel, moduleIndex, lessonIndex, isAdmin = false } = params;
   
+  // Admin always has access
   if (isAdmin) {
     return { allowed: true, reason: 'ALLOWED' };
   }
   
+  // First 3 lessons of first module are FREE for everyone (even without login)
+  if (courseLevel === 'iniciante' && moduleIndex === 1 && lessonIndex <= 3) {
+    return { allowed: true, reason: 'ALLOWED' };
+  }
+  
+  // For all other content, require authentication
   if (!isLoggedIn) {
     return { 
       allowed: false, 
@@ -32,10 +39,12 @@ export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
     };
   }
   
+  // Premium has access to everything
   if (plan === 'premium') {
     return { allowed: true, reason: 'ALLOWED' };
   }
   
+  // Gold access rules
   if (plan === 'gold') {
     if (courseLevel === 'iniciante') {
       return { allowed: true, reason: 'ALLOWED' };
@@ -61,10 +70,7 @@ export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
     }
   }
   
-  if (courseLevel === 'iniciante' && moduleIndex === 1 && lessonIndex <= 3) {
-    return { allowed: true, reason: 'ALLOWED' };
-  }
-  
+  // Free plan - only iniciante content requires upgrade (first 3 lessons already handled above)
   if (courseLevel === 'iniciante') {
     return {
       allowed: false,

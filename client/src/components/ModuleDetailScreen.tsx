@@ -115,15 +115,6 @@ function TrackCard({
   
   const lessons = lessonsData?.lessons || [];
   
-  // Debug logging for lesson visibility
-  console.log('[TrackCard]', {
-    trackId: track.id,
-    lessonsCount: lessons.length,
-    isLoading,
-    error: error ? String(error) : null,
-    lessonsData,
-  });
-  
   const handleLessonClick = (lesson: Lesson) => {
     const courseLevel = track.level as CourseLevel;
     const lessonIndex = lesson.order;
@@ -193,11 +184,6 @@ function TrackCard({
       <p className="text-sm text-muted-foreground mb-3 break-words">{track.description}</p>
       
       <div className="space-y-2">
-        {/* Debug: show lesson count */}
-        <p className="text-xs text-blue-500 font-bold">
-          DEBUG: {isLoading ? 'Carregando...' : `${lessons.length} lições encontradas`}
-        </p>
-        
         {isLoading ? (
           <>
             <LessonItemSkeleton />
@@ -206,24 +192,18 @@ function TrackCard({
         ) : lessons.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nenhuma lição encontrada</p>
         ) : (
-          <>
-            {/* Debug: test simple text rendering */}
-            <div className="bg-green-500 text-white p-2 rounded">
-              TEST: Renderizando {lessons.length} lições abaixo:
-            </div>
-            {lessons.map((lesson) => {
-              const lockInfo = getLessonLockInfo(lesson);
-              return (
-                <LessonItem 
-                  key={lesson.id} 
-                  lesson={lesson} 
-                  onClick={() => handleLessonClick(lesson)}
-                  isLocked={lockInfo.isLocked}
-                  requiredPlan={lockInfo.requiredPlan}
-                />
-              );
-            })}
-          </>
+          lessons.map((lesson) => {
+            const lockInfo = getLessonLockInfo(lesson);
+            return (
+              <LessonItem 
+                key={lesson.id} 
+                lesson={lesson} 
+                onClick={() => handleLessonClick(lesson)}
+                isLocked={lockInfo.isLocked}
+                requiredPlan={lockInfo.requiredPlan}
+              />
+            );
+          })
         )}
         {!isLoading && track.percentage > 0 && (
           <div className="pt-2">
@@ -373,14 +353,6 @@ export function ModuleDetailScreen({
   const tracks = moduleDetail?.tracks || [];
   const progress = moduleDetail?.progress;
   const moduleIndex = getModuleIndex();
-
-  // Debug logging for track visibility
-  console.log('[ModuleDetailScreen]', {
-    moduleId,
-    tracksCount: tracks.length,
-    moduleLoading,
-    moduleDetail,
-  });
 
   return (
     <div className="min-h-screen bg-background">

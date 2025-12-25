@@ -1,5 +1,6 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota } from '@shared/schema';
+import type { FreeStrongQuota, GuestStrongQuota } from '@shared/schema';
 import { getBookById } from './bible-data/books';
 import type {
   User,
@@ -186,6 +187,14 @@ export interface IStorage {
   getFreeAiQuota(userId: string): Promise<{ questionsUsed: number; guestQuestionsImported: number } | undefined>;
   incrementFreeAiQuota(userId: string): Promise<number>;
   migrateGuestQuotaToUser(userId: string, guestQuestionsUsed: number): Promise<void>;
+  
+  // Strong Dictionary Quota (permanent, not daily reset)
+  // Guest: 2 total, Free User: 4 total (incl. migrated), Gold: 20/day, Premium: unlimited
+  getFreeStrongQuota(userId: string): Promise<{ lookupsUsed: number; guestLookupsImported: number } | undefined>;
+  incrementFreeStrongQuota(userId: string): Promise<number>;
+  migrateGuestStrongQuotaToUser(userId: string, guestLookupsUsed: number): Promise<void>;
+  getGuestStrongQuota(deviceId: string): Promise<number>;
+  incrementGuestStrongQuota(deviceId: string): Promise<number>;
 }
 
 class PostgresStorage implements IStorage {
@@ -1423,6 +1432,84 @@ class PostgresStorage implements IStorage {
         })
         .where(eq(freeAiQuota.userId, userId));
     }
+  }
+
+  // Strong Dictionary Quota (permanent count, not daily reset)
+  async getFreeStrongQuota(userId: string): Promise<{ lookupsUsed: number; guestLookupsImported: number } | undefined> {
+    const result = await db.select().from(freeStrongQuota).where(eq(freeStrongQuota.userId, userId));
+    if (result.length === 0) return undefined;
+    return {
+      lookupsUsed: result[0].lookupsUsed,
+      guestLookupsImported: result[0].guestLookupsImported,
+    };
+  }
+
+  async incrementFreeStrongQuota(userId: string): Promise<number> {
+    const existing = await db.select().from(freeStrongQuota).where(eq(freeStrongQuota.userId, userId));
+    
+    if (existing.length === 0) {
+      const [created] = await db.insert(freeStrongQuota).values({
+        userId,
+        lookupsUsed: 1,
+        guestLookupsImported: 0,
+      }).returning();
+      return created.lookupsUsed;
+    }
+    
+    const [updated] = await db.update(freeStrongQuota)
+      .set({ 
+        lookupsUsed: existing[0].lookupsUsed + 1,
+        updatedAt: new Date(),
+      })
+      .where(eq(freeStrongQuota.userId, userId))
+      .returning();
+    return updated.lookupsUsed;
+  }
+
+  async migrateGuestStrongQuotaToUser(userId: string, guestLookupsUsed: number): Promise<void> {
+    const existing = await db.select().from(freeStrongQuota).where(eq(freeStrongQuota.userId, userId));
+    
+    if (existing.length === 0) {
+      await db.insert(freeStrongQuota).values({
+        userId,
+        lookupsUsed: guestLookupsUsed,
+        guestLookupsImported: guestLookupsUsed,
+      });
+    } else if (existing[0].guestLookupsImported === 0) {
+      await db.update(freeStrongQuota)
+        .set({ 
+          lookupsUsed: existing[0].lookupsUsed + guestLookupsUsed,
+          guestLookupsImported: guestLookupsUsed,
+          updatedAt: new Date(),
+        })
+        .where(eq(freeStrongQuota.userId, userId));
+    }
+  }
+
+  async getGuestStrongQuota(deviceId: string): Promise<number> {
+    const result = await db.select().from(guestStrongQuota).where(eq(guestStrongQuota.deviceId, deviceId));
+    return result.length > 0 ? result[0].lookupsUsed : 0;
+  }
+
+  async incrementGuestStrongQuota(deviceId: string): Promise<number> {
+    const existing = await db.select().from(guestStrongQuota).where(eq(guestStrongQuota.deviceId, deviceId));
+    
+    if (existing.length === 0) {
+      const [created] = await db.insert(guestStrongQuota).values({
+        deviceId,
+        lookupsUsed: 1,
+      }).returning();
+      return created.lookupsUsed;
+    }
+    
+    const [updated] = await db.update(guestStrongQuota)
+      .set({ 
+        lookupsUsed: existing[0].lookupsUsed + 1,
+        updatedAt: new Date(),
+      })
+      .where(eq(guestStrongQuota.deviceId, deviceId))
+      .returning();
+    return updated.lookupsUsed;
   }
 }
 

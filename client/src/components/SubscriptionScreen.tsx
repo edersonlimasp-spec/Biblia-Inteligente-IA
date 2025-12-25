@@ -130,14 +130,41 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       });
     }
   };
-  const plans = [
+  type PlanInfo = {
+    name: string;
+    price: string;
+    period: string;
+    icon: typeof Lock | typeof Crown | typeof Sparkles;
+    features: string[];
+    highlight: boolean;
+    badge?: string;
+    isFree?: boolean;
+  };
+  
+  const plans: PlanInfo[] = [
+    {
+      name: "Gratuito",
+      price: "R$ 0",
+      period: "para sempre",
+      icon: Lock,
+      features: [
+        "2 palavras Strong (visitante)",
+        "4 palavras Strong (com login)",
+        "3 gravações de sermão",
+        "3 eventos na agenda",
+        "5 perguntas à IA (total)",
+        "Leitura bíblica ilimitada",
+      ],
+      highlight: false,
+      isFree: true,
+    },
     {
       name: "Strong Vitalício",
       price: "R$ 49,90",
       period: "pagamento único",
       icon: Crown,
       features: [
-        "Dicionário Strong completo",
+        "Dicionário Strong ilimitado",
         "Acesso a textos em Hebraico",
         "Acesso a textos em Grego",
         "Morfologia detalhada",
@@ -153,11 +180,11 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       period: "por mês",
       icon: Sparkles,
       features: [
+        "20 palavras Strong por dia",
+        "30 perguntas IA por dia",
+        "30 gravações de sermão",
+        "30 eventos na agenda",
         "IA Professor (modo Essencial)",
-        "30 perguntas por dia",
-        "Strong + Hebraico + Grego",
-        "Explicações básicas",
-        "Contexto cultural simples",
         "Histórico de conversas",
       ],
       highlight: false,
@@ -168,12 +195,12 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       period: "por mês",
       icon: Sparkles,
       features: [
+        "Strong ilimitado",
+        "100 perguntas IA por dia",
+        "100 gravações de sermão",
+        "100 eventos na agenda",
         "IA Professor (modo Premium)",
-        "100 perguntas por dia",
-        "Strong + Hebraico + Grego",
         "Exegese profunda",
-        "Comparação teológica",
-        "Análise histórico-cultural",
         "Modo pregador/professor",
       ],
       highlight: true,
@@ -225,7 +252,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         </div>
 
         {/* Plans Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (
@@ -270,20 +297,26 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                       </li>
                     ))}
                   </ul>
-                  <Button
-                    className="w-full"
-                    variant={plan.highlight ? "default" : "outline"}
-                    onClick={() => handlePlanSelect(plan.name)}
-                    disabled={isPurchasing === plan.name}
-                    data-testid={`button-subscribe-${plan.name.toLowerCase().replace(/\s/g, "-")}`}
-                  >
-                    {isPurchasing === plan.name ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Processando...
-                      </>
-                    ) : plan.highlight ? "Assinar Agora" : "Escolher Plano"}
-                  </Button>
+                  {plan.isFree ? (
+                    <div className="text-center text-sm text-muted-foreground py-2">
+                      Plano atual para visitantes
+                    </div>
+                  ) : (
+                    <Button
+                      className="w-full"
+                      variant={plan.highlight ? "default" : "outline"}
+                      onClick={() => handlePlanSelect(plan.name)}
+                      disabled={isPurchasing === plan.name}
+                      data-testid={`button-subscribe-${plan.name.toLowerCase().replace(/\s/g, "-")}`}
+                    >
+                      {isPurchasing === plan.name ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Processando...
+                        </>
+                      ) : plan.highlight ? "Assinar Agora" : "Escolher Plano"}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             );

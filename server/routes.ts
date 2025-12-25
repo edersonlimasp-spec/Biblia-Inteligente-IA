@@ -923,6 +923,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Strong Dictionary Quota endpoints
+  const FREE_STRONG_LIMIT = 4; // Free users get 4 total
+  const GUEST_STRONG_LIMIT = 2; // Guests get 2 total
+  const GOLD_STRONG_DAILY_LIMIT = 20; // Gold users get 20/day
+  
+  app.get("/api/strong/quota", async (req, res) => {
+    try {
+      const { deviceId } = req.query as { deviceId?: string };
+      
+      // Check if authenticated user
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+          const user = await storage.getUser(decoded.userId);
+          
+          if (user) {
+            const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+            const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
+            const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
+            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
+            const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
+            
+            // Premium, Lifetime, Bonus and Admin have unlimited access
+            if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
+              return res.json({
+                used: 0,
+                limit: -1,
+                remaining: -1,
+                type: 'unlimited',
+                hasUnlimitedAccess: true,
+              });
+            }
+            
+            if (hasGold) {
+              const todayLookups = await storage.getTodayStrongLookups(decoded.userId);
+              return res.json({
+                used: todayLookups,
+                limit: GOLD_STRONG_DAILY_LIMIT,
+                remaining: Math.max(0, GOLD_STRONG_DAILY_LIMIT - todayLookups),
+                type: 'gold',
+                hasUnlimitedAccess: false,
+              });
+            }
+            
+            // Free user
+            const quota = await storage.getFreeStrongQuota(decoded.userId);
+            const used = quota?.lookupsUsed || 0;
+            
+            return res.json({
+              used,
+              limit: FREE_STRONG_LIMIT,
+              remaining: Math.max(0, FREE_STRONG_LIMIT - used),
+              type: 'free',
+              hasUnlimitedAccess: false,
+            });
+          }
+        } catch (tokenError) {
+          // Invalid token, treat as guest
+        }
+      }
+      
+      // Guest user
+      if (deviceId) {
+        const used = await storage.getGuestStrongQuota(deviceId);
+        return res.json({
+          used,
+          limit: GUEST_STRONG_LIMIT,
+          remaining: Math.max(0, GUEST_STRONG_LIMIT - used),
+          type: 'guest',
+          hasUnlimitedAccess: false,
+        });
+      }
+      
+      // No auth, no deviceId - return guest default
+      res.json({
+        used: 0,
+        limit: GUEST_STRONG_LIMIT,
+        remaining: GUEST_STRONG_LIMIT,
+        type: 'guest',
+        hasUnlimitedAccess: false,
+      });
+    } catch (error) {
+      console.error("Get Strong quota error:", error);
+      res.status(500).json({ error: "Erro ao buscar quota Strong" });
+    }
+  });
+  
+  app.post("/api/strong/migrate-guest-quota", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { guestLookupsUsed } = req.body;
+      
+      if (typeof guestLookupsUsed !== 'number' || guestLookupsUsed < 0) {
+        return res.status(400).json({ error: "Valor inválido" });
+      }
+      
+      await storage.migrateGuestStrongQuotaToUser(req.userId!, guestLookupsUsed);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Migrate guest Strong quota error:", error);
+      res.status(500).json({ error: "Erro ao migrar quota Strong" });
+    }
+  });
+
   // Bookmarks
   app.get("/api/bookmarks", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
@@ -2109,17 +2215,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Strong's Dictionary routes (Database-driven with in-memory cache)
+  // Quota limits: Guest=2 total, Free=4 total (incl. guest), Gold=20/day, Premium=unlimited
   app.get("/api/strong/:number", async (req, res) => {
     const startTime = Date.now();
     try {
       const { number } = req.params;
+      // Check both query param and header for deviceId (frontend may send via either)
+      const deviceId = (req.query.deviceId as string) || (req.headers['x-device-id'] as string) || undefined;
       const upperNumber = number.toUpperCase();
+      
+      // Strong quota limits (permanent for free tiers)
+      const STRONG_GUEST_LIMIT = 2;      // 2 words total for guests
+      const STRONG_FREE_LIMIT = 4;       // 4 words total for free users (incl. migrated guest)
+      const STRONG_GOLD_DAILY_LIMIT = 20; // 20/day for Gold
+      // Premium/Lifetime = unlimited
+      
+      let shouldIncrementQuota = true;
+      let quotaInfo: { used: number; limit: number; type: 'guest' | 'free' | 'gold' | 'unlimited' } | null = null;
+      
+      // Check if authenticated user
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+          const user = await storage.getUser(decoded.userId);
+          
+          if (user) {
+            const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+            const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
+            const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
+            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
+            const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
+            
+            // Premium, Lifetime, Bonus and Admin have unlimited access
+            if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
+              shouldIncrementQuota = false;
+              quotaInfo = { used: 0, limit: -1, type: 'unlimited' };
+            } else if (hasGold) {
+              // Gold users: 20 lookups per day
+              const todayLookups = await storage.getTodayStrongLookups(decoded.userId);
+              if (todayLookups >= STRONG_GOLD_DAILY_LIMIT) {
+                return res.status(429).json({
+                  error: "Limite diário de 20 palavras Strong atingido. Aguarde até amanhã ou assine Premium para acesso ilimitado.",
+                  requiresSubscription: true,
+                  subscriptionType: 'premium',
+                  requiresLogin: false,
+                  used: todayLookups,
+                  limit: STRONG_GOLD_DAILY_LIMIT,
+                });
+              }
+              quotaInfo = { used: todayLookups, limit: STRONG_GOLD_DAILY_LIMIT, type: 'gold' };
+              await storage.incrementStrongLookups(decoded.userId);
+              shouldIncrementQuota = false;
+            } else {
+              // Free user: 4 total (permanent)
+              const freeQuota = await storage.getFreeStrongQuota(decoded.userId);
+              const used = freeQuota?.lookupsUsed || 0;
+              
+              if (used >= STRONG_FREE_LIMIT) {
+                return res.status(429).json({
+                  error: "Você usou suas 4 palavras Strong gratuitas. Assine Gold para 20 palavras/dia ou Premium para ilimitado.",
+                  requiresSubscription: true,
+                  subscriptionType: 'gold',
+                  requiresLogin: false,
+                  used: used,
+                  limit: STRONG_FREE_LIMIT,
+                });
+              }
+              quotaInfo = { used, limit: STRONG_FREE_LIMIT, type: 'free' };
+              await storage.incrementFreeStrongQuota(decoded.userId);
+              shouldIncrementQuota = false;
+            }
+          }
+        } catch (tokenError) {
+          // Invalid token, treat as guest
+        }
+      }
+      
+      // Guest user quota check
+      if (shouldIncrementQuota) {
+        if (deviceId) {
+          const guestUsed = await storage.getGuestStrongQuota(deviceId);
+          
+          if (guestUsed >= STRONG_GUEST_LIMIT) {
+            return res.status(429).json({
+              error: "Você usou suas 2 palavras Strong gratuitas. Faça login para continuar (mais 2 palavras) ou assine para acesso completo.",
+              requiresLogin: true,
+              requiresSubscription: false,
+              used: guestUsed,
+              limit: STRONG_GUEST_LIMIT,
+            });
+          }
+          quotaInfo = { used: guestUsed, limit: STRONG_GUEST_LIMIT, type: 'guest' };
+          await storage.incrementGuestStrongQuota(deviceId);
+        } else {
+          // No deviceId provided - require login to proceed (prevents quota bypass)
+          return res.status(400).json({
+            error: "DeviceId necessário para acessar Strong. Recarregue a página ou faça login.",
+            requiresLogin: true,
+            requiresSubscription: false,
+            used: 0,
+            limit: STRONG_GUEST_LIMIT,
+          });
+        }
+      }
       
       // Check cache first (instant response)
       const cached = getFromStrongCache(upperNumber);
       if (cached) {
         console.log(`[Strong API] Cache HIT for ${upperNumber} (${Date.now() - startTime}ms)`);
-        return res.json(cached);
+        return res.json({ ...cached, quotaInfo });
       }
       
       // Query database for Strong's entry (single optimized query with index)
@@ -2152,10 +2358,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         derivation: entry.derivation || null,
         extendedDefinition: entry.extendedDefinition || null,
         language: entry.language,
+        quotaInfo,
       };
       
-      // Cache the result
-      setInStrongCache(upperNumber, response);
+      // Cache the result (without quotaInfo to keep cache clean)
+      const cacheData = { ...response };
+      delete (cacheData as any).quotaInfo;
+      setInStrongCache(upperNumber, cacheData);
       
       res.json(response);
     } catch (error) {

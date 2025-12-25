@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -5,8 +6,46 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, X, Search, Crown, BookOpen, Infinity } from "lucide-react";
+import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn } from "lucide-react";
 import { ApiError } from "@/lib/queryClient";
+import { AuthModal } from "./AuthModal";
+import { getDeviceId } from "@/hooks/use-device-id";
+import { useAuth } from "@/contexts/AuthContext";
+
+// Helper to get auth token
+function getAuthToken(): string | null {
+  return localStorage.getItem('authToken');
+}
+
+// Fetch Strong entry with proper auth headers
+async function fetchStrongEntry(strongNumber: string, deviceId: string): Promise<any> {
+  const token = getAuthToken();
+  const headers: HeadersInit = {};
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  // Always include deviceId for guests - backend checks both query and header
+  if (deviceId) {
+    headers['x-device-id'] = deviceId;
+  }
+  
+  const res = await fetch(`/api/strong/${encodeURIComponent(strongNumber)}`, {
+    credentials: 'include',
+    headers,
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    const error = new Error(errorData.error || 'Request failed') as ApiError;
+    error.status = res.status;
+    error.data = errorData;
+    throw error;
+  }
+  
+  return res.json();
+}
 
 interface StrongModalProps {
   strongNumber: string;
@@ -29,16 +68,29 @@ interface StrongEntry {
 }
 
 export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }: StrongModalProps) {
-  const { data: strongData, isLoading, error } = useQuery<StrongEntry>({
-    queryKey: ['/api/strong', strongNumber],
+  const { user } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const deviceId = getDeviceId();
+  
+  // Query with auth token + deviceId - backend uses auth first, falls back to deviceId for guests
+  const { data: strongData, isLoading, error, refetch } = useQuery<StrongEntry>({
+    queryKey: ['/api/strong', strongNumber, deviceId],
+    queryFn: () => fetchStrongEntry(strongNumber, deviceId),
     staleTime: 1000 * 60 * 60 * 24, // 24 hours - cache aggressively
     gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days garbage collection
   });
 
   const apiError = error as ApiError;
   const requiresSubscription = apiError?.data?.requiresSubscription;
+  const requiresLogin = apiError?.data?.requiresLogin;
 
   const isHebrew = strongData?.number?.startsWith('H');
+  
+  // Handle successful login - refetch the data
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    refetch();
+  };
 
   if (isLoading) {
     return (
@@ -56,8 +108,101 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
     );
   }
 
+  // Guest needs to login first
+  if (error && requiresLogin) {
+    const errorMessage = apiError?.data?.error || "Faça login para continuar";
+    const used = apiError?.data?.used || 0;
+    const limit = apiError?.data?.limit || 2;
+    
+    return (
+      <>
+        <Dialog open={true} onOpenChange={onClose}>
+          <DialogContent className="w-[95vw] max-w-md bg-background" data-testid="modal-strong-login">
+            <DialogTitle className="sr-only">Login Necessário</DialogTitle>
+            <div className="flex flex-col items-center p-4 text-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <LogIn className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-bold text-foreground">Limite Atingido</h3>
+                <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Você usou {used}/{limit} palavras gratuitas
+                </p>
+              </div>
+              
+              <div className="w-full space-y-3 mt-2">
+                <Card className="p-4 border-2 border-primary bg-primary/5">
+                  <div className="flex items-center gap-3">
+                    <LogIn className="w-6 h-6 text-primary flex-shrink-0" />
+                    <div className="text-left flex-1">
+                      <div className="font-semibold text-foreground">Faça Login</div>
+                      <div className="text-xs text-muted-foreground">Ganhe mais 2 palavras gratuitas</div>
+                    </div>
+                  </div>
+                  <Button 
+                    className="w-full mt-3" 
+                    onClick={() => setShowAuthModal(true)}
+                    data-testid="button-login-strong"
+                  >
+                    Entrar / Criar Conta
+                  </Button>
+                </Card>
+                
+                <Card className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Crown className="w-6 h-6 text-amber-500 flex-shrink-0" />
+                    <div className="text-left flex-1">
+                      <div className="font-semibold text-foreground">Ou Assine um Plano</div>
+                      <div className="text-xs text-muted-foreground">Gold: 20 palavras/dia, Premium: ilimitado</div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-3"
+                    onClick={() => {
+                      onClose();
+                      if (onNavigateToSubscriptions) {
+                        onNavigateToSubscriptions();
+                      }
+                    }}
+                    data-testid="button-view-plans-login"
+                  >
+                    Ver Planos
+                  </Button>
+                </Card>
+              </div>
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={onClose} 
+                className="text-muted-foreground"
+                data-testid="button-close-login-paywall"
+              >
+                Fechar
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        <AuthModal
+          open={showAuthModal}
+          onOpenChange={setShowAuthModal}
+          onAuthSuccess={handleAuthSuccess}
+          title="Acessar Dicionário Strong"
+          description="Faça login para desbloquear mais 2 palavras gratuitas do Dicionário Strong."
+        />
+      </>
+    );
+  }
+  
+  // User needs subscription
   if (error && requiresSubscription) {
     const errorMessage = apiError?.data?.error || "Limite de consultas atingido";
+    const used = apiError?.data?.used || 0;
+    const limit = apiError?.data?.limit || 4;
     
     const handleSubscribe = () => {
       onClose();
@@ -76,8 +221,11 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
             </div>
             
             <div>
-              <h3 className="text-xl font-bold text-foreground">Limite Diário Atingido</h3>
+              <h3 className="text-xl font-bold text-foreground">Limite Atingido</h3>
               <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Você usou {used}/{limit} palavras gratuitas
+              </p>
             </div>
             
             <div className="w-full space-y-3 mt-2">
@@ -107,7 +255,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
                   <Crown className="w-6 h-6 text-amber-500 flex-shrink-0" />
                   <div className="text-left flex-1">
                     <div className="font-semibold text-foreground">Plano Gold ou Premium</div>
-                    <div className="text-xs text-muted-foreground">Inclui Strong + IA + Cursos</div>
+                    <div className="text-xs text-muted-foreground">Gold: 20/dia, Premium: ilimitado</div>
                   </div>
                 </div>
                 <Button 

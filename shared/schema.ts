@@ -647,3 +647,31 @@ export const freeAiQuota = pgTable("free_ai_quota", {
 }));
 
 export type FreeAiQuota = typeof freeAiQuota.$inferSelect;
+
+// Strong Dictionary Quota for registered users (permanent count - NOT daily reset)
+// Tracks cumulative Strong lookups: Guest=2 total, Free User=4 total (incl. migrated), Gold=20/day, Premium=unlimited
+export const freeStrongQuota = pgTable("free_strong_quota", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  lookupsUsed: integer("lookups_used").notNull().default(0),
+  guestLookupsImported: integer("guest_lookups_imported").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("free_strong_quota_user_id_idx").on(table.userId),
+}));
+
+export type FreeStrongQuota = typeof freeStrongQuota.$inferSelect;
+
+// Strong Dictionary Quota for guest users (by deviceId - permanent count)
+export const guestStrongQuota = pgTable("guest_strong_quota", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  deviceId: text("device_id").notNull().unique(),
+  lookupsUsed: integer("lookups_used").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  deviceIdIdx: index("guest_strong_quota_device_id_idx").on(table.deviceId),
+}));
+
+export type GuestStrongQuota = typeof guestStrongQuota.$inferSelect;

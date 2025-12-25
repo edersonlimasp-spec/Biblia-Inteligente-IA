@@ -361,6 +361,14 @@ export function ModuleDetailScreen({
   const progress = moduleDetail?.progress;
   const moduleIndex = getModuleIndex();
 
+  // Debug logging for track visibility
+  console.log('[ModuleDetailScreen]', {
+    moduleId,
+    tracksCount: tracks.length,
+    moduleLoading,
+    moduleDetail,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">

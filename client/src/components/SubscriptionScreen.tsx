@@ -170,6 +170,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         "Morfologia e etimologia completa",
         "Pague uma vez, use para sempre",
         "Ideal para quem quer só o Strong",
+        "+ todo acesso gratuito",
       ],
       highlight: false,
     },

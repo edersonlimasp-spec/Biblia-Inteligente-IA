@@ -153,14 +153,20 @@ export function BibleReader({
 
   // Handler para mudança de versão com invalidação de cache
   const handleVersionChange = (newVersion: string) => {
-    console.log(`[BibleReader] VERSION_CHANGE: from=${selectedVersion} to=${newVersion} book=${selectedBook} chapter=${selectedChapter}`);
+    console.log(`[BIBLE] VERSION_CHANGE -> from=${selectedVersion} to=${newVersion} book=${selectedBook} chapter=${selectedChapter} ts=${Date.now()}`);
     
-    // Invalida o cache do capítulo atual para forçar refetch
+    // Invalida TODOS os caches de capítulos para garantir refetch limpo
     queryClient.invalidateQueries({ 
-      queryKey: ['/api/bible/chapter', selectedBook, selectedChapter, selectedVersion] 
+      queryKey: ['/api/bible/chapter'],
+      refetchType: 'all'
     });
     
-    // Muda a versão
+    // Remove cache antigo explicitamente
+    queryClient.removeQueries({
+      queryKey: ['/api/bible/chapter', selectedBook, selectedChapter, selectedVersion]
+    });
+    
+    // Muda a versão - isso vai criar novo queryKey e forçar novo fetch
     setSelectedVersion(newVersion);
   };
 
@@ -210,11 +216,16 @@ export function BibleReader({
     enabled: !!selectedBook && !!selectedChapter,
     retry: false,
     staleTime: 0, // Always refetch when version changes
-    gcTime: 1000 * 60 * 60, // 1 hour garbage collection
-    queryFn: async () => {
-      console.log('[BibleReader] Fetching chapter:', selectedBook, selectedChapter, 'version:', selectedVersion);
-      const url = `/api/bible/${selectedBook}/${selectedChapter}?version=${selectedVersion}`;
-      return apiRequest('GET', url).then(res => res.json());
+    gcTime: 0, // Disable garbage collection to prevent stale cache
+    queryFn: async ({ queryKey }) => {
+      // Extract version from queryKey to ensure we fetch the correct version
+      const [, book, chapter, version] = queryKey as [string, string, number, string];
+      const url = `/api/bible/${book}/${chapter}?version=${encodeURIComponent(version)}&_t=${Date.now()}`;
+      console.log(`[BIBLE] FETCHING -> url=${url} queryKey=[${queryKey.join(', ')}] ts=${Date.now()}`);
+      const response = await apiRequest('GET', url);
+      const data = await response.json();
+      console.log(`[BIBLE] RESPONSE -> version=${data.version} requestedVersion=${data.requestedVersion} verse1="${data.chapter?.verses?.[0]?.text?.substring(0, 40)}..."`);
+      return data;
     },
   });
 

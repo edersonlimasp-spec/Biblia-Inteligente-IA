@@ -61,8 +61,8 @@ export function AlmeidaVersionSelector({
   const spanishVersions = versions?.filter(v => v.language === 'es') || [];
 
   const handleVersionClick = (version: BibleVersion) => {
-    // Log obrigatório ao trocar versão
-    console.log(`[VersionSelector] CHANGE: from=${selectedVersion} to=${version.code} hasData=${version.hasData} license=${version.licenseType}`);
+    // Log obrigatório ao trocar versão (formato padronizado para debug)
+    console.log(`[BIBLE] VERSION_SELECTED -> translationId=${version.code} from=${selectedVersion} hasData=${version.hasData} ts=${Date.now()}`);
     
     // Se versão requer licença comercial E não tem dados, mostrar modal
     if (version.licenseType === 'commercial_pending' && !version.hasData) {

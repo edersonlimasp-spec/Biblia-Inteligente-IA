@@ -217,16 +217,16 @@ export function useReadingHistory() {
   }, []);
 
   const trackReading = useCallback(async (book: string, chapter: number, versionCode?: string) => {
-    // Para usuários logados: salvar no servidor
+    // SEMPRE salvar em localStorage primeiro (para restauração rápida ao reabrir)
+    saveReadingLocal(book, chapter, versionCode);
+    
+    // Para usuários logados: também salvar no servidor (backup/sync)
     if (user && token) {
       try {
         await addReadingMutation.mutateAsync({ book, chapter, versionCode });
       } catch (error) {
         console.error("Error tracking reading:", error);
       }
-    } else {
-      // Para guests: salvar apenas em localStorage
-      saveReadingLocal(book, chapter, versionCode);
     }
   }, [user, token, addReadingMutation, saveReadingLocal]);
 

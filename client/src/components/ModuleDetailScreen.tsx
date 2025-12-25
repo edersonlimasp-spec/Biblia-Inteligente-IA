@@ -193,6 +193,11 @@ function TrackCard({
       <p className="text-sm text-muted-foreground mb-3 break-words">{track.description}</p>
       
       <div className="space-y-2">
+        {/* Debug: show lesson count */}
+        <p className="text-xs text-blue-500 font-bold">
+          DEBUG: {isLoading ? 'Carregando...' : `${lessons.length} lições encontradas`}
+        </p>
+        
         {isLoading ? (
           <>
             <LessonItemSkeleton />
@@ -201,19 +206,24 @@ function TrackCard({
         ) : lessons.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nenhuma lição encontrada</p>
         ) : (
-          lessons.map((lesson) => {
-            const lockInfo = getLessonLockInfo(lesson);
-            console.log('[LessonItem render]', lesson.id, lesson.title);
-            return (
-              <LessonItem 
-                key={lesson.id} 
-                lesson={lesson} 
-                onClick={() => handleLessonClick(lesson)}
-                isLocked={lockInfo.isLocked}
-                requiredPlan={lockInfo.requiredPlan}
-              />
-            );
-          })
+          <>
+            {/* Debug: test simple text rendering */}
+            <div className="bg-green-500 text-white p-2 rounded">
+              TEST: Renderizando {lessons.length} lições abaixo:
+            </div>
+            {lessons.map((lesson) => {
+              const lockInfo = getLessonLockInfo(lesson);
+              return (
+                <LessonItem 
+                  key={lesson.id} 
+                  lesson={lesson} 
+                  onClick={() => handleLessonClick(lesson)}
+                  isLocked={lockInfo.isLocked}
+                  requiredPlan={lockInfo.requiredPlan}
+                />
+              );
+            })}
+          </>
         )}
         {!isLoading && track.percentage > 0 && (
           <div className="pt-2">

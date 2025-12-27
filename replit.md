@@ -81,11 +81,15 @@ npx cap open ios     # Open in Xcode
 
 ## Mercado Pago Integration (Checkout Pro)
 
-The application uses Mercado Pago Checkout Pro for subscription payments.
+The application uses Mercado Pago Checkout Pro for subscription payments with automatic activation via webhooks.
 
 **Endpoints:**
-- `POST /api/mp/create-checkout` - Creates a Mercado Pago checkout preference (requires authentication)
-- `POST /api/mp/webhook` - Webhook to receive payment confirmations from Mercado Pago
+- `POST /api/mp/create-checkout` - Creates checkout preference (requires auth). Sends `external_reference` and `metadata` with userId/plan
+- `POST /api/mp/webhook` - Receives payment/subscription notifications. Responds 200 immediately, processes async
+- `GET /api/mp/webhook` - Verifies webhook endpoint is online
+- `GET /api/mp/health` - Health check: returns `{ok: true, webhookUrl, hasToken}`
+- `GET /api/mp/last-webhook` - Returns last webhook received (stored 15 min) for debugging
+- `GET /api/subscription/status` - Returns user subscription status (requires auth)
 
 **Plans and Prices (Fixed - BRL):**
 - **Gold:** R$ 9,90/mês (30 days)
@@ -93,17 +97,37 @@ The application uses Mercado Pago Checkout Pro for subscription payments.
 - **Vitalício (Strong Lifetime):** R$ 49,90 único (lifetime access)
 
 **Environment Variables Required:**
-- `MP_ACCESS_TOKEN` - Mercado Pago Access Token (Secret)
-- `APP_URL` - Optional, auto-detected from REPLIT_DOMAINS if not set
+- `MP_ACCESS_TOKEN` - Mercado Pago Access Token (PRODUCTION token for production)
 
 **Return Pages:**
-- `/pagamento/sucesso` - Payment successful
-- `/pagamento/erro` - Payment failed
-- `/pagamento/pendente` - Payment pending
+- `/mp/return?status=success` -> Redirects to `/pagamento/sucesso`
+- `/mp/return?status=failure` -> Redirects to `/pagamento/erro`
+- `/mp/return?status=pending` -> Redirects to `/pagamento/pendente`
 
-**Webhook Configuration:**
-Configure the webhook URL in Mercado Pago Dashboard:
-`https://<your-domain>/api/mp/webhook`
+**Webhook Configuration (Mercado Pago Dashboard):**
+1. URL: `https://bibliainteligente.replit.app/api/mp/webhook`
+2. Events to enable: "Pagamentos" (payments) AND "Planos e assinaturas" (subscriptions)
+3. Mode: PRODUCTION (not test mode)
+
+**User Identification in Webhook (Priority Order):**
+1. `external_reference` (JSON with userId, plan)
+2. `metadata.userId` or `metadata.user_id`
+3. `payer.email` (last resort - matches user by email)
+
+**How Activation Works:**
+1. Checkout sends `external_reference` + `metadata` with userId/plan
+2. Mercado Pago sends POST to /api/mp/webhook
+3. Webhook responds 200 immediately, processes async
+4. Fetches payment/preapproval details from MP API
+5. If status is approved/authorized/active, activates subscription via `storage.upsertSubscription()`
+6. Logs prefixed with `[MP Webhook]` show entire flow
+
+**Testing Guide:**
+1. Check health: `curl https://bibliainteligente.replit.app/api/mp/health`
+2. Make a test payment (use real Mercado Pago account)
+3. Check logs for `[MP Webhook]` entries
+4. Check last webhook: `curl https://bibliainteligente.replit.app/api/mp/last-webhook`
+5. Verify subscription: `/api/subscription/status` or admin panel
 
 ## External Dependencies
 

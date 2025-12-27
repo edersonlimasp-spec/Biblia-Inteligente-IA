@@ -3391,26 +3391,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const planConfig = MP_PLAN_CONFIG[plan];
-      const webhookUrl = getAppUrl(); // For webhook, can use any active domain
+      const planType = plan === 'strong_lifetime' ? 'vitalicio' : plan;
       
-      // Create external reference with user and plan info
+      // Fetch user email for payer info
+      const user = await storage.getUser(userId);
+      if (!user) {
+        console.error(`[MP] ❌ Usuário não encontrado: ${userId}`);
+        return res.status(400).json({ error: "Usuário não encontrado" });
+      }
+      
+      const userEmail = user.email;
+      if (!userEmail) {
+        console.warn(`[MP] ⚠️ Usuário ${userId} não tem email cadastrado`);
+      }
+      
+      // Create external reference with user and plan info (CRITICAL for webhook)
       const externalReference = JSON.stringify({
         userId,
-        plan: plan === 'strong_lifetime' ? 'vitalicio' : plan,
+        plan: planType,
         days: planConfig.days,
         lifetime: planConfig.days === null,
       });
+      
+      console.log(`[MP] ════════════════════════════════════════════════════`);
+      console.log(`[MP] CRIANDO CHECKOUT`);
+      console.log(`[MP] userId: ${userId}`);
+      console.log(`[MP] email: ${userEmail}`);
+      console.log(`[MP] plan: ${plan}`);
+      console.log(`[MP] price: R$${planConfig.price}`);
+      console.log(`[MP] external_reference: ${externalReference}`);
+      console.log(`[MP] ════════════════════════════════════════════════════`);
       
       // Create Mercado Pago preference
       // IMPORTANT: back_urls MUST use PRODUCTION_APP_URL to avoid *.picard.replit.dev redirect
       const preference = {
         items: [{
+          id: `plan_${planType}`,
           title: planConfig.title,
+          description: `Plano ${planType.charAt(0).toUpperCase() + planType.slice(1)} - Bíblia Inteligente IA`,
           quantity: 1,
           currency_id: "BRL",
           unit_price: planConfig.price,
         }],
+        // ETAPA C: external_reference com userId (CRÍTICO)
         external_reference: externalReference,
+        // ETAPA C: metadata com userId e plan (redundância para segurança)
+        metadata: {
+          userId: userId,
+          user_id: userId,
+          plan: planType,
+          planType: planType,
+          userEmail: userEmail || '',
+        },
+        // Payer info (only if email exists)
+        ...(userEmail ? { payer: { email: userEmail } } : {}),
         back_urls: {
           success: `${PRODUCTION_APP_URL}/mp/return?status=success`,
           failure: `${PRODUCTION_APP_URL}/mp/return?status=failure`,
@@ -3418,9 +3452,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         auto_return: "approved",
         notification_url: `${PRODUCTION_APP_URL}/api/mp/webhook`,
+        // Statement descriptor
+        statement_descriptor: "BIBLIA IA",
       };
       
-      console.log(`[MP] back_urls configuradas para: ${PRODUCTION_APP_URL}`);
+      console.log(`[MP] Preference payload:`, JSON.stringify(preference, null, 2));
       
       console.log(`[MP] create-checkout plan=${plan} userId=${userId} price=${planConfig.price}`);
       
@@ -3545,6 +3581,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // MERCADO PAGO WEBHOOK - COMPLETE IMPLEMENTATION
   // ===================================
   
+  // Memory storage for last webhook (expires after 15 minutes)
+  interface LastWebhookData {
+    receivedAt: Date;
+    query: any;
+    body: any;
+    headers: any;
+    processedResult?: {
+      success: boolean;
+      userId?: string;
+      plan?: string;
+      error?: string;
+    };
+  }
+  let lastWebhookData: LastWebhookData | null = null;
+  
+  // GET /api/mp/health - Health check endpoint
+  app.get("/api/mp/health", (_req, res) => {
+    console.log("[MP] Health check");
+    res.status(200).json({ 
+      ok: true,
+      timestamp: new Date().toISOString(),
+      webhookUrl: `${PRODUCTION_APP_URL}/api/mp/webhook`,
+      hasToken: !!process.env.MP_ACCESS_TOKEN,
+    });
+  });
+  
+  // GET /api/mp/last-webhook - Returns the last webhook received (for debugging)
+  app.get("/api/mp/last-webhook", (_req, res) => {
+    console.log("[MP] Last webhook request");
+    
+    if (!lastWebhookData) {
+      return res.status(200).json({ 
+        message: "Nenhum webhook recebido ainda",
+        lastWebhook: null,
+      });
+    }
+    
+    // Check if expired (15 minutes)
+    const now = new Date();
+    const age = now.getTime() - lastWebhookData.receivedAt.getTime();
+    const maxAge = 15 * 60 * 1000; // 15 minutes
+    
+    if (age > maxAge) {
+      return res.status(200).json({
+        message: "Último webhook expirou (mais de 15 minutos)",
+        expiredAt: new Date(lastWebhookData.receivedAt.getTime() + maxAge).toISOString(),
+        lastWebhook: null,
+      });
+    }
+    
+    res.status(200).json({
+      message: "Último webhook recebido",
+      ageSeconds: Math.round(age / 1000),
+      lastWebhook: lastWebhookData,
+    });
+  });
+  
   // GET /api/mp/webhook - Endpoint de teste para verificar se webhook está online
   app.get("/api/mp/webhook", (_req, res) => {
     console.log("[MP Webhook] GET - Teste de verificação do endpoint");
@@ -3553,14 +3646,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // POST /api/mp/webhook - Recebe notificações do Mercado Pago
   app.post("/api/mp/webhook", async (req, res) => {
+    const webhookReceivedAt = new Date();
+    
     // Log imediato de recebimento
-    console.log("========================================");
-    console.log("WEBHOOK RECEBIDO", req.query, req.body);
-    console.log("========================================");
-    console.log("[MP Webhook] Headers:", JSON.stringify(req.headers, null, 2));
+    console.log("╔════════════════════════════════════════════════════════════╗");
+    console.log("║           WEBHOOK MERCADO PAGO RECEBIDO                    ║");
+    console.log("╚════════════════════════════════════════════════════════════╝");
+    console.log("[MP Webhook] Timestamp:", webhookReceivedAt.toISOString());
+    console.log("[MP Webhook] Query:", JSON.stringify(req.query, null, 2));
+    console.log("[MP Webhook] Body:", JSON.stringify(req.body, null, 2));
+    console.log("[MP Webhook] Headers:", JSON.stringify({
+      'content-type': req.headers['content-type'],
+      'x-signature': req.headers['x-signature'],
+      'x-request-id': req.headers['x-request-id'],
+    }, null, 2));
+    
+    // Armazenar dados do webhook para debug (clonar de forma segura)
+    const safeClone = (obj: unknown): unknown => {
+      try {
+        if (obj === null || obj === undefined) return null;
+        if (typeof obj !== 'object') return obj;
+        return JSON.parse(JSON.stringify(obj, (key, value) => {
+          if (typeof value === 'bigint') return value.toString();
+          if (typeof value === 'function') return '[function]';
+          if (value instanceof Date) return value.toISOString();
+          return value;
+        }));
+      } catch {
+        return { _cloneError: true, toString: String(obj).substring(0, 500) };
+      }
+    };
+    
+    lastWebhookData = {
+      receivedAt: webhookReceivedAt,
+      query: safeClone(req.query) as any,
+      body: safeClone(req.body) as any,
+      headers: {
+        'content-type': req.headers['content-type'] || null,
+        'x-signature': req.headers['x-signature'] || null,
+        'x-request-id': req.headers['x-request-id'] || null,
+      },
+    };
     
     // Responder 200 IMEDIATAMENTE para o Mercado Pago não reenviar
     res.sendStatus(200);
+    console.log("[MP Webhook] ✓ Respondeu 200 OK ao Mercado Pago");
     
     // Processar em background (após resposta)
     try {
@@ -3585,12 +3715,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!dataId) {
         console.log("[MP Webhook] ❌ Sem dataId - ignorando notificação");
+        lastWebhookData.processedResult = { success: false, error: "Sem dataId" };
         return;
       }
       
       const mpAccessToken = process.env.MP_ACCESS_TOKEN;
       if (!mpAccessToken) {
         console.error("[MP Webhook] ❌ MP_ACCESS_TOKEN não configurado!");
+        lastWebhookData.processedResult = { success: false, error: "MP_ACCESS_TOKEN não configurado" };
         return;
       }
       
@@ -3598,7 +3730,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isPayment = type === 'payment' || type.startsWith('payment.');
       const isPreapproval = type === 'subscription_preapproval' || type === 'preapproval' || type.startsWith('subscription');
       
-      console.log(`[MP Webhook] isPayment=${isPayment}, isPreapproval=${isPreapproval}`);
+      console.log(`[MP Webhook] Tipo de notificação: isPayment=${isPayment}, isPreapproval=${isPreapproval}`);
       
       let apiUrl: string;
       if (isPreapproval) {
@@ -3620,10 +3752,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!mpResponse.ok) {
         const errorText = await mpResponse.text();
         console.error(`[MP Webhook] ❌ Erro ao buscar MP API: ${mpResponse.status} - ${errorText}`);
+        lastWebhookData.processedResult = { success: false, error: `Erro MP API: ${mpResponse.status}` };
         return;
       }
       
       const mpData = await mpResponse.json();
+      console.log(`[MP Webhook] ✓ Dados recebidos do MP API`);
       console.log(`[MP Webhook] Dados do MP:`, JSON.stringify(mpData, null, 2));
       
       // Verificar status aprovado
@@ -3677,11 +3811,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Segundo: tentar metadata
-      if (!userId && mpData.metadata) {
-        userId = mpData.metadata.user_id || mpData.metadata.userId || null;
-        plan = mpData.metadata.plan || mpData.metadata.planType || plan;
-        console.log(`[MP Webhook] Metadata: userId=${userId}, plan=${plan}`);
+      // Segundo: tentar metadata (pode ser objeto, string JSON, ou URL-encoded)
+      // Procurar metadata em vários locais possíveis
+      const possibleMetadatas = [
+        mpData.metadata,
+        mpData.preapproval_plan?.metadata,
+        mpData.data?.metadata,
+      ].filter(Boolean);
+      
+      for (const rawMetadata of possibleMetadatas) {
+        if (userId) break; // Já encontrou usuário
+        
+        let metadataObj = rawMetadata;
+        
+        // Se metadata for string, tentar parsear
+        if (typeof metadataObj === 'string') {
+          const trimmed = metadataObj.trim();
+          
+          // Tentar JSON parse
+          if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+            try {
+              metadataObj = JSON.parse(trimmed);
+              console.log(`[MP Webhook] Metadata era string JSON, parseado:`, JSON.stringify(metadataObj));
+            } catch (e) {
+              console.log(`[MP Webhook] Metadata string falhou JSON parse: "${trimmed.substring(0, 100)}"`);
+              metadataObj = null;
+            }
+          } 
+          // Tentar URL-encoded (ex: "userId=123&plan=premium")
+          else if (trimmed.includes('=')) {
+            try {
+              const params = new URLSearchParams(trimmed);
+              metadataObj = Object.fromEntries(params);
+              console.log(`[MP Webhook] Metadata era URL-encoded, parseado:`, JSON.stringify(metadataObj));
+            } catch (e) {
+              console.log(`[MP Webhook] Metadata URL-encoded falhou: "${trimmed.substring(0, 100)}"`);
+              metadataObj = null;
+            }
+          } else {
+            metadataObj = null;
+          }
+        }
+        
+        if (metadataObj && typeof metadataObj === 'object') {
+          userId = metadataObj.user_id || metadataObj.userId || null;
+          plan = metadataObj.plan || metadataObj.planType || plan;
+          console.log(`[MP Webhook] Metadata object: userId=${userId}, plan=${plan}`);
+        }
       }
       
       // Terceiro: tentar payer email
@@ -3701,12 +3877,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Inferir plano pelo valor se não foi especificado
-      if (!plan && mpData.transaction_amount) {
-        const amount = parseFloat(mpData.transaction_amount);
+      // Para payments: transaction_amount
+      // Para preapprovals: auto_recurring.transaction_amount (pode estar em vários níveis)
+      const transactionAmount = mpData.transaction_amount || 
+                               mpData.auto_recurring?.transaction_amount ||
+                               mpData.data?.auto_recurring?.transaction_amount ||
+                               mpData.preapproval_plan?.auto_recurring?.transaction_amount ||
+                               null;
+      
+      if (!plan && transactionAmount) {
+        const amount = parseFloat(transactionAmount);
         if (amount <= 10) plan = 'gold';
         else if (amount <= 25) plan = 'premium';
         else plan = 'strong_lifetime';
         console.log(`[MP Webhook] Plano inferido pelo valor R$${amount}: ${plan}`);
+      }
+      
+      // Tentar também pelo 'reason' do preapproval (pode conter nome do plano)
+      if (!plan && mpData.reason) {
+        const reason = mpData.reason.toLowerCase();
+        if (reason.includes('gold')) plan = 'gold';
+        else if (reason.includes('premium')) plan = 'premium';
+        else if (reason.includes('vitalicio') || reason.includes('lifetime')) plan = 'strong_lifetime';
+        if (plan) {
+          console.log(`[MP Webhook] Plano inferido pelo reason "${mpData.reason}": ${plan}`);
+        }
       }
       
       if (!plan) {
@@ -3771,9 +3966,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Verificação final
       const verify = await storage.hasActiveSubscription(userId, planType);
       console.log(`[MP Webhook] ✅ VERIFICAÇÃO FINAL: hasActiveSubscription(${userId}, ${planType}) = ${verify}`);
+      console.log(`[MP Webhook] ╔════════════════════════════════════════════════════════════╗`);
+      console.log(`[MP Webhook] ║     PROCESSAMENTO CONCLUÍDO COM SUCESSO!                  ║`);
+      console.log(`[MP Webhook] ╚════════════════════════════════════════════════════════════╝`);
+      
+      // Armazenar resultado de sucesso
+      if (lastWebhookData) {
+        lastWebhookData.processedResult = { 
+          success: true, 
+          userId, 
+          plan: planType,
+        };
+      }
       
     } catch (error) {
       console.error("[MP Webhook] ❌ ERRO ao processar webhook:", error);
+      // Armazenar resultado de erro
+      if (lastWebhookData) {
+        lastWebhookData.processedResult = { 
+          success: false, 
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     }
   });
 

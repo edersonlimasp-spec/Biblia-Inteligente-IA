@@ -3343,19 +3343,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     strong_lifetime: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
   };
   
-  // Get APP_URL from environment (supports both development and production)
+  // PRODUCTION URL - Always use this for redirects after payment
+  // This ensures users are NEVER redirected to *.picard.replit.dev
+  const PRODUCTION_APP_URL = 'https://bibliainteligente.replit.app';
+  
+  // Get APP_URL - for webhooks (can use dev domain)
   function getAppUrl(): string {
     if (process.env.APP_URL) {
       return process.env.APP_URL.replace(/\/$/, '');
     }
-    if (process.env.REPLIT_DEV_DOMAIN) {
-      return `https://${process.env.REPLIT_DEV_DOMAIN}`;
-    }
+    // For REPLIT_DOMAINS, prefer the .replit.app production domain
     if (process.env.REPLIT_DOMAINS) {
       const domains = process.env.REPLIT_DOMAINS.split(',');
+      // Find the production domain (ends with .replit.app)
+      const prodDomain = domains.find(d => d.endsWith('.replit.app'));
+      if (prodDomain) {
+        return `https://${prodDomain}`;
+      }
       if (domains.length > 0) {
         return `https://${domains[0]}`;
       }
+    }
+    // Fallback to dev domain only if no production domain
+    if (process.env.REPLIT_DEV_DOMAIN) {
+      return `https://${process.env.REPLIT_DEV_DOMAIN}`;
     }
     return 'https://localhost:5000';
   }
@@ -3380,7 +3391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const planConfig = MP_PLAN_CONFIG[plan];
-      const appUrl = getAppUrl();
+      const webhookUrl = getAppUrl(); // For webhook, can use any active domain
       
       // Create external reference with user and plan info
       const externalReference = JSON.stringify({
@@ -3391,6 +3402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Create Mercado Pago preference
+      // IMPORTANT: back_urls MUST use PRODUCTION_APP_URL to avoid *.picard.replit.dev redirect
       const preference = {
         items: [{
           title: planConfig.title,
@@ -3400,13 +3412,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }],
         external_reference: externalReference,
         back_urls: {
-          success: `${appUrl}/pagamento/sucesso`,
-          failure: `${appUrl}/pagamento/erro`,
-          pending: `${appUrl}/pagamento/pendente`,
+          success: `${PRODUCTION_APP_URL}/mp/return?status=success`,
+          failure: `${PRODUCTION_APP_URL}/mp/return?status=failure`,
+          pending: `${PRODUCTION_APP_URL}/mp/return?status=pending`,
         },
         auto_return: "approved",
-        notification_url: `${appUrl}/api/mp/webhook`,
+        notification_url: `${PRODUCTION_APP_URL}/api/mp/webhook`,
       };
+      
+      console.log(`[MP] back_urls configuradas para: ${PRODUCTION_APP_URL}`);
       
       console.log(`[MP] create-checkout plan=${plan} userId=${userId} price=${planConfig.price}`);
       
@@ -3436,6 +3450,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[MP] Erro ao criar checkout:", error);
       res.status(500).json({ error: "Erro interno ao processar pagamento" });
+    }
+  });
+  
+  // ===================================
+  // MERCADO PAGO RETURN ROUTE - Redirect after payment
+  // ===================================
+  
+  // GET /mp/return - Rota de retorno após pagamento no Mercado Pago
+  // Esta rota SEMPRE redireciona para o app, nunca mostra erro
+  app.get("/mp/return", (req, res) => {
+    console.log("[MP Return] ========================================");
+    console.log("[MP Return] Query params:", req.query);
+    
+    // Extrair parâmetros do Mercado Pago
+    const status = req.query.status as string || 'unknown';
+    const paymentId = req.query.payment_id as string || req.query.collection_id as string || '';
+    const preferenceId = req.query.preference_id as string || '';
+    const externalReference = req.query.external_reference as string || '';
+    const merchantOrderId = req.query.merchant_order_id as string || '';
+    
+    console.log(`[MP Return] status=${status}, payment_id=${paymentId}, preference_id=${preferenceId}`);
+    
+    // Construir URL de redirecionamento para as páginas existentes no frontend
+    // O frontend tem: /pagamento/sucesso, /pagamento/erro, /pagamento/pendente
+    let redirectPath = '/pagamento/sucesso'; // default para sucesso
+    
+    if (status === 'success' || status === 'approved') {
+      redirectPath = '/pagamento/sucesso';
+    } else if (status === 'failure' || status === 'rejected') {
+      redirectPath = '/pagamento/erro';
+    } else if (status === 'pending' || status === 'in_process') {
+      redirectPath = '/pagamento/pendente';
+    }
+    
+    // Adicionar parâmetros úteis
+    const queryParams = new URLSearchParams();
+    if (paymentId) queryParams.set('payment_id', paymentId);
+    if (preferenceId) queryParams.set('preference_id', preferenceId);
+    
+    const queryString = queryParams.toString();
+    if (queryString) {
+      redirectPath += `?${queryString}`;
+    }
+    
+    // Construir URL final (SEMPRE para produção, nunca para *.picard.replit.dev)
+    const finalUrl = `${PRODUCTION_APP_URL}${redirectPath}`;
+    
+    console.log(`[MP Return] Redirecionando para: ${finalUrl}`);
+    
+    // SEMPRE retornar redirect 302
+    res.redirect(302, finalUrl);
+  });
+  
+  // GET /api/mp/status - Verificar status da assinatura do usuário
+  app.get("/api/mp/status", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+      }
+      
+      // Buscar assinaturas ativas do usuário
+      const hasGold = await storage.hasActiveSubscription(userId, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(userId, 'premium');
+      const hasStrongLifetime = await storage.hasActiveSubscription(userId, 'strong_lifetime');
+      
+      // Buscar detalhes da assinatura
+      const subscription = await storage.getActiveSubscription(userId);
+      
+      res.json({
+        success: true,
+        hasActiveSubscription: hasGold || hasPremium || hasStrongLifetime,
+        plans: {
+          gold: hasGold,
+          premium: hasPremium,
+          strong_lifetime: hasStrongLifetime,
+        },
+        subscription: subscription ? {
+          id: subscription.id,
+          planType: subscription.planType,
+          status: subscription.status,
+          startDate: subscription.startDate,
+          endDate: subscription.endDate,
+        } : null,
+      });
+    } catch (error) {
+      console.error("[MP Status] Error:", error);
+      res.status(500).json({ error: "Erro ao verificar status" });
     }
   });
   

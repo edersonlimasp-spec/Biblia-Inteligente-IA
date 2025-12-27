@@ -62,6 +62,7 @@ export interface IStorage {
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   upsertSubscription(subscription: InsertSubscription): Promise<Subscription>;
   hasActiveSubscription(userId: string, planType: string): Promise<boolean>;
+  getActiveSubscription(userId: string): Promise<Subscription | null>;
 
   // Bookmarks
   getUserBookmarks(userId: string): Promise<Bookmark[]>;
@@ -406,6 +407,42 @@ class PostgresStorage implements IStorage {
     }
 
     return false;
+  }
+
+  async getActiveSubscription(userId: string): Promise<Subscription | null> {
+    const now = new Date();
+    
+    // Get all subscriptions for user, ordered by most recent
+    const userSubs = await db
+      .select()
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.userId, userId),
+          or(
+            eq(subscriptions.status, 'active'),
+            eq(subscriptions.status, 'Active'),
+            eq(subscriptions.status, 'ACTIVE'),
+            eq(subscriptions.status, 'approved'),
+            eq(subscriptions.status, 'Approved'),
+            eq(subscriptions.status, 'APPROVED'),
+            eq(subscriptions.status, 'authorized'),
+            eq(subscriptions.status, 'Authorized'),
+            eq(subscriptions.status, 'AUTHORIZED')
+          )
+        )
+      )
+      .orderBy(desc(subscriptions.createdAt));
+    
+    // Find the first active (non-expired) subscription
+    for (const sub of userSubs) {
+      // If no endDate (lifetime), it's active
+      if (!sub.endDate) return sub;
+      // If endDate is in the future, it's active
+      if (new Date(sub.endDate) > now) return sub;
+    }
+    
+    return null;
   }
 
   // Bookmarks

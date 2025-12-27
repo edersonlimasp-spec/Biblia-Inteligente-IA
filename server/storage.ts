@@ -41,7 +41,7 @@ import type {
   InsertUserStudyProgress,
   FreeAiQuota,
 } from '@shared/schema';
-import { eq, and, desc, gte, sql, like } from 'drizzle-orm';
+import { eq, and, desc, gte, sql, like, or } from 'drizzle-orm';
 
 export interface IStorage {
   // Users
@@ -353,7 +353,8 @@ class PostgresStorage implements IStorage {
   async hasActiveSubscription(userId: string, planType: string): Promise<boolean> {
     const now = new Date();
     
-    // Check regular subscriptions - IMPORTANT: verify endDate is not expired
+    // Check regular subscriptions - accept all valid active statuses from Mercado Pago
+    // Status can be: active, approved, authorized, ACTIVE, APPROVED, AUTHORIZED
     const subResult = await db
       .select()
       .from(subscriptions)
@@ -361,7 +362,17 @@ class PostgresStorage implements IStorage {
         and(
           eq(subscriptions.userId, userId),
           eq(subscriptions.planType, planType),
-          eq(subscriptions.status, 'active')
+          or(
+            eq(subscriptions.status, 'active'),
+            eq(subscriptions.status, 'Active'),
+            eq(subscriptions.status, 'ACTIVE'),
+            eq(subscriptions.status, 'approved'),
+            eq(subscriptions.status, 'Approved'),
+            eq(subscriptions.status, 'APPROVED'),
+            eq(subscriptions.status, 'authorized'),
+            eq(subscriptions.status, 'Authorized'),
+            eq(subscriptions.status, 'AUTHORIZED')
+          )
         )
       );
     

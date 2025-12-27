@@ -3439,97 +3439,209 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Mercado Pago Webhook - receives payment notifications
-  // Format from MP: { "action": "payment.created", "type": "payment", "data": { "id": "123" }, "live_mode": true }
+  // ===================================
+  // MERCADO PAGO WEBHOOK - COMPLETE IMPLEMENTATION
+  // ===================================
+  
+  // GET /api/mp/webhook - Endpoint de teste para verificar se webhook está online
+  app.get("/api/mp/webhook", (_req, res) => {
+    console.log("[MP Webhook] GET - Teste de verificação do endpoint");
+    res.status(200).send("OK webhook endpoint online");
+  });
+  
+  // POST /api/mp/webhook - Recebe notificações do Mercado Pago
   app.post("/api/mp/webhook", async (req, res) => {
-    console.log("[MP Webhook] ========== WEBHOOK CHEGOU ==========");
-    console.log("[MP Webhook] headers:", JSON.stringify(req.headers, null, 2));
-    console.log("[MP Webhook] query:", JSON.stringify(req.query, null, 2));
-    console.log("[MP Webhook] body:", JSON.stringify(req.body, null, 2));
+    // Log imediato de recebimento
+    console.log("========================================");
+    console.log("WEBHOOK RECEBIDO", req.query, req.body);
+    console.log("========================================");
+    console.log("[MP Webhook] Headers:", JSON.stringify(req.headers, null, 2));
     
+    // Responder 200 IMEDIATAMENTE para o Mercado Pago não reenviar
+    res.sendStatus(200);
+    
+    // Processar em background (após resposta)
     try {
-      // Always respond 200 immediately to acknowledge receipt
-      res.status(200).send("ok");
+      // Extrair type de múltiplas fontes possíveis
+      const type = 
+        req.query.type as string || 
+        req.query.topic as string || 
+        req.body?.type || 
+        req.body?.topic || 
+        req.body?.action || 
+        '';
       
-      // Get payment ID from body (new format) or query (legacy format)
-      const paymentId = req.body?.data?.id || req.query['data.id'];
-      const action = req.body?.action || '';
-      const type = req.body?.type || req.query.topic || '';
+      // Extrair dataId de múltiplas fontes possíveis
+      const dataId = 
+        req.query["data.id"] as string || 
+        req.query.id as string || 
+        req.body?.data?.id || 
+        req.body?.id || 
+        '';
       
-      console.log(`[MP Webhook] Extracted: paymentId=${paymentId}, action=${action}, type=${type}`);
+      console.log(`[MP Webhook] Extracted: type="${type}", dataId="${dataId}"`);
       
-      // Check if this is a payment notification
-      // New format: action="payment.created" or action="payment.updated", type="payment"
-      // Legacy format: topic="payment" in query params
-      const isPaymentNotification = 
-        type === 'payment' || 
-        action.startsWith('payment.');
-      
-      if (!paymentId) {
-        console.log("[MP Webhook] ❌ Sem paymentId - ignorando");
+      if (!dataId) {
+        console.log("[MP Webhook] ❌ Sem dataId - ignorando notificação");
         return;
       }
-      
-      if (!isPaymentNotification) {
-        console.log(`[MP Webhook] ❌ Não é notificação de pagamento (action=${action}, type=${type}) - ignorando`);
-        return;
-      }
-      
-      console.log(`[MP Webhook] ✓ Notificação de pagamento válida - processando paymentId=${paymentId}`);
       
       const mpAccessToken = process.env.MP_ACCESS_TOKEN;
       if (!mpAccessToken) {
-        console.error("[MP Webhook] MP_ACCESS_TOKEN não configurado");
+        console.error("[MP Webhook] ❌ MP_ACCESS_TOKEN não configurado!");
         return;
       }
       
-      // Fetch payment details from Mercado Pago
-      const paymentResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      // Determinar se é payment ou preapproval (assinatura recorrente)
+      const isPayment = type === 'payment' || type.startsWith('payment.');
+      const isPreapproval = type === 'subscription_preapproval' || type === 'preapproval' || type.startsWith('subscription');
+      
+      console.log(`[MP Webhook] isPayment=${isPayment}, isPreapproval=${isPreapproval}`);
+      
+      let apiUrl: string;
+      if (isPreapproval) {
+        apiUrl = `https://api.mercadopago.com/preapproval/${dataId}`;
+      } else {
+        // Default: tratar como payment
+        apiUrl = `https://api.mercadopago.com/v1/payments/${dataId}`;
+      }
+      
+      console.log(`[MP Webhook] Buscando dados em: ${apiUrl}`);
+      
+      // Buscar detalhes do pagamento/assinatura no Mercado Pago
+      const mpResponse = await fetch(apiUrl, {
         headers: {
           "Authorization": `Bearer ${mpAccessToken}`,
         },
       });
       
-      if (!paymentResponse.ok) {
-        console.error(`[MP Webhook] Erro ao buscar pagamento: ${paymentResponse.status}`);
+      if (!mpResponse.ok) {
+        const errorText = await mpResponse.text();
+        console.error(`[MP Webhook] ❌ Erro ao buscar MP API: ${mpResponse.status} - ${errorText}`);
         return;
       }
       
-      const payment = await paymentResponse.json();
-      console.log("status do pagamento:", payment.status);
-      console.log(`[MP Webhook] Payment status: ${payment.status}, external_reference: ${payment.external_reference}`);
+      const mpData = await mpResponse.json();
+      console.log(`[MP Webhook] Dados do MP:`, JSON.stringify(mpData, null, 2));
       
-      if (payment.status !== "approved") {
-        console.log(`[MP Webhook] Pagamento não aprovado: ${payment.status}`);
+      // Verificar status aprovado
+      const status = mpData.status;
+      const isApproved = 
+        status === 'approved' || 
+        status === 'authorized' || 
+        status === 'active';
+      
+      console.log(`[MP Webhook] Status: ${status}, isApproved: ${isApproved}`);
+      
+      if (!isApproved) {
+        console.log(`[MP Webhook] ⏳ Pagamento não aprovado ainda (status=${status}) - aguardando`);
         return;
       }
       
-      // Parse external reference
-      let refData: { userId: string; plan: string; days: number | null; lifetime: boolean };
-      try {
-        refData = JSON.parse(payment.external_reference);
-      } catch (e) {
-        console.error("[MP Webhook] Erro ao parsear external_reference:", payment.external_reference);
+      // ========================================
+      // IDENTIFICAR USUÁRIO E PLANO
+      // ========================================
+      
+      // Tentar obter dados do external_reference (JSON com userId, plan, days, lifetime)
+      let userId: string | null = null;
+      let plan: string | null = null;
+      let days: number | null = null;
+      let lifetime: boolean = false;
+      
+      // Primeiro: tentar external_reference (prioridade)
+      const externalRef = mpData.external_reference || mpData.reason || '';
+      console.log(`[MP Webhook] external_reference: "${externalRef}"`);
+      
+      if (externalRef) {
+        try {
+          const refData = JSON.parse(externalRef);
+          userId = refData.userId || refData.user_id || null;
+          plan = refData.plan || refData.planType || null;
+          days = refData.days || null;
+          lifetime = refData.lifetime || false;
+          console.log(`[MP Webhook] Parsed external_reference: userId=${userId}, plan=${plan}, days=${days}, lifetime=${lifetime}`);
+        } catch (e) {
+          // external_reference não é JSON, pode ser string simples (email ou ID)
+          console.log(`[MP Webhook] external_reference não é JSON: "${externalRef}"`);
+          // Tentar usar como userId diretamente se parecer um UUID ou email
+          if (externalRef.includes('@') || externalRef.length > 20) {
+            // Pode ser email, tentar buscar usuário
+            const userByEmail = await storage.getUserByEmail(externalRef);
+            if (userByEmail) {
+              userId = userByEmail.id;
+              console.log(`[MP Webhook] Encontrado usuário por email: ${userId}`);
+            }
+          }
+        }
+      }
+      
+      // Segundo: tentar metadata
+      if (!userId && mpData.metadata) {
+        userId = mpData.metadata.user_id || mpData.metadata.userId || null;
+        plan = mpData.metadata.plan || mpData.metadata.planType || plan;
+        console.log(`[MP Webhook] Metadata: userId=${userId}, plan=${plan}`);
+      }
+      
+      // Terceiro: tentar payer email
+      if (!userId && mpData.payer?.email) {
+        const payerEmail = mpData.payer.email;
+        console.log(`[MP Webhook] Tentando buscar usuário pelo email do pagador: ${payerEmail}`);
+        const userByEmail = await storage.getUserByEmail(payerEmail);
+        if (userByEmail) {
+          userId = userByEmail.id;
+          console.log(`[MP Webhook] ✓ Encontrado usuário pelo email do pagador: ${userId}`);
+        }
+      }
+      
+      if (!userId) {
+        console.error(`[MP Webhook] ❌ Não foi possível identificar usuário! external_reference="${externalRef}", metadata=${JSON.stringify(mpData.metadata)}, payer=${JSON.stringify(mpData.payer)}`);
         return;
       }
       
-      const { userId, plan, days, lifetime } = refData;
-      console.log("PAGAMENTO APROVADO - userId:", userId, "plan:", plan);
+      // Inferir plano pelo valor se não foi especificado
+      if (!plan && mpData.transaction_amount) {
+        const amount = parseFloat(mpData.transaction_amount);
+        if (amount <= 10) plan = 'gold';
+        else if (amount <= 25) plan = 'premium';
+        else plan = 'strong_lifetime';
+        console.log(`[MP Webhook] Plano inferido pelo valor R$${amount}: ${plan}`);
+      }
       
-      // Calculate subscription end date
+      if (!plan) {
+        plan = 'premium'; // Default para premium se não conseguir identificar
+        console.log(`[MP Webhook] ⚠️ Plano não identificado, usando default: ${plan}`);
+      }
+      
+      // Inferir dias pelo plano se não especificado
+      if (!days && !lifetime) {
+        if (plan === 'strong_lifetime' || plan === 'vitalicio') {
+          lifetime = true;
+        } else {
+          days = 30; // Default 30 dias
+        }
+      }
+      
+      // ========================================
+      // ATIVAR PLANO DO USUÁRIO
+      // ========================================
+      
+      // Calcular data de término
       let endDate: Date | null = null;
       if (!lifetime && days) {
         endDate = new Date();
         endDate.setDate(endDate.getDate() + days);
       }
       
-      // Map plan name to planType used in database
+      // Normalizar nome do plano
       const planType = plan === 'vitalicio' ? 'strong_lifetime' : plan;
-      const amount = MP_PLAN_CONFIG[plan]?.price.toFixed(2) || MP_PLAN_CONFIG[planType]?.price.toFixed(2) || "0.00";
+      const amount = mpData.transaction_amount?.toString() || 
+                     MP_PLAN_CONFIG[plan]?.price.toFixed(2) || 
+                     MP_PLAN_CONFIG[planType]?.price.toFixed(2) || 
+                     "0.00";
       
-      console.log(`[MP Webhook] Criando/Atualizando subscrição - planType: ${planType}, dias: ${days}, lifetime: ${lifetime}, endDate: ${endDate?.toISOString()}`);
+      console.log(`[MP Webhook] 🔄 Ativando plano: userId=${userId}, planType=${planType}, days=${days}, lifetime=${lifetime}, endDate=${endDate?.toISOString()}`);
       
-      // Upsert subscription in database (avoids duplicates)
+      // Usar função existente para criar/atualizar assinatura
       const subscription = await storage.upsertSubscription({
         userId,
         planType,
@@ -3539,22 +3651,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount,
       });
       
-      console.log(`[MP Webhook] ✅ Assinatura ativada: userId=${userId}, plan=${planType}, subscriptionId=${subscription.id}, endDate=${subscription.endDate}`);
+      console.log(`[MP Webhook] ✅ ASSINATURA ATIVADA!`);
+      console.log(`[MP Webhook] ✅ subscriptionId=${subscription.id}`);
+      console.log(`[MP Webhook] ✅ userId=${userId}`);
+      console.log(`[MP Webhook] ✅ planType=${planType}`);
+      console.log(`[MP Webhook] ✅ endDate=${subscription.endDate}`);
       
-      // Track conversion event for admin metrics
+      // Rastrear evento de conversão para métricas admin
       await storage.trackPageEvent(userId, 'SUBSCRIPTION_ACTIVATED', { 
         planType, 
-        paymentId,
+        paymentId: dataId,
         amount,
+        source: 'mp_webhook',
       });
-      console.log(`[MP Webhook] ✅ Evento de conversão rastreado: SUBSCRIPTION_ACTIVATED`);
+      console.log(`[MP Webhook] ✅ Evento SUBSCRIPTION_ACTIVATED rastreado`);
       
-      // Verify subscription was created correctly
+      // Verificação final
       const verify = await storage.hasActiveSubscription(userId, planType);
-      console.log(`[MP Webhook] ✅ VERIFICAÇÃO: hasActiveSubscription(${userId}, ${planType}) = ${verify}`);
+      console.log(`[MP Webhook] ✅ VERIFICAÇÃO FINAL: hasActiveSubscription(${userId}, ${planType}) = ${verify}`);
       
     } catch (error) {
-      console.error("[MP Webhook] Erro ao processar webhook:", error);
+      console.error("[MP Webhook] ❌ ERRO ao processar webhook:", error);
     }
   });
 

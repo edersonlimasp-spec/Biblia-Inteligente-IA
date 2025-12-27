@@ -3440,27 +3440,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Mercado Pago Webhook - receives payment notifications
+  // Format from MP: { "action": "payment.created", "type": "payment", "data": { "id": "123" }, "live_mode": true }
   app.post("/api/mp/webhook", async (req, res) => {
-    console.log("WEBHOOK CHEGOU");
-    console.log("headers:", req.headers);
-    console.log("query:", req.query);
-    console.log("body:", req.body);
+    console.log("[MP Webhook] ========== WEBHOOK CHEGOU ==========");
+    console.log("[MP Webhook] headers:", JSON.stringify(req.headers, null, 2));
+    console.log("[MP Webhook] query:", JSON.stringify(req.query, null, 2));
+    console.log("[MP Webhook] body:", JSON.stringify(req.body, null, 2));
     
     try {
-      // Always respond 200 to acknowledge receipt
+      // Always respond 200 immediately to acknowledge receipt
       res.status(200).send("ok");
       
-      // Get payment ID from query or body
-      const paymentId = req.query['data.id'] || req.body?.data?.id;
-      const topic = req.query.topic || req.body?.type;
+      // Get payment ID from body (new format) or query (legacy format)
+      const paymentId = req.body?.data?.id || req.query['data.id'];
+      const action = req.body?.action || '';
+      const type = req.body?.type || req.query.topic || '';
       
-      console.log("paymentId recebido:", paymentId);
-      console.log(`[MP Webhook] Received: topic=${topic}, paymentId=${paymentId}`);
+      console.log(`[MP Webhook] Extracted: paymentId=${paymentId}, action=${action}, type=${type}`);
       
-      if (!paymentId || (topic !== 'payment' && req.body?.type !== 'payment')) {
-        console.log("[MP Webhook] Ignorando notificação não relacionada a pagamento");
+      // Check if this is a payment notification
+      // New format: action="payment.created" or action="payment.updated", type="payment"
+      // Legacy format: topic="payment" in query params
+      const isPaymentNotification = 
+        type === 'payment' || 
+        action.startsWith('payment.');
+      
+      if (!paymentId) {
+        console.log("[MP Webhook] ❌ Sem paymentId - ignorando");
         return;
       }
+      
+      if (!isPaymentNotification) {
+        console.log(`[MP Webhook] ❌ Não é notificação de pagamento (action=${action}, type=${type}) - ignorando`);
+        return;
+      }
+      
+      console.log(`[MP Webhook] ✓ Notificação de pagamento válida - processando paymentId=${paymentId}`);
       
       const mpAccessToken = process.env.MP_ACCESS_TOKEN;
       if (!mpAccessToken) {

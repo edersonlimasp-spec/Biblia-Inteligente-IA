@@ -28,6 +28,9 @@ export const users = pgTable("users", {
   isBlocked: boolean("is_blocked").notNull().default(false),
   trialStartDate: timestamp("trial_start_date").defaultNow(),
   lastLoginAt: timestamp("last_login_at"),
+  lastSeenAt: timestamp("last_seen_at").defaultNow(),
+  lastSeenPlatform: text("last_seen_platform").default("web"),
+  emailOptOut: boolean("email_opt_out").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -675,3 +678,27 @@ export const guestStrongQuota = pgTable("guest_strong_quota", {
 }));
 
 export type GuestStrongQuota = typeof guestStrongQuota.$inferSelect;
+
+// Campaign Logs table (for tracking re-engagement campaigns)
+export const campaignLogs = pgTable("campaign_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  campaignName: text("campaign_name").notNull(), // 'inactive_30_days', 'trial_expiring', etc.
+  sentAt: timestamp("sent_at").notNull().defaultNow(),
+  status: text("status").notNull().default('sent'), // 'sent', 'failed', 'delivered', 'opened'
+  providerMessageId: text("provider_message_id"), // ID from email provider (Resend)
+  errorMessage: text("error_message"), // Error details if failed
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("campaign_logs_user_id_idx").on(table.userId),
+  campaignNameIdx: index("campaign_logs_campaign_name_idx").on(table.campaignName),
+  sentAtIdx: index("campaign_logs_sent_at_idx").on(table.sentAt),
+}));
+
+export const insertCampaignLogSchema = createInsertSchema(campaignLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCampaignLog = z.infer<typeof insertCampaignLogSchema>;
+export type CampaignLog = typeof campaignLogs.$inferSelect;

@@ -2930,6 +2930,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin - Ativar assinatura manualmente (SUPER_ADMIN only)
+  app.post("/api/admin/subscriptions/activate", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { email, planType, durationDays } = req.body;
+
+      if (!email || !planType) {
+        return res.status(400).json({ error: "Email e planType são obrigatórios" });
+      }
+
+      if (!['gold', 'premium', 'strong_lifetime'].includes(planType)) {
+        return res.status(400).json({ error: "planType deve ser: gold, premium ou strong_lifetime" });
+      }
+
+      const targetUser = await storage.getUserByEmail(email);
+      if (!targetUser) {
+        return res.status(404).json({ error: `Usuário não encontrado: ${email}` });
+      }
+
+      const now = new Date();
+      const duration = durationDays || (planType === 'strong_lifetime' ? 36500 : 30);
+      const endDate = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
+
+      const amounts: Record<string, string> = {
+        gold: '9.90',
+        premium: '19.90',
+        strong_lifetime: '49.90'
+      };
+
+      const newSubscription = await db.insert(subscriptions).values({
+        userId: targetUser.id,
+        planType,
+        status: 'active',
+        amount: amounts[planType],
+        startDate: now,
+        endDate,
+      }).returning();
+
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'SUBSCRIPTION_ACTIVATED_MANUALLY',
+        targetUserId: targetUser.id,
+        details: { planType, duration, endDate: endDate.toISOString() },
+      });
+
+      console.log(`[Admin] Assinatura ${planType} ativada manualmente para ${email} por admin ${req.userId}`);
+
+      res.json({ 
+        success: true, 
+        subscription: newSubscription[0],
+        message: `Assinatura ${planType} ativada para ${email} até ${endDate.toLocaleDateString('pt-BR')}`
+      });
+    } catch (error) {
+      console.error("Admin activate subscription error:", error);
+      res.status(500).json({ error: "Erro ao ativar assinatura" });
+    }
+  });
+
+  // Admin - Listar todas as assinaturas
+  app.get("/api/admin/subscriptions", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const allSubs = await db
+        .select({
+          id: subscriptions.id,
+          planType: subscriptions.planType,
+          status: subscriptions.status,
+          amount: subscriptions.amount,
+          startDate: subscriptions.startDate,
+          endDate: subscriptions.endDate,
+          createdAt: subscriptions.createdAt,
+          userId: subscriptions.userId,
+          userEmail: users.email,
+        })
+        .from(subscriptions)
+        .leftJoin(users, eq(subscriptions.userId, users.id))
+        .orderBy(subscriptions.createdAt);
+
+      res.json({ subscriptions: allSubs });
+    } catch (error) {
+      console.error("Admin subscriptions list error:", error);
+      res.status(500).json({ error: "Erro ao listar assinaturas" });
+    }
+  });
+
   // Admin Monetization - Stats
   app.get("/api/admin/monetization", ensureAdmin, async (req: AuthRequest, res) => {
     try {

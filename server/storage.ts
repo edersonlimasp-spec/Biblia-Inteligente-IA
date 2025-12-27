@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs } from '@shared/schema';
 import type { FreeStrongQuota, GuestStrongQuota } from '@shared/schema';
 import { getBookById } from './bible-data/books';
 import type {
@@ -40,6 +40,8 @@ import type {
   UserStudyProgress,
   InsertUserStudyProgress,
   FreeAiQuota,
+  CampaignLog,
+  InsertCampaignLog,
 } from '@shared/schema';
 import { eq, and, desc, gte, sql, like, or } from 'drizzle-orm';
 
@@ -197,6 +199,15 @@ export interface IStorage {
   migrateGuestStrongQuotaToUser(userId: string, guestLookupsUsed: number): Promise<void>;
   getGuestStrongQuota(deviceId: string): Promise<number>;
   incrementGuestStrongQuota(deviceId: string): Promise<number>;
+
+  // User Activity & Re-engagement Campaigns
+  updateUserLastSeen(userId: string, platform?: string): Promise<void>;
+  setUserEmailOptOut(userId: string, optOut: boolean): Promise<void>;
+  getInactiveUsers(daysInactive: number): Promise<Array<{ id: string; email: string; name: string | null; lastSeenAt: Date | null }>>;
+  hasReceivedCampaign(userId: string, campaignName: string, withinDays: number): Promise<boolean>;
+  logCampaign(log: InsertCampaignLog): Promise<CampaignLog>;
+  getCampaignLogs(campaignName?: string, limit?: number): Promise<CampaignLog[]>;
+  getCampaignStats(campaignName: string): Promise<{ total: number; sent: number; failed: number }>;
 }
 
 class PostgresStorage implements IStorage {
@@ -1594,6 +1605,94 @@ class PostgresStorage implements IStorage {
       .where(eq(guestStrongQuota.deviceId, deviceId))
       .returning();
     return updated.lookupsUsed;
+  }
+
+  // User Activity & Re-engagement Campaigns
+  async updateUserLastSeen(userId: string, platform: string = 'web'): Promise<void> {
+    await db.update(users)
+      .set({ 
+        lastSeenAt: new Date(),
+        lastSeenPlatform: platform,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async setUserEmailOptOut(userId: string, optOut: boolean): Promise<void> {
+    await db.update(users)
+      .set({ 
+        emailOptOut: optOut,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async getInactiveUsers(daysInactive: number): Promise<Array<{ id: string; email: string; name: string | null; lastSeenAt: Date | null }>> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysInactive);
+
+    const result = await db.select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      lastSeenAt: users.lastSeenAt,
+    })
+    .from(users)
+    .where(
+      and(
+        sql`${users.lastSeenAt} <= ${cutoffDate}`,
+        sql`${users.email} IS NOT NULL`,
+        eq(users.isBlocked, false),
+        eq(users.emailOptOut, false)
+      )
+    );
+
+    return result.filter(u => u.email !== null) as Array<{ id: string; email: string; name: string | null; lastSeenAt: Date | null }>;
+  }
+
+  async hasReceivedCampaign(userId: string, campaignName: string, withinDays: number): Promise<boolean> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - withinDays);
+
+    const result = await db.select()
+      .from(campaignLogs)
+      .where(
+        and(
+          eq(campaignLogs.userId, userId),
+          eq(campaignLogs.campaignName, campaignName),
+          gte(campaignLogs.sentAt, cutoffDate)
+        )
+      )
+      .limit(1);
+
+    return result.length > 0;
+  }
+
+  async logCampaign(log: InsertCampaignLog): Promise<CampaignLog> {
+    const [result] = await db.insert(campaignLogs).values(log).returning();
+    return result;
+  }
+
+  async getCampaignLogs(campaignName?: string, limit: number = 100): Promise<CampaignLog[]> {
+    let query = db.select().from(campaignLogs);
+    
+    if (campaignName) {
+      query = query.where(eq(campaignLogs.campaignName, campaignName)) as any;
+    }
+    
+    return query.orderBy(desc(campaignLogs.sentAt)).limit(limit);
+  }
+
+  async getCampaignStats(campaignName: string): Promise<{ total: number; sent: number; failed: number }> {
+    const logs = await db.select()
+      .from(campaignLogs)
+      .where(eq(campaignLogs.campaignName, campaignName));
+
+    return {
+      total: logs.length,
+      sent: logs.filter(l => l.status === 'sent').length,
+      failed: logs.filter(l => l.status === 'failed').length,
+    };
   }
 }
 

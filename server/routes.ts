@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
-import { sendPasswordResetEmail } from "./email";
+import { sendPasswordResetEmail, sendReengagementEmail } from "./email";
 import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -272,8 +272,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const token = generateToken(user.id, user.email || '', user.role || 'user');
       const { password: _, ...userWithoutPassword } = user;
       
-      // Update last login
+      // Update last login and last seen
       await storage.updateUserLastLogin(user.id);
+      await storage.updateUserLastSeen(user.id, 'web');
       
       const trialActive = isTrialActive(user.trialStartDate);
       const daysRemaining = getTrialDaysRemaining(user.trialStartDate);
@@ -4123,6 +4124,321 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[DEBUG Subscriptions] Error:", error);
       res.status(500).json({ error: "Erro ao buscar debug subscriptions" });
+    }
+  });
+
+  // ============================================
+  // USER ACTIVITY TRACKING & RE-ENGAGEMENT
+  // ============================================
+
+  // Rate limiter for heartbeat (6 hours cooldown per user)
+  const heartbeatCache = new Map<string, number>();
+  const HEARTBEAT_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+  // POST /api/telemetry/heartbeat - Update user's last seen timestamp
+  app.post("/api/telemetry/heartbeat", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ error: "Não autenticado" });
+      }
+
+      // Rate limit: only update once every 6 hours
+      const lastUpdate = heartbeatCache.get(userId) || 0;
+      const now = Date.now();
+      
+      if (now - lastUpdate < HEARTBEAT_COOLDOWN_MS) {
+        const minutesRemaining = Math.ceil((HEARTBEAT_COOLDOWN_MS - (now - lastUpdate)) / 60000);
+        return res.json({ 
+          updated: false, 
+          message: `Rate limited. Próxima atualização em ${minutesRemaining} minutos.` 
+        });
+      }
+
+      // Update last seen
+      const platform = req.body.platform || 'web';
+      await storage.updateUserLastSeen(userId, platform);
+      
+      // Update rate limit cache
+      heartbeatCache.set(userId, now);
+
+      console.log(`[Heartbeat] Usuário ${userId} atualizado (platform: ${platform})`);
+      res.json({ updated: true, message: "Atividade registrada" });
+    } catch (error) {
+      console.error("[Heartbeat] Erro:", error);
+      res.status(500).json({ error: "Erro ao registrar atividade" });
+    }
+  });
+
+  // POST /api/email/unsubscribe - Opt out of marketing emails
+  app.post("/api/email/unsubscribe", async (req, res) => {
+    try {
+      const { userId, token } = req.body;
+      
+      // For now, use userId directly. In production, you'd verify a signed token.
+      if (!userId) {
+        return res.status(400).json({ error: "userId é obrigatório" });
+      }
+
+      // Check if user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Set opt-out
+      await storage.setUserEmailOptOut(userId, true);
+      
+      console.log(`[Unsubscribe] Usuário ${userId} (${user.email}) optou por não receber emails`);
+      
+      res.json({ success: true, message: "Você foi descadastrado com sucesso. Não receberá mais emails de marketing." });
+    } catch (error) {
+      console.error("[Unsubscribe] Erro:", error);
+      res.status(500).json({ error: "Erro ao processar descadastro" });
+    }
+  });
+
+  // GET /api/cron/send-inactive-30d - Protected cron endpoint for sending re-engagement emails
+  const CRON_SECRET = process.env.CRON_SECRET || 'dev-cron-secret';
+  
+  app.get("/api/cron/send-inactive-30d", async (req, res) => {
+    try {
+      // Verify secret
+      const secret = req.headers['x-cron-secret'] || req.query.secret;
+      if (secret !== CRON_SECRET) {
+        console.log("[Cron] Tentativa de acesso não autorizada");
+        return res.status(401).json({ error: "Não autorizado" });
+      }
+
+      console.log("[Cron] Iniciando campanha inactive_30_days...");
+      
+      const CAMPAIGN_NAME = 'inactive_30_days';
+      const DAYS_INACTIVE = 30;
+      const COOLDOWN_DAYS = 30;
+      
+      // Get inactive users
+      const inactiveUsers = await storage.getInactiveUsers(DAYS_INACTIVE);
+      console.log(`[Cron] Encontrados ${inactiveUsers.length} usuários inativos há ${DAYS_INACTIVE}+ dias`);
+
+      const results = {
+        total: inactiveUsers.length,
+        eligible: 0,
+        sent: 0,
+        failed: 0,
+        skipped: 0,
+      };
+
+      const appUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : 'https://bibliainteligente.replit.app';
+
+      for (const user of inactiveUsers) {
+        // Check if already received campaign in last 30 days
+        const alreadyReceived = await storage.hasReceivedCampaign(user.id, CAMPAIGN_NAME, COOLDOWN_DAYS);
+        if (alreadyReceived) {
+          results.skipped++;
+          continue;
+        }
+
+        results.eligible++;
+
+        // Generate unsubscribe link
+        const unsubscribeLink = `${appUrl}/api/email/unsubscribe?userId=${user.id}`;
+
+        // Send email
+        const emailResult = await sendReengagementEmail(user.email, user.name || undefined, unsubscribeLink);
+
+        // Log the campaign
+        await storage.logCampaign({
+          userId: user.id,
+          campaignName: CAMPAIGN_NAME,
+          sentAt: new Date(),
+          status: emailResult.success ? 'sent' : 'failed',
+          providerMessageId: emailResult.messageId || null,
+          errorMessage: emailResult.success ? null : emailResult.message,
+        });
+
+        if (emailResult.success) {
+          results.sent++;
+          console.log(`[Cron] Email enviado para ${user.email}`);
+        } else {
+          results.failed++;
+          console.log(`[Cron] Falha ao enviar para ${user.email}: ${emailResult.message}`);
+        }
+      }
+
+      console.log(`[Cron] Campanha concluída: ${JSON.stringify(results)}`);
+      res.json({ success: true, results });
+    } catch (error) {
+      console.error("[Cron] Erro na campanha:", error);
+      res.status(500).json({ error: "Erro ao executar campanha" });
+    }
+  });
+
+  // ============================================
+  // ADMIN - CAMPAIGN MANAGEMENT
+  // ============================================
+
+  // GET /api/admin/campaigns/stats - Get campaign statistics
+  app.get("/api/admin/campaigns/stats", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const CAMPAIGN_NAME = 'inactive_30_days';
+      const DAYS_INACTIVE = 30;
+
+      // Get inactive users count
+      const inactiveUsers = await storage.getInactiveUsers(DAYS_INACTIVE);
+      
+      // Get campaign stats
+      const stats = await storage.getCampaignStats(CAMPAIGN_NAME);
+      
+      // Count eligible (not received in last 30 days)
+      let eligible = 0;
+      for (const user of inactiveUsers) {
+        const received = await storage.hasReceivedCampaign(user.id, CAMPAIGN_NAME, 30);
+        if (!received) eligible++;
+      }
+
+      res.json({
+        totalInactive: inactiveUsers.length,
+        eligible,
+        alreadyReceived: inactiveUsers.length - eligible,
+        campaignStats: stats,
+      });
+    } catch (error) {
+      console.error("[Admin Campaigns] Erro ao buscar stats:", error);
+      res.status(500).json({ error: "Erro ao buscar estatísticas" });
+    }
+  });
+
+  // GET /api/admin/campaigns/dry-run - List up to 10 users that would receive email (without sending)
+  app.get("/api/admin/campaigns/dry-run", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const CAMPAIGN_NAME = 'inactive_30_days';
+      const DAYS_INACTIVE = 30;
+      const COOLDOWN_DAYS = 30;
+
+      // Get inactive users
+      const inactiveUsers = await storage.getInactiveUsers(DAYS_INACTIVE);
+      
+      // Filter eligible users (not received in last 30 days)
+      const eligible: Array<{ id: string; email: string; name: string | null; lastSeenAt: Date | null }> = [];
+      
+      for (const user of inactiveUsers) {
+        if (eligible.length >= 10) break;
+        
+        const received = await storage.hasReceivedCampaign(user.id, CAMPAIGN_NAME, COOLDOWN_DAYS);
+        if (!received) {
+          eligible.push(user);
+        }
+      }
+
+      res.json({
+        dryRun: true,
+        totalInactive: inactiveUsers.length,
+        showingFirst: eligible.length,
+        users: eligible.map(u => ({
+          id: u.id,
+          email: u.email,
+          name: u.name,
+          lastSeenAt: u.lastSeenAt,
+          daysSinceLastSeen: u.lastSeenAt 
+            ? Math.floor((Date.now() - new Date(u.lastSeenAt).getTime()) / (1000 * 60 * 60 * 24))
+            : null,
+        })),
+      });
+    } catch (error) {
+      console.error("[Admin Campaigns] Erro no dry-run:", error);
+      res.status(500).json({ error: "Erro ao executar dry-run" });
+    }
+  });
+
+  // POST /api/admin/campaigns/execute - Execute campaign (send emails)
+  app.post("/api/admin/campaigns/execute", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { confirm } = req.body;
+      
+      if (confirm !== true) {
+        return res.status(400).json({ error: "Confirmação obrigatória. Envie { confirm: true }" });
+      }
+
+      console.log("[Admin Campaigns] Executando campanha via admin...");
+      
+      const CAMPAIGN_NAME = 'inactive_30_days';
+      const DAYS_INACTIVE = 30;
+      const COOLDOWN_DAYS = 30;
+      
+      // Get inactive users
+      const inactiveUsers = await storage.getInactiveUsers(DAYS_INACTIVE);
+
+      const results = {
+        total: inactiveUsers.length,
+        eligible: 0,
+        sent: 0,
+        failed: 0,
+        skipped: 0,
+      };
+
+      const appUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : 'https://bibliainteligente.replit.app';
+
+      for (const user of inactiveUsers) {
+        const alreadyReceived = await storage.hasReceivedCampaign(user.id, CAMPAIGN_NAME, COOLDOWN_DAYS);
+        if (alreadyReceived) {
+          results.skipped++;
+          continue;
+        }
+
+        results.eligible++;
+
+        const unsubscribeLink = `${appUrl}/api/email/unsubscribe?userId=${user.id}`;
+        const emailResult = await sendReengagementEmail(user.email, user.name || undefined, unsubscribeLink);
+
+        await storage.logCampaign({
+          userId: user.id,
+          campaignName: CAMPAIGN_NAME,
+          sentAt: new Date(),
+          status: emailResult.success ? 'sent' : 'failed',
+          providerMessageId: emailResult.messageId || null,
+          errorMessage: emailResult.success ? null : emailResult.message,
+        });
+
+        if (emailResult.success) {
+          results.sent++;
+        } else {
+          results.failed++;
+        }
+      }
+
+      // Log admin action
+      if (req.user?.id) {
+        await storage.logAdminAction({
+          adminId: req.user.id,
+          actionType: 'CAMPAIGN_EXECUTED',
+          details: { campaignName: CAMPAIGN_NAME, results },
+        });
+      }
+
+      console.log(`[Admin Campaigns] Concluído: ${JSON.stringify(results)}`);
+      res.json({ success: true, results });
+    } catch (error) {
+      console.error("[Admin Campaigns] Erro ao executar:", error);
+      res.status(500).json({ error: "Erro ao executar campanha" });
+    }
+  });
+
+  // GET /api/admin/campaigns/history - Get campaign history
+  app.get("/api/admin/campaigns/history", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      const campaignName = req.query.campaign as string || undefined;
+      
+      const logs = await storage.getCampaignLogs(campaignName, limit);
+      
+      res.json({ logs });
+    } catch (error) {
+      console.error("[Admin Campaigns] Erro ao buscar histórico:", error);
+      res.status(500).json({ error: "Erro ao buscar histórico" });
     }
   });
 

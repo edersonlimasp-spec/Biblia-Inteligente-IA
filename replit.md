@@ -129,12 +129,54 @@ The application uses Mercado Pago Checkout Pro for subscription payments with au
 4. Check last webhook: `curl https://bibliainteligente.replit.app/api/mp/last-webhook`
 5. Verify subscription: `/api/subscription/status` or admin panel
 
+## User Re-Engagement System (Dec 27, 2025)
+
+Sistema automático de reengajamento para usuários inativos há 30+ dias.
+
+**Database Schema:**
+- `users.last_seen_at` - Timestamp da última atividade
+- `users.last_seen_platform` - Plataforma do último acesso (web/ios/android)
+- `users.email_opt_out` - Opt-out de emails de marketing
+- `campaign_logs` - Histórico de emails enviados (userId, campaignName, sentAt, status)
+
+**Endpoints:**
+- `POST /api/telemetry/heartbeat` - Atualiza lastSeenAt (autenticado, rate limit 6h)
+- `POST /api/email/unsubscribe` - Opt-out de emails de marketing
+- `GET /api/cron/send-inactive-30d?secret=CRON_SECRET` - Endpoint protegido para cron job
+- `GET /api/admin/campaigns/stats` - Estatísticas da campanha (admin)
+- `GET /api/admin/campaigns/dry-run` - Preview de usuários elegíveis (admin)
+- `POST /api/admin/campaigns/execute` - Executa campanha (super admin, requer {confirm: true})
+- `GET /api/admin/campaigns/history` - Histórico de envios (admin)
+
+**Lógica de Seleção:**
+1. Usuários com `last_seen_at` há mais de 30 dias OU `last_seen_at` nulo
+2. Usuários sem `email_opt_out = true`
+3. Usuários que NÃO receberam email desta campanha nos últimos 30 dias (cooldown)
+
+**Configuração:**
+- `CRON_SECRET` - Segredo para proteger endpoint cron (padrão: 'dev-cron-secret')
+- `RESEND_API_KEY` - API key do Resend para envio de emails
+
+**Fluxo Admin:**
+1. Dashboard → Campanhas tab
+2. Ver estatísticas (inativos, elegíveis, em cooldown)
+3. Dry Run para preview dos primeiros 10 usuários
+4. Executar Campanha (super admin only, com confirmação)
+5. Ver histórico de envios
+
+**Automação com Cron:**
+Configure um cron job externo (ex: cron-job.org) para chamar diariamente:
+```
+GET https://bibliainteligente.replit.app/api/cron/send-inactive-30d?secret=YOUR_CRON_SECRET
+```
+
 ## External Dependencies
 
 - **Database:** PostgreSQL (Neon)
 - **ORM:** Drizzle ORM
 - **AI:** OpenAI GPT-4o-mini (via Replit AI Integrations)
 - **Payments:** Mercado Pago Checkout Pro
+- **Email:** Resend (para emails de reengajamento)
 - **Build Tool:** Vite
 - **Mobile Wrapper:** Capacitor 6
-- **Packages:** `bcryptjs`, `jsonwebtoken`, `@neondatabase/serverless`, `openai`.
+- **Packages:** `bcryptjs`, `jsonwebtoken`, `@neondatabase/serverless`, `openai`, `resend`.

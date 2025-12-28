@@ -5,24 +5,37 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+declare global {
+  interface Window {
+    __pwaInstallPrompt?: BeforeInstallPromptEvent | null;
+  }
+}
+
 export function usePWAInstall() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(
+    typeof window !== 'undefined' ? window.__pwaInstallPrompt || null : null
+  );
   const [isInstalled, setIsInstalled] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
+  const [installOutcome, setInstallOutcome] = useState<"accepted" | "dismissed" | null>(null);
 
   const isStandalone = typeof window !== 'undefined' && (
     window.matchMedia("(display-mode: standalone)").matches || 
     (window.navigator as unknown as { standalone?: boolean }).standalone === true
   );
 
-  const isIOS = typeof navigator !== 'undefined' && 
-    /iPad|iPhone|iPod/.test(navigator.userAgent) && 
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && 
     !(window as unknown as { MSStream?: unknown }).MSStream;
 
-  const isAndroid = typeof navigator !== 'undefined' && 
-    /Android/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(ua);
 
   const isMobile = isIOS || isAndroid;
+
+  const isInAppBrowser = /FBAN|FBAV|Instagram|Line|WhatsApp|Snapchat|Twitter/i.test(ua);
+
+  const isSafari = isIOS && /Safari/i.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/i.test(ua);
 
   const canInstallDirectly = !isIOS && deferredPrompt !== null;
 
@@ -32,9 +45,15 @@ export function usePWAInstall() {
       return;
     }
 
+    if (window.__pwaInstallPrompt) {
+      setDeferredPrompt(window.__pwaInstallPrompt);
+    }
+
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      const prompt = e as BeforeInstallPromptEvent;
+      window.__pwaInstallPrompt = prompt;
+      setDeferredPrompt(prompt);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -42,6 +61,7 @@ export function usePWAInstall() {
     const installedHandler = () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      window.__pwaInstallPrompt = null;
     };
 
     window.addEventListener("appinstalled", installedHandler);
@@ -52,27 +72,39 @@ export function usePWAInstall() {
     };
   }, [isStandalone]);
 
-  const triggerInstall = useCallback(async (): Promise<boolean> => {
-    if (!deferredPrompt) return false;
+  const triggerInstall = useCallback(async (): Promise<"accepted" | "dismissed" | "unavailable"> => {
+    const prompt = deferredPrompt || window.__pwaInstallPrompt;
+    if (!prompt) return "unavailable";
 
     setIsInstalling(true);
+    setInstallOutcome(null);
     try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+      await prompt.prompt();
+      const { outcome } = await prompt.userChoice;
+      setInstallOutcome(outcome);
       
       if (outcome === "accepted") {
         setIsInstalled(true);
         setDeferredPrompt(null);
-        return true;
+        window.__pwaInstallPrompt = null;
       }
-      return false;
+      return outcome;
     } catch (error) {
       console.error("Install error:", error);
-      return false;
+      return "unavailable";
     } finally {
       setIsInstalling(false);
     }
   }, [deferredPrompt]);
+
+  const resetOutcome = useCallback(() => {
+    setInstallOutcome(null);
+  }, []);
+
+  const openInSafari = useCallback(() => {
+    const currentUrl = window.location.href;
+    window.location.href = currentUrl;
+  }, []);
 
   return {
     isInstalled,
@@ -81,7 +113,12 @@ export function usePWAInstall() {
     isIOS,
     isAndroid,
     isMobile,
+    isInAppBrowser,
+    isSafari,
     canInstallDirectly,
+    installOutcome,
     triggerInstall,
+    resetOutcome,
+    openInSafari,
   };
 }

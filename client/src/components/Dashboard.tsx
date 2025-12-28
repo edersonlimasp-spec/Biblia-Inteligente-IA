@@ -5,7 +5,7 @@ import { getDeviceId } from "@/hooks/use-device-id";
 import { usePWAInstall } from "@/hooks/use-pwa-install";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { InstallModal } from "@/components/InstallModal";
 import { 
   BookOpen, 
   Brain, 
@@ -26,14 +26,10 @@ import {
   Crown,
   Gem,
   Infinity,
-  Download,
-  Share,
-  CheckCircle2,
-  Smartphone
+  Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import appIcon from "@assets/logo/app-icon.png";
 
 interface DashboardProps {
   onNavigateToBible: () => void;
@@ -134,23 +130,11 @@ export function Dashboard({
   const { user, isSuperAdmin } = useAuth();
   const deviceId = getDeviceId();
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || isSuperAdmin;
-  const { isInstalled, isInstalling, isStandalone, isIOS, isAndroid, canInstallDirectly, triggerInstall } = usePWAInstall();
-  const [showInstallDialog, setShowInstallDialog] = useState(false);
-  const [installSuccess, setInstallSuccess] = useState(false);
+  const { isInstalled, isStandalone } = usePWAInstall();
+  const [showInstallModal, setShowInstallModal] = useState(false);
   
   const handleInstallClick = () => {
-    setShowInstallDialog(true);
-  };
-  
-  const handleDirectInstall = async () => {
-    const installed = await triggerInstall();
-    if (installed) {
-      setInstallSuccess(true);
-      setTimeout(() => {
-        setShowInstallDialog(false);
-        setInstallSuccess(false);
-      }, 2000);
-    }
+    setShowInstallModal(true);
   };
   
   const showInstallModule = !isInstalled && !isStandalone;
@@ -450,144 +434,11 @@ export function Dashboard({
         </div>
       </ScrollArea>
 
-      <Dialog open={showInstallDialog} onOpenChange={setShowInstallDialog}>
-        <DialogContent className="max-w-sm mx-auto">
-          <DialogHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <img 
-                src={appIcon} 
-                alt="Bíblia Inteligente" 
-                className="w-20 h-20 rounded-2xl shadow-lg"
-              />
-            </div>
-            <DialogTitle className="text-xl">Instalar Bíblia Inteligente</DialogTitle>
-            <DialogDescription>
-              Tenha o app na sua tela inicial para acesso rápido
-            </DialogDescription>
-          </DialogHeader>
-
-          {installSuccess ? (
-            <div className="text-center py-6">
-              <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <p className="text-lg font-semibold text-green-600">Instalado com sucesso!</p>
-              <p className="text-sm text-muted-foreground">O app foi adicionado à sua tela inicial</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {canInstallDirectly && (
-                <Button 
-                  onClick={handleDirectInstall} 
-                  size="lg" 
-                  className="w-full gap-2"
-                  disabled={isInstalling}
-                  data-testid="button-install-direct"
-                >
-                  <Download className="w-5 h-5" />
-                  {isInstalling ? "Instalando..." : "Instalar Agora"}
-                </Button>
-              )}
-
-              {isIOS && (
-                <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
-                  <p className="text-sm font-medium text-center mb-3">
-                    Siga os passos para instalar no iPhone/iPad:
-                  </p>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      1
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Toque no botão Compartilhar</p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Share className="w-3 h-3" /> na barra inferior do Safari
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      2
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Toque em "Adicionar à Tela de Início"</p>
-                      <p className="text-xs text-muted-foreground">Role para baixo no menu</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      3
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Confirme tocando em "Adicionar"</p>
-                      <p className="text-xs text-muted-foreground">O app aparecerá na sua tela inicial</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {isAndroid && !canInstallDirectly && (
-                <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
-                  <p className="text-sm font-medium text-center mb-3">
-                    Siga os passos para instalar no Android:
-                  </p>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      1
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Abra o menu do Chrome</p>
-                      <p className="text-xs text-muted-foreground">Toque nos três pontos (⋮) no canto superior</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      2
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Toque em "Instalar app"</p>
-                      <p className="text-xs text-muted-foreground">Ou "Adicionar à tela inicial"</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      3
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Confirme a instalação</p>
-                      <p className="text-xs text-muted-foreground">O app será adicionado à sua tela</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {!isIOS && !isAndroid && !canInstallDirectly && (
-                <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
-                  <p className="text-sm font-medium text-center mb-3">
-                    Para instalar no computador:
-                  </p>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      1
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Procure o ícone de instalação</p>
-                      <p className="text-xs text-muted-foreground">Na barra de endereço do navegador</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      2
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Clique em "Instalar"</p>
-                      <p className="text-xs text-muted-foreground">Ou use o menu → "Instalar Bíblia Inteligente"</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <InstallModal 
+        open={showInstallModal} 
+        onOpenChange={setShowInstallModal}
+        autoPrompt={false}
+      />
     </div>
   );
 }

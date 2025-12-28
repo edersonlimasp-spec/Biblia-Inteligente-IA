@@ -73,6 +73,9 @@ function NavigationContent() {
     if (location.includes("reset-password")) {
       navigate("reset-password");
     }
+    if (location === "/install" || location.startsWith("/install?")) {
+      navigate("install");
+    }
   }, [location, navigate]);
 
   // Handle payment result pages from Mercado Pago redirect

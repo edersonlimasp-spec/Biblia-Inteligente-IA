@@ -1640,7 +1640,10 @@ class PostgresStorage implements IStorage {
     .from(users)
     .where(
       and(
-        sql`${users.lastSeenAt} <= ${cutoffDate}`,
+        or(
+          sql`${users.lastSeenAt} <= ${cutoffDate}`,
+          sql`${users.lastSeenAt} IS NULL`
+        ),
         sql`${users.email} IS NOT NULL`,
         eq(users.isBlocked, false),
         eq(users.emailOptOut, false)

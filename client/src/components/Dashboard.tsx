@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { usePWAInstall } from "@/hooks/use-pwa-install";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
@@ -127,6 +128,20 @@ export function Dashboard({
   const { user, isSuperAdmin } = useAuth();
   const deviceId = getDeviceId();
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || isSuperAdmin;
+  const { isInstalled, isStandalone, canInstallDirectly, triggerInstall } = usePWAInstall();
+  
+  const handleInstallClick = async () => {
+    if (canInstallDirectly) {
+      const installed = await triggerInstall();
+      if (!installed && onNavigateToInstall) {
+        onNavigateToInstall();
+      }
+    } else if (onNavigateToInstall) {
+      onNavigateToInstall();
+    }
+  };
+  
+  const showInstallModule = !isInstalled && !isStandalone;
 
   const { data: trialInfo } = useQuery<{ active: boolean; daysRemaining: number }>({
     queryKey: ['/api/guest/trial', deviceId],
@@ -290,14 +305,14 @@ export function Dashboard({
       iconColor: "bg-slate-500",
       onClick: onNavigateToSubscriptions,
     },
-    ...(onNavigateToInstall ? [{
+    ...(showInstallModule ? [{
       id: "install",
       title: "Instalar App",
       description: "Adicione à sua tela inicial",
       icon: Download,
       gradient: "bg-gradient-to-br from-green-600 to-emerald-700",
       iconColor: "bg-green-500",
-      onClick: onNavigateToInstall,
+      onClick: handleInstallClick,
     }] : []),
   ];
 

@@ -1,65 +1,28 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Download, Share, Monitor, CheckCircle2 } from "lucide-react";
+import { usePWAInstall } from "@/hooks/use-pwa-install";
 import appIcon from "@assets/logo/app-icon.png";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
 
 interface InstallPageProps {
   onBack: () => void;
 }
 
 export function InstallPage({ onBack }: InstallPageProps) {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isInstalling, setIsInstalling] = useState(false);
+  const { 
+    isInstalled, 
+    isInstalling, 
+    isStandalone, 
+    isIOS, 
+    canInstallDirectly, 
+    triggerInstall 
+  } = usePWAInstall();
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
   const isAndroid = /Android/.test(navigator.userAgent);
   const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge|Edg/.test(navigator.userAgent);
-  const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || 
-                       (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-
-  useEffect(() => {
-    if (isStandalone) {
-      setIsInstalled(true);
-      return;
-    }
-
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-    };
-
-    window.addEventListener("beforeinstallprompt", handler);
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
-  }, [isStandalone]);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-
-    setIsInstalling(true);
-    try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      if (outcome === "accepted") {
-        setIsInstalled(true);
-      }
-      setDeferredPrompt(null);
-    } catch (error) {
-      console.error("Install error:", error);
-    } finally {
-      setIsInstalling(false);
-    }
+    await triggerInstall();
   };
 
   if (isInstalled || isStandalone) {
@@ -200,7 +163,7 @@ export function InstallPage({ onBack }: InstallPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {deferredPrompt ? (
+              {canInstallDirectly ? (
                 <div className="text-center space-y-4">
                   <p className="text-muted-foreground">
                     Clique no botão abaixo para instalar o app diretamente
@@ -272,7 +235,7 @@ export function InstallPage({ onBack }: InstallPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {deferredPrompt ? (
+              {canInstallDirectly ? (
                 <div className="text-center space-y-4">
                   <p className="text-muted-foreground">
                     Clique no botão abaixo para instalar o app

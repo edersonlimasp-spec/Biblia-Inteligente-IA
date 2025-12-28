@@ -1,7 +1,7 @@
 {
-  "name": "Bíblia Inteligente",
-  "short_name": "Bíblia Inteligente",
-  "description": "Leia a Bíblia com textos originais em Hebraico e Grego, dicionário Strong integrado e Professor Teológico com IA",
+  "name": "Bíblia Inteligente IA",
+  "short_name": "Bíblia IA",
+  "description": "Bíblia com textos em Hebraico e Grego, dicionário Strong integrado e Professor Teológico com IA para estudos profundos das escrituras",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1A5299",

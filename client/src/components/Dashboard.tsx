@@ -22,7 +22,8 @@ import {
   User,
   Crown,
   Gem,
-  Infinity
+  Infinity,
+  Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -42,6 +43,7 @@ interface DashboardProps {
   onNavigateToProfessorPremium: () => void;
   onNavigateToLogin: () => void;
   onNavigateToSettings: () => void;
+  onNavigateToInstall?: () => void;
 }
 
 interface ModuleCardProps {
@@ -120,6 +122,7 @@ export function Dashboard({
   onNavigateToProfessorPremium,
   onNavigateToLogin,
   onNavigateToSettings,
+  onNavigateToInstall,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
   const deviceId = getDeviceId();
@@ -287,6 +290,15 @@ export function Dashboard({
       iconColor: "bg-slate-500",
       onClick: onNavigateToSubscriptions,
     },
+    ...(onNavigateToInstall ? [{
+      id: "install",
+      title: "Instalar App",
+      description: "Adicione à sua tela inicial",
+      icon: Download,
+      gradient: "bg-gradient-to-br from-green-600 to-emerald-700",
+      iconColor: "bg-green-500",
+      onClick: onNavigateToInstall,
+    }] : []),
   ];
 
   return (

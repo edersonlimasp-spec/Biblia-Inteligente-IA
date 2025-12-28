@@ -23,7 +23,8 @@ type Screen =
   | "admin"
   | "professor-premium"
   | "module-detail"
-  | "lesson";
+  | "lesson"
+  | "install";
 
 interface TargetVerse {
   book: string;
@@ -78,6 +79,7 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "professor-premium": "dashboard",
   "module-detail": "professor-premium",
   "lesson": "module-detail",
+  "install": "dashboard",
 };
 
 interface NavigationProviderProps {

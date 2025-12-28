@@ -30,6 +30,7 @@ import { NavigationProvider, useNavigation } from "@/contexts/NavigationContext"
 import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
 import { RequireAuthScreen } from "./RequireAuthScreen";
 import { PaymentSuccess, PaymentError, PaymentPending } from "@/pages/PaymentResult";
+import { InstallPage } from "@/pages/InstallPage";
 
 function NavigationContent() {
   const { 
@@ -138,6 +139,7 @@ function NavigationContent() {
           onNavigateToProfessorPremium={() => navigate("professor-premium")}
           onNavigateToLogin={() => navigate("login")}
           onNavigateToSettings={() => navigate("settings")}
+          onNavigateToInstall={() => navigate("install")}
         />
       )}
       {currentScreen === "recordings" && (
@@ -259,6 +261,9 @@ function NavigationContent() {
             goBack();
           }}
         />
+      )}
+      {currentScreen === "install" && (
+        <InstallPage onBack={() => goBack()} />
       )}
     </>
   );

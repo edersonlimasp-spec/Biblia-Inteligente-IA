@@ -14,12 +14,13 @@ export function InstallPage({ onBack }: InstallPageProps) {
     isInstalling, 
     isStandalone, 
     isIOS, 
+    isAndroid,
     canInstallDirectly, 
     triggerInstall 
   } = usePWAInstall();
 
-  const isAndroid = /Android/.test(navigator.userAgent);
   const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge|Edg/.test(navigator.userAgent);
+  const isDesktop = !isIOS && !isAndroid;
 
   const handleInstallClick = async () => {
     await triggerInstall();
@@ -226,7 +227,7 @@ export function InstallPage({ onBack }: InstallPageProps) {
           </Card>
         )}
 
-        {!isIOS && !isAndroid && (
+        {isDesktop && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">

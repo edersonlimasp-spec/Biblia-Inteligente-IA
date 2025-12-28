@@ -19,6 +19,11 @@ export function usePWAInstall() {
     /iPad|iPhone|iPod/.test(navigator.userAgent) && 
     !(window as unknown as { MSStream?: unknown }).MSStream;
 
+  const isAndroid = typeof navigator !== 'undefined' && 
+    /Android/i.test(navigator.userAgent);
+
+  const isMobile = isIOS || isAndroid;
+
   const canInstallDirectly = !isIOS && deferredPrompt !== null;
 
   useEffect(() => {
@@ -74,6 +79,8 @@ export function usePWAInstall() {
     isInstalling,
     isStandalone,
     isIOS,
+    isAndroid,
+    isMobile,
     canInstallDirectly,
     triggerInstall,
   };

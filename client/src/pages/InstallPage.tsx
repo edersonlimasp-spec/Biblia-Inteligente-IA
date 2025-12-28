@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Download, Share, Smartphone, Monitor, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Download, Share, Monitor, CheckCircle2 } from "lucide-react";
+import appIcon from "@assets/logo/app-icon.png";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -72,14 +73,21 @@ export function InstallPage({ onBack }: InstallPageProps) {
         </header>
 
         <main className="flex-1 flex items-center justify-center p-6">
-          <Card className="max-w-md w-full text-center">
+          <Card className="max-w-md w-full text-center border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
             <CardHeader>
-              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
+              <div className="mx-auto mb-4 h-20 w-20 rounded-2xl shadow-lg overflow-hidden relative">
+                <img 
+                  src={appIcon} 
+                  alt="Bíblia Inteligente IA" 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
+                </div>
               </div>
-              <CardTitle>App Instalado!</CardTitle>
-              <CardDescription>
-                O Bíblia Inteligente IA já está instalado no seu dispositivo.
+              <CardTitle className="text-xl">App Instalado!</CardTitle>
+              <CardDescription className="text-base">
+                O Bíblia Inteligente IA já está na sua tela inicial.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -103,13 +111,19 @@ export function InstallPage({ onBack }: InstallPageProps) {
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 space-y-6">
-        <Card>
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Smartphone className="h-10 w-10 text-primary" />
+        <Card className="border-0 bg-gradient-to-br from-primary/5 to-primary/10">
+          <CardHeader className="text-center pb-4">
+            <div className="mx-auto mb-4 h-24 w-24 rounded-2xl shadow-lg overflow-hidden">
+              <img 
+                src={appIcon} 
+                alt="Bíblia Inteligente IA" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <CardTitle className="text-xl">Bíblia Inteligente IA</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl font-serif bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent">
+              Bíblia Inteligente IA
+            </CardTitle>
+            <CardDescription className="text-base">
               Instale o app na sua tela inicial para acesso rápido e experiência completa
             </CardDescription>
           </CardHeader>

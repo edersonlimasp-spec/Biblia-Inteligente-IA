@@ -701,31 +701,34 @@ export function BibleReader({
             onChange={(e) => {
               if (isGlobalSearch) {
                 setGlobalSearchTerm(e.target.value);
-                setShowGlobalResults(e.target.value.length >= 2);
               } else {
                 setTextSearchQuery(e.target.value);
               }
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && isGlobalSearch && globalSearchTerm.length >= 2) {
-                setShowGlobalResults(true);
+              if (e.key === 'Enter') {
+                if (isGlobalSearch && globalSearchTerm.length >= 2) {
+                  setShowGlobalResults(true);
+                }
               }
             }}
             className="flex-1 h-8 text-sm"
             data-testid="input-text-search"
           />
-          {isGlobalSearch && globalSearchTerm.length >= 2 && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setShowGlobalResults(true)}
-              className="h-8 flex-shrink-0"
-              data-testid="button-execute-global-search"
-            >
-              <Search className="h-4 w-4 mr-1" />
-              Buscar
-            </Button>
-          )}
+          <Button
+            variant="default"
+            size="icon"
+            onClick={() => {
+              if (isGlobalSearch && globalSearchTerm.length >= 2) {
+                setShowGlobalResults(true);
+              }
+            }}
+            disabled={isGlobalSearch && globalSearchTerm.length < 2}
+            className="h-8 w-8 flex-shrink-0"
+            data-testid="button-execute-search"
+          >
+            <Search className="h-4 w-4" />
+          </Button>
         </div>
       </header>
 

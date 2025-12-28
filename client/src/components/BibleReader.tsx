@@ -719,13 +719,20 @@ export function BibleReader({
             variant="default"
             size="icon"
             onClick={() => {
-              if (isGlobalSearch && globalSearchTerm.length >= 2) {
+              const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
+              if (currentQuery.length >= 2) {
+                if (!isGlobalSearch) {
+                  setGlobalSearchTerm(currentQuery);
+                  setTextSearchQuery("");
+                  setIsGlobalSearch(true);
+                }
                 setShowGlobalResults(true);
               }
             }}
-            disabled={isGlobalSearch && globalSearchTerm.length < 2}
+            disabled={(isGlobalSearch ? globalSearchTerm : textSearchQuery).length < 2}
             className="h-8 w-8 flex-shrink-0"
             data-testid="button-execute-search"
+            title="Buscar na Bíblia toda"
           >
             <Search className="h-4 w-4" />
           </Button>

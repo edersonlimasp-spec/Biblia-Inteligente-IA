@@ -581,6 +581,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user preferred language
+  app.post("/api/user/language", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { language } = req.body;
+      
+      if (!language || !["pt", "en", "es"].includes(language)) {
+        return res.status(400).json({ error: "Idioma inválido" });
+      }
+
+      await storage.updateUserLanguage(req.userId!, language);
+      res.json({ success: true, language });
+    } catch (error) {
+      console.error("Update language error:", error);
+      res.status(500).json({ error: "Erro ao atualizar idioma" });
+    }
+  });
+
   // Admin Routes
   // IMPORTANT: This route allows the FIRST user to become admin without authentication
   // After the first admin exists, only authenticated admins can make others admin
@@ -723,11 +740,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Professor
   app.post("/api/ai/ask", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const { question, book, chapter, verse, mode = 'essential' } = req.body;
+      const { question, book, chapter, verse, mode = 'essential', language = 'pt' } = req.body;
 
       // Validate input
       if (!question || typeof question !== 'string') {
         return res.status(400).json({ error: "Pergunta é obrigatória" });
+      }
+
+      // Validate language
+      const validLanguages = ['pt', 'en', 'es'];
+      if (!validLanguages.includes(language)) {
+        return res.status(400).json({ error: "Idioma inválido" });
       }
 
       // Validate mode - accept all AI modes
@@ -812,6 +835,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         book,
         chapter,
         mode,
+        language,
       });
 
       // Only increment usage count after successful response
@@ -1422,7 +1446,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Guest AI ask (AI without login)
   app.post("/api/guest/ai/ask", async (req, res) => {
     try {
-      const { deviceId, question, book, chapter, verse } = req.body;
+      const { deviceId, question, book, chapter, verse, language } = req.body;
       
       if (!deviceId || !question) {
         return res.status(400).json({ error: "deviceId e question são obrigatórios" });
@@ -1460,6 +1484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         book,
         chapter,
         verse,
+        language,
       });
       
       // Increment usage

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -44,6 +45,7 @@ interface Message {
 
 export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
   const { user } = useAuth();
+  const { language } = useLanguage();
   const { toast } = useToast();
   const deviceId = getDeviceId();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -87,6 +89,7 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
         question,
         mode: "professor",
         deviceId,
+        language,
       });
       return res.json();
     },

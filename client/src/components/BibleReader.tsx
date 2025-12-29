@@ -18,10 +18,12 @@ import { UserButton } from "@/components/UserButton";
 import { StrongModal } from "@/components/StrongModal";
 import { StrongWord } from "@/components/StrongWord";
 import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { VerseActions, HIGHLIGHT_COLORS } from "@/components/VerseActions";
 import { AnnotationPanel } from "@/components/AnnotationPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
 import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
@@ -103,6 +105,7 @@ export function BibleReader({
   const { user, isAdmin, logout } = useAuth();
   const { toast } = useToast();
   const { targetVerse, clearTargetVerse, shouldResetAI, clearResetAI } = useNavigation();
+  const { language, getDefaultBibleVersion } = useLanguage();
   
   const {
     isSyncing,
@@ -155,6 +158,19 @@ export function BibleReader({
     hasRestoredReadingRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Track previous language to detect changes
+  const prevLanguageRef = useRef(language);
+
+  // Effect to change Bible version when language changes
+  useEffect(() => {
+    if (prevLanguageRef.current !== language && hasRestoredReadingRef.current) {
+      const defaultVersion = getDefaultBibleVersion();
+      console.log(`[BIBLE] LANGUAGE_CHANGE -> from=${prevLanguageRef.current} to=${language} version=${defaultVersion}`);
+      handleVersionChange(defaultVersion);
+    }
+    prevLanguageRef.current = language;
+  }, [language, getDefaultBibleVersion]);
 
   // Handler para mudança de versão com invalidação de cache
   const handleVersionChange = (newVersion: string) => {
@@ -634,6 +650,9 @@ export function BibleReader({
           {/* Sync status indicator - removido do header por solicitação do usuário */}
 
           <div className="flex-1"></div>
+
+          {/* Language Selector - flag buttons */}
+          <LanguageSelector className="mr-1" />
 
           {/* Bookmarks/Annotations Button - opens all marks page */}
           <Button 

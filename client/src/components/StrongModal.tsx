@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn } from "lucide-react";
+import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info } from "lucide-react";
 import { ApiError } from "@/lib/queryClient";
 import { AuthModal } from "./AuthModal";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage, type AppLanguage } from "@/contexts/LanguageContext";
 
 // Helper to get auth token
 function getAuthToken(): string | null {
@@ -67,10 +68,30 @@ interface StrongEntry {
   language: string;
 }
 
+const LANGUAGE_LABELS: Record<AppLanguage, { definition: string; fallback: string }> = {
+  pt: { definition: "Definição em Português", fallback: "Definição disponível apenas em inglês" },
+  en: { definition: "English Definition", fallback: "Definition available in English only" },
+  es: { definition: "Definición en Español", fallback: "Definición disponible solo en inglés" },
+};
+
 export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }: StrongModalProps) {
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const deviceId = getDeviceId();
+  
+  const getDefinition = (data: StrongEntry): { text: string; isFallback: boolean } => {
+    if (language === "pt" && data.portugueseDefinition) {
+      return { text: data.portugueseDefinition, isFallback: false };
+    }
+    if (data.definition) {
+      return { text: data.definition, isFallback: language !== "en" };
+    }
+    if (data.kjvDefinition) {
+      return { text: data.kjvDefinition, isFallback: language !== "en" };
+    }
+    return { text: "Definition not available", isFallback: true };
+  };
   
   // Query with auth token + deviceId - backend uses auth first, falls back to deviceId for guests
   const { data: strongData, isLoading, error, refetch } = useQuery<StrongEntry>({
@@ -352,22 +373,39 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
 
             {/* Dictionary Definition Section */}
             <div className="space-y-3">
-              <h2 className="text-lg font-bold text-foreground">Dictionary Definition</h2>
+              <h2 className="text-lg font-bold text-foreground">
+                {language === "pt" ? "Definição do Dicionário" : language === "es" ? "Definición del Diccionario" : "Dictionary Definition"}
+              </h2>
               
-              {/* Main Definition (Portuguese if available, else English) */}
-              {strongData.portugueseDefinition && (
-                <div className="bg-card border border-border rounded p-4 space-y-2">
-                  <p className="text-sm font-semibold text-muted-foreground">Definição Portuguesa</p>
-                  <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground">
-                    {strongData.word} {strongData.transliteration && `(${strongData.transliteration})`} — {strongData.portugueseDefinition}
-                  </p>
-                </div>
-              )}
+              {/* Main Definition based on selected language */}
+              {(() => {
+                const { text, isFallback } = getDefinition(strongData);
+                return (
+                  <div className="bg-card border border-border rounded p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-muted-foreground">
+                        {LANGUAGE_LABELS[language].definition}
+                      </p>
+                      {isFallback && (
+                        <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                          <Info className="w-3 h-3" />
+                          {LANGUAGE_LABELS[language].fallback}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground">
+                      {strongData.word} {strongData.transliteration && `(${strongData.transliteration})`} — {text}
+                    </p>
+                  </div>
+                );
+              })()}
 
               {/* Extended Theological Definition - Main content */}
               {strongData.extendedDefinition && (
                 <div className="bg-primary/5 border border-primary/20 rounded p-4 space-y-3">
-                  <p className="text-sm font-semibold text-foreground">Explicação Teológica Completa</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {language === "pt" ? "Explicação Teológica Completa" : language === "es" ? "Explicación Teológica Completa" : "Complete Theological Explanation"}
+                  </p>
                   <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground space-y-2">
                     {strongData.extendedDefinition}
                   </div>
@@ -377,14 +415,16 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
               {/* Strong's Definition */}
               {strongData.strongsDefinition && (
                 <div className="bg-card border border-border rounded p-4">
-                  <p className="text-sm font-semibold text-muted-foreground mb-2">Definição do Dicionário Strong</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-2">
+                    {language === "pt" ? "Definição do Dicionário Strong" : language === "es" ? "Definición del Diccionario Strong" : "Strong's Dictionary Definition"}
+                  </p>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                     {strongData.strongsDefinition}
                   </p>
                 </div>
               )}
 
-              {/* KJV Definition */}
+              {/* KJV Definition - only show if different from Strong's */}
               {strongData.kjvDefinition && strongData.kjvDefinition !== strongData.strongsDefinition && (
                 <div className="bg-card border border-border rounded p-4">
                   <p className="text-sm font-semibold text-muted-foreground mb-2">King James Definition</p>
@@ -397,7 +437,9 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
               {/* Derivation / Etymology */}
               {strongData.derivation && (
                 <div className="bg-card border border-border rounded p-4">
-                  <p className="text-sm font-semibold text-muted-foreground mb-2">Derivação</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-2">
+                    {language === "pt" ? "Derivação" : language === "es" ? "Derivación" : "Derivation"}
+                  </p>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                     {strongData.derivation}
                   </p>

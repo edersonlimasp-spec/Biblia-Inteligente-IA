@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { trackAIQuestion } from "@/lib/tracking";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useLocation } from "wouter";
 import { useAIQuota } from "@/hooks/useAIQuota";
@@ -61,6 +62,7 @@ interface AIRequest {
   chapter?: number;
   mode: 'essential' | 'premium';
   deviceId?: string;
+  language?: 'pt' | 'en' | 'es';
 }
 
 interface AIResponse {
@@ -149,6 +151,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   const { toast } = useToast();
   const { user } = useAuth();
   const { requireAuth, isAuthenticated } = useRequireAuth();
+  const { language } = useLanguage();
   const [, navigate] = useLocation();
   
   // Centralized quota system
@@ -483,6 +486,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
             book: aiRequest.book,
             chapter: aiRequest.chapter,
             verse: aiRequest.verse,
+            language: aiRequest.language,
           }),
         });
         
@@ -693,6 +697,7 @@ Conheça: https://bibliainteligente.replit.app`;
       sessionId: currentSessionId,
       isGuest: !isAuthenticated,
       deviceId: getDeviceId(),
+      language,
     });
   };
 

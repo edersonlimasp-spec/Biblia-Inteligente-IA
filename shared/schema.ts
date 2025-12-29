@@ -31,6 +31,7 @@ export const users = pgTable("users", {
   lastSeenAt: timestamp("last_seen_at").defaultNow(),
   lastSeenPlatform: text("last_seen_platform").default("web"),
   emailOptOut: boolean("email_opt_out").notNull().default(false),
+  preferredLanguage: text("preferred_language").default("pt"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

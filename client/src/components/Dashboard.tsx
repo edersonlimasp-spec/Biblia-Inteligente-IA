@@ -6,6 +6,7 @@ import { usePWAInstall } from "@/hooks/use-pwa-install";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { InstallModal } from "@/components/InstallModal";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { 
   BookOpen, 
   Brain, 
@@ -317,9 +318,12 @@ export function Dashboard({
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <div className="flex-1">
-            <h1 className="text-lg font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent">
-              Bíblia Inteligente
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent">
+                Bíblia Inteligente
+              </h1>
+              <LanguageSelector />
+            </div>
             <p className="text-muted-foreground text-xs">
               {user ? `Bem-vindo, ${user.name || 'estudante'}` : "Estudo bíblico com textos originais"}
             </p>

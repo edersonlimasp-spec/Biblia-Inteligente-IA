@@ -28,10 +28,10 @@ export function LanguageSelector({ className = "" }: LanguageSelectorProps) {
             key={lang}
             onClick={() => handleLanguageChange(lang)}
             className={`
-              text-lg leading-none p-1 rounded transition-all duration-150
+              text-xl leading-none p-1.5 rounded transition-all duration-150
               ${isActive 
-                ? "opacity-100 ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-110" 
-                : "opacity-50 hover:opacity-80 hover:scale-105"
+                ? "opacity-100 ring-2 ring-primary/50 ring-offset-1 ring-offset-background scale-110 bg-primary/10" 
+                : "opacity-60 hover:opacity-90 hover:scale-105 hover:bg-muted"
               }
             `}
             title={FLAGS[lang].label}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { usePWAInstall } from "@/hooks/use-pwa-install";
 import { Badge } from "@/components/ui/badge";
@@ -129,6 +130,7 @@ export function Dashboard({
   onNavigateToInstall,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
+  const { t } = useLanguage();
   const deviceId = getDeviceId();
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || isSuperAdmin;
   const { isInstalled, isStandalone } = usePWAInstall();
@@ -200,8 +202,8 @@ export function Dashboard({
   const modules = [
     {
       id: "bible",
-      title: "Bíblia",
-      description: "Leitura, Strong's, Hebraico e Grego",
+      title: t("module.bible"),
+      description: t("module.bible.desc"),
       icon: BookOpen,
       gradient: "bg-gradient-to-br from-blue-600 to-blue-800",
       iconColor: "bg-blue-500",
@@ -210,8 +212,8 @@ export function Dashboard({
     },
     {
       id: "professor",
-      title: "Chat com Professor",
-      description: "Tire suas dúvidas e agregue conhecimentos",
+      title: t("module.chat"),
+      description: t("module.chat.desc"),
       icon: GraduationCap,
       gradient: "bg-gradient-to-br from-violet-600 to-purple-800",
       iconColor: "bg-violet-500",
@@ -220,8 +222,8 @@ export function Dashboard({
     },
     {
       id: "ai-modes",
-      title: "Modos IA Premium",
-      description: "Pregador, Exegese, Teológica",
+      title: t("module.ai.modes"),
+      description: t("module.ai.modes.desc"),
       icon: Brain,
       gradient: "bg-gradient-to-br from-fuchsia-600 to-pink-700",
       iconColor: "bg-fuchsia-500",
@@ -230,8 +232,8 @@ export function Dashboard({
     },
     {
       id: "professor-premium",
-      title: "Cursos Premium",
-      description: "Estudos estruturados com IA",
+      title: t("module.courses"),
+      description: t("module.courses.desc"),
       icon: Library,
       gradient: "bg-gradient-to-br from-indigo-600 to-purple-700",
       iconColor: "bg-indigo-500",
@@ -240,8 +242,8 @@ export function Dashboard({
     },
     {
       id: "plans-progress",
-      title: "Planos & Progresso",
-      description: "Planos de leitura e progresso por livro",
+      title: t("module.plans"),
+      description: t("module.plans.desc"),
       icon: TrendingUp,
       gradient: "bg-gradient-to-br from-emerald-600 to-teal-700",
       iconColor: "bg-emerald-500",
@@ -249,8 +251,8 @@ export function Dashboard({
     },
     {
       id: "prayer",
-      title: "Modo Oração",
-      description: "Pedidos de oração e temporizador",
+      title: t("module.prayer"),
+      description: t("module.prayer.desc"),
       icon: HandHeart,
       gradient: "bg-gradient-to-br from-amber-600 to-orange-700",
       iconColor: "bg-amber-500",
@@ -258,8 +260,8 @@ export function Dashboard({
     },
     {
       id: "achievements",
-      title: "Conquistas",
-      description: "Distintivos e marcos alcançados",
+      title: t("module.achievements"),
+      description: t("module.achievements.desc"),
       icon: Trophy,
       gradient: "bg-gradient-to-br from-amber-500 to-orange-600",
       iconColor: "bg-amber-500",
@@ -267,8 +269,8 @@ export function Dashboard({
     },
     {
       id: "calendar",
-      title: "Minha Agenda",
-      description: "Eventos da igreja e compromissos",
+      title: t("module.agenda"),
+      description: t("module.agenda.desc"),
       icon: Calendar,
       gradient: "bg-gradient-to-br from-cyan-600 to-blue-700",
       iconColor: "bg-cyan-500",
@@ -276,8 +278,8 @@ export function Dashboard({
     },
     {
       id: "games",
-      title: "Jogos Bíblicos",
-      description: "Quiz e desafios interativos",
+      title: t("module.games"),
+      description: t("module.games.desc"),
       icon: Gamepad2,
       gradient: "bg-gradient-to-br from-rose-500 to-red-600",
       iconColor: "bg-rose-500",
@@ -285,8 +287,8 @@ export function Dashboard({
     },
     {
       id: "recordings",
-      title: "Gravações",
-      description: "Grave e organize seus sermões",
+      title: t("module.recordings"),
+      description: t("module.recordings.desc"),
       icon: Mic,
       gradient: "bg-gradient-to-br from-red-600 to-orange-600",
       iconColor: "bg-red-500",
@@ -295,8 +297,8 @@ export function Dashboard({
     },
     {
       id: "subscriptions",
-      title: "Assinaturas",
-      description: "Gerencie seu plano e conta",
+      title: t("module.subscriptions"),
+      description: t("module.subscriptions.desc"),
       icon: CreditCard,
       gradient: "bg-gradient-to-br from-slate-600 to-gray-700",
       iconColor: "bg-slate-500",
@@ -304,8 +306,8 @@ export function Dashboard({
     },
     ...(showInstallModule ? [{
       id: "install",
-      title: "Instalar App",
-      description: "Adicione à sua tela inicial",
+      title: t("module.install"),
+      description: t("module.install.desc"),
       icon: Download,
       gradient: "bg-gradient-to-br from-green-600 to-emerald-700",
       iconColor: "bg-green-500",
@@ -325,7 +327,7 @@ export function Dashboard({
               <LanguageSelector />
             </div>
             <p className="text-muted-foreground text-xs">
-              {user ? `Bem-vindo, ${user.name || 'estudante'}` : "Estudo bíblico com textos originais"}
+              {user ? `${t("welcome")}, ${user.name || 'estudante'}` : t("welcome.guest")}
             </p>
           </div>
           

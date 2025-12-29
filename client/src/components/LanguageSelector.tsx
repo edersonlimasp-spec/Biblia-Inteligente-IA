@@ -1,9 +1,9 @@
 import { useLanguage, type AppLanguage } from "@/contexts/LanguageContext";
 
-const FLAGS: Record<AppLanguage, { code: string; label: string }> = {
-  pt: { code: "PT", label: "Português" },
-  en: { code: "EN", label: "English" },
-  es: { code: "ES", label: "Español" },
+const FLAGS: Record<AppLanguage, { emoji: string; label: string }> = {
+  pt: { emoji: "🇧🇷", label: "Português" },
+  en: { emoji: "🇺🇸", label: "English" },
+  es: { emoji: "🇪🇸", label: "Español" },
 };
 
 interface LanguageSelectorProps {
@@ -20,25 +20,28 @@ export function LanguageSelector({ className = "" }: LanguageSelectorProps) {
   };
 
   return (
-    <div className={`flex items-center gap-1 ${className}`} data-testid="language-selector">
+    <div className={`flex items-center gap-0.5 ${className}`} data-testid="language-selector">
       {(Object.keys(FLAGS) as AppLanguage[]).map((lang) => {
         const isActive = language === lang;
         return (
           <button
             key={lang}
+            type="button"
             onClick={() => handleLanguageChange(lang)}
             className={`
-              text-xs font-bold leading-none px-2 py-1 rounded transition-all duration-150
+              text-base sm:text-lg p-1 rounded-md transition-all
               ${isActive 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                ? "bg-primary/20 ring-1 ring-primary/40" 
+                : "opacity-50 hover:opacity-100 hover:bg-muted"
               }
             `}
             title={FLAGS[lang].label}
             aria-label={`${FLAGS[lang].label}${isActive ? " (ativo)" : ""}`}
             data-testid={`flag-${lang}`}
           >
-            {FLAGS[lang].code}
+            <span className="block w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
+              {FLAGS[lang].emoji}
+            </span>
           </button>
         );
       })}

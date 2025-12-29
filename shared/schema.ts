@@ -703,3 +703,71 @@ export const insertCampaignLogSchema = createInsertSchema(campaignLogs).omit({
 
 export type InsertCampaignLog = z.infer<typeof insertCampaignLogSchema>;
 export type CampaignLog = typeof campaignLogs.$inferSelect;
+
+// Payment Receipts table - Detailed validation and logging of payment transactions
+export const paymentReceipts = pgTable("payment_receipts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Payment identification
+  externalPaymentId: text("external_payment_id").notNull(), // MP payment_id or preapproval_id
+  paymentProvider: text("payment_provider").notNull().default("mercadopago"), // mercadopago, stripe, etc.
+  paymentType: text("payment_type").notNull(), // 'payment', 'preapproval', 'subscription'
+  
+  // User association
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  userEmail: text("user_email"), // Backup in case user is deleted
+  
+  // Plan information
+  planType: text("plan_type").notNull(), // 'gold', 'premium', 'strong_lifetime'
+  subscriptionDays: integer("subscription_days"), // null for lifetime
+  isLifetime: boolean("is_lifetime").notNull().default(false),
+  
+  // Financial details (in BRL cents for precision)
+  grossAmount: integer("gross_amount").notNull(), // Valor bruto (e.g., 1990 = R$ 19,90)
+  feeAmount: integer("fee_amount").default(0), // Taxas do provedor
+  taxAmount: integer("tax_amount").default(0), // Impostos
+  netAmount: integer("net_amount").notNull(), // Valor líquido recebido
+  currency: text("currency").notNull().default("BRL"),
+  
+  // Payment status
+  status: text("status").notNull(), // 'approved', 'pending', 'rejected', 'refunded', 'cancelled'
+  statusDetail: text("status_detail"), // Detailed status from provider
+  
+  // Origin and context
+  origin: text("origin").notNull(), // 'checkout', 'webhook', 'api', 'manual'
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  deviceId: text("device_id"),
+  
+  // Provider raw data (for debugging)
+  providerRawData: jsonb("provider_raw_data"),
+  
+  // Validation
+  isValidated: boolean("is_validated").notNull().default(false),
+  validationErrors: text("validation_errors").array(),
+  validatedAt: timestamp("validated_at"),
+  
+  // Subscription activation
+  subscriptionId: varchar("subscription_id").references(() => subscriptions.id, { onDelete: "set null" }),
+  activatedAt: timestamp("activated_at"),
+  
+  // Timestamps
+  paymentDate: timestamp("payment_date").notNull(), // When payment was made
+  receivedAt: timestamp("received_at").notNull().defaultNow(), // When we received notification
+  processedAt: timestamp("processed_at"), // When we finished processing
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  externalPaymentIdx: index("payment_receipts_external_payment_idx").on(table.externalPaymentId),
+  userIdIdx: index("payment_receipts_user_id_idx").on(table.userId),
+  statusIdx: index("payment_receipts_status_idx").on(table.status),
+  paymentDateIdx: index("payment_receipts_payment_date_idx").on(table.paymentDate),
+  planTypeIdx: index("payment_receipts_plan_type_idx").on(table.planType),
+}));
+
+export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
+export type PaymentReceipt = typeof paymentReceipts.$inferSelect;

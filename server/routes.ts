@@ -3964,6 +3964,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`[MP Webhook] 🔄 Ativando plano: userId=${userId}, planType=${planType}, days=${days}, lifetime=${lifetime}, endDate=${endDate?.toISOString()}`);
       
+      // ========================================
+      // EXTRAIR VALORES FINANCEIROS DETALHADOS
+      // ========================================
+      
+      // Valor bruto (transaction_amount) em centavos
+      const grossAmountFloat = parseFloat(mpData.transaction_amount || mpData.auto_recurring?.transaction_amount || '0');
+      const grossAmount = Math.round(grossAmountFloat * 100); // Converter para centavos
+      
+      // Taxas do Mercado Pago (fee_details)
+      let feeAmount = 0;
+      if (mpData.fee_details && Array.isArray(mpData.fee_details)) {
+        for (const fee of mpData.fee_details) {
+          feeAmount += Math.round(parseFloat(fee.amount || '0') * 100);
+        }
+      }
+      
+      // Impostos (taxes_amount se disponível)
+      const taxAmount = Math.round(parseFloat(mpData.taxes_amount || '0') * 100);
+      
+      // Valor líquido (net_amount ou calculado)
+      let netAmount = Math.round(parseFloat(mpData.net_amount || '0') * 100);
+      if (!netAmount && grossAmount) {
+        netAmount = grossAmount - feeAmount - taxAmount;
+      }
+      
+      // Logging detalhado dos valores financeiros
+      console.log(`[MP Webhook] ╔════════════════════════════════════════════════════════════╗`);
+      console.log(`[MP Webhook] ║           DETALHES FINANCEIROS DO RECIBO                   ║`);
+      console.log(`[MP Webhook] ╠════════════════════════════════════════════════════════════╣`);
+      console.log(`[MP Webhook] ║ Valor Bruto:   R$ ${(grossAmount / 100).toFixed(2).padStart(10)}`);
+      console.log(`[MP Webhook] ║ Taxas MP:      R$ ${(feeAmount / 100).toFixed(2).padStart(10)}`);
+      console.log(`[MP Webhook] ║ Impostos:      R$ ${(taxAmount / 100).toFixed(2).padStart(10)}`);
+      console.log(`[MP Webhook] ║ Valor Líquido: R$ ${(netAmount / 100).toFixed(2).padStart(10)}`);
+      console.log(`[MP Webhook] ║ Origem:        ${isPreapproval ? 'Assinatura Recorrente' : 'Pagamento Único'}`);
+      console.log(`[MP Webhook] ╚════════════════════════════════════════════════════════════╝`);
+      
+      // Verificar se já existe recibo para este pagamento (evitar duplicidade)
+      const existingReceipt = await storage.getPaymentReceiptByExternalId(dataId);
+      if (existingReceipt) {
+        console.log(`[MP Webhook] ⚠️ Recibo já existe para paymentId=${dataId}, atualizando...`);
+        await storage.updatePaymentReceipt(existingReceipt.id, {
+          status: status,
+          statusDetail: mpData.status_detail || null,
+          processedAt: new Date(),
+        });
+      }
+      
       // Usar função existente para criar/atualizar assinatura
       const subscription = await storage.upsertSubscription({
         userId,
@@ -3980,12 +4027,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[MP Webhook] ✅ planType=${planType}`);
       console.log(`[MP Webhook] ✅ endDate=${subscription.endDate}`);
       
+      // ========================================
+      // CRIAR RECIBO DE PAGAMENTO DETALHADO
+      // ========================================
+      
+      if (!existingReceipt) {
+        const payerEmail = mpData.payer?.email || null;
+        
+        // Validação do recibo
+        const validationErrors: string[] = [];
+        if (!userId) validationErrors.push('userId não identificado');
+        if (!grossAmount) validationErrors.push('grossAmount zerado');
+        if (!planType) validationErrors.push('planType não identificado');
+        
+        const paymentReceipt = await storage.createPaymentReceipt({
+          externalPaymentId: dataId,
+          paymentProvider: 'mercadopago',
+          paymentType: isPreapproval ? 'preapproval' : 'payment',
+          userId: userId || null,
+          userEmail: payerEmail,
+          planType: planType,
+          subscriptionDays: lifetime ? null : (days || 30),
+          isLifetime: lifetime,
+          grossAmount,
+          feeAmount,
+          taxAmount,
+          netAmount,
+          currency: mpData.currency_id || 'BRL',
+          status: status,
+          statusDetail: mpData.status_detail || null,
+          origin: 'webhook',
+          ipAddress: req.ip || req.headers['x-forwarded-for']?.toString() || null,
+          userAgent: req.headers['user-agent'] || null,
+          deviceId: null,
+          providerRawData: mpData,
+          isValidated: validationErrors.length === 0,
+          validationErrors: validationErrors.length > 0 ? validationErrors : null,
+          validatedAt: validationErrors.length === 0 ? new Date() : null,
+          subscriptionId: subscription.id,
+          activatedAt: new Date(),
+          paymentDate: new Date(mpData.date_created || mpData.date_approved || new Date()),
+          processedAt: new Date(),
+        });
+        
+        console.log(`[MP Webhook] ✅ RECIBO CRIADO: receiptId=${paymentReceipt.id}`);
+        console.log(`[MP Webhook] ✅ isValidated=${paymentReceipt.isValidated}`);
+        if (validationErrors.length > 0) {
+          console.log(`[MP Webhook] ⚠️ Erros de validação: ${validationErrors.join(', ')}`);
+        }
+      }
+      
       // Rastrear evento de conversão para métricas admin
       await storage.trackPageEvent(userId, 'SUBSCRIPTION_ACTIVATED', { 
         planType, 
         paymentId: dataId,
         amount,
         source: 'mp_webhook',
+        grossAmount,
+        netAmount,
+        feeAmount,
       });
       console.log(`[MP Webhook] ✅ Evento SUBSCRIPTION_ACTIVATED rastreado`);
       
@@ -4002,6 +4102,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           success: true, 
           userId, 
           plan: planType,
+          receiptCreated: !existingReceipt,
+          grossAmount,
+          netAmount,
         };
       }
       
@@ -4297,6 +4400,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[Cron] Erro na campanha:", error);
       res.status(500).json({ error: "Erro ao executar campanha" });
+    }
+  });
+
+  // ============================================
+  // ADMIN - PAYMENT RECEIPTS
+  // ============================================
+
+  // GET /api/admin/receipts - List payment receipts with optional filters
+  app.get("/api/admin/receipts", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const options = {
+        userId: req.query.userId as string | undefined,
+        status: req.query.status as string | undefined,
+        planType: req.query.planType as string | undefined,
+        limit: parseInt(req.query.limit as string) || 50,
+        offset: parseInt(req.query.offset as string) || 0,
+      };
+      
+      const result = await storage.getPaymentReceipts(options);
+      
+      res.json({
+        success: true,
+        receipts: result.receipts.map(r => ({
+          ...r,
+          grossAmountFormatted: `R$ ${(r.grossAmount / 100).toFixed(2)}`,
+          feeAmountFormatted: `R$ ${((r.feeAmount || 0) / 100).toFixed(2)}`,
+          taxAmountFormatted: `R$ ${((r.taxAmount || 0) / 100).toFixed(2)}`,
+          netAmountFormatted: `R$ ${(r.netAmount / 100).toFixed(2)}`,
+        })),
+        total: result.total,
+        limit: options.limit,
+        offset: options.offset,
+      });
+    } catch (error) {
+      console.error("[Admin Receipts] Erro ao listar recibos:", error);
+      res.status(500).json({ error: "Erro ao listar recibos" });
+    }
+  });
+
+  // GET /api/admin/receipts/stats - Get payment receipt statistics
+  app.get("/api/admin/receipts/stats", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const stats = await storage.getPaymentReceiptStats();
+      
+      res.json({
+        success: true,
+        stats: {
+          ...stats,
+          totalGrossFormatted: `R$ ${(stats.totalGrossAmount / 100).toFixed(2)}`,
+          totalNetFormatted: `R$ ${(stats.totalNetAmount / 100).toFixed(2)}`,
+          totalFeesFormatted: `R$ ${(stats.totalFees / 100).toFixed(2)}`,
+          last30Days: {
+            ...stats.last30Days,
+            grossFormatted: `R$ ${(stats.last30Days.grossAmount / 100).toFixed(2)}`,
+            netFormatted: `R$ ${(stats.last30Days.netAmount / 100).toFixed(2)}`,
+          },
+          byPlanFormatted: Object.entries(stats.byPlan).reduce((acc, [plan, data]) => {
+            acc[plan] = {
+              ...data,
+              grossFormatted: `R$ ${(data.grossAmount / 100).toFixed(2)}`,
+              netFormatted: `R$ ${(data.netAmount / 100).toFixed(2)}`,
+            };
+            return acc;
+          }, {} as Record<string, any>),
+        },
+      });
+    } catch (error) {
+      console.error("[Admin Receipts] Erro ao buscar estatísticas:", error);
+      res.status(500).json({ error: "Erro ao buscar estatísticas de recibos" });
+    }
+  });
+
+  // GET /api/admin/receipts/:id - Get single receipt with full details
+  app.get("/api/admin/receipts/:id", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const receipt = await storage.getPaymentReceiptById(id);
+      
+      if (!receipt) {
+        return res.status(404).json({ error: "Recibo não encontrado" });
+      }
+      
+      // Get user info if available
+      let user = null;
+      if (receipt.userId) {
+        user = await storage.getUser(receipt.userId);
+      }
+      
+      res.json({
+        success: true,
+        receipt: {
+          ...receipt,
+          grossAmountFormatted: `R$ ${(receipt.grossAmount / 100).toFixed(2)}`,
+          feeAmountFormatted: `R$ ${((receipt.feeAmount || 0) / 100).toFixed(2)}`,
+          taxAmountFormatted: `R$ ${((receipt.taxAmount || 0) / 100).toFixed(2)}`,
+          netAmountFormatted: `R$ ${(receipt.netAmount / 100).toFixed(2)}`,
+        },
+        user: user ? { id: user.id, email: user.email, name: user.name } : null,
+      });
+    } catch (error) {
+      console.error("[Admin Receipts] Erro ao buscar recibo:", error);
+      res.status(500).json({ error: "Erro ao buscar recibo" });
     }
   });
 

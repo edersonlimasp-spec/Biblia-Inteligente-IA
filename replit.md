@@ -120,7 +120,20 @@ The application uses Mercado Pago Checkout Pro for subscription payments with au
 3. Webhook responds 200 immediately, processes async
 4. Fetches payment/preapproval details from MP API
 5. If status is approved/authorized/active, activates subscription via `storage.upsertSubscription()`
-6. Logs prefixed with `[MP Webhook]` show entire flow
+6. Creates detailed payment receipt with financial breakdown (gross, fees, taxes, net)
+7. Logs prefixed with `[MP Webhook]` show entire flow including financial details
+
+**Payment Receipt System (Dec 29, 2025):**
+- `payment_receipts` table stores detailed transaction records
+- Financial breakdown: gross_amount, fee_amount, tax_amount, net_amount (in centavos)
+- Validation: isValidated flag with validationErrors array
+- Origin tracking: webhook, checkout, api, manual
+- Provider raw data preserved for debugging
+
+**Admin Receipt Endpoints:**
+- `GET /api/admin/receipts` - List receipts with filters (userId, status, planType)
+- `GET /api/admin/receipts/stats` - Financial statistics (totals, by plan, last 30 days)
+- `GET /api/admin/receipts/:id` - Single receipt with user details
 
 **Testing Guide:**
 1. Check health: `curl https://bibliainteligente.replit.app/api/mp/health`

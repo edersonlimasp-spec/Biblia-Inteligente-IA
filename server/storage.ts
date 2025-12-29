@@ -1,6 +1,6 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs } from '@shared/schema';
-import type { FreeStrongQuota, GuestStrongQuota } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts } from '@shared/schema';
+import type { FreeStrongQuota, GuestStrongQuota, PaymentReceipt, InsertPaymentReceipt } from '@shared/schema';
 import { getBookById } from './bible-data/books';
 import type {
   User,
@@ -209,6 +209,28 @@ export interface IStorage {
   logCampaign(log: InsertCampaignLog): Promise<CampaignLog>;
   getCampaignLogs(campaignName?: string, limit?: number): Promise<CampaignLog[]>;
   getCampaignStats(campaignName: string): Promise<{ total: number; sent: number; failed: number }>;
+
+  // Payment Receipts (validation and logging)
+  createPaymentReceipt(receipt: InsertPaymentReceipt): Promise<PaymentReceipt>;
+  getPaymentReceiptByExternalId(externalPaymentId: string): Promise<PaymentReceipt | undefined>;
+  getPaymentReceiptById(id: string): Promise<PaymentReceipt | undefined>;
+  updatePaymentReceipt(id: string, data: Partial<InsertPaymentReceipt>): Promise<PaymentReceipt | undefined>;
+  getPaymentReceipts(options?: { 
+    userId?: string; 
+    status?: string; 
+    planType?: string;
+    limit?: number; 
+    offset?: number;
+  }): Promise<{ receipts: PaymentReceipt[]; total: number }>;
+  getPaymentReceiptStats(): Promise<{
+    totalReceipts: number;
+    totalGrossAmount: number;
+    totalNetAmount: number;
+    totalFees: number;
+    byPlan: Record<string, { count: number; grossAmount: number; netAmount: number }>;
+    byStatus: Record<string, number>;
+    last30Days: { count: number; grossAmount: number; netAmount: number };
+  }>;
 }
 
 class PostgresStorage implements IStorage {
@@ -1700,6 +1722,136 @@ class PostgresStorage implements IStorage {
       total: logs.length,
       sent: logs.filter(l => l.status === 'sent').length,
       failed: logs.filter(l => l.status === 'failed').length,
+    };
+  }
+
+  // Payment Receipts (validation and logging)
+  async createPaymentReceipt(receipt: InsertPaymentReceipt): Promise<PaymentReceipt> {
+    const [result] = await db.insert(paymentReceipts).values(receipt).returning();
+    return result;
+  }
+
+  async getPaymentReceiptByExternalId(externalPaymentId: string): Promise<PaymentReceipt | undefined> {
+    const result = await db.select()
+      .from(paymentReceipts)
+      .where(eq(paymentReceipts.externalPaymentId, externalPaymentId))
+      .limit(1);
+    return result[0];
+  }
+
+  async getPaymentReceiptById(id: string): Promise<PaymentReceipt | undefined> {
+    const result = await db.select()
+      .from(paymentReceipts)
+      .where(eq(paymentReceipts.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async updatePaymentReceipt(id: string, data: Partial<InsertPaymentReceipt>): Promise<PaymentReceipt | undefined> {
+    const [result] = await db.update(paymentReceipts)
+      .set(data)
+      .where(eq(paymentReceipts.id, id))
+      .returning();
+    return result;
+  }
+
+  async getPaymentReceipts(options?: { 
+    userId?: string; 
+    status?: string; 
+    planType?: string;
+    limit?: number; 
+    offset?: number;
+  }): Promise<{ receipts: PaymentReceipt[]; total: number }> {
+    const limit = options?.limit || 50;
+    const offset = options?.offset || 0;
+
+    let conditions: any[] = [];
+    if (options?.userId) {
+      conditions.push(eq(paymentReceipts.userId, options.userId));
+    }
+    if (options?.status) {
+      conditions.push(eq(paymentReceipts.status, options.status));
+    }
+    if (options?.planType) {
+      conditions.push(eq(paymentReceipts.planType, options.planType));
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const [receipts, countResult] = await Promise.all([
+      whereClause
+        ? db.select().from(paymentReceipts).where(whereClause).orderBy(desc(paymentReceipts.paymentDate)).limit(limit).offset(offset)
+        : db.select().from(paymentReceipts).orderBy(desc(paymentReceipts.paymentDate)).limit(limit).offset(offset),
+      whereClause
+        ? db.select({ count: sql<number>`count(*)::int` }).from(paymentReceipts).where(whereClause)
+        : db.select({ count: sql<number>`count(*)::int` }).from(paymentReceipts),
+    ]);
+
+    return {
+      receipts,
+      total: countResult[0]?.count || 0,
+    };
+  }
+
+  async getPaymentReceiptStats(): Promise<{
+    totalReceipts: number;
+    totalGrossAmount: number;
+    totalNetAmount: number;
+    totalFees: number;
+    byPlan: Record<string, { count: number; grossAmount: number; netAmount: number }>;
+    byStatus: Record<string, number>;
+    last30Days: { count: number; grossAmount: number; netAmount: number };
+  }> {
+    const allReceipts = await db.select().from(paymentReceipts);
+    
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const byPlan: Record<string, { count: number; grossAmount: number; netAmount: number }> = {};
+    const byStatus: Record<string, number> = {};
+    let totalGrossAmount = 0;
+    let totalNetAmount = 0;
+    let totalFees = 0;
+    let last30Count = 0;
+    let last30Gross = 0;
+    let last30Net = 0;
+
+    for (const receipt of allReceipts) {
+      totalGrossAmount += receipt.grossAmount;
+      totalNetAmount += receipt.netAmount;
+      totalFees += (receipt.feeAmount || 0) + (receipt.taxAmount || 0);
+
+      // By plan
+      if (!byPlan[receipt.planType]) {
+        byPlan[receipt.planType] = { count: 0, grossAmount: 0, netAmount: 0 };
+      }
+      byPlan[receipt.planType].count++;
+      byPlan[receipt.planType].grossAmount += receipt.grossAmount;
+      byPlan[receipt.planType].netAmount += receipt.netAmount;
+
+      // By status
+      byStatus[receipt.status] = (byStatus[receipt.status] || 0) + 1;
+
+      // Last 30 days
+      if (receipt.paymentDate >= thirtyDaysAgo) {
+        last30Count++;
+        last30Gross += receipt.grossAmount;
+        last30Net += receipt.netAmount;
+      }
+    }
+
+    return {
+      totalReceipts: allReceipts.length,
+      totalGrossAmount,
+      totalNetAmount,
+      totalFees,
+      byPlan,
+      byStatus,
+      last30Days: {
+        count: last30Count,
+        grossAmount: last30Gross,
+        netAmount: last30Net,
+      },
     };
   }
 }

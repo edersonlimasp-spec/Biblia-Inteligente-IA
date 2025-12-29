@@ -46,7 +46,12 @@ function NavigationContent() {
   } = useNavigation();
   
   const { user, isLoading } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+
+  const handleBackToLoginFromReset = () => {
+    setLocation("/");
+    navigate("login");
+  };
 
   useEffect(() => {
     const measureHeaderHeight = () => {
@@ -123,7 +128,7 @@ function NavigationContent() {
       )}
       {currentScreen === "reset-password" && (
         <ResetPassword
-          onBackToLogin={() => navigate("login")}
+          onBackToLogin={handleBackToLoginFromReset}
         />
       )}
       {currentScreen === "dashboard" && (

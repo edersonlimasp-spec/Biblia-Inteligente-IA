@@ -3677,6 +3677,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       userId?: string;
       plan?: string;
       error?: string;
+      receiptCreated?: boolean;
+      grossAmount?: number;
+      netAmount?: number;
     };
   }
   let lastWebhookData: LastWebhookData | null = null;
@@ -4325,7 +4328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // POST /api/telemetry/heartbeat - Update user's last seen timestamp
   app.post("/api/telemetry/heartbeat", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = req.userId;
       if (!userId) {
         return res.status(401).json({ error: "Não autenticado" });
       }
@@ -4700,9 +4703,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Log admin action
-      if (req.user?.id) {
+      if (req.userId) {
         await storage.logAdminAction({
-          adminId: req.user.id,
+          adminId: req.userId,
           actionType: 'CAMPAIGN_EXECUTED',
           details: { campaignName: CAMPAIGN_NAME, results },
         });

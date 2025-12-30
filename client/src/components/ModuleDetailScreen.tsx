@@ -12,7 +12,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { LoginPromptModal } from "@/components/LoginPromptModal";
-import { ContentLanguageNotice } from "@/components/ContentLanguageNotice";
 import { canOpenLesson, type UserPlan, type CourseLevel } from "@shared/courseAccess";
 
 interface ModuleDetailScreenProps {
@@ -299,7 +298,14 @@ export function ModuleDetailScreen({
   });
   
   const { data: moduleDetail, isLoading: moduleLoading } = useQuery<ModuleDetail>({
-    queryKey: ['/api/study/modules', moduleId],
+    queryKey: ['/api/study/modules', moduleId, language],
+    queryFn: async () => {
+      const res = await fetch(`/api/study/modules/${moduleId}?lang=${language}`, {
+        headers: { 'x-device-id': deviceId || '' }
+      });
+      if (!res.ok) throw new Error('Failed to fetch module');
+      return res.json();
+    }
   });
 
   const { data: subscriptionData } = useQuery<SubscriptionStatus>({
@@ -414,10 +420,6 @@ export function ModuleDetailScreen({
               </div>
             )}
           </motion.div>
-
-          {language !== 'pt' && (
-            <ContentLanguageNotice showingFallback={true} />
-          )}
 
           <h2 className="text-lg font-semibold mb-4">{t("courses.studyTracks")}</h2>
           

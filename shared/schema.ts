@@ -613,6 +613,52 @@ export const insertStudyLessonSchema = createInsertSchema(studyLessons).omit({
 export type InsertStudyLesson = z.infer<typeof insertStudyLessonSchema>;
 export type StudyLesson = typeof studyLessons.$inferSelect;
 
+// Study Module Translations table (EN/ES translations)
+export const studyModuleTranslations = pgTable("study_module_translations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id").notNull().references(() => studyModules.id, { onDelete: "cascade" }),
+  language: text("language").notNull(), // 'en' or 'es'
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  moduleLanguageIdx: index("study_module_translations_module_lang_idx").on(table.moduleId, table.language),
+}));
+
+export type StudyModuleTranslation = typeof studyModuleTranslations.$inferSelect;
+
+// Study Track Translations table (EN/ES translations)
+export const studyTrackTranslations = pgTable("study_track_translations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  trackId: varchar("track_id").notNull().references(() => studyTracks.id, { onDelete: "cascade" }),
+  language: text("language").notNull(), // 'en' or 'es'
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  trackLanguageIdx: index("study_track_translations_track_lang_idx").on(table.trackId, table.language),
+}));
+
+export type StudyTrackTranslation = typeof studyTrackTranslations.$inferSelect;
+
+// Study Lesson Translations table (EN/ES translations)
+export const studyLessonTranslations = pgTable("study_lesson_translations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  lessonId: varchar("lesson_id").notNull().references(() => studyLessons.id, { onDelete: "cascade" }),
+  language: text("language").notNull(), // 'en' or 'es'
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  references: text("references").notNull(),
+  questions: text("questions").notNull(),
+  application: text("application").notNull(),
+  summary: text("summary").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  lessonLanguageIdx: index("study_lesson_translations_lesson_lang_idx").on(table.lessonId, table.language),
+}));
+
+export type StudyLessonTranslation = typeof studyLessonTranslations.$inferSelect;
+
 // User Study Progress table
 export const userStudyProgress = pgTable("user_study_progress", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

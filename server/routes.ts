@@ -7,7 +7,7 @@ import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -3148,19 +3148,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== PROFESSOR PREMIUM (Study Modules) ====================
   
+  // Helper function to get translated module
+  async function getTranslatedModule(module: any, lang: string): Promise<any> {
+    if (lang === 'pt') return module;
+    
+    const [translation] = await db.select().from(studyModuleTranslations)
+      .where(and(eq(studyModuleTranslations.moduleId, module.id), eq(studyModuleTranslations.language, lang)));
+    
+    if (translation) {
+      return { ...module, name: translation.name, description: translation.description };
+    }
+    return module; // Fallback to PT
+  }
+  
+  // Helper function to get translated track
+  async function getTranslatedTrack(track: any, lang: string): Promise<any> {
+    if (lang === 'pt') return track;
+    
+    const [translation] = await db.select().from(studyTrackTranslations)
+      .where(and(eq(studyTrackTranslations.trackId, track.id), eq(studyTrackTranslations.language, lang)));
+    
+    if (translation) {
+      return { ...track, name: translation.name, description: translation.description };
+    }
+    return track; // Fallback to PT
+  }
+  
+  // Helper function to get translated lesson
+  async function getTranslatedLesson(lesson: any, lang: string): Promise<any> {
+    if (lang === 'pt') return lesson;
+    
+    const [translation] = await db.select().from(studyLessonTranslations)
+      .where(and(eq(studyLessonTranslations.lessonId, lesson.id), eq(studyLessonTranslations.language, lang)));
+    
+    if (translation) {
+      return {
+        ...lesson,
+        title: translation.title,
+        content: translation.content,
+        references: translation.references,
+        questions: translation.questions,
+        application: translation.application,
+        summary: translation.summary,
+      };
+    }
+    return lesson; // Fallback to PT
+  }
+  
   // Get all study modules
   app.get("/api/study/modules", async (req, res) => {
     try {
+      const lang = (req.query.lang as string) || 'pt';
       const modules = await storage.getStudyModules();
       
       // Get user/guest info for progress
       const userId = (req as any).userId || null;
       const deviceId = req.headers['x-device-id'] as string || null;
       
-      // Add progress info to each module
+      // Add progress info and translate each module
       const modulesWithProgress = await Promise.all(modules.map(async (module) => {
         const progress = await storage.getModuleProgress(module.id, userId, deviceId);
-        return { ...module, progress };
+        const translatedModule = await getTranslatedModule(module, lang);
+        return { ...translatedModule, progress };
       }));
       
       res.json(modulesWithProgress);
@@ -3174,19 +3223,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/study/modules/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      const lang = (req.query.lang as string) || 'pt';
       const module = await storage.getStudyModuleById(id);
       
       if (!module) {
         return res.status(404).json({ error: "Módulo não encontrado" });
       }
       
+      const translatedModule = await getTranslatedModule(module, lang);
       const userId = (req as any).userId || null;
       const deviceId = req.headers['x-device-id'] as string || null;
       
       const tracks = await storage.getModuleTracks(id);
       
-      // Add lesson counts and progress to tracks
+      // Add lesson counts and progress to tracks, with translation
       const tracksWithDetails = await Promise.all(tracks.map(async (track) => {
+        const translatedTrack = await getTranslatedTrack(track, lang);
         const lessons = await storage.getTrackLessons(track.id);
         const userProgress = await storage.getUserStudyProgress(userId, deviceId);
         const trackLessonIds = lessons.map(l => l.id);
@@ -3195,7 +3247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ).length;
         
         return {
-          ...track,
+          ...translatedTrack,
           totalLessons: lessons.length,
           completedLessons,
           percentage: lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0,
@@ -3205,7 +3257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const overallProgress = await storage.getModuleProgress(id, userId, deviceId);
       
       res.json({ 
-        module, 
+        module: translatedModule, 
         tracks: tracksWithDetails,
         progress: overallProgress,
       });
@@ -3219,6 +3271,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/study/tracks/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      const lang = (req.query.lang as string) || 'pt';
       const lessons = await storage.getTrackLessons(id);
       
       const userId = (req as any).userId || null;
@@ -3227,17 +3280,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userProgress = await storage.getUserStudyProgress(userId, deviceId);
       
       // Return only metadata - NOT content (content is protected in /api/study/lessons/:id)
-      const lessonsWithProgress = lessons.map(lesson => {
+      // Translate lesson titles
+      const lessonsWithProgress = await Promise.all(lessons.map(async (lesson) => {
+        const translatedLesson = await getTranslatedLesson(lesson, lang);
         const progress = userProgress.find(p => p.lessonId === lesson.id);
         return {
           id: lesson.id,
-          title: lesson.title,
+          title: translatedLesson.title,
           order: lesson.order,
           estimatedMinutes: lesson.estimatedMinutes,
           completed: progress?.completed || false,
           lastAccessAt: progress?.lastAccessAt || null,
         };
-      });
+      }));
       
       res.json({ lessons: lessonsWithProgress });
     } catch (error) {
@@ -3250,6 +3305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/study/lessons/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      const lang = (req.query.lang as string) || 'pt';
       
       // Get lesson with full context (track, module, indices)
       const lessonContext = await storage.getLessonWithContext(id);
@@ -3318,12 +3374,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateStudyProgress(userId, deviceId, id, false);
       }
       
+      // Get translated lesson
+      const translatedLesson = await getTranslatedLesson(lesson, lang);
+      
       // Get progress info
       const userProgress = await storage.getUserStudyProgress(userId, deviceId);
       const progress = userProgress.find(p => p.lessonId === id);
       
       res.json({ 
-        lesson,
+        lesson: translatedLesson,
         completed: progress?.completed || false,
       });
     } catch (error) {

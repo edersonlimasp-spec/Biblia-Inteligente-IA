@@ -12,7 +12,6 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
-import { ContentLanguageNotice } from "@/components/ContentLanguageNotice";
 
 interface LessonScreenProps {
   lessonId: string;
@@ -56,7 +55,14 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
   const [isAskingProfessor, setIsAskingProfessor] = useState(false);
 
   const { data: lessonData, isLoading } = useQuery<LessonData>({
-    queryKey: ['/api/study/lessons', lessonId],
+    queryKey: ['/api/study/lessons', lessonId, language],
+    queryFn: async () => {
+      const res = await fetch(`/api/study/lessons/${lessonId}?lang=${language}`, {
+        headers: { 'x-device-id': deviceId || '' }
+      });
+      if (!res.ok) throw new Error('Failed to fetch lesson');
+      return res.json();
+    }
   });
 
   const markCompletedMutation = useMutation({
@@ -177,9 +183,6 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
 
       <ScrollArea className="flex-1 overflow-auto">
         <div className="px-3 py-4 pb-24">
-          {language !== 'pt' && (
-            <ContentLanguageNotice showingFallback={true} />
-          )}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

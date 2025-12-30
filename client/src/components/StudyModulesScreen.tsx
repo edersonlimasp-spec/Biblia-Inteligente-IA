@@ -307,7 +307,14 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
   const deviceId = getDeviceId();
   
   const { data: modules, isLoading } = useQuery<StudyModule[]>({
-    queryKey: ['/api/study/modules'],
+    queryKey: ['/api/study/modules', language],
+    queryFn: async () => {
+      const res = await fetch(`/api/study/modules?lang=${language}`, {
+        headers: { 'x-device-id': deviceId || '' }
+      });
+      if (!res.ok) throw new Error('Failed to fetch modules');
+      return res.json();
+    }
   });
   
   const { data: subscriptionData } = useQuery<SubscriptionStatus>({

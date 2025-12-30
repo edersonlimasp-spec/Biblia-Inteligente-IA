@@ -33,6 +33,14 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "common.today": "Hoje",
     "common.upcoming": "Próximos",
     "common.past": "Passados",
+    "common.tryAgain": "Tente novamente",
+    
+    // Auth Modal
+    "authModal.title": "Criar conta para assinar",
+    "authModal.description": "Para assinar um plano, você precisa criar uma conta ou fazer login.",
+    "authModal.nowSubscribe": "Bem-vindo! Agora você pode assinar um plano.",
+    "authModal.createAndContinue": "Criar conta e continuar",
+    "authModal.loginAndContinue": "Entrar e continuar",
     
     // Navigation
     "nav.bible": "Bíblia",
@@ -679,6 +687,14 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "common.today": "Today",
     "common.upcoming": "Upcoming",
     "common.past": "Past",
+    "common.tryAgain": "Try again",
+    
+    // Auth Modal
+    "authModal.title": "Create account to subscribe",
+    "authModal.description": "To subscribe to a plan, you need to create an account or log in.",
+    "authModal.nowSubscribe": "Welcome! Now you can subscribe to a plan.",
+    "authModal.createAndContinue": "Create account and continue",
+    "authModal.loginAndContinue": "Log in and continue",
     
     // Navigation
     "nav.bible": "Bible",
@@ -1325,6 +1341,14 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "common.today": "Hoy",
     "common.upcoming": "Próximos",
     "common.past": "Pasados",
+    "common.tryAgain": "Intenta de nuevo",
+    
+    // Auth Modal
+    "authModal.title": "Crear cuenta para suscribirse",
+    "authModal.description": "Para suscribirte a un plan, necesitas crear una cuenta o iniciar sesión.",
+    "authModal.nowSubscribe": "¡Bienvenido! Ahora puedes suscribirte a un plan.",
+    "authModal.createAndContinue": "Crear cuenta y continuar",
+    "authModal.loginAndContinue": "Iniciar sesión y continuar",
     
     // Navigation
     "nav.bible": "Biblia",

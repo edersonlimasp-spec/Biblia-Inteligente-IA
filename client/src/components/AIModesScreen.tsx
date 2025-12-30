@@ -99,7 +99,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
 
   const hasPremium = isAdmin || subStatus?.hasPremium || false;
   const hasGold = subStatus?.hasGold || subStatus?.hasLifetime || subStatus?.trialActive || false;
-  const hasGuestTrial = !user && guestTrialInfo?.active;
+  const hasGuestTrial = !user && (guestTrialInfo?.active || false);
   
   const canAccessMode = (mode: typeof AI_MODES[0]): boolean => {
     if (isAdmin) return true;

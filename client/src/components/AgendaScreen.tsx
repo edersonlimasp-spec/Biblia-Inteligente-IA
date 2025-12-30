@@ -80,6 +80,21 @@ const EVENT_TYPE_IDS = [
   { id: "outro", icon: Calendar, color: "text-gray-500" },
 ];
 
+const EVENT_TYPES = [
+  { id: "culto", name: "Culto", icon: Church, color: "text-blue-500" },
+  { id: "estudo", name: "Estudo Bíblico", icon: BookOpen, color: "text-emerald-500" },
+  { id: "oracao", name: "Oração", icon: Heart, color: "text-red-500" },
+  { id: "louvor", name: "Louvor", icon: Music, color: "text-purple-500" },
+  { id: "visita", name: "Visita", icon: Users, color: "text-amber-500" },
+  { id: "evangelismo", name: "Evangelismo", icon: Megaphone, color: "text-orange-500" },
+  { id: "jovens", name: "Jovens", icon: Sparkles, color: "text-pink-500" },
+  { id: "criancas", name: "Crianças", icon: Baby, color: "text-cyan-500" },
+  { id: "discipulado", name: "Discipulado", icon: GraduationCap, color: "text-indigo-500" },
+  { id: "comunhao", name: "Comunhão", icon: Coffee, color: "text-yellow-600" },
+  { id: "lideranca", name: "Liderança", icon: Crown, color: "text-slate-500" },
+  { id: "outro", name: "Outro", icon: Calendar, color: "text-gray-500" },
+];
+
 const THEMES = [
   "Adoração e Louvor",
   "Família",

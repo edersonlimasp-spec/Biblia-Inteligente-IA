@@ -174,9 +174,12 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "courses.start": "Começar",
     "courses.complete": "Concluído",
     "courses.module": "Módulo",
+    "courses.unlockAll": "Desbloqueie todo o conteúdo",
+    "courses.subscribeGold": "Assine Gold para acessar todos os módulos e lições",
     
     // Subscription
     "subscription.title": "Assinaturas",
+    "subscription.viewPlans": "Ver Planos",
     "subscription.subtitle": "Escolha seu plano",
     "subscription.currentPlan": "Plano atual",
     "subscription.free": "Gratuito",
@@ -459,9 +462,12 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "courses.start": "Start",
     "courses.complete": "Complete",
     "courses.module": "Module",
+    "courses.unlockAll": "Unlock all content",
+    "courses.subscribeGold": "Subscribe to Gold to access all modules and lessons",
     
     // Subscription
     "subscription.title": "Subscriptions",
+    "subscription.viewPlans": "View Plans",
     "subscription.subtitle": "Choose your plan",
     "subscription.currentPlan": "Current plan",
     "subscription.free": "Free",
@@ -744,9 +750,12 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "courses.start": "Comenzar",
     "courses.complete": "Completado",
     "courses.module": "Módulo",
+    "courses.unlockAll": "Desbloquea todo el contenido",
+    "courses.subscribeGold": "Suscríbete a Gold para acceder a todos los módulos y lecciones",
     
     // Subscription
     "subscription.title": "Suscripciones",
+    "subscription.viewPlans": "Ver Planes",
     "subscription.subtitle": "Elige tu plan",
     "subscription.currentPlan": "Plan actual",
     "subscription.free": "Gratuito",

@@ -87,7 +87,8 @@ function ModuleCard({
   delay,
   isLocked,
   lockReason,
-  onUnlock
+  onUnlock,
+  t
 }: { 
   module: StudyModule; 
   onClick: () => void; 
@@ -95,6 +96,7 @@ function ModuleCard({
   isLocked: boolean;
   lockReason?: string;
   onUnlock: () => void;
+  t: (key: string) => string;
 }) {
   const Icon = getIconComponent(module.icon);
   const hasProgress = module.progress.percentage > 0;
@@ -124,7 +126,7 @@ function ModuleCard({
               <p className="text-xs text-muted-foreground mb-2">{lockReason}</p>
               <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); onUnlock(); }}>
                 <Crown className="w-3 h-3 mr-1" />
-                Desbloquear
+                {t("courses.unlocked")}
               </Button>
             </div>
           </div>
@@ -163,7 +165,7 @@ function ModuleCard({
             {!isLocked && hasProgress ? (
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs text-white/80">
-                  <span>{module.progress.completed}/{module.progress.total} lições</span>
+                  <span>{module.progress.completed}/{module.progress.total} {t("courses.lessons")}</span>
                   <span>{module.progress.percentage}%</span>
                 </div>
                 <Progress value={module.progress.percentage} className="h-1.5 bg-white/20" />
@@ -171,7 +173,7 @@ function ModuleCard({
             ) : !isLocked ? (
               <div className="flex items-center justify-between">
                 <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
-                  {module.progress.total} lições
+                  {module.progress.total} {t("courses.lessons")}
                 </Badge>
                 <ChevronRight className="w-4 h-4 text-white/70" />
               </div>
@@ -203,7 +205,8 @@ function LevelSection({
   onUnlock,
   userPlan,
   isAdmin,
-  completedModuleIds
+  completedModuleIds,
+  t
 }: { 
   level: string; 
   modules: StudyModule[];
@@ -213,9 +216,18 @@ function LevelSection({
   userPlan: string | null;
   isAdmin: boolean;
   completedModuleIds: Set<string>;
+  t: (key: string) => string;
 }) {
   const config = LEVEL_CONFIG[level] || LEVEL_CONFIG.iniciante;
   const LevelIcon = config.icon;
+  
+  // Map level IDs to translation keys
+  const levelLabels: Record<string, string> = {
+    iniciante: t("courses.beginner"),
+    moderado: t("courses.intermediate"),
+    avancado: t("courses.advanced"),
+  };
+  const levelLabel = levelLabels[level] || config.label;
   
   const levelLessons = modules.reduce((sum, m) => sum + m.progress.total, 0);
   const levelCompleted = modules.reduce((sum, m) => sum + m.progress.completed, 0);
@@ -255,9 +267,9 @@ function LevelSection({
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h2 className={`font-bold ${config.color}`}>{config.label}</h2>
+            <h2 className={`font-bold ${config.color}`}>{levelLabel}</h2>
             <Badge variant="outline" className={`text-xs ${config.borderClass} ${config.color}`}>
-              {modules.length} módulos
+              {modules.length} {t("courses.modules")}
             </Badge>
             {!canAccessLevel && (
               <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600">
@@ -283,6 +295,7 @@ function LevelSection({
             isLocked={isModuleLocked(module)}
             lockReason={getLockReason(module)}
             onUnlock={onUnlock}
+            t={t}
           />
         ))}
       </div>
@@ -409,6 +422,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                   userPlan={userPlan}
                   isAdmin={isAdmin}
                   completedModuleIds={completedModuleIds}
+                  t={t}
                 />
               )}
               
@@ -422,6 +436,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                   userPlan={userPlan}
                   isAdmin={isAdmin}
                   completedModuleIds={completedModuleIds}
+                  t={t}
                 />
               )}
               
@@ -435,6 +450,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                   userPlan={userPlan}
                   isAdmin={isAdmin}
                   completedModuleIds={completedModuleIds}
+                  t={t}
                 />
               )}
             </>
@@ -448,13 +464,13 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
               className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl text-center"
             >
               <Crown className="w-8 h-8 mx-auto text-amber-500 mb-2" />
-              <h3 className="font-semibold mb-1">Desbloqueie todo o conteúdo</h3>
+              <h3 className="font-semibold mb-1">{t("courses.unlockAll")}</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Assine <strong>Gold</strong> para acessar todos os módulos e lições
+                {t("courses.subscribeGold")}
               </p>
               <Button onClick={onNavigateToSubscriptions} data-testid="button-subscribe-cta">
                 <Crown className="w-4 h-4 mr-1" />
-                Ver Planos
+                {t("subscription.viewPlans")}
               </Button>
             </motion.div>
           )}

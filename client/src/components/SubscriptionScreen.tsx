@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import appLogo from "@assets/logo/logo.png";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { AuthModal } from "./AuthModal";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
@@ -19,6 +20,7 @@ interface SubscriptionScreenProps {
 export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState<number | null>(null);
@@ -73,8 +75,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     const planId = planNameToId[planName];
     if (!planId) {
       toast({
-        title: 'Erro',
-        description: 'Plano inválido',
+        title: t("common.error"),
+        description: t("subscription.invalidPlan"),
         variant: 'destructive',
       });
       return;
@@ -96,10 +98,9 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           // Se em iframe, abre em nova aba para evitar problemas de CORS/CSP
           const newWindow = window.open(data.init_point, '_blank');
           if (!newWindow) {
-            // Popup bloqueado - mostra mensagem
             toast({
-              title: 'Abrir Pagamento',
-              description: 'Clique no link para abrir o checkout do Mercado Pago em nova aba.',
+              title: t("subscription.openPayment"),
+              description: t("subscription.openPaymentDesc"),
             });
             // Fallback: tenta top-level
             window.top?.location.assign(data.init_point);
@@ -114,8 +115,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     } catch (error: any) {
       console.error('Erro ao processar pagamento:', error);
       toast({
-        title: 'Erro',
-        description: error.message || 'Falha ao processar o pagamento',
+        title: t("common.error"),
+        description: error.message || t("subscription.processingError"),
         variant: 'destructive',
       });
       setIsPurchasing(null);
@@ -125,8 +126,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const handleAuthSuccess = () => {
     if (selectedPlan) {
       toast({
-        title: "Conta criada!",
-        description: `Agora você pode assinar o ${selectedPlan}.`,
+        title: t("subscription.accountCreated"),
+        description: `${t("subscription.nowCanSubscribe")} ${selectedPlan}.`,
       });
     }
   };
@@ -219,8 +220,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold">Assinaturas</h1>
-            <p className="text-sm text-muted-foreground">Escolha seu plano</p>
+            <h1 className="text-xl font-bold">{t("subscription.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("subscription.subtitle")}</p>
           </div>
           <UserButton />
         </div>

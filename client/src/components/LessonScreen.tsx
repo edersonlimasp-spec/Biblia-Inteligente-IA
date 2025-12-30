@@ -142,8 +142,8 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
   const lesson = lessonData?.lesson;
   const isCompleted = lessonData?.completed;
   
-  const referencesList = lesson?.references.split(',').map(r => r.trim()).filter(Boolean) || [];
-  const questionsList = lesson?.questions.split('\n').filter(q => q.trim()) || [];
+  const referencesList = lesson?.references?.split(',').map(r => r.trim()).filter(Boolean) || [];
+  const questionsList = lesson?.questions?.split('\n').filter(q => q.trim()) || [];
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">

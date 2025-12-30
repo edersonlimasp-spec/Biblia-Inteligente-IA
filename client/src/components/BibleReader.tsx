@@ -591,9 +591,7 @@ export function BibleReader({
 
           <Select value={selectedBook} onValueChange={setSelectedBook}>
             <SelectTrigger className="w-24 text-sm h-9 flex-shrink-0" data-testid="select-book">
-              <SelectValue>
-                {getBookName(selectedBook, language)}
-              </SelectValue>
+              <span className="truncate">{getBookName(selectedBook, language)}</span>
             </SelectTrigger>
             <SelectContent>
               {books?.map((book) => (

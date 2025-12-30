@@ -155,6 +155,10 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     
     // Courses/Lessons
     "courses.title": "Cursos Premium",
+    "courses.structured": "Estudos bíblicos estruturados",
+    "courses.overallProgress": "Seu Progresso Geral",
+    "courses.lessonsCompleted": "lições concluídas",
+    "courses.modules": "módulos",
     "courses.beginner": "Iniciante",
     "courses.intermediate": "Intermediário",
     "courses.advanced": "Avançado",
@@ -436,6 +440,10 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     
     // Courses/Lessons
     "courses.title": "Premium Courses",
+    "courses.structured": "Structured Bible studies",
+    "courses.overallProgress": "Your Overall Progress",
+    "courses.lessonsCompleted": "lessons completed",
+    "courses.modules": "modules",
     "courses.beginner": "Beginner",
     "courses.intermediate": "Intermediate",
     "courses.advanced": "Advanced",
@@ -717,6 +725,10 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     
     // Courses/Lessons
     "courses.title": "Cursos Premium",
+    "courses.structured": "Estudios bíblicos estructurados",
+    "courses.overallProgress": "Tu Progreso General",
+    "courses.lessonsCompleted": "lecciones completadas",
+    "courses.modules": "módulos",
     "courses.beginner": "Principiante",
     "courses.intermediate": "Intermedio",
     "courses.advanced": "Avanzado",

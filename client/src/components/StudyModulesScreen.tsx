@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 
@@ -296,6 +297,7 @@ interface GuestTrialInfo {
 
 export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSubscriptions }: StudyModulesScreenProps) {
   const { user, isAdmin } = useAuth();
+  const { t } = useLanguage();
   const deviceId = getDeviceId();
   
   const { data: modules, isLoading } = useQuery<StudyModule[]>({
@@ -344,8 +346,8 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-lg font-serif font-bold">Cursos Premium</h1>
-            <p className="text-xs text-muted-foreground">Estudos bíblicos estruturados</p>
+            <h1 className="text-lg font-serif font-bold">{t("courses.title")}</h1>
+            <p className="text-xs text-muted-foreground">{t("courses.structured")}</p>
           </div>
           {isAdmin && (
             <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
@@ -375,8 +377,8 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                 <Library className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h2 className="font-bold">Seu Progresso Geral</h2>
-                <p className="text-sm text-white/80">{completedLessons} de {totalLessons} lições concluídas</p>
+                <h2 className="font-bold">{t("courses.overallProgress")}</h2>
+                <p className="text-sm text-white/80">{completedLessons} / {totalLessons} {t("courses.lessonsCompleted")}</p>
               </div>
               <div className="text-2xl font-bold">{overallPercentage}%</div>
             </div>

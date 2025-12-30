@@ -80,57 +80,29 @@ const EVENT_TYPE_IDS = [
   { id: "outro", icon: Calendar, color: "text-gray-500" },
 ];
 
-const EVENT_TYPES = [
-  { id: "culto", name: "Culto", icon: Church, color: "text-blue-500" },
-  { id: "estudo", name: "Estudo Bíblico", icon: BookOpen, color: "text-emerald-500" },
-  { id: "oracao", name: "Oração", icon: Heart, color: "text-red-500" },
-  { id: "louvor", name: "Louvor", icon: Music, color: "text-purple-500" },
-  { id: "visita", name: "Visita", icon: Users, color: "text-amber-500" },
-  { id: "evangelismo", name: "Evangelismo", icon: Megaphone, color: "text-orange-500" },
-  { id: "jovens", name: "Jovens", icon: Sparkles, color: "text-pink-500" },
-  { id: "criancas", name: "Crianças", icon: Baby, color: "text-cyan-500" },
-  { id: "discipulado", name: "Discipulado", icon: GraduationCap, color: "text-indigo-500" },
-  { id: "comunhao", name: "Comunhão", icon: Coffee, color: "text-yellow-600" },
-  { id: "lideranca", name: "Liderança", icon: Crown, color: "text-slate-500" },
-  { id: "outro", name: "Outro", icon: Calendar, color: "text-gray-500" },
-];
-
-const THEMES = [
-  "Adoração e Louvor",
-  "Família",
-  "Fé e Esperança",
-  "Missões",
-  "Santidade",
-  "Amor de Deus",
-  "Cura e Libertação",
-  "Avivamento",
-  "Prosperidade Espiritual",
-  "Vida Cristã",
-  "Evangelismo",
-  "Comunhão",
-  "Oração e Jejum",
-  "Palavra de Deus",
-  "Espírito Santo",
-  "Outro",
+const THEME_IDS = [
+  "adoracaoLouvor",
+  "familia",
+  "feEsperanca",
+  "missoes",
+  "santidade",
+  "amorDeus",
+  "curaLibertacao",
+  "avivamento",
+  "prosperidadeEspiritual",
+  "vidaCrista",
+  "evangelismo",
+  "comunhao",
+  "oracaoJejum",
+  "palavraDeus",
+  "espiritoSanto",
+  "outro",
 ];
 
 const STORAGE_KEY = "agenda-events";
 
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr + "T00:00:00");
-  return date.toLocaleDateString("pt-BR", { 
-    weekday: "long", 
-    day: "numeric", 
-    month: "long" 
-  });
-}
-
-function formatShortDate(dateStr: string): string {
-  const date = new Date(dateStr + "T00:00:00");
-  return date.toLocaleDateString("pt-BR", { 
-    day: "2-digit", 
-    month: "short" 
-  });
+function getLocale(language: string): string {
+  return language === 'pt' ? 'pt-BR' : language === 'es' ? 'es-ES' : 'en-US';
 }
 
 function isToday(dateStr: string): boolean {
@@ -170,6 +142,36 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
   const [newTheme, setNewTheme] = useState("");
   
   const isAtLimit = events.length >= agendaLimit;
+
+  const formatDate = (dateStr: string): string => {
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString(getLocale(language), { 
+      weekday: "long", 
+      day: "numeric", 
+      month: "long" 
+    });
+  };
+
+  const formatShortDate = (dateStr: string): string => {
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString(getLocale(language), { 
+      day: "2-digit", 
+      month: "short" 
+    });
+  };
+
+  const getEventTypeName = (id: string): string => {
+    return t(`agenda.types.${id}`);
+  };
+
+  const getThemeName = (id: string): string => {
+    return t(`agenda.themes.${id}`);
+  };
+
+  const getEventType = (typeId: string) => {
+    const type = EVENT_TYPE_IDS.find(t => t.id === typeId) || EVENT_TYPE_IDS[EVENT_TYPE_IDS.length - 1];
+    return { ...type, name: getEventTypeName(type.id) };
+  };
 
   const handleGoToSubscription = () => {
     setShowLimitModal(false);
@@ -323,14 +325,6 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
     resetForm();
   };
 
-  const getEventType = (typeId: string) => {
-    const eventType = EVENT_TYPE_IDS.find((et) => et.id === typeId) || EVENT_TYPE_IDS[EVENT_TYPE_IDS.length - 1];
-    return {
-      ...eventType,
-      name: t(`agenda.types.${eventType.id}` as any)
-    };
-  };
-
   const createGoogleCalendarLink = (event: AgendaEvent) => {
     const startDate = new Date(`${event.date}T${event.time}:00`);
     const endDate = event.endTime 
@@ -341,8 +335,8 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
     
     const details = [
       event.description,
-      event.theme ? `Tema: ${event.theme}` : "",
-      "Enviado por Bíblia Inteligente IA\nConheça a BI: https://bibliainteligente.replit.app",
+      event.theme ? `${t("agenda.themeLabel")} ${getThemeName(event.theme)}` : "",
+      `${t("agenda.sentBy")}\n${t("agenda.discoverApp")} https://bibliainteligente.replit.app`,
     ].filter(Boolean).join("\n\n");
     
     const params = new URLSearchParams({
@@ -366,7 +360,7 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
     
     const description = [
       event.description,
-      event.theme ? `Tema: ${event.theme}` : "",
+      event.theme ? `${t("agenda.themeLabel")} ${getThemeName(event.theme)}` : "",
     ].filter(Boolean).join("\\n");
 
     return `BEGIN:VCALENDAR
@@ -386,8 +380,8 @@ END:VCALENDAR`;
     const link = createGoogleCalendarLink(event);
     window.open(link, "_blank");
     toast({
-      title: "Google Calendar",
-      description: "Abrindo Google Calendar",
+      title: t("agenda.googleCalendar"),
+      description: t("agenda.openingGoogleCalendar"),
     });
   };
 
@@ -401,8 +395,8 @@ END:VCALENDAR`;
     a.click();
     URL.revokeObjectURL(url);
     toast({
-      title: "Apple Calendar",
-      description: "Arquivo .ics baixado",
+      title: t("agenda.appleCalendar"),
+      description: t("agenda.icsDownloaded"),
     });
   };
 
@@ -417,14 +411,13 @@ END:VCALENDAR`;
     ];
     
     if (event.location) lines.push(`${event.location}`);
-    if (event.theme) lines.push(`Tema: ${event.theme}`);
+    if (event.theme) lines.push(`${t("agenda.themeLabel")} ${getThemeName(event.theme)}`);
     if (event.description) lines.push("", event.description);
     
-    // Standard app footer
     lines.push("");
     lines.push("---");
-    lines.push("Enviado por Bíblia Inteligente IA");
-    lines.push("Conheça a BI: https://bibliainteligente.replit.app");
+    lines.push(t("agenda.sentBy"));
+    lines.push(`${t("agenda.discoverApp")} https://bibliainteligente.replit.app`);
     
     return lines.join("\n");
   };
@@ -454,16 +447,16 @@ END:VCALENDAR`;
         if ((e as Error).name !== "AbortError") {
           await navigator.clipboard.writeText(text);
           toast({
-            title: "Copiado!",
-            description: "Texto copiado. Cole no WhatsApp ou outro app.",
+            title: t("common.copied"),
+            description: t("agenda.textCopiedPaste"),
           });
         }
       }
     } else {
       await navigator.clipboard.writeText(text);
       toast({
-        title: "Copiado!",
-        description: "Texto copiado. Cole no WhatsApp ou outro app.",
+        title: t("common.copied"),
+        description: t("agenda.textCopiedPaste"),
       });
     }
   };
@@ -471,18 +464,18 @@ END:VCALENDAR`;
   const handleCopyText = async (event: AgendaEvent) => {
     await navigator.clipboard.writeText(generateShareText(event));
     toast({
-      title: "Copiado",
-      description: "Texto copiado para a área de transferência",
+      title: t("common.copied"),
+      description: t("agenda.textCopied"),
     });
     setShareEvent(null);
   };
 
   const generateFullAgendaText = () => {
     const upcoming = events.filter((e) => isFuture(e.date));
-    if (upcoming.length === 0) return "Nenhum evento agendado.";
+    if (upcoming.length === 0) return t("agenda.noScheduledEvents");
     
     const lines = [
-      "MINHA AGENDA - PROXIMOS EVENTOS",
+      t("agenda.myAgendaUpcoming"),
       "================================",
       "",
     ];
@@ -491,16 +484,15 @@ END:VCALENDAR`;
       const eventType = getEventType(event.type);
       lines.push(`${index + 1}. ${event.title}`);
       lines.push(`   ${eventType.name}`);
-      lines.push(`   ${formatDate(event.date)} - ${event.time}${event.endTime ? ` ate ${event.endTime}` : ""}`);
-      if (event.location) lines.push(`   Local: ${event.location}`);
-      if (event.theme) lines.push(`   Tema: ${event.theme}`);
+      lines.push(`   ${formatDate(event.date)} - ${event.time}${event.endTime ? ` ${t("agenda.until")} ${event.endTime}` : ""}`);
+      if (event.location) lines.push(`   ${t("agenda.location")} ${event.location}`);
+      if (event.theme) lines.push(`   ${t("agenda.themeLabel")} ${getThemeName(event.theme)}`);
       lines.push("");
     });
     
-    // Standard app footer
     lines.push("---");
-    lines.push("Enviado por Bíblia Inteligente IA");
-    lines.push("Conheça a BI: https://bibliainteligente.replit.app");
+    lines.push(t("agenda.sentBy"));
+    lines.push(`${t("agenda.discoverApp")} https://bibliainteligente.replit.app`);
     
     return lines.join("\n");
   };
@@ -527,7 +519,7 @@ END:VCALENDAR`;
       
       const descParts = [];
       if (event.description) descParts.push(event.description);
-      if (event.theme) descParts.push(`Tema: ${event.theme}`);
+      if (event.theme) descParts.push(`${t("agenda.themeLabel")} ${getThemeName(event.theme)}`);
       const description = descParts.join(" - ").replace(/\n/g, "\\n");
       
       lines.push("BEGIN:VEVENT");
@@ -552,7 +544,7 @@ END:VCALENDAR`;
   };
 
   const handleShareAgendaEmail = () => {
-    const subject = encodeURIComponent("Minha Agenda - Proximos Eventos");
+    const subject = encodeURIComponent(t("agenda.myAgendaSubject"));
     const body = encodeURIComponent(generateFullAgendaText());
     window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
     setShowShareAgenda(false);
@@ -568,16 +560,16 @@ END:VCALENDAR`;
         if ((e as Error).name !== "AbortError") {
           await navigator.clipboard.writeText(text);
           toast({
-            title: "Copiado!",
-            description: "Texto copiado. Cole no WhatsApp ou outro app.",
+            title: t("common.copied"),
+            description: t("agenda.textCopiedPaste"),
           });
         }
       }
     } else {
       await navigator.clipboard.writeText(text);
       toast({
-        title: "Copiado!",
-        description: "Texto copiado. Cole no WhatsApp ou outro app.",
+        title: t("common.copied"),
+        description: t("agenda.textCopiedPaste"),
       });
     }
   };
@@ -585,8 +577,8 @@ END:VCALENDAR`;
   const handleCopyAgendaText = async () => {
     await navigator.clipboard.writeText(generateFullAgendaText());
     toast({
-      title: "Copiado",
-      description: "Agenda copiada para a area de transferencia",
+      title: t("common.copied"),
+      description: t("agenda.agendaCopied"),
     });
     setShowShareAgenda(false);
   };
@@ -595,8 +587,8 @@ END:VCALENDAR`;
     const icsContent = createFullAgendaICS();
     if (!icsContent) {
       toast({
-        title: "Sem eventos",
-        description: "Nao ha eventos para exportar",
+        title: t("agenda.noEventsToExport"),
+        description: t("agenda.noEventsToExportDesc"),
         variant: "destructive",
       });
       return;
@@ -609,8 +601,8 @@ END:VCALENDAR`;
     a.click();
     URL.revokeObjectURL(url);
     toast({
-      title: "Exportado",
-      description: "Arquivo .ics baixado com todos os eventos",
+      title: t("agenda.exported"),
+      description: t("agenda.icsExportedAll"),
     });
     setShowShareAgenda(false);
   };
@@ -651,11 +643,11 @@ END:VCALENDAR`;
                         {eventType.name}
                       </Badge>
                       {today && (
-                        <Badge className="text-xs bg-primary">Hoje</Badge>
+                        <Badge className="text-xs bg-primary">{t("agenda.today")}</Badge>
                       )}
                       {event.theme && (
                         <Badge variant="secondary" className="text-xs truncate max-w-[120px]">
-                          {event.theme}
+                          {getThemeName(event.theme)}
                         </Badge>
                       )}
                     </div>
@@ -746,7 +738,7 @@ END:VCALENDAR`;
             <IconComponent className="w-5 h-5 text-primary-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-primary-foreground leading-tight">Biblia Inteligente IA</h3>
+            <h3 className="text-sm font-semibold text-primary-foreground leading-tight">{t("app.name")}</h3>
             <p className="text-[10px] text-primary-foreground/60 truncate">bibliainteligente.replit.app</p>
           </div>
         </div>
@@ -781,8 +773,8 @@ END:VCALENDAR`;
           {event.theme && (
             <div className="flex items-center gap-2 text-sm">
               <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
-              <span className="text-muted-foreground">Tema:</span>
-              <span className="font-semibold text-foreground">{event.theme}</span>
+              <span className="text-muted-foreground">{t("agenda.themeLabel")}</span>
+              <span className="font-semibold text-foreground">{getThemeName(event.theme)}</span>
             </div>
           )}
           
@@ -795,7 +787,7 @@ END:VCALENDAR`;
         
         <div className="bg-muted/30 border-t border-border px-4 py-2.5 text-center">
           <p className="text-[10px] text-muted-foreground leading-relaxed">
-            Enviado por Biblia Inteligente IA
+            {t("agenda.sentBy")}
           </p>
           <a 
             href="https://bibliainteligente.replit.app" 
@@ -822,9 +814,9 @@ END:VCALENDAR`;
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="font-semibold text-lg">Minha Agenda</h1>
+              <h1 className="font-semibold text-lg">{t("agenda.title")}</h1>
               <div className="flex items-center gap-2">
-                <p className="text-xs text-muted-foreground">{events.length} eventos</p>
+                <p className="text-xs text-muted-foreground">{events.length} {t("agenda.events")}</p>
                 <Badge 
                   variant={isAtLimit && !isLoadingLimits ? "destructive" : "secondary"} 
                   className="text-xs"
@@ -848,7 +840,7 @@ END:VCALENDAR`;
             )}
             <Button onClick={handleOpenAddDialog} data-testid="button-add-event">
               <Plus className="w-4 h-4 mr-2" />
-              Novo
+              {t("common.new")}
             </Button>
             <UserButton />
           </div>
@@ -859,10 +851,10 @@ END:VCALENDAR`;
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="upcoming" data-testid="tab-upcoming">
-              Proximos ({upcomingEvents.length})
+              {t("agenda.upcoming")} ({upcomingEvents.length})
             </TabsTrigger>
             <TabsTrigger value="past" data-testid="tab-past">
-              Passados ({pastEvents.length})
+              {t("agenda.past")} ({pastEvents.length})
             </TabsTrigger>
           </TabsList>
 
@@ -872,13 +864,13 @@ END:VCALENDAR`;
                 <Card className="border-dashed">
                   <CardContent className="p-8 text-center">
                     <CalendarPlus className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="font-medium mb-2">Nenhum evento agendado</h3>
+                    <h3 className="font-medium mb-2">{t("agenda.noScheduledEvents")}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Adicione eventos da igreja, estudos biblicos e mais
+                      {t("agenda.addChurchEvents")}
                     </p>
                     <Button onClick={handleOpenAddDialog} data-testid="button-add-first-event">
                       <Plus className="w-4 h-4 mr-2" />
-                      Criar Primeiro Evento
+                      {t("agenda.createFirstEvent")}
                     </Button>
                   </CardContent>
                 </Card>
@@ -898,9 +890,9 @@ END:VCALENDAR`;
                 <Card className="border-dashed">
                   <CardContent className="p-8 text-center">
                     <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="font-medium mb-2">Nenhum evento passado</h3>
+                    <h3 className="font-medium mb-2">{t("agenda.noPastEvents")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Eventos passados aparecerao aqui
+                      {t("agenda.pastEventsAppear")}
                     </p>
                   </CardContent>
                 </Card>
@@ -922,15 +914,15 @@ END:VCALENDAR`;
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingEvent ? "Editar Evento" : "Novo Evento"}
+              {editingEvent ? t("agenda.editEventTitle") : t("agenda.newEvent")}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Titulo *</Label>
+              <Label>{t("agenda.titleRequired")}</Label>
               <Input
-                placeholder="Ex: Culto de Domingo"
+                placeholder={t("agenda.titlePlaceholder")}
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 data-testid="input-event-title"
@@ -938,27 +930,30 @@ END:VCALENDAR`;
             </div>
 
             <div className="space-y-2">
-              <Label>Tipo de Evento</Label>
+              <Label>{t("agenda.eventTypeLabel")}</Label>
               <Select value={newType} onValueChange={setNewType}>
                 <SelectTrigger data-testid="select-event-type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {EVENT_TYPES.map((type) => (
-                    <SelectItem key={type.id} value={type.id}>
-                      <div className="flex items-center gap-2">
-                        <type.icon className={`w-4 h-4 ${type.color}`} />
-                        {type.name}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {EVENT_TYPE_IDS.map((type) => {
+                    const IconComponent = type.icon;
+                    return (
+                      <SelectItem key={type.id} value={type.id}>
+                        <div className="flex items-center gap-2">
+                          <IconComponent className={`w-4 h-4 ${type.color}`} />
+                          {getEventTypeName(type.id)}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Data *</Label>
+                <Label>{t("agenda.dateRequired")}</Label>
                 <Input
                   type="date"
                   value={newDate}
@@ -967,7 +962,7 @@ END:VCALENDAR`;
                 />
               </div>
               <div className="space-y-2">
-                <Label>Horario Inicio *</Label>
+                <Label>{t("agenda.startTimeRequired")}</Label>
                 <Input
                   type="time"
                   value={newTime}
@@ -979,7 +974,7 @@ END:VCALENDAR`;
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Horario Fim (opcional)</Label>
+                <Label>{t("agenda.endTimeOptional")}</Label>
                 <Input
                   type="time"
                   value={newEndTime}
@@ -988,9 +983,9 @@ END:VCALENDAR`;
                 />
               </div>
               <div className="space-y-2">
-                <Label>Local (opcional)</Label>
+                <Label>{t("agenda.locationOptional")}</Label>
                 <Input
-                  placeholder="Ex: Igreja Central"
+                  placeholder={t("agenda.locationPlaceholder")}
                   value={newLocation}
                   onChange={(e) => setNewLocation(e.target.value)}
                   data-testid="input-event-location"
@@ -999,16 +994,16 @@ END:VCALENDAR`;
             </div>
 
             <div className="space-y-2">
-              <Label>Tema (opcional)</Label>
+              <Label>{t("agenda.themeOptional")}</Label>
               <Select value={newTheme || "none"} onValueChange={(v) => setNewTheme(v === "none" ? "" : v)}>
                 <SelectTrigger data-testid="select-event-theme">
-                  <SelectValue placeholder="Selecione um tema" />
+                  <SelectValue placeholder={t("agenda.selectTheme")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Nenhum tema</SelectItem>
-                  {THEMES.map((theme) => (
-                    <SelectItem key={theme} value={theme}>
-                      {theme}
+                  <SelectItem value="none">{t("agenda.themes.none")}</SelectItem>
+                  {THEME_IDS.map((themeId) => (
+                    <SelectItem key={themeId} value={themeId}>
+                      {getThemeName(themeId)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -1016,9 +1011,9 @@ END:VCALENDAR`;
             </div>
 
             <div className="space-y-2">
-              <Label>Descricao (opcional)</Label>
+              <Label>{t("agenda.descriptionOptional")}</Label>
               <Textarea
-                placeholder="Detalhes do evento..."
+                placeholder={t("agenda.descriptionPlaceholder")}
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
                 rows={3}
@@ -1029,13 +1024,13 @@ END:VCALENDAR`;
 
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog} data-testid="button-cancel-event">
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={editingEvent ? handleEditEvent : handleAddEvent}
               data-testid="button-save-event"
             >
-              {editingEvent ? "Salvar" : "Adicionar"}
+              {editingEvent ? t("common.save") : t("common.add")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1044,7 +1039,7 @@ END:VCALENDAR`;
       <Dialog open={!!shareEvent} onOpenChange={(open) => !open && setShareEvent(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Compartilhar Evento</DialogTitle>
+            <DialogTitle>{t("agenda.shareEvent")}</DialogTitle>
           </DialogHeader>
 
           {shareEvent && (
@@ -1074,7 +1069,7 @@ END:VCALENDAR`;
                   data-testid="button-copy-text"
                 >
                   <Copy className="w-4 h-4 mr-2" />
-                  Copiar Texto
+                  {t("agenda.copyText")}
                 </Button>
                 <Button
                   variant="outline"
@@ -1082,7 +1077,7 @@ END:VCALENDAR`;
                   data-testid="button-share-native"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
-                  Mais...
+                  {t("agenda.more")}
                 </Button>
               </div>
 
@@ -1094,7 +1089,7 @@ END:VCALENDAR`;
                   data-testid="button-share-google"
                 >
                   <SiGoogle className="w-4 h-4 mr-2" />
-                  Google Calendar
+                  {t("agenda.googleCalendar")}
                 </Button>
                 <Button
                   variant="secondary"
@@ -1114,15 +1109,15 @@ END:VCALENDAR`;
       <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir evento?</AlertDialogTitle>
+            <AlertDialogTitle>{t("agenda.deleteEventQuestion")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acao nao pode ser desfeita. O evento sera removido permanentemente.
+              {t("agenda.deleteEventWarning")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete">{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteEvent} data-testid="button-confirm-delete">
-              Excluir
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1131,7 +1126,7 @@ END:VCALENDAR`;
       <Dialog open={showShareAgenda} onOpenChange={setShowShareAgenda}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Compartilhar Agenda Completa</DialogTitle>
+            <DialogTitle>{t("agenda.shareFullAgenda")}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -1142,9 +1137,9 @@ END:VCALENDAR`;
                     <Calendar className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">Minha Agenda</h3>
+                    <h3 className="font-semibold">{t("agenda.title")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {upcomingEvents.length} eventos proximos
+                      {upcomingEvents.length} {t("agenda.upcomingEvents")}
                     </p>
                   </div>
                 </div>
@@ -1160,7 +1155,7 @@ END:VCALENDAR`;
                   ))}
                   {upcomingEvents.length > 5 && (
                     <div className="text-muted-foreground">
-                      ... e mais {upcomingEvents.length - 5} eventos
+                      ... {t("agenda.andMore")} {upcomingEvents.length - 5} {t("agenda.events")}
                     </div>
                   )}
                 </div>
@@ -1190,7 +1185,7 @@ END:VCALENDAR`;
                 data-testid="button-copy-agenda-text"
               >
                 <Copy className="w-4 h-4 mr-2" />
-                Copiar Texto
+                {t("agenda.copyText")}
               </Button>
               <Button
                 variant="outline"
@@ -1198,7 +1193,7 @@ END:VCALENDAR`;
                 data-testid="button-share-agenda-native"
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                Mais...
+                {t("agenda.more")}
               </Button>
             </div>
 
@@ -1209,7 +1204,7 @@ END:VCALENDAR`;
               data-testid="button-download-agenda-ics"
             >
               <Download className="w-4 h-4 mr-2" />
-              Exportar todos (.ics)
+              {t("agenda.exportAll")}
             </Button>
           </div>
         </DialogContent>
@@ -1218,7 +1213,7 @@ END:VCALENDAR`;
       <SubscriptionLimitModal
         open={showLimitModal}
         onOpenChange={setShowLimitModal}
-        title="Limite de Eventos Atingido"
+        title={t("agenda.limitTitle")}
         message={getAgendaLimitMessage(subscriptionType)}
         onSubscribe={handleGoToSubscription}
         subscriptionType={subscriptionType}

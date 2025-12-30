@@ -179,7 +179,7 @@ export function Dashboard({
           data-testid="badge-lifetime"
         >
           <Infinity className="w-3 h-3" />
-          Vitalício
+          {t("subscription.lifetime")}
         </Badge>
       );
     }
@@ -228,7 +228,7 @@ export function Dashboard({
       gradient: "bg-gradient-to-br from-fuchsia-600 to-pink-700",
       iconColor: "bg-fuchsia-500",
       onClick: onNavigateToAIModes,
-      badge: "4 modos",
+      badge: t("module.ai.modes.badge"),
     },
     {
       id: "professor-premium",
@@ -238,7 +238,7 @@ export function Dashboard({
       gradient: "bg-gradient-to-br from-indigo-600 to-purple-700",
       iconColor: "bg-indigo-500",
       onClick: onNavigateToProfessorPremium,
-      badge: "45 módulos",
+      badge: t("module.courses.badge"),
     },
     {
       id: "plans-progress",
@@ -293,7 +293,7 @@ export function Dashboard({
       gradient: "bg-gradient-to-br from-red-600 to-orange-600",
       iconColor: "bg-red-500",
       onClick: onNavigateToRecordings,
-      badge: "Novo",
+      badge: t("common.new"),
     },
     {
       id: "subscriptions",
@@ -356,7 +356,7 @@ export function Dashboard({
                 className="gap-1.5"
               >
                 <LogIn className="w-4 h-4" />
-                Entrar
+                {t("common.login")}
               </Button>
             )}
             
@@ -386,8 +386,8 @@ export function Dashboard({
             
             {isAdmin && (
               <ModuleCard
-                title="Administração"
-                description="Painel de controle e estatísticas"
+                title={t("module.admin")}
+                description={t("module.admin.desc")}
                 icon={Shield}
                 gradient="bg-gradient-to-br from-red-600 to-rose-800"
                 iconColor="bg-red-500"
@@ -418,13 +418,13 @@ export function Dashboard({
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-white">Desbloqueie Tudo</h3>
+                  <h3 className="text-base font-bold text-white">{t("dashboard.unlockAll")}</h3>
                   <p className="text-xs text-white/80 truncate">
-                    IA ilimitada e Strong's completo
+                    {t("dashboard.unlockAllDesc")}
                   </p>
                 </div>
                 <div className="bg-white text-primary text-sm font-semibold px-3 py-1.5 rounded-lg shadow flex-shrink-0">
-                  Ver Planos
+                  {t("dashboard.viewPlans")}
                 </div>
               </div>
             </div>
@@ -436,7 +436,7 @@ export function Dashboard({
             transition={{ delay: 0.6 }}
             className="text-center text-muted-foreground text-xs mt-6 pb-4"
           >
-            Toque em qualquer módulo para começar
+            {t("dashboard.tapToStart")}
           </motion.p>
         </div>
       </ScrollArea>

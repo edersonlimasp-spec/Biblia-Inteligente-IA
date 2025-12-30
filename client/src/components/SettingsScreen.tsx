@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import { UserButton } from "@/components/UserButton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SettingsScreenProps {
   onBack?: () => void;
@@ -17,6 +18,7 @@ interface SettingsScreenProps {
 
 export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsScreenProps) {
   const { user, logout, trialDaysRemaining } = useAuth();
+  const { t } = useLanguage();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -28,12 +30,11 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
     }
   });
 
-  // Persist font size to localStorage
   useEffect(() => {
     try {
       localStorage.setItem("bible-font-size", fontSize);
     } catch (error) {
-      console.error("Erro ao salvar tamanho da fonte:", error);
+      console.error("Error saving font size:", error);
     }
   }, [fontSize]);
 
@@ -44,27 +45,25 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
 
   return (
     <div className="min-h-screen bg-background dark:bg-background text-foreground dark:text-foreground">
-      {/* Header com botão voltar */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold">Configurações</h1>
-            <p className="text-sm text-muted-foreground">Personalize o aplicativo</p>
+            <h1 className="text-xl font-bold">{t("settings.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p>
           </div>
           <UserButton onNavigateToSubscriptions={onNavigateToSubscriptions} showSubscriptionOption />
         </div>
       </header>
       
       <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
-        {/* Profile Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              Perfil
+              {t("settings.profile")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -75,25 +74,24 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-semibold text-lg">{user?.name || 'Usuário'}</p>
+                <p className="font-semibold text-lg">{user?.name || t("settings.user")}</p>
                 <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Appearance */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Moon className="h-5 w-5" />
-              Aparência
+              {t("settings.appearance")}
             </CardTitle>
-            <CardDescription>Personalize a aparência do aplicativo</CardDescription>
+            <CardDescription>{t("settings.appearanceDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="dark-mode">Modo Escuro</Label>
+              <Label htmlFor="dark-mode">{t("settings.darkMode")}</Label>
               <Switch
                 id="dark-mode"
                 checked={darkMode}
@@ -103,7 +101,7 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
             </div>
             <Separator />
             <div className="flex items-center justify-between">
-              <Label htmlFor="notifications">Notificações</Label>
+              <Label htmlFor="notifications">{t("settings.notifications")}</Label>
               <Switch
                 id="notifications"
                 checked={notifications}
@@ -114,14 +112,13 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
           </CardContent>
         </Card>
 
-        {/* Security Settings */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lock className="h-5 w-5" />
-              Segurança
+              {t("settings.security")}
             </CardTitle>
-            <CardDescription>Gerencie sua senha e segurança</CardDescription>
+            <CardDescription>{t("settings.securityDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button 
@@ -130,23 +127,22 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
               onClick={() => setIsChangePasswordOpen(true)}
               data-testid="button-change-password"
             >
-              Alterar Senha
+              {t("settings.changePassword")}
             </Button>
           </CardContent>
         </Card>
 
-        {/* Reading Settings */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BookText className="h-5 w-5" />
-              Configurações de Leitura
+              {t("settings.readingSettings")}
             </CardTitle>
-            <CardDescription>Ajuste a experiência de leitura</CardDescription>
+            <CardDescription>{t("settings.readingSettingsDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label className="mb-3 block">Tamanho da Fonte do Texto Bíblico</Label>
+              <Label className="mb-3 block">{t("settings.fontSize")}</Label>
               <div className="flex gap-2 mt-3">
                 <Button
                   variant={fontSize === "small" ? "default" : "outline"}
@@ -174,30 +170,29 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-3">
-                {fontSize === "small" && "Tamanho: Pequeno"}
-                {fontSize === "medium" && "Tamanho: Médio (padrão)"}
-                {fontSize === "large" && "Tamanho: Grande"}
+                {fontSize === "small" && t("settings.fontSizeSmall")}
+                {fontSize === "medium" && t("settings.fontSizeMedium")}
+                {fontSize === "large" && t("settings.fontSizeLarge")}
               </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Subscription */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
-              Assinatura
+              {t("settings.subscription")}
             </CardTitle>
-            <CardDescription>Gerencie sua assinatura</CardDescription>
+            <CardDescription>{t("settings.subscriptionDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-medium">Plano Atual</p>
+                  <p className="font-medium">{t("settings.currentPlan")}</p>
                   <p className="text-sm text-muted-foreground">
-                    Trial ({trialDaysRemaining} dias restantes)
+                    {t("settings.trialDays").replace("{days}", String(trialDaysRemaining))}
                   </p>
                 </div>
                 <Button 
@@ -205,38 +200,36 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
                   onClick={onNavigateToSubscriptions}
                   data-testid="button-manage-subscription"
                 >
-                  Gerenciar
+                  {t("settings.manage")}
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* About */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Info className="h-5 w-5" />
-              Sobre
+              {t("settings.about")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Versão 1.0.0</p>
+            <p>{t("settings.version")} 1.0.0</p>
             <Button variant="ghost" className="p-0 h-auto" data-testid="link-terms">
-              Termos de Uso
+              {t("settings.terms")}
             </Button>
             <br />
             <Button variant="ghost" className="p-0 h-auto" data-testid="link-privacy">
-              Política de Privacidade
+              {t("settings.privacy")}
             </Button>
             <br />
             <Button variant="ghost" className="p-0 h-auto" data-testid="link-help">
-              Central de Ajuda
+              {t("settings.helpCenter")}
             </Button>
           </CardContent>
         </Card>
 
-        {/* Logout */}
         <Button
           variant="destructive"
           className="w-full"
@@ -244,10 +237,9 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
           data-testid="button-logout"
         >
           <LogOut className="h-4 w-4 mr-2" />
-          Sair da Conta
+          {t("settings.logout")}
         </Button>
 
-        {/* Change Password Modal */}
         <ChangePasswordModal 
           isOpen={isChangePasswordOpen}
           onClose={() => setIsChangePasswordOpen(false)}

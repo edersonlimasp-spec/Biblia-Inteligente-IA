@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -30,52 +31,55 @@ interface AIModesScreenProps {
   onNavigateToSubscriptions: () => void;
 }
 
-const AI_MODES = [
-  {
-    id: "professor",
-    name: "Modo Professor",
-    description: "Explicações didáticas e claras sobre passagens bíblicas",
-    icon: GraduationCap,
-    color: "from-blue-500 to-blue-700",
-    iconBg: "bg-blue-500",
-    requiredPlan: "gold",
-    prompt: "Você é um professor de teologia. Explique de forma didática e clara:",
-  },
-  {
-    id: "pregador",
-    name: "Modo Pregador",
-    description: "Mensagens inspiradoras e edificantes para pregação",
-    icon: Church,
-    color: "from-purple-500 to-purple-700",
-    iconBg: "bg-purple-500",
-    requiredPlan: "gold",
-    prompt: "Você é um pregador experiente. Crie uma mensagem inspiradora sobre:",
-  },
-  {
-    id: "exegese",
-    name: "Exegese Profunda",
-    description: "Análise textual detalhada do original hebraico/grego",
-    icon: Microscope,
-    color: "from-emerald-500 to-emerald-700",
-    iconBg: "bg-emerald-500",
-    requiredPlan: "premium",
-    prompt: "Você é um exegeta bíblico. Faça uma análise profunda do texto original:",
-  },
-  {
-    id: "teologica",
-    name: "Comparação Teológica",
-    description: "Compare diferentes perspectivas denominacionais",
-    icon: Scale,
-    color: "from-amber-500 to-amber-700",
-    iconBg: "bg-amber-500",
-    requiredPlan: "premium",
-    prompt: "Compare as interpretações teológicas de diferentes denominações sobre:",
-  },
-];
-
 export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScreenProps) {
   const { user, isAdmin } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
+  
+  const getAIModes = () => [
+    {
+      id: "professor",
+      name: t("aiModes.professor.name"),
+      description: t("aiModes.professor.desc"),
+      icon: GraduationCap,
+      color: "from-blue-500 to-blue-700",
+      iconBg: "bg-blue-500",
+      requiredPlan: "gold",
+      prompt: "Você é um professor de teologia. Explique de forma didática e clara:",
+    },
+    {
+      id: "pregador",
+      name: t("aiModes.pregador.name"),
+      description: t("aiModes.pregador.desc"),
+      icon: Church,
+      color: "from-purple-500 to-purple-700",
+      iconBg: "bg-purple-500",
+      requiredPlan: "gold",
+      prompt: "Você é um pregador experiente. Crie uma mensagem inspiradora sobre:",
+    },
+    {
+      id: "exegese",
+      name: t("aiModes.exegese.name"),
+      description: t("aiModes.exegese.desc"),
+      icon: Microscope,
+      color: "from-emerald-500 to-emerald-700",
+      iconBg: "bg-emerald-500",
+      requiredPlan: "premium",
+      prompt: "Você é um exegeta bíblico. Faça uma análise profunda do texto original:",
+    },
+    {
+      id: "teologica",
+      name: t("aiModes.teologica.name"),
+      description: t("aiModes.teologica.desc"),
+      icon: Scale,
+      color: "from-amber-500 to-amber-700",
+      iconBg: "bg-amber-500",
+      requiredPlan: "premium",
+      prompt: "Compare as interpretações teológicas de diferentes denominações sobre:",
+    },
+  ];
+  
+  const AI_MODES = getAIModes();
   const deviceId = getDeviceId();
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
@@ -119,12 +123,12 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
       return res.json();
     },
     onSuccess: (data) => {
-      setResponse(data.response || data.answer || "Resposta recebida.");
+      setResponse(data.response || data.answer || t("aiModes.responseReceived"));
     },
     onError: (error: any) => {
       toast({
-        title: "Erro",
-        description: error.message || "Não foi possível obter resposta da IA",
+        title: t("common.error"),
+        description: error.message || t("aiModes.errorGettingResponse"),
         variant: "destructive",
       });
     },
@@ -142,10 +146,10 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
     const mode = AI_MODES.find(m => m.id === selectedMode);
     if (mode && !canAccessMode(mode)) {
       toast({
-        title: mode.requiredPlan === "premium" ? "Modo Premium" : "Modo Gold+",
+        title: mode.requiredPlan === "premium" ? t("aiModes.modePremium") : t("aiModes.modeGoldPlus"),
         description: mode.requiredPlan === "premium" 
-          ? "Este modo requer uma assinatura Premium" 
-          : "Este modo requer uma assinatura Gold ou Premium",
+          ? t("aiModes.requiresPremium") 
+          : t("aiModes.requiresGoldOrPremium"),
       });
       return;
     }
@@ -162,8 +166,8 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
       if (mode && !canAccessMode(mode)) {
         queryClient.invalidateQueries({ queryKey: ['/api/user/subscription-status'] });
         toast({
-          title: "Login realizado!",
-          description: "Verifique sua assinatura para acessar este modo.",
+          title: t("aiModes.loginSuccess"),
+          description: t("aiModes.checkSubscription"),
         });
       } else {
         setResponse("");
@@ -182,8 +186,8 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold">Modos IA Premium</h1>
-            <p className="text-sm text-muted-foreground">4 modos especializados de estudo</p>
+            <h1 className="text-xl font-bold">{t("aiModes.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("aiModes.subtitle")}</p>
           </div>
           <UserButton onNavigateToSubscriptions={onNavigateToSubscriptions} showSubscriptionOption />
         </div>
@@ -260,7 +264,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                         setQuestion("");
                       }}
                     >
-                      Trocar modo
+                      {t("aiModes.changeMode")}
                     </Button>
                   </div>
                 </CardContent>
@@ -268,14 +272,14 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
 
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Sua Pergunta</CardTitle>
+                  <CardTitle className="text-lg">{t("aiModes.yourQuestion")}</CardTitle>
                   <CardDescription>
-                    Digite sua dúvida ou o texto que deseja analisar
+                    {t("aiModes.questionDesc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Textarea
-                    placeholder="Ex: Explique João 3:16..."
+                    placeholder={t("aiModes.questionPlaceholder")}
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     rows={4}
@@ -291,12 +295,12 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                     {askMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processando...
+                        {t("aiModes.processing")}
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Enviar Pergunta
+                        {t("aiModes.sendQuestion")}
                       </>
                     )}
                   </Button>
@@ -312,7 +316,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-primary" />
-                        Resposta da IA
+                        {t("aiModes.aiResponse")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -334,13 +338,13 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                     <Sparkles className="w-6 h-6 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold">Desbloqueie todos os modos</h3>
+                    <h3 className="font-semibold">{t("aiModes.unlockAllModes")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Assine Premium ou Gold para acesso completo
+                      {t("aiModes.subscribePremiumOrGold")}
                     </p>
                   </div>
                   <Button onClick={onNavigateToSubscriptions} data-testid="button-upgrade">
-                    Assinar
+                    {t("subscription.subscribe")}
                   </Button>
                 </div>
               </CardContent>
@@ -352,7 +356,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
       <LoginPromptModal
         open={showLoginPrompt}
         onOpenChange={setShowLoginPrompt}
-        featureName="os Modos IA Premium"
+        featureName={t("aiModes.featureName")}
         onAuthSuccess={handleAuthSuccess}
       />
     </div>

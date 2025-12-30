@@ -185,7 +185,7 @@ https://bibliainteligente.replit.app`;
         window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
         break;
       case 'email':
-        window.open(`mailto:?subject=${encodeURIComponent('Resposta do Professor IA - Bíblia Inteligente')}&body=${encodeURIComponent(shareText)}`, '_blank');
+        window.open(`mailto:?subject=${encodeURIComponent(t("professor.emailSubject"))}&body=${encodeURIComponent(shareText)}`, '_blank');
         break;
       case 'copy':
         try {
@@ -309,7 +309,7 @@ https://bibliainteligente.replit.app`;
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 <div className="flex items-center justify-between mt-1 gap-2">
                   <span className="text-[10px] opacity-60">
-                    {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    {message.timestamp.toLocaleTimeString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : 'pt-BR', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                   {message.role === 'assistant' && (
                     <DropdownMenu>
@@ -405,7 +405,7 @@ https://bibliainteligente.replit.app`;
       <LoginPromptModal
         open={showLoginPrompt}
         onOpenChange={setShowLoginPrompt}
-        featureName="o Professor IA"
+        featureName={t("professor.featureName")}
         onAuthSuccess={handleAuthSuccess}
       />
     </div>

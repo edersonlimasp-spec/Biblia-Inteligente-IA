@@ -146,31 +146,37 @@ export function BibleReader({
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
 
   // Initialize with last reading position - only runs once on mount
+  // BUT always use the version matching the current language
   useEffect(() => {
     const lastReading = getLastReading();
+    const defaultVersion = getDefaultBibleVersion();
+    
     if (lastReading && lastReading.book && lastReading.chapter) {
       setSelectedBook(lastReading.book);
       setSelectedChapter(lastReading.chapter);
-      // Usar versão salva (não validar - backend faz fallback)
-      const version = lastReading.versionCode || "ACF";
-      setSelectedVersion(version);
     }
+    
+    // Always use version matching current language on mount
+    console.log(`[BIBLE] INIT -> language=${language} defaultVersion=${defaultVersion}`);
+    setSelectedVersion(defaultVersion);
+    
     // Mark as restored so tracking can begin
     hasRestoredReadingRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Track previous language to detect changes
+  // Track previous language to detect changes AFTER initial mount
   const prevLanguageRef = useRef(language);
 
-  // Effect to change Bible version when language changes
+  // Effect to change Bible version when language changes (after mount)
   useEffect(() => {
-    if (prevLanguageRef.current !== language && hasRestoredReadingRef.current) {
+    // Skip the first render (mount), only react to actual changes
+    if (prevLanguageRef.current !== language) {
       const defaultVersion = getDefaultBibleVersion();
       console.log(`[BIBLE] LANGUAGE_CHANGE -> from=${prevLanguageRef.current} to=${language} version=${defaultVersion}`);
       handleVersionChange(defaultVersion);
+      prevLanguageRef.current = language;
     }
-    prevLanguageRef.current = language;
   }, [language, getDefaultBibleVersion]);
 
   // Handler para mudança de versão com invalidação de cache

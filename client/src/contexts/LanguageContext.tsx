@@ -16,7 +16,7 @@ const LANGUAGE_STORAGE_KEY = "biblia_inteligente_language";
 const DEFAULT_BIBLE_VERSIONS: Record<AppLanguage, string> = {
   pt: "ACF",
   en: "KJV",
-  es: "RVR",
+  es: "RVR1960",
 };
 
 const translations: Record<AppLanguage, Record<string, string>> = {

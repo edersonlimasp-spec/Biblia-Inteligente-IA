@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { UserButton } from "@/components/UserButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -64,19 +65,19 @@ interface AgendaEvent {
   createdAt: string;
 }
 
-const EVENT_TYPES = [
-  { id: "culto", name: "Culto", icon: Church, color: "text-blue-500" },
-  { id: "estudo", name: "Estudo Bíblico", icon: BookOpen, color: "text-emerald-500" },
-  { id: "oracao", name: "Reunião de Oração", icon: Heart, color: "text-red-500" },
-  { id: "louvor", name: "Ensaio/Louvor", icon: Music, color: "text-purple-500" },
-  { id: "visita", name: "Visita", icon: Users, color: "text-amber-500" },
-  { id: "evangelismo", name: "Evangelismo", icon: Megaphone, color: "text-orange-500" },
-  { id: "jovens", name: "Reunião de Jovens", icon: Sparkles, color: "text-pink-500" },
-  { id: "criancas", name: "Ministério Infantil", icon: Baby, color: "text-cyan-500" },
-  { id: "discipulado", name: "Discipulado", icon: GraduationCap, color: "text-indigo-500" },
-  { id: "comunhao", name: "Comunhão/Confraternização", icon: Coffee, color: "text-yellow-600" },
-  { id: "lideranca", name: "Reunião de Liderança", icon: Crown, color: "text-slate-500" },
-  { id: "outro", name: "Outro", icon: Calendar, color: "text-gray-500" },
+const EVENT_TYPE_IDS = [
+  { id: "culto", icon: Church, color: "text-blue-500" },
+  { id: "estudo", icon: BookOpen, color: "text-emerald-500" },
+  { id: "oracao", icon: Heart, color: "text-red-500" },
+  { id: "louvor", icon: Music, color: "text-purple-500" },
+  { id: "visita", icon: Users, color: "text-amber-500" },
+  { id: "evangelismo", icon: Megaphone, color: "text-orange-500" },
+  { id: "jovens", icon: Sparkles, color: "text-pink-500" },
+  { id: "criancas", icon: Baby, color: "text-cyan-500" },
+  { id: "discipulado", icon: GraduationCap, color: "text-indigo-500" },
+  { id: "comunhao", icon: Coffee, color: "text-yellow-600" },
+  { id: "lideranca", icon: Crown, color: "text-slate-500" },
+  { id: "outro", icon: Calendar, color: "text-gray-500" },
 ];
 
 const THEMES = [
@@ -129,6 +130,7 @@ function isFuture(dateStr: string): boolean {
 
 export function AgendaScreen({ onBack }: AgendaScreenProps) {
   const { toast } = useToast();
+  const { t, language } = useLanguage();
   const { requireAuth } = useRequireAuth();
   const { navigate } = useNavigation();
   const { agendaLimit, subscriptionType, isLoading: isLoadingLimits } = useUsageLimits();
@@ -200,8 +202,8 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
   const handleAddEvent = () => {
     if (!newTitle.trim()) {
       toast({
-        title: "Erro",
-        description: "Informe um título para o evento",
+        title: t("common.error"),
+        description: t("agenda.requiredTitle"),
         variant: "destructive",
       });
       return;
@@ -229,17 +231,17 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
       resetForm();
       
       toast({
-        title: "Evento adicionado",
-        description: "O evento foi adicionado à sua agenda",
+        title: t("agenda.eventAdded"),
+        description: t("agenda.eventAddedDesc"),
       });
-    }, "adicionar evento na agenda");
+    }, t("agenda.addEvent"));
   };
 
   const handleEditEvent = () => {
     if (!editingEvent || !newTitle.trim()) {
       toast({
-        title: "Erro",
-        description: "Informe um título para o evento",
+        title: t("common.error"),
+        description: t("agenda.requiredTitle"),
         variant: "destructive",
       });
       return;
@@ -270,10 +272,10 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
       resetForm();
 
       toast({
-        title: "Evento atualizado",
-        description: "As alterações foram salvas",
+        title: t("agenda.eventUpdated"),
+        description: t("agenda.eventUpdatedDesc"),
       });
-    }, "editar evento na agenda");
+    }, t("agenda.editEvent"));
   };
 
   const handleDeleteEvent = () => {
@@ -282,10 +284,10 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
       setEvents((prev) => prev.filter((ev) => ev.id !== deleteConfirmId));
       setDeleteConfirmId(null);
       toast({
-        title: "Evento removido",
-        description: "O evento foi excluído da agenda",
+        title: t("agenda.eventRemoved"),
+        description: t("agenda.eventRemovedDesc"),
       });
-    }, "excluir evento da agenda");
+    }, t("agenda.deleteEvent"));
   };
 
   const openEditDialog = (event: AgendaEvent) => {
@@ -307,7 +309,11 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
   };
 
   const getEventType = (typeId: string) => {
-    return EVENT_TYPES.find((t) => t.id === typeId) || EVENT_TYPES[EVENT_TYPES.length - 1];
+    const eventType = EVENT_TYPE_IDS.find((et) => et.id === typeId) || EVENT_TYPE_IDS[EVENT_TYPE_IDS.length - 1];
+    return {
+      ...eventType,
+      name: t(`agenda.types.${eventType.id}` as any)
+    };
   };
 
   const createGoogleCalendarLink = (event: AgendaEvent) => {

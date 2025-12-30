@@ -63,6 +63,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
     queryKey: ['/api/study/lessons', lessonId, language],
     queryFn: async () => {
       const res = await fetch(`/api/study/lessons/${lessonId}?lang=${language}`, {
+        credentials: 'include',
         headers: { 'x-device-id': deviceId || '' }
       });
       if (!res.ok) {

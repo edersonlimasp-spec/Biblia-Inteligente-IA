@@ -1,0 +1,146 @@
+ATENÇÃO: NÃO REMOVER OS EMOJIS DAS BANDEIRAS (🇧🇷 🇺🇸 🇪🇸).
+Eles devem continuar existindo como botões de troca de idioma, apenas corrigir a funcionalidade.
+
+OBJETIVO PRINCIPAL (OBRIGATÓRIO)
+Ao clicar nas bandeiras, o idioma deve mudar:
+1) no APP INTEIRO (toda UI: menus, botões, títulos, placeholders, avisos, textos)
+2) e no MÓDULO DA BÍBLIA (nomes de livros + versão/translation + conteúdo bíblico quando existir fonte/dataset)
+Hoje os ícones existem, mas a troca NÃO funciona. Corrija SEM quebrar o app.
+
+REGRAS DE SEGURANÇA (NÃO QUEBRAR NADA)
+- Não mudar rotas, não remover telas, não alterar a lógica de login, assinatura, pagamento, webhooks.
+- Não fazer “refactor geral”, não renomear pastas, não reestruturar projeto.
+- Faça mudanças pequenas e controladas, com commits/checkpoints curtos.
+- Proibido entregar dizendo “feito” sem TESTAR no Preview.
+
+ANTES DE CODAR: VOCÊ DEVE IDENTIFICAR E ESCREVER (NO SEU OUTPUT) ONDE VAI MEXER
+1) Qual é o arquivo de entrada do app? (ex: src/main.tsx, src/index.tsx, App.tsx)
+2) Onde está o componente das bandeiras?
+3) Como o módulo Bíblia carrega texto hoje? (API? JSON local? biblioteca?)
+Se não encontrar em 2 minutos, use busca no projeto por: "🇧🇷" "flag" "language" "i18n" "bible" "books".
+
+IMPLEMENTAÇÃO TÉCNICA (FAÇA EXATAMENTE ISSO)
+
+PARTE 1 — CRIAR UMA ÚNICA FONTE DE VERDADE DO IDIOMA (GLOBAL)
+A) Crie: src/i18n/languageStore.ts (ou .js)
+- export type Lang = 'pt' | 'en' | 'es'
+- const STORAGE_KEY = 'app_lang'
+- export function getInitialLanguage(): Lang
+  - lê localStorage[STORAGE_KEY]
+  - se inválido, retorna 'pt'
+- export function persistLanguage(lang: Lang)
+- export const LanguageContext (React Context) + Provider:
+  - state: lang
+  - action: setLang(nextLang)
+  - quando setLang:
+    - atualizar state
+    - persistir no localStorage
+    - chamar i18n.changeLanguage(nextLang) (ver Parte 2)
+- export hook: useLanguage()
+
+OBS: Se já existir Zustand/Redux para estado global, use ele, mas mantenha a mesma persistência.
+
+PARTE 2 — i18n REAL PARA TODA UI (SEM ERROS)
+B) Se o projeto já usa i18next/react-i18next:
+- Não reinstale.
+- Apenas conecte setLang => i18n.changeLanguage(lang).
+
+C) Se NÃO usa i18n:
+1) Instale dependências:
+   - react-i18next
+   - i18next
+2) Crie: src/i18n/index.ts
+   - inicialize i18next com initReactI18next
+   - defina fallbackLng = 'pt'
+   - resources: pt, en, es
+3) Crie arquivos mínimos:
+   - src/i18n/locales/pt.json
+   - src/i18n/locales/en.json
+   - src/i18n/locales/es.json
+
+IMPORTANTE: Não tente traduzir tudo do app inteiro agora se for gigante.
+MÍNIMO OBRIGATÓRIO:
+- Header/menu
+- Tela home
+- Tela Bíblia
+- Botões de navegação
+- Mensagens mais visíveis
+O restante pode continuar em PT TEMPORARIAMENTE, mas as telas principais DEVEM trocar.
+
+D) Conectar provider no ponto certo:
+- No arquivo de entrada do app, envolva o app com:
+  - I18nextProvider (se necessário)
+  - LanguageProvider
+A ordem correta:
+- i18n inicializado antes do render
+- LanguageProvider envolvem App para re-render global
+
+PARTE 3 — LIGAR AS BANDEIRAS (SEM REMOVER EMOJIS)
+E) No componente das bandeiras:
+- Mantenha exatamente os emojis 🇧🇷 🇺🇸 🇪🇸 (não trocar por imagens)
+- onClick deve chamar setLang('pt'|'en'|'es') do useLanguage()
+- Também destaque visual do idioma ativo (ex: borda/opacity), SEM alterar tamanho atual se já aprovado.
+
+F) Adicione logs temporários (somente durante debug):
+- Ao clicar: console.log('[LANG] set to', lang)
+- Ao inicializar: console.log('[LANG] initial', lang)
+Depois de confirmar no Preview, remover logs.
+
+PARTE 4 — FAZER O MÓDULO BÍBLIA MUDAR (UI + CONTEÚDO)
+G) Identifique o “Bible data source” atual:
+1) Se usa API:
+   - a função fetch deve aceitar (lang) e/ou (translation)
+   - ao mudar lang, refaça a chamada (refetch)
+   - exemplo: GET /api/bible?lang=en&translation=KJV
+2) Se usa JSON local:
+   - criar mapping:
+     - pt -> dataset pt
+     - en -> dataset en
+     - es -> dataset es
+   - ao mudar lang, trocar o dataset carregado
+3) Se NÃO EXISTE dataset en/es:
+   - NÃO QUEBRE A TELA
+   - Faça fallback controlado:
+     - UI do módulo muda (títulos, botões, livros)
+     - Conteúdo bíblico: mantenha PT e mostre um aviso discreto:
+       "Conteúdo bíblico em EN/ES ainda não disponível."
+   - O app não pode dar erro nem tela branca.
+
+H) Nomes dos livros em EN/ES:
+- Mesmo sem dataset completo, o mínimo é:
+  - ter arrays de nomes de livros por idioma (pt/en/es)
+  - o seletor de livros deve trocar nomes ao mudar lang
+- Não alterar a estrutura do componente, só trocar a fonte dos labels.
+
+I) Sincronização em tempo real:
+- O componente Bíblia deve ler lang do useLanguage()
+- Deve ter useEffect(() => { ... }, [lang]) para:
+  - refetch ou trocar dataset
+  - atualizar labels
+
+PARTE 5 — TESTES OBRIGATÓRIOS NO PREVIEW (SEM ISSO NÃO ENTREGUE)
+J) Teste manual obrigatório:
+1) Home:
+   - Clique 🇺🇸 -> UI muda para EN (menu/botões/títulos)
+   - Clique 🇪🇸 -> UI muda para ES
+   - Clique 🇧🇷 -> volta PT
+2) Bíblia:
+   - Repita os cliques dentro da tela Bíblia
+   - Confirme que: labels mudam + conteúdo tenta mudar (ou fallback com aviso)
+3) Recarregue a página:
+   - idioma permanece (localStorage)
+4) Console:
+   - Sem erros
+   - Sem tela branca
+5) Rotas/login/pagamento:
+   - não foi alterado nada disso
+
+K) Se qualquer item falhar:
+- NÃO finalize
+- Corrija e teste novamente
+
+ENTREGA (FORMATO DO SEU RESULTADO)
+1) Liste todos os arquivos alterados e por quê
+2) Explique como testou no Preview (o que clicou e o que viu)
+3) Confirme que NÃO removeu as bandeiras emoji
+4) Se faltar dataset EN/ES, confirme o fallback e onde aparece o aviso (sem quebrar nada)

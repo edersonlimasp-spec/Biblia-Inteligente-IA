@@ -29,6 +29,7 @@ import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
 import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { tokenizeVerse, normalizeWordForLookup } from "@/lib/verse-utils";
+import { getBookName } from "@/lib/bible-book-names";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
@@ -589,13 +590,15 @@ export function BibleReader({
           />
 
           <Select value={selectedBook} onValueChange={setSelectedBook}>
-            <SelectTrigger className="w-20 text-sm h-9 flex-shrink-0" data-testid="select-book">
-              <SelectValue />
+            <SelectTrigger className="w-24 text-sm h-9 flex-shrink-0" data-testid="select-book">
+              <SelectValue>
+                {getBookName(selectedBook, language)}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {books?.map((book) => (
                 <SelectItem key={book.id} value={book.id}>
-                  {book.name}
+                  {getBookName(book.id, language)}
                 </SelectItem>
               ))}
             </SelectContent>

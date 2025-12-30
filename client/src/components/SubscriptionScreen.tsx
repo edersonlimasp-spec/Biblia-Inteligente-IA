@@ -58,22 +58,16 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     fetchTrialInfo();
   }, [user]);
 
-  // Map plan names to backend plan IDs
-  const planNameToId: Record<string, string> = {
-    'Strong Vitalício': 'vitalicio',
-    'Plano Gold': 'gold',
-    'Plano Premium': 'premium',
-  };
+  // Plan ID mapping is now handled via plan.id in the plans array
 
-  const handlePlanSelect = async (planName: string) => {
+  const handlePlanSelect = async (planId: string, planName: string) => {
     if (!user) {
       setSelectedPlan(planName);
       setShowAuthModal(true);
       return;
     }
     
-    const planId = planNameToId[planName];
-    if (!planId) {
+    if (!planId || planId === "free") {
       toast({
         title: t("common.error"),
         description: t("subscription.invalidPlan"),
@@ -82,10 +76,10 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       return;
     }
     
-    setIsPurchasing(planName);
+    setIsPurchasing(planId);
     
     try {
-      const response = await apiRequest('POST', '/api/mp/create-checkout', { plan: planId });
+      const response = await apiRequest('POST', '/api/mp/create-checkout', { plan: getPlanIdForBackend(planId) });
       const data = await response.json();
       
       if (data.init_point) {
@@ -123,6 +117,15 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     }
   };
 
+  const getPlanIdForBackend = (planId: string): string => {
+    const mapping: Record<string, string> = {
+      'vitalicio': 'vitalicio',
+      'gold': 'gold',
+      'premium': 'premium',
+    };
+    return mapping[planId] || planId;
+  };
+
   const handleAuthSuccess = () => {
     if (selectedPlan) {
       toast({
@@ -132,6 +135,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     }
   };
   type PlanInfo = {
+    id: string;
     name: string;
     price: string;
     period: string;
@@ -144,70 +148,74 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   
   const plans: PlanInfo[] = [
     {
-      name: "Gratuito",
-      price: "R$ 0",
-      period: "para sempre",
+      id: "free",
+      name: t("subscription.plans.free.name"),
+      price: t("subscription.plans.free.price"),
+      period: t("subscription.plans.free.period"),
       icon: Lock,
       features: [
-        "Leitura bíblica completa",
-        "2 consultas Strong (visitante)",
-        "4 consultas Strong (com login)",
-        "5 perguntas à IA Professor",
-        "3 primeiros estudos do curso Iniciantes",
-        "3 gravações de sermão",
-        "3 eventos na agenda",
+        t("subscription.plans.free.feature1"),
+        t("subscription.plans.free.feature2"),
+        t("subscription.plans.free.feature3"),
+        t("subscription.plans.free.feature4"),
+        t("subscription.plans.free.feature5"),
+        t("subscription.plans.free.feature6"),
+        t("subscription.plans.free.feature7"),
       ],
       highlight: false,
       isFree: true,
     },
     {
-      name: "Strong Vitalício",
-      price: "R$ 49,90",
-      period: "pagamento único",
+      id: "vitalicio",
+      name: t("subscription.plans.lifetime.name"),
+      price: t("subscription.plans.lifetime.price"),
+      period: t("subscription.plans.lifetime.period"),
       icon: Crown,
       features: [
-        "Dicionário Strong ilimitado para sempre",
-        "Hebraico e Grego originais",
-        "Morfologia e etimologia completa",
-        "Pague uma vez, use para sempre",
-        "Ideal para quem quer só o Strong",
-        "+ todo acesso gratuito",
+        t("subscription.plans.lifetime.feature1"),
+        t("subscription.plans.lifetime.feature2"),
+        t("subscription.plans.lifetime.feature3"),
+        t("subscription.plans.lifetime.feature4"),
+        t("subscription.plans.lifetime.feature5"),
+        t("subscription.plans.lifetime.feature6"),
       ],
       highlight: false,
     },
     {
-      name: "Plano Gold",
-      price: "R$ 9,90",
-      period: "por mês",
+      id: "gold",
+      name: t("subscription.plans.gold.name"),
+      price: t("subscription.plans.gold.price"),
+      period: t("subscription.plans.gold.period"),
       icon: Sparkles,
       features: [
-        "20 consultas Strong por dia",
-        "30 perguntas à IA Professor",
-        "Curso Iniciantes completo",
-        "7 módulos do Intermediário",
-        "30 gravações de sermão",
-        "30 eventos na agenda",
-        "Histórico de conversas com IA",
+        t("subscription.plans.gold.feature1"),
+        t("subscription.plans.gold.feature2"),
+        t("subscription.plans.gold.feature3"),
+        t("subscription.plans.gold.feature4"),
+        t("subscription.plans.gold.feature5"),
+        t("subscription.plans.gold.feature6"),
+        t("subscription.plans.gold.feature7"),
       ],
       highlight: false,
     },
     {
-      name: "Plano Premium",
-      price: "R$ 19,90",
-      period: "por mês",
+      id: "premium",
+      name: t("subscription.plans.premium.name"),
+      price: t("subscription.plans.premium.price"),
+      period: t("subscription.plans.premium.period"),
       icon: Sparkles,
       features: [
-        "Strong ilimitado",
-        "100 perguntas à IA Professor",
-        "Todos os cursos liberados",
-        "Exegese profunda com IA",
-        "Modo pregador e professor",
-        "100 gravações de sermão",
-        "100 eventos na agenda",
-        "Suporte prioritário",
+        t("subscription.plans.premium.feature1"),
+        t("subscription.plans.premium.feature2"),
+        t("subscription.plans.premium.feature3"),
+        t("subscription.plans.premium.feature4"),
+        t("subscription.plans.premium.feature5"),
+        t("subscription.plans.premium.feature6"),
+        t("subscription.plans.premium.feature7"),
+        t("subscription.plans.premium.feature8"),
       ],
       highlight: true,
-      badge: "Mais completo",
+      badge: t("subscription.mostComplete"),
     },
   ];
 
@@ -243,14 +251,14 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           {trialDaysRemaining !== null && trialDaysRemaining > 0 && (
             <Badge variant="secondary" className="mb-4">
               <Lock className="h-3 w-3 mr-1" />
-              Trial de 30 dias: {trialDaysRemaining} dias restantes
+              {t("subscription.trialBadge").replace("{days}", String(trialDaysRemaining))}
             </Badge>
           )}
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3">
-            Escolha seu Plano
+            {t("subscription.choosePlan")}
           </h1>
           <p className="text-muted-foreground text-lg">
-            Desbloqueie todo o potencial dos estudos bíblicos
+            {t("subscription.unlockPotential")}
           </p>
         </div>
 
@@ -260,13 +268,13 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
             const Icon = plan.icon;
             return (
               <Card
-                key={plan.name}
+                key={plan.id}
                 className={`relative ${
                   plan.highlight
                     ? "border-primary shadow-lg ring-2 ring-primary/20"
                     : ""
                 }`}
-                data-testid={`card-plan-${plan.name.toLowerCase().replace(/\s/g, "-")}`}
+                data-testid={`card-plan-${plan.id}`}
               >
                 {plan.badge && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -302,22 +310,22 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                   </ul>
                   {plan.isFree ? (
                     <div className="text-center text-sm text-muted-foreground py-2">
-                      Plano atual para visitantes
+                      {t("subscription.currentForVisitors")}
                     </div>
                   ) : (
                     <Button
                       className="w-full"
                       variant={plan.highlight ? "default" : "outline"}
-                      onClick={() => handlePlanSelect(plan.name)}
-                      disabled={isPurchasing === plan.name}
-                      data-testid={`button-subscribe-${plan.name.toLowerCase().replace(/\s/g, "-")}`}
+                      onClick={() => handlePlanSelect(plan.id, plan.name)}
+                      disabled={isPurchasing === plan.id}
+                      data-testid={`button-subscribe-${plan.id}`}
                     >
-                      {isPurchasing === plan.name ? (
+                      {isPurchasing === plan.id ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Processando...
+                          {t("subscription.processing")}
                         </>
-                      ) : plan.highlight ? "Assinar Agora" : "Escolher Plano"}
+                      ) : plan.highlight ? t("subscription.subscribeNow") : t("subscription.choosePlanButton")}
                     </Button>
                   )}
                 </CardContent>
@@ -334,10 +342,9 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                 <Lock className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Sobre o Trial de 30 Dias</h3>
+                <h3 className="font-semibold mb-1">{t("subscription.trialInfoTitle")}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Novos usuários têm acesso completo gratuito por 30 dias: Strong, Hebraico, Grego e IA Professor (modo Essencial, 30 perguntas/dia).
-                  Após o período, esses recursos serão bloqueados. Assine um plano para continuar aproveitando.
+                  {t("subscription.trialInfoDesc")}
                 </p>
               </div>
             </div>
@@ -349,8 +356,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         open={showAuthModal}
         onOpenChange={setShowAuthModal}
         onAuthSuccess={handleAuthSuccess}
-        title="Criar conta para assinar"
-        description={selectedPlan ? `Para assinar o ${selectedPlan}, você precisa criar uma conta ou fazer login.` : undefined}
+        title={t("subscription.authModalTitle")}
+        description={selectedPlan ? t("subscription.authModalDesc").replace("{plan}", selectedPlan) : undefined}
       />
     </div>
   );

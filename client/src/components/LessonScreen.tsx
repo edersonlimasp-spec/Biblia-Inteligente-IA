@@ -59,12 +59,23 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
     reason: string;
   }
   
+  // Get auth token from localStorage
+  const getAuthToken = () => localStorage.getItem('authToken');
+  
   const { data: lessonData, isLoading, error } = useQuery<LessonData, ApiError>({
     queryKey: ['/api/study/lessons', lessonId, language],
     queryFn: async () => {
+      const token = getAuthToken();
+      const headers: HeadersInit = { 'x-device-id': deviceId || '' };
+      
+      // CRITICAL: Add JWT token for authentication
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const res = await fetch(`/api/study/lessons/${lessonId}?lang=${language}`, {
         credentials: 'include',
-        headers: { 'x-device-id': deviceId || '' }
+        headers
       });
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: 'Failed to fetch lesson', reason: 'UNKNOWN' }));

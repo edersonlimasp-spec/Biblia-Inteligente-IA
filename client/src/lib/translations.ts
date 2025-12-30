@@ -290,6 +290,11 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "courses.noLessons": "Nenhuma lição encontrada",
     "courses.studyTracks": "Trilhas de Estudo",
     "courses.lessonsFeature": "as lições do curso",
+    "courses.accessDenied": "Acesso Negado",
+    "courses.loginRequired": "Login Necessário",
+    "courses.upgradeRequired": "Upgrade Necessário",
+    "courses.lessonUnavailable": "Lição Indisponível",
+    "courses.tryAgainLater": "Tente novamente mais tarde.",
     
     // Subscription
     "subscription.title": "Assinaturas",
@@ -944,6 +949,11 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "courses.noLessons": "No lessons found",
     "courses.studyTracks": "Study Tracks",
     "courses.lessonsFeature": "course lessons",
+    "courses.accessDenied": "Access Denied",
+    "courses.loginRequired": "Login Required",
+    "courses.upgradeRequired": "Upgrade Required",
+    "courses.lessonUnavailable": "Lesson Unavailable",
+    "courses.tryAgainLater": "Please try again later.",
     
     // Subscription
     "subscription.title": "Subscriptions",
@@ -1598,6 +1608,11 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "courses.noLessons": "No se encontraron lecciones",
     "courses.studyTracks": "Rutas de Estudio",
     "courses.lessonsFeature": "las lecciones del curso",
+    "courses.accessDenied": "Acceso Denegado",
+    "courses.loginRequired": "Inicio de Sesión Requerido",
+    "courses.upgradeRequired": "Actualización Requerida",
+    "courses.lessonUnavailable": "Lección No Disponible",
+    "courses.tryAgainLater": "Por favor, inténtalo de nuevo más tarde.",
     
     // Subscription
     "subscription.title": "Suscripciones",

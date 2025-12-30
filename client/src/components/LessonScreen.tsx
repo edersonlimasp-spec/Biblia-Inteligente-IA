@@ -54,16 +54,27 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isAskingProfessor, setIsAskingProfessor] = useState(false);
 
-  const { data: lessonData, isLoading } = useQuery<LessonData>({
+  interface ApiError {
+    error: string;
+    reason: string;
+  }
+  
+  const { data: lessonData, isLoading, error } = useQuery<LessonData, ApiError>({
     queryKey: ['/api/study/lessons', lessonId, language],
     queryFn: async () => {
       const res = await fetch(`/api/study/lessons/${lessonId}?lang=${language}`, {
         headers: { 'x-device-id': deviceId || '' }
       });
-      if (!res.ok) throw new Error('Failed to fetch lesson');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Failed to fetch lesson', reason: 'UNKNOWN' }));
+        throw errorData;
+      }
       return res.json();
-    }
+    },
+    retry: false,
   });
+  
+  const accessError = error as ApiError | null;
 
   const markCompletedMutation = useMutation({
     mutationFn: async () => {
@@ -134,6 +145,39 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-2/3" />
+        </div>
+      </div>
+    );
+  }
+
+  if (accessError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
+          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back-error">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-sm font-semibold">{t("courses.accessDenied")}</h1>
+          </div>
+        </header>
+        <div className="max-w-md mx-auto px-4 py-12 text-center">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-lg font-semibold mb-2">
+            {accessError?.reason === 'NOT_AUTHENTICATED' 
+              ? t("courses.loginRequired")
+              : accessError?.reason === 'UPGRADE_REQUIRED'
+              ? t("courses.upgradeRequired")
+              : t("courses.lessonUnavailable")}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            {accessError?.error || t("courses.tryAgainLater")}
+          </p>
+          <Button onClick={onBack} data-testid="button-go-back">
+            {t("common.back")}
+          </Button>
         </div>
       </div>
     );

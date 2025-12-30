@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { UserButton } from "@/components/UserButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ interface RecordingsScreenProps {
 }
 
 export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
+  const { t } = useLanguage();
   const { requireAuth } = useRequireAuth();
   const { toast } = useToast();
   const { navigate } = useNavigation();
@@ -99,8 +101,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       const success = await startRecording();
       if (success) {
         toast({
-          title: "Gravação iniciada",
-          description: "Fale próximo ao microfone",
+          title: t("recordings.started"),
+          description: t("recordings.speakClose"),
         });
       }
     }, "gravar sermões");
@@ -124,8 +126,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const handleSaveRecording = async () => {
     if (!recordedBlob || !recordingTitle.trim()) {
       toast({
-        title: "Erro",
-        description: "Informe um título para a gravação",
+        title: t("common.error"),
+        description: t("recordings.requireTitle"),
         variant: "destructive",
       });
       return;
@@ -134,8 +136,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
     try {
       await saveRecording(recordedBlob, recordingTitle.trim(), recordingDuration);
       toast({
-        title: "Gravação salva",
-        description: `"${recordingTitle}" foi salva com sucesso`,
+        title: t("recordings.saved"),
+        description: `"${recordingTitle}" ${t("recordings.savedSuccess")}`,
       });
       setShowSaveDialog(false);
       setRecordedBlob(null);
@@ -143,8 +145,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       setRecordingDuration(0);
     } catch {
       toast({
-        title: "Erro ao salvar",
-        description: "Não foi possível salvar a gravação",
+        title: t("recordings.saveError"),
+        description: t("recordings.saveErrorDesc"),
         variant: "destructive",
       });
     }

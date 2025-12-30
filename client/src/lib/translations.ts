@@ -372,6 +372,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "games.nextQuestion": "Próxima Pergunta",
     "games.playAgain": "Jogar Novamente",
     "games.backToMenu": "Voltar ao Menu",
+    "games.seeResult": "Ver Resultado",
     
     // Prayer Mode
     "prayer.title": "Modo Oração",
@@ -405,6 +406,11 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "recordings.recordingTitle": "Título da gravação",
     "recordings.started": "Gravação iniciada",
     "recordings.speakClose": "Fale próximo ao microfone",
+    "recordings.requireTitle": "Informe um título para a gravação",
+    "recordings.saved": "Gravação salva",
+    "recordings.savedSuccess": "foi salva com sucesso",
+    "recordings.saveError": "Erro ao salvar",
+    "recordings.saveErrorDesc": "Não foi possível salvar a gravação",
     
     // Subscription Screen (additional)
     "subscription.choosePlan": "Escolha seu Plano",
@@ -783,6 +789,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "games.nextQuestion": "Next Question",
     "games.playAgain": "Play Again",
     "games.backToMenu": "Back to Menu",
+    "games.seeResult": "See Result",
     
     // Prayer Mode
     "prayer.title": "Prayer Mode",
@@ -816,6 +823,11 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "recordings.recordingTitle": "Recording title",
     "recordings.started": "Recording started",
     "recordings.speakClose": "Speak close to the microphone",
+    "recordings.requireTitle": "Please enter a title for the recording",
+    "recordings.saved": "Recording saved",
+    "recordings.savedSuccess": "was saved successfully",
+    "recordings.saveError": "Error saving",
+    "recordings.saveErrorDesc": "Could not save the recording",
     
     // Subscription Screen (additional)
     "subscription.choosePlan": "Choose Your Plan",
@@ -1194,6 +1206,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "games.nextQuestion": "Siguiente Pregunta",
     "games.playAgain": "Jugar de Nuevo",
     "games.backToMenu": "Volver al Menú",
+    "games.seeResult": "Ver Resultado",
     
     // Prayer Mode
     "prayer.title": "Modo Oración",
@@ -1227,6 +1240,11 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "recordings.recordingTitle": "Título de la grabación",
     "recordings.started": "Grabación iniciada",
     "recordings.speakClose": "Habla cerca del micrófono",
+    "recordings.requireTitle": "Ingresa un título para la grabación",
+    "recordings.saved": "Grabación guardada",
+    "recordings.savedSuccess": "se guardó exitosamente",
+    "recordings.saveError": "Error al guardar",
+    "recordings.saveErrorDesc": "No fue posible guardar la grabación",
     
     // Subscription Screen (additional)
     "subscription.choosePlan": "Elige tu Plan",

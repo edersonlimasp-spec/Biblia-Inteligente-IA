@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -134,6 +135,7 @@ const READING_PLANS = [
 ];
 
 export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgressScreenProps) {
+  const { t } = useLanguage();
   const deviceId = getDeviceId();
   const [activeTab, setActiveTab] = useState("progress");
 
@@ -182,8 +184,8 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold">Planos & Progresso</h1>
-            <p className="text-sm text-muted-foreground">Acompanhe sua jornada bíblica</p>
+            <h1 className="text-xl font-bold">{t("plansProgress.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("plansProgress.subtitle")}</p>
           </div>
         </div>
       </header>
@@ -193,11 +195,11 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="progress" data-testid="tab-progress">
               <TrendingUp className="w-4 h-4 mr-2" />
-              Progresso
+              {t("plansProgress.tabProgress")}
             </TabsTrigger>
             <TabsTrigger value="plans" data-testid="tab-plans">
               <Calendar className="w-4 h-4 mr-2" />
-              Planos de Leitura
+              {t("plansProgress.tabPlans")}
             </TabsTrigger>
           </TabsList>
 
@@ -211,9 +213,9 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
                         <span className="text-2xl font-bold text-primary">{overallProgress}%</span>
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold">Progresso Geral</h3>
+                        <h3 className="text-lg font-semibold">{t("plansProgress.overallProgress")}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {chaptersRead} de {totalChapters} capítulos
+                          {chaptersRead} {t("plansProgress.of")} {totalChapters} {t("plansProgress.chapters")}
                         </p>
                       </div>
                     </div>
@@ -224,7 +226,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
                 <div className="grid grid-cols-2 gap-3">
                   <Card>
                     <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Antigo Testamento</h4>
+                      <h4 className="font-medium mb-2">{t("bible.oldTestament")}</h4>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-2xl font-bold text-primary">
                           {Math.round((atRead / atChapters) * 100)}%
@@ -236,7 +238,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
                   </Card>
                   <Card>
                     <CardContent className="p-4">
-                      <h4 className="font-medium mb-2">Novo Testamento</h4>
+                      <h4 className="font-medium mb-2">{t("bible.newTestament")}</h4>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-2xl font-bold text-primary">
                           {Math.round((ntRead / ntChapters) * 100)}%
@@ -250,7 +252,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Livros do AT</CardTitle>
+                    <CardTitle className="text-base">{t("plansProgress.booksOf")} {t("plansProgress.at")}</CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {atBooks.slice(0, 12).map((book) => {
@@ -279,7 +281,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Livros do NT</CardTitle>
+                    <CardTitle className="text-base">{t("plansProgress.booksOf")} {t("plansProgress.nt")}</CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {ntBooks.slice(0, 12).map((book) => {

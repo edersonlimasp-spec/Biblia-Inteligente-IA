@@ -61,19 +61,19 @@ interface ModuleDetail {
   };
 }
 
-const LEVEL_CONFIG: Record<string, { label: string; color: string; badgeClass: string }> = {
+const LEVEL_CONFIG: Record<string, { labelKey: string; color: string; badgeClass: string }> = {
   iniciante: { 
-    label: "Iniciante", 
+    labelKey: "courses.beginner", 
     color: "text-green-600", 
     badgeClass: "bg-green-500/10 text-green-600 border-green-500/30" 
   },
   moderado: { 
-    label: "Moderado", 
+    labelKey: "courses.intermediate", 
     color: "text-amber-600", 
     badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/30" 
   },
   avancado: { 
-    label: "Avançado", 
+    labelKey: "courses.advanced", 
     color: "text-red-600", 
     badgeClass: "bg-red-500/10 text-red-600 border-red-500/30" 
   },
@@ -112,13 +112,7 @@ function TrackCard({
   t: (key: string) => string;
 }) {
   const levelConfig = LEVEL_CONFIG[track.level] || LEVEL_CONFIG.iniciante;
-  
-  const levelLabels: Record<string, string> = {
-    iniciante: t("courses.beginner"),
-    moderado: t("courses.intermediate"),
-    avancado: t("courses.advanced"),
-  };
-  const levelLabel = levelLabels[track.level] || levelConfig.label;
+  const levelLabel = t(levelConfig.labelKey);
   
   const { data: lessonsData, isLoading, error } = useQuery<{ lessons: Lesson[] }>({
     queryKey: ['/api/study/tracks', track.id],
@@ -381,7 +375,7 @@ export function ModuleDetailScreen({
           <div className="flex-1">
             <h1 className="text-lg font-serif font-bold truncate">{module?.name}</h1>
             <p className="text-xs text-muted-foreground">
-              {progress?.completed}/{progress?.total} lições concluídas
+              {progress?.completed}/{progress?.total} {t("courses.lessonsCompleted")}
             </p>
           </div>
           {isAdmin && (

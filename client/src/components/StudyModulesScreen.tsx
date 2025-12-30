@@ -53,23 +53,23 @@ const ICON_MAP: Record<string, React.ElementType> = {
   graduation: GraduationCap,
 };
 
-const LEVEL_CONFIG: Record<string, { label: string; color: string; bgClass: string; borderClass: string; icon: React.ElementType }> = {
+const LEVEL_CONFIG: Record<string, { labelKey: string; color: string; bgClass: string; borderClass: string; icon: React.ElementType }> = {
   iniciante: { 
-    label: "Iniciante", 
+    labelKey: "courses.beginner", 
     color: "text-green-600 dark:text-green-400",
     bgClass: "bg-green-500/10",
     borderClass: "border-green-500/30",
     icon: Sprout
   },
   moderado: { 
-    label: "Moderado", 
+    labelKey: "courses.intermediate", 
     color: "text-amber-600 dark:text-amber-400",
     bgClass: "bg-amber-500/10",
     borderClass: "border-amber-500/30",
     icon: Star
   },
   avancado: { 
-    label: "Avançado", 
+    labelKey: "courses.advanced", 
     color: "text-red-600 dark:text-red-400",
     bgClass: "bg-red-500/10",
     borderClass: "border-red-500/30",
@@ -220,14 +220,7 @@ function LevelSection({
 }) {
   const config = LEVEL_CONFIG[level] || LEVEL_CONFIG.iniciante;
   const LevelIcon = config.icon;
-  
-  // Map level IDs to translation keys
-  const levelLabels: Record<string, string> = {
-    iniciante: t("courses.beginner"),
-    moderado: t("courses.intermediate"),
-    avancado: t("courses.advanced"),
-  };
-  const levelLabel = levelLabels[level] || config.label;
+  const levelLabel = t(config.labelKey);
   
   const levelLessons = modules.reduce((sum, m) => sum + m.progress.total, 0);
   const levelCompleted = modules.reduce((sum, m) => sum + m.progress.completed, 0);
@@ -274,7 +267,7 @@ function LevelSection({
             {!canAccessLevel && (
               <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600">
                 <Crown className="w-3 h-3 mr-1" />
-                Gold
+                {t("subscription.gold")}
               </Badge>
             )}
           </div>
@@ -310,7 +303,7 @@ interface GuestTrialInfo {
 
 export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSubscriptions }: StudyModulesScreenProps) {
   const { user, isAdmin } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const deviceId = getDeviceId();
   
   const { data: modules, isLoading } = useQuery<StudyModule[]>({
@@ -372,7 +365,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
           {!user && (
             <Badge variant="outline" className="text-xs border-primary/30">
               <Clock className="w-3 h-3 mr-1" />
-              Trial
+              {t("subscription.trial")}
             </Badge>
           )}
         </div>

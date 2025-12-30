@@ -319,48 +319,49 @@ export function Dashboard({
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent">
-                Bíblia Inteligente
-              </h1>
-              <LanguageSelector />
-            </div>
-            <p className="text-muted-foreground text-xs">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent truncate">
+              Bíblia Inteligente
+            </h1>
+            <p className="text-muted-foreground text-xs truncate">
               {user ? `${t("welcome")}, ${user.name || 'estudante'}` : t("welcome.guest")}
             </p>
           </div>
           
-          {!user && trialInfo && trialInfo.active && (
-            <Badge variant="outline" className="text-xs py-1 px-2 border-primary/30">
-              <Timer className="w-3 h-3 mr-1" />
-              {trialInfo.daysRemaining}d
-            </Badge>
-          )}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {!user && trialInfo && trialInfo.active && (
+              <Badge variant="outline" className="text-xs py-1 px-2 border-primary/30">
+                <Timer className="w-3 h-3 mr-1" />
+                {trialInfo.daysRemaining}d
+              </Badge>
+            )}
 
-          {user && getSubscriptionBadge()}
-          
-          {user ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onNavigateToSettings}
-              data-testid="button-settings"
-            >
-              <User className="w-5 h-5" />
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNavigateToLogin}
-              data-testid="button-login"
-              className="gap-1.5"
-            >
-              <LogIn className="w-4 h-4" />
-              Entrar
-            </Button>
-          )}
+            {user && getSubscriptionBadge()}
+            
+            {user ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onNavigateToSettings}
+                data-testid="button-settings"
+              >
+                <User className="w-5 h-5" />
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onNavigateToLogin}
+                data-testid="button-login"
+                className="gap-1.5"
+              >
+                <LogIn className="w-4 h-4" />
+                Entrar
+              </Button>
+            )}
+            
+            <LanguageSelector />
+          </div>
         </div>
       </header>
 

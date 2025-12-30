@@ -658,9 +658,6 @@ export function BibleReader({
 
           <div className="flex-1"></div>
 
-          {/* Language Selector - flag buttons */}
-          <LanguageSelector className="mr-1" />
-
           {/* Bookmarks/Annotations Button - opens all marks page */}
           <Button 
             variant="ghost" 
@@ -699,6 +696,9 @@ export function BibleReader({
             showSettingsOption
             showSubscriptionOption
           />
+          
+          {/* Language Selector - flag buttons (rightmost) */}
+          <LanguageSelector />
         </div>
 
         {/* Bottom Row: Text Search - FULL WIDTH */}

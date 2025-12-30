@@ -151,7 +151,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   const { toast } = useToast();
   const { user } = useAuth();
   const { requireAuth, isAuthenticated } = useRequireAuth();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [, navigate] = useLocation();
   
   // Centralized quota system
@@ -926,8 +926,8 @@ Conheça: https://bibliainteligente.replit.app`;
           {/* Input Field */}
           <div className="flex-1 flex gap-2">
             <Input
-              placeholder="Pergunte ao Professor..."
-              aria-label="Pergunte ao Professor"
+              placeholder={t("professor.placeholder")}
+              aria-label={t("professor.placeholder")}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => {

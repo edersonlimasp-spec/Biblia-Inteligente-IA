@@ -10,7 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { ContentLanguageNotice } from "@/components/ContentLanguageNotice";
 
 interface LessonScreenProps {
   lessonId: string;
@@ -37,6 +39,7 @@ interface LessonData {
 
 export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps) {
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const deviceId = getDeviceId();
   const { toast } = useToast();
   
@@ -67,14 +70,14 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
       queryClient.invalidateQueries({ queryKey: ['/api/study/lessons', lessonId] });
       queryClient.invalidateQueries({ queryKey: ['/api/study/modules'] });
       toast({
-        title: "Lição concluída!",
-        description: "Seu progresso foi salvo.",
+        title: t("courses.lessonCompleted"),
+        description: t("courses.progressSaved"),
       });
     },
     onError: () => {
       toast({
-        title: "Erro",
-        description: "Não foi possível salvar o progresso.",
+        title: t("common.error"),
+        description: t("common.saveFailed"),
         variant: "destructive",
       });
     },
@@ -96,8 +99,8 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
       setAiResponse(data.answer || data.response);
     } catch (error: any) {
       toast({
-        title: "Erro ao perguntar",
-        description: error.message || "Tente novamente.",
+        title: t("courses.askError"),
+        description: error.message || t("courses.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -156,7 +159,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
               {isCompleted && (
                 <Badge variant="outline" className="ml-1 text-green-600 border-green-500/30 text-xs py-0">
                   <Check className="w-3 h-3 mr-1" />
-                  Concluída
+                  {t("courses.completed")}
                 </Badge>
               )}
             </div>
@@ -174,6 +177,9 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
 
       <ScrollArea className="flex-1 overflow-auto">
         <div className="px-3 py-4 pb-24">
+          {language !== 'pt' && (
+            <ContentLanguageNotice showingFallback={true} />
+          )}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -183,7 +189,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           </motion.div>
 
           <Section
-            title="Referências Bíblicas"
+            title={t("courses.biblicalReferences")}
             icon={<BookOpen className="w-4 h-4" />}
             expanded={expandedSections.references}
             onToggle={() => toggleSection('references')}
@@ -198,7 +204,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           </Section>
 
           <Section
-            title="Perguntas para Reflexão"
+            title={t("courses.reflectionQuestions")}
             icon={<MessageCircle className="w-4 h-4" />}
             expanded={expandedSections.questions}
             onToggle={() => toggleSection('questions')}
@@ -214,7 +220,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           </Section>
 
           <Section
-            title="Aplicação Prática"
+            title={t("courses.practicalApplication")}
             icon={<Check className="w-4 h-4" />}
             expanded={expandedSections.application}
             onToggle={() => toggleSection('application')}
@@ -223,7 +229,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           </Section>
 
           <Section
-            title="Resumo"
+            title={t("courses.summary")}
             icon={<BookOpen className="w-4 h-4" />}
             expanded={expandedSections.summary}
             onToggle={() => toggleSection('summary')}
@@ -246,7 +252,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
                 data-testid="button-mark-completed"
               >
                 <Check className="w-4 h-4 mr-2" />
-                {markCompletedMutation.isPending ? "Salvando..." : "Marcar como Concluída"}
+                {markCompletedMutation.isPending ? t("courses.saving") : t("courses.markComplete")}
               </Button>
             </motion.div>
           )}
@@ -263,7 +269,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             <div className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold">Perguntar ao Professor</h3>
+                <h3 className="font-semibold">{t("courses.askProfessor")}</h3>
               </div>
               <Button 
                 variant="ghost" 
@@ -286,7 +292,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
                   animate={{ opacity: 1 }}
                   className="bg-muted/50 rounded-lg p-4 mb-4"
                 >
-                  <p className="text-sm font-medium mb-2">Resposta do Professor:</p>
+                  <p className="text-sm font-medium mb-2">{t("courses.professorResponse")}</p>
                   <p className="text-sm whitespace-pre-wrap">{aiResponse}</p>
                 </motion.div>
               )}
@@ -295,7 +301,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             <div className="p-4 border-t">
               <div className="flex gap-2">
                 <Textarea
-                  placeholder={`Pergunte sobre "${lesson?.title}"...`}
+                  placeholder={`${t("courses.askAbout")} "${lesson?.title}"...`}
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   className="min-h-[60px] resize-none"

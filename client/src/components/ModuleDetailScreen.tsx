@@ -9,8 +9,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { LoginPromptModal } from "@/components/LoginPromptModal";
+import { ContentLanguageNotice } from "@/components/ContentLanguageNotice";
 import { canOpenLesson, type UserPlan, type CourseLevel } from "@shared/courseAccess";
 
 interface ModuleDetailScreenProps {
@@ -96,7 +98,8 @@ function TrackCard({
   moduleIndex,
   onLessonClick,
   onLoginRequired,
-  onUpgradeRequired
+  onUpgradeRequired,
+  t
 }: { 
   track: Track; 
   userPlan: UserPlan;
@@ -106,8 +109,16 @@ function TrackCard({
   onLessonClick: (lessonId: string) => void;
   onLoginRequired: () => void;
   onUpgradeRequired: (requiredPlan: 'gold' | 'premium', message: string) => void;
+  t: (key: string) => string;
 }) {
   const levelConfig = LEVEL_CONFIG[track.level] || LEVEL_CONFIG.iniciante;
+  
+  const levelLabels: Record<string, string> = {
+    iniciante: t("courses.beginner"),
+    moderado: t("courses.intermediate"),
+    avancado: t("courses.advanced"),
+  };
+  const levelLabel = levelLabels[track.level] || levelConfig.label;
   
   const { data: lessonsData, isLoading, error } = useQuery<{ lessons: Lesson[] }>({
     queryKey: ['/api/study/tracks', track.id],
@@ -133,7 +144,7 @@ function TrackCard({
     } else if (accessResult.reason === 'NOT_AUTHENTICATED') {
       onLoginRequired();
     } else {
-      onUpgradeRequired(accessResult.requiredPlan || 'gold', accessResult.message || 'Assine para continuar');
+      onUpgradeRequired(accessResult.requiredPlan || 'gold', accessResult.message || t("subscription.subscribeToUnlock"));
     }
   };
   
@@ -170,7 +181,7 @@ function TrackCard({
       <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
         <div className="flex items-center gap-2 min-w-0 flex-wrap">
           <Badge variant="outline" className={levelConfig.badgeClass}>
-            {levelConfig.label}
+            {levelLabel}
           </Badge>
           <h3 className="font-semibold truncate">{track.name}</h3>
         </div>
@@ -190,7 +201,7 @@ function TrackCard({
             <LessonItemSkeleton />
           </>
         ) : lessons.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma lição encontrada</p>
+          <p className="text-sm text-muted-foreground">{t("courses.noLessons")}</p>
         ) : (
           lessons.map((lesson) => {
             const lockInfo = getLessonLockInfo(lesson);
@@ -282,6 +293,7 @@ export function ModuleDetailScreen({
   onNavigateToSubscriptions 
 }: ModuleDetailScreenProps) {
   const { user, isAdmin } = useAuth();
+  const { language, t } = useLanguage();
   const deviceId = getDeviceId();
   const isLoggedIn = !!user;
   
@@ -401,7 +413,7 @@ export function ModuleDetailScreen({
             {progress && progress.total > 0 && (
               <div className="mt-3">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span>Progresso do módulo</span>
+                  <span>{t("courses.progress")}</span>
                   <span>{progress.percentage}%</span>
                 </div>
                 <Progress value={progress.percentage} className="h-2 bg-white/20" />
@@ -409,7 +421,11 @@ export function ModuleDetailScreen({
             )}
           </motion.div>
 
-          <h2 className="text-lg font-semibold mb-4">Trilhas de Estudo</h2>
+          {language !== 'pt' && (
+            <ContentLanguageNotice showingFallback={true} />
+          )}
+
+          <h2 className="text-lg font-semibold mb-4">{t("courses.studyTracks")}</h2>
           
           {tracks.map((track) => (
             <TrackCard
@@ -422,6 +438,7 @@ export function ModuleDetailScreen({
               onLessonClick={(lessonId) => onNavigateToLesson(lessonId, track.level)}
               onLoginRequired={handleLoginRequired}
               onUpgradeRequired={handleUpgradeRequired}
+              t={t}
             />
           ))}
 
@@ -433,13 +450,13 @@ export function ModuleDetailScreen({
               className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl text-center mt-6"
             >
               <Sparkles className="w-8 h-8 mx-auto text-amber-500 mb-2" />
-              <h3 className="font-semibold mb-1">Desbloqueie todo o conteúdo</h3>
+              <h3 className="font-semibold mb-1">{t("courses.unlockAll")}</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Assine <strong>Gold</strong> para acessar todos os módulos e lições do Iniciante e Moderado
+                {t("courses.subscribeGold")}
               </p>
               <Button onClick={onNavigateToSubscriptions} data-testid="button-subscribe-cta">
                 <Crown className="w-4 h-4 mr-1" />
-                Ver Planos
+                {t("subscription.viewPlans")}
               </Button>
             </motion.div>
           )}
@@ -452,13 +469,13 @@ export function ModuleDetailScreen({
               className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl text-center mt-6"
             >
               <Crown className="w-8 h-8 mx-auto text-purple-500 mb-2" />
-              <h3 className="font-semibold mb-1">Upgrade para Premium</h3>
+              <h3 className="font-semibold mb-1">{t("subscription.upgradeToPremium")}</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Desbloqueie o Moderado completo e todo o conteúdo Avançado
+                {t("subscription.unlockAdvanced")}
               </p>
               <Button onClick={onNavigateToSubscriptions} variant="outline" className="border-purple-500/30" data-testid="button-upgrade-premium">
                 <Sparkles className="w-4 h-4 mr-1" />
-                Ver Premium
+                {t("subscription.viewPremium")}
               </Button>
             </motion.div>
           )}
@@ -468,7 +485,7 @@ export function ModuleDetailScreen({
       <LoginPromptModal
         open={showLoginModal}
         onOpenChange={setShowLoginModal}
-        featureName="as lições do curso"
+        featureName={t("courses.lessonsFeature")}
         onAuthSuccess={() => setShowLoginModal(false)}
       />
 
@@ -481,7 +498,7 @@ export function ModuleDetailScreen({
               ) : (
                 <Crown className="w-5 h-5 text-amber-500" />
               )}
-              Conteúdo Bloqueado
+              {t("subscription.lockedContent")}
             </DialogTitle>
             <DialogDescription>
               {paywallInfo.message}
@@ -494,22 +511,22 @@ export function ModuleDetailScreen({
                 : 'bg-amber-500/10 border border-amber-500/20'
             }`}>
               <h4 className="font-semibold mb-2">
-                {paywallInfo.requiredPlan === 'premium' ? 'Plano Premium' : 'Plano Gold'}
+                {paywallInfo.requiredPlan === 'premium' ? t("subscription.premiumPlan") : t("subscription.goldPlan")}
               </h4>
               <ul className="text-sm text-muted-foreground space-y-1">
                 {paywallInfo.requiredPlan === 'gold' ? (
                   <>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 100% do Iniciante</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 7 lições do Moderado</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Strong's Dicionário</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> IA Essencial</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.gold100Beginner")}</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.gold7Intermediate")}</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.strongsDictionary")}</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.essentialAI")}</li>
                   </>
                 ) : (
                   <>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> Tudo do Gold</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 100% do Moderado</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> 100% do Avançado</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> IA Premium</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.allOfGold")}</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.premium100Intermediate")}</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.premium100Advanced")}</li>
+                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.premiumAI")}</li>
                   </>
                 )}
               </ul>
@@ -523,7 +540,7 @@ export function ModuleDetailScreen({
               data-testid="button-paywall-subscribe"
             >
               <Crown className="w-4 h-4 mr-2" />
-              Ver Planos
+              {t("subscription.viewPlans")}
             </Button>
           </div>
         </DialogContent>

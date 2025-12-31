@@ -1,4 +1,4 @@
-import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft, Lock } from "lucide-react";
+import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft, Lock, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -29,6 +29,27 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
       return "medium";
     }
   });
+  const [isClearing, setIsClearing] = useState(false);
+
+  const handleForceUpdate = async () => {
+    setIsClearing(true);
+    try {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map(r => r.unregister()));
+      }
+      
+      alert(t("settings.cacheCleared") || 'Cache limpo! O app será recarregado.');
+      window.location.reload();
+    } catch (e) {
+      alert('Erro ao limpar cache: ' + String(e));
+    } finally {
+      setIsClearing(false);
+    }
+  };
 
   useEffect(() => {
     try {
@@ -227,6 +248,31 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
             <Button variant="ghost" className="p-0 h-auto" data-testid="link-help">
               {t("settings.helpCenter")}
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <RefreshCw className="h-5 w-5" />
+              {t("settings.maintenance") || "Manutenção"}
+            </CardTitle>
+            <CardDescription>{t("settings.maintenanceDesc") || "Opções de manutenção do aplicativo"}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={handleForceUpdate}
+              disabled={isClearing}
+              data-testid="button-force-update"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isClearing ? 'animate-spin' : ''}`} />
+              {isClearing ? (t("settings.clearing") || "Limpando...") : (t("settings.forceUpdate") || "Forçar Atualização")}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              {t("settings.forceUpdateDesc") || "Limpa cache e recarrega com a versão mais recente"}
+            </p>
           </CardContent>
         </Card>
 

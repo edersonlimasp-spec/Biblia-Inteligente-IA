@@ -14,7 +14,12 @@ import { getBookChapter } from "./bible-data/bible-index";
 import { db } from "./db";
 import { eq, or, like, sql, and, inArray, gte } from "drizzle-orm";
 import path from "path";
+import { fileURLToPath } from "url";
 import fs from "fs";
+
+// ESM compatibility: recreate __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
 import { STRONG_DATA } from "./strong-data-embedded";
 import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTranslation, getDefaultTranslation } from "./bible/translations";

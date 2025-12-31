@@ -3,6 +3,16 @@ set -e
 
 echo "🔨 Building application for production..."
 
+# Generate BUILD_ID (timestamp + short git hash if available)
+BUILD_TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+GIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "no-git")
+BUILD_ID="${BUILD_TIMESTAMP}_${GIT_HASH}"
+echo "📌 BUILD_ID: ${BUILD_ID}"
+
+# Write BUILD_ID to a file that will be bundled
+echo "{\"buildId\": \"${BUILD_ID}\", \"timestamp\": \"$(date -Iseconds)\", \"env\": \"production\"}" > build-info.json
+echo "✅ build-info.json created"
+
 # Step 0: Configure npm for network resilience
 echo "⚙️  Configuring npm for better network stability..."
 npm config set registry https://registry.npmjs.org/
@@ -41,7 +51,16 @@ fi
 echo "💾 Maintaining backup in dist/public..."
 mkdir -p dist/public || true
 
-# Step 6.5: Copy Strong's dictionary data to dist for production
+# Step 6.5: Copy build-info.json to dist for production
+echo "📌 Copying build-info.json to dist..."
+if [ -f "build-info.json" ]; then
+  cp build-info.json dist/
+  echo "✅ build-info.json copied to dist/"
+else
+  echo "⚠️  Warning: build-info.json not found!"
+fi
+
+# Step 6.6: Copy Strong's dictionary data to dist for production
 echo "📚 Copying Strong's dictionary data..."
 if [ -f "server/strong-data.json" ]; then
   cp server/strong-data.json dist/

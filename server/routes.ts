@@ -4198,11 +4198,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Build info endpoint - para validar versão em produção
   app.get("/api/debug/build-info", (_req, res) => {
+    let buildInfo: any = null;
+    try {
+      const buildInfoPath = path.resolve(__dirname, '..', 'build-info.json');
+      if (fs.existsSync(buildInfoPath)) {
+        buildInfo = JSON.parse(fs.readFileSync(buildInfoPath, 'utf-8'));
+      }
+    } catch (e) {
+      console.log('[Debug] Error reading build-info.json:', e);
+    }
+    
     res.json({
-      buildVersion: process.env.REPL_ID || "dev-local",
-      buildTime: new Date().toISOString(),
+      buildId: buildInfo?.buildId || 'development',
+      buildEnv: buildInfo?.env || 'development',
+      timestamp: buildInfo?.timestamp || new Date().toISOString(),
       nodeEnv: process.env.NODE_ENV || "development",
-      replSlug: process.env.REPL_SLUG || "unknown",
+      replDeployment: process.env.REPLIT_DEPLOYMENT || "not-deployed",
+      replDevDomain: process.env.REPLIT_DEV_DOMAIN || "unknown",
+      replDomains: process.env.REPLIT_DOMAINS || "unknown",
+      databaseConnected: !!process.env.DATABASE_URL,
     });
   });
 

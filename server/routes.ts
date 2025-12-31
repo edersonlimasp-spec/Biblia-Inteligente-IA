@@ -3176,12 +3176,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Helper function to get translated lesson
   async function getTranslatedLesson(lesson: any, lang: string): Promise<any> {
+    console.log(`[Translation] Lesson ${lesson.id}, lang=${lang}`);
     if (lang === 'pt') return lesson;
     
     const [translation] = await db.select().from(studyLessonTranslations)
       .where(and(eq(studyLessonTranslations.lessonId, lesson.id), eq(studyLessonTranslations.language, lang)));
     
     if (translation) {
+      console.log(`[Translation] Found translation for ${lesson.id} in ${lang}: "${translation.title}"`);
       return {
         ...lesson,
         title: translation.title,
@@ -3192,6 +3194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         summary: translation.summary,
       };
     }
+    console.log(`[Translation] No translation found for ${lesson.id} in ${lang}, using PT fallback`);
     return lesson; // Fallback to PT
   }
   

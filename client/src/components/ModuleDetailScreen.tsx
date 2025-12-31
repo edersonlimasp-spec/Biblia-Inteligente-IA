@@ -327,6 +327,8 @@ export function ModuleDetailScreen({
   const { data: subscriptionData } = useQuery<SubscriptionStatus>({
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
+    staleTime: 0, // Always fetch fresh subscription data
+    refetchOnWindowFocus: true,
   });
 
   const { data: guestTrialData } = useQuery<GuestTrialInfo>({

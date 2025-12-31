@@ -155,6 +155,8 @@ export function Dashboard({
   }>({
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
+    staleTime: 0, // Always fetch fresh subscription data
+    refetchOnWindowFocus: true, // Refetch when user returns to app
   });
 
   const getSubscriptionBadge = () => {

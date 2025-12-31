@@ -558,6 +558,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User subscription status (used by AIPanel to check access)
   app.get("/api/user/subscription-status", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
+      // Prevent caching of subscription status
+      res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      });
+      
       const user = await storage.getUser(req.userId!);
       if (!user) {
         return res.status(404).json({ error: "Usuário não encontrado" });
@@ -567,6 +574,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
       const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
+
+      // Debug log for subscription status
+      console.log(`[Subscription Status] userId=${req.userId}, hasGold=${hasGold}, hasPremium=${hasPremium}, hasLifetime=${hasLifetime}`);
 
       res.json({
         hasPremium,

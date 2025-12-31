@@ -131,6 +131,17 @@ function TrackCard({
     const lessonIndex = lesson.order;
     const trackRequiredPlan = track.requiredPlan as 'gold' | 'premium' | undefined;
     
+    console.log('[AccessDebug] handleLessonClick:', {
+      trackId: track.id,
+      trackLevel: track.level,
+      trackRequiredPlan: track.requiredPlan,
+      lessonId: lesson.id,
+      lessonOrder: lesson.order,
+      userPlan,
+      isLoggedIn,
+      isAdmin,
+    });
+    
     const accessResult = canOpenLesson({
       isLoggedIn,
       plan: userPlan,
@@ -140,6 +151,8 @@ function TrackCard({
       isAdmin,
       trackRequiredPlan,
     });
+    
+    console.log('[AccessDebug] accessResult:', accessResult);
     
     if (accessResult.allowed) {
       onLessonClick(lesson.id);

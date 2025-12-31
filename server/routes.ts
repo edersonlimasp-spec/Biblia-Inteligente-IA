@@ -12,7 +12,7 @@ import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
 import { db } from "./db";
-import { eq, or, like, sql, and, inArray, gte } from "drizzle-orm";
+import { eq, or, like, sql, and, inArray, gte, desc } from "drizzle-orm";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
@@ -4417,6 +4417,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[DEBUG User Sub] Error:", error);
       res.status(500).json({ error: "Erro ao buscar debug user subscription" });
+    }
+  });
+
+  // Debug endpoint to list all bonuses in the system (for admin diagnosis)
+  app.get("/api/debug/all-bonuses", async (req, res) => {
+    try {
+      const allBonuses = await db
+        .select({
+          bonusId: bonuses.id,
+          bonusType: bonuses.bonusType,
+          reason: bonuses.reason,
+          isActive: bonuses.isActive,
+          startAt: bonuses.startAt,
+          endAt: bonuses.endAt,
+          createdAt: bonuses.createdAt,
+          userId: bonuses.userId,
+          userEmail: users.email,
+          userName: users.name,
+        })
+        .from(bonuses)
+        .leftJoin(users, eq(bonuses.userId, users.id))
+        .orderBy(desc(bonuses.createdAt));
+
+      const now = new Date();
+      const summary = {
+        total: allBonuses.length,
+        active: allBonuses.filter(b => b.isActive).length,
+        premium_free: allBonuses.filter(b => b.bonusType === 'premium_free' && b.isActive).length,
+        gold_free: allBonuses.filter(b => b.bonusType === 'gold_free' && b.isActive).length,
+        trial_extend: allBonuses.filter(b => b.bonusType === 'trial_extend' && b.isActive).length,
+      };
+
+      res.json({
+        summary,
+        bonuses: allBonuses.map(b => ({
+          id: b.bonusId,
+          type: b.bonusType,
+          reason: b.reason,
+          isActive: b.isActive,
+          startAt: b.startAt,
+          endAt: b.endAt,
+          isExpired: b.endAt ? new Date(b.endAt) < now : false,
+          user: {
+            id: b.userId,
+            email: b.userEmail,
+            name: b.userName,
+          },
+        })),
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[DEBUG All Bonuses] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar bônus" });
     }
   });
 

@@ -98,7 +98,8 @@ function TrackCard({
   onLessonClick,
   onLoginRequired,
   onUpgradeRequired,
-  t
+  t,
+  language
 }: { 
   track: Track; 
   userPlan: UserPlan;
@@ -109,12 +110,18 @@ function TrackCard({
   onLoginRequired: () => void;
   onUpgradeRequired: (requiredPlan: 'gold' | 'premium', message: string) => void;
   t: (key: string) => string;
+  language: string;
 }) {
   const levelConfig = LEVEL_CONFIG[track.level] || LEVEL_CONFIG.iniciante;
   const levelLabel = t(levelConfig.labelKey);
   
   const { data: lessonsData, isLoading, error } = useQuery<{ lessons: Lesson[] }>({
-    queryKey: ['/api/study/tracks', track.id],
+    queryKey: ['/api/study/tracks', track.id, language],
+    queryFn: async () => {
+      const res = await fetch(`/api/study/tracks/${track.id}/lessons?lang=${language}`);
+      if (!res.ok) throw new Error('Failed to fetch lessons');
+      return res.json();
+    }
   });
   
   const lessons = lessonsData?.lessons || [];
@@ -435,6 +442,7 @@ export function ModuleDetailScreen({
               onLoginRequired={handleLoginRequired}
               onUpgradeRequired={handleUpgradeRequired}
               t={t}
+              language={language}
             />
           ))}
 

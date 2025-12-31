@@ -119,8 +119,8 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
     try {
       const endpoint = user ? '/api/ai/ask' : '/api/guest/ai/ask';
       const body = user 
-        ? { question: `Sobre a lição "${lessonData?.lesson.title}": ${question}`, mode: 'professor' }
-        : { question: `Sobre a lição "${lessonData?.lesson.title}": ${question}`, mode: 'professor', deviceId };
+        ? { question: `Sobre a lição "${lessonData?.lesson.title}": ${question}`, mode: 'professor', language }
+        : { question: `Sobre a lição "${lessonData?.lesson.title}": ${question}`, mode: 'professor', deviceId, language };
       
       const response = await apiRequest('POST', endpoint, body);
       const data = await response.json();

@@ -8,7 +8,6 @@ export interface CanOpenLessonParams {
   moduleIndex: number;
   lessonIndex: number;
   isAdmin?: boolean;
-  trackRequiredPlan?: 'gold' | 'premium';
 }
 
 export interface AccessResult {

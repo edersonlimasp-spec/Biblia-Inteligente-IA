@@ -3358,10 +3358,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Import and use canOpenLesson
       const { canOpenLesson } = await import("@shared/courseAccess");
       const courseLevel = track.level as 'iniciante' | 'moderado' | 'avancado';
-      const trackRequiredPlan = track.requiredPlan as 'gold' | 'premium' | undefined;
       
       // DEBUG: Log access check parameters
-      console.log(`[Lesson Access] userId=${userId}, plan=${userPlan}, courseLevel=${courseLevel}, moduleIndex=${moduleIndex}, lessonIndex=${lessonIndex}, trackRequiredPlan=${trackRequiredPlan}, isAdmin=${isAdmin}, isLoggedIn=${isLoggedIn}`);
+      console.log(`[Lesson Access] userId=${userId}, plan=${userPlan}, courseLevel=${courseLevel}, moduleIndex=${moduleIndex}, lessonIndex=${lessonIndex}, isAdmin=${isAdmin}, isLoggedIn=${isLoggedIn}`);
       
       const accessResult = canOpenLesson({
         isLoggedIn,
@@ -3370,7 +3369,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         moduleIndex,
         lessonIndex,
         isAdmin,
-        trackRequiredPlan,
       });
       
       console.log(`[Lesson Access] RESULT: allowed=${accessResult.allowed}, reason=${accessResult.reason}, requiredPlan=${accessResult.requiredPlan}`);

@@ -27,7 +27,8 @@ export function useUsageLimits(): UsageLimits {
   const { data: subscriptionData, isLoading } = useQuery<SubscriptionStatus>({
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
-    staleTime: 60000,
+    staleTime: 0, // Always fetch fresh subscription data
+    refetchOnWindowFocus: true,
   });
 
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';

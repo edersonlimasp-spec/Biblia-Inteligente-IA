@@ -90,6 +90,8 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
   const { data: subStatus } = useQuery<{ hasPremium: boolean; hasGold: boolean; hasLifetime: boolean; trialActive: boolean }>({
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
+    staleTime: 0, // Always fetch fresh subscription data
+    refetchOnWindowFocus: true,
   });
 
   const { data: guestTrialInfo } = useQuery<{ active: boolean; daysRemaining: number }>({

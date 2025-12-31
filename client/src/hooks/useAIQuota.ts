@@ -33,6 +33,8 @@ export function useAIQuota() {
   }>({
     queryKey: ['/api/user/subscription-status'],
     enabled: isLoggedIn,
+    staleTime: 0, // Always fetch fresh subscription data
+    refetchOnWindowFocus: true,
   });
   
   const { data: backendQuota, refetch: refetchQuota } = useQuery<BackendQuotaResponse>({

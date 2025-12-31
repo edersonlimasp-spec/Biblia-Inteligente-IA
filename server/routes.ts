@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
+import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, optionalAuth, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
 import { sendPasswordResetEmail, sendReengagementEmail } from "./email";
 import admin from "firebase-admin";
 import crypto from "crypto";
@@ -3302,7 +3302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get a specific lesson (with access control)
-  app.get("/api/study/lessons/:id", async (req, res) => {
+  app.get("/api/study/lessons/:id", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const lang = (req.query.lang as string) || 'pt';
@@ -3315,7 +3315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const { lesson, track, module, lessonIndex, moduleIndex } = lessonContext;
-      const userId = (req as any).userId || null;
+      const userId = req.userId || null;
       const deviceId = req.headers['x-device-id'] as string || null;
       const isLoggedIn = !!userId;
       

@@ -65,28 +65,17 @@ export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
     };
   }
   
-  // Gold access rules (for tracks that only require gold)
+  // Gold access rules: Full access to iniciante and moderado, blocked from avancado
   if (plan === 'gold') {
-    if (courseLevel === 'iniciante') {
+    if (courseLevel === 'iniciante' || courseLevel === 'moderado') {
       return { allowed: true, reason: 'ALLOWED' };
-    }
-    if (courseLevel === 'moderado') {
-      if (lessonIndex <= 7) {
-        return { allowed: true, reason: 'ALLOWED' };
-      }
-      return {
-        allowed: false,
-        reason: 'UPGRADE_REQUIRED',
-        requiredPlan: 'premium',
-        message: 'Assine Premium para liberar Moderado completo e Avançado'
-      };
     }
     if (courseLevel === 'avancado') {
       return {
         allowed: false,
         reason: 'UPGRADE_REQUIRED',
         requiredPlan: 'premium',
-        message: 'Assine Premium para liberar o Avançado'
+        message: 'Assine Premium para acessar o nível Avançado'
       };
     }
   }
@@ -121,9 +110,7 @@ export function getLessonAccessInfo(params: Omit<CanOpenLessonParams, 'isLoggedI
   }
   
   const isFreeLesson = courseLevel === 'iniciante' && moduleIndex === 1 && lessonIndex <= 3;
-  const isGoldLesson = 
-    courseLevel === 'iniciante' ||
-    (courseLevel === 'moderado' && lessonIndex <= 7);
+  const isGoldLesson = courseLevel === 'iniciante' || courseLevel === 'moderado';
   
   return {
     freeAccess: isFreeLesson,

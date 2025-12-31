@@ -1,6 +1,6 @@
 // Generate cache name with build timestamp to force update on each deployment
 // BUILD_TIMESTAMP is replaced during build process, falls back to date
-const BUILD_TIMESTAMP = '20251231-030700';
+const BUILD_TIMESTAMP = '20251231-043344';
 const CACHE_NAME = `biblia-ia-v${BUILD_TIMESTAMP}`;
 
 // Only cache static assets, NOT index.html

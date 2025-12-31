@@ -18,58 +18,67 @@ export interface AccessResult {
   message?: string;
 }
 
+/**
+ * REGRAS OFICIAIS DE ACESSO:
+ * 
+ * 1. NÃO LOGADO: ❌ Não abre nenhuma aula (só vê títulos)
+ * 
+ * 2. LOGADO SEM ASSINATURA (free):
+ *    ✅ Apenas 3 primeiras aulas do INICIANTE
+ *    ❌ Nenhuma aula de intermediário ou avançado
+ * 
+ * 3. GOLD:
+ *    ✅ Todas as aulas do INICIANTE
+ *    ✅ Até 7ª aula do INTERMEDIÁRIO
+ *    ❌ 8ª aula+ do intermediário → bloqueado
+ *    ❌ Todo AVANÇADO bloqueado
+ * 
+ * 4. PREMIUM: ✅ Acesso total
+ */
 export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
   const { isLoggedIn, plan, courseLevel, moduleIndex, lessonIndex, isAdmin = false, trackRequiredPlan } = params;
   
-  // Admin always has access
+  // Admin sempre tem acesso total
   if (isAdmin) {
     return { allowed: true, reason: 'ALLOWED' };
   }
   
-  // First 3 lessons of first module are FREE for everyone (even without login)
-  // Only applies to tracks that don't specifically require premium
-  if (courseLevel === 'iniciante' && moduleIndex === 1 && lessonIndex <= 3 && trackRequiredPlan !== 'premium') {
-    return { allowed: true, reason: 'ALLOWED' };
-  }
-  
-  // For all other content, require authentication
+  // REGRA 1: Usuário NÃO LOGADO não pode abrir NENHUMA aula
   if (!isLoggedIn) {
     return { 
       allowed: false, 
       reason: 'NOT_AUTHENTICATED',
-      message: 'Entre ou crie uma conta para continuar'
+      message: 'Entre ou crie uma conta para acessar as aulas'
     };
   }
   
-  // Premium has access to everything
+  // REGRA 4: PREMIUM tem acesso total
   if (plan === 'premium') {
     return { allowed: true, reason: 'ALLOWED' };
   }
   
-  // If track specifically requires premium, Gold users need to upgrade
-  if (trackRequiredPlan === 'premium') {
-    if (plan === 'gold') {
+  // REGRA 3: GOLD
+  if (plan === 'gold') {
+    // ✅ Todas as aulas do INICIANTE
+    if (courseLevel === 'iniciante') {
+      return { allowed: true, reason: 'ALLOWED' };
+    }
+    
+    // ✅ Até 7ª aula do INTERMEDIÁRIO
+    if (courseLevel === 'moderado') {
+      if (lessonIndex <= 7) {
+        return { allowed: true, reason: 'ALLOWED' };
+      }
+      // ❌ 8ª aula+ do intermediário
       return {
         allowed: false,
         reason: 'UPGRADE_REQUIRED',
         requiredPlan: 'premium',
-        message: 'Assine Premium para acessar este conteúdo exclusivo'
+        message: 'Assine Premium para acessar o conteúdo completo do Intermediário'
       };
     }
-    // Free users also need premium
-    return {
-      allowed: false,
-      reason: 'UPGRADE_REQUIRED',
-      requiredPlan: 'premium',
-      message: 'Assine Premium para acessar este conteúdo exclusivo'
-    };
-  }
-  
-  // Gold access rules: Full access to iniciante and moderado, blocked from avancado
-  if (plan === 'gold') {
-    if (courseLevel === 'iniciante' || courseLevel === 'moderado') {
-      return { allowed: true, reason: 'ALLOWED' };
-    }
+    
+    // ❌ Todo AVANÇADO bloqueado para Gold
     if (courseLevel === 'avancado') {
       return {
         allowed: false,
@@ -80,37 +89,74 @@ export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
     }
   }
   
-  // Free plan - only iniciante content requires upgrade (first 3 lessons already handled above)
-  if (courseLevel === 'iniciante') {
-    return {
-      allowed: false,
-      reason: 'UPGRADE_REQUIRED',
-      requiredPlan: 'gold',
-      message: 'Assine Gold para liberar o Iniciante completo'
-    };
+  // REGRA 2: LOGADO SEM ASSINATURA (free)
+  if (plan === 'free') {
+    // ✅ Apenas 3 primeiras aulas do INICIANTE
+    if (courseLevel === 'iniciante' && lessonIndex <= 3) {
+      return { allowed: true, reason: 'ALLOWED' };
+    }
+    
+    // ❌ Demais aulas do iniciante
+    if (courseLevel === 'iniciante') {
+      return {
+        allowed: false,
+        reason: 'UPGRADE_REQUIRED',
+        requiredPlan: 'gold',
+        message: 'Assine Gold para acessar todas as aulas do Iniciante'
+      };
+    }
+    
+    // ❌ Nenhuma aula de intermediário
+    if (courseLevel === 'moderado') {
+      return {
+        allowed: false,
+        reason: 'UPGRADE_REQUIRED',
+        requiredPlan: 'gold',
+        message: 'Assine Gold para acessar o nível Intermediário'
+      };
+    }
+    
+    // ❌ Nenhuma aula de avançado
+    if (courseLevel === 'avancado') {
+      return {
+        allowed: false,
+        reason: 'UPGRADE_REQUIRED',
+        requiredPlan: 'premium',
+        message: 'Assine Premium para acessar o nível Avançado'
+      };
+    }
   }
   
+  // Fallback: bloqueia por segurança
   return {
     allowed: false,
     reason: 'UPGRADE_REQUIRED',
     requiredPlan: 'gold',
-    message: 'Assine no mínimo Gold para acessar este conteúdo'
+    message: 'Assine para acessar este conteúdo'
   };
 }
 
+/**
+ * Retorna informação sobre quais planos têm acesso a uma lição específica
+ */
 export function getLessonAccessInfo(params: Omit<CanOpenLessonParams, 'isLoggedIn' | 'plan'> & { isLoggedIn?: boolean; plan?: UserPlan }): {
   freeAccess: boolean;
   goldAccess: boolean;
   premiumAccess: boolean;
 } {
-  const { courseLevel, moduleIndex, lessonIndex, isAdmin = false } = params;
+  const { courseLevel, lessonIndex, isAdmin = false } = params;
   
   if (isAdmin) {
     return { freeAccess: true, goldAccess: true, premiumAccess: true };
   }
   
-  const isFreeLesson = courseLevel === 'iniciante' && moduleIndex === 1 && lessonIndex <= 3;
-  const isGoldLesson = courseLevel === 'iniciante' || courseLevel === 'moderado';
+  // Free: apenas 3 primeiras aulas do iniciante
+  const isFreeLesson = courseLevel === 'iniciante' && lessonIndex <= 3;
+  
+  // Gold: iniciante completo + até 7ª do intermediário
+  const isGoldLesson = 
+    courseLevel === 'iniciante' ||
+    (courseLevel === 'moderado' && lessonIndex <= 7);
   
   return {
     freeAccess: isFreeLesson,

@@ -4354,6 +4354,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Debug endpoint to check a specific user's subscription (for diagnosing premium issues)
+  app.get("/api/debug/user-subscription/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      if (!userId) {
+        return res.status(400).json({ error: "userId é obrigatório" });
+      }
+
+      // Get user info
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Get all subscriptions for this user (raw from DB)
+      const userSubs = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.userId, userId));
+
+      // Check active subscriptions using storage method
+      const hasGold = await storage.hasActiveSubscription(userId, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(userId, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(userId, 'strong_lifetime');
+
+      // Get bonuses
+      const userBonuses = await db
+        .select()
+        .from(bonuses)
+        .where(eq(bonuses.userId, userId));
+
+      console.log(`[DEBUG User Sub] userId=${userId}, hasGold=${hasGold}, hasPremium=${hasPremium}, rawSubs=${userSubs.length}`);
+
+      res.json({
+        userId,
+        email: user.email,
+        role: user.role,
+        trialStartDate: user.trialStartDate,
+        subscriptionsInDb: userSubs.map(s => ({
+          id: s.id,
+          planType: s.planType,
+          status: s.status,
+          startDate: s.startDate,
+          endDate: s.endDate,
+        })),
+        bonusesInDb: userBonuses.map(b => ({
+          id: b.id,
+          bonusType: b.bonusType,
+          startAt: b.startAt,
+          endAt: b.endAt,
+          isActive: b.isActive,
+        })),
+        computedFlags: {
+          hasGold,
+          hasPremium,
+          hasLifetime,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[DEBUG User Sub] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar debug user subscription" });
+    }
+  });
+
   // ============================================
   // USER ACTIVITY TRACKING & RE-ENGAGEMENT
   // ============================================

@@ -1,0 +1,97 @@
+Você é um engenheiro senior e vai parar o loop de “é cache / é SW” sem prova. 
+O problema real: PREVIEW funciona, PRODUÇÃO falha (Premium bloqueado + idioma não muda). 
+Quero solução definitiva com evidência, não suposições.
+
+REGRAS:
+1) Não repita respostas genéricas. Só avance se coletar DADOS.
+2) Toda hipótese deve ser confirmada com: logs, endpoints, headers, build-info, e prints do Network/Console.
+3) Entregue PR em commits pequenos e explique “o que mudou” e “como validar”.
+4) Antes de pedir para publicar, rode uma validação dentro do Replit (produção local / build) e deixe instruções de teste.
+
+OBJETIVO A: Premium bloqueado em Cursos Premium
+OBJETIVO B: idioma não mudando em produção (toda UI + conteúdo)
+
+PASSO 0 — Criar modo DEBUG visível (obrigatório)
+- Crie um toggle via querystring: ?debug=1
+- Quando debug=1, exibir numa tela (ex: /debug) OU no topo do app:
+  a) buildId/version (do build-info.json)
+  b) ambiente (preview vs prod) e BASE_URL atual
+  c) usuário logado? userId/email
+  d) plano calculado no FRONT (free/gold/premium) e flags usadas (hasGold/hasPremium)
+  e) resposta bruta da API de assinatura (JSON) e timestamp
+  f) locale atual (i18n.language), fonte do conteúdo bíblico (ex: versão/idioma), e chaves carregadas
+  g) status do service worker (registrado? versão? cache names?) e lista resumida do que está em cache
+
+PASSO 1 — Comparar PREVIEW vs PRODUÇÃO com DADOS (obrigatório)
+- Rodar em PREVIEW e PRODUÇÃO com ?debug=1 e coletar:
+  1) buildId
+  2) resposta do endpoint de assinatura (HTTP status + JSON)
+  3) BASE_URL/ENDPOINTS
+  4) locale e recursos i18n carregados
+  5) service worker registrado? caches?
+- Se algo divergir, registrar exatamente o que diverge e por quê.
+
+PASSO 2 — Diagnóstico Premium bloqueado (não aceitar “UI mostra Premium”)
+2.1 Verificar fonte de verdade do plano:
+- Identificar a ÚNICA fonte de plano no backend (db/webhook/stripe/mp).
+- Confirmar em runtime: qual endpoint retorna o plano? (ex: /api/subscription/me, /api/user/me)
+- Logar no servidor (console) quando esse endpoint for chamado em produção: userId, plano no DB, plano retornado.
+- Garantir que a UI NÃO dependa de badge estático. Somente da API.
+
+2.2 Verificar diferença de ENV/DB em produção:
+- Confirmar se produção está apontando para outro banco/projeto/variáveis.
+- Mostrar as variáveis relevantes (sem segredos): DB_HOST/DB_NAME/ENV/APP_BASE_URL.
+- Verificar se o webhook que ativa Premium está rodando na MESMA base que o app usa.
+
+2.3 Corrigir “gating” de cursos:
+- Revisar courseAccess.ts e todos os locais que chamam o gating.
+- Adicionar testes simples (unit ou runtime assertions) para:
+  FREE: 3 aulas iniciais
+  GOLD: iniciante todo + 7 do intermediário
+  PREMIUM: tudo
+- Garantir que rota de detalhes de lição (deep link) também respeita as regras.
+
+PASSO 3 — Diagnóstico idioma não mudando em PRODUÇÃO
+3.1 Separar em duas camadas:
+- UI (textos do app) = i18n
+- Conteúdo (Bíblia/módulos/lições) = datasource/JSON/DB/versões por idioma
+Ambas devem mudar ao selecionar bandeira.
+
+3.2 Provar com dados:
+- No debug, mostrar i18n.language e as namespaces carregadas.
+- Conferir se arquivos de tradução estão sendo incluídos no build de produção (não só preview).
+- Checar se production build está servindo assets estáticos antigos (cache/CDN/SW).
+
+3.3 Fix definitivo de cache (não só “mude timestamp”):
+- Implementar estratégia robusta:
+  a) adicionar “cache-busting” com buildId nos nomes dos assets OU em query (?v=buildId)
+  b) no service worker: versionar CACHE_NAME com buildId e limpar caches antigos no activate
+  c) garantir que o SW atualize de verdade: skipWaiting + clientsClaim + mensagem “NEW_VERSION”
+- Adicionar no debug: nome do CACHE_NAME atual + lista de caches existentes.
+- Criar botão “Limpar cache do app” visível quando debug=1 que:
+  - remove caches do SW
+  - unregister SW
+  - força reload
+
+3.4 Conteúdo por idioma:
+- Identificar onde o conteúdo é carregado (API/JSON local).
+- Garantir que ao trocar idioma, a query/key do fetch muda (ex: /content?lang=en), e não reutiliza cache antigo.
+- Se usa localStorage/IndexedDB: versionar por idioma e invalidar quando mudar locale.
+
+PASSO 4 — Reproduzir e consertar (obrigatório)
+- Reproduzir erro em “produção” dentro do Replit:
+  - fazer build (npm run build) e servir build (npm run start ou serve dist) simulando produção
+- Confirmar:
+  1) usuário Premium abre cursos avançados em produção simulada
+  2) trocar bandeira muda UI + conteúdo imediatamente
+  3) após refresh, continua correto
+
+PASSO 5 — Entrega final
+- Entregar:
+  A) lista de arquivos alterados
+  B) prints do debug (preview e produção) antes/depois
+  C) checklist de validação
+  D) instrução de deploy/publicação
+  E) fallback: se produção ainda estiver divergindo, mostrar exatamente onde (API, DB, SW, assets)
+
+COMECE AGORA PELO PASSO 0 (debug=1) E PASSO 1 (comparação com evidência). Não pule etapas.

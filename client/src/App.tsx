@@ -6,6 +6,19 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthGateProvider } from "@/contexts/AuthGateContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { MainNavigation } from "@/components/MainNavigation";
+import { DebugPanel, useDebugMode } from "@/components/DebugPanel";
+
+function AppContent() {
+  const isDebug = useDebugMode();
+  
+  return (
+    <>
+      <Toaster />
+      <MainNavigation />
+      {isDebug && <DebugPanel />}
+    </>
+  );
+}
 
 function App() {
   return (
@@ -14,8 +27,7 @@ function App() {
         <AuthProvider>
           <LanguageProvider>
             <AuthGateProvider>
-              <Toaster />
-              <MainNavigation />
+              <AppContent />
             </AuthGateProvider>
           </LanguageProvider>
         </AuthProvider>

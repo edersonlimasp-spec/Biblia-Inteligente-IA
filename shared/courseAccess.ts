@@ -8,6 +8,7 @@ export interface CanOpenLessonParams {
   moduleIndex: number;
   lessonIndex: number;
   isAdmin?: boolean;
+  trackRequiredPlan?: 'gold' | 'premium';
 }
 
 export interface AccessResult {
@@ -18,7 +19,7 @@ export interface AccessResult {
 }
 
 export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
-  const { isLoggedIn, plan, courseLevel, moduleIndex, lessonIndex, isAdmin = false } = params;
+  const { isLoggedIn, plan, courseLevel, moduleIndex, lessonIndex, isAdmin = false, trackRequiredPlan } = params;
   
   // Admin always has access
   if (isAdmin) {
@@ -26,7 +27,8 @@ export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
   }
   
   // First 3 lessons of first module are FREE for everyone (even without login)
-  if (courseLevel === 'iniciante' && moduleIndex === 1 && lessonIndex <= 3) {
+  // Only applies to tracks that don't specifically require premium
+  if (courseLevel === 'iniciante' && moduleIndex === 1 && lessonIndex <= 3 && trackRequiredPlan !== 'premium') {
     return { allowed: true, reason: 'ALLOWED' };
   }
   
@@ -44,7 +46,26 @@ export function canOpenLesson(params: CanOpenLessonParams): AccessResult {
     return { allowed: true, reason: 'ALLOWED' };
   }
   
-  // Gold access rules
+  // If track specifically requires premium, Gold users need to upgrade
+  if (trackRequiredPlan === 'premium') {
+    if (plan === 'gold') {
+      return {
+        allowed: false,
+        reason: 'UPGRADE_REQUIRED',
+        requiredPlan: 'premium',
+        message: 'Assine Premium para acessar este conteúdo exclusivo'
+      };
+    }
+    // Free users also need premium
+    return {
+      allowed: false,
+      reason: 'UPGRADE_REQUIRED',
+      requiredPlan: 'premium',
+      message: 'Assine Premium para acessar este conteúdo exclusivo'
+    };
+  }
+  
+  // Gold access rules (for tracks that only require gold)
   if (plan === 'gold') {
     if (courseLevel === 'iniciante') {
       return { allowed: true, reason: 'ALLOWED' };

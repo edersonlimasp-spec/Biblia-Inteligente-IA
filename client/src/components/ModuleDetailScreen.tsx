@@ -129,6 +129,7 @@ function TrackCard({
   const handleLessonClick = (lesson: Lesson) => {
     const courseLevel = track.level as CourseLevel;
     const lessonIndex = lesson.order;
+    const trackRequiredPlan = track.requiredPlan as 'gold' | 'premium' | undefined;
     
     const accessResult = canOpenLesson({
       isLoggedIn,
@@ -137,6 +138,7 @@ function TrackCard({
       moduleIndex,
       lessonIndex,
       isAdmin,
+      trackRequiredPlan,
     });
     
     if (accessResult.allowed) {
@@ -151,6 +153,7 @@ function TrackCard({
   const getLessonLockInfo = (lesson: Lesson): { isLocked: boolean; requiredPlan?: 'gold' | 'premium' } => {
     const courseLevel = track.level as CourseLevel;
     const lessonIndex = lesson.order;
+    const trackRequiredPlan = track.requiredPlan as 'gold' | 'premium' | undefined;
     
     const accessResult = canOpenLesson({
       isLoggedIn,
@@ -159,6 +162,7 @@ function TrackCard({
       moduleIndex,
       lessonIndex,
       isAdmin,
+      trackRequiredPlan,
     });
     
     if (accessResult.allowed) {

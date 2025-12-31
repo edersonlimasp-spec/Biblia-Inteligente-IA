@@ -3,9 +3,16 @@ set -e
 
 echo "🔨 Building application for production..."
 
-# Step 1: Install dependencies
+# Step 0: Configure npm for network resilience
+echo "⚙️  Configuring npm for better network stability..."
+npm config set registry https://registry.npmjs.org/
+npm config set fetch-retries 5
+npm config set fetch-retry-mintimeout 20000
+npm config set fetch-retry-maxtimeout 120000
+
+# Step 1: Install dependencies with resilient options
 echo "📦 Installing dependencies..."
-npm ci
+npm ci --prefer-offline --no-audit --no-fund
 
 # Step 2: Build frontend and backend
 echo "🏗️  Building frontend and backend..."

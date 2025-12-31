@@ -3348,6 +3348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Import and use canOpenLesson
       const { canOpenLesson } = await import("@shared/courseAccess");
       const courseLevel = track.level as 'iniciante' | 'moderado' | 'avancado';
+      const trackRequiredPlan = track.requiredPlan as 'gold' | 'premium' | undefined;
       
       const accessResult = canOpenLesson({
         isLoggedIn,
@@ -3356,6 +3357,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         moduleIndex,
         lessonIndex,
         isAdmin,
+        trackRequiredPlan,
       });
       
       if (!accessResult.allowed) {

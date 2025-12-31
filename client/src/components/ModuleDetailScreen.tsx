@@ -118,7 +118,7 @@ function TrackCard({
   const { data: lessonsData, isLoading, error } = useQuery<{ lessons: Lesson[] }>({
     queryKey: ['/api/study/tracks', track.id, language],
     queryFn: async () => {
-      const res = await fetch(`/api/study/tracks/${track.id}/lessons?lang=${language}`);
+      const res = await fetch(`/api/study/tracks/${track.id}?lang=${language}`);
       if (!res.ok) throw new Error('Failed to fetch lessons');
       return res.json();
     }

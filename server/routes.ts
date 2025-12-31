@@ -3350,6 +3350,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const courseLevel = track.level as 'iniciante' | 'moderado' | 'avancado';
       const trackRequiredPlan = track.requiredPlan as 'gold' | 'premium' | undefined;
       
+      console.log('[AccessDebug]', {
+        lessonId: id,
+        userPlan,
+        courseLevel,
+        trackRequiredPlan,
+        isAdmin,
+        moduleIndex,
+        lessonIndex,
+      });
+      
       const accessResult = canOpenLesson({
         isLoggedIn,
         plan: userPlan,
@@ -3359,6 +3369,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isAdmin,
         trackRequiredPlan,
       });
+      
+      console.log('[AccessDebug] Result:', accessResult);
       
       if (!accessResult.allowed) {
         if (accessResult.reason === 'NOT_AUTHENTICATED') {

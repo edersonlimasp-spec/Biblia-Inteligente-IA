@@ -3350,18 +3350,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
       }
       
-      // Get user plan
+      // Get user plan (using hasActiveSubscription which checks BOTH subscriptions AND bonuses)
       let userPlan: 'free' | 'gold' | 'premium' = 'free';
       if (userId) {
-        const subs = await storage.getUserSubscriptions(userId);
-        const now = new Date();
-        const activeSubs = subs.filter(s => 
-          s.status === 'active' && 
-          (!s.endDate || new Date(s.endDate) > now)
-        );
-        if (activeSubs.some(s => s.planType === 'premium')) {
+        const hasPremium = await storage.hasActiveSubscription(userId, 'premium');
+        const hasGold = await storage.hasActiveSubscription(userId, 'gold');
+        const hasLifetime = await storage.hasActiveSubscription(userId, 'strong_lifetime');
+        
+        if (hasPremium) {
           userPlan = 'premium';
-        } else if (activeSubs.some(s => s.planType === 'gold' || s.planType === 'strong_lifetime')) {
+        } else if (hasGold || hasLifetime) {
           userPlan = 'gold';
         }
       }

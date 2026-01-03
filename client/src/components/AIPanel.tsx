@@ -11,6 +11,7 @@ import { trackAIQuestion } from "@/lib/tracking";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useNavigation } from "@/contexts/NavigationContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useLocation } from "wouter";
 import { useAIQuota } from "@/hooks/useAIQuota";
@@ -152,7 +153,8 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   const { user } = useAuth();
   const { requireAuth, isAuthenticated } = useRequireAuth();
   const { language, t } = useLanguage();
-  const [, navigate] = useLocation();
+  const { navigate: navNavigate } = useNavigation();
+  const [, setLocation] = useLocation();
   
   // Centralized quota system
   const { quotaInfo, consumeQuestion, isLoading: quotaLoading } = useAIQuota();
@@ -857,7 +859,22 @@ Conheça: https://bibliainteligente.replit.app`;
               <SheetHeader>
                 <SheetTitle>Histórico de Conversas</SheetTitle>
               </SheetHeader>
-              <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
+              <div className="mt-4 mb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    setIsHistoryOpen(false);
+                    navNavigate("history");
+                  }}
+                  data-testid="button-view-full-history"
+                >
+                  <History className="w-4 h-4 mr-2" />
+                  {language === "pt" ? "Ver histórico completo" : language === "es" ? "Ver historial completo" : "View full history"}
+                </Button>
+              </div>
+              <ScrollArea className="h-[calc(100vh-12rem)] mt-2">
                 <div className="space-y-2">
                   {chatSessions.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
@@ -1010,7 +1027,7 @@ Conheça: https://bibliainteligente.replit.app`;
             <Button 
               onClick={() => {
                 setShowUpgradePrompt(false);
-                navigate("/subscription");
+                navNavigate("subscriptions");
               }}
               className="w-full"
               data-testid="button-upgrade-plan"

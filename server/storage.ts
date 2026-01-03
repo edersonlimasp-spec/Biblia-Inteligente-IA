@@ -102,6 +102,8 @@ export interface IStorage {
   hasActiveBonus(userId: string, bonusType?: string): Promise<boolean>;
   revokeBonus(bonusId: string): Promise<void>;
   getActiveBonuses(): Promise<Bonus[]>;
+  getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string; userName: string | null; daysRemaining: number | null }>>;
+  renewBonus(bonusId: string, extraDays: number): Promise<Bonus>;
 
   // Audit Log
   logAdminAction(action: InsertAdminAction): Promise<AdminAction>;
@@ -679,6 +681,90 @@ class PostgresStorage implements IStorage {
 
   async getActiveBonuses(): Promise<Bonus[]> {
     return db.select().from(bonuses).where(eq(bonuses.isActive, true)).orderBy(desc(bonuses.createdAt));
+  }
+
+  async getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string; userName: string | null; daysRemaining: number | null }>> {
+    const now = new Date();
+    
+    // Build query with join to users table
+    let conditions: any[] = [];
+    
+    if (!includeExpired) {
+      conditions.push(eq(bonuses.isActive, true));
+    }
+    
+    if (searchEmail && searchEmail.trim()) {
+      conditions.push(sql`LOWER(${users.email}) LIKE LOWER(${'%' + searchEmail.trim() + '%'})`);
+    }
+    
+    // Build the query
+    const baseQuery = db
+      .select({
+        id: bonuses.id,
+        userId: bonuses.userId,
+        bonusType: bonuses.bonusType,
+        reason: bonuses.reason,
+        isActive: bonuses.isActive,
+        startAt: bonuses.startAt,
+        endAt: bonuses.endAt,
+        grantedByAdminId: bonuses.grantedByAdminId,
+        createdAt: bonuses.createdAt,
+        userEmail: users.email,
+        userName: users.name,
+      })
+      .from(bonuses)
+      .innerJoin(users, eq(bonuses.userId, users.id));
+    
+    // Apply conditions only if there are any
+    const results = conditions.length > 0
+      ? await baseQuery.where(and(...conditions)).orderBy(desc(bonuses.createdAt))
+      : await baseQuery.orderBy(desc(bonuses.createdAt));
+    
+    // Calculate days remaining for each bonus
+    return results.map(bonus => {
+      let daysRemaining: number | null = null;
+      if (bonus.endAt) {
+        const diffMs = new Date(bonus.endAt).getTime() - now.getTime();
+        daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      }
+      return {
+        ...bonus,
+        daysRemaining,
+      };
+    });
+  }
+
+  async renewBonus(bonusId: string, extraDays: number): Promise<Bonus> {
+    // Get the current bonus
+    const [currentBonus] = await db.select().from(bonuses).where(eq(bonuses.id, bonusId));
+    
+    if (!currentBonus) {
+      throw new Error('Bônus não encontrado');
+    }
+    
+    // For lifetime bonuses, don't modify endAt
+    if (currentBonus.endAt === null) {
+      throw new Error('Bônus vitalício não pode ser renovado');
+    }
+    
+    // Calculate new end date: use max(existing endAt, now) as base
+    // This ensures expired bonuses start from now, not from past date
+    const now = new Date();
+    const existingEndAt = new Date(currentBonus.endAt);
+    const baseDate = existingEndAt > now ? existingEndAt : now;
+    const newEndAt = new Date(baseDate.getTime() + extraDays * 24 * 60 * 60 * 1000);
+    
+    // Update the bonus
+    const [updated] = await db
+      .update(bonuses)
+      .set({ 
+        endAt: newEndAt,
+        isActive: true, // Reactivate if it was deactivated
+      })
+      .where(eq(bonuses.id, bonusId))
+      .returning();
+    
+    return updated;
   }
 
   // Audit Log

@@ -3128,7 +3128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin Bonuses - List active bonuses
+  // Admin Bonuses - List active bonuses (legacy endpoint)
   app.get("/api/admin/bonuses", ensureAdmin, async (req: AuthRequest, res) => {
     try {
       const activeBonuses = await storage.getActiveBonuses();
@@ -3136,6 +3136,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get bonuses error:", error);
       res.status(500).json({ error: "Erro ao buscar bônus" });
+    }
+  });
+
+  // Admin Bonuses - Search bonuses with email and expiry info
+  app.get("/api/admin/bonuses/search", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { email, includeExpired } = req.query;
+      const bonuses = await storage.getBonusesWithEmail(
+        email as string | undefined,
+        includeExpired === 'true'
+      );
+      res.json(bonuses);
+    } catch (error) {
+      console.error("Search bonuses error:", error);
+      res.status(500).json({ error: "Erro ao buscar bônus" });
+    }
+  });
+
+  // Admin Bonuses - Renew/extend bonus
+  app.patch("/api/admin/bonuses/:bonusId/renew", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { bonusId } = req.params;
+      const { extraDays } = req.body;
+      
+      if (!extraDays || extraDays <= 0) {
+        return res.status(400).json({ error: "Dias adicionais inválidos" });
+      }
+      
+      const updated = await storage.renewBonus(bonusId, extraDays);
+      
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'BONUS_RENEWED',
+        details: { bonusId, extraDays, newEndAt: updated.endAt },
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Renew bonus error:", error);
+      res.status(500).json({ error: "Erro ao renovar bônus" });
     }
   });
 

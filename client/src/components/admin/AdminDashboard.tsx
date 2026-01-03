@@ -28,7 +28,7 @@ interface OnlineMetrics {
 interface AIUsageStats {
   total: number;
   byMode: { essential: number; premium: number };
-  byUser: Array<{ userId: string; count: number }>;
+  byUser: Array<{ userId: string; email: string; count: number }>;
 }
 
 interface HeatmapData {
@@ -426,7 +426,7 @@ export function AdminDashboard() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold w-6">#{idx + 1}</span>
-                        <span className="text-sm text-muted-foreground truncate">ID: {user.userId.slice(0, 8)}...</span>
+                        <span className="text-sm text-muted-foreground truncate max-w-[200px]" title={user.email}>{user.email}</span>
                       </div>
                       <span className="text-sm font-bold text-primary">{user.count} perguntas</span>
                     </div>

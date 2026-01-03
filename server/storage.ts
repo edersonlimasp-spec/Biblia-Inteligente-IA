@@ -114,7 +114,7 @@ export interface IStorage {
   createOrUpdateSession(userId: string, sessionId: string): Promise<UserSession>;
   getOnlineUsers(minutesAgo?: number): Promise<number>;
   trackPageEvent(userId: string, eventType: string, eventData?: any): Promise<void>;
-  getAIUsageStats(days?: number): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}>;
+  getAIUsageStats(days?: number): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; email: string; count: number}>}>;
   getUsageHeatmap(days?: number): Promise<Array<{hour: number; count: number}>>;
   getAbandonedSubscriptions(): Promise<Array<{userId: string; email: string; lastSeenAt: string}>>;
   getConversionMetrics(): Promise<{
@@ -830,7 +830,7 @@ class PostgresStorage implements IStorage {
     });
   }
 
-  async getAIUsageStats(days: number = 30): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}> {
+  async getAIUsageStats(days: number = 30): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; email: string; count: number}>}> {
     const cutoffDate = new Date(Date.now() - days * 86400000);
     
     // Get AI events from logged-in users (pageEvents table)
@@ -867,10 +867,16 @@ class PostgresStorage implements IStorage {
       }
     });
 
-    const byUser = Array.from(userMap.entries())
-      .map(([userId, count]) => ({ userId, count }))
-      .sort((a, b) => b.count - a.count)
+    const topUserIds = Array.from(userMap.entries())
+      .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
+
+    // Fetch emails for top users
+    const byUser: Array<{userId: string; email: string; count: number}> = [];
+    for (const [userId, count] of topUserIds) {
+      const user = await this.getUser(userId);
+      byUser.push({ userId, email: user?.email || 'Desconhecido', count });
+    }
 
     return { total, byMode, byUser };
   }

@@ -52,9 +52,11 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
     },
   });
 
-  const { data: allUsers, isLoading: loadingUsers, error: usersError } = useQuery<UserBasic[]>({
+  const { data: usersData, isLoading: loadingUsers, error: usersError } = useQuery<{ users: UserBasic[], total: number }>({
     queryKey: ['/api/admin/users'],
   });
+
+  const allUsers = usersData?.users || [];
 
   useEffect(() => {
     console.log('[AdminBonuses] Mounted, bonuses:', bonuses?.length, 'users:', allUsers?.length);
@@ -177,11 +179,11 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
 
   const expiringBonuses = bonuses?.filter(b => b.isActive && b.daysRemaining !== null && b.daysRemaining <= 5 && b.daysRemaining > 0) || [];
 
-  const filteredUsers = allUsers?.filter(user => 
+  const filteredUsers = allUsers.filter(user => 
     !userSearchTerm || 
     user.email.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
     (user.name && user.name.toLowerCase().includes(userSearchTerm.toLowerCase()))
-  ) || [];
+  );
 
   const usersWithBonusIds = new Set(bonuses?.map(b => b.userEmail) || []);
 
@@ -255,7 +257,7 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Usuários Cadastrados ({allUsers?.length || 0})
+              Usuários Cadastrados ({allUsers.length})
             </CardTitle>
             <CardDescription>Clique em um usuário para conceder bônus</CardDescription>
           </CardHeader>

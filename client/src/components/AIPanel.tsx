@@ -776,7 +776,7 @@ Conheça: https://bibliainteligente.replit.app`;
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg pb-safe" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
       {/* Expanded Chat Area */}
       {isExpanded && messages.length > 0 && (
         <div className="border-b bg-background">

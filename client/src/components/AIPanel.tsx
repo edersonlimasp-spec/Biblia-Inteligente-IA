@@ -842,14 +842,15 @@ Conheça: https://bibliainteligente.replit.app`;
       )}
 
       {/* Input Area */}
-      <div className="max-w-3xl mx-auto px-4 py-3">
-        <div className="flex items-center gap-2">
-          {/* History Drawer */}
+      <div className="max-w-3xl mx-auto px-3 py-2">
+        <div className="flex items-end gap-1.5">
+          {/* History Button - Compact */}
           <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
             <SheetTrigger asChild>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
+                className="h-10 w-10 shrink-0 rounded-lg"
                 data-testid="button-open-history"
               >
                 <History className="h-4 w-4" />
@@ -940,68 +941,67 @@ Conheça: https://bibliainteligente.replit.app`;
             </SheetContent>
           </Sheet>
 
-          {/* Input Field - ChatGPT Style */}
-          <div className="flex-1 flex items-end gap-2">
-            <div className="flex-[9] min-w-0">
-              <SearchInput
-                placeholder={t("professor.placeholder")}
-                aria-label={t("professor.placeholder")}
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                onSearch={handleAsk}
-                showIcon={false}
-                minHeight="48px"
-                maxHeight="120px"
-                className="w-full"
-                data-testid="input-ai-question"
-              />
-            </div>
-            <div className="flex-[1] flex justify-center">
-              <Button
-                onClick={handleAsk}
-                disabled={askAIMutation.isPending || subscriptionLoading || !question.trim()}
-                data-testid="button-ask-ai"
-                size="icon"
-                className="h-12 w-12 rounded-xl shrink-0"
-              >
-                {askAIMutation.isPending || subscriptionLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Send className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
+          {/* Input Field - ChatGPT Style - Takes ~85% of space */}
+          <div className="flex-1 min-w-0">
+            <SearchInput
+              placeholder={t("professor.placeholder")}
+              aria-label={t("professor.placeholder")}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onSearch={handleAsk}
+              showIcon={false}
+              minHeight="44px"
+              maxHeight="120px"
+              className="w-full"
+              data-testid="input-ai-question"
+            />
           </div>
 
-          {/* Remaining Free Questions Badge */}
+          {/* Send Button - Compact */}
+          <Button
+            onClick={handleAsk}
+            disabled={askAIMutation.isPending || subscriptionLoading || !question.trim()}
+            data-testid="button-ask-ai"
+            size="icon"
+            className="h-10 w-10 rounded-lg shrink-0"
+          >
+            {askAIMutation.isPending || subscriptionLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+
+          {/* Remaining Free Questions Badge - Compact */}
           {!quotaInfo.hasUnlimitedAccess && (
             <Badge 
               variant={quotaInfo.remaining > 0 ? "secondary" : (quotaInfo.isGuest ? "outline" : "destructive")} 
-              className="text-xs whitespace-nowrap"
+              className="text-[10px] px-1.5 py-0.5 whitespace-nowrap shrink-0"
               data-testid="badge-remaining-questions"
             >
               {quotaInfo.remaining > 0 ? (
                 <>{quotaInfo.remaining}/{quotaInfo.limit}</>
               ) : quotaInfo.isGuest ? (
-                <><LogIn className="h-3 w-3 mr-1" />Login</>
+                <><LogIn className="h-2.5 w-2.5 mr-0.5" />Login</>
               ) : (
-                <><Lock className="h-3 w-3 mr-1" />Limite</>
+                <><Lock className="h-2.5 w-2.5 mr-0.5" />Limite</>
               )}
             </Badge>
           )}
 
-          {/* Toggle Expand/Collapse */}
+          {/* Toggle Expand/Collapse - Compact */}
           {messages.length > 0 && (
             <Button
               variant="ghost"
               size="icon"
+              className="h-8 w-8 shrink-0"
               onClick={() => setIsExpanded(!isExpanded)}
               data-testid="button-toggle-ai-panel"
             >
               {isExpanded ? (
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-3.5 w-3.5" />
               ) : (
-                <ChevronUp className="h-4 w-4" />
+                <ChevronUp className="h-3.5 w-3.5" />
               )}
             </Button>
           )}

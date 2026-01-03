@@ -113,7 +113,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     // AI Professor
     "professor.title": "Professor IA",
     "professor.subtitle": "Chat teológico contínuo",
-    "professor.placeholder": "Faça uma pergunta sobre a Bíblia...",
+    "professor.placeholder": "Pergunte ao Professor...",
     "professor.thinking": "Pensando...",
     "professor.send": "Enviar",
     "professor.newConversation": "Nova conversa",
@@ -772,7 +772,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     // AI Professor
     "professor.title": "AI Professor",
     "professor.subtitle": "Continuous theological chat",
-    "professor.placeholder": "Ask a question about the Bible...",
+    "professor.placeholder": "Ask the Professor...",
     "professor.thinking": "Thinking...",
     "professor.send": "Send",
     "professor.newConversation": "New conversation",
@@ -1431,7 +1431,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     // AI Professor
     "professor.title": "Profesor IA",
     "professor.subtitle": "Chat teológico continuo",
-    "professor.placeholder": "Haz una pregunta sobre la Biblia...",
+    "professor.placeholder": "Pregunta al Profesor...",
     "professor.thinking": "Pensando...",
     "professor.send": "Enviar",
     "professor.newConversation": "Nueva conversación",

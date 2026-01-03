@@ -10,7 +10,6 @@ import type { Bonus } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AdminBonusesProps {
   isSuperAdmin: boolean;
@@ -261,7 +260,7 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
               onChange={(e) => setUserSearchTerm(e.target.value)}
               data-testid="input-search-user"
             />
-            <ScrollArea className="h-[300px] border rounded-md">
+            <div className="h-[300px] border rounded-md overflow-y-auto">
               {loadingUsers ? (
                 <div className="p-3 space-y-2">
                   {[1, 2, 3, 4, 5].map(i => (
@@ -273,8 +272,8 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
                   {filteredUsers.map(user => (
                     <div
                       key={user.id}
-                      className={`p-3 hover-elevate cursor-pointer flex items-center justify-between ${
-                        userEmail === user.email ? 'bg-primary/10 border-l-2 border-primary' : ''
+                      className={`p-3 cursor-pointer flex items-center justify-between ${
+                        userEmail === user.email ? 'bg-primary/10 border-l-2 border-primary' : 'hover:bg-muted/50'
                       }`}
                       onClick={() => handleSelectUser(user.email)}
                       data-testid={`user-row-${user.id}`}
@@ -312,7 +311,7 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
                   Nenhum usuário encontrado
                 </div>
               )}
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
 

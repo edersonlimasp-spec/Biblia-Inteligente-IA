@@ -951,14 +951,14 @@ Conheça: https://bibliainteligente.replit.app`;
               showIcon={false}
               minHeight="48px"
               maxHeight="120px"
-              className="flex-1 text-base sm:text-lg"
+              className="w-[80%] text-base sm:text-lg"
               data-testid="input-ai-question"
             />
             <Button
               onClick={handleAsk}
               disabled={askAIMutation.isPending || subscriptionLoading}
               data-testid="button-ask-ai"
-              className="mobile-search-button text-base sm:text-lg"
+              className="w-[20%] min-w-fit text-base sm:text-lg"
             >
               {askAIMutation.isPending || subscriptionLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

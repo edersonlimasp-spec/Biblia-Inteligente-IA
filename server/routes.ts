@@ -2788,12 +2788,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let totalGuests = 0;
       let activeGuestTrials = 0;
       let convertedGuests = 0;
+      let newGuestsToday = 0;
+      let activeGuestsToday = 0;
       try {
         if (typeof storage.getGuestStats === 'function') {
           const guestStats = await storage.getGuestStats();
           totalGuests = guestStats.totalGuests || 0;
           activeGuestTrials = guestStats.guestsInTrial || 0;
           convertedGuests = guestStats.linkedToUsers || 0;
+          newGuestsToday = guestStats.newGuestsToday || 0;
+          activeGuestsToday = guestStats.activeGuestsToday || 0;
         }
       } catch (e) {
         console.warn('Erro ao buscar guest stats:', e);
@@ -2812,6 +2816,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalGuests: Number(totalGuests) || 0,
         activeGuestTrials: Number(activeGuestTrials) || 0,
         convertedGuests: Number(convertedGuests) || 0,
+        newGuestsToday: Number(newGuestsToday) || 0,
+        activeGuestsToday: Number(activeGuestsToday) || 0,
         inactiveUsers,
       });
     } catch (error) {

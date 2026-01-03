@@ -16,6 +16,8 @@ interface DashboardStats {
   totalGuests: number;
   activeGuestTrials: number;
   convertedGuests: number;
+  newGuestsToday: number;
+  activeGuestsToday: number;
   inactiveUsers: number;
 }
 
@@ -159,27 +161,50 @@ export function AdminDashboard() {
               <Skeleton className="h-12 w-32" />
             </div>
           ) : (
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-4 bg-accent/30 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Smartphone className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Total de Guests</p>
+            <div className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <UserCheck className="h-4 w-4 text-green-600" />
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">Novos Visitantes Hoje</p>
+                  </div>
+                  <p className="text-3xl font-bold text-green-600">{stats?.newGuestsToday || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Primeira vez no app</p>
                 </div>
-                <p className="text-2xl font-semibold">{stats?.totalGuests || 0}</p>
+                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-blue-600" />
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Visitantes Ativos Hoje</p>
+                  </div>
+                  <p className="text-3xl font-bold text-blue-600">{stats?.activeGuestsToday || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Uso diário de anônimos</p>
+                </div>
               </div>
-              <div className="p-4 bg-accent/30 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Trials Ativos (Guest)</p>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="p-4 bg-accent/30 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Total de Guests</p>
+                  </div>
+                  <p className="text-2xl font-semibold">{stats?.totalGuests || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Dispositivos únicos</p>
                 </div>
-                <p className="text-2xl font-semibold">{stats?.activeGuestTrials || 0}</p>
-              </div>
-              <div className="p-4 bg-accent/30 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <UserCheck className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Convertidos (criaram conta)</p>
+                <div className="p-4 bg-accent/30 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Trials Ativos</p>
+                  </div>
+                  <p className="text-2xl font-semibold">{stats?.activeGuestTrials || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Período de teste</p>
                 </div>
-                <p className="text-2xl font-semibold">{stats?.convertedGuests || 0}</p>
+                <div className="p-4 bg-accent/30 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <UserCheck className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Convertidos</p>
+                  </div>
+                  <p className="text-2xl font-semibold">{stats?.convertedGuests || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Criaram conta</p>
+                </div>
               </div>
             </div>
           )}

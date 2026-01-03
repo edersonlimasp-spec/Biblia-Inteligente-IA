@@ -167,6 +167,8 @@ export interface IStorage {
     guestsInTrial: number;
     trialExpired: number;
     linkedToUsers: number;
+    newGuestsToday: number;
+    activeGuestsToday: number;
   }>;
   getEventStats(days?: number): Promise<{
     totalEvents: number;
@@ -1252,14 +1254,20 @@ class PostgresStorage implements IStorage {
     guestsInTrial: number;
     trialExpired: number;
     linkedToUsers: number;
+    newGuestsToday: number;
+    activeGuestsToday: number;
   }> {
     const now = new Date();
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
     
-    const [total, inTrial, expired, linked] = await Promise.all([
+    const [total, inTrial, expired, linked, newToday, activeToday] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(guests),
       db.select({ count: sql<number>`count(*)` }).from(guests).where(gte(guests.trialEndAt, now)),
       db.select({ count: sql<number>`count(*)` }).from(guests).where(sql`${guests.trialEndAt} < ${now}`),
       db.select({ count: sql<number>`count(*)` }).from(guests).where(sql`${guests.linkedUserId} IS NOT NULL`),
+      db.select({ count: sql<number>`count(*)` }).from(guests).where(gte(guests.firstSeenAt, todayStart)),
+      db.select({ count: sql<number>`count(*)` }).from(guests).where(gte(guests.lastSeenAt, todayStart)),
     ]);
     
     return {
@@ -1267,6 +1275,8 @@ class PostgresStorage implements IStorage {
       guestsInTrial: Number(inTrial[0]?.count || 0),
       trialExpired: Number(expired[0]?.count || 0),
       linkedToUsers: Number(linked[0]?.count || 0),
+      newGuestsToday: Number(newToday[0]?.count || 0),
+      activeGuestsToday: Number(activeToday[0]?.count || 0),
     };
   }
 

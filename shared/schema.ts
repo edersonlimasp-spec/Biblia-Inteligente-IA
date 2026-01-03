@@ -132,6 +132,47 @@ export const insertAIHistorySchema = createInsertSchema(aiHistory).omit({
 export type InsertAIHistory = z.infer<typeof insertAIHistorySchema>;
 export type AIHistory = typeof aiHistory.$inferSelect;
 
+// Chat Sessions table (Cloud Sync for AI conversations)
+export const chatSessions = pgTable("chat_sessions", {
+  id: varchar("id").primaryKey(), // Client-generated UUID for sync
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  messages: jsonb("messages").notNull().$type<ChatMessage[]>(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  syncedAt: timestamp("synced_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("chat_sessions_user_id_idx").on(table.userId),
+  updatedAtIdx: index("chat_sessions_updated_at_idx").on(table.updatedAt),
+}));
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  text: string;
+  timestamp: string;
+  verseContext?: {
+    book: string;
+    chapter: number;
+    verse: number;
+  };
+}
+
+export const insertChatSessionSchema = createInsertSchema(chatSessions).omit({
+  syncedAt: true,
+});
+
+export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
+export type ChatSession = typeof chatSessions.$inferSelect;
+
+// User Sync Metadata table (tracks last sync timestamp per user)
+export const userSyncMeta = pgTable("user_sync_meta", {
+  userId: varchar("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  lastSyncedAt: timestamp("last_synced_at").notNull().defaultNow(),
+  deviceId: text("device_id"),
+});
+
+export type UserSyncMeta = typeof userSyncMeta.$inferSelect;
+
 // Password Reset Tokens table
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

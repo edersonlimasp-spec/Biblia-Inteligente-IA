@@ -1,6 +1,6 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts } from '@shared/schema';
-import type { FreeStrongQuota, GuestStrongQuota, PaymentReceipt, InsertPaymentReceipt } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts, chatSessions, userSyncMeta } from '@shared/schema';
+import type { FreeStrongQuota, GuestStrongQuota, PaymentReceipt, InsertPaymentReceipt, ChatSession, InsertChatSession, UserSyncMeta } from '@shared/schema';
 import { getBookById } from './bible-data/books';
 import type {
   User,
@@ -236,6 +236,14 @@ export interface IStorage {
     byStatus: Record<string, number>;
     last30Days: { count: number; grossAmount: number; netAmount: number };
   }>;
+
+  // Cloud Sync - Chat Sessions
+  getUserChatSessions(userId: string): Promise<ChatSession[]>;
+  upsertChatSession(session: InsertChatSession): Promise<ChatSession>;
+  deleteChatSession(id: string, userId: string): Promise<void>;
+  getChatSessionsSince(userId: string, since: Date): Promise<ChatSession[]>;
+  getUserSyncMeta(userId: string): Promise<UserSyncMeta | undefined>;
+  updateUserSyncMeta(userId: string, deviceId?: string): Promise<UserSyncMeta>;
 }
 
 class PostgresStorage implements IStorage {
@@ -1960,6 +1968,72 @@ class PostgresStorage implements IStorage {
         netAmount: last30Net,
       },
     };
+  }
+
+  // Cloud Sync - Chat Sessions
+  async getUserChatSessions(userId: string): Promise<ChatSession[]> {
+    return db.select().from(chatSessions)
+      .where(eq(chatSessions.userId, userId))
+      .orderBy(desc(chatSessions.updatedAt));
+  }
+
+  async upsertChatSession(session: InsertChatSession): Promise<ChatSession> {
+    const [result] = await db
+      .insert(chatSessions)
+      .values({
+        ...session,
+        syncedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: chatSessions.id,
+        set: {
+          title: session.title,
+          messages: session.messages,
+          updatedAt: session.updatedAt,
+          syncedAt: new Date(),
+        },
+      })
+      .returning();
+    return result;
+  }
+
+  async deleteChatSession(id: string, userId: string): Promise<void> {
+    await db.delete(chatSessions)
+      .where(and(eq(chatSessions.id, id), eq(chatSessions.userId, userId)));
+  }
+
+  async getChatSessionsSince(userId: string, since: Date): Promise<ChatSession[]> {
+    return db.select().from(chatSessions)
+      .where(and(
+        eq(chatSessions.userId, userId),
+        gte(chatSessions.updatedAt, since)
+      ))
+      .orderBy(desc(chatSessions.updatedAt));
+  }
+
+  async getUserSyncMeta(userId: string): Promise<UserSyncMeta | undefined> {
+    const [result] = await db.select().from(userSyncMeta)
+      .where(eq(userSyncMeta.userId, userId));
+    return result;
+  }
+
+  async updateUserSyncMeta(userId: string, deviceId?: string): Promise<UserSyncMeta> {
+    const [result] = await db
+      .insert(userSyncMeta)
+      .values({
+        userId,
+        lastSyncedAt: new Date(),
+        deviceId: deviceId || null,
+      })
+      .onConflictDoUpdate({
+        target: userSyncMeta.userId,
+        set: {
+          lastSyncedAt: new Date(),
+          deviceId: deviceId || null,
+        },
+      })
+      .returning();
+    return result;
   }
 }
 

@@ -1323,6 +1323,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===================================
+  // CHAT SESSIONS CLOUD SYNC
+  // ===================================
+
+  // Get all chat sessions from cloud
+  app.get("/api/sync/chat-sessions", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const sessions = await storage.getUserChatSessions(req.userId!);
+      const syncMeta = await storage.getUserSyncMeta(req.userId!);
+      
+      res.json({
+        success: true,
+        sessions,
+        lastSyncedAt: syncMeta?.lastSyncedAt?.toISOString() || null,
+      });
+    } catch (error) {
+      console.error("[Sync] Get chat sessions error:", error);
+      res.status(500).json({ error: "Erro ao buscar sessões de chat" });
+    }
+  });
+
+  // Sync chat sessions to cloud (upsert multiple)
+  app.post("/api/sync/chat-sessions", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { sessions, deletedIds } = req.body;
+      const deviceId = req.headers['x-device-id'] as string || 'default';
+      
+      console.log(`[Sync] User ${req.userId} syncing ${sessions?.length || 0} sessions, deleting ${deletedIds?.length || 0}`);
+      
+      // Delete sessions marked for deletion
+      if (deletedIds && Array.isArray(deletedIds)) {
+        for (const id of deletedIds) {
+          await storage.deleteChatSession(id, req.userId!);
+        }
+      }
+      
+      // Upsert all sessions
+      const syncedSessions = [];
+      if (sessions && Array.isArray(sessions)) {
+        for (const session of sessions) {
+          const synced = await storage.upsertChatSession({
+            id: session.id,
+            userId: req.userId!,
+            title: session.title,
+            messages: session.messages,
+            createdAt: new Date(session.createdAt),
+            updatedAt: new Date(session.updatedAt),
+          });
+          syncedSessions.push(synced);
+        }
+      }
+      
+      // Update sync metadata
+      await storage.updateUserSyncMeta(req.userId!, deviceId);
+      
+      res.json({
+        success: true,
+        syncedCount: syncedSessions.length,
+        deletedCount: deletedIds?.length || 0,
+        syncedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[Sync] Sync chat sessions error:", error);
+      res.status(500).json({ error: "Erro ao sincronizar sessões de chat" });
+    }
+  });
+
+  // Get sessions updated since a specific timestamp (incremental sync)
+  app.get("/api/sync/chat-sessions/since/:timestamp", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const since = new Date(req.params.timestamp);
+      if (isNaN(since.getTime())) {
+        return res.status(400).json({ error: "Timestamp inválido" });
+      }
+      
+      const sessions = await storage.getChatSessionsSince(req.userId!, since);
+      
+      res.json({
+        success: true,
+        sessions,
+        since: since.toISOString(),
+      });
+    } catch (error) {
+      console.error("[Sync] Get sessions since error:", error);
+      res.status(500).json({ error: "Erro ao buscar sessões atualizadas" });
+    }
+  });
+
+  // Delete a specific chat session from cloud
+  app.delete("/api/sync/chat-sessions/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      await storage.deleteChatSession(req.params.id, req.userId!);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Sync] Delete chat session error:", error);
+      res.status(500).json({ error: "Erro ao deletar sessão de chat" });
+    }
+  });
+
+  // ===================================
   // GUEST ROUTES (anonymous visitors)
   // ===================================
 

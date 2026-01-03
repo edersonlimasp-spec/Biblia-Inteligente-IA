@@ -101,6 +101,7 @@ export interface IStorage {
   getUserBonuses(userId: string): Promise<Bonus[]>;
   hasActiveBonus(userId: string, bonusType?: string): Promise<boolean>;
   revokeBonus(bonusId: string): Promise<void>;
+  deleteBonus(bonusId: string): Promise<void>;
   getActiveBonuses(): Promise<Bonus[]>;
   getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string; userName: string | null; daysRemaining: number | null }>>;
   renewBonus(bonusId: string, extraDays: number): Promise<Bonus>;
@@ -677,6 +678,10 @@ class PostgresStorage implements IStorage {
 
   async revokeBonus(bonusId: string): Promise<void> {
     await db.update(bonuses).set({ isActive: false }).where(eq(bonuses.id, bonusId));
+  }
+
+  async deleteBonus(bonusId: string): Promise<void> {
+    await db.delete(bonuses).where(eq(bonuses.id, bonusId));
   }
 
   async getActiveBonuses(): Promise<Bonus[]> {

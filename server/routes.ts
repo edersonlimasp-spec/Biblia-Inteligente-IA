@@ -3196,6 +3196,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Bonuses - Delete bonus permanently (SUPER_ADMIN only)
+  app.delete("/api/admin/bonuses/:bonusId/permanent", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { bonusId } = req.params;
+      await storage.deleteBonus(bonusId);
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'BONUS_DELETED',
+        details: { bonusId },
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete bonus error:", error);
+      res.status(500).json({ error: "Erro ao excluir bônus" });
+    }
+  });
+
   // Admin Logs - Get audit log
   app.get("/api/admin/logs", ensureAdmin, async (req: AuthRequest, res) => {
     try {

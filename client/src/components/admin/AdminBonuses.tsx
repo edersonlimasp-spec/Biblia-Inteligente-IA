@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
-import { Gift, X, Search, RefreshCw, AlertTriangle, Clock, CheckCircle, Users, UserPlus, AlertCircle } from "lucide-react";
+import { Gift, X, Search, RefreshCw, AlertTriangle, Clock, CheckCircle, Users, UserPlus, AlertCircle, Trash2 } from "lucide-react";
 import type { Bonus } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -92,6 +92,21 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
     onSuccess: () => {
       toast({ title: "Bônus revogado com sucesso!" });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses/search'] });
+    },
+  });
+
+  const deleteBonusMutation = useMutation({
+    mutationFn: async (bonusId: string) => {
+      const res = await apiRequest('DELETE', `/api/admin/bonuses/${bonusId}/permanent`);
+      if (!res.ok) throw new Error('Erro ao excluir bônus');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Bônus excluído permanentemente!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses/search'] });
+    },
+    onError: (error) => {
+      toast({ title: "Erro ao excluir bônus", description: (error as Error).message, variant: "destructive" });
     },
   });
 
@@ -504,9 +519,26 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
                           size="sm"
                           onClick={() => revokeBonusMutation.mutate(bonus.id)}
                           disabled={revokeBonusMutation.isPending}
+                          title="Revogar (desativar)"
                           data-testid={`button-revoke-bonus-${bonus.id}`}
                         >
                           <X className="h-4 w-4 text-red-600" />
+                        </Button>
+                      )}
+                      {isSuperAdmin && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm('Tem certeza que deseja EXCLUIR permanentemente este bônus? Esta ação não pode ser desfeita.')) {
+                              deleteBonusMutation.mutate(bonus.id);
+                            }
+                          }}
+                          disabled={deleteBonusMutation.isPending}
+                          title="Excluir permanentemente"
+                          data-testid={`button-delete-bonus-${bonus.id}`}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
                       )}
                     </div>

@@ -64,7 +64,7 @@ const SearchInput = forwardRef<HTMLTextAreaElement, SearchInputProps>(
     return (
       <div className="relative w-full">
         {showIcon && iconPosition === "left" && (
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60 pointer-events-none z-10" />
         )}
         <textarea
           ref={setRefs}
@@ -72,27 +72,33 @@ const SearchInput = forwardRef<HTMLTextAreaElement, SearchInputProps>(
           onKeyDown={handleKeyDown}
           onInput={adjustHeight}
           className={cn(
-            "flex w-full rounded-xl border border-input/50 bg-muted/30 dark:bg-muted/20",
-            "text-base text-foreground placeholder:text-muted-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary/50",
-            "transition-all duration-200 ease-in-out",
-            "shadow-sm hover:shadow-md focus:shadow-md",
+            "flex w-full rounded-2xl",
+            "border-2 border-border/40 dark:border-border/30",
+            "bg-background dark:bg-card/80",
+            "text-base text-foreground placeholder:text-muted-foreground/50",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/60",
+            "transition-all duration-200 ease-out",
+            "shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)]",
+            "hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
+            "focus:shadow-[0_4px_16px_rgba(0,0,0,0.1)] dark:focus:shadow-[0_4px_16px_rgba(0,0,0,0.35)]",
             "resize-none overflow-hidden",
-            "font-sans leading-relaxed",
-            showIcon && iconPosition === "left" ? "pl-10 pr-4" : "px-4",
-            showIcon && iconPosition === "right" ? "pr-10 pl-4" : "",
-            "py-3",
+            "leading-relaxed tracking-normal",
+            showIcon && iconPosition === "left" ? "pl-12 pr-4" : "px-4",
+            showIcon && iconPosition === "right" ? "pr-12 pl-4" : "",
+            "py-3.5",
             className
           )}
           style={{
             minHeight,
             maxHeight,
-            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, 'Helvetica Neue', sans-serif",
+            fontSize: '15px',
+            letterSpacing: '-0.01em',
           }}
           {...props}
         />
         {showIcon && iconPosition === "right" && (
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60 pointer-events-none z-10" />
         )}
       </div>
     );

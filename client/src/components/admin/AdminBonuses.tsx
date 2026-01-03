@@ -46,8 +46,7 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
       const params = new URLSearchParams();
       if (searchEmail) params.append('email', searchEmail);
       if (includeExpired) params.append('includeExpired', 'true');
-      const res = await fetch(`/api/admin/bonuses/search?${params}`, { credentials: 'include' });
-      if (!res.ok) throw new Error('Erro ao buscar bônus');
+      const res = await apiRequest('GET', `/api/admin/bonuses/search?${params}`);
       return res.json();
     },
   });

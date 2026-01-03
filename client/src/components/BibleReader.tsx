@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Loader2, Globe, BookOpen, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import {
   Select,
   SelectContent,
@@ -721,7 +721,7 @@ export function BibleReader({
           >
             {isGlobalSearch ? <Globe className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
           </Button>
-          <Input
+          <SearchInput
             placeholder={isGlobalSearch ? "Buscar na Bíblia toda..." : "Buscar neste capítulo..."}
             value={isGlobalSearch ? globalSearchTerm : textSearchQuery}
             onChange={(e) => {
@@ -731,14 +731,17 @@ export function BibleReader({
                 setTextSearchQuery(e.target.value);
               }
             }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                if (isGlobalSearch && globalSearchTerm.length >= 2) {
-                  setShowGlobalResults(true);
-                }
+            onSearch={() => {
+              const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
+              if (currentQuery.length >= 2) {
+                setShowGlobalResults(true);
               }
             }}
-            className="flex-1 h-8 text-sm"
+            showIcon={false}
+            singleLine={true}
+            minHeight="36px"
+            maxHeight="36px"
+            className="flex-1 text-sm"
             data-testid="input-text-search"
           />
           <Button

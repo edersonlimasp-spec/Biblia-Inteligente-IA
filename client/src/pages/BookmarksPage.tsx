@@ -7,7 +7,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Bookmark, MessageSquare, Search, Calendar, BookOpen, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -185,13 +185,16 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
         {/* Search and Filters */}
         <div className="px-4 pb-3 space-y-3">
           <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
+            <div className="flex-1">
+              <SearchInput
                 placeholder="Buscar por livro, versículo ou nota..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
+                showIcon={true}
+                iconPosition="left"
+                singleLine={true}
+                minHeight="44px"
+                maxHeight="44px"
                 data-testid="input-search-marks"
               />
             </div>

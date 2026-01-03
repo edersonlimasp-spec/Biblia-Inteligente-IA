@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Calendar, MessageSquare, Search, ArrowLeft, Download, FileText, Trash2, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -405,13 +405,16 @@ export function AIHistoryScreen({ onBack }: AIHistoryScreenProps) {
 
       <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
+          <div className="flex-1">
+            <SearchInput
               placeholder={getLabel("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              showIcon={true}
+              iconPosition="left"
+              singleLine={true}
+              minHeight="44px"
+              maxHeight="44px"
               data-testid="input-search-history"
             />
           </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -942,17 +942,15 @@ Conheça: https://bibliainteligente.replit.app`;
 
           {/* Input Field */}
           <div className="flex-1 flex gap-2">
-            <Input
+            <SearchInput
               placeholder={t("professor.placeholder")}
               aria-label={t("professor.placeholder")}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleAsk();
-                }
-              }}
+              onSearch={handleAsk}
+              showIcon={false}
+              minHeight="48px"
+              maxHeight="120px"
               className="flex-1 text-base sm:text-lg"
               data-testid="input-ai-question"
             />

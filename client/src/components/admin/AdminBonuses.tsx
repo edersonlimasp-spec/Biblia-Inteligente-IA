@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { Gift, X, Search, RefreshCw, AlertTriangle, Clock, CheckCircle } from "lucide-react";
+import { Gift, X, Search, RefreshCw, AlertTriangle, Clock, CheckCircle, Users, UserPlus } from "lucide-react";
 import type { Bonus } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AdminBonusesProps {
   isSuperAdmin: boolean;
@@ -21,6 +22,14 @@ interface BonusWithEmail extends Bonus {
   daysRemaining: number | null;
 }
 
+interface UserBasic {
+  id: string;
+  email: string;
+  name: string | null;
+  role: string;
+  createdAt: string;
+}
+
 export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
   const [userEmail, setUserEmail] = useState("");
   const [bonusType, setBonusType] = useState("trial_extend");
@@ -29,6 +38,7 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
   const [searchEmail, setSearchEmail] = useState("");
   const [includeExpired, setIncludeExpired] = useState(false);
   const [renewDays, setRenewDays] = useState<{ [key: string]: string }>({});
+  const [userSearchTerm, setUserSearchTerm] = useState("");
   const { toast } = useToast();
 
   const { data: bonuses, isLoading, refetch } = useQuery<BonusWithEmail[]>({
@@ -41,6 +51,10 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
       if (!res.ok) throw new Error('Erro ao buscar bônus');
       return res.json();
     },
+  });
+
+  const { data: allUsers, isLoading: loadingUsers } = useQuery<UserBasic[]>({
+    queryKey: ['/api/admin/users'],
   });
 
   const createBonusMutation = useMutation({
@@ -111,6 +125,10 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
     renewBonusMutation.mutate({ bonusId, extraDays: days });
   };
 
+  const handleSelectUser = (email: string) => {
+    setUserEmail(email);
+  };
+
   const bonusTypeLabels: Record<string, string> = {
     trial_extend: "Estender Trial",
     gold_free: "Gold Gratuito",
@@ -153,6 +171,14 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
   };
 
   const expiringBonuses = bonuses?.filter(b => b.isActive && b.daysRemaining !== null && b.daysRemaining <= 5 && b.daysRemaining > 0) || [];
+
+  const filteredUsers = allUsers?.filter(user => 
+    !userSearchTerm || 
+    user.email.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+    (user.name && user.name.toLowerCase().includes(userSearchTerm.toLowerCase()))
+  ) || [];
+
+  const usersWithBonusIds = new Set(bonuses?.map(b => b.userEmail) || []);
 
   return (
     <div className="space-y-4">
@@ -219,59 +245,146 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
         </Card>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Criar Novo Bônus</CardTitle>
-          <CardDescription>Conceda bônus especiais a usuários</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
-            placeholder="Email do usuário"
-            value={userEmail}
-            onChange={(e) => setUserEmail(e.target.value)}
-            data-testid="input-bonus-email"
-          />
-
-          <select
-            value={bonusType}
-            onChange={(e) => setBonusType(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm bg-background text-foreground"
-            data-testid="select-bonus-type"
-          >
-            <option value="trial_extend">Estender Trial (dias)</option>
-            <option value="gold_free">Gold Gratuito (período)</option>
-            <option value="premium_free">Premium Gratuito (período)</option>
-            <option value="lifetime_grant">Lifetime Strong (Vitalício)</option>
-          </select>
-
-          {bonusType !== "lifetime_grant" && (
+      <div className="grid md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Usuários Cadastrados ({allUsers?.length || 0})
+            </CardTitle>
+            <CardDescription>Clique em um usuário para conceder bônus</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
             <Input
-              type="number"
-              placeholder="Duração em dias"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              data-testid="input-bonus-duration"
+              placeholder="Buscar usuário por email ou nome..."
+              value={userSearchTerm}
+              onChange={(e) => setUserSearchTerm(e.target.value)}
+              data-testid="input-search-user"
             />
-          )}
+            <ScrollArea className="h-[300px] border rounded-md">
+              {loadingUsers ? (
+                <div className="p-3 space-y-2">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+                </div>
+              ) : filteredUsers.length > 0 ? (
+                <div className="divide-y">
+                  {filteredUsers.map(user => (
+                    <div
+                      key={user.id}
+                      className={`p-3 hover-elevate cursor-pointer flex items-center justify-between ${
+                        userEmail === user.email ? 'bg-primary/10 border-l-2 border-primary' : ''
+                      }`}
+                      onClick={() => handleSelectUser(user.email)}
+                      data-testid={`user-row-${user.id}`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{user.email}</p>
+                        {user.name && (
+                          <p className="text-xs text-muted-foreground truncate">{user.name}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {usersWithBonusIds.has(user.email) && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Gift className="h-3 w-3 mr-1" />
+                            Bônus
+                          </Badge>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectUser(user.email);
+                          }}
+                          data-testid={`button-select-user-${user.id}`}
+                        >
+                          <UserPlus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 text-center text-muted-foreground text-sm">
+                  Nenhum usuário encontrado
+                </div>
+              )}
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-          <Input
-            placeholder="Motivo (ex: Compensação de bug, Feedback especial)"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            data-testid="input-bonus-reason"
-          />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Gift className="h-5 w-5" />
+              Criar Novo Bônus
+            </CardTitle>
+            <CardDescription>Conceda bônus especiais a usuários</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Email do usuário</label>
+              <Input
+                placeholder="Digite ou selecione da lista"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                data-testid="input-bonus-email"
+              />
+            </div>
 
-          <Button 
-            onClick={handleCreateBonus}
-            disabled={createBonusMutation.isPending}
-            className="w-full"
-            data-testid="button-create-bonus"
-          >
-            <Gift className="h-4 w-4 mr-2" />
-            {createBonusMutation.isPending ? "Criando..." : "Criar Bônus"}
-          </Button>
-        </CardContent>
-      </Card>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Tipo de bônus</label>
+              <select
+                value={bonusType}
+                onChange={(e) => setBonusType(e.target.value)}
+                className="w-full border rounded-md px-3 py-2 text-sm bg-background text-foreground"
+                data-testid="select-bonus-type"
+              >
+                <option value="trial_extend">Estender Trial (dias)</option>
+                <option value="gold_free">Gold Gratuito (período)</option>
+                <option value="premium_free">Premium Gratuito (período)</option>
+                <option value="lifetime_grant">Lifetime Strong (Vitalício)</option>
+              </select>
+            </div>
+
+            {bonusType !== "lifetime_grant" && (
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Duração (dias)</label>
+                <Input
+                  type="number"
+                  placeholder="30"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  data-testid="input-bonus-duration"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Motivo</label>
+              <Input
+                placeholder="Ex: Compensação de bug, Feedback especial"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                data-testid="input-bonus-reason"
+              />
+            </div>
+
+            <Button 
+              onClick={handleCreateBonus}
+              disabled={createBonusMutation.isPending || !userEmail}
+              className="w-full"
+              data-testid="button-create-bonus"
+            >
+              <Gift className="h-4 w-4 mr-2" />
+              {createBonusMutation.isPending ? "Criando..." : "Criar Bônus"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
@@ -312,7 +425,7 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Bônus ({bonuses?.length || 0})</CardTitle>
+          <CardTitle>Lista de Bônus Ativos ({bonuses?.length || 0})</CardTitle>
           <CardDescription>Todos os bônus cadastrados no sistema</CardDescription>
         </CardHeader>
         <CardContent>

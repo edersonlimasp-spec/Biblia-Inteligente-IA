@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
-import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock } from "lucide-react";
+import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Send, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -940,33 +940,37 @@ Conheça: https://bibliainteligente.replit.app`;
             </SheetContent>
           </Sheet>
 
-          {/* Input Field */}
-          <div className="flex-1 flex gap-2">
-            <SearchInput
-              placeholder={t("professor.placeholder")}
-              aria-label={t("professor.placeholder")}
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              onSearch={handleAsk}
-              showIcon={false}
-              minHeight="48px"
-              maxHeight="120px"
-              className="w-[80%] text-base sm:text-lg"
-              data-testid="input-ai-question"
-            />
-            <Button
-              onClick={handleAsk}
-              disabled={askAIMutation.isPending || subscriptionLoading}
-              data-testid="button-ask-ai"
-              className="w-[20%] min-w-fit text-base sm:text-lg"
-            >
-              {askAIMutation.isPending || subscriptionLoading ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Search className="h-4 w-4 mr-2" />
-              )}
-              {askAIMutation.isPending ? 'Pensando...' : subscriptionLoading ? 'Carregando...' : 'Buscar'}
-            </Button>
+          {/* Input Field - ChatGPT Style */}
+          <div className="flex-1 flex items-end gap-2">
+            <div className="flex-[9] min-w-0">
+              <SearchInput
+                placeholder={t("professor.placeholder")}
+                aria-label={t("professor.placeholder")}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onSearch={handleAsk}
+                showIcon={false}
+                minHeight="48px"
+                maxHeight="120px"
+                className="w-full"
+                data-testid="input-ai-question"
+              />
+            </div>
+            <div className="flex-[1] flex justify-center">
+              <Button
+                onClick={handleAsk}
+                disabled={askAIMutation.isPending || subscriptionLoading || !question.trim()}
+                data-testid="button-ask-ai"
+                size="icon"
+                className="h-12 w-12 rounded-xl shrink-0"
+              >
+                {askAIMutation.isPending || subscriptionLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Send className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Remaining Free Questions Badge */}

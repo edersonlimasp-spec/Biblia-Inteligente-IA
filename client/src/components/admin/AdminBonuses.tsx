@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import { Gift, X, Search, RefreshCw, AlertTriangle, Clock, CheckCircle, Users, UserPlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Gift, X, Search, RefreshCw, AlertTriangle, Clock, CheckCircle, Users, UserPlus, AlertCircle } from "lucide-react";
 import type { Bonus } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -40,7 +40,7 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const { toast } = useToast();
 
-  const { data: bonuses, isLoading, refetch } = useQuery<BonusWithEmail[]>({
+  const { data: bonuses, isLoading, error: bonusError, refetch } = useQuery<BonusWithEmail[]>({
     queryKey: ['/api/admin/bonuses/search', searchEmail, includeExpired],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -52,9 +52,15 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
     },
   });
 
-  const { data: allUsers, isLoading: loadingUsers } = useQuery<UserBasic[]>({
+  const { data: allUsers, isLoading: loadingUsers, error: usersError } = useQuery<UserBasic[]>({
     queryKey: ['/api/admin/users'],
   });
+
+  useEffect(() => {
+    console.log('[AdminBonuses] Mounted, bonuses:', bonuses?.length, 'users:', allUsers?.length);
+    if (bonusError) console.error('[AdminBonuses] Bonus error:', bonusError);
+    if (usersError) console.error('[AdminBonuses] Users error:', usersError);
+  }, [bonuses, allUsers, bonusError, usersError]);
 
   const createBonusMutation = useMutation({
     mutationFn: async (data: any) => {

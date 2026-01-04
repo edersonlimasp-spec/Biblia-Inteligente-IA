@@ -4,16 +4,16 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
-import { Check, Loader2, ChevronDown } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 
 interface VersionSelectorProps {
   selectedVersion: string;
@@ -51,74 +51,88 @@ export function AlmeidaVersionSelector({
   const englishVersions = availableVersions.filter(v => v.language === 'en');
   const spanishVersions = availableVersions.filter(v => v.language === 'es');
 
-  const handleVersionClick = (version: BibleVersion) => {
-    console.log(`[BIBLE] VERSION_SELECTED -> translationId=${version.code} from=${selectedVersion} ts=${Date.now()}`);
-    onVersionChange(version.code);
-  };
-
-  const renderVersionItem = (version: BibleVersion) => {
-    const isSelected = selectedVersion === version.code;
-    
-    return (
-      <DropdownMenuItem
-        key={version.code}
-        onClick={() => handleVersionClick(version)}
-        data-testid={`select-version-${version.code}`}
-        className={`flex items-center justify-between cursor-pointer ${isSelected ? "bg-primary/10" : ""}`}
-      >
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-bold w-16">{version.code}</span>
-          <span className="text-sm truncate max-w-[140px]">{version.name}</span>
-        </div>
-        {isSelected && <Check className="h-4 w-4 text-primary" />}
-      </DropdownMenuItem>
-    );
+  const handleVersionChange = (value: string) => {
+    console.log(`[BIBLE] VERSION_SELECTED -> translationId=${value} from=${selectedVersion} ts=${Date.now()}`);
+    onVersionChange(value);
   };
   
+  if (isLoading) {
+    return (
+      <div className="h-9 px-2 flex items-center border rounded-md border-primary/30">
+        <Loader2 className="h-3 w-3 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-9 px-2 font-bold text-xs border border-primary/30 hover:bg-primary/5 gap-1"
-          data-testid="button-version-selector"
-          disabled={disabled || isLoading}
-        >
-          {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : displayText}
-          <ChevronDown className="h-3 w-3 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-64 z-[100]">
+    <Select value={selectedVersion} onValueChange={handleVersionChange} disabled={disabled}>
+      <SelectTrigger 
+        className="w-auto min-w-[70px] h-9 px-2 font-bold text-xs border border-primary/30 hover:bg-primary/5 gap-1"
+        data-testid="button-version-selector"
+      >
+        <SelectValue>{displayText}</SelectValue>
+      </SelectTrigger>
+      <SelectContent className="z-[200]">
         {portugueseVersions.length > 0 && (
-          <>
-            <DropdownMenuLabel className="text-xs font-semibold text-primary">
+          <SelectGroup>
+            <SelectLabel className="text-xs font-semibold text-primary">
               Português
-            </DropdownMenuLabel>
-            {portugueseVersions.map(renderVersionItem)}
-            {(spanishVersions.length > 0 || englishVersions.length > 0) && <DropdownMenuSeparator />}
-          </>
+            </SelectLabel>
+            {portugueseVersions.map((version) => (
+              <SelectItem 
+                key={version.code} 
+                value={version.code}
+                data-testid={`select-version-${version.code}`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold">{version.code}</span>
+                  <span className="text-sm truncate max-w-[140px]">{version.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectGroup>
         )}
         
         {spanishVersions.length > 0 && (
-          <>
-            <DropdownMenuLabel className="text-xs font-semibold text-primary">
+          <SelectGroup>
+            <SelectLabel className="text-xs font-semibold text-primary">
               Español
-            </DropdownMenuLabel>
-            {spanishVersions.map(renderVersionItem)}
-            {englishVersions.length > 0 && <DropdownMenuSeparator />}
-          </>
+            </SelectLabel>
+            {spanishVersions.map((version) => (
+              <SelectItem 
+                key={version.code} 
+                value={version.code}
+                data-testid={`select-version-${version.code}`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold">{version.code}</span>
+                  <span className="text-sm truncate max-w-[140px]">{version.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectGroup>
         )}
         
         {englishVersions.length > 0 && (
-          <>
-            <DropdownMenuLabel className="text-xs font-semibold text-primary">
+          <SelectGroup>
+            <SelectLabel className="text-xs font-semibold text-primary">
               English
-            </DropdownMenuLabel>
-            {englishVersions.map(renderVersionItem)}
-          </>
+            </SelectLabel>
+            {englishVersions.map((version) => (
+              <SelectItem 
+                key={version.code} 
+                value={version.code}
+                data-testid={`select-version-${version.code}`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold">{version.code}</span>
+                  <span className="text-sm truncate max-w-[140px]">{version.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectGroup>
         )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </SelectContent>
+    </Select>
   );
 }

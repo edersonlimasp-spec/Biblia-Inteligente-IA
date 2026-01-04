@@ -1,0 +1,34 @@
+## Contexto
+Estou desenvolvendo o aplicativo “Bíblia Inteligente IA” e quero adicionar duas ferramentas profissionais:
+1. **Módulo de Homilética** – gera esboços de sermões baseados no Quadrilátero Wesleyano.
+2. **Mural de Oração Inteligente** – mural comunitário com análise de sentimentos e dashboard de “Saúde Espiritual” para administradores.
+
+## Requisitos do Módulo de Homilética
+- **Interface**: criar novo cartão na tela inicial ou novo “modo IA” chamado “Homilética”. Ao entrar, o usuário escolhe um texto bíblico ou tema.
+- **Geração de esboço**: a IA deve construir um esboço com quatro seções:  
+  1. **Escritura** – versículos e base bíblica do tema [oai_citation:2‡wesleyan.org](https://www.wesleyan.org/the-wesleyan-quadrilateral#:~:text=The%20Wesleyan%20Quadrilateral);  
+  2. **Tradição** – referências a interpretações históricas, credos ou comentários;  
+  3. **Razão** – argumentos teológicos/lógicos;  
+  4. **Experiência** – aplicações práticas e vivências.
+- **Exportação**: implementar botões para exportar o esboço em PDF (usando jsPDF ou similar) e em apresentações (usando pptxgenjs). Incluir cabeçalho e formatação básica.
+
+## Requisitos do Mural de Oração Inteligente
+- **Interface para membros**: dentro do “Modo Oração”, adicionar a aba “Mural”. Exibir lista de pedidos com título, descrição, data, autor (opcional) e botões “orando”/“responder”. Permitir criar novos pedidos via formulário simples (título + descrição).
+- **Funções administrativas**:  
+  - No painel “Administração”, criar subpágina “Saúde Espiritual” com gráficos e indicadores.  
+  - **Coletar dados**: calcular contagem de pedidos por categoria (ex.: saúde, finanças, gratidão) e por período.  
+  - **Análise de sentimentos**: usar uma biblioteca/serviço de IA para classificar cada pedido quanto a sentimento (positivo/negativo/neutro) e exibir estatísticas (porcentagem de pedidos de agradecimento, de lamento, etc.), inspirando‑se em plataformas como Seedling que fornecem “insights com IA sobre temas de oração e padrões de saúde espiritual” [oai_citation:3‡seedling.so](https://www.seedling.so/#:~:text=Staff%20or%20intercessors%20in%20your,pray%20over%20the%20prayer%20requests).  
+  - **Alertas**: destacar pedidos com sentimentos negativos fortes para acompanhamento pastoral.
+- **Segurança e privacidade**: permitir que o autor marque um pedido como “privado” (somente administradores) ou “anônimo”.
+
+## Tarefas técnicas
+1. Criar rotas, componentes e estados para os novos módulos (em React ou framework usado).
+2. Desenvolver funções para chamar a IA do aplicativo a fim de gerar esboços baseados no quadrilátero.
+3. Integrar bibliotecas de exportação (jsPDF e pptxgenjs) para baixar documentos.
+4. Implementar armazenamento de pedidos no banco de dados existente e campo extra para sentimento e categoria.
+5. Utilizar biblioteca de análise de sentimento compatível com Node/JavaScript (ex.: `sentiment` ou API externa) para processar textos e gerar insights.
+6. Usar biblioteca de gráficos (ex.: Chart.js) para exibir métricas no dashboard administrativo.
+7. Garantir responsividade e consistência visual com o restante do app.
+
+## Resultado esperado
+Ao concluir, o aplicativo terá um novo módulo de homilética com exportação de esboços e um mural de oração com análise de sentimentos e dashboard para líderes, enriquecendo a experiência de estudo e acompanhamento espiritual.

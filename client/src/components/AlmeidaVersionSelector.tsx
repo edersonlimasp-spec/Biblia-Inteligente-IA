@@ -1,6 +1,7 @@
 /**
  * Bible Version Selector Component
  * Mostra APENAS versões com dados disponíveis
+ * Usa Popover com portal para escapar do overflow do header
  */
 
 import { useState } from "react";
@@ -62,9 +63,10 @@ export function AlmeidaVersionSelector({
     return (
       <button
         key={version.code}
+        type="button"
         onClick={() => handleVersionClick(version)}
         data-testid={`select-version-${version.code}`}
-        className={`flex items-center justify-between w-full px-3 py-2 text-left rounded-md hover:bg-accent/50 ${isSelected ? "bg-primary/10" : ""}`}
+        className={`flex items-center justify-between w-full px-3 py-2 text-left rounded-md hover:bg-accent/50 transition-colors ${isSelected ? "bg-primary/10" : ""}`}
       >
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs font-bold w-14">{version.code}</span>
@@ -91,19 +93,20 @@ export function AlmeidaVersionSelector({
         <Button
           variant="outline"
           size="sm"
-          className="h-9 px-2 font-bold text-xs border border-primary/30 hover:bg-primary/5 gap-1"
+          type="button"
+          className="h-9 px-2 font-bold text-xs border border-primary/30 hover:bg-primary/5 gap-1 flex-shrink-0"
           data-testid="button-version-selector"
           disabled={disabled || isLoading}
-          onClick={() => setOpen(!open)}
         >
           {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : displayText}
-          <ChevronDown className="h-3 w-3 opacity-50" />
+          <ChevronDown className={`h-3 w-3 opacity-50 transition-transform ${open ? 'rotate-180' : ''}`} />
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-64 p-2 z-[9999]" 
+        className="w-64 p-2" 
         align="start"
         sideOffset={4}
+        style={{ zIndex: 9999 }}
       >
         <div className="max-h-[300px] overflow-y-auto">
           {renderGroup("Português", portugueseVersions)}

@@ -183,12 +183,59 @@ Configure um cron job externo (ex: cron-job.org) para chamar diariamente:
 GET https://bibliainteligente.replit.app/api/cron/send-inactive-30d?secret=YOUR_CRON_SECRET
 ```
 
+## Native In-App Purchases (iOS/Android) - Jan 2026
+
+Sistema de compras nativas para iOS (Apple StoreKit) e Android (Google Play Billing), adicional ao Mercado Pago web.
+
+**Arquitetura:**
+- Detecção de plataforma: iOS/Android usa IAP nativo, Web usa Mercado Pago
+- Verificação server-side com Apple/Google APIs
+- Unified subscription activation (mesmo schema para todas as fontes)
+- Test mode automático quando plugins IAP não disponíveis
+
+**Endpoints IAP:**
+- `GET /api/iap/products?platform=ios|android|web` - Lista produtos por plataforma
+- `POST /api/iap/verify/apple` - Verifica compra Apple StoreKit (requires auth)
+- `POST /api/iap/verify/google` - Verifica compra Google Play (requires auth)
+- `POST /api/iap/restore/apple` - Restaura compras Apple
+- `POST /api/iap/restore/google` - Restaura compras Google
+- `GET /api/iap/status` - Status de assinatura (requires auth)
+
+**Product IDs:**
+| Plano | iOS (Apple) | Android (Google) |
+|-------|-------------|------------------|
+| Gold Mensal | com.bibliainteligente.gold_monthly | gold_monthly |
+| Premium Mensal | com.bibliainteligente.premium_monthly | premium_monthly |
+| Strong Vitalício | com.bibliainteligente.strong_lifetime | strong_lifetime |
+
+**Subscription Schema Fields:**
+- `source`: 'mercadopago' | 'apple' | 'google'
+- `storeTransactionId`: Transaction ID from store
+- `originalTransactionId`: Original transaction (for renewals)
+- `storeProductId`: Product ID used
+- `lastVerifiedAt`: Last server verification timestamp
+- `nextRenewalCheck`: Next scheduled verification
+
+**Environment Variables (Optional):**
+- `APPLE_SHARED_SECRET` - Apple StoreKit shared secret (for receipt verification)
+- `GOOGLE_PLAY_SERVICE_ACCOUNT_KEY` - Google Play service account JSON (for API access)
+
+**Client Library:**
+- `client/src/lib/inAppPurchases.ts` - Unified IAP interface
+- Auto-detects platform and routes to appropriate payment method
+- Exports: `purchaseProduct()`, `restorePurchases()`, `getSubscriptionStatus()`, `getPaymentMethod()`
+
+**Files:**
+- `server/payments/apple.ts` - Apple StoreKit verification
+- `server/payments/google.ts` - Google Play Billing verification
+- `server/payments/iap-routes.ts` - IAP API endpoints
+
 ## External Dependencies
 
 - **Database:** PostgreSQL (Neon)
 - **ORM:** Drizzle ORM
 - **AI:** OpenAI GPT-4o-mini (via Replit AI Integrations)
-- **Payments:** Mercado Pago Checkout Pro
+- **Payments:** Mercado Pago Checkout Pro, Apple StoreKit, Google Play Billing
 - **Email:** Resend (para emails de reengajamento)
 - **Build Tool:** Vite
 - **Mobile Wrapper:** Capacitor 6

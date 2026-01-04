@@ -60,6 +60,14 @@ export const subscriptions = pgTable("subscriptions", {
   startDate: timestamp("start_date").notNull().defaultNow(),
   endDate: timestamp("end_date"), // null for lifetime
   amount: text("amount").notNull(), // Store as text: "189.90" (Strong Vitalício), "19.90" (Gold), "29.90" (Premium)
+  // Native IAP fields (Apple/Google)
+  source: text("source").notNull().default('web'), // 'web', 'apple', 'google'
+  storeTransactionId: text("store_transaction_id"), // Apple transactionId or Google purchaseToken
+  originalTransactionId: text("original_transaction_id"), // For subscription renewals
+  storeProductId: text("store_product_id"), // Product ID in App Store/Play Store
+  lastVerifiedAt: timestamp("last_verified_at"),
+  nextRenewalCheck: timestamp("next_renewal_check"),
+  cancellationAt: timestamp("cancellation_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

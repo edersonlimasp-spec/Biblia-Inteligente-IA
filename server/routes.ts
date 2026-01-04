@@ -23,6 +23,7 @@ const __dirname = path.dirname(__filename);
 import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
 import { STRONG_DATA } from "./strong-data-embedded";
 import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTranslation, getDefaultTranslation } from "./bible/translations";
+import iapRoutes from "./payments/iap-routes";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -3598,6 +3599,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Erro ao atualizar progresso" });
     }
   });
+
+  // ============================================
+  // IN-APP PURCHASE (iOS/Android) ROUTES
+  // ============================================
+  app.use('/api/iap', iapRoutes);
 
   // ============================================
   // MERCADO PAGO CHECKOUT PRO INTEGRATION

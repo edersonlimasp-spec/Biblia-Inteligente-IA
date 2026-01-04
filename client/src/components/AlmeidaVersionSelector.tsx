@@ -76,7 +76,7 @@ export function AlmeidaVersionSelector({
   };
   
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
@@ -89,7 +89,7 @@ export function AlmeidaVersionSelector({
           <ChevronDown className="h-3 w-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-64">
+      <DropdownMenuContent align="start" className="w-64 z-[100]">
         {portugueseVersions.length > 0 && (
           <>
             <DropdownMenuLabel className="text-xs font-semibold text-primary">

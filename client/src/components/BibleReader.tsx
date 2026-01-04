@@ -654,11 +654,21 @@ export function BibleReader({
             </Badge>
           )}
 
-          {/* Sync status indicator - removido do header por solicitação do usuário */}
-
           <div className="flex-1"></div>
 
-          {/* Bookmarks/Annotations Button - opens all marks page */}
+          {/* Only Login button stays on top row */}
+          <UserButton 
+            onNavigateToLogin={onNavigateToLogin}
+            onNavigateToSettings={onNavigateToSettings}
+            onNavigateToSubscriptions={onNavigateToSubscriptions}
+            showSettingsOption
+            showSubscriptionOption
+          />
+        </div>
+
+        {/* Bottom Row: Icons + Search */}
+        <div className="px-2 py-1.5 border-t bg-card/50 flex gap-1 items-center">
+          {/* Bookmarks/Annotations Button */}
           <Button 
             variant="ghost" 
             size="icon" 
@@ -668,7 +678,6 @@ export function BibleReader({
             title="Minhas Marcações"
           >
             <Bookmark className="h-4 w-4" />
-            {/* Indicadores DENTRO do ícone: azul=anotação, verde=só bookmark */}
             {annotations && annotations.length > 0 ? (
               <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
             ) : bookmarks && bookmarks.length > 0 ? (
@@ -676,11 +685,6 @@ export function BibleReader({
             ) : null}
           </Button>
           <ThemeToggle />
-          {isAdmin && (
-            <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-8 w-8 flex-shrink-0" title="Painel Admin">
-              <Shield className="h-4 w-4" />
-            </Button>
-          )}
           {onNavigateToDashboard && (
             <Button variant="ghost" size="icon" data-testid="button-home" onClick={onNavigateToDashboard} className="h-8 w-8 flex-shrink-0" title="Início">
               <Home className="h-4 w-4" />
@@ -689,20 +693,13 @@ export function BibleReader({
           <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8 flex-shrink-0">
             <Settings className="h-4 w-4" />
           </Button>
-          <UserButton 
-            onNavigateToLogin={onNavigateToLogin}
-            onNavigateToSettings={onNavigateToSettings}
-            onNavigateToSubscriptions={onNavigateToSubscriptions}
-            showSettingsOption
-            showSubscriptionOption
-          />
-          
-          {/* Language Selector - flag buttons (rightmost) */}
-          <LanguageSelector />
-        </div>
+          {isAdmin && (
+            <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-8 w-8 flex-shrink-0" title="Painel Admin">
+              <Shield className="h-4 w-4" />
+            </Button>
+          )}
 
-        {/* Bottom Row: Text Search - FULL WIDTH */}
-        <div className="px-4 py-2 border-t bg-card/50 flex gap-2 items-center">
+          {/* Search toggle and input */}
           <Button
             variant={isGlobalSearch ? "default" : "ghost"}
             size="icon"
@@ -722,7 +719,7 @@ export function BibleReader({
             {isGlobalSearch ? <Globe className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
           </Button>
           <SearchInput
-            placeholder={isGlobalSearch ? "Buscar na Bíblia toda..." : "Buscar neste capítulo..."}
+            placeholder={isGlobalSearch ? "Buscar..." : "Buscar..."}
             value={isGlobalSearch ? globalSearchTerm : textSearchQuery}
             onChange={(e) => {
               if (isGlobalSearch) {
@@ -739,9 +736,9 @@ export function BibleReader({
             }}
             showIcon={false}
             singleLine={true}
-            minHeight="36px"
-            maxHeight="36px"
-            className="flex-1 text-sm"
+            minHeight="32px"
+            maxHeight="32px"
+            className="w-24 sm:w-32 text-sm flex-shrink-0"
             data-testid="input-text-search"
           />
           <Button
@@ -765,6 +762,9 @@ export function BibleReader({
           >
             <Search className="h-4 w-4" />
           </Button>
+
+          {/* Language Selector - flag buttons */}
+          <LanguageSelector />
         </div>
       </header>
 

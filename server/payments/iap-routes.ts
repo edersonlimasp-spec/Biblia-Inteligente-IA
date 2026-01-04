@@ -9,21 +9,9 @@ import { processGooglePurchase, restoreGooglePurchases, GOOGLE_PRODUCT_MAP } fro
 import { db } from '../db';
 import { subscriptions } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
+import { ensureAuthenticated, type AuthRequest } from '../auth';
 
 const router = Router();
-
-// Extend Express Request type to include user
-interface AuthenticatedRequest extends Request {
-  user?: { id: string; email?: string; role?: string };
-}
-
-// Middleware to require authentication
-function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-  next();
-}
 
 /**
  * GET /api/iap/products
@@ -72,10 +60,10 @@ router.get('/products', (req: Request, res: Response) => {
  * POST /api/iap/verify/apple
  * Verify and process an Apple StoreKit purchase
  */
-router.post('/verify/apple', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/verify/apple', ensureAuthenticated, async (req: AuthRequest, res: Response) => {
   try {
     const { receiptData, productId, transactionId, originalTransactionId } = req.body;
-    const userId = req.user!.id;
+    const userId = req.userId!;
 
     if (!receiptData || !productId || !transactionId) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -115,10 +103,10 @@ router.post('/verify/apple', requireAuth, async (req: AuthenticatedRequest, res:
  * POST /api/iap/verify/google
  * Verify and process a Google Play Billing purchase
  */
-router.post('/verify/google', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/verify/google', ensureAuthenticated, async (req: AuthRequest, res: Response) => {
   try {
     const { productId, purchaseToken, orderId } = req.body;
-    const userId = req.user!.id;
+    const userId = req.userId!;
 
     if (!productId || !purchaseToken || !orderId) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -152,10 +140,10 @@ router.post('/verify/google', requireAuth, async (req: AuthenticatedRequest, res
  * POST /api/iap/restore/apple
  * Restore Apple purchases for the authenticated user
  */
-router.post('/restore/apple', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/restore/apple', ensureAuthenticated, async (req: AuthRequest, res: Response) => {
   try {
     const { receiptData } = req.body;
-    const userId = req.user!.id;
+    const userId = req.userId!;
 
     if (!receiptData) {
       return res.status(400).json({ error: 'Receipt data required' });
@@ -181,10 +169,10 @@ router.post('/restore/apple', requireAuth, async (req: AuthenticatedRequest, res
  * POST /api/iap/restore/google
  * Restore Google Play purchases for the authenticated user
  */
-router.post('/restore/google', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/restore/google', ensureAuthenticated, async (req: AuthRequest, res: Response) => {
   try {
     const { purchases } = req.body;
-    const userId = req.user!.id;
+    const userId = req.userId!;
 
     if (!purchases || !Array.isArray(purchases)) {
       return res.status(400).json({ error: 'Purchases array required' });
@@ -210,9 +198,9 @@ router.post('/restore/google', requireAuth, async (req: AuthenticatedRequest, re
  * GET /api/iap/status
  * Get current subscription status for the authenticated user (includes native purchases)
  */
-router.get('/status', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/status', ensureAuthenticated, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.userId!;
 
     const userSubscriptions = await db.select()
       .from(subscriptions)

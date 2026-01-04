@@ -1,18 +1,10 @@
 /**
  * Bible Version Selector Component
- * Mostra APENAS versões com dados disponíveis
- * Usa Popover com portal para escapar do overflow do header
+ * Usa select nativo para máxima compatibilidade
  */
 
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, Loader2, ChevronDown } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface VersionSelectorProps {
   selectedVersion: string;
@@ -35,8 +27,6 @@ export function AlmeidaVersionSelector({
   onVersionChange,
   disabled = false,
 }: VersionSelectorProps) {
-  const [open, setOpen] = useState(false);
-  
   const { data: versions, isLoading } = useQuery<BibleVersion[]>({
     queryKey: ['/api/versions'],
     staleTime: 1000 * 60 * 5,
@@ -44,76 +34,68 @@ export function AlmeidaVersionSelector({
 
   const availableVersions = versions?.filter(v => v.hasData) || [];
   
-  const currentVersion = availableVersions.find(v => v.code === selectedVersion);
-  const displayText = currentVersion?.code || selectedVersion || "ACF";
-  
   const portugueseVersions = availableVersions.filter(v => v.language === 'pt');
   const englishVersions = availableVersions.filter(v => v.language === 'en');
   const spanishVersions = availableVersions.filter(v => v.language === 'es');
 
-  const handleVersionClick = (version: BibleVersion) => {
-    console.log(`[BIBLE] VERSION_SELECTED -> translationId=${version.code} from=${selectedVersion} ts=${Date.now()}`);
-    onVersionChange(version.code);
-    setOpen(false);
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    console.log(`[BIBLE] VERSION_SELECTED -> translationId=${value} from=${selectedVersion} ts=${Date.now()}`);
+    onVersionChange(value);
   };
 
-  const renderVersionItem = (version: BibleVersion) => {
-    const isSelected = selectedVersion === version.code;
-    
+  if (isLoading) {
     return (
-      <button
-        key={version.code}
-        type="button"
-        onClick={() => handleVersionClick(version)}
-        data-testid={`select-version-${version.code}`}
-        className={`flex items-center justify-between w-full px-3 py-2 text-left rounded-md hover:bg-accent/50 transition-colors ${isSelected ? "bg-primary/10" : ""}`}
-      >
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-bold w-14">{version.code}</span>
-          <span className="text-sm truncate max-w-[120px]">{version.name}</span>
-        </div>
-        {isSelected && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
-      </button>
-    );
-  };
-
-  const renderGroup = (label: string, versions: BibleVersion[]) => {
-    if (versions.length === 0) return null;
-    return (
-      <div className="mb-2">
-        <div className="text-xs font-semibold text-primary px-3 py-1">{label}</div>
-        {versions.map(renderVersionItem)}
+      <div className="h-9 px-3 flex items-center border rounded-md border-primary/30 bg-background">
+        <Loader2 className="h-3 w-3 animate-spin" />
       </div>
     );
-  };
-  
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          type="button"
-          className="h-9 px-2 font-bold text-xs border border-primary/30 hover:bg-primary/5 gap-1 flex-shrink-0"
-          data-testid="button-version-selector"
-          disabled={disabled || isLoading}
-        >
-          {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : displayText}
-          <ChevronDown className={`h-3 w-3 opacity-50 transition-transform ${open ? 'rotate-180' : ''}`} />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-64 p-2" 
-        align="start"
-        sideOffset={4}
-        style={{ zIndex: 9999 }}
-      >
-        <div className="max-h-[300px] overflow-y-auto">
-          {renderGroup("Português", portugueseVersions)}
-          {renderGroup("Español", spanishVersions)}
-          {renderGroup("English", englishVersions)}
-        </div>
-      </PopoverContent>
-    </Popover>
+    <select
+      value={selectedVersion}
+      onChange={handleChange}
+      disabled={disabled}
+      data-testid="button-version-selector"
+      className="h-9 px-2 text-xs font-bold border border-primary/30 rounded-md bg-background text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 flex-shrink-0 appearance-none"
+      style={{ 
+        minWidth: '70px',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 6px center',
+        paddingRight: '24px'
+      }}
+    >
+      {portugueseVersions.length > 0 && (
+        <optgroup label="Português">
+          {portugueseVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+      
+      {spanishVersions.length > 0 && (
+        <optgroup label="Español">
+          {spanishVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+      
+      {englishVersions.length > 0 && (
+        <optgroup label="English">
+          {englishVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+    </select>
   );
 }

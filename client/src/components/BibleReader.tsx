@@ -998,6 +998,13 @@ export function BibleReader({
           strongNumber={selectedStrongNumber}
           onClose={() => setSelectedStrongNumber(null)}
           onNavigateToSubscriptions={onNavigateToSubscriptions}
+          onSearch={(query, type) => {
+            // Trigger global search with the query
+            setSelectedStrongNumber(null);
+            setGlobalSearchTerm(query);
+            setIsGlobalSearch(true);
+            setShowGlobalResults(true);
+          }}
         />
       )}
     </div>

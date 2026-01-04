@@ -52,6 +52,7 @@ interface StrongModalProps {
   strongNumber: string;
   onClose: () => void;
   onNavigateToSubscriptions?: () => void;
+  onSearch?: (query: string, type: 'strong' | 'word') => void;
 }
 
 interface StrongEntry {
@@ -74,7 +75,7 @@ const LANGUAGE_LABELS: Record<AppLanguage, { definition: string; fallback: strin
   es: { definition: "Definición en Español", fallback: "Definición disponible solo en inglés" },
 };
 
-export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }: StrongModalProps) {
+export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, onSearch }: StrongModalProps) {
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -458,8 +459,10 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
                   variant="outline" 
                   className="w-full text-sm"
                   onClick={() => {
-                    // Placeholder for search functionality
-                    console.log('Search for:', strongData.number);
+                    if (onSearch) {
+                      onSearch(strongData.number, 'strong');
+                      onClose();
+                    }
                   }}
                   data-testid="button-search-strong"
                 >
@@ -469,8 +472,10 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions }
                   variant="outline" 
                   className="w-full text-sm"
                   onClick={() => {
-                    // Placeholder for search original word
-                    console.log('Search for word:', strongData.word);
+                    if (onSearch) {
+                      onSearch(strongData.transliteration || strongData.word, 'word');
+                      onClose();
+                    }
                   }}
                   data-testid="button-search-word"
                 >

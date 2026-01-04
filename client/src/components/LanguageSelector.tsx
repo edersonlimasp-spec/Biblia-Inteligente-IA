@@ -20,8 +20,7 @@ export function LanguageSelector({ className = "" }: LanguageSelectorProps) {
 
   return (
     <div 
-      className={`inline-flex items-center ml-3 ${className}`}
-      style={{ gap: '2px' }}
+      className={`inline-flex items-center gap-1 flex-shrink-0 ${className}`}
       data-testid="language-selector"
     >
       {flags.map(({ lang, flag, label }) => {
@@ -31,22 +30,11 @@ export function LanguageSelector({ className = "" }: LanguageSelectorProps) {
             key={lang}
             type="button"
             onClick={() => handleClick(lang)}
-            style={{
-              width: '20px',
-              height: '20px',
-              fontSize: '12px',
-              lineHeight: 1,
-              padding: 0,
-              borderRadius: '3px',
-              border: isActive ? '1.5px solid #1A5299' : '1px solid transparent',
-              background: isActive ? 'rgba(26, 82, 153, 0.15)' : 'transparent',
-              opacity: isActive ? 1 : 0.5,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.1s ease',
-            }}
+            className={`w-8 h-8 text-lg flex items-center justify-center rounded-md transition-all ${
+              isActive 
+                ? 'border-2 border-primary bg-primary/10' 
+                : 'border border-transparent opacity-60 hover:opacity-100'
+            }`}
             title={label}
             aria-label={label}
             data-testid={`flag-${lang}`}

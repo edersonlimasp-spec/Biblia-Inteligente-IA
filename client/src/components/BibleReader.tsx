@@ -133,6 +133,7 @@ export function BibleReader({
   const [isGlobalSearch, setIsGlobalSearch] = useState(false);
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const [showGlobalResults, setShowGlobalResults] = useState(false);
+  const [showSearchInput, setShowSearchInput] = useState(false);
   const [showAnnotationPanel, setShowAnnotationPanel] = useState(false);
   
   // Strong's search state
@@ -713,54 +714,83 @@ export function BibleReader({
             </Button>
           </div>
 
-          {/* Center: Search field with rounded pill style */}
-          <div className="flex-1 flex items-center gap-1 max-w-xs">
-            <div className="flex-1 flex items-center bg-muted/50 rounded-full border border-border/50 px-3 h-8">
-              <input
-                type="text"
-                placeholder="Buscar..."
-                value={isGlobalSearch ? globalSearchTerm : textSearchQuery}
-                onChange={(e) => {
-                  if (isGlobalSearch) {
-                    setGlobalSearchTerm(e.target.value);
-                  } else {
-                    setTextSearchQuery(e.target.value);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
-                    if (currentQuery.length >= 2) {
-                      setShowGlobalResults(true);
+          {/* Center: Expandable Search */}
+          <div className="flex-1"></div>
+          
+          {showSearchInput ? (
+            <div className="flex items-center gap-1 animate-in slide-in-from-right-2 duration-200">
+              <div className="flex items-center bg-muted/50 rounded-full border border-border/50 px-3 h-8 w-40">
+                <input
+                  type="text"
+                  placeholder="Buscar..."
+                  value={isGlobalSearch ? globalSearchTerm : textSearchQuery}
+                  onChange={(e) => {
+                    if (isGlobalSearch) {
+                      setGlobalSearchTerm(e.target.value);
+                    } else {
+                      setTextSearchQuery(e.target.value);
                     }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
+                      if (currentQuery.length >= 2) {
+                        if (!isGlobalSearch) {
+                          setGlobalSearchTerm(currentQuery);
+                          setTextSearchQuery("");
+                          setIsGlobalSearch(true);
+                        }
+                        setShowGlobalResults(true);
+                      }
+                    } else if (e.key === 'Escape') {
+                      setShowSearchInput(false);
+                    }
+                  }}
+                  onBlur={() => {
+                    const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
+                    if (!currentQuery) {
+                      setShowSearchInput(false);
+                    }
+                  }}
+                  autoFocus
+                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  data-testid="input-text-search"
+                />
+              </div>
+              <Button
+                variant="default"
+                size="icon"
+                onClick={() => {
+                  const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
+                  if (currentQuery.length >= 2) {
+                    if (!isGlobalSearch) {
+                      setGlobalSearchTerm(currentQuery);
+                      setTextSearchQuery("");
+                      setIsGlobalSearch(true);
+                    }
+                    setShowGlobalResults(true);
                   }
                 }}
-                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                data-testid="input-text-search"
-              />
+                disabled={(isGlobalSearch ? globalSearchTerm : textSearchQuery).length < 2}
+                className="h-8 w-8 rounded-full"
+                data-testid="button-execute-search"
+                title="Buscar"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
+          ) : (
             <Button
-              variant="default"
+              variant="ghost"
               size="icon"
-              onClick={() => {
-                const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
-                if (currentQuery.length >= 2) {
-                  if (!isGlobalSearch) {
-                    setGlobalSearchTerm(currentQuery);
-                    setTextSearchQuery("");
-                    setIsGlobalSearch(true);
-                  }
-                  setShowGlobalResults(true);
-                }
-              }}
-              disabled={(isGlobalSearch ? globalSearchTerm : textSearchQuery).length < 2}
-              className="h-8 w-8 rounded-full"
-              data-testid="button-execute-search"
+              onClick={() => setShowSearchInput(true)}
+              className="h-8 w-8"
+              data-testid="button-open-search"
               title="Buscar"
             >
               <Search className="h-4 w-4" />
             </Button>
-          </div>
+          )}
 
           {/* Right: Language flags */}
           <LanguageSelector />

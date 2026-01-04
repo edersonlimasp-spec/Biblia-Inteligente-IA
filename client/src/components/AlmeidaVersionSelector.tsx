@@ -58,20 +58,17 @@ export function AlmeidaVersionSelector({
       onChange={handleChange}
       disabled={disabled}
       data-testid="button-version-selector"
-      className="h-9 px-2 text-xs font-bold border border-primary/30 rounded-md bg-background text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 flex-shrink-0 appearance-none"
+      className="h-9 px-2 text-xs font-bold border border-primary/30 rounded-md bg-background text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 flex-shrink-0"
       style={{ 
+        width: '70px',
         minWidth: '70px',
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'right 6px center',
-        paddingRight: '24px'
       }}
     >
       {portugueseVersions.length > 0 && (
         <optgroup label="Português">
           {portugueseVersions.map((version) => (
             <option key={version.code} value={version.code}>
-              {version.code} - {version.name}
+              {version.code}
             </option>
           ))}
         </optgroup>
@@ -81,7 +78,7 @@ export function AlmeidaVersionSelector({
         <optgroup label="Español">
           {spanishVersions.map((version) => (
             <option key={version.code} value={version.code}>
-              {version.code} - {version.name}
+              {version.code}
             </option>
           ))}
         </optgroup>
@@ -91,7 +88,7 @@ export function AlmeidaVersionSelector({
         <optgroup label="English">
           {englishVersions.map((version) => (
             <option key={version.code} value={version.code}>
-              {version.code} - {version.name}
+              {version.code}
             </option>
           ))}
         </optgroup>

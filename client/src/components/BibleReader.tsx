@@ -581,22 +581,15 @@ export function BibleReader({
     <div className="flex flex-col h-screen bg-background text-foreground dark:bg-background dark:text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card dark:bg-card">
-        {/* Top Row: Logo and Navigation */}
-        <div className="flex items-center justify-start px-1.5 h-12 gap-0.5 overflow-x-auto scrollbar-hide">
-          <img 
-            src={logoSmall} 
-            alt="Logo" 
-            className="h-7 w-auto hidden sm:block flex-shrink-0"
-            data-testid="img-header-logo"
-          />
-          
+        {/* Top Row: Bible Navigation */}
+        <div className="flex items-center px-3 h-12 gap-2">
           <AlmeidaVersionSelector 
             selectedVersion={selectedVersion} 
             onVersionChange={handleVersionChange}
           />
 
           <Select value={selectedBook} onValueChange={setSelectedBook}>
-            <SelectTrigger className="w-24 text-sm h-9 flex-shrink-0" data-testid="select-book">
+            <SelectTrigger className="w-28 text-sm h-9" data-testid="select-book">
               <span className="truncate">{getBookName(selectedBook, language)}</span>
             </SelectTrigger>
             <SelectContent>
@@ -608,55 +601,56 @@ export function BibleReader({
             </SelectContent>
           </Select>
 
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handlePreviousChapter}
-            disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
-            data-testid="button-prev-chapter"
-            className="h-8 w-8 flex-shrink-0"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Select value={selectedChapter.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
-            <SelectTrigger className="w-12 text-sm h-9 relative z-40 flex-shrink-0" data-testid="select-chapter">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-50">
-              {currentBook && Array.from({ length: currentBook.chapters }, (_, i) => i + 1).map((ch) => (
-                <SelectItem key={ch} value={String(ch)}>
-                  {ch}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleNextChapter}
-            disabled={
-              selectedBook === books?.[books.length - 1]?.id && 
-              selectedChapter === currentBook?.chapters
-            }
-            data-testid="button-next-chapter"
-            className="h-8 w-8 flex-shrink-0"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-0.5">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handlePreviousChapter}
+              disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
+              data-testid="button-prev-chapter"
+              className="h-9 w-9"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Select value={selectedChapter.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
+              <SelectTrigger className="w-14 text-sm h-9" data-testid="select-chapter">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-50">
+                {currentBook && Array.from({ length: currentBook.chapters }, (_, i) => i + 1).map((ch) => (
+                  <SelectItem key={ch} value={String(ch)}>
+                    {ch}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleNextChapter}
+              disabled={
+                selectedBook === books?.[books.length - 1]?.id && 
+                selectedChapter === currentBook?.chapters
+              }
+              data-testid="button-next-chapter"
+              className="h-9 w-9"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="flex-1"></div>
 
           {trialActive && (
             <Badge 
               variant="secondary" 
-              className="hidden sm:inline-flex text-xs flex-shrink-0"
+              className="hidden sm:inline-flex text-xs"
               data-testid="badge-trial"
             >
               Trial: {trialDaysRemaining}d
             </Badge>
           )}
 
-          <div className="flex-1"></div>
-
-          {/* Only Login button stays on top row */}
           <UserButton 
             onNavigateToLogin={onNavigateToLogin}
             onNavigateToSettings={onNavigateToSettings}
@@ -666,104 +660,109 @@ export function BibleReader({
           />
         </div>
 
-        {/* Bottom Row: Icons + Search */}
-        <div className="px-2 py-1.5 border-t bg-card/50 flex gap-1 items-center">
-          {/* Bookmarks/Annotations Button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            data-testid="button-bookmarks" 
-            className="h-8 w-8 flex-shrink-0 relative"
-            onClick={onNavigateToHistory}
-            title="Minhas Marcações"
-          >
-            <Bookmark className="h-4 w-4" />
-            {annotations && annotations.length > 0 ? (
-              <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
-            ) : bookmarks && bookmarks.length > 0 ? (
-              <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-green-500" />
-            ) : null}
-          </Button>
-          <ThemeToggle />
-          {onNavigateToDashboard && (
-            <Button variant="ghost" size="icon" data-testid="button-home" onClick={onNavigateToDashboard} className="h-8 w-8 flex-shrink-0" title="Início">
-              <Home className="h-4 w-4" />
+        {/* Bottom Row: Tools + Search + Languages */}
+        <div className="px-3 py-2 border-t border-border/50 flex items-center gap-3">
+          {/* Left: Tool icons */}
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              data-testid="button-bookmarks" 
+              className="h-8 w-8 relative"
+              onClick={onNavigateToHistory}
+              title="Minhas Marcações"
+            >
+              <Bookmark className="h-4 w-4" />
+              {annotations && annotations.length > 0 ? (
+                <span className="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-blue-500" />
+              ) : bookmarks && bookmarks.length > 0 ? (
+                <span className="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-green-500" />
+              ) : null}
             </Button>
-          )}
-          <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8 flex-shrink-0">
-            <Settings className="h-4 w-4" />
-          </Button>
-          {isAdmin && (
-            <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-8 w-8 flex-shrink-0" title="Painel Admin">
-              <Shield className="h-4 w-4" />
+            <ThemeToggle />
+            {onNavigateToDashboard && (
+              <Button variant="ghost" size="icon" data-testid="button-home" onClick={onNavigateToDashboard} className="h-8 w-8" title="Início">
+                <Home className="h-4 w-4" />
+              </Button>
+            )}
+            <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8">
+              <Settings className="h-4 w-4" />
             </Button>
-          )}
-
-          {/* Search toggle and input */}
-          <Button
-            variant={isGlobalSearch ? "default" : "ghost"}
-            size="icon"
-            onClick={() => {
-              setIsGlobalSearch(!isGlobalSearch);
-              if (!isGlobalSearch) {
-                setTextSearchQuery("");
-              } else {
-                setGlobalSearchTerm("");
-                setShowGlobalResults(false);
-              }
-            }}
-            className="h-8 w-8 flex-shrink-0"
-            data-testid="button-toggle-global-search"
-            title={isGlobalSearch ? "Buscar só neste capítulo" : "Buscar na Bíblia toda"}
-          >
-            {isGlobalSearch ? <Globe className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
-          </Button>
-          <SearchInput
-            placeholder={isGlobalSearch ? "Buscar..." : "Buscar..."}
-            value={isGlobalSearch ? globalSearchTerm : textSearchQuery}
-            onChange={(e) => {
-              if (isGlobalSearch) {
-                setGlobalSearchTerm(e.target.value);
-              } else {
-                setTextSearchQuery(e.target.value);
-              }
-            }}
-            onSearch={() => {
-              const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
-              if (currentQuery.length >= 2) {
-                setShowGlobalResults(true);
-              }
-            }}
-            showIcon={false}
-            singleLine={true}
-            minHeight="32px"
-            maxHeight="32px"
-            className="w-24 sm:w-32 text-sm flex-shrink-0"
-            data-testid="input-text-search"
-          />
-          <Button
-            variant="default"
-            size="icon"
-            onClick={() => {
-              const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
-              if (currentQuery.length >= 2) {
+            {isAdmin && (
+              <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-8 w-8" title="Painel Admin">
+                <Shield className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant={isGlobalSearch ? "default" : "ghost"}
+              size="icon"
+              onClick={() => {
+                setIsGlobalSearch(!isGlobalSearch);
                 if (!isGlobalSearch) {
-                  setGlobalSearchTerm(currentQuery);
                   setTextSearchQuery("");
-                  setIsGlobalSearch(true);
+                } else {
+                  setGlobalSearchTerm("");
+                  setShowGlobalResults(false);
                 }
-                setShowGlobalResults(true);
-              }
-            }}
-            disabled={(isGlobalSearch ? globalSearchTerm : textSearchQuery).length < 2}
-            className="h-8 w-8 flex-shrink-0"
-            data-testid="button-execute-search"
-            title="Buscar na Bíblia toda"
-          >
-            <Search className="h-4 w-4" />
-          </Button>
+              }}
+              className="h-8 w-8"
+              data-testid="button-toggle-global-search"
+              title={isGlobalSearch ? "Buscar só neste capítulo" : "Buscar na Bíblia toda"}
+            >
+              {isGlobalSearch ? <Globe className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
+            </Button>
+          </div>
 
-          {/* Language Selector - flag buttons */}
+          {/* Center: Search field with rounded pill style */}
+          <div className="flex-1 flex items-center gap-1 max-w-xs">
+            <div className="flex-1 flex items-center bg-muted/50 rounded-full border border-border/50 px-3 h-8">
+              <input
+                type="text"
+                placeholder="Buscar..."
+                value={isGlobalSearch ? globalSearchTerm : textSearchQuery}
+                onChange={(e) => {
+                  if (isGlobalSearch) {
+                    setGlobalSearchTerm(e.target.value);
+                  } else {
+                    setTextSearchQuery(e.target.value);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
+                    if (currentQuery.length >= 2) {
+                      setShowGlobalResults(true);
+                    }
+                  }
+                }}
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                data-testid="input-text-search"
+              />
+            </div>
+            <Button
+              variant="default"
+              size="icon"
+              onClick={() => {
+                const currentQuery = isGlobalSearch ? globalSearchTerm : textSearchQuery;
+                if (currentQuery.length >= 2) {
+                  if (!isGlobalSearch) {
+                    setGlobalSearchTerm(currentQuery);
+                    setTextSearchQuery("");
+                    setIsGlobalSearch(true);
+                  }
+                  setShowGlobalResults(true);
+                }
+              }}
+              disabled={(isGlobalSearch ? globalSearchTerm : textSearchQuery).length < 2}
+              className="h-8 w-8 rounded-full"
+              data-testid="button-execute-search"
+              title="Buscar"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Right: Language flags */}
           <LanguageSelector />
         </div>
       </header>

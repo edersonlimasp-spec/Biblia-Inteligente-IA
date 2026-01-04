@@ -68,7 +68,7 @@ export function AlmeidaVersionSelector({
         <optgroup label="Português">
           {portugueseVersions.map((version) => (
             <option key={version.code} value={version.code}>
-              {version.code}
+              {version.code} - {version.name}
             </option>
           ))}
         </optgroup>
@@ -78,7 +78,7 @@ export function AlmeidaVersionSelector({
         <optgroup label="Español">
           {spanishVersions.map((version) => (
             <option key={version.code} value={version.code}>
-              {version.code}
+              {version.code} - {version.name}
             </option>
           ))}
         </optgroup>
@@ -88,7 +88,7 @@ export function AlmeidaVersionSelector({
         <optgroup label="English">
           {englishVersions.map((version) => (
             <option key={version.code} value={version.code}>
-              {version.code}
+              {version.code} - {version.name}
             </option>
           ))}
         </optgroup>

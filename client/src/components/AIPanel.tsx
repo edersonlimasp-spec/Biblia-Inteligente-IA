@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
-import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Send, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock, Cloud, CloudOff } from "lucide-react";
+import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Send, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -15,7 +15,6 @@ import { useNavigation } from "@/contexts/NavigationContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useLocation } from "wouter";
 import { useAIQuota } from "@/hooks/useAIQuota";
-import { useChatSessionsSync } from "@/hooks/use-sync";
 import {
   Sheet,
   SheetContent,
@@ -160,15 +159,6 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   // Centralized quota system
   const { quotaInfo, consumeQuestion, isLoading: quotaLoading } = useAIQuota();
   
-  // Cloud sync for chat sessions
-  const { 
-    isSyncing: isCloudSyncing, 
-    lastSyncAt: lastCloudSync,
-    syncChatSessions: syncToCloud,
-    saveSession: saveSessionToCloud,
-    deleteSession: deleteSessionFromCloud,
-    isAuthenticated: isSyncEnabled 
-  } = useChatSessionsSync();
 
   // ===================================
   // STATE - Sessões e Mensagens
@@ -379,44 +369,6 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     }
   }, [messages]);
   
-  // ===================================
-  // CLOUD SYNC - Sync on user login
-  // ===================================
-  
-  useEffect(() => {
-    if (isSyncEnabled && user) {
-      // Sync local sessions to cloud on login
-      const localSessions = loadSessions();
-      if (localSessions.length > 0) {
-        console.log('[ChatSync] Syncing local sessions to cloud on login...');
-        syncToCloud(localSessions.map(s => ({
-          ...s,
-          messages: s.messages.map(m => ({
-            role: m.role,
-            text: m.text,
-            timestamp: m.createdAt.toISOString(),
-          })),
-        }))).then(merged => {
-          if (merged.length > 0) {
-            // Merge cloud sessions back to local
-            const mergedWithDates = merged.map(s => ({
-              ...s,
-              createdAt: new Date(s.createdAt),
-              updatedAt: new Date(s.updatedAt),
-              messages: s.messages.map(m => ({
-                role: m.role as 'user' | 'assistant',
-                text: m.text,
-                createdAt: new Date(m.timestamp),
-              })),
-            }));
-            setChatSessions(mergedWithDates);
-            saveSessions(mergedWithDates);
-            console.log('[ChatSync] Merged', merged.length, 'sessions from cloud');
-          }
-        }).catch(err => console.warn('[ChatSync] Initial sync error:', err));
-      }
-    }
-  }, [isSyncEnabled, user]);
 
   // ===================================
   // HELPERS - Gerenciamento de Sessões
@@ -460,21 +412,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       saveSessions(updated);
       saveCurrentSessionId(currentSessionId);
       
-      // Sync to cloud if authenticated
-      if (isSyncEnabled) {
-        saveSessionToCloud({
-          ...currentSession,
-          messages: currentSession.messages.map(m => ({
-            role: m.role,
-            text: m.text,
-            timestamp: m.createdAt.toISOString(),
-          })),
-        }).catch(err => console.warn('[ChatSync] Cloud sync error:', err));
-      }
-      
       return updated;
     });
-  }, [messages, currentSessionId, isSyncEnabled, saveSessionToCloud]);
+  }, [messages, currentSessionId]);
 
   // ===================================
   // ACTIONS - Nova Conversa
@@ -776,7 +716,7 @@ Conheça: https://bibliainteligente.replit.app`;
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg pb-safe" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg pb-3">
       {/* Expanded Chat Area */}
       {isExpanded && messages.length > 0 && (
         <div className="border-b bg-background">
@@ -921,31 +861,7 @@ Conheça: https://bibliainteligente.replit.app`;
             </SheetTrigger>
             <SheetContent side="left" className="w-80">
               <SheetHeader>
-                <div className="flex items-center justify-between">
-                  <SheetTitle>Histórico de Conversas</SheetTitle>
-                  {/* Cloud sync status indicator */}
-                  {isSyncEnabled && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      {isCloudSyncing ? (
-                        <>
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          <span>Sincronizando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Cloud className="h-3 w-3 text-green-500" />
-                          <span>Na nuvem</span>
-                        </>
-                      )}
-                    </div>
-                  )}
-                  {!isSyncEnabled && user && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <CloudOff className="h-3 w-3" />
-                      <span>Local</span>
-                    </div>
-                  )}
-                </div>
+                <SheetTitle>Histórico de Conversas</SheetTitle>
               </SheetHeader>
               <div className="mt-4 mb-2">
                 <Button

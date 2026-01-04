@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { UserButton } from "@/components/UserButton";
@@ -106,7 +107,7 @@ export function BibleReader({
   const { user, isAdmin, logout } = useAuth();
   const { toast } = useToast();
   const { targetVerse, clearTargetVerse, shouldResetAI, clearResetAI } = useNavigation();
-  const { language, getDefaultBibleVersion } = useLanguage();
+  const { language, getDefaultBibleVersion, t } = useLanguage();
   
   const {
     isSyncing,
@@ -510,6 +511,8 @@ export function BibleReader({
       
       if (matchingResult?.number) {
         console.log('[Strong Debug] Setting selectedStrongNumber:', matchingResult.number);
+        // Close searching modal and open real modal
+        setShowSearchingModal(false);
         setSelectedStrongNumber(matchingResult.number);
         if (searchingWord) {
           setWordsWithStrong(prev => {
@@ -523,6 +526,7 @@ export function BibleReader({
       }
     } else if (wordSearchResults?.results?.length === 0) {
       console.log('[Strong Debug] No results found');
+      setShowSearchingModal(false);
       setSearchingWord(null);
       setSearchingVerseNum(null);
     }
@@ -563,6 +567,10 @@ export function BibleReader({
     }
   }, [selectedBook, selectedChapter, selectedVersion, trackReading]);
 
+  // State for showing loading modal while searching
+  const [showSearchingModal, setShowSearchingModal] = useState(false);
+  const [searchingWordDisplay, setSearchingWordDisplay] = useState<string>("");
+
   const handleWordClick = (word: string, verseNum: number) => {
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
     
@@ -572,6 +580,10 @@ export function BibleReader({
       console.log('[Strong Debug] Word too short, skipping');
       return;
     }
+    
+    // Open modal IMMEDIATELY with loading state
+    setSearchingWordDisplay(word);
+    setShowSearchingModal(true);
     
     console.log('[Strong Debug] Setting searchingWord:', cleanWord);
     setSearchingWord(cleanWord);
@@ -960,6 +972,24 @@ export function BibleReader({
           isInitiallyExpanded={true}
           onClose={() => setShowAnnotationPanel(false)}
         />
+      )}
+
+      {/* Searching Modal - Opens instantly while loading */}
+      {showSearchingModal && !selectedStrongNumber && (
+        <Dialog open={true} onOpenChange={() => {
+          setShowSearchingModal(false);
+          setSearchingWord(null);
+          setSearchingVerseNum(null);
+        }}>
+          <DialogContent className="max-w-sm">
+            <div className="flex flex-col items-center justify-center py-8 gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">
+                Buscando... <span className="font-semibold text-foreground">{searchingWordDisplay}</span>
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       {/* Strong Modal */}

@@ -27,130 +27,37 @@ const BOOK_MAP: Record<string, string> = {
   'Haggai': 'hag', 'Zechariah': 'zec', 'Malachi': 'mal'
 };
 
-// Comprehensive Portuguese glosses for Hebrew words (600+ entries)
-// Aligned with Bíblia Almeida Strong terminology
+// Portuguese glosses for Hebrew words - ONLY proper nouns and specific terms
+// that uniquely identify words. Generic terms removed to prevent misalignment.
+// For definitions, use strong_entries table which has authoritative Portuguese translations.
 const HEBREW_GLOSS: Record<string, string> = {
-  // === PARTÍCULAS E PRONOMES (alta frequência) ===
-  'H834': 'que', 'H413': 'a', 'H3808': 'não', 'H3605': 'todo', 'H5704': 'até',
-  'H518': 'se', 'H2088': 'este', 'H589': 'eu', 'H4480': 'de', 'H408': 'não',
-  'H3541': 'assim', 'H8033': 'ali', 'H859': 'tu', 'H3651': 'assim', 'H1571': 'também',
-  'H259': 'um', 'H2009': 'eis', 'H4100': 'que', 'H4310': 'quem', 'H1768': 'que',
-  'H176': 'ou', 'H428': 'estes', 'H3069': 'SENHOR', 'H595': 'eu', 'H3966': 'muito',
-  'H1992': 'eles', 'H2007': 'elas', 'H1931': 'ele', 'H1958': 'lamento', 'H2063': 'esta',
-  'H1': 'pai', 'H251': 'irmão', 'H269': 'irmã', 'H517': 'mãe',
+  // === NOMES DE DEUS (únicos e específicos) ===
+  'H3068': 'SENHOR', 'H3069': 'SENHOR', 'H430': 'Deus', 'H410': 'Deus', 'H433': 'Deus',
+  'H136': 'Senhor', 'H7706': 'Todo-Poderoso',
   
-  // === DEUS E ADORAÇÃO ===
-  'H430': 'Deus', 'H3068': 'SENHOR', 'H136': 'Senhor', 'H410': 'Deus', 'H433': 'Deus',
-  'H6635': 'exércitos', 'H6918': 'santo', 'H6944': 'santo', 'H1288': 'bendito',
-  'H3034': 'louvar', 'H7812': 'adorar', 'H8426': 'louvor', 'H8416': 'louvor',
-  'H5002': 'diz', 'H4196': 'altar', 'H6999': 'incenso', 'H5930': 'holocausto',
-  'H2077': 'sacrifício', 'H4503': 'oferta', 'H8573': 'oferta',
-  
-  // === VERBOS COMUNS ===
-  'H559': 'disse', 'H1961': 'foi', 'H7200': 'viu', 'H8085': 'ouviu', 'H3045': 'conheceu',
-  'H5414': 'deu', 'H3947': 'tomou', 'H7971': 'enviou', 'H935': 'veio', 'H3318': 'saiu',
-  'H3427': 'habitou', 'H5975': 'estava', 'H1254': 'criou', 'H6213': 'fez', 'H1696': 'falou',
-  'H7121': 'chamou', 'H1980': 'andou', 'H5927': 'subiu', 'H3381': 'desceu', 'H5307': 'caiu',
-  'H6965': 'levantou', 'H7760': 'pôs', 'H7931': 'habitou', 'H2421': 'viveu', 'H4191': 'morreu',
-  'H398': 'comeu', 'H8354': 'bebeu', 'H3045': 'conheceu', 'H7896': 'colocou', 'H6680': 'ordenou',
-  'H5647': 'serviu', 'H8104': 'guardou', 'H2142': 'lembrou', 'H7911': 'esqueceu', 'H3384': 'ensinou',
-  'H3925': 'aprendeu', 'H3212': 'foi', 'H5493': 'desviou', 'H7725': 'voltou', 'H8199': 'julgou',
-  'H5674': 'passou', 'H3615': 'completou', 'H2186': 'rejeitou', 'H977': 'escolheu', 'H7355': 'teve misericórdia',
-  'H5375': 'levantou', 'H7126': 'aproximou', 'H7368': 'afastou', 'H3254': 'acrescentou',
-  'H4672': 'achou', 'H1245': 'buscou', 'H1875': 'inquiriu', 'H2470': 'adoeceu', 'H7495': 'curou',
-  'H5337': 'livrou', 'H3467': 'salvou', 'H1350': 'remiu', 'H6299': 'resgatou', 'H5341': 'guardou',
-  'H157': 'amou', 'H8130': 'odiou', 'H3372': 'temeu', 'H982': 'confiou', 'H539': 'creu',
-  'H2398': 'pecou', 'H5545': 'perdoou', 'H7561': 'condenou', 'H6663': 'justificou',
-  'H4427': 'reinou', 'H4910': 'governou', 'H3898': 'lutou', 'H5221': 'feriu', 'H2026': 'matou',
-  'H6342': 'tremeu', 'H8055': 'alegrou', 'H1058': 'chorou', 'H6817': 'clamou', 'H7768': 'gritou',
-  'H3001': 'secou', 'H2717': 'assolou', 'H7665': 'quebrou', 'H1129': 'edificou', 'H2040': 'destruiu',
-  'H7604': 'restou', 'H3498': 'sobrou', 'H7235': 'multiplicou', 'H4591': 'diminuiu',
-  
-  // === SUBSTANTIVOS - NATUREZA ===
-  'H776': 'terra', 'H8064': 'céu', 'H3117': 'dia', 'H3915': 'noite', 'H216': 'luz',
-  'H2822': 'trevas', 'H4325': 'água', 'H784': 'fogo', 'H7704': 'campo', 'H3220': 'mar',
-  'H5104': 'rio', 'H2022': 'monte', 'H1516': 'vale', 'H4057': 'deserto', 'H3293': 'floresta',
-  'H6086': 'árvore', 'H6529': 'fruto', 'H2233': 'semente', 'H6212': 'erva', 'H5869': 'olho',
-  'H68': 'pedra', 'H6083': 'pó', 'H2344': 'areia', 'H5051': 'claridade', 'H6051': 'nuvem',
-  'H4306': 'chuva', 'H7950': 'neve', 'H1259': 'granizo', 'H7307': 'vento', 'H5158': 'ribeiro',
-  'H875': 'poço', 'H4599': 'fonte', 'H3556': 'estrela', 'H3394': 'lua', 'H8121': 'sol',
-  
-  // === SUBSTANTIVOS - PESSOAS ===
-  'H120': 'homem', 'H802': 'mulher', 'H1121': 'filho', 'H1323': 'filha', 'H376': 'homem',
-  'H5971': 'povo', 'H1471': 'nação', 'H4940': 'família', 'H1004': 'casa', 'H5892': 'cidade',
-  'H4428': 'rei', 'H4436': 'rainha', 'H8269': 'príncipe', 'H5030': 'profeta', 'H3548': 'sacerdote',
-  'H5650': 'servo', 'H519': 'serva', 'H113': 'senhor', 'H1167': 'senhor', 'H582': 'homem',
-  'H5288': 'jovem', 'H3206': 'criança', 'H2205': 'ancião', 'H1368': 'valente', 'H1121': 'filho',
-  'H7453': 'próximo', 'H341': 'inimigo', 'H157': 'amigo', 'H1616': 'estrangeiro', 'H8453': 'peregrino',
-  'H7563': 'ímpio', 'H6662': 'justo', 'H2450': 'sábio', 'H191': 'tolo', 'H6041': 'pobre',
-  'H6223': 'rico', 'H3490': 'órfão', 'H490': 'viúva',
-  
-  // === SUBSTANTIVOS - CORPO ===
-  'H3820': 'coração', 'H5315': 'alma', 'H1320': 'carne', 'H6106': 'osso', 'H1818': 'sangue',
-  'H3027': 'mão', 'H7272': 'pé', 'H5869': 'olho', 'H241': 'ouvido', 'H6310': 'boca',
-  'H3956': 'língua', 'H6440': 'face', 'H7218': 'cabeça', 'H2220': 'braço', 'H7785': 'perna',
-  'H639': 'nariz', 'H3709': 'palma', 'H676': 'dedo', 'H7161': 'chifre', 'H6833': 'ave',
-  
-  // === SUBSTANTIVOS - OBJETOS ===
-  'H2719': 'espada', 'H7198': 'arco', 'H2671': 'flecha', 'H4043': 'escudo', 'H3627': 'instrumento',
-  'H899': 'veste', 'H3830': 'roupa', 'H5275': 'sandália', 'H3701': 'prata', 'H2091': 'ouro',
-  'H5178': 'bronze', 'H1270': 'ferro', 'H6086': 'madeira', 'H68': 'pedra', 'H3899': 'pão',
-  'H3196': 'vinho', 'H8081': 'azeite', 'H1706': 'mel', 'H2461': 'leite', 'H4687': 'mandamento',
-  
-  // === SUBSTANTIVOS - ABSTRATOS ===
-  'H2617': 'misericórdia', 'H571': 'verdade', 'H8451': 'lei', 'H4941': 'juízo', 'H6664': 'justiça',
-  'H7965': 'paz', 'H1285': 'aliança', 'H3444': 'salvação', 'H1293': 'bênção', 'H3374': 'temor',
-  'H3519': 'glória', 'H3581': 'força', 'H5797': 'poder', 'H8034': 'nome', 'H1697': 'palavra',
-  'H2451': 'sabedoria', 'H998': 'entendimento', 'H1847': 'conhecimento', 'H4150': 'congregação',
-  'H5769': 'eternidade', 'H7225': 'princípio', 'H319': 'fim', 'H5159': 'herança', 'H2506': 'porção',
-  'H2403': 'pecado', 'H5771': 'iniquidade', 'H6588': 'transgressão', 'H7562': 'maldade',
-  'H2896': 'bem', 'H7451': 'mal', 'H8416': 'glória', 'H3519': 'honra', 'H2781': 'afronta',
-  
-  // === NÚMEROS ===
-  'H259': 'um', 'H8147': 'dois', 'H7969': 'três', 'H702': 'quatro', 'H2568': 'cinco',
-  'H8337': 'seis', 'H7651': 'sete', 'H8083': 'oito', 'H8672': 'nove', 'H6235': 'dez',
-  'H3967': 'cem', 'H505': 'mil', 'H7233': 'dez mil', 'H7239': 'milhares',
-  
-  // === ADJETIVOS ===
-  'H2896': 'bom', 'H7451': 'mau', 'H1419': 'grande', 'H6996': 'pequeno', 'H2319': 'novo',
-  'H3465': 'velho', 'H7227': 'muitos', 'H4592': 'pouco', 'H2388': 'forte', 'H7390': 'fraco',
-  'H2889': 'puro', 'H2931': 'impuro', 'H6918': 'santo', 'H2455': 'profano', 'H3477': 'reto',
-  'H6141': 'perverso', 'H8549': 'perfeito', 'H4390': 'cheio', 'H7386': 'vazio',
-  
-  // === PREPOSIÇÕES E CONJUNÇÕES ===
-  'H5921': 'sobre', 'H8478': 'debaixo', 'H6440': 'diante', 'H310': 'depois', 'H996': 'entre',
-  'H5973': 'com', 'H854': 'com', 'H1157': 'por', 'H5668': 'por causa', 'H3588': 'porque',
-  'H3651': 'portanto', 'H199': 'contudo', 'H637': 'também', 'H389': 'certamente',
-  
-  // === NOMES PRÓPRIOS IMPORTANTES ===
+  // === NOMES PRÓPRIOS DE PESSOAS ===
   'H3478': 'Israel', 'H4872': 'Moisés', 'H1732': 'Davi', 'H85': 'Abraão', 'H3290': 'Jacó',
-  'H3327': 'Isaque', 'H3130': 'José', 'H4714': 'Egito', 'H894': 'Babilônia', 'H804': 'Assíria',
-  'H3389': 'Jerusalém', 'H6726': 'Sião', 'H1035': 'Belém', 'H3063': 'Judá', 'H669': 'Efraim',
-  'H7586': 'Saul', 'H8010': 'Salomão', 'H452': 'Elias', 'H477': 'Eliseu', 'H5281': 'Noemi',
-  'H4124': 'Moabe', 'H458': 'Elimeleque', 'H175': 'Arão', 'H3091': 'Josué', 'H1143': 'Benjamim',
+  'H3327': 'Isaque', 'H3130': 'José', 'H175': 'Arão', 'H3091': 'Josué', 'H7586': 'Saul',
+  'H8010': 'Salomão', 'H452': 'Elias', 'H477': 'Eliseu', 'H5281': 'Noemi', 'H458': 'Elimeleque',
+  'H1143': 'Benjamim', 'H7466': 'Rute', 'H5283': 'Naamã', 'H8050': 'Samuel', 'H138': 'Adonias',
+  'H53': 'Absalão', 'H3097': 'Joabe', 'H1141': 'Benaías', 'H4519': 'Manassés', 'H669': 'Efraim',
+  'H7205': 'Rúben', 'H3063': 'Judá', 'H8095': 'Simeão', 'H3878': 'Levi', 'H1835': 'Dã',
+  'H5321': 'Naftali', 'H1410': 'Gade', 'H836': 'Aser', 'H3485': 'Issacar', 'H2074': 'Zebulom',
   
-  // === TERMOS TEOLÓGICOS ===
-  'H853': 'a', 'H8414': 'sem forma', 'H922': 'vazio', 'H8415': 'abismo', 'H7363': 'pairava',
-  'H914': 'separou', 'H7549': 'firmamento', 'H3394': 'lua', 'H8121': 'sol', 'H5175': 'serpente',
-  'H3742': 'querubim', 'H8314': 'serafim', 'H4397': 'anjo', 'H7706': 'Todo-Poderoso',
-  'H6635': 'exércitos', 'H1964': 'templo', 'H4720': 'santuário', 'H168': 'tenda',
-  'H727': 'arca', 'H3678': 'trono', 'H4908': 'tabernáculo', 'H5930': 'holocausto',
+  // === NOMES PRÓPRIOS DE LUGARES ===
+  'H4714': 'Egito', 'H894': 'Babilônia', 'H804': 'Assíria', 'H3389': 'Jerusalém',
+  'H6726': 'Sião', 'H1035': 'Belém', 'H4124': 'Moabe', 'H123': 'Edom', 'H6429': 'Filístia',
+  'H1568': 'Gileade', 'H3383': 'Jordão', 'H2022': 'monte', 'H5514': 'Sinai', 'H2768': 'Hermom',
+  'H3844': 'Líbano', 'H3050': 'Seba', 'H8152': 'Sinear', 'H763': 'Arã', 'H3667': 'Canaã',
   
-  // === TEMPO ===
-  'H8141': 'ano', 'H2320': 'mês', 'H7620': 'semana', 'H3117': 'dia', 'H3915': 'noite',
-  'H1242': 'manhã', 'H6153': 'tarde', 'H5769': 'eternidade', 'H6256': 'tempo', 'H4150': 'tempo determinado',
-  'H7093': 'fim', 'H8462': 'começo', 'H5750': 'ainda', 'H3588': 'quando',
+  // === TERMOS TEOLÓGICOS ESPECÍFICOS ===
+  'H3742': 'querubim', 'H8314': 'serafim', 'H4397': 'anjo', 'H4899': 'Messias',
+  'H7676': 'sábado', 'H6453': 'Páscoa', 'H3725': 'expiação', 'H5930': 'holocausto',
+  'H727': 'arca', 'H4908': 'tabernáculo', 'H4720': 'santuário', 'H1964': 'templo',
   
-  // === ANIMAIS ===
-  'H929': 'animal', 'H7716': 'ovelha', 'H5795': 'cabra', 'H1241': 'boi', 'H6499': 'touro',
-  'H2543': 'jumento', 'H1581': 'camelo', 'H5483': 'cavalo', 'H738': 'leão', 'H1677': 'urso',
-  'H5175': 'serpente', 'H5404': 'águia', 'H3123': 'pomba', 'H6833': 'pássaro', 'H1709': 'peixe',
-  
-  // === MAIS VERBOS DE ALTA FREQUÊNCIA ===
-  'H7760': 'colocou', 'H3318': 'saiu', 'H5927': 'subiu', 'H3381': 'desceu', 'H5307': 'caiu',
-  'H5414': 'deu', 'H3947': 'tomou', 'H7971': 'enviou', 'H6030': 'respondeu', 'H6965': 'levantou',
-  'H7126': 'aproximou', 'H5186': 'estendeu', 'H3680': 'cobriu', 'H1540': 'revelou',
-  'H5641': 'escondeu', 'H4672': 'achou', 'H6': 'pereceu', 'H622': 'ajuntou', 'H6327': 'espalhou',
+  // === SUBSTANTIVOS ESPECÍFICOS (palavras únicas sem ambiguidade) ===
+  'H7225': 'princípio', 'H8064': 'céu', 'H776': 'terra', 'H7549': 'firmamento',
+  'H8415': 'abismo', 'H216': 'luz', 'H2822': 'trevas',
 };
 
 interface BibleWordEntry {

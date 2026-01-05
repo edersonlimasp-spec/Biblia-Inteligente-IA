@@ -331,13 +331,6 @@ export function Dashboard({
           </div>
           
           <div className="flex items-center gap-2 flex-shrink-0">
-            {!user && trialInfo && trialInfo.active && (
-              <Badge variant="outline" className="text-xs py-1 px-2 border-primary/30">
-                <Timer className="w-3 h-3 mr-1" />
-                {trialInfo.daysRemaining}d
-              </Badge>
-            )}
-
             {user && getSubscriptionBadge()}
             
             {user ? (

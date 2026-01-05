@@ -1,8 +1,10 @@
 const GUEST_QUOTA_KEY = "ai_guest_questions_used";
 const GUEST_QUOTA_MIGRATED_KEY = "ai_guest_quota_migrated_to_user";
 
-export const GUEST_LIMIT = 2;
-export const USER_LIMIT = 5;
+export const GUEST_LIMIT = 30;  // Limite diário para acesso gratuito
+export const USER_LIMIT = 30;   // Limite diário para acesso gratuito
+export const PREMIUM_LIMIT = 100; // Limite diário para Premium
+export const GOLD_LIMIT = 30;   // Limite diário para Gold
 
 export interface QuotaInfo {
   used: number;
@@ -70,10 +72,12 @@ export function calculateQuotaInfo(params: {
   hasSubscription: boolean;
   hasTrial: boolean;
   isAdmin: boolean;
+  subscriptionPlan?: string;
 }): QuotaInfo {
-  const { isLoggedIn, guestUsed, userUsed, hasSubscription, hasTrial, isAdmin } = params;
+  const { isLoggedIn, guestUsed, userUsed, isAdmin, subscriptionPlan } = params;
   
-  if (isAdmin || hasSubscription || hasTrial) {
+  // Admin tem acesso ilimitado
+  if (isAdmin) {
     return {
       used: 0,
       limit: Infinity,
@@ -85,27 +89,25 @@ export function calculateQuotaInfo(params: {
     };
   }
   
-  if (!isLoggedIn) {
-    const remaining = Math.max(0, GUEST_LIMIT - guestUsed);
-    return {
-      used: guestUsed,
-      limit: GUEST_LIMIT,
-      remaining,
-      isGuest: true,
-      requiresLogin: remaining === 0,
-      requiresSubscription: false,
-      hasUnlimitedAccess: false,
-    };
+  // Determinar limite baseado no plano
+  let limit = USER_LIMIT; // 30 perguntas/dia para acesso gratuito
+  if (subscriptionPlan === 'premium') {
+    limit = PREMIUM_LIMIT; // 100 perguntas/dia
+  } else if (subscriptionPlan === 'gold') {
+    limit = GOLD_LIMIT; // 30 perguntas/dia
   }
   
-  const remaining = Math.max(0, USER_LIMIT - userUsed);
+  const used = isLoggedIn ? userUsed : guestUsed;
+  const remaining = Math.max(0, limit - used);
+  
+  // Acesso gratuito universal - todos têm acesso ao Strong e IA Essencial
   return {
-    used: userUsed,
-    limit: USER_LIMIT,
+    used,
+    limit,
     remaining,
-    isGuest: false,
+    isGuest: !isLoggedIn,
     requiresLogin: false,
-    requiresSubscription: remaining === 0,
+    requiresSubscription: false,
     hasUnlimitedAccess: false,
   };
 }

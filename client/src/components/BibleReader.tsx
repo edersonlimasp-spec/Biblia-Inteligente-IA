@@ -657,16 +657,6 @@ export function BibleReader({
 
           <div className="flex-1"></div>
 
-          {trialActive && (
-            <Badge 
-              variant="secondary" 
-              className="hidden sm:inline-flex text-xs"
-              data-testid="badge-trial"
-            >
-              Trial: {trialDaysRemaining}d
-            </Badge>
-          )}
-
           <UserButton 
             onNavigateToLogin={onNavigateToLogin}
             onNavigateToSettings={onNavigateToSettings}

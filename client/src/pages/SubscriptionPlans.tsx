@@ -218,9 +218,9 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
               </p>
             </div>
             <div>
-              <p className="font-semibold mb-2">Há período de teste?</p>
+              <p className="font-semibold mb-2">É gratuito?</p>
               <p className="text-sm text-muted-foreground">
-                Sim! Novos usuários ganham 30 dias de teste com acesso completo.
+                Sim! Todos os visitantes têm acesso gratuito ao Strong e IA Essencial desde o início.
               </p>
             </div>
             <div>

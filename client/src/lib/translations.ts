@@ -82,7 +82,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "auth.welcomeBack": "Bem-vindo de volta!",
     "auth.checkCredentials": "Verifique suas credenciais",
     "auth.accountCreated": "Conta criada",
-    "auth.trialGranted": "Bem-vindo! Você ganhou 30 dias de trial.",
+    "auth.trialGranted": "Bem-vindo! Você tem acesso gratuito ao Strong e IA.",
     
     // Login Prompt Modal
     "loginPrompt.title": "Entre para continuar",
@@ -575,9 +575,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.processing": "Processando...",
     "subscription.subscribeNow": "Assinar Agora",
     "subscription.choosePlanButton": "Escolher Plano",
-    "subscription.trialBadge": "Trial de 30 dias: {days} dias restantes",
-    "subscription.trialInfoTitle": "Sobre o Trial de 30 Dias",
-    "subscription.trialInfoDesc": "Novos usuários têm acesso completo gratuito por 30 dias: Strong, Hebraico, Grego e IA Professor (modo Essencial, 30 perguntas/dia). Após o período, esses recursos serão bloqueados. Assine um plano para continuar aproveitando.",
+    "subscription.trialBadge": "Acesso Gratuito",
+    "subscription.trialInfoTitle": "Acesso Gratuito",
+    "subscription.trialInfoDesc": "Todos os visitantes têm acesso gratuito ao Dicionário Strong, Hebraico, Grego e IA Professor (modo Essencial). Assine um plano para recursos Premium como IA modo Profundo.",
     "subscription.authModalTitle": "Criar conta para assinar",
     "subscription.authModalDesc": "Para assinar o {plan}, você precisa criar uma conta ou fazer login.",
     
@@ -741,7 +741,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "auth.welcomeBack": "Welcome back!",
     "auth.checkCredentials": "Check your credentials",
     "auth.accountCreated": "Account created",
-    "auth.trialGranted": "Welcome! You've got 30 days of free trial.",
+    "auth.trialGranted": "Welcome! You have free access to Strong's and AI.",
     
     // Login Prompt Modal
     "loginPrompt.title": "Sign in to continue",
@@ -1234,9 +1234,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.processing": "Processing...",
     "subscription.subscribeNow": "Subscribe Now",
     "subscription.choosePlanButton": "Choose Plan",
-    "subscription.trialBadge": "30-day trial: {days} days remaining",
-    "subscription.trialInfoTitle": "About the 30-Day Trial",
-    "subscription.trialInfoDesc": "New users get full free access for 30 days: Strong's, Hebrew, Greek and AI Professor (Essential mode, 30 questions/day). After this period, these features will be locked. Subscribe to a plan to keep enjoying them.",
+    "subscription.trialBadge": "Free Access",
+    "subscription.trialInfoTitle": "Free Access",
+    "subscription.trialInfoDesc": "All visitors have free access to Strong's Dictionary, Hebrew, Greek and AI Professor (Essential mode). Subscribe to a plan for Premium features like Deep AI mode.",
     "subscription.authModalTitle": "Create account to subscribe",
     "subscription.authModalDesc": "To subscribe to {plan}, you need to create an account or log in.",
     
@@ -1400,7 +1400,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "auth.welcomeBack": "¡Bienvenido de nuevo!",
     "auth.checkCredentials": "Verifica tus credenciales",
     "auth.accountCreated": "Cuenta creada",
-    "auth.trialGranted": "¡Bienvenido! Has obtenido 30 días de prueba gratis.",
+    "auth.trialGranted": "¡Bienvenido! Tienes acceso gratuito a Strong y IA.",
     
     // Login Prompt Modal
     "loginPrompt.title": "Inicia sesión para continuar",
@@ -1893,9 +1893,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.processing": "Procesando...",
     "subscription.subscribeNow": "Suscribirse Ahora",
     "subscription.choosePlanButton": "Elegir Plan",
-    "subscription.trialBadge": "Prueba de 30 días: {days} días restantes",
-    "subscription.trialInfoTitle": "Sobre la Prueba de 30 Días",
-    "subscription.trialInfoDesc": "Los nuevos usuarios tienen acceso completo gratuito por 30 días: Strong, Hebreo, Griego y Profesor IA (modo Esencial, 30 preguntas/día). Después del período, estos recursos serán bloqueados. Suscríbete a un plan para seguir disfrutando.",
+    "subscription.trialBadge": "Acceso Gratuito",
+    "subscription.trialInfoTitle": "Acceso Gratuito",
+    "subscription.trialInfoDesc": "Todos los visitantes tienen acceso gratuito al Diccionario Strong, Hebreo, Griego y Profesor IA (modo Esencial). Suscríbete para funciones Premium como el modo IA Profundo.",
     "subscription.authModalTitle": "Crear cuenta para suscribirse",
     "subscription.authModalDesc": "Para suscribirte a {plan}, necesitas crear una cuenta o iniciar sesión.",
     

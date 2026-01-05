@@ -689,24 +689,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check access permissions
+  // Check access permissions - ACESSO GRATUITO UNIVERSAL ao Strong
   app.get("/api/access/strong", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const user = await storage.getUser(req.userId!);
-      if (!user) {
-        return res.status(404).json({ error: "Usuário não encontrado" });
-      }
-
-      // Admin bypass - admins have full access
-      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-      
-      // Check trial or lifetime subscription
-      const trialActive = isTrialActive(user.trialStartDate);
-      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
-      
+      // Acesso gratuito universal ao Strong para todos os visitantes
       res.json({ 
-        hasAccess: isAdmin || trialActive || hasLifetime,
-        reason: isAdmin ? 'admin' : trialActive ? 'trial' : hasLifetime ? 'subscription' : 'none',
+        hasAccess: true,
+        reason: 'free',
       });
     } catch (error) {
       console.error("Check strong access error:", error);
@@ -726,19 +715,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Admin bypass - admins have full access to all modes
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
       
-      // Check trial (gives access to essential mode during 30 days)
-      const trialActive = isTrialActive(user.trialStartDate);
-      
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
       let hasAccess = false;
       if (isAdmin) {
-        // Admins have full access to all modes
         hasAccess = true;
       } else if (mode === 'essential') {
-        // Trial grants access to essential mode
-        hasAccess = trialActive || hasGold || hasPremium;
+        // ACESSO GRATUITO UNIVERSAL ao modo essential
+        hasAccess = true;
       } else if (mode === 'premium') {
         // Only premium subscription grants premium access
         hasAccess = hasPremium;
@@ -746,7 +731,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         hasAccess,
-        reason: isAdmin ? 'admin' : trialActive ? 'trial' : hasPremium ? 'premium' : hasGold ? 'gold' : 'none'
+        reason: isAdmin ? 'admin' : mode === 'essential' ? 'free' : hasPremium ? 'premium' : hasGold ? 'gold' : 'none'
       });
     } catch (error) {
       console.error("Check AI access error:", error);
@@ -811,33 +796,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check for active bonus (extends trial/access)
       const hasActiveBonus = await storage.hasActiveBonus(req.userId!);
-      const hasFullAccess = trialActive || hasGold || hasPremium || hasActiveBonus;
+      
+      // ACESSO GRATUITO UNIVERSAL ao modo essential - todos têm acesso livre
+      // Para modo premium, verificar assinatura
+      const hasFullAccess = mode === 'essential' ? true : (hasGold || hasPremium || hasActiveBonus);
 
       // Enforce rate limits BEFORE making OpenAI call (admins have no limit)
       const todayCount = await storage.getTodayUsageCount(req.userId!);
       
-      // Limits: Premium=100, Gold/Trial/Bonus=30, Expired trial (free)=3
-      const FREE_DAILY_LIMIT = 3;
+      // Limits: Premium=100, Gold=30, Essential gratuito=30 perguntas/dia
+      const FREE_DAILY_LIMIT = 30; // Limite diário para acesso gratuito
       const limit = isAdmin ? 999999 : (hasPremium ? 100 : hasFullAccess ? 30 : FREE_DAILY_LIMIT);
 
       if (todayCount >= limit && !isAdmin) {
-        // Special message for expired trial users on 4th attempt
-        if (!hasFullAccess && todayCount >= FREE_DAILY_LIMIT) {
-          return res.status(429).json({ 
-            error: `Você atingiu o limite diário de ${FREE_DAILY_LIMIT} perguntas gratuitas. Assine um plano para perguntas ilimitadas, ou aguarde até amanhã para mais ${FREE_DAILY_LIMIT} perguntas.`,
-            requiresSubscription: true,
-            subscriptionType: 'gold',
-            dailyLimit: FREE_DAILY_LIMIT,
-            usedToday: todayCount,
-            upgradeRequired: true
-          });
-        }
-        
         return res.status(429).json({ 
           error: `Você atingiu o limite diário de ${limit} perguntas. ${
-            hasGold ? 'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.' : 
             hasPremium ? 'Aguarde até amanhã para continuar.' :
-            'Assine um plano para continuar usando o Professor.'
+            hasGold ? 'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.' : 
+            'Assine um plano para mais perguntas, ou aguarde até amanhã para mais 30 perguntas gratuitas.'
           }`,
           requiresSubscription: !hasGold && !hasPremium,
           dailyLimit: limit,

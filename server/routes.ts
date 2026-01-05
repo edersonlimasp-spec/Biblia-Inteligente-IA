@@ -1920,6 +1920,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   let strongCacheLoadTime: number = 0;
   const STRONG_CACHE_TTL = 3600000; // 1 hour in milliseconds
 
+  // Common Portuguese biblical words mapped to their Strong numbers
+  // This significantly increases word coverage for all Bible translations
+  const COMMON_PORTUGUESE_STRONG_MAPPINGS: Record<string, string> = {
+    // Core theological terms
+    'deus': 'G2316', 'senhor': 'G2962', 'jesus': 'G2424', 'cristo': 'G5547',
+    'espírito': 'G4151', 'santo': 'G40', 'pai': 'G3962', 'filho': 'G5207',
+    'palavra': 'G3056', 'vida': 'G2222', 'amor': 'G26', 'amou': 'G25',
+    'graça': 'G5485', 'verdade': 'G225', 'luz': 'G5457', 'trevas': 'G4655',
+    'salvação': 'G4991', 'salvador': 'G4990', 'pecado': 'G266', 'pecados': 'G266',
+    'justiça': 'G1343', 'justo': 'G1342', 'fé': 'G4102', 'crê': 'G4100',
+    'cremos': 'G4100', 'crer': 'G4100', 'esperança': 'G1680', 'glória': 'G1391',
+    // People and relationships
+    'homem': 'G444', 'homens': 'G444', 'mulher': 'G1135', 'mulheres': 'G1135',
+    'irmão': 'G80', 'irmãos': 'G80', 'povo': 'G2992', 'igreja': 'G1577',
+    'discípulo': 'G3101', 'discípulos': 'G3101', 'apóstolo': 'G652', 'apóstolos': 'G652',
+    'profeta': 'G4396', 'profetas': 'G4396', 'rei': 'G935', 'reino': 'G932',
+    // Actions and states
+    'disse': 'G2036', 'diz': 'G3004', 'fala': 'G2980', 'falou': 'G2980',
+    'veio': 'G2064', 'vem': 'G2064', 'vir': 'G2064', 'vai': 'G4198',
+    'foi': 'G1510', 'era': 'G1510', 'ser': 'G1510', 'está': 'G1510',
+    'deu': 'G1325', 'dar': 'G1325', 'dá': 'G1325', 'recebeu': 'G2983',
+    'receber': 'G2983', 'enviar': 'G649', 'enviou': 'G649', 'ouvir': 'G191',
+    'ouviu': 'G191', 'ver': 'G3708', 'viu': 'G3708', 'conhecer': 'G1097',
+    'conhece': 'G1097', 'saber': 'G1492', 'sabe': 'G1492',
+    // Places and things
+    'mundo': 'G2889', 'terra': 'G1093', 'céu': 'G3772', 'céus': 'G3772',
+    'casa': 'G3624', 'templo': 'G2411', 'corpo': 'G4983', 'sangue': 'G129',
+    'água': 'G5204', 'pão': 'G740', 'vinho': 'G3631', 'cruz': 'G4716',
+    'morte': 'G2288', 'morrer': 'G599', 'morreu': 'G599', 'ressurreição': 'G386',
+    // Time and manner
+    'dia': 'G2250', 'dias': 'G2250', 'hora': 'G5610', 'tempo': 'G2540',
+    'sempre': 'G3842', 'eterno': 'G166', 'eterna': 'G166', 'nunca': 'G3756',
+    // Adjectives and prepositions
+    'grande': 'G3173', 'bom': 'G18', 'todo': 'G3956', 'todos': 'G3956',
+    'muito': 'G4183', 'novo': 'G2537', 'nova': 'G2537', 'primeiro': 'G4413',
+    // Hebrew equivalents (Old Testament)
+    'yahweh': 'H3068', 'jeová': 'H3068', 'elohim': 'H430',
+  };
+
   async function getStrongWordMapping(): Promise<Map<string, string>> {
     const now = Date.now();
     if (strongWordMappingCache && (now - strongCacheLoadTime) < STRONG_CACHE_TTL) {
@@ -1932,17 +1971,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const allStrongEntries = await db.select({
       strongNumber: strongEntries.strongNumber,
       portugueseDef: strongEntries.portugueseDef,
+      kjvDef: strongEntries.kjvDef,
+      strongsDef: strongEntries.strongsDef,
     }).from(strongEntries);
 
     const defWordsToStrong = new Map<string, string>();
+    
+    // First, add all common Portuguese biblical words (highest priority)
+    for (const [word, strongNum] of Object.entries(COMMON_PORTUGUESE_STRONG_MAPPINGS)) {
+      defWordsToStrong.set(word, strongNum);
+    }
+    
+    // Then extract words from Strong definitions
     for (const entry of allStrongEntries) {
+      // Extract from Portuguese definitions
       if (entry.portugueseDef) {
         const words = entry.portugueseDef.toLowerCase()
-          .split(/[,;.:\s\-—()'"]/g)
+          .split(/[,;.:\s\-—()'"\/]/g)
           .filter((w: string) => w.length >= 3);
         for (const word of words) {
-          const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
+          const cleanWord = word.replace(/[.,;:!?"'()0-9]/g, '').trim();
           if (cleanWord.length >= 3 && !defWordsToStrong.has(cleanWord)) {
+            defWordsToStrong.set(cleanWord, entry.strongNumber);
+          }
+        }
+      }
+      
+      // Also extract from KJV/Strong's definitions (English words common in PT text)
+      if (entry.kjvDef) {
+        const words = entry.kjvDef.toLowerCase()
+          .split(/[,;.:\s\-—()'"\/]/g)
+          .filter((w: string) => w.length >= 4);
+        for (const word of words) {
+          const cleanWord = word.replace(/[.,;:!?"'()0-9]/g, '').trim();
+          if (cleanWord.length >= 4 && !defWordsToStrong.has(cleanWord)) {
             defWordsToStrong.set(cleanWord, entry.strongNumber);
           }
         }
@@ -2003,37 +2065,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // STRATEGY 2: Fallback to heuristic matching when bible_words is empty
-      // Uses cached Strong mappings for fast performance
-      if (wordsWithStrong.length === 0) {
-        try {
-          // Get cached Strong word mappings (fast after first load)
-          const defWordsToStrong = await getStrongWordMapping();
+      // STRATEGY 2: ALWAYS apply heuristic matching to SUPPLEMENT bible_words data
+      // This dramatically increases word coverage (2x or more)
+      try {
+        // Get cached Strong word mappings (fast after first load)
+        const defWordsToStrong = await getStrongWordMapping();
 
-          // Get the chapter text to extract words
-          const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
-          if (chapter && chapter.verses) {
-            // Now match verse words against Strong definitions
-            for (const verse of chapter.verses) {
-              const verseWords = verse.text.toLowerCase()
-                .split(/\s+/)
-                .map((w: string) => w.replace(/[.,;:!?"'()]/g, '').trim())
-                .filter((w: string) => w.length >= 3);
+        // Get the chapter text to extract words
+        const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
+        if (chapter && chapter.verses) {
+          // Now match verse words against Strong definitions
+          for (const verse of chapter.verses) {
+            const verseWords = verse.text.toLowerCase()
+              .split(/\s+/)
+              .map((w: string) => w.replace(/[.,;:!?"'()]/g, '').trim())
+              .filter((w: string) => w.length >= 3);
 
-              for (const word of verseWords) {
-                if (defWordsToStrong.has(word) && !verseWordsMap[verse.verse]?.includes(word)) {
-                  if (!verseWordsMap[verse.verse]) {
-                    verseWordsMap[verse.verse] = [];
-                  }
-                  verseWordsMap[verse.verse].push(word);
+            for (const word of verseWords) {
+              // Add word if it matches Strong definition AND not already in list
+              if (defWordsToStrong.has(word) && !verseWordsMap[verse.verse]?.includes(word)) {
+                if (!verseWordsMap[verse.verse]) {
+                  verseWordsMap[verse.verse] = [];
                 }
+                verseWordsMap[verse.verse].push(word);
               }
             }
           }
-        } catch (fallbackError) {
-          console.warn("Fallback Strong matching failed:", fallbackError);
-          // Continue with empty result - don't crash
         }
+      } catch (fallbackError) {
+        console.warn("Heuristic Strong matching failed:", fallbackError);
+        // Continue with bible_words result only - don't crash
       }
 
       res.json({

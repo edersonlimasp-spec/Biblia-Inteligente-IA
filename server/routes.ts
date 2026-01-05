@@ -3719,6 +3719,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Metrics - Purchase History by Plan Type
+  app.get("/api/admin/metrics/purchases", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { days = "30" } = req.query;
+      const daysAgo = parseInt(days as string) || 30;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - daysAgo);
+
+      // Get all subscriptions with active-like status
+      const allSubscriptions = await db
+        .select({
+          id: subscriptions.id,
+          userId: subscriptions.userId,
+          planType: subscriptions.planType,
+          status: subscriptions.status,
+          amount: subscriptions.amount,
+          createdAt: subscriptions.createdAt,
+          startDate: subscriptions.startDate,
+          endDate: subscriptions.endDate,
+        })
+        .from(subscriptions)
+        .where(gte(subscriptions.createdAt, startDate))
+        .orderBy(desc(subscriptions.createdAt));
+
+      // Get users for these subscriptions
+      const userIds = Array.from(new Set(allSubscriptions.map(s => s.userId)));
+      const usersData = await db
+        .select({ id: users.id, email: users.email, name: users.name })
+        .from(users)
+        .where(inArray(users.id, userIds.length > 0 ? userIds : ['']));
+      
+      const usersMap = new Map(usersData.map(u => [u.id, u]));
+
+      // Categorize by plan type
+      const goldPurchases = allSubscriptions
+        .filter(s => s.planType?.toLowerCase() === 'gold')
+        .map(s => ({
+          ...s,
+          user: usersMap.get(s.userId),
+        }));
+
+      const premiumPurchases = allSubscriptions
+        .filter(s => s.planType?.toLowerCase() === 'premium')
+        .map(s => ({
+          ...s,
+          user: usersMap.get(s.userId),
+        }));
+
+      const lifetimePurchases = allSubscriptions
+        .filter(s => s.planType?.toLowerCase() === 'strong_lifetime')
+        .map(s => ({
+          ...s,
+          user: usersMap.get(s.userId),
+        }));
+
+      // Calculate totals
+      const goldTotal = goldPurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
+      const premiumTotal = premiumPurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
+      const lifetimeTotal = lifetimePurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
+
+      // Daily breakdown for charts
+      const dailyData: Record<string, { gold: number; premium: number; lifetime: number }> = {};
+      for (let i = 0; i < daysAgo; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        dailyData[dateStr] = { gold: 0, premium: 0, lifetime: 0 };
+      }
+
+      allSubscriptions.forEach(s => {
+        const dateStr = new Date(s.createdAt).toISOString().split('T')[0];
+        if (dailyData[dateStr]) {
+          const planType = s.planType?.toLowerCase();
+          if (planType === 'gold') dailyData[dateStr].gold++;
+          else if (planType === 'premium') dailyData[dateStr].premium++;
+          else if (planType === 'strong_lifetime') dailyData[dateStr].lifetime++;
+        }
+      });
+
+      const dailyTrend = Object.entries(dailyData)
+        .map(([date, counts]) => ({ date, ...counts }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      res.json({
+        summary: {
+          gold: { count: goldPurchases.length, total: goldTotal.toFixed(2) },
+          premium: { count: premiumPurchases.length, total: premiumTotal.toFixed(2) },
+          lifetime: { count: lifetimePurchases.length, total: lifetimeTotal.toFixed(2) },
+        },
+        recentPurchases: {
+          gold: goldPurchases.slice(0, 20),
+          premium: premiumPurchases.slice(0, 20),
+          lifetime: lifetimePurchases.slice(0, 20),
+        },
+        dailyTrend,
+      });
+    } catch (error) {
+      console.error("Purchase history error:", error);
+      res.status(500).json({ error: "Erro ao buscar histórico de compras" });
+    }
+  });
+
   // Admin Users - List all users
   app.get("/api/admin/users", ensureAdmin, async (req: AuthRequest, res) => {
     try {

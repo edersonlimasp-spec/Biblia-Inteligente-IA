@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent, Infinity, ShoppingCart, DollarSign, Gem } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ComposedChart } from "recharts";
 
 interface DashboardStats {
@@ -48,6 +50,32 @@ interface ConversionMetrics {
   dailyTrend: Array<{ date: string; redirects: number; conversions: number }>;
 }
 
+interface PurchaseItem {
+  id: string;
+  userId: string;
+  planType: string;
+  status: string;
+  amount: string;
+  createdAt: string;
+  startDate: string;
+  endDate: string | null;
+  user?: { id: string; email: string; name: string | null };
+}
+
+interface PurchaseMetrics {
+  summary: {
+    gold: { count: number; total: string };
+    premium: { count: number; total: string };
+    lifetime: { count: number; total: string };
+  };
+  recentPurchases: {
+    gold: PurchaseItem[];
+    premium: PurchaseItem[];
+    lifetime: PurchaseItem[];
+  };
+  dailyTrend: Array<{ date: string; gold: number; premium: number; lifetime: number }>;
+}
+
 export function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/stats'],
@@ -75,6 +103,12 @@ export function AdminDashboard() {
 
   const { data: conversionMetrics, isLoading: conversionLoading } = useQuery<ConversionMetrics>({
     queryKey: ['/api/admin/metrics/conversion'],
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+
+  const { data: purchaseMetrics, isLoading: purchasesLoading } = useQuery<PurchaseMetrics>({
+    queryKey: ['/api/admin/metrics/purchases'],
     staleTime: 0,
     refetchOnMount: 'always',
   });
@@ -442,6 +476,194 @@ export function AdminDashboard() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Nenhuma pergunta registrada</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Acompanhamento de Compras por Tipo */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5 text-primary" />
+            Acompanhamento de Compras (30 dias)
+          </CardTitle>
+          <CardDescription>Histórico detalhado de compras Gold, Premium e Lifetime</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {purchasesLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Resumo de Compras */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="p-4 bg-gradient-to-br from-amber-500/10 to-yellow-500/10 border border-amber-500/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Crown className="h-5 w-5 text-amber-500" />
+                    <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Gold</p>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-bold text-amber-600">{purchaseMetrics?.summary.gold.count || 0}</p>
+                    <p className="text-sm text-muted-foreground">compras</p>
+                  </div>
+                  <p className="text-sm text-amber-600 mt-1 flex items-center gap-1">
+                    <DollarSign className="h-3 w-3" />
+                    R$ {purchaseMetrics?.summary.gold.total || '0.00'}
+                  </p>
+                </div>
+
+                <div className="p-4 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Gem className="h-5 w-5 text-purple-500" />
+                    <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Premium</p>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-bold text-purple-600">{purchaseMetrics?.summary.premium.count || 0}</p>
+                    <p className="text-sm text-muted-foreground">compras</p>
+                  </div>
+                  <p className="text-sm text-purple-600 mt-1 flex items-center gap-1">
+                    <DollarSign className="h-3 w-3" />
+                    R$ {purchaseMetrics?.summary.premium.total || '0.00'}
+                  </p>
+                </div>
+
+                <div className="p-4 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Infinity className="h-5 w-5 text-emerald-500" />
+                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Lifetime</p>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-bold text-emerald-600">{purchaseMetrics?.summary.lifetime.count || 0}</p>
+                    <p className="text-sm text-muted-foreground">compras</p>
+                  </div>
+                  <p className="text-sm text-emerald-600 mt-1 flex items-center gap-1">
+                    <DollarSign className="h-3 w-3" />
+                    R$ {purchaseMetrics?.summary.lifetime.total || '0.00'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Gráfico de Tendência */}
+              <div>
+                <p className="text-sm font-medium mb-3">Tendência de Vendas por Tipo</p>
+                <ResponsiveContainer width="100%" height={250}>
+                  <ComposedChart data={purchaseMetrics?.dailyTrend || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="date" 
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return `${date.getDate()}/${date.getMonth() + 1}`;
+                      }}
+                      fontSize={12}
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      labelFormatter={(value) => {
+                        const date = new Date(value as string);
+                        return date.toLocaleDateString('pt-BR');
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="gold" fill="#f59e0b" name="Gold" />
+                    <Bar dataKey="premium" fill="#a855f7" name="Premium" />
+                    <Bar dataKey="lifetime" fill="#10b981" name="Lifetime" />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Compras Recentes por Tipo */}
+              <div>
+                <p className="text-sm font-medium mb-3">Compras Recentes por Tipo</p>
+                <Tabs defaultValue="gold" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="gold" className="gap-1">
+                      <Crown className="h-3 w-3" />
+                      Gold ({purchaseMetrics?.recentPurchases.gold.length || 0})
+                    </TabsTrigger>
+                    <TabsTrigger value="premium" className="gap-1">
+                      <Gem className="h-3 w-3" />
+                      Premium ({purchaseMetrics?.recentPurchases.premium.length || 0})
+                    </TabsTrigger>
+                    <TabsTrigger value="lifetime" className="gap-1">
+                      <Infinity className="h-3 w-3" />
+                      Lifetime ({purchaseMetrics?.recentPurchases.lifetime.length || 0})
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="gold" className="mt-4">
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {purchaseMetrics?.recentPurchases.gold && purchaseMetrics.recentPurchases.gold.length > 0 ? (
+                        purchaseMetrics.recentPurchases.gold.map((purchase, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-2 bg-amber-500/5 border border-amber-500/10 rounded">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="border-amber-500/30 text-amber-600">Gold</Badge>
+                              <span className="text-sm break-all">{purchase.user?.email || 'N/A'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">R$ {purchase.amount}</span>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {new Date(purchase.createdAt).toLocaleDateString('pt-BR')}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">Nenhuma compra Gold registrada</p>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="premium" className="mt-4">
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {purchaseMetrics?.recentPurchases.premium && purchaseMetrics.recentPurchases.premium.length > 0 ? (
+                        purchaseMetrics.recentPurchases.premium.map((purchase, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-2 bg-purple-500/5 border border-purple-500/10 rounded">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="border-purple-500/30 text-purple-600">Premium</Badge>
+                              <span className="text-sm break-all">{purchase.user?.email || 'N/A'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">R$ {purchase.amount}</span>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {new Date(purchase.createdAt).toLocaleDateString('pt-BR')}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">Nenhuma compra Premium registrada</p>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="lifetime" className="mt-4">
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {purchaseMetrics?.recentPurchases.lifetime && purchaseMetrics.recentPurchases.lifetime.length > 0 ? (
+                        purchaseMetrics.recentPurchases.lifetime.map((purchase, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-2 bg-emerald-500/5 border border-emerald-500/10 rounded">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="border-emerald-500/30 text-emerald-600">Lifetime</Badge>
+                              <span className="text-sm break-all">{purchase.user?.email || 'N/A'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">R$ {purchase.amount}</span>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {new Date(purchase.createdAt).toLocaleDateString('pt-BR')}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">Nenhuma compra Lifetime registrada</p>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

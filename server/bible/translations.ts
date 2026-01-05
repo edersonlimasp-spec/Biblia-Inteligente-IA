@@ -151,9 +151,9 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     licenseType: "commercial_pending",
     source: "pending",
     enabled: true,
-    hasData: false,
+    hasData: true,
     sourceUrl: "https://www.thomasnelson.com",
-    notes: "Licença Thomas Nelson necessária. Aguardando autorização."
+    notes: "Usa fallback para KJV até importação completa."
   },
   {
     id: "en-asv",

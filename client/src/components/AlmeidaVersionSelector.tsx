@@ -1,10 +1,19 @@
 /**
  * Bible Version Selector Component
- * Usa select nativo para máxima compatibilidade
+ * Usa Shadcn Select para melhor compatibilidade em produção
  */
 
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface VersionSelectorProps {
   selectedVersion: string;
@@ -32,7 +41,6 @@ export function AlmeidaVersionSelector({
     staleTime: 1000 * 60 * 5,
   });
 
-  // Fallback versions for when API is loading or fails
   const fallbackVersions: BibleVersion[] = [
     { code: 'ACF', name: 'Almeida Corrigida Fiel', language: 'pt', licenseType: 'public_domain', hasData: true, verseCount: 31106 },
     { code: 'ARC', name: 'Almeida Revista e Corrigida', language: 'pt', licenseType: 'public_domain', hasData: true, verseCount: 29779 },
@@ -49,8 +57,7 @@ export function AlmeidaVersionSelector({
   const englishVersions = availableVersions.filter(v => v.language === 'en');
   const spanishVersions = availableVersions.filter(v => v.language === 'es');
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handleValueChange = (value: string) => {
     console.log(`[BIBLE] VERSION_SELECTED -> translationId=${value} from=${selectedVersion} ts=${Date.now()}`);
     if (value) {
       onVersionChange(value);
@@ -66,46 +73,47 @@ export function AlmeidaVersionSelector({
   }
 
   return (
-    <select
-      value={selectedVersion}
-      onChange={handleChange}
-      disabled={disabled}
-      data-testid="button-version-selector"
-      className="h-9 px-2 text-xs font-bold border border-primary/30 rounded-md bg-background text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 flex-shrink-0 relative z-50"
-      style={{ 
-        width: '70px',
-        minWidth: '70px',
-      }}
-    >
-      {portugueseVersions.length > 0 && (
-        <optgroup label="Português">
-          {portugueseVersions.map((version) => (
-            <option key={version.code} value={version.code}>
-              {version.code} - {version.name}
-            </option>
-          ))}
-        </optgroup>
-      )}
-      
-      {spanishVersions.length > 0 && (
-        <optgroup label="Español">
-          {spanishVersions.map((version) => (
-            <option key={version.code} value={version.code}>
-              {version.code} - {version.name}
-            </option>
-          ))}
-        </optgroup>
-      )}
-      
-      {englishVersions.length > 0 && (
-        <optgroup label="English">
-          {englishVersions.map((version) => (
-            <option key={version.code} value={version.code}>
-              {version.code} - {version.name}
-            </option>
-          ))}
-        </optgroup>
-      )}
-    </select>
+    <Select value={selectedVersion} onValueChange={handleValueChange} disabled={disabled}>
+      <SelectTrigger 
+        className="w-[70px] h-9 text-xs font-bold border-primary/30"
+        data-testid="button-version-selector"
+      >
+        <SelectValue placeholder="Versão" />
+      </SelectTrigger>
+      <SelectContent className="z-[100]">
+        {portugueseVersions.length > 0 && (
+          <SelectGroup>
+            <SelectLabel>Português</SelectLabel>
+            {portugueseVersions.map((version) => (
+              <SelectItem key={version.code} value={version.code}>
+                {version.code} - {version.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        )}
+        
+        {spanishVersions.length > 0 && (
+          <SelectGroup>
+            <SelectLabel>Español</SelectLabel>
+            {spanishVersions.map((version) => (
+              <SelectItem key={version.code} value={version.code}>
+                {version.code} - {version.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        )}
+        
+        {englishVersions.length > 0 && (
+          <SelectGroup>
+            <SelectLabel>English</SelectLabel>
+            {englishVersions.map((version) => (
+              <SelectItem key={version.code} value={version.code}>
+                {version.code} - {version.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        )}
+      </SelectContent>
+    </Select>
   );
 }

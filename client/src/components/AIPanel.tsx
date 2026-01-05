@@ -138,9 +138,11 @@ interface AIPanelProps {
   hidden?: boolean;
   shouldResetAI?: boolean;
   onResetComplete?: () => void;
+  initialPrompt?: string | null;
+  onPromptConsumed?: () => void;
 }
 
-export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete }: AIPanelProps) {
+export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete, initialPrompt, onPromptConsumed }: AIPanelProps) {
   const [question, setQuestion] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -358,6 +360,20 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       saveCurrentSessionId(newSessionId);
     }
   }, [shouldResetAI]);
+
+  // ===================================
+  // INITIAL PROMPT - Handle external prompt from Strong's dictionary
+  // ===================================
+  
+  useEffect(() => {
+    if (initialPrompt && !hidden) {
+      setQuestion(initialPrompt);
+      setIsExpanded(true);
+      if (onPromptConsumed) {
+        onPromptConsumed();
+      }
+    }
+  }, [initialPrompt, hidden, onPromptConsumed]);
 
   // ===================================
   // AUTO-SAVE - Salvar sempre que mensagens mudarem

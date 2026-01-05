@@ -142,6 +142,9 @@ export function BibleReader({
   const [searchingVerseNum, setSearchingVerseNum] = useState<number | null>(null);
   const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
   const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
+  
+  // AI prompt from Strong's dictionary
+  const [aiPromptFromStrong, setAiPromptFromStrong] = useState<string | null>(null);
 
   // Trial status
   const [trialActive, setTrialActive] = useState(false);
@@ -959,7 +962,12 @@ export function BibleReader({
 
       {/* AI Panel - completamente desmontado quando AnnotationPanel está aberto para garantir isolamento de estado */}
       {!showAnnotationPanel && (
-        <AIPanel shouldResetAI={shouldResetAI} onResetComplete={clearResetAI} />
+        <AIPanel 
+          shouldResetAI={shouldResetAI} 
+          onResetComplete={clearResetAI} 
+          initialPrompt={aiPromptFromStrong}
+          onPromptConsumed={() => setAiPromptFromStrong(null)}
+        />
       )}
 
       {/* Annotation Panel - completamente isolado do AIPanel */}
@@ -1004,6 +1012,17 @@ export function BibleReader({
             setGlobalSearchTerm(query);
             setIsGlobalSearch(true);
             setShowGlobalResults(true);
+          }}
+          onNavigateToVerse={(book, chapter, verse) => {
+            setSelectedBook(book);
+            setSelectedChapter(chapter);
+            setSelectedVerse(verse);
+          }}
+          onAIAnalysis={(strongNum, word, definition) => {
+            const prompt = language === "pt" 
+              ? `Explique o significado teológico e etimológico da palavra "${word}" (Strong ${strongNum}). Definição: ${definition.substring(0, 200)}...`
+              : `Explain the theological and etymological meaning of the word "${word}" (Strong ${strongNum}). Definition: ${definition.substring(0, 200)}...`;
+            setAiPromptFromStrong(prompt);
           }}
         />
       )}

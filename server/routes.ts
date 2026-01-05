@@ -1932,6 +1932,152 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return NT_BOOKS.has(bookId.toLowerCase());
   }
 
+  // COMPREHENSIVE Portuguese word mappings for GREEK (New Testament)
+  const GREEK_WORD_MAPPINGS: Record<string, string> = {
+    // Core theological terms
+    'deus': 'G2316', 'senhor': 'G2962', 'jesus': 'G2424', 'cristo': 'G5547',
+    'espírito': 'G4151', 'santo': 'G40', 'pai': 'G3962', 'filho': 'G5207',
+    'palavra': 'G3056', 'vida': 'G2222', 'amor': 'G26', 'amou': 'G25', 'ama': 'G25', 'amar': 'G25',
+    'graça': 'G5485', 'verdade': 'G225', 'luz': 'G5457', 'trevas': 'G4655',
+    'salvação': 'G4991', 'salvador': 'G4990', 'pecado': 'G266', 'pecados': 'G266',
+    'justiça': 'G1343', 'justo': 'G1342', 'fé': 'G4102', 'crê': 'G4100', 'crer': 'G4100',
+    'esperança': 'G1680', 'glória': 'G1391', 'poder': 'G1411', 'sabedoria': 'G4678',
+    // People and relationships
+    'homem': 'G444', 'homens': 'G444', 'mulher': 'G1135', 'mulheres': 'G1135',
+    'irmão': 'G80', 'irmãos': 'G80', 'povo': 'G2992', 'igreja': 'G1577', 'igrejas': 'G1577',
+    'discípulo': 'G3101', 'discípulos': 'G3101', 'apóstolo': 'G652', 'apóstolos': 'G652',
+    'profeta': 'G4396', 'profetas': 'G4396', 'rei': 'G935', 'reino': 'G932',
+    'filho': 'G5207', 'filhos': 'G5207', 'filha': 'G2364', 'filhas': 'G2364',
+    'servo': 'G1401', 'servos': 'G1401', 'escravo': 'G1401', 'mestre': 'G1320',
+    // Common verbs
+    'disse': 'G2036', 'diz': 'G3004', 'dizer': 'G3004', 'dizendo': 'G3004', 'dizem': 'G3004',
+    'fala': 'G2980', 'falou': 'G2980', 'falar': 'G2980', 'falando': 'G2980',
+    'veio': 'G2064', 'vem': 'G2064', 'vir': 'G2064', 'vindo': 'G2064', 'virá': 'G2064',
+    'vai': 'G4198', 'foi': 'G1096', 'era': 'G1510', 'ser': 'G1510', 'está': 'G1510', 'são': 'G1510',
+    'deu': 'G1325', 'dar': 'G1325', 'dá': 'G1325', 'dando': 'G1325', 'dado': 'G1325',
+    'recebeu': 'G2983', 'receber': 'G2983', 'recebendo': 'G2983', 'recebido': 'G2983',
+    'enviou': 'G649', 'enviar': 'G649', 'enviado': 'G649', 'envia': 'G649',
+    'ouvir': 'G191', 'ouviu': 'G191', 'ouve': 'G191', 'ouvindo': 'G191', 'ouvi': 'G191',
+    'ver': 'G3708', 'viu': 'G3708', 'vê': 'G3708', 'vendo': 'G3708', 'visto': 'G3708',
+    'conhecer': 'G1097', 'conhece': 'G1097', 'conheceu': 'G1097', 'conhecendo': 'G1097',
+    'saber': 'G1492', 'sabe': 'G1492', 'sabemos': 'G1492', 'sabia': 'G1492',
+    'fazer': 'G4160', 'faz': 'G4160', 'fez': 'G4160', 'fazendo': 'G4160', 'feito': 'G4160',
+    'andar': 'G4043', 'anda': 'G4043', 'andou': 'G4043', 'andando': 'G4043',
+    'viver': 'G2198', 'vive': 'G2198', 'viveu': 'G2198', 'vivendo': 'G2198',
+    'morrer': 'G599', 'morreu': 'G599', 'morre': 'G599', 'morrendo': 'G599',
+    'crer': 'G4100', 'crê': 'G4100', 'creu': 'G4100', 'crendo': 'G4100', 'creram': 'G4100',
+    'orar': 'G4336', 'ora': 'G4336', 'orou': 'G4336', 'orando': 'G4336', 'oração': 'G4335',
+    // Places and things
+    'mundo': 'G2889', 'terra': 'G1093', 'céu': 'G3772', 'céus': 'G3772',
+    'casa': 'G3624', 'templo': 'G2411', 'corpo': 'G4983', 'sangue': 'G129',
+    'água': 'G5204', 'pão': 'G740', 'vinho': 'G3631', 'cruz': 'G4716',
+    'morte': 'G2288', 'ressurreição': 'G386', 'tumulo': 'G3419', 'sepulcro': 'G3419',
+    'nome': 'G3686', 'mão': 'G5495', 'mãos': 'G5495', 'olho': 'G3788', 'olhos': 'G3788',
+    'coração': 'G2588', 'alma': 'G5590', 'mente': 'G3563', 'boca': 'G4750',
+    'caminho': 'G3598', 'porta': 'G2374', 'cidade': 'G4172', 'aldeia': 'G2968',
+    // Time and manner
+    'dia': 'G2250', 'dias': 'G2250', 'hora': 'G5610', 'tempo': 'G2540', 'noite': 'G3571',
+    'sempre': 'G3842', 'eterno': 'G166', 'eterna': 'G166', 'eternamente': 'G166',
+    'agora': 'G3568', 'hoje': 'G4594', 'ontem': 'G5504', 'amanhã': 'G839',
+    // Adjectives and quantities
+    'grande': 'G3173', 'bom': 'G18', 'boa': 'G18', 'mau': 'G2556', 'má': 'G2556',
+    'todo': 'G3956', 'todos': 'G3956', 'toda': 'G3956', 'todas': 'G3956',
+    'muito': 'G4183', 'muitos': 'G4183', 'muita': 'G4183', 'muitas': 'G4183',
+    'novo': 'G2537', 'nova': 'G2537', 'primeiro': 'G4413', 'último': 'G2078',
+    'outro': 'G243', 'outra': 'G243', 'outros': 'G243', 'outras': 'G243',
+    'próprio': 'G2398', 'própria': 'G2398', 'próprios': 'G2398',
+    // Prepositions and conjunctions (important biblical terms)
+    'com': 'G3326', 'para': 'G1519', 'sobre': 'G1909', 'entre': 'G1722',
+    'contra': 'G2596', 'através': 'G1223', 'segundo': 'G2596', 'antes': 'G4253',
+    'depois': 'G3326', 'desde': 'G575', 'até': 'G2193', 'porque': 'G3754',
+    'quando': 'G3752', 'onde': 'G3699', 'como': 'G5613', 'assim': 'G3779',
+    // Key NT concepts
+    'evangelho': 'G2098', 'batismo': 'G908', 'batizar': 'G907', 'batizado': 'G907',
+    'comunhão': 'G2842', 'mandamento': 'G1785', 'mandamentos': 'G1785',
+    'lei': 'G3551', 'promessa': 'G1860', 'aliança': 'G1242', 'pacto': 'G1242',
+    'testemunho': 'G3141', 'testemunha': 'G3144', 'testemunhas': 'G3144',
+    'milagre': 'G4592', 'milagres': 'G4592', 'sinal': 'G4592', 'sinais': 'G4592',
+    'parábola': 'G3850', 'parábolas': 'G3850', 'ensinamento': 'G1322',
+    'carne': 'G4561', 'fruto': 'G2590', 'frutos': 'G2590', 'semente': 'G4690',
+  };
+
+  // COMPREHENSIVE Portuguese word mappings for HEBREW (Old Testament)
+  const HEBREW_WORD_MAPPINGS: Record<string, string> = {
+    // Core theological terms
+    'deus': 'H430', 'senhor': 'H3068', 'jeová': 'H3068', 'yahweh': 'H3068',
+    'espírito': 'H7307', 'santo': 'H6918', 'pai': 'H1', 'filho': 'H1121',
+    'palavra': 'H1697', 'vida': 'H2416', 'amor': 'H160', 'amou': 'H157', 'amar': 'H157',
+    'graça': 'H2580', 'verdade': 'H571', 'luz': 'H216', 'trevas': 'H2822',
+    'salvação': 'H3444', 'salvador': 'H3467', 'pecado': 'H2403', 'pecados': 'H2403',
+    'justiça': 'H6666', 'justo': 'H6662', 'fé': 'H530', 'fiel': 'H539',
+    'esperança': 'H8615', 'glória': 'H3519', 'poder': 'H3581', 'sabedoria': 'H2451',
+    // People and relationships
+    'homem': 'H120', 'homens': 'H120', 'mulher': 'H802', 'mulheres': 'H802',
+    'irmão': 'H251', 'irmãos': 'H251', 'povo': 'H5971', 'nação': 'H1471', 'nações': 'H1471',
+    'profeta': 'H5030', 'profetas': 'H5030', 'rei': 'H4428', 'reis': 'H4428', 'reino': 'H4467',
+    'filho': 'H1121', 'filhos': 'H1121', 'filha': 'H1323', 'filhas': 'H1323',
+    'servo': 'H5650', 'servos': 'H5650', 'escravo': 'H5650', 'senhor': 'H113',
+    'sacerdote': 'H3548', 'sacerdotes': 'H3548', 'levita': 'H3881', 'levitas': 'H3881',
+    // Common verbs
+    'disse': 'H559', 'diz': 'H559', 'dizer': 'H559', 'dizendo': 'H559', 'dizem': 'H559',
+    'fala': 'H1696', 'falou': 'H1696', 'falar': 'H1696', 'falando': 'H1696',
+    'veio': 'H935', 'vem': 'H935', 'vir': 'H935', 'vindo': 'H935', 'virá': 'H935',
+    'vai': 'H1980', 'foi': 'H1961', 'era': 'H1961', 'ser': 'H1961', 'está': 'H1961', 'são': 'H1961',
+    'deu': 'H5414', 'dar': 'H5414', 'dá': 'H5414', 'dando': 'H5414', 'dado': 'H5414',
+    'enviou': 'H7971', 'enviar': 'H7971', 'enviado': 'H7971', 'envia': 'H7971',
+    'ouvir': 'H8085', 'ouviu': 'H8085', 'ouve': 'H8085', 'ouvindo': 'H8085', 'ouvi': 'H8085',
+    'ver': 'H7200', 'viu': 'H7200', 'vê': 'H7200', 'vendo': 'H7200', 'visto': 'H7200',
+    'conhecer': 'H3045', 'conhece': 'H3045', 'conheceu': 'H3045', 'conhecendo': 'H3045',
+    'saber': 'H3045', 'sabe': 'H3045', 'sabemos': 'H3045', 'sabia': 'H3045',
+    'fazer': 'H6213', 'faz': 'H6213', 'fez': 'H6213', 'fazendo': 'H6213', 'feito': 'H6213',
+    'andar': 'H1980', 'anda': 'H1980', 'andou': 'H1980', 'andando': 'H1980',
+    'viver': 'H2421', 'vive': 'H2421', 'viveu': 'H2421', 'vivendo': 'H2421',
+    'morrer': 'H4191', 'morreu': 'H4191', 'morre': 'H4191', 'morrendo': 'H4191',
+    'chamar': 'H7121', 'chamou': 'H7121', 'chama': 'H7121', 'chamado': 'H7121',
+    'criar': 'H1254', 'criou': 'H1254', 'cria': 'H1254', 'criado': 'H1254',
+    'separar': 'H914', 'separou': 'H914', 'separa': 'H914', 'separação': 'H914',
+    // Places and things
+    'mundo': 'H8398', 'terra': 'H776', 'céu': 'H8064', 'céus': 'H8064',
+    'casa': 'H1004', 'templo': 'H1964', 'corpo': 'H1320', 'sangue': 'H1818',
+    'água': 'H4325', 'pão': 'H3899', 'vinho': 'H3196', 'fogo': 'H784',
+    'morte': 'H4194', 'túmulo': 'H6913', 'sepulcro': 'H6913',
+    'nome': 'H8034', 'mão': 'H3027', 'mãos': 'H3027', 'olho': 'H5869', 'olhos': 'H5869',
+    'coração': 'H3820', 'alma': 'H5315', 'boca': 'H6310', 'face': 'H6440', 'rosto': 'H6440',
+    'caminho': 'H1870', 'porta': 'H8179', 'cidade': 'H5892', 'monte': 'H2022', 'montanha': 'H2022',
+    'mar': 'H3220', 'rio': 'H5104', 'deserto': 'H4057', 'campo': 'H7704',
+    // Time and manner
+    'dia': 'H3117', 'dias': 'H3117', 'noite': 'H3915', 'tempo': 'H6256',
+    'manhã': 'H1242', 'tarde': 'H6153', 'ano': 'H8141', 'anos': 'H8141',
+    'sempre': 'H5769', 'eterno': 'H5769', 'eterna': 'H5769', 'eternamente': 'H5769',
+    'agora': 'H6258', 'hoje': 'H3117', 'princípio': 'H7225',
+    // Adjectives and quantities
+    'grande': 'H1419', 'bom': 'H2896', 'boa': 'H2896', 'mau': 'H7451', 'má': 'H7451',
+    'todo': 'H3605', 'todos': 'H3605', 'toda': 'H3605', 'todas': 'H3605',
+    'muito': 'H3966', 'muitos': 'H7227', 'muita': 'H7227', 'muitas': 'H7227',
+    'novo': 'H2319', 'nova': 'H2319', 'primeiro': 'H7223', 'último': 'H314',
+    'outro': 'H312', 'outra': 'H312', 'outros': 'H312', 'outras': 'H312',
+    // Prepositions and conjunctions
+    'com': 'H5973', 'para': 'H413', 'sobre': 'H5921', 'entre': 'H996',
+    'contra': 'H5921', 'diante': 'H6440', 'debaixo': 'H8478', 'acima': 'H4605',
+    'depois': 'H310', 'desde': 'H4480', 'até': 'H5704', 'porque': 'H3588',
+    'quando': 'H3588', 'onde': 'H834', 'como': 'H834', 'assim': 'H3651',
+    // Key OT concepts
+    'lei': 'H8451', 'torá': 'H8451', 'mandamento': 'H4687', 'mandamentos': 'H4687',
+    'aliança': 'H1285', 'pacto': 'H1285', 'promessa': 'H1697',
+    'testemunho': 'H5715', 'testemunha': 'H5707', 'testemunhas': 'H5707',
+    'sacrifício': 'H2077', 'oferta': 'H4503', 'altar': 'H4196',
+    'bênção': 'H1293', 'maldição': 'H7045', 'juízo': 'H4941', 'juízos': 'H4941',
+    'misericórdia': 'H2617', 'bondade': 'H2617', 'paz': 'H7965', 'guerra': 'H4421',
+    // Genesis specific
+    'firmamento': 'H7549', 'expansão': 'H7549', 'abismo': 'H8415', 'vazio': 'H922',
+    'seco': 'H3004', 'seca': 'H3004', 'erva': 'H6212', 'árvore': 'H6086', 'árvores': 'H6086',
+    'semente': 'H2233', 'fruto': 'H6529', 'frutos': 'H6529',
+    // Patriarchs and names
+    'israel': 'H3478', 'jacó': 'H3290', 'abraão': 'H85', 'isaque': 'H3327',
+    'moisés': 'H4872', 'davi': 'H1732', 'salomão': 'H8010',
+    'judá': 'H3063', 'jerusalém': 'H3389', 'sião': 'H6726', 'egito': 'H4714',
+  };
+
   async function getStrongWordMapping(forGreek: boolean): Promise<Map<string, string>> {
     const now = Date.now();
     
@@ -1956,7 +2102,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const defWordsToStrong = new Map<string, string>();
     
-    // Extract words from Portuguese definitions only (most accurate for PT Bible)
+    // First, add all comprehensive Portuguese biblical word mappings (highest priority)
+    const priorityMappings = forGreek ? GREEK_WORD_MAPPINGS : HEBREW_WORD_MAPPINGS;
+    for (const [word, strongNum] of Object.entries(priorityMappings)) {
+      defWordsToStrong.set(word, strongNum);
+    }
+    
+    // Then extract words from Portuguese definitions
     for (const entry of allStrongEntries) {
       if (entry.portugueseDef) {
         const words = entry.portugueseDef.toLowerCase()
@@ -1964,7 +2116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .filter((w: string) => w.length >= 3);
         for (const word of words) {
           const cleanWord = word.replace(/[.,;:!?"'()0-9]/g, '').trim();
-          // Only add substantive words (avoid common stopwords)
+          // Only add if not already mapped (priority mappings take precedence)
           if (cleanWord.length >= 3 && !defWordsToStrong.has(cleanWord)) {
             defWordsToStrong.set(cleanWord, entry.strongNumber);
           }
@@ -1979,7 +2131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       strongWordMappingCacheHebrew = defWordsToStrong;
     }
     strongCacheLoadTime = now;
-    console.log(`[Strong Cache] Loaded ${defWordsToStrong.size} ${forGreek ? 'Greek' : 'Hebrew'} word mappings in ${Date.now() - startTime}ms`);
+    console.log(`[Strong Cache] Loaded ${defWordsToStrong.size} ${forGreek ? 'Greek' : 'Hebrew'} word mappings (${Object.keys(priorityMappings).length} priority) in ${Date.now() - startTime}ms`);
     
     return defWordsToStrong;
   }

@@ -1936,7 +1936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const GREEK_WORD_MAPPINGS: Record<string, string> = {
     // Core theological terms
     'deus': 'G2316', 'senhor': 'G2962', 'jesus': 'G2424', 'cristo': 'G5547',
-    'espírito': 'G4151', 'santo': 'G40', 'pai': 'G3962', 'filho': 'G5207',
+    'espírito': 'G4151', 'santo': 'G40', 'pai': 'G3962',
     'palavra': 'G3056', 'vida': 'G2222', 'amor': 'G26', 'amou': 'G25', 'ama': 'G25', 'amar': 'G25',
     'graça': 'G5485', 'verdade': 'G225', 'luz': 'G5457', 'trevas': 'G4655',
     'salvação': 'G4991', 'salvador': 'G4990', 'pecado': 'G266', 'pecados': 'G266',
@@ -1965,7 +1965,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'andar': 'G4043', 'anda': 'G4043', 'andou': 'G4043', 'andando': 'G4043',
     'viver': 'G2198', 'vive': 'G2198', 'viveu': 'G2198', 'vivendo': 'G2198',
     'morrer': 'G599', 'morreu': 'G599', 'morre': 'G599', 'morrendo': 'G599',
-    'crer': 'G4100', 'crê': 'G4100', 'creu': 'G4100', 'crendo': 'G4100', 'creram': 'G4100',
+    'creu': 'G4100', 'crendo': 'G4100', 'creram': 'G4100',
     'orar': 'G4336', 'ora': 'G4336', 'orou': 'G4336', 'orando': 'G4336', 'oração': 'G4335',
     // Places and things
     'mundo': 'G2889', 'terra': 'G1093', 'céu': 'G3772', 'céus': 'G3772',
@@ -1998,7 +1998,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'testemunho': 'G3141', 'testemunha': 'G3144', 'testemunhas': 'G3144',
     'milagre': 'G4592', 'milagres': 'G4592', 'sinal': 'G4592', 'sinais': 'G4592',
     'parábola': 'G3850', 'parábolas': 'G3850', 'ensinamento': 'G1322',
-    'carne': 'G4561', 'fruto': 'G2590', 'frutos': 'G2590', 'semente': 'G4690',
+    'fruto': 'G2590', 'frutos': 'G2590', 'semente': 'G4690',
     // Additional verb forms and variations
     'entrou': 'G1525', 'entrar': 'G1525', 'entra': 'G1525', 'entrando': 'G1525',
     'saiu': 'G1831', 'sair': 'G1831', 'sai': 'G1831', 'saindo': 'G1831',
@@ -2053,7 +2053,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'cego': 'G5185', 'cegos': 'G5185', 'surdo': 'G2974', 'surdos': 'G2974',
     'mudo': 'G2974', 'mudos': 'G2974', 'leproso': 'G3015', 'leprosos': 'G3015',
     'paralítico': 'G3885', 'paralíticos': 'G3885', 'morto': 'G3498', 'mortos': 'G3498',
-    'pecador': 'G268', 'pecadores': 'G268', 'justo': 'G1342', 'justos': 'G1342',
+    'pecador': 'G268', 'pecadores': 'G268', 'justos': 'G1342',
     'publicano': 'G5057', 'publicanos': 'G5057', 'fariseu': 'G5330', 'fariseus': 'G5330',
     'escriba': 'G1122', 'escribas': 'G1122', 'saduceu': 'G4523', 'saduceus': 'G4523',
     'gentio': 'G1484', 'gentios': 'G1484', 'judeu': 'G2453', 'judeus': 'G2453',
@@ -2072,11 +2072,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'obras': 'G2041', 'obra': 'G2041', 'trabalho': 'G2041', 'trabalhos': 'G2041',
     'circuncisão': 'G4061', 'circuncidar': 'G4059', 'circuncidado': 'G4059', 'incircunciso': 'G564',
     'liberdade': 'G1657', 'livre': 'G1658', 'livres': 'G1658', 'libertar': 'G1659', 'libertado': 'G1659',
-    'escravidão': 'G1397', 'escravo': 'G1401', 'escravos': 'G1401',
+    'escravidão': 'G1397',
     
     // Spirit and flesh
     'espiritual': 'G4152', 'espirituais': 'G4152', 'carnal': 'G4559', 'carnais': 'G4559',
-    'carne': 'G4561', 'carnes': 'G4561', 'corpo': 'G4983', 'corpos': 'G4983',
+    'carnes': 'G4561', 'corpos': 'G4983',
     'membro': 'G3196', 'membros': 'G3196', 'santuário': 'G3485',
     
     // Gifts and ministry
@@ -2090,7 +2090,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'assembleia': 'G1577', 'congregação': 'G1577', 'reunião': 'G1997',
     'ancião': 'G4245', 'anciãos': 'G4245', 'presbítero': 'G4245', 'presbíteros': 'G4245',
     'bispo': 'G1985', 'bispos': 'G1985', 'diácono': 'G1249', 'diáconos': 'G1249',
-    'pastor': 'G4166', 'pastores': 'G4166', 'mestre': 'G1320', 'mestres': 'G1320',
+    'pastor': 'G4166', 'pastores': 'G4166', 'mestres': 'G1320',
     'evangelista': 'G2099', 'evangelistas': 'G2099', 'pregador': 'G2783',
     
     // Virtues (Galatians 5)
@@ -2119,15 +2119,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'mistério': 'G3466', 'mistérios': 'G3466', 'revelação': 'G602', 'revelar': 'G601',
     'plenitude': 'G4138', 'pleno': 'G4134', 'plena': 'G4134',
     'riqueza': 'G4149', 'riquezas': 'G4149', 'tesouro': 'G2344', 'tesouros': 'G2344',
-    'sabedoria': 'G4678', 'conhecimento': 'G1108', 'entendimento': 'G4907',
+    'conhecimento': 'G1108', 'entendimento': 'G4907',
     'principado': 'G746', 'principados': 'G746', 'potestade': 'G1849', 'potestades': 'G1849',
     
     // === HEBREWS VOCABULARY ===
     'sacerdote': 'G2409', 'sacerdotes': 'G2409', 'sumo': 'G749',
     'sacrifício': 'G2378', 'sacrifícios': 'G2378', 'oferta': 'G4376', 'ofertas': 'G4376',
-    'altar': 'G2379', 'propiciatório': 'G2435', 'santíssimo': 'G39',
+    'altar': 'G2379', 'santíssimo': 'G39',
     'mediador': 'G3316', 'fiador': 'G1450', 'intercessor': 'G1793',
-    'testamento': 'G1242', 'testamentos': 'G1242', 'novo': 'G2537', 'antigo': 'G3820',
+    'testamento': 'G1242', 'testamentos': 'G1242', 'antigo': 'G3820',
     'melquisedeque': 'G3198', 'arão': 'G2', 'levítico': 'G3020',
     'perfeição': 'G5050', 'perfeito': 'G5046', 'perfeita': 'G5046', 'perfeitos': 'G5046',
     'sombra': 'G4639', 'figura': 'G5179', 'tipo': 'G5179', 'tipos': 'G5179',
@@ -2136,7 +2136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // James
     'provação': 'G3986', 'provar': 'G3985', 'tentação': 'G3986', 'tentar': 'G3985',
     'perseverança': 'G5281', 'perseverar': 'G5278', 'perseverou': 'G5278',
-    'sabedoria': 'G4678', 'sábio': 'G4680', 'sábios': 'G4680',
+    'sábio': 'G4680', 'sábios': 'G4680',
     'rico': 'G4145', 'ricos': 'G4145', 'pobre': 'G4434', 'pobres': 'G4434',
     'humilde': 'G5011', 'humildes': 'G5011', 'humildade': 'G5012', 'humilhar': 'G5013',
     'soberba': 'G5243', 'soberbo': 'G5244', 'soberbos': 'G5244', 'orgulho': 'G5243',
@@ -2148,10 +2148,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'submissão': 'G5292', 'submeter': 'G5293', 'submisso': 'G5293',
     
     // 1 John
-    'comunhão': 'G2842', 'irmão': 'G80', 'irmãos': 'G80',
+    // 1 John (comunhão and irmão already defined above)
     'anticristo': 'G500', 'anticristos': 'G500', 'enganador': 'G4108', 'enganadores': 'G4108',
     'confissão': 'G3671', 'confessar': 'G3670', 'confessa': 'G3670', 'confessou': 'G3670',
-    'mandamento': 'G1785', 'mandamentos': 'G1785', 'guardar': 'G5083', 'guarda': 'G5083',
+    'guardar': 'G5083', 'guarda': 'G5083',
     
     // === REVELATION/APOCALYPSE VOCABULARY ===
     // Heavenly beings
@@ -2169,26 +2169,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Judgment imagery
     'selo': 'G4973', 'selos': 'G4973', 'taça': 'G5357', 'taças': 'G5357',
     'trombeta': 'G4536', 'trombetas': 'G4536', 'praga': 'G4127', 'pragas': 'G4127',
-    'ira': 'G3709', 'furor': 'G2372', 'lago': 'G3041', 'fogo': 'G4442',
-    'enxofre': 'G2303', 'abismo': 'G12', 'morte': 'G2288', 'hades': 'G86',
+    'lago': 'G3041', 'fogo': 'G4442',
+    'enxofre': 'G2303', 'hades': 'G86',
     
     // End times
     'vitória': 'G3529', 'vencer': 'G3528', 'vencedor': 'G3528', 'vencedores': 'G3528',
-    'mártir': 'G3144', 'mártires': 'G3144', 'testemunha': 'G3144', 'testemunhas': 'G3144',
+    'mártir': 'G3144', 'mártires': 'G3144',
     'tribulação': 'G2347', 'tribulações': 'G2347', 'aflição': 'G2347',
     'milênio': 'G5507', 'mil': 'G5507', 'anos': 'G2094',
     
     // New Jerusalem
-    'noiva': 'G3565', 'esposa': 'G1135', 'cidade': 'G4172', 'santa': 'G40',
-    'porta': 'G4439', 'portas': 'G4439', 'muro': 'G5038', 'muros': 'G5038',
+    'noiva': 'G3565', 'muro': 'G5038', 'muros': 'G5038',
     'fundamento': 'G2310', 'fundamentos': 'G2310', 'rua': 'G4113', 'ruas': 'G4113',
-    'rio': 'G4215', 'água': 'G5204', 'vida': 'G2222', 'árvore': 'G3586',
-    'folha': 'G5444', 'folhas': 'G5444', 'nação': 'G1484', 'nações': 'G1484',
+    'rio': 'G4215', 'árvore': 'G3586',
+    'folha': 'G5444', 'folhas': 'G5444',
     
     // Worship in Revelation
     'digno': 'G514', 'digna': 'G514', 'dignos': 'G514',
     'aleluia': 'G239', 'amém': 'G281', 'hosana': 'G5614',
-    'glória': 'G1391', 'honra': 'G5092', 'louvor': 'G133', 'poder': 'G1411',
+    'honra': 'G5092', 'louvor': 'G133',
     'bendito': 'G2128', 'bendita': 'G2128', 'bendizer': 'G2127',
   };
 
@@ -2196,7 +2195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const HEBREW_WORD_MAPPINGS: Record<string, string> = {
     // Core theological terms
     'deus': 'H430', 'senhor': 'H3068', 'jeová': 'H3068', 'yahweh': 'H3068',
-    'espírito': 'H7307', 'santo': 'H6918', 'pai': 'H1', 'filho': 'H1121',
+    'espírito': 'H7307', 'santo': 'H6918', 'pai': 'H1',
     'palavra': 'H1697', 'vida': 'H2416', 'amor': 'H160', 'amou': 'H157', 'amar': 'H157',
     'graça': 'H2580', 'verdade': 'H571', 'luz': 'H216', 'trevas': 'H2822',
     'salvação': 'H3444', 'salvador': 'H3467', 'pecado': 'H2403', 'pecados': 'H2403',
@@ -2207,7 +2206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'irmão': 'H251', 'irmãos': 'H251', 'povo': 'H5971', 'nação': 'H1471', 'nações': 'H1471',
     'profeta': 'H5030', 'profetas': 'H5030', 'rei': 'H4428', 'reis': 'H4428', 'reino': 'H4467',
     'filho': 'H1121', 'filhos': 'H1121', 'filha': 'H1323', 'filhas': 'H1323',
-    'servo': 'H5650', 'servos': 'H5650', 'escravo': 'H5650', 'senhor': 'H113',
+    'servo': 'H5650', 'servos': 'H5650', 'escravo': 'H5650', 'adon': 'H113', 'amo': 'H113',
     'sacerdote': 'H3548', 'sacerdotes': 'H3548', 'levita': 'H3881', 'levitas': 'H3881',
     // Common verbs
     'disse': 'H559', 'diz': 'H559', 'dizer': 'H559', 'dizendo': 'H559', 'dizem': 'H559',
@@ -2319,7 +2318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'inimigo': 'H341', 'inimigos': 'H341', 'adversário': 'H6862', 'adversários': 'H6862',
     'juiz': 'H8199', 'juízes': 'H8199', 'príncipe': 'H5387', 'príncipes': 'H5387',
     'capitão': 'H8269', 'capitães': 'H8269', 'exército': 'H6635', 'exércitos': 'H6635',
-    'guerreiro': 'H4421', 'guerreiros': 'H4421', 'soldado': 'H6635', 'soldados': 'H6635',
+    'guerreiro': 'H1368', 'guerreiros': 'H1368', 'soldado': 'H6635', 'soldados': 'H6635',
     'espada': 'H2719', 'espadas': 'H2719', 'lança': 'H2595', 'lanças': 'H2595',
     'escudo': 'H4043', 'escudos': 'H4043', 'arco': 'H7198', 'arcos': 'H7198',
     'flecha': 'H2671', 'flechas': 'H2671', 'armadura': 'H5402',
@@ -2347,14 +2346,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'glorificar': 'H3513', 'glorifica': 'H3513', 'glorificou': 'H3513', 'glorificado': 'H3513',
     
     // Wisdom vocabulary
-    'sabedoria': 'H2451', 'sábio': 'H2450', 'sábia': 'H2450', 'sábios': 'H2450',
+    'sábio': 'H2450', 'sábia': 'H2450', 'sábios': 'H2450',
     'entendimento': 'H998', 'entender': 'H995', 'entende': 'H995', 'entendeu': 'H995',
     'prudência': 'H6195', 'prudente': 'H6175', 'prudentes': 'H6175',
     'instrução': 'H4148', 'instruir': 'H3256', 'instrui': 'H3256', 'instruído': 'H3256',
     'conhecimento': 'H1847', 'conselho': 'H6098', 'conselhos': 'H6098',
     'disciplina': 'H4148', 'repreensão': 'H8433', 'correção': 'H4148',
     'insensato': 'H3684', 'insensatos': 'H3684', 'tolo': 'H191', 'tolos': 'H191',
-    'louco': 'H1984', 'loucos': 'H1984', 'simples': 'H6612',
+    'louco': 'H7696', 'loucos': 'H7696', 'simples': 'H6612',
     
     // Emotions and spiritual states  
     'alegria': 'H8057', 'alegre': 'H8056', 'alegrar': 'H8055', 'alegrou': 'H8055', 'alegrai': 'H8055',
@@ -2365,7 +2364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'angústia': 'H6869', 'aflição': 'H6040', 'afligido': 'H6041', 'afligidos': 'H6041',
     'temor': 'H3374', 'temer': 'H3372', 'teme': 'H3372', 'temeu': 'H3372', 'temendo': 'H3372',
     'medo': 'H6343', 'pavor': 'H6343', 'terror': 'H367',
-    'esperança': 'H8615', 'esperar': 'H3176', 'espera': 'H3176', 'esperou': 'H3176', 'esperando': 'H3176',
+    'esperar': 'H3176', 'espera': 'H3176', 'esperou': 'H3176', 'esperando': 'H3176',
     'confiança': 'H982', 'confiar': 'H982', 'confia': 'H982', 'confiou': 'H982', 'confiando': 'H982',
     'descanso': 'H4496', 'descansar': 'H5117', 'descansa': 'H5117', 'descansou': 'H5117',
     
@@ -2374,17 +2373,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'dor': 'H3511', 'dores': 'H3511', 'doloroso': 'H3510', 'dolorosa': 'H3510',
     'prova': 'H5254', 'provar': 'H5254', 'provado': 'H5254', 'provação': 'H5254',
     'paciência': 'H750', 'paciente': 'H750',
-    'justo': 'H6662', 'justa': 'H6662', 'justos': 'H6662', 'justas': 'H6662',
-    'justiça': 'H6664', 'retidão': 'H3476', 'reto': 'H3477', 'reta': 'H3477', 'retos': 'H3477',
+    'justa': 'H6662', 'justos': 'H6662', 'justas': 'H6662',
+    'retidão': 'H3476', 'reto': 'H3477', 'reta': 'H3477', 'retos': 'H3477',
     'íntegro': 'H8549', 'íntegra': 'H8549', 'integridade': 'H8537',
     'inocente': 'H5355', 'inocentes': 'H5355', 'inocência': 'H5356',
     'culpa': 'H817', 'culpado': 'H816', 'culpados': 'H816',
     'ímpio': 'H7563', 'ímpios': 'H7563', 'impiedade': 'H7562',
-    'pecado': 'H2403', 'pecados': 'H2403', 'pecar': 'H2398', 'pecou': 'H2398', 'pecador': 'H2400', 'pecadores': 'H2400',
+    'pecar': 'H2398', 'pecou': 'H2398', 'pecador': 'H2400', 'pecadores': 'H2400',
     'iniquidade': 'H5771', 'iniquidades': 'H5771', 'transgressão': 'H6588', 'transgressões': 'H6588',
     
     // Nature imagery in poetry
-    'rocha': 'H5553', 'penedo': 'H6697', 'refúgio': 'H4268', 'fortaleza': 'H4581',
+    'penedo': 'H6697', 'refúgio': 'H4268', 'fortaleza': 'H4581',
     'esconderijo': 'H5643', 'sombra': 'H6738', 'asas': 'H3671', 'asa': 'H3671',
     'pastor': 'H7462', 'pastores': 'H7462', 'apascentar': 'H7462', 'rebanho': 'H6629',
     'fonte': 'H4599', 'fontes': 'H4599', 'ribeiro': 'H5158', 'ribeiros': 'H5158',
@@ -2399,7 +2398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'profecia': 'H5016', 'profecias': 'H5016', 'profetizar': 'H5012', 'profetiza': 'H5012',
     'visão': 'H2377', 'visões': 'H2377', 'sonho': 'H2472', 'sonhos': 'H2472',
     'revelação': 'H1540', 'revelar': 'H1540', 'revelou': 'H1540', 'revelado': 'H1540',
-    'oráculo': 'H4853', 'oráculos': 'H4853', 'palavra': 'H1697', 'palavras': 'H1697',
+    'oráculo': 'H4853', 'oráculos': 'H4853', 'palavras': 'H1697',
     'mensagem': 'H1697', 'mensageiro': 'H4397', 'mensageiros': 'H4397',
     
     // Judgment vocabulary
@@ -2423,16 +2422,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     // Messianic vocabulary
     'messias': 'H4899', 'ungido': 'H4899', 'ungidos': 'H4899', 'ungir': 'H4886', 'ungiu': 'H4886',
-    'servo': 'H5650', 'servos': 'H5650', 'escravo': 'H5650', 'escravos': 'H5650',
+    'escravos': 'H5650',
     'remanescente': 'H7611', 'resto': 'H7611', 'sobrevivente': 'H6412', 'sobreviventes': 'H6412',
     'varão': 'H376', 'varões': 'H376', 'renovo': 'H6780',
     'raiz': 'H8328', 'raízes': 'H8328', 'tronco': 'H1503', 'ramo': 'H5342', 'ramos': 'H5342',
     
     // Covenant and faithfulness
-    'fidelidade': 'H530', 'fiel': 'H539', 'fiéis': 'H539',
-    'verdade': 'H571', 'verdadeiro': 'H571', 'verdadeira': 'H571',
-    'amor': 'H160', 'amou': 'H157', 'amar': 'H157', 'ama': 'H157', 'amado': 'H157', 'amada': 'H157',
-    'benignidade': 'H2617', 'clemência': 'H2617', 'graça': 'H2580',
+    'fiéis': 'H539',
+    'verdadeiro': 'H571', 'verdadeira': 'H571',
+    'amado': 'H157', 'amada': 'H157',
+    'benignidade': 'H2617', 'clemência': 'H2617',
     'favor': 'H2580', 'favorecer': 'H2603', 'favoreceu': 'H2603',
     'perdão': 'H5547', 'perdoar': 'H5545', 'perdoa': 'H5545', 'perdoou': 'H5545', 'perdoado': 'H5545',
     
@@ -2448,16 +2447,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'expiação': 'H3725', 'expiar': 'H3722', 'expiou': 'H3722',
     'purificação': 'H2893', 'purificar': 'H2891', 'purificou': 'H2891', 'purificado': 'H2891', 'puro': 'H2889', 'pura': 'H2889',
     'imundo': 'H2931', 'imunda': 'H2931', 'imundos': 'H2931', 'imundas': 'H2931', 'imundícia': 'H2932',
-    'santo': 'H6918', 'santa': 'H6918', 'santos': 'H6918', 'santas': 'H6918',
+    'santa': 'H6918', 'santos': 'H6918', 'santas': 'H6918',
     'santidade': 'H6944', 'santificar': 'H6942', 'santificou': 'H6942', 'santificado': 'H6942',
     'consagrar': 'H6942', 'consagrou': 'H6942', 'consagrado': 'H6942', 'consagração': 'H4394',
     
     // Eschatological terms
-    'fim': 'H7093', 'fins': 'H7093', 'último': 'H314', 'últimos': 'H314',
-    'dia': 'H3117', 'dias': 'H3117',
-    'juízo': 'H4941', 'tribunal': 'H4941',
+    'fim': 'H7093', 'fins': 'H7093', 'últimos': 'H314',
+    'tribunal': 'H4941',
     'ressurreição': 'H6965', 'ressuscitar': 'H6965', 'ressuscitou': 'H6965',
-    'vida': 'H2416', 'viver': 'H2421', 'vivente': 'H2416', 'viventes': 'H2416',
+    'vivente': 'H2416', 'viventes': 'H2416',
   };
 
   async function getStrongWordMapping(forGreek: boolean): Promise<Map<string, string>> {

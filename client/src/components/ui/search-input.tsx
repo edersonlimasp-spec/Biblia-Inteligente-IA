@@ -20,8 +20,8 @@ const SearchInput = forwardRef<HTMLTextAreaElement, SearchInputProps>(
     onKeyDown,
     showIcon = true, 
     iconPosition = "left",
-    minHeight = "44px",
-    maxHeight = "120px",
+    minHeight = "36px",
+    maxHeight = "100px",
     autoResize = true,
     singleLine = false,
     ...props 
@@ -85,7 +85,7 @@ const SearchInput = forwardRef<HTMLTextAreaElement, SearchInputProps>(
             "leading-relaxed tracking-normal",
             showIcon && iconPosition === "left" ? "pl-12 pr-4" : "px-4",
             showIcon && iconPosition === "right" ? "pr-12 pl-4" : "",
-            "py-3.5",
+            "py-2",
             className
           )}
           style={{

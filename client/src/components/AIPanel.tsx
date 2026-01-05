@@ -969,8 +969,8 @@ Conheça: https://bibliainteligente.replit.app`;
               onChange={(e) => setQuestion(e.target.value)}
               onSearch={handleAsk}
               showIcon={false}
-              minHeight="44px"
-              maxHeight="120px"
+              minHeight="36px"
+              maxHeight="80px"
               className="w-full"
               data-testid="input-ai-question"
             />

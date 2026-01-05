@@ -483,18 +483,20 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                     {strongData.number}
                   </p>
                 </div>
-                {strongData.aiGenerated && (
-                  <Badge variant="default" className="text-xs flex items-center gap-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0">
-                    <Sparkles className="w-3 h-3" />
-                    {language === "pt" ? "Gerado por IA" : "AI Generated"}
-                  </Badge>
-                )}
-                {isCached && !strongData.aiGenerated && (
-                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                    <Database className="w-3 h-3" />
-                    {language === "pt" ? "Offline" : "Cached"}
-                  </Badge>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {strongData.aiGenerated === true && (
+                    <Badge variant="default" className="text-xs flex items-center gap-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0">
+                      <Sparkles className="w-3 h-3" />
+                      {language === "pt" ? "Gerado por IA" : "AI Generated"}
+                    </Badge>
+                  )}
+                  {isCached && (
+                    <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                      <Database className="w-3 h-3" />
+                      {language === "pt" ? "Offline" : "Cached"}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
 

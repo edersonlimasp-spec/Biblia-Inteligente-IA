@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { z } from "zod";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
@@ -18,6 +19,18 @@ export interface AIGeneratedStrongEntry {
   language: 'hebrew' | 'greek';
   aiGenerated: true;
 }
+
+// Zod schema for validating OpenAI response
+const AIResponseSchema = z.object({
+  word: z.string().min(1, "Word is required"),
+  transliteration: z.string().default(""),
+  pronunciation: z.string().optional().default(""),
+  definition: z.string().min(5, "Definition must be at least 5 characters"),
+  portugueseDefinition: z.string().min(20, "Portuguese definition must be at least 20 characters"),
+  morphologicalInfo: z.string().default(""),
+  synonymsRelated: z.string().default(""),
+  verseReferences: z.string().default(""),
+});
 
 const STRONG_GENERATION_PROMPT = `Você é um especialista em línguas bíblicas (hebraico, aramaico e grego). Forneça uma explicação COMPLETA e DETALHADA para o número de Strong {{NUMERO}}.
 
@@ -78,18 +91,39 @@ export async function generateStrongDefinition(
       .replace(/```\n?/g, '')
       .trim();
 
-    const parsed = JSON.parse(cleanedContent);
+    let rawParsed: unknown;
+    try {
+      rawParsed = JSON.parse(cleanedContent);
+    } catch (jsonError) {
+      console.error("[Strong AI] Invalid JSON from OpenAI:", cleanedContent.substring(0, 200));
+      return null;
+    }
+
+    // Validate and sanitize with Zod
+    const parseResult = AIResponseSchema.safeParse(rawParsed);
+    if (!parseResult.success) {
+      console.error("[Strong AI] Validation failed:", parseResult.error.issues);
+      return null;
+    }
+
+    const validated = parseResult.data;
+
+    // Quality check: ensure Portuguese definition meets Almeida RA standards
+    if (validated.portugueseDefinition.length < 20) {
+      console.error("[Strong AI] Portuguese definition too short for quality standards");
+      return null;
+    }
 
     return {
       number: upperNumber,
-      word: parsed.word || '',
-      transliteration: parsed.transliteration || '',
-      pronunciation: parsed.pronunciation || '',
-      definition: parsed.definition || '',
-      portugueseDefinition: parsed.portugueseDefinition || '',
-      morphologicalInfo: parsed.morphologicalInfo || '',
-      synonymsRelated: parsed.synonymsRelated || '',
-      verseReferences: parsed.verseReferences || '',
+      word: validated.word,
+      transliteration: validated.transliteration,
+      pronunciation: validated.pronunciation || '',
+      definition: validated.definition,
+      portugueseDefinition: validated.portugueseDefinition,
+      morphologicalInfo: validated.morphologicalInfo || '',
+      synonymsRelated: validated.synonymsRelated || '',
+      verseReferences: validated.verseReferences || '',
       language,
       aiGenerated: true,
     };

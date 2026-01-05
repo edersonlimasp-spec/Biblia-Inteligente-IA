@@ -185,22 +185,35 @@ export function BibleReader({
   }, [language, getDefaultBibleVersion]);
 
   // Handler para mudança de versão com invalidação de cache
-  const handleVersionChange = (newVersion: string) => {
+  const handleVersionChange = async (newVersion: string) => {
     console.log(`[BIBLE] VERSION_CHANGE -> from=${selectedVersion} to=${newVersion} book=${selectedBook} chapter=${selectedChapter} ts=${Date.now()}`);
     
-    // Invalida TODOS os caches de capítulos para garantir refetch limpo
-    queryClient.invalidateQueries({ 
+    // Remove ALL cached chapter queries to force fresh fetch
+    queryClient.removeQueries({
       queryKey: ['/api/bible/chapter'],
-      refetchType: 'all'
     });
     
-    // Remove cache antigo explicitamente
+    // Clear query cache completely for this chapter with old version
     queryClient.removeQueries({
       queryKey: ['/api/bible/chapter', selectedBook, selectedChapter, selectedVersion]
     });
     
-    // Muda a versão - isso vai criar novo queryKey e forçar novo fetch
+    // Also clear new version cache in case of stale data
+    queryClient.removeQueries({
+      queryKey: ['/api/bible/chapter', selectedBook, selectedChapter, newVersion]
+    });
+    
+    // Update version state - React Query will create new query with new key
     setSelectedVersion(newVersion);
+    
+    // Force immediate refetch after state update
+    setTimeout(() => {
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/bible/chapter'],
+        refetchType: 'all'
+      });
+      console.log(`[BIBLE] REFETCH_FORCED -> version=${newVersion} ts=${Date.now()}`);
+    }, 50);
   };
 
   // Navigate to target verse from annotations/bookmarks page
@@ -250,12 +263,29 @@ export function BibleReader({
     retry: false,
     staleTime: 0, // Always refetch when version changes
     gcTime: 0, // Disable garbage collection to prevent stale cache
+    refetchOnMount: 'always', // Force refetch on mount
+    networkMode: 'always', // Always try network first
     queryFn: async ({ queryKey }) => {
       // Extract version from queryKey to ensure we fetch the correct version
       const [, book, chapter, version] = queryKey as [string, string, number, string];
       const url = `/api/bible/${book}/${chapter}?version=${encodeURIComponent(version)}&_t=${Date.now()}`;
       console.log(`[BIBLE] FETCHING -> url=${url} queryKey=[${queryKey.join(', ')}] ts=${Date.now()}`);
-      const response = await apiRequest('GET', url);
+      
+      // Use fetch directly with cache: 'no-store' to bypass browser cache entirely
+      const token = localStorage.getItem('authToken');
+      const deviceId = getDeviceId();
+      const headers: Record<string, string> = { 'Cache-Control': 'no-cache, no-store' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (deviceId) headers['x-device-id'] = deviceId;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers,
+        credentials: 'include',
+        cache: 'no-store', // CRITICAL: Bypass browser cache completely
+      });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       console.log(`[BIBLE] RESPONSE -> version=${data.version} requestedVersion=${data.requestedVersion} verse1="${data.chapter?.verses?.[0]?.text?.substring(0, 40)}..."`);
       return data;

@@ -2058,6 +2058,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'escriba': 'G1122', 'escribas': 'G1122', 'saduceu': 'G4523', 'saduceus': 'G4523',
     'gentio': 'G1484', 'gentios': 'G1484', 'judeu': 'G2453', 'judeus': 'G2453',
     'grego': 'G1672', 'gregos': 'G1672', 'romano': 'G4514', 'romanos': 'G4514',
+    
+    // === PAULINE EPISTLES VOCABULARY (Romans, Corinthians, Galatians, etc.) ===
+    // Justification and salvation
+    'justificação': 'G1347', 'justificar': 'G1344', 'justifica': 'G1344', 'justificado': 'G1344', 'justificados': 'G1344',
+    'redenção': 'G629', 'redentor': 'G3086', 'redimir': 'G1805', 'redimido': 'G1805', 'redimidos': 'G1805',
+    'reconciliação': 'G2643', 'reconciliar': 'G2644', 'reconciliado': 'G2644',
+    'propiciação': 'G2435', 'expiação': 'G2435', 'propiciatório': 'G2435',
+    'santificação': 'G38', 'santificar': 'G37', 'santificado': 'G37', 'santificados': 'G37',
+    'adoção': 'G5206', 'herdeiro': 'G2818', 'herdeiros': 'G2818', 'herança': 'G2817',
+    
+    // Grace and law
+    'obras': 'G2041', 'obra': 'G2041', 'trabalho': 'G2041', 'trabalhos': 'G2041',
+    'circuncisão': 'G4061', 'circuncidar': 'G4059', 'circuncidado': 'G4059', 'incircunciso': 'G564',
+    'liberdade': 'G1657', 'livre': 'G1658', 'livres': 'G1658', 'libertar': 'G1659', 'libertado': 'G1659',
+    'escravidão': 'G1397', 'escravo': 'G1401', 'escravos': 'G1401',
+    
+    // Spirit and flesh
+    'espiritual': 'G4152', 'espirituais': 'G4152', 'carnal': 'G4559', 'carnais': 'G4559',
+    'carne': 'G4561', 'carnes': 'G4561', 'corpo': 'G4983', 'corpos': 'G4983',
+    'membro': 'G3196', 'membros': 'G3196', 'santuário': 'G3485',
+    
+    // Gifts and ministry
+    'dom': 'G5486', 'dons': 'G5486', 'carisma': 'G5486', 'carismas': 'G5486',
+    'ministério': 'G1248', 'ministrar': 'G1247', 'ministro': 'G1249', 'ministros': 'G1249',
+    'edificação': 'G3619', 'edificar': 'G3618', 'edifica': 'G3618', 'edificado': 'G3618',
+    'profecia': 'G4394', 'profetizar': 'G4395', 'profetiza': 'G4395',
+    'língua': 'G1100', 'línguas': 'G1100', 'interpretação': 'G2058', 'interpretar': 'G2059',
+    
+    // Church life
+    'assembleia': 'G1577', 'congregação': 'G1577', 'reunião': 'G1997',
+    'ancião': 'G4245', 'anciãos': 'G4245', 'presbítero': 'G4245', 'presbíteros': 'G4245',
+    'bispo': 'G1985', 'bispos': 'G1985', 'diácono': 'G1249', 'diáconos': 'G1249',
+    'pastor': 'G4166', 'pastores': 'G4166', 'mestre': 'G1320', 'mestres': 'G1320',
+    'evangelista': 'G2099', 'evangelistas': 'G2099', 'pregador': 'G2783',
+    
+    // Virtues (Galatians 5)
+    'paciência': 'G3115', 'longanimidade': 'G3115', 'paciente': 'G3116',
+    'bondade': 'G19', 'benignidade': 'G5544', 'mansidão': 'G4236', 'manso': 'G4239',
+    'temperança': 'G1466', 'domínio': 'G1466', 'autocontrole': 'G1466',
+    'fidelidade': 'G4102', 'fiel': 'G4103', 'fiéis': 'G4103',
+    'alegria': 'G5479', 'alegre': 'G5463', 'alegrar': 'G5463', 'alegrai': 'G5463',
+    'gozo': 'G5479', 'regozijo': 'G5479', 'regozijar': 'G5463',
+    'paz': 'G1515', 'pacífico': 'G1516', 'pacificador': 'G1518',
+    
+    // Vices and sins
+    'concupiscência': 'G1939', 'cobiça': 'G4124', 'cobiçar': 'G1937', 'avareza': 'G4124',
+    'fornicação': 'G4202', 'adultério': 'G3430', 'impureza': 'G167', 'lascívia': 'G766',
+    'idolatria': 'G1495', 'ídolo': 'G1497', 'ídolos': 'G1497', 'idólatra': 'G1496',
+    'feitiçaria': 'G5331', 'inimizade': 'G2189', 'contenda': 'G2054', 'ciúme': 'G2205',
+    'ira': 'G2372', 'discórdia': 'G2052', 'divisão': 'G1370', 'heresia': 'G139',
+    'inveja': 'G5355', 'homicídio': 'G5408', 'embriaguez': 'G3178', 'glutonaria': 'G2970',
+    
+    // Armor of God (Ephesians 6)
+    'armadura': 'G3833', 'cinto': 'G2223', 'couraça': 'G2382',
+    'calçado': 'G5266', 'sandália': 'G5266', 'escudo': 'G2375',
+    'capacete': 'G4030', 'espada': 'G3162',
+    
+    // Colossians/Ephesians themes
+    'mistério': 'G3466', 'mistérios': 'G3466', 'revelação': 'G602', 'revelar': 'G601',
+    'plenitude': 'G4138', 'pleno': 'G4134', 'plena': 'G4134',
+    'riqueza': 'G4149', 'riquezas': 'G4149', 'tesouro': 'G2344', 'tesouros': 'G2344',
+    'sabedoria': 'G4678', 'conhecimento': 'G1108', 'entendimento': 'G4907',
+    'principado': 'G746', 'principados': 'G746', 'potestade': 'G1849', 'potestades': 'G1849',
+    
+    // === HEBREWS VOCABULARY ===
+    'sacerdote': 'G2409', 'sacerdotes': 'G2409', 'sumo': 'G749',
+    'sacrifício': 'G2378', 'sacrifícios': 'G2378', 'oferta': 'G4376', 'ofertas': 'G4376',
+    'altar': 'G2379', 'propiciatório': 'G2435', 'santíssimo': 'G39',
+    'mediador': 'G3316', 'fiador': 'G1450', 'intercessor': 'G1793',
+    'testamento': 'G1242', 'testamentos': 'G1242', 'novo': 'G2537', 'antigo': 'G3820',
+    'melquisedeque': 'G3198', 'arão': 'G2', 'levítico': 'G3020',
+    'perfeição': 'G5050', 'perfeito': 'G5046', 'perfeita': 'G5046', 'perfeitos': 'G5046',
+    'sombra': 'G4639', 'figura': 'G5179', 'tipo': 'G5179', 'tipos': 'G5179',
+    
+    // === GENERAL EPISTLES VOCABULARY (James, Peter, John, Jude) ===
+    // James
+    'provação': 'G3986', 'provar': 'G3985', 'tentação': 'G3986', 'tentar': 'G3985',
+    'perseverança': 'G5281', 'perseverar': 'G5278', 'perseverou': 'G5278',
+    'sabedoria': 'G4678', 'sábio': 'G4680', 'sábios': 'G4680',
+    'rico': 'G4145', 'ricos': 'G4145', 'pobre': 'G4434', 'pobres': 'G4434',
+    'humilde': 'G5011', 'humildes': 'G5011', 'humildade': 'G5012', 'humilhar': 'G5013',
+    'soberba': 'G5243', 'soberbo': 'G5244', 'soberbos': 'G5244', 'orgulho': 'G5243',
+    
+    // 1 Peter
+    'eleito': 'G1588', 'eleitos': 'G1588', 'eleição': 'G1589',
+    'estrangeiro': 'G3927', 'estrangeiros': 'G3927', 'peregrino': 'G3927', 'peregrinos': 'G3927',
+    'sofrer': 'G3958', 'sofre': 'G3958', 'sofreu': 'G3958', 'sofrimento': 'G3804', 'sofrimentos': 'G3804',
+    'submissão': 'G5292', 'submeter': 'G5293', 'submisso': 'G5293',
+    
+    // 1 John
+    'comunhão': 'G2842', 'irmão': 'G80', 'irmãos': 'G80',
+    'anticristo': 'G500', 'anticristos': 'G500', 'enganador': 'G4108', 'enganadores': 'G4108',
+    'confissão': 'G3671', 'confessar': 'G3670', 'confessa': 'G3670', 'confessou': 'G3670',
+    'mandamento': 'G1785', 'mandamentos': 'G1785', 'guardar': 'G5083', 'guarda': 'G5083',
+    
+    // === REVELATION/APOCALYPSE VOCABULARY ===
+    // Heavenly beings
+    'cordeiro': 'G721', 'leão': 'G3023', 'dragão': 'G1404', 'serpente': 'G3789',
+    'besta': 'G2342', 'bestas': 'G2342', 'fera': 'G2342', 'feras': 'G2342',
+    'querubim': 'G5502', 'serafim': 'G4587',
+    
+    // Heavenly imagery
+    'trono': 'G2362', 'tronos': 'G2362', 'coroa': 'G4735', 'coroas': 'G4735',
+    'veste': 'G4749', 'vestes': 'G4749', 'branco': 'G3022', 'branca': 'G3022', 'brancos': 'G3022',
+    'ouro': 'G5553', 'dourado': 'G5552', 'pedra': 'G3037', 'pedras': 'G3037',
+    'jaspe': 'G2393', 'sardônio': 'G4556', 'esmeralda': 'G4665', 'safira': 'G4552',
+    'arco-íris': 'G2463', 'mar': 'G2281', 'cristal': 'G2930',
+    
+    // Judgment imagery
+    'selo': 'G4973', 'selos': 'G4973', 'taça': 'G5357', 'taças': 'G5357',
+    'trombeta': 'G4536', 'trombetas': 'G4536', 'praga': 'G4127', 'pragas': 'G4127',
+    'ira': 'G3709', 'furor': 'G2372', 'lago': 'G3041', 'fogo': 'G4442',
+    'enxofre': 'G2303', 'abismo': 'G12', 'morte': 'G2288', 'hades': 'G86',
+    
+    // End times
+    'vitória': 'G3529', 'vencer': 'G3528', 'vencedor': 'G3528', 'vencedores': 'G3528',
+    'mártir': 'G3144', 'mártires': 'G3144', 'testemunha': 'G3144', 'testemunhas': 'G3144',
+    'tribulação': 'G2347', 'tribulações': 'G2347', 'aflição': 'G2347',
+    'milênio': 'G5507', 'mil': 'G5507', 'anos': 'G2094',
+    
+    // New Jerusalem
+    'noiva': 'G3565', 'esposa': 'G1135', 'cidade': 'G4172', 'santa': 'G40',
+    'porta': 'G4439', 'portas': 'G4439', 'muro': 'G5038', 'muros': 'G5038',
+    'fundamento': 'G2310', 'fundamentos': 'G2310', 'rua': 'G4113', 'ruas': 'G4113',
+    'rio': 'G4215', 'água': 'G5204', 'vida': 'G2222', 'árvore': 'G3586',
+    'folha': 'G5444', 'folhas': 'G5444', 'nação': 'G1484', 'nações': 'G1484',
+    
+    // Worship in Revelation
+    'digno': 'G514', 'digna': 'G514', 'dignos': 'G514',
+    'aleluia': 'G239', 'amém': 'G281', 'hosana': 'G5614',
+    'glória': 'G1391', 'honra': 'G5092', 'louvor': 'G133', 'poder': 'G1411',
+    'bendito': 'G2128', 'bendita': 'G2128', 'bendizer': 'G2127',
   };
 
   // COMPREHENSIVE Portuguese word mappings for HEBREW (Old Testament)
@@ -2200,6 +2332,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'pedra': 'H68', 'pedras': 'H68', 'rocha': 'H5553', 'rochas': 'H5553',
     'arca': 'H727', 'tenda': 'H168', 'tabernáculo': 'H4908', 'santuário': 'H4720',
     'vestes': 'H899', 'vestido': 'H899', 'manto': 'H4598', 'coroa': 'H5850',
+    
+    // === POETIC BOOKS VOCABULARY (Psalms, Proverbs, Job) ===
+    // Praise and worship
+    'louvor': 'H8416', 'louvores': 'H8416', 'louvar': 'H1984', 'louvai': 'H1984', 'louvado': 'H1984',
+    'aleluia': 'H1984', 'hosana': 'H3467', 'cântico': 'H7892', 'cânticos': 'H7892',
+    'salmo': 'H4210', 'salmos': 'H4210', 'harpa': 'H3658', 'harpas': 'H3658',
+    'lira': 'H3658', 'címbalo': 'H6767', 'címbalos': 'H6767', 'trombeta': 'H7782', 'trombetas': 'H7782',
+    'adorar': 'H7812', 'adora': 'H7812', 'adorou': 'H7812', 'adoração': 'H7812',
+    'prostrar': 'H7812', 'prostrou': 'H7812', 'prostra': 'H7812',
+    'cantar': 'H7891', 'canta': 'H7891', 'cantou': 'H7891', 'cantando': 'H7891', 'cantai': 'H7891',
+    'exaltar': 'H7311', 'exalta': 'H7311', 'exaltou': 'H7311', 'exaltado': 'H7311', 'exaltai': 'H7311',
+    'bendizer': 'H1288', 'bendiz': 'H1288', 'bendisse': 'H1288', 'bendito': 'H1288', 'bendita': 'H1288',
+    'glorificar': 'H3513', 'glorifica': 'H3513', 'glorificou': 'H3513', 'glorificado': 'H3513',
+    
+    // Wisdom vocabulary
+    'sabedoria': 'H2451', 'sábio': 'H2450', 'sábia': 'H2450', 'sábios': 'H2450',
+    'entendimento': 'H998', 'entender': 'H995', 'entende': 'H995', 'entendeu': 'H995',
+    'prudência': 'H6195', 'prudente': 'H6175', 'prudentes': 'H6175',
+    'instrução': 'H4148', 'instruir': 'H3256', 'instrui': 'H3256', 'instruído': 'H3256',
+    'conhecimento': 'H1847', 'conselho': 'H6098', 'conselhos': 'H6098',
+    'disciplina': 'H4148', 'repreensão': 'H8433', 'correção': 'H4148',
+    'insensato': 'H3684', 'insensatos': 'H3684', 'tolo': 'H191', 'tolos': 'H191',
+    'louco': 'H1984', 'loucos': 'H1984', 'simples': 'H6612',
+    
+    // Emotions and spiritual states  
+    'alegria': 'H8057', 'alegre': 'H8056', 'alegrar': 'H8055', 'alegrou': 'H8055', 'alegrai': 'H8055',
+    'gozo': 'H1524', 'gozar': 'H1523', 'regozijo': 'H7797', 'regozijar': 'H7797',
+    'júbilo': 'H7440', 'júbilos': 'H7440', 'exultar': 'H5937', 'exulta': 'H5937',
+    'tristeza': 'H6089', 'triste': 'H6087', 'lamento': 'H5092', 'lamentar': 'H5091',
+    'choro': 'H1065', 'chorar': 'H1058', 'chora': 'H1058', 'chorou': 'H1058', 'lágrima': 'H1832', 'lágrimas': 'H1832',
+    'angústia': 'H6869', 'aflição': 'H6040', 'afligido': 'H6041', 'afligidos': 'H6041',
+    'temor': 'H3374', 'temer': 'H3372', 'teme': 'H3372', 'temeu': 'H3372', 'temendo': 'H3372',
+    'medo': 'H6343', 'pavor': 'H6343', 'terror': 'H367',
+    'esperança': 'H8615', 'esperar': 'H3176', 'espera': 'H3176', 'esperou': 'H3176', 'esperando': 'H3176',
+    'confiança': 'H982', 'confiar': 'H982', 'confia': 'H982', 'confiou': 'H982', 'confiando': 'H982',
+    'descanso': 'H4496', 'descansar': 'H5117', 'descansa': 'H5117', 'descansou': 'H5117',
+    
+    // Job vocabulary
+    'sofrimento': 'H6040', 'sofrer': 'H6031', 'sofre': 'H6031', 'sofreu': 'H6031',
+    'dor': 'H3511', 'dores': 'H3511', 'doloroso': 'H3510', 'dolorosa': 'H3510',
+    'prova': 'H5254', 'provar': 'H5254', 'provado': 'H5254', 'provação': 'H5254',
+    'paciência': 'H750', 'paciente': 'H750',
+    'justo': 'H6662', 'justa': 'H6662', 'justos': 'H6662', 'justas': 'H6662',
+    'justiça': 'H6664', 'retidão': 'H3476', 'reto': 'H3477', 'reta': 'H3477', 'retos': 'H3477',
+    'íntegro': 'H8549', 'íntegra': 'H8549', 'integridade': 'H8537',
+    'inocente': 'H5355', 'inocentes': 'H5355', 'inocência': 'H5356',
+    'culpa': 'H817', 'culpado': 'H816', 'culpados': 'H816',
+    'ímpio': 'H7563', 'ímpios': 'H7563', 'impiedade': 'H7562',
+    'pecado': 'H2403', 'pecados': 'H2403', 'pecar': 'H2398', 'pecou': 'H2398', 'pecador': 'H2400', 'pecadores': 'H2400',
+    'iniquidade': 'H5771', 'iniquidades': 'H5771', 'transgressão': 'H6588', 'transgressões': 'H6588',
+    
+    // Nature imagery in poetry
+    'rocha': 'H5553', 'penedo': 'H6697', 'refúgio': 'H4268', 'fortaleza': 'H4581',
+    'esconderijo': 'H5643', 'sombra': 'H6738', 'asas': 'H3671', 'asa': 'H3671',
+    'pastor': 'H7462', 'pastores': 'H7462', 'apascentar': 'H7462', 'rebanho': 'H6629',
+    'fonte': 'H4599', 'fontes': 'H4599', 'ribeiro': 'H5158', 'ribeiros': 'H5158',
+    'vale': 'H6010', 'vales': 'H6010', 'colina': 'H1389', 'colinas': 'H1389',
+    'floresta': 'H3293', 'bosque': 'H3293', 'oliveira': 'H2132', 'oliveiras': 'H2132',
+    'palmeira': 'H8558', 'cedro': 'H730', 'cedros': 'H730', 'cipreste': 'H1265',
+    'lírio': 'H7799', 'lírios': 'H7799', 'rosa': 'H2261', 'rosas': 'H2261',
+    'vinha': 'H3754', 'vinhas': 'H3754', 'uva': 'H6025', 'uvas': 'H6025',
+    
+    // === PROPHETIC VOCABULARY (Isaiah, Jeremiah, Ezekiel, Minor Prophets) ===
+    // Prophetic terms
+    'profecia': 'H5016', 'profecias': 'H5016', 'profetizar': 'H5012', 'profetiza': 'H5012',
+    'visão': 'H2377', 'visões': 'H2377', 'sonho': 'H2472', 'sonhos': 'H2472',
+    'revelação': 'H1540', 'revelar': 'H1540', 'revelou': 'H1540', 'revelado': 'H1540',
+    'oráculo': 'H4853', 'oráculos': 'H4853', 'palavra': 'H1697', 'palavras': 'H1697',
+    'mensagem': 'H1697', 'mensageiro': 'H4397', 'mensageiros': 'H4397',
+    
+    // Judgment vocabulary
+    'julgamento': 'H4941', 'ira': 'H639', 'furor': 'H2534', 'indignação': 'H2195',
+    'castigo': 'H6066', 'castigar': 'H3256', 'castigou': 'H3256', 'castigado': 'H3256',
+    'punição': 'H6066', 'punir': 'H6485', 'puniu': 'H6485',
+    'destruição': 'H7701', 'destruir': 'H7843', 'destruiu': 'H7843', 'destruído': 'H7843',
+    'assolação': 'H8047', 'assolar': 'H8074', 'assolou': 'H8074', 'assolado': 'H8074',
+    'ruína': 'H7612', 'ruínas': 'H7612', 'cair': 'H5307', 'caiu': 'H5307', 'queda': 'H5307',
+    'cativeiro': 'H7628', 'cativo': 'H7628', 'cativos': 'H7628', 'exílio': 'H1473',
+    'deportação': 'H1546', 'deportar': 'H1540', 'deportado': 'H1540', 'deportados': 'H1540',
+    
+    // Restoration vocabulary
+    'restauração': 'H7725', 'restaurar': 'H7725', 'restaurou': 'H7725', 'restaurado': 'H7725',
+    'redenção': 'H1353', 'redentor': 'H1350', 'redimir': 'H1350', 'redimiu': 'H1350', 'redimido': 'H1350',
+    'resgate': 'H6306', 'resgatar': 'H6299', 'resgatou': 'H6299', 'resgatado': 'H6299',
+    'consolar': 'H5162', 'consola': 'H5162', 'consolou': 'H5162', 'consolação': 'H5165', 'consolado': 'H5162',
+    'renovar': 'H2318', 'renova': 'H2318', 'renovado': 'H2318', 'renovação': 'H2318',
+    'curar': 'H7495', 'cura': 'H7495', 'curou': 'H7495', 'curado': 'H7495', 'curas': 'H7495',
+    'sarar': 'H7495', 'sara': 'H7495', 'sarou': 'H7495', 'sarado': 'H7495',
+    
+    // Messianic vocabulary
+    'messias': 'H4899', 'ungido': 'H4899', 'ungidos': 'H4899', 'ungir': 'H4886', 'ungiu': 'H4886',
+    'servo': 'H5650', 'servos': 'H5650', 'escravo': 'H5650', 'escravos': 'H5650',
+    'remanescente': 'H7611', 'resto': 'H7611', 'sobrevivente': 'H6412', 'sobreviventes': 'H6412',
+    'varão': 'H376', 'varões': 'H376', 'renovo': 'H6780',
+    'raiz': 'H8328', 'raízes': 'H8328', 'tronco': 'H1503', 'ramo': 'H5342', 'ramos': 'H5342',
+    
+    // Covenant and faithfulness
+    'fidelidade': 'H530', 'fiel': 'H539', 'fiéis': 'H539',
+    'verdade': 'H571', 'verdadeiro': 'H571', 'verdadeira': 'H571',
+    'amor': 'H160', 'amou': 'H157', 'amar': 'H157', 'ama': 'H157', 'amado': 'H157', 'amada': 'H157',
+    'benignidade': 'H2617', 'clemência': 'H2617', 'graça': 'H2580',
+    'favor': 'H2580', 'favorecer': 'H2603', 'favoreceu': 'H2603',
+    'perdão': 'H5547', 'perdoar': 'H5545', 'perdoa': 'H5545', 'perdoou': 'H5545', 'perdoado': 'H5545',
+    
+    // Nations and peoples
+    'gentio': 'H1471', 'gentios': 'H1471', 'pagão': 'H1471', 'pagãos': 'H1471',
+    'estrangeiro': 'H5236', 'estrangeiros': 'H5236', 'forasteiro': 'H1616', 'forasteiros': 'H1616',
+    'peregrino': 'H1616', 'peregrinos': 'H1616',
+    'babilônia': 'H894', 'assíria': 'H804', 'assírios': 'H804',
+    'edom': 'H123', 'moabe': 'H4124', 'amom': 'H5983', 'filisteus': 'H6430',
+    
+    // Temple and worship
+    'incenso': 'H7004', 'holocausto': 'H5930', 'holocaustos': 'H5930',
+    'expiação': 'H3725', 'expiar': 'H3722', 'expiou': 'H3722',
+    'purificação': 'H2893', 'purificar': 'H2891', 'purificou': 'H2891', 'purificado': 'H2891', 'puro': 'H2889', 'pura': 'H2889',
+    'imundo': 'H2931', 'imunda': 'H2931', 'imundos': 'H2931', 'imundas': 'H2931', 'imundícia': 'H2932',
+    'santo': 'H6918', 'santa': 'H6918', 'santos': 'H6918', 'santas': 'H6918',
+    'santidade': 'H6944', 'santificar': 'H6942', 'santificou': 'H6942', 'santificado': 'H6942',
+    'consagrar': 'H6942', 'consagrou': 'H6942', 'consagrado': 'H6942', 'consagração': 'H4394',
+    
+    // Eschatological terms
+    'fim': 'H7093', 'fins': 'H7093', 'último': 'H314', 'últimos': 'H314',
+    'dia': 'H3117', 'dias': 'H3117',
+    'juízo': 'H4941', 'tribunal': 'H4941',
+    'ressurreição': 'H6965', 'ressuscitar': 'H6965', 'ressuscitou': 'H6965',
+    'vida': 'H2416', 'viver': 'H2421', 'vivente': 'H2416', 'viventes': 'H2416',
   };
 
   async function getStrongWordMapping(forGreek: boolean): Promise<Map<string, string>> {

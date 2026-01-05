@@ -433,12 +433,12 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
         </DialogDescription>
         <DialogClose asChild>
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="icon" 
-            className="absolute right-2 top-2 z-50 h-8 w-8"
+            className="absolute right-3 top-3 z-50"
             data-testid="button-close-strong"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </Button>
         </DialogClose>
         

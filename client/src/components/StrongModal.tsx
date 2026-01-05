@@ -101,7 +101,11 @@ interface StrongEntry {
   kjvDefinition?: string | null;
   derivation?: string | null;
   extendedDefinition?: string | null;
+  morphologicalInfo?: string | null;
+  synonymsRelated?: string | null;
+  verseReferences?: string | null;
   language: string;
+  aiGenerated?: boolean;
 }
 
 const LANGUAGE_LABELS: Record<AppLanguage, { definition: string; fallback: string }> = {
@@ -479,7 +483,13 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                     {strongData.number}
                   </p>
                 </div>
-                {isCached && (
+                {strongData.aiGenerated && (
+                  <Badge variant="default" className="text-xs flex items-center gap-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0">
+                    <Sparkles className="w-3 h-3" />
+                    {language === "pt" ? "Gerado por IA" : "AI Generated"}
+                  </Badge>
+                )}
+                {isCached && !strongData.aiGenerated && (
                   <Badge variant="secondary" className="text-xs flex items-center gap-1">
                     <Database className="w-3 h-3" />
                     {language === "pt" ? "Offline" : "Cached"}
@@ -559,6 +569,63 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                   </p>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                     {strongData.derivation}
+                  </p>
+                </div>
+              )}
+
+              {/* Morphological Information (AI-generated) */}
+              {strongData.morphologicalInfo && (
+                <div className="bg-card border border-border rounded p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      {language === "pt" ? "Análise Morfológica" : language === "es" ? "Análisis Morfológico" : "Morphological Analysis"}
+                    </p>
+                    {strongData.aiGenerated && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0">
+                        <Sparkles className="w-2 h-2 mr-0.5" />IA
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {strongData.morphologicalInfo}
+                  </p>
+                </div>
+              )}
+
+              {/* Synonyms and Related Terms (AI-generated) */}
+              {strongData.synonymsRelated && (
+                <div className="bg-card border border-border rounded p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      {language === "pt" ? "Sinônimos e Termos Relacionados" : language === "es" ? "Sinónimos y Términos Relacionados" : "Synonyms & Related Terms"}
+                    </p>
+                    {strongData.aiGenerated && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0">
+                        <Sparkles className="w-2 h-2 mr-0.5" />IA
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {strongData.synonymsRelated}
+                  </p>
+                </div>
+              )}
+
+              {/* Key Verse References (AI-generated) */}
+              {strongData.verseReferences && (
+                <div className="bg-card border border-border rounded p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      {language === "pt" ? "Versículos Principais" : language === "es" ? "Versículos Principales" : "Key Verses"}
+                    </p>
+                    {strongData.aiGenerated && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0">
+                        <Sparkles className="w-2 h-2 mr-0.5" />IA
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {strongData.verseReferences}
                   </p>
                 </div>
               )}

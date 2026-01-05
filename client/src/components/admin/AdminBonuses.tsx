@@ -151,10 +151,10 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
   };
 
   const bonusTypeLabels: Record<string, string> = {
-    trial_extend: "Estender Trial",
+    trial_extend: "Estender Acesso",
     gold_free: "Gold Gratuito",
     premium_free: "Premium Gratuito",
-    lifetime_grant: "Lifetime Grant",
+    lifetime_grant: "Acesso Vitalício",
   };
 
   const getExpiryBadge = (daysRemaining: number | null, isActive: boolean) => {
@@ -364,10 +364,10 @@ export function AdminBonuses({ isSuperAdmin }: AdminBonusesProps) {
                 className="w-full border rounded-md px-3 py-2 text-sm bg-background text-foreground"
                 data-testid="select-bonus-type"
               >
-                <option value="trial_extend">Estender Trial (dias)</option>
+                <option value="trial_extend">Estender Acesso (dias)</option>
                 <option value="gold_free">Gold Gratuito (período)</option>
                 <option value="premium_free">Premium Gratuito (período)</option>
-                <option value="lifetime_grant">Lifetime Strong (Vitalício)</option>
+                <option value="lifetime_grant">Acesso Vitalício</option>
               </select>
             </div>
 

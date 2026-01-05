@@ -184,9 +184,9 @@ export function AdminDashboard() {
         />
         <StatCard 
           icon={Zap} 
-          label="Trials Ativos" 
+          label="Plano Gratuito" 
           value={stats?.activeTrials || 0}
-          subtext="30 dias"
+          subtext="Usuários ativos"
         />
         <StatCard 
           icon={CreditCard} 
@@ -250,10 +250,10 @@ export function AdminDashboard() {
                 <div className="p-4 bg-accent/30 rounded-lg">
                   <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Trials Ativos</p>
+                    <p className="text-sm text-muted-foreground">Plano Gratuito</p>
                   </div>
                   <p className="text-2xl font-semibold">{stats?.activeGuestTrials || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Período de teste</p>
+                  <p className="text-xs text-muted-foreground mt-1">Visitantes ativos</p>
                 </div>
                 <div className="p-4 bg-accent/30 rounded-lg">
                   <div className="flex items-center gap-2">

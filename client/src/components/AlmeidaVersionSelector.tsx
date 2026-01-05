@@ -50,11 +50,9 @@ export function AlmeidaVersionSelector({
   const spanishVersions = availableVersions.filter(v => v.language === 'es');
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
     const value = e.target.value;
     console.log(`[BIBLE] VERSION_SELECTED -> translationId=${value} from=${selectedVersion} ts=${Date.now()}`);
-    if (value && value !== selectedVersion) {
+    if (value) {
       onVersionChange(value);
     }
   };

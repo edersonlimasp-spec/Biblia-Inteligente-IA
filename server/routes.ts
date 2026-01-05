@@ -24,6 +24,7 @@ import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
 import { STRONG_DATA } from "./strong-data-embedded";
 import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTranslation, getDefaultTranslation } from "./bible/translations";
 import iapRoutes from "./payments/iap-routes";
+import { generateStrongDefinition, isEntryIncomplete } from "./services/strong-ai-generator";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -2490,11 +2491,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const elapsed = Date.now() - startTime;
       console.log(`[Strong API] DB query for ${upperNumber}: ${elapsed}ms`);
       
-      if (!entry) {
-        return res.status(404).json({ 
-          error: "Entrada não encontrada",
-          message: `Número Strong ${upperNumber} não encontrado`
-        });
+      // If entry not found OR entry is incomplete, try AI generation
+      const needsAIGeneration = !entry || (entry && isEntryIncomplete(entry));
+      
+      if (needsAIGeneration) {
+        console.log(`[Strong API] Entry ${upperNumber} ${!entry ? 'not found' : 'incomplete'}, trying AI generation...`);
+        
+        const aiResult = await generateStrongDefinition(upperNumber, entry?.lemma);
+        
+        if (aiResult) {
+          console.log(`[Strong API] AI generated definition for ${upperNumber}`);
+          
+          // If we have a partial entry, merge AI data with it
+          if (entry) {
+            // Update existing entry with AI-generated content
+            await db.update(strongEntries)
+              .set({
+                portugueseDef: aiResult.portugueseDefinition,
+                extendedDefinition: aiResult.portugueseDefinition,
+                morphologicalInfo: aiResult.morphologicalInfo,
+                synonymsRelated: aiResult.synonymsRelated,
+                verseReferences: aiResult.verseReferences,
+                aiGenerated: true,
+              })
+              .where(eq(strongEntries.strongNumber, upperNumber));
+            
+            const response = {
+              number: entry.strongNumber,
+              word: entry.lemma,
+              transliteration: entry.translit || entry.xlit || aiResult.transliteration,
+              pronunciation: entry.pron || aiResult.pronunciation || '',
+              definition: entry.kjvDef || entry.strongsDef || aiResult.definition,
+              portugueseDefinition: aiResult.portugueseDefinition,
+              strongsDefinition: entry.strongsDef || aiResult.definition,
+              kjvDefinition: entry.kjvDef || null,
+              derivation: entry.derivation || null,
+              extendedDefinition: aiResult.portugueseDefinition,
+              morphologicalInfo: aiResult.morphologicalInfo,
+              synonymsRelated: aiResult.synonymsRelated,
+              verseReferences: aiResult.verseReferences,
+              language: entry.language,
+              aiGenerated: true,
+              quotaInfo,
+            };
+            
+            const cacheData = { ...response };
+            delete (cacheData as any).quotaInfo;
+            setInStrongCache(upperNumber, cacheData);
+            
+            return res.json(response);
+          } else {
+            // Create new entry entirely from AI
+            const newEntry = {
+              strongNumber: upperNumber,
+              language: aiResult.language,
+              lemma: aiResult.word,
+              translit: aiResult.transliteration,
+              pron: aiResult.pronunciation,
+              kjvDef: aiResult.definition,
+              portugueseDef: aiResult.portugueseDefinition,
+              strongsDef: aiResult.definition,
+              extendedDefinition: aiResult.portugueseDefinition,
+              morphologicalInfo: aiResult.morphologicalInfo,
+              synonymsRelated: aiResult.synonymsRelated,
+              verseReferences: aiResult.verseReferences,
+              aiGenerated: true,
+            };
+            
+            // Save to database for future lookups
+            await db.insert(strongEntries).values(newEntry).onConflictDoNothing();
+            
+            const response = {
+              number: upperNumber,
+              word: aiResult.word,
+              transliteration: aiResult.transliteration,
+              pronunciation: aiResult.pronunciation,
+              definition: aiResult.definition,
+              portugueseDefinition: aiResult.portugueseDefinition,
+              strongsDefinition: aiResult.definition,
+              kjvDefinition: aiResult.definition,
+              derivation: null,
+              extendedDefinition: aiResult.portugueseDefinition,
+              morphologicalInfo: aiResult.morphologicalInfo,
+              synonymsRelated: aiResult.synonymsRelated,
+              verseReferences: aiResult.verseReferences,
+              language: aiResult.language,
+              aiGenerated: true,
+              quotaInfo,
+            };
+            
+            const cacheData = { ...response };
+            delete (cacheData as any).quotaInfo;
+            setInStrongCache(upperNumber, cacheData);
+            
+            return res.json(response);
+          }
+        }
+        
+        // AI generation failed and no entry exists
+        if (!entry) {
+          return res.status(404).json({ 
+            error: "Entrada não encontrada",
+            message: `Número Strong ${upperNumber} não encontrado e não foi possível gerar definição`
+          });
+        }
       }
       
       // Format response with ALL available fields for rich display
@@ -2509,7 +2609,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         kjvDefinition: entry.kjvDef || null,
         derivation: entry.derivation || null,
         extendedDefinition: entry.extendedDefinition || null,
+        morphologicalInfo: (entry as any).morphologicalInfo || null,
+        synonymsRelated: (entry as any).synonymsRelated || null,
+        verseReferences: (entry as any).verseReferences || null,
         language: entry.language,
+        aiGenerated: (entry as any).aiGenerated || false,
         quotaInfo,
       };
       

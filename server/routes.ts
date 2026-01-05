@@ -1914,106 +1914,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Cache for Strong word mappings (definition word -> Strong number)
-  // Loaded once on first request, avoids repeated 14k+ row queries
-  let strongWordMappingCache: Map<string, string> | null = null;
+  // Cache for Strong word mappings by language (Greek vs Hebrew)
+  // Loaded once on first request per language, avoids repeated 14k+ row queries
+  let strongWordMappingCacheGreek: Map<string, string> | null = null;
+  let strongWordMappingCacheHebrew: Map<string, string> | null = null;
   let strongCacheLoadTime: number = 0;
   const STRONG_CACHE_TTL = 3600000; // 1 hour in milliseconds
 
-  // Common Portuguese biblical words mapped to their Strong numbers
-  // This significantly increases word coverage for all Bible translations
-  const COMMON_PORTUGUESE_STRONG_MAPPINGS: Record<string, string> = {
-    // Core theological terms
-    'deus': 'G2316', 'senhor': 'G2962', 'jesus': 'G2424', 'cristo': 'G5547',
-    'espírito': 'G4151', 'santo': 'G40', 'pai': 'G3962', 'filho': 'G5207',
-    'palavra': 'G3056', 'vida': 'G2222', 'amor': 'G26', 'amou': 'G25',
-    'graça': 'G5485', 'verdade': 'G225', 'luz': 'G5457', 'trevas': 'G4655',
-    'salvação': 'G4991', 'salvador': 'G4990', 'pecado': 'G266', 'pecados': 'G266',
-    'justiça': 'G1343', 'justo': 'G1342', 'fé': 'G4102', 'crê': 'G4100',
-    'cremos': 'G4100', 'crer': 'G4100', 'esperança': 'G1680', 'glória': 'G1391',
-    // People and relationships
-    'homem': 'G444', 'homens': 'G444', 'mulher': 'G1135', 'mulheres': 'G1135',
-    'irmão': 'G80', 'irmãos': 'G80', 'povo': 'G2992', 'igreja': 'G1577',
-    'discípulo': 'G3101', 'discípulos': 'G3101', 'apóstolo': 'G652', 'apóstolos': 'G652',
-    'profeta': 'G4396', 'profetas': 'G4396', 'rei': 'G935', 'reino': 'G932',
-    // Actions and states
-    'disse': 'G2036', 'diz': 'G3004', 'fala': 'G2980', 'falou': 'G2980',
-    'veio': 'G2064', 'vem': 'G2064', 'vir': 'G2064', 'vai': 'G4198',
-    'foi': 'G1510', 'era': 'G1510', 'ser': 'G1510', 'está': 'G1510',
-    'deu': 'G1325', 'dar': 'G1325', 'dá': 'G1325', 'recebeu': 'G2983',
-    'receber': 'G2983', 'enviar': 'G649', 'enviou': 'G649', 'ouvir': 'G191',
-    'ouviu': 'G191', 'ver': 'G3708', 'viu': 'G3708', 'conhecer': 'G1097',
-    'conhece': 'G1097', 'saber': 'G1492', 'sabe': 'G1492',
-    // Places and things
-    'mundo': 'G2889', 'terra': 'G1093', 'céu': 'G3772', 'céus': 'G3772',
-    'casa': 'G3624', 'templo': 'G2411', 'corpo': 'G4983', 'sangue': 'G129',
-    'água': 'G5204', 'pão': 'G740', 'vinho': 'G3631', 'cruz': 'G4716',
-    'morte': 'G2288', 'morrer': 'G599', 'morreu': 'G599', 'ressurreição': 'G386',
-    // Time and manner
-    'dia': 'G2250', 'dias': 'G2250', 'hora': 'G5610', 'tempo': 'G2540',
-    'sempre': 'G3842', 'eterno': 'G166', 'eterna': 'G166', 'nunca': 'G3756',
-    // Adjectives and prepositions
-    'grande': 'G3173', 'bom': 'G18', 'todo': 'G3956', 'todos': 'G3956',
-    'muito': 'G4183', 'novo': 'G2537', 'nova': 'G2537', 'primeiro': 'G4413',
-    // Hebrew equivalents (Old Testament)
-    'yahweh': 'H3068', 'jeová': 'H3068', 'elohim': 'H430',
-  };
+  // New Testament books (use Greek Strong numbers starting with G)
+  const NT_BOOKS = new Set([
+    'mat', 'mrk', 'luk', 'jhn', 'act', 'rom', '1co', '2co', 'gal', 'eph',
+    'php', 'col', '1th', '2th', '1ti', '2ti', 'tit', 'phm', 'heb', 'jas',
+    '1pe', '2pe', '1jn', '2jn', '3jn', 'jud', 'rev'
+  ]);
 
-  async function getStrongWordMapping(): Promise<Map<string, string>> {
+  function isNewTestament(bookId: string): boolean {
+    return NT_BOOKS.has(bookId.toLowerCase());
+  }
+
+  async function getStrongWordMapping(forGreek: boolean): Promise<Map<string, string>> {
     const now = Date.now();
-    if (strongWordMappingCache && (now - strongCacheLoadTime) < STRONG_CACHE_TTL) {
-      return strongWordMappingCache;
+    
+    // Check cached version for this language
+    if (forGreek && strongWordMappingCacheGreek && (now - strongCacheLoadTime) < STRONG_CACHE_TTL) {
+      return strongWordMappingCacheGreek;
+    }
+    if (!forGreek && strongWordMappingCacheHebrew && (now - strongCacheLoadTime) < STRONG_CACHE_TTL) {
+      return strongWordMappingCacheHebrew;
     }
 
-    console.log('[Strong Cache] Loading Strong word mappings...');
+    console.log(`[Strong Cache] Loading ${forGreek ? 'Greek' : 'Hebrew'} word mappings...`);
     const startTime = Date.now();
     
+    // Filter by language prefix (G for Greek, H for Hebrew)
+    const prefix = forGreek ? 'G' : 'H';
     const allStrongEntries = await db.select({
       strongNumber: strongEntries.strongNumber,
       portugueseDef: strongEntries.portugueseDef,
-      kjvDef: strongEntries.kjvDef,
-      strongsDef: strongEntries.strongsDef,
-    }).from(strongEntries);
+    }).from(strongEntries)
+      .where(sql`${strongEntries.strongNumber} LIKE ${prefix + '%'}`);
 
     const defWordsToStrong = new Map<string, string>();
     
-    // First, add all common Portuguese biblical words (highest priority)
-    for (const [word, strongNum] of Object.entries(COMMON_PORTUGUESE_STRONG_MAPPINGS)) {
-      defWordsToStrong.set(word, strongNum);
-    }
-    
-    // Then extract words from Strong definitions
+    // Extract words from Portuguese definitions only (most accurate for PT Bible)
     for (const entry of allStrongEntries) {
-      // Extract from Portuguese definitions
       if (entry.portugueseDef) {
         const words = entry.portugueseDef.toLowerCase()
           .split(/[,;.:\s\-—()'"\/]/g)
           .filter((w: string) => w.length >= 3);
         for (const word of words) {
           const cleanWord = word.replace(/[.,;:!?"'()0-9]/g, '').trim();
+          // Only add substantive words (avoid common stopwords)
           if (cleanWord.length >= 3 && !defWordsToStrong.has(cleanWord)) {
-            defWordsToStrong.set(cleanWord, entry.strongNumber);
-          }
-        }
-      }
-      
-      // Also extract from KJV/Strong's definitions (English words common in PT text)
-      if (entry.kjvDef) {
-        const words = entry.kjvDef.toLowerCase()
-          .split(/[,;.:\s\-—()'"\/]/g)
-          .filter((w: string) => w.length >= 4);
-        for (const word of words) {
-          const cleanWord = word.replace(/[.,;:!?"'()0-9]/g, '').trim();
-          if (cleanWord.length >= 4 && !defWordsToStrong.has(cleanWord)) {
             defWordsToStrong.set(cleanWord, entry.strongNumber);
           }
         }
       }
     }
 
-    strongWordMappingCache = defWordsToStrong;
+    // Cache by language
+    if (forGreek) {
+      strongWordMappingCacheGreek = defWordsToStrong;
+    } else {
+      strongWordMappingCacheHebrew = defWordsToStrong;
+    }
     strongCacheLoadTime = now;
-    console.log(`[Strong Cache] Loaded ${defWordsToStrong.size} word mappings in ${Date.now() - startTime}ms`);
+    console.log(`[Strong Cache] Loaded ${defWordsToStrong.size} ${forGreek ? 'Greek' : 'Hebrew'} word mappings in ${Date.now() - startTime}ms`);
     
     return defWordsToStrong;
   }
@@ -2066,10 +2032,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // STRATEGY 2: ALWAYS apply heuristic matching to SUPPLEMENT bible_words data
-      // This dramatically increases word coverage (2x or more)
+      // Uses testament-aware mapping (Greek for NT, Hebrew for OT)
       try {
-        // Get cached Strong word mappings (fast after first load)
-        const defWordsToStrong = await getStrongWordMapping();
+        // Determine testament for correct language mapping
+        const isNT = isNewTestament(bookId);
+        const defWordsToStrong = await getStrongWordMapping(isNT);
 
         // Get the chapter text to extract words
         const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);

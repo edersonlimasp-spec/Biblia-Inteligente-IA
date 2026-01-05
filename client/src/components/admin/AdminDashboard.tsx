@@ -76,6 +76,24 @@ interface PurchaseMetrics {
   dailyTrend: Array<{ date: string; gold: number; premium: number; lifetime: number }>;
 }
 
+interface UserGrowthMetrics {
+  year: number;
+  months: Array<{
+    month: string;
+    monthLabel: string;
+    users: number;
+    guests: number;
+    usersTotal: number;
+    guestsTotal: number;
+  }>;
+  totals: {
+    usersThisYear: number;
+    guestsThisYear: number;
+    usersAllTime: number;
+    guestsAllTime: number;
+  };
+}
+
 export function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/stats'],
@@ -109,6 +127,12 @@ export function AdminDashboard() {
 
   const { data: purchaseMetrics, isLoading: purchasesLoading } = useQuery<PurchaseMetrics>({
     queryKey: ['/api/admin/metrics/purchases'],
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+
+  const { data: userGrowth, isLoading: growthLoading } = useQuery<UserGrowthMetrics>({
+    queryKey: ['/api/admin/metrics/user-growth'],
     staleTime: 0,
     refetchOnMount: 'always',
   });
@@ -662,6 +686,137 @@ export function AdminDashboard() {
                     </div>
                   </TabsContent>
                 </Tabs>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Crescimento Mensal de Usuários */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Crescimento Mensal {userGrowth?.year || new Date().getFullYear()}
+          </CardTitle>
+          <CardDescription>Evolução de usuários registrados vs visitantes (guests) ao longo do ano</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {growthLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Resumo de Crescimento */}
+              <div className="grid md:grid-cols-4 gap-4">
+                <div className="p-4 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="h-5 w-5 text-blue-500" />
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Usuários (Ano)</p>
+                  </div>
+                  <p className="text-3xl font-bold text-blue-600">{userGrowth?.totals.usersThisYear || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Total histórico: {userGrowth?.totals.usersAllTime || 0}</p>
+                </div>
+
+                <div className="p-4 bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Smartphone className="h-5 w-5 text-orange-500" />
+                    <p className="text-sm font-medium text-orange-700 dark:text-orange-400">Guests (Ano)</p>
+                  </div>
+                  <p className="text-3xl font-bold text-orange-600">{userGrowth?.totals.guestsThisYear || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Total histórico: {userGrowth?.totals.guestsAllTime || 0}</p>
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Taxa de Conversão</p>
+                  <p className="text-2xl font-bold">
+                    {userGrowth?.totals.guestsThisYear && userGrowth.totals.guestsThisYear > 0
+                      ? `${((userGrowth.totals.usersThisYear / (userGrowth.totals.usersThisYear + userGrowth.totals.guestsThisYear)) * 100).toFixed(1)}%`
+                      : '0%'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Guest → Usuário</p>
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Média Mensal</p>
+                  <p className="text-2xl font-bold">
+                    {Math.round((userGrowth?.totals.usersThisYear || 0) / Math.max(1, new Date().getMonth() + 1))}
+                  </p>
+                  <p className="text-xs text-muted-foreground">novos usuários/mês</p>
+                </div>
+              </div>
+
+              {/* Gráfico de Evolução Cumulativa */}
+              <div>
+                <p className="text-sm font-medium mb-3">Evolução Cumulativa (Total Acumulado)</p>
+                <ResponsiveContainer width="100%" height={280}>
+                  <AreaChart data={userGrowth?.months || []}>
+                    <defs>
+                      <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorGuests" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="monthLabel" fontSize={12} />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => [
+                        value,
+                        name === 'usersTotal' ? 'Usuários (Total)' : 'Guests (Total)'
+                      ]}
+                      labelFormatter={(label) => `Mês: ${label}`}
+                    />
+                    <Legend 
+                      formatter={(value) => value === 'usersTotal' ? 'Usuários Registrados' : 'Visitantes (Guests)'}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="usersTotal" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorUsers)"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="guestsTotal" 
+                      stroke="#f97316" 
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorGuests)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Gráfico de Novos por Mês */}
+              <div>
+                <p className="text-sm font-medium mb-3">Novos Cadastros por Mês</p>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={userGrowth?.months || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="monthLabel" fontSize={12} />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => [
+                        value,
+                        name === 'users' ? 'Novos Usuários' : 'Novos Guests'
+                      ]}
+                    />
+                    <Legend 
+                      formatter={(value) => value === 'users' ? 'Novos Usuários' : 'Novos Guests'}
+                    />
+                    <Bar dataKey="users" fill="#3b82f6" name="users" />
+                    <Bar dataKey="guests" fill="#f97316" name="guests" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
           )}

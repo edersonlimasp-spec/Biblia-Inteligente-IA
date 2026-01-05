@@ -7,7 +7,7 @@ import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -3818,6 +3818,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Purchase history error:", error);
       res.status(500).json({ error: "Erro ao buscar histórico de compras" });
+    }
+  });
+
+  // Admin Metrics - Monthly User Growth (Users vs Guests)
+  app.get("/api/admin/metrics/user-growth", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth(); // 0-indexed
+      
+      // Get monthly user counts
+      const userGrowth = await db
+        .select({
+          month: sql<string>`to_char(date_trunc('month', ${users.createdAt}), 'YYYY-MM')`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(users)
+        .where(sql`EXTRACT(YEAR FROM ${users.createdAt}) = ${currentYear}`)
+        .groupBy(sql`date_trunc('month', ${users.createdAt})`)
+        .orderBy(sql`date_trunc('month', ${users.createdAt})`);
+
+      // Get monthly guest counts
+      const guestGrowth = await db
+        .select({
+          month: sql<string>`to_char(date_trunc('month', ${guests.createdAt}), 'YYYY-MM')`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(guests)
+        .where(sql`EXTRACT(YEAR FROM ${guests.createdAt}) = ${currentYear}`)
+        .groupBy(sql`date_trunc('month', ${guests.createdAt})`)
+        .orderBy(sql`date_trunc('month', ${guests.createdAt})`);
+
+      // Create maps for easy lookup
+      const userMap = new Map(userGrowth.map(r => [r.month, r.count]));
+      const guestMap = new Map(guestGrowth.map(r => [r.month, r.count]));
+
+      // Build 12-month series (Jan to Dec) with cumulative totals
+      const months: Array<{ month: string; monthLabel: string; users: number; guests: number; usersTotal: number; guestsTotal: number }> = [];
+      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      
+      let usersCumulative = 0;
+      let guestsCumulative = 0;
+
+      for (let m = 0; m < 12; m++) {
+        const monthKey = `${currentYear}-${String(m + 1).padStart(2, '0')}`;
+        const monthlyUsers = userMap.get(monthKey) || 0;
+        const monthlyGuests = guestMap.get(monthKey) || 0;
+        
+        // Only count actual data up to current month, show zero for future
+        if (m <= currentMonth) {
+          usersCumulative += monthlyUsers;
+          guestsCumulative += monthlyGuests;
+        }
+        
+        months.push({
+          month: monthKey,
+          monthLabel: monthNames[m],
+          users: m <= currentMonth ? monthlyUsers : 0,
+          guests: m <= currentMonth ? monthlyGuests : 0,
+          usersTotal: m <= currentMonth ? usersCumulative : usersCumulative,
+          guestsTotal: m <= currentMonth ? guestsCumulative : guestsCumulative,
+        });
+      }
+
+      // Get total counts before current year for cumulative baseline
+      const usersBeforeYear = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(users)
+        .where(sql`${users.createdAt} < '${currentYear}-01-01'`);
+      
+      const guestsBeforeYear = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(guests)
+        .where(sql`${guests.createdAt} < '${currentYear}-01-01'`);
+
+      res.json({
+        year: currentYear,
+        months,
+        totals: {
+          usersThisYear: usersCumulative,
+          guestsThisYear: guestsCumulative,
+          usersAllTime: (usersBeforeYear[0]?.count || 0) + usersCumulative,
+          guestsAllTime: (guestsBeforeYear[0]?.count || 0) + guestsCumulative,
+        }
+      });
+    } catch (error) {
+      console.error("User growth error:", error);
+      res.status(500).json({ error: "Erro ao buscar crescimento de usuários" });
     }
   });
 

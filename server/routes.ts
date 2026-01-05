@@ -1646,12 +1646,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }, {} as Record<string, number>);
 
       // Return enabled translations with actual data status
+      // Use hasData from registry (allows fallback versions to appear)
       const translations = getEnabledTranslations().map(t => ({
         code: t.code,
         name: t.name,
         language: t.language,
         licenseType: t.licenseType,
-        hasData: (countMap[t.code] || 0) > 1000,
+        hasData: t.hasData || (countMap[t.code] || 0) > 1000,
         verseCount: countMap[t.code] || 0,
         notes: t.notes,
         sourceUrl: t.sourceUrl

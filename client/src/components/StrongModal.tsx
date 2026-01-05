@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin, Database } from "lucide-react";
+import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin, Database, History, BookMarked, ScrollText, Layers, Globe } from "lucide-react";
 import { ApiError } from "@/lib/queryClient";
 import { AuthModal } from "./AuthModal";
 import { getDeviceId } from "@/hooks/use-device-id";
@@ -106,6 +106,11 @@ interface StrongEntry {
   verseReferences?: string | null;
   language: string;
   aiGenerated?: boolean;
+  etymology?: string | null;
+  historicalContext?: string | null;
+  theologicalSignificance?: string | null;
+  semanticRange?: string | null;
+  culturalBackground?: string | null;
 }
 
 const LANGUAGE_LABELS: Record<AppLanguage, { definition: string; fallback: string }> = {
@@ -628,6 +633,106 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                   </div>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                     {strongData.verseReferences}
+                  </p>
+                </div>
+              )}
+
+              {/* Etymology Section (AI-generated) */}
+              {strongData.etymology && (
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800/50 rounded p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ScrollText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                      {language === "pt" ? "Etimologia" : language === "es" ? "Etimología" : "Etymology"}
+                    </p>
+                    {strongData.aiGenerated && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0 border-amber-400 text-amber-700">
+                        <Sparkles className="w-2 h-2 mr-0.5" />IA
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {strongData.etymology}
+                  </p>
+                </div>
+              )}
+
+              {/* Historical Context Section (AI-generated) */}
+              {strongData.historicalContext && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800/50 rounded p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <History className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+                      {language === "pt" ? "Contexto Histórico-Cultural" : language === "es" ? "Contexto Histórico-Cultural" : "Historical-Cultural Context"}
+                    </p>
+                    {strongData.aiGenerated && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0 border-blue-400 text-blue-700">
+                        <Sparkles className="w-2 h-2 mr-0.5" />IA
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {strongData.historicalContext}
+                  </p>
+                </div>
+              )}
+
+              {/* Theological Significance Section (AI-generated) */}
+              {strongData.theologicalSignificance && (
+                <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 border border-purple-200 dark:border-purple-800/50 rounded p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <BookMarked className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <p className="text-sm font-semibold text-purple-800 dark:text-purple-300">
+                      {language === "pt" ? "Significado Teológico" : language === "es" ? "Significado Teológico" : "Theological Significance"}
+                    </p>
+                    {strongData.aiGenerated && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0 border-purple-400 text-purple-700">
+                        <Sparkles className="w-2 h-2 mr-0.5" />IA
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {strongData.theologicalSignificance}
+                  </p>
+                </div>
+              )}
+
+              {/* Semantic Range Section (AI-generated) */}
+              {strongData.semanticRange && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800/50 rounded p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Layers className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+                      {language === "pt" ? "Amplitude Semântica" : language === "es" ? "Rango Semántico" : "Semantic Range"}
+                    </p>
+                    {strongData.aiGenerated && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0 border-green-400 text-green-700">
+                        <Sparkles className="w-2 h-2 mr-0.5" />IA
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {strongData.semanticRange}
+                  </p>
+                </div>
+              )}
+
+              {/* Cultural Background Section (AI-generated) */}
+              {strongData.culturalBackground && (
+                <div className="bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30 border border-rose-200 dark:border-rose-800/50 rounded p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Globe className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                    <p className="text-sm font-semibold text-rose-800 dark:text-rose-300">
+                      {language === "pt" ? "Contexto Cultural" : language === "es" ? "Contexto Cultural" : "Cultural Background"}
+                    </p>
+                    {strongData.aiGenerated && (
+                      <Badge variant="outline" className="text-[10px] px-1 py-0 border-rose-400 text-rose-700">
+                        <Sparkles className="w-2 h-2 mr-0.5" />IA
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {strongData.culturalBackground}
                   </p>
                 </div>
               )}

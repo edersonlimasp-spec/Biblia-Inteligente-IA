@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,12 +7,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin } from "lucide-react";
+import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin, Database } from "lucide-react";
 import { ApiError } from "@/lib/queryClient";
 import { AuthModal } from "./AuthModal";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage, type AppLanguage } from "@/contexts/LanguageContext";
+import { getCachedStrongEntry, cacheStrongEntry, getCachedOccurrences, cacheOccurrences } from "@/lib/strong-cache";
 
 // Helper to get auth token
 function getAuthToken(): string | null {
@@ -114,6 +115,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
   const { language, t } = useLanguage();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showOccurrences, setShowOccurrences] = useState(false);
+  const [isCached, setIsCached] = useState(false);
   const deviceId = getDeviceId();
   
   const getDefinition = (data: StrongEntry): { text: string; isFallback: boolean } => {
@@ -129,18 +131,69 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
     return { text: "Definition not available", isFallback: true };
   };
   
-  // Query with auth token + deviceId - backend uses auth first, falls back to deviceId for guests
+  // Query with auth token + deviceId - network first, cache as fallback only when offline
   const { data: strongData, isLoading, error, refetch } = useQuery<StrongEntry>({
     queryKey: ['/api/strong', strongNumber, deviceId],
-    queryFn: () => fetchStrongEntry(strongNumber, deviceId),
-    staleTime: 1000 * 60 * 60 * 24, // 24 hours - cache aggressively
-    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days garbage collection
+    queryFn: async () => {
+      try {
+        // Always try network first to respect auth/subscription status
+        const data = await fetchStrongEntry(strongNumber, deviceId);
+        
+        // Cache successful response for offline use (only if no error)
+        if (data && !data.error && !data.requiresSubscription && !data.requiresLogin) {
+          await cacheStrongEntry(strongNumber, data);
+          setIsCached(false);
+        }
+        
+        return data;
+      } catch (networkError) {
+        // Only use cache if truly offline (network error, not auth error)
+        const isOffline = !navigator.onLine || (networkError instanceof TypeError);
+        
+        if (isOffline) {
+          const cached = await getCachedStrongEntry(strongNumber);
+          if (cached) {
+            setIsCached(true);
+            return cached as StrongEntry;
+          }
+        }
+        
+        // Re-throw the error if not offline or no cache available
+        throw networkError;
+      }
+    },
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
   });
 
-  // Occurrences query - only fetch when expanded
+  // Occurrences query - network first, cache as offline fallback
   const { data: occurrencesData, isLoading: occurrencesLoading } = useQuery<OccurrencesData>({
     queryKey: ['/api/strong', strongNumber, 'occurrences'],
-    queryFn: () => fetch(`/api/strong/${strongNumber}/occurrences`).then(r => r.json()),
+    queryFn: async () => {
+      try {
+        const res = await fetch(`/api/strong/${strongNumber}/occurrences`);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch occurrences: ${res.status}`);
+        }
+        const data = await res.json();
+        
+        // Cache for offline use
+        if (data && data.verses) {
+          await cacheOccurrences(strongNumber, data);
+        }
+        
+        return data;
+      } catch (networkError) {
+        // Only use cache if offline
+        if (!navigator.onLine || (networkError instanceof TypeError)) {
+          const cached = await getCachedOccurrences(strongNumber);
+          if (cached) {
+            return cached as OccurrencesData;
+          }
+        }
+        throw networkError;
+      }
+    },
     enabled: showOccurrences,
     staleTime: 1000 * 60 * 60 * 24,
   });
@@ -409,10 +462,20 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
 
             {/* STRONG'S NUMBER - Orange/Primary highlight */}
             <div className="bg-primary/10 border-l-4 border-primary px-4 py-3 my-3">
-              <p className="text-sm font-semibold text-muted-foreground">STRONG'S NUMBER</p>
-              <p className="text-2xl font-mono font-bold text-primary" data-testid="text-strong-number">
-                {strongData.number}
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-muted-foreground">STRONG'S NUMBER</p>
+                  <p className="text-2xl font-mono font-bold text-primary" data-testid="text-strong-number">
+                    {strongData.number}
+                  </p>
+                </div>
+                {isCached && (
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                    <Database className="w-3 h-3" />
+                    {language === "pt" ? "Offline" : "Cached"}
+                  </Badge>
+                )}
+              </div>
             </div>
 
             {/* Dictionary Definition Section */}

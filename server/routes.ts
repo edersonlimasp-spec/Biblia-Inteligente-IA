@@ -2167,22 +2167,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'reinou': 'H4427', 'reinar': 'H4427', 'reina': 'H4427', 'reinando': 'H4427',
     'nasceu': 'H3205', 'nascer': 'H3205', 'nasce': 'H3205', 'nascendo': 'H3205',
     'gerou': 'H3205', 'gerar': 'H3205', 'gera': 'H3205', 'gerando': 'H3205',
-    // More prepositions and particles
-    'pelo': 'H5921', 'pela': 'H5921', 'pelos': 'H5921', 'pelas': 'H5921',
+    // Demonstrative pronouns (accurate mappings only)
     'dele': 'H1931', 'dela': 'H1931', 'deles': 'H1992', 'delas': 'H1992',
-    'nele': 'H5921', 'nela': 'H5921', 'neles': 'H5921', 'nelas': 'H5921',
     'aquele': 'H1931', 'aquela': 'H1931', 'aqueles': 'H1992', 'aquelas': 'H1992',
     'este': 'H2088', 'esta': 'H2063', 'estes': 'H428', 'estas': 'H428',
     'esse': 'H1931', 'essa': 'H1931', 'esses': 'H1992', 'essas': 'H1992',
     'qual': 'H834', 'quais': 'H834', 'cujo': 'H834', 'cuja': 'H834',
     'mesmo': 'H1931', 'mesma': 'H1931', 'mesmos': 'H1992', 'mesmas': 'H1992',
-    'ainda': 'H5750', 'também': 'H1571', 'porém': 'H199', 'mas': 'H3588',
-    'pois': 'H3588', 'portanto': 'H3651', 'logo': 'H3651', 'então': 'H227',
-    // Quantities and comparatives
-    'mais': 'H3254', 'maior': 'H1419', 'menor': 'H6996',
-    'melhor': 'H2896', 'tanto': 'H3651', 'tão': 'H3651',
-    'nada': 'H3808', 'ninguém': 'H369', 'algum': 'H376', 'alguma': 'H802',
-    'cada': 'H3605', 'qualquer': 'H3605', 'certo': 'H259', 'certa': 'H259',
+    'ainda': 'H5750', 'também': 'H1571', 'então': 'H227',
+    'pois': 'H3588', 'portanto': 'H3651',
+    // Quantities and comparatives (semantically accurate mappings)
+    'maior': 'H1419', 'menor': 'H6996',
+    'melhor': 'H2896',
+    'cada': 'H3605', 'qualquer': 'H3605',
+    'nada': 'H369',
+    'certo': 'H259', 'certa': 'H259',
     // Additional OT concepts  
     'anjo': 'H4397', 'anjos': 'H4397', 'querubim': 'H3742', 'serafim': 'H8314',
     'inimigo': 'H341', 'inimigos': 'H341', 'adversário': 'H6862', 'adversários': 'H6862',

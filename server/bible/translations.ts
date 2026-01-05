@@ -144,6 +144,18 @@ export const TRANSLATION_REGISTRY: BibleTranslation[] = [
     notes: "Domínio público (1611). 31,102 versos importados."
   },
   {
+    id: "en-nkjv",
+    code: "NKJV",
+    name: "New King James Version",
+    language: "en",
+    licenseType: "commercial_pending",
+    source: "pending",
+    enabled: true,
+    hasData: false,
+    sourceUrl: "https://www.thomasnelson.com",
+    notes: "Licença Thomas Nelson necessária. Aguardando autorização."
+  },
+  {
     id: "en-asv",
     code: "ASV",
     name: "American Standard Version",

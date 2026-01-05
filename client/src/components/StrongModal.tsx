@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -215,6 +215,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="w-[95vw] max-w-3xl h-[85vh] max-h-[85vh] flex flex-col p-0 gap-0 bg-background" data-testid="modal-strong">
           <DialogTitle className="sr-only">Carregando Strong</DialogTitle>
+          <DialogDescription className="sr-only">Carregando entrada do dicionário Strong</DialogDescription>
           <div className="flex-1 p-6 space-y-6">
             <Skeleton className="h-20 w-48 mx-auto" />
             <Skeleton className="h-8 w-40 mx-auto" />
@@ -237,6 +238,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
         <Dialog open={true} onOpenChange={onClose}>
           <DialogContent className="w-[95vw] max-w-md bg-background" data-testid="modal-strong-login">
             <DialogTitle className="sr-only">Login Necessário</DialogTitle>
+            <DialogDescription className="sr-only">Faça login ou assine um plano para continuar usando o dicionário Strong</DialogDescription>
             <div className="flex flex-col items-center p-4 text-center gap-4">
               <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 <LogIn className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -333,6 +335,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="w-[95vw] max-w-md bg-background" data-testid="modal-strong-upgrade">
           <DialogTitle className="sr-only">Upgrade Strong</DialogTitle>
+          <DialogDescription className="sr-only">Assine um plano para ter acesso ilimitado ao dicionário Strong</DialogDescription>
           <div className="flex flex-col items-center p-4 text-center gap-4">
             <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
               <BookOpen className="w-8 h-8 text-amber-600 dark:text-amber-400" />
@@ -407,10 +410,14 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="w-[95vw] max-w-2xl bg-background" data-testid="modal-strong">
           <DialogTitle className="sr-only">Strong Not Found</DialogTitle>
+          <DialogDescription className="sr-only">Termo não encontrado no léxico</DialogDescription>
           <div className="flex flex-col items-center justify-center p-8 text-center gap-4">
             <AlertCircle className="w-12 h-12 text-muted-foreground" />
-            <h3 className="text-lg font-semibold">Entrada não encontrada</h3>
-            <p className="text-sm text-muted-foreground">Não foi possível encontrar {strongNumber}</p>
+            <h3 className="text-lg font-semibold">Termo não encontrado no léxico</h3>
+            <p className="text-sm text-muted-foreground">Não foi possível encontrar a entrada {strongNumber} no dicionário Strong</p>
+            <Button variant="outline" onClick={onClose} data-testid="button-close-not-found">
+              Fechar
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -419,8 +426,11 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-3xl h-[88vh] max-h-[88vh] flex flex-col p-0 gap-0 bg-background border-primary/20" data-testid="modal-strong">
+      <DialogContent className="w-[95vw] max-w-3xl h-[88vh] max-h-[88vh] flex flex-col p-0 gap-0 bg-background border-2 border-primary/30 shadow-lg" data-testid="modal-strong">
         <DialogTitle className="sr-only">Strong Dictionary - {strongData.number}</DialogTitle>
+        <DialogDescription className="sr-only">
+          Definição completa da palavra {strongData.word} ({strongData.number}) do Dicionário Strong
+        </DialogDescription>
         <DialogClose asChild>
           <Button 
             variant="ghost" 

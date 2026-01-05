@@ -1,0 +1,88 @@
+ATENÇÃO: houve uma interpretação incorreta do requisito.
+
+REMOVER COMPLETAMENTE qualquer regra de:
+- Trial de 30 dias
+- Acesso universal ilimitado
+- IA Essencial liberada para todos
+- Strong liberado sem limites
+
+NÃO EXISTE TRIAL.
+NÃO EXISTE PERÍODO PROMOCIONAL.
+NÃO EXISTE ACESSO COMPLETO GRATUITO.
+
+TODOS OS USUÁRIOS (visitantes ou logados) DEVEM ENTRAR DIRETAMENTE
+NO PLANO GRATUITO FIXO (R$ 0 PARA SEMPRE),
+COM LIMITAÇÕES ESTRITAS.
+
+========================
+REGRA CORRETA – PLANO GRATUITO
+========================
+
+Plano: GRATUITO  
+Preço: R$ 0  
+Duração: PARA SEMPRE  
+
+Aplicável a:
+- Visitantes (não logados)
+- Usuários logados sem assinatura
+
+========================
+LIMITES OBRIGATÓRIOS
+========================
+
+1) LEITURA BÍBLICA
+- Leitura bíblica completa: LIBERADA
+
+2) DICIONÁRIO STRONG
+- Visitante (não logado): 2 consultas Strong
+- Usuário logado gratuito: 4 consultas Strong
+- Ao atingir o limite: BLOQUEAR e exibir CTA de assinatura
+
+3) IA PROFESSOR
+- Plano gratuito: 5 perguntas no TOTAL
+- NÃO é por dia
+- NÃO é renovável automaticamente
+- Após atingir o limite: BLOQUEAR e exibir CTA de assinatura
+
+4) CURSOS
+- Apenas os 3 PRIMEIROS estudos do curso INICIANTES
+- Qualquer outro estudo ou curso:
+  - Exibir título
+  - Bloquear acesso ao conteúdo
+  - Solicitar assinatura ao tentar abrir
+
+5) GRAVAÇÃO DE SERMÕES
+- Limite: 3 gravações
+- Ao tentar criar a 4ª: BLOQUEAR e solicitar assinatura
+
+6) AGENDA
+- Limite: 3 eventos
+- Ao tentar criar o 4º: BLOQUEAR e solicitar assinatura
+
+========================
+COMPORTAMENTO DO SISTEMA
+========================
+
+- NÃO conceder acesso extra automaticamente
+- NÃO liberar IA Essencial ilimitada
+- NÃO liberar Strong sem controle
+- NÃO usar termos como "trial", "30 dias", "período gratuito"
+
+Todos os usuários SEM assinatura
+DEVEM operar EXCLUSIVAMENTE dentro das regras acima.
+
+========================
+ANTES DE FINALIZAR
+========================
+
+1) Verificar no preview:
+   - Visitante respeita limite de 2 Strong
+   - Logado gratuito respeita 4 Strong
+   - IA bloqueia após 5 perguntas
+   - Cursos bloqueiam corretamente
+   - Agenda e gravações respeitam limites
+
+2) Somente entregar se TODAS as regras acima estiverem funcionando.
+
+Se qualquer limite não estiver sendo respeitado,
+corrigir antes de considerar concluído.

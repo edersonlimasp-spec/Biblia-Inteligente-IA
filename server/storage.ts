@@ -85,8 +85,10 @@ export interface IStorage {
 
   // AI Usage Limits (Rate Limiting)
   getTodayUsageCount(userId: string): Promise<number>;
+  getTotalUsageCount(userId: string): Promise<number>;
   incrementUsageCount(userId: string): Promise<void>;
   getTodayStrongLookups(userId: string): Promise<number>;
+  getTotalStrongLookups(userId: string): Promise<number>;
   incrementStrongLookups(userId: string): Promise<void>;
 
   // Admin Operations
@@ -157,6 +159,7 @@ export interface IStorage {
   
   // Guest AI Usage Limits
   getGuestTodayUsageCount(deviceId: string): Promise<number>;
+  getGuestTotalUsageCount(deviceId: string): Promise<number>;
   incrementGuestUsageCount(deviceId: string): Promise<void>;
   getGuestTodayStrongLookups(deviceId: string): Promise<number>;
   incrementGuestStrongLookups(deviceId: string): Promise<void>;
@@ -575,6 +578,16 @@ class PostgresStorage implements IStorage {
     return result.reduce((sum, record) => sum + record.questionCount, 0);
   }
 
+  // Contagem TOTAL de uso de IA (não renovável para plano gratuito)
+  async getTotalUsageCount(userId: string): Promise<number> {
+    const result = await db
+      .select()
+      .from(aiUsageLimits)
+      .where(eq(aiUsageLimits.userId, userId));
+
+    return result.reduce((sum, record) => sum + record.questionCount, 0);
+  }
+
   async incrementUsageCount(userId: string): Promise<void> {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
@@ -621,6 +634,16 @@ class PostgresStorage implements IStorage {
       );
 
     return result[0]?.strongLookups || 0;
+  }
+
+  // Contagem TOTAL de consultas Strong (não renovável para plano gratuito)
+  async getTotalStrongLookups(userId: string): Promise<number> {
+    const result = await db
+      .select()
+      .from(aiUsageLimits)
+      .where(eq(aiUsageLimits.userId, userId));
+
+    return result.reduce((sum, record) => sum + (record.strongLookups || 0), 0);
   }
 
   async incrementStrongLookups(userId: string): Promise<void> {
@@ -1224,6 +1247,15 @@ class PostgresStorage implements IStorage {
       );
     
     return result[0]?.questionCount || 0;
+  }
+
+  // Contagem TOTAL de uso de IA para visitantes (não renovável)
+  async getGuestTotalUsageCount(deviceId: string): Promise<number> {
+    const result = await db.select()
+      .from(guestAiUsageLimits)
+      .where(eq(guestAiUsageLimits.deviceId, deviceId));
+    
+    return result.reduce((sum, record) => sum + record.questionCount, 0);
   }
 
   async incrementGuestUsageCount(deviceId: string): Promise<void> {

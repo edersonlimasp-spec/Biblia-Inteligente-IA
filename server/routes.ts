@@ -689,13 +689,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check access permissions - ACESSO GRATUITO UNIVERSAL ao Strong
+  // Check access permissions - PLANO GRATUITO com limites
+  // Strong: Visitante = 2 consultas, Logado = 4 consultas
   app.get("/api/access/strong", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      // Acesso gratuito universal ao Strong para todos os visitantes
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Admin tem acesso ilimitado
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      if (isAdmin) {
+        return res.json({ 
+          hasAccess: true,
+          reason: 'admin',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
+      
+      // Assinantes têm acesso ilimitado
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
+      
+      if (hasGold || hasPremium || hasLifetime) {
+        return res.json({ 
+          hasAccess: true,
+          reason: 'subscription',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
+      
+      // PLANO GRATUITO: 4 consultas Strong no total
+      const STRONG_FREE_LIMIT = 4;
+      const strongUsed = await storage.getTotalStrongLookups(req.userId!);
+      const remaining = Math.max(0, STRONG_FREE_LIMIT - strongUsed);
+      
       res.json({ 
-        hasAccess: true,
-        reason: 'free',
+        hasAccess: remaining > 0,
+        reason: remaining > 0 ? 'free_plan' : 'limit_reached',
+        used: strongUsed,
+        limit: STRONG_FREE_LIMIT,
+        remaining,
+        requiresSubscription: remaining === 0,
       });
     } catch (error) {
       console.error("Check strong access error:", error);
@@ -703,6 +744,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // IA Professor: PLANO GRATUITO = 5 perguntas NO TOTAL (não renovável)
   app.get("/api/access/ai/:mode", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const mode = req.params.mode; // 'essential' or 'premium'
@@ -712,26 +754,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
-      // Admin bypass - admins have full access to all modes
+      // Admin tem acesso ilimitado
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      if (isAdmin) {
+        return res.json({ 
+          hasAccess: true,
+          reason: 'admin',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
       
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
+      // Assinantes têm acesso ilimitado
+      if (hasGold || hasPremium) {
+        return res.json({ 
+          hasAccess: true,
+          reason: hasPremium ? 'premium' : 'gold',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
+
+      // PLANO GRATUITO: 5 perguntas NO TOTAL
+      const AI_FREE_LIMIT = 5;
+      const totalUsed = await storage.getTotalUsageCount(req.userId!);
+      const remaining = Math.max(0, AI_FREE_LIMIT - totalUsed);
+      
       let hasAccess = false;
-      if (isAdmin) {
-        hasAccess = true;
-      } else if (mode === 'essential') {
-        // ACESSO GRATUITO UNIVERSAL ao modo essential
-        hasAccess = true;
+      if (mode === 'essential') {
+        hasAccess = remaining > 0;
       } else if (mode === 'premium') {
-        // Only premium subscription grants premium access
-        hasAccess = hasPremium;
+        // Modos premium requerem assinatura Premium
+        hasAccess = false;
       }
 
       res.json({ 
         hasAccess,
-        reason: isAdmin ? 'admin' : mode === 'essential' ? 'free' : hasPremium ? 'premium' : hasGold ? 'gold' : 'none'
+        reason: hasAccess ? 'free_plan' : 'limit_reached',
+        used: totalUsed,
+        limit: AI_FREE_LIMIT,
+        remaining,
+        requiresSubscription: !hasAccess,
       });
     } catch (error) {
       console.error("Check AI access error:", error);
@@ -770,17 +838,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
-      const trialActive = isTrialActive(user.trialStartDate);
-      
       // Admin bypass - admins have full access to all features
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
       
-      // Check subscription status
+      // PLANO GRATUITO ESTRITO: Check subscription status (sem trial, sem bonus)
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
 
       // Enforce plan permissions BEFORE making OpenAI call (admins bypass all restrictions)
-      if (premiumModes.includes(mode) && !hasPremium && !isAdmin) {
+      if (premiumModes.includes(mode) && !hasPremium && !hasLifetime && !isAdmin) {
         const modeNames: Record<string, string> = {
           premium: 'Premium',
           pregador: 'Pregador',
@@ -793,32 +860,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
           subscriptionType: 'premium'
         });
       }
-
-      // Check for active bonus (extends trial/access)
-      const hasActiveBonus = await storage.hasActiveBonus(req.userId!);
       
-      // ACESSO GRATUITO UNIVERSAL ao modo essential - todos têm acesso livre
-      // Para modo premium, verificar assinatura
-      const hasFullAccess = mode === 'essential' ? true : (hasGold || hasPremium || hasActiveBonus);
+      // Apenas assinantes têm acesso ilimitado (Gold/Premium/Lifetime)
+      const hasFullAccess = hasGold || hasPremium || hasLifetime;
 
-      // Enforce rate limits BEFORE making OpenAI call (admins have no limit)
+      // ========================================
+      // PLANO GRATUITO: 5 perguntas NO TOTAL (não renovável)
+      // ========================================
+      const AI_FREE_LIMIT = 5;  // 5 perguntas totais para usuários gratuitos
+      const totalUsed = await storage.getTotalUsageCount(req.userId!);
+      
+      // Para assinantes, usar limite diário mais alto
       const todayCount = await storage.getTodayUsageCount(req.userId!);
       
-      // Limits: Premium=100, Gold=30, Essential gratuito=30 perguntas/dia
-      const FREE_DAILY_LIMIT = 30; // Limite diário para acesso gratuito
-      const limit = isAdmin ? 999999 : (hasPremium ? 100 : hasFullAccess ? 30 : FREE_DAILY_LIMIT);
-
-      if (todayCount >= limit && !isAdmin) {
-        return res.status(429).json({ 
-          error: `Você atingiu o limite diário de ${limit} perguntas. ${
-            hasPremium ? 'Aguarde até amanhã para continuar.' :
-            hasGold ? 'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.' : 
-            'Assine um plano para mais perguntas, ou aguarde até amanhã para mais 30 perguntas gratuitas.'
-          }`,
-          requiresSubscription: !hasGold && !hasPremium,
-          dailyLimit: limit,
-          usedToday: todayCount
-        });
+      if (!hasFullAccess && !isAdmin) {
+        // Plano gratuito: verificar limite total
+        if (totalUsed >= AI_FREE_LIMIT) {
+          return res.status(429).json({ 
+            error: `Você atingiu o limite de ${AI_FREE_LIMIT} perguntas do plano gratuito. Assine um plano para continuar usando o Professor IA.`,
+            requiresSubscription: true,
+            totalLimit: AI_FREE_LIMIT,
+            usedTotal: totalUsed
+          });
+        }
+      } else if (!isAdmin) {
+        // Assinantes: verificar limite diário (100 para Premium, 30 para Gold)
+        const dailyLimit = hasPremium ? 100 : 30;
+        if (todayCount >= dailyLimit) {
+          return res.status(429).json({ 
+            error: `Você atingiu o limite diário de ${dailyLimit} perguntas. ${
+              hasPremium ? 'Aguarde até amanhã para continuar.' :
+              'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.'
+            }`,
+            dailyLimit,
+            usedToday: todayCount
+          });
+        }
       }
 
       // All validations passed - make OpenAI call
@@ -853,13 +930,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         aiMode: mode,
       });
 
+      // Retornar informações de uso baseadas no tipo de acesso
+      const usageInfo = hasFullAccess || isAdmin
+        ? {
+            usedToday: todayCount + 1,
+            dailyLimit: hasPremium ? 100 : 30,
+            remaining: (hasPremium ? 100 : 30) - (todayCount + 1)
+          }
+        : {
+            usedTotal: totalUsed + 1,
+            totalLimit: AI_FREE_LIMIT,
+            remaining: AI_FREE_LIMIT - (totalUsed + 1)
+          };
+      
       res.json({ 
         response,
-        usageInfo: {
-          usedToday: todayCount + 1,
-          dailyLimit: limit,
-          remaining: limit - (todayCount + 1)
-        }
+        usageInfo
       });
     } catch (error: any) {
       console.error("AI ask error:", error);
@@ -879,7 +965,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Free Questions Quota (permanent count, not daily reset)
-  // Rules: Guest=2 questions, User=5 questions total (includes guest questions migrated)
+  // PLANO GRATUITO: 5 perguntas NO TOTAL (não renovável)
   const FREE_QUESTIONS_LIMIT = 5;
   
   app.get("/api/ai/quota", ensureAuthenticated, async (req: AuthRequest, res) => {
@@ -889,31 +975,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
       
-      // Check if user has unlimited access (admin, subscription, or trial)
+      // Check if user has unlimited access (admin, subscription)
+      // PLANO GRATUITO ESTRITO: apenas assinantes (Gold/Premium/Lifetime) têm acesso ilimitado
+      // Sem trial, sem bonus - apenas assinaturas pagas
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
-      const trialActive = isTrialActive(user.trialStartDate);
-      const hasActiveBonus = await storage.hasActiveBonus(req.userId!);
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
       
-      const hasUnlimitedAccess = isAdmin || hasGold || hasPremium || trialActive || hasActiveBonus;
+      const hasUnlimitedAccess = isAdmin || hasGold || hasPremium || hasLifetime;
       
       if (hasUnlimitedAccess) {
         return res.json({
           used: 0,
-          limit: Infinity,
-          remaining: Infinity,
+          limit: -1, // Unlimited
+          remaining: -1,
           hasUnlimitedAccess: true,
         });
       }
       
-      // Get quota from database
-      const quota = await storage.getFreeAiQuota(req.userId!);
-      const used = quota?.questionsUsed || 0;
-      const remaining = Math.max(0, FREE_QUESTIONS_LIMIT - used);
+      // PLANO GRATUITO: 5 perguntas no total
+      const totalUsed = await storage.getTotalUsageCount(req.userId!);
+      const remaining = Math.max(0, FREE_QUESTIONS_LIMIT - totalUsed);
       
       res.json({
-        used,
+        used: totalUsed,
         limit: FREE_QUESTIONS_LIMIT,
         remaining,
         hasUnlimitedAccess: false,
@@ -1483,6 +1569,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guest AI access check (for AI without login)
+  // PLANO GRATUITO: Visitante tem 5 perguntas NO TOTAL (não renovável)
+  const GUEST_AI_LIMIT = 5;
+  
   app.post("/api/guest/ai/check", async (req, res) => {
     try {
       const { deviceId } = req.body;
@@ -1491,43 +1580,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "deviceId é obrigatório" });
       }
       
-      // Check if trial is active
-      const trialInfo = await storage.getGuestTrialInfo(deviceId);
-      if (!trialInfo) {
-        // New device, trial starts now
-        return res.json({ 
-          canAsk: true, 
-          remainingQuestions: 30,
-          mode: 'essential',
-          isNew: true,
-        });
-      }
+      // Check total usage (not daily) for guests
+      const totalUsed = await storage.getGuestTotalUsageCount(deviceId);
+      const remaining = Math.max(0, GUEST_AI_LIMIT - totalUsed);
       
-      if (!trialInfo.active) {
-        return res.json({ 
-          canAsk: false, 
-          reason: 'trial_expired',
-          message: 'Seu período de teste expirou. Assine para continuar.',
-        });
-      }
-      
-      // Check daily usage limit (30 questions/day for guests)
-      const todayCount = await storage.getGuestTodayUsageCount(deviceId);
-      const limit = 30;
-      
-      if (todayCount >= limit) {
+      if (remaining <= 0) {
         return res.json({
           canAsk: false,
-          reason: 'daily_limit',
-          message: `Limite diário de ${limit} perguntas atingido. Tente novamente amanhã.`,
+          reason: 'limit_reached',
+          message: `Você atingiu o limite de ${GUEST_AI_LIMIT} perguntas do plano gratuito. Crie uma conta e assine para continuar.`,
+          used: totalUsed,
+          limit: GUEST_AI_LIMIT,
         });
       }
       
       res.json({
         canAsk: true,
-        remainingQuestions: limit - todayCount,
+        remainingQuestions: remaining,
+        used: totalUsed,
+        limit: GUEST_AI_LIMIT,
         mode: 'essential',
-        trial: trialInfo,
       });
     } catch (error) {
       console.error("Guest AI check error:", error);
@@ -1536,6 +1608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guest AI ask (AI without login)
+  // PLANO GRATUITO: Visitante tem 5 perguntas NO TOTAL (não renovável)
   app.post("/api/guest/ai/ask", async (req, res) => {
     try {
       const { deviceId, question, book, chapter, verse, language } = req.body;
@@ -1544,28 +1617,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "deviceId e question são obrigatórios" });
       }
       
-      // Auto-register guest if not exists (ensures guest record before AI usage)
-      let trialInfo = await storage.getGuestTrialInfo(deviceId);
-      if (!trialInfo) {
-        // Create guest record on-the-fly
+      // Auto-register guest if not exists
+      const guestExists = await storage.getGuestTrialInfo(deviceId);
+      if (!guestExists) {
         await storage.createOrUpdateGuest(deviceId, 'web');
-        trialInfo = await storage.getGuestTrialInfo(deviceId);
       }
       
-      // Check trial
-      if (trialInfo && !trialInfo.active) {
-        return res.status(403).json({ 
-          error: "Trial expirado",
-          message: "Seu período de teste expirou. Assine para continuar."
-        });
-      }
-      
-      // Check daily limit
-      const todayCount = await storage.getGuestTodayUsageCount(deviceId);
-      if (todayCount >= 30) {
+      // Check TOTAL limit (not daily) - 5 perguntas no total para visitantes
+      const totalUsed = await storage.getGuestTotalUsageCount(deviceId);
+      if (totalUsed >= GUEST_AI_LIMIT) {
         return res.status(429).json({
-          error: "Limite diário atingido",
-          message: "Você atingiu o limite de 30 perguntas por dia."
+          error: "Limite atingido",
+          message: `Você atingiu o limite de ${GUEST_AI_LIMIT} perguntas do plano gratuito. Crie uma conta e assine para continuar.`,
+          requiresSubscription: true,
         });
       }
       
@@ -1592,7 +1656,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         response,
-        remainingQuestions: 30 - todayCount - 1,
+        remainingQuestions: GUEST_AI_LIMIT - totalUsed - 1,
+        used: totalUsed + 1,
+        limit: GUEST_AI_LIMIT,
       });
     } catch (error) {
       console.error("Guest AI ask error:", error);

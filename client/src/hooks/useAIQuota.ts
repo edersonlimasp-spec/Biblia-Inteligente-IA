@@ -7,8 +7,8 @@ import {
   incrementGuestQuestionsUsed,
   markGuestQuotaMigrated,
   wasGuestQuotaMigrated,
-  GUEST_LIMIT,
-  USER_LIMIT,
+  GUEST_AI_LIMIT,
+  USER_AI_LIMIT,
   type QuotaInfo
 } from "@/lib/quotaService";
 
@@ -29,11 +29,10 @@ export function useAIQuota() {
   const { data: subscriptionData } = useQuery<{
     hasPremium: boolean;
     hasGold: boolean;
-    trialActive: boolean;
   }>({
     queryKey: ['/api/user/subscription-status'],
     enabled: isLoggedIn,
-    staleTime: 0, // Always fetch fresh subscription data
+    staleTime: 0,
     refetchOnWindowFocus: true,
   });
   
@@ -59,9 +58,9 @@ export function useAIQuota() {
     }
   }, [isLoggedIn, guestUsed]);
   
+  // PLANO GRATUITO: sem trial - apenas assinantes têm acesso ilimitado
   const hasSubscription = subscriptionData?.hasPremium || subscriptionData?.hasGold || false;
-  const hasTrial = subscriptionData?.trialActive || false;
-  const hasUnlimitedAccess = isAdmin || hasSubscription || hasTrial || (backendQuota?.hasUnlimitedAccess ?? false);
+  const hasUnlimitedAccess = isAdmin || hasSubscription || (backendQuota?.hasUnlimitedAccess ?? false);
   
   const getQuotaInfo = useCallback((): QuotaInfo => {
     if (hasUnlimitedAccess) {
@@ -77,10 +76,10 @@ export function useAIQuota() {
     }
     
     if (!isLoggedIn) {
-      const remaining = Math.max(0, GUEST_LIMIT - guestUsed);
+      const remaining = Math.max(0, GUEST_AI_LIMIT - guestUsed);
       return {
         used: guestUsed,
-        limit: GUEST_LIMIT,
+        limit: GUEST_AI_LIMIT,
         remaining,
         isGuest: true,
         requiresLogin: remaining === 0,
@@ -90,10 +89,10 @@ export function useAIQuota() {
     }
     
     const userUsed = backendQuota?.used ?? 0;
-    const remaining = Math.max(0, USER_LIMIT - userUsed);
+    const remaining = Math.max(0, USER_AI_LIMIT - userUsed);
     return {
       used: userUsed,
-      limit: USER_LIMIT,
+      limit: USER_AI_LIMIT,
       remaining,
       isGuest: false,
       requiresLogin: false,

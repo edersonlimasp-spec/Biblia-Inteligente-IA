@@ -82,7 +82,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "auth.welcomeBack": "Bem-vindo de volta!",
     "auth.checkCredentials": "Verifique suas credenciais",
     "auth.accountCreated": "Conta criada",
-    "auth.trialGranted": "Bem-vindo! Você tem acesso gratuito ao Strong e IA.",
+    "auth.trialGranted": "Bem-vindo! Você está no Plano Gratuito.",
     
     // Login Prompt Modal
     "loginPrompt.title": "Entre para continuar",
@@ -575,9 +575,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.processing": "Processando...",
     "subscription.subscribeNow": "Assinar Agora",
     "subscription.choosePlanButton": "Escolher Plano",
-    "subscription.trialBadge": "Acesso Gratuito",
-    "subscription.trialInfoTitle": "Acesso Gratuito",
-    "subscription.trialInfoDesc": "Todos os visitantes têm acesso gratuito ao Dicionário Strong, Hebraico, Grego e IA Professor (modo Essencial). Assine um plano para recursos Premium como IA modo Profundo.",
+    "subscription.trialBadge": "Plano Gratuito",
+    "subscription.trialInfoTitle": "Plano Gratuito",
+    "subscription.trialInfoDesc": "Plano Gratuito: 5 perguntas de IA no total, 4 consultas Strong. Assine para acesso ilimitado.",
     "subscription.authModalTitle": "Criar conta para assinar",
     "subscription.authModalDesc": "Para assinar o {plan}, você precisa criar uma conta ou fazer login.",
     
@@ -741,7 +741,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "auth.welcomeBack": "Welcome back!",
     "auth.checkCredentials": "Check your credentials",
     "auth.accountCreated": "Account created",
-    "auth.trialGranted": "Welcome! You have free access to Strong's and AI.",
+    "auth.trialGranted": "Welcome! You are on the Free Plan.",
     
     // Login Prompt Modal
     "loginPrompt.title": "Sign in to continue",
@@ -1234,9 +1234,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.processing": "Processing...",
     "subscription.subscribeNow": "Subscribe Now",
     "subscription.choosePlanButton": "Choose Plan",
-    "subscription.trialBadge": "Free Access",
-    "subscription.trialInfoTitle": "Free Access",
-    "subscription.trialInfoDesc": "All visitors have free access to Strong's Dictionary, Hebrew, Greek and AI Professor (Essential mode). Subscribe to a plan for Premium features like Deep AI mode.",
+    "subscription.trialBadge": "Free Plan",
+    "subscription.trialInfoTitle": "Free Plan",
+    "subscription.trialInfoDesc": "Free Plan: 5 AI questions total, 4 Strong lookups. Subscribe for unlimited access.",
     "subscription.authModalTitle": "Create account to subscribe",
     "subscription.authModalDesc": "To subscribe to {plan}, you need to create an account or log in.",
     
@@ -1400,7 +1400,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "auth.welcomeBack": "¡Bienvenido de nuevo!",
     "auth.checkCredentials": "Verifica tus credenciales",
     "auth.accountCreated": "Cuenta creada",
-    "auth.trialGranted": "¡Bienvenido! Tienes acceso gratuito a Strong y IA.",
+    "auth.trialGranted": "¡Bienvenido! Estás en el Plan Gratuito.",
     
     // Login Prompt Modal
     "loginPrompt.title": "Inicia sesión para continuar",
@@ -1893,9 +1893,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.processing": "Procesando...",
     "subscription.subscribeNow": "Suscribirse Ahora",
     "subscription.choosePlanButton": "Elegir Plan",
-    "subscription.trialBadge": "Acceso Gratuito",
-    "subscription.trialInfoTitle": "Acceso Gratuito",
-    "subscription.trialInfoDesc": "Todos los visitantes tienen acceso gratuito al Diccionario Strong, Hebreo, Griego y Profesor IA (modo Esencial). Suscríbete para funciones Premium como el modo IA Profundo.",
+    "subscription.trialBadge": "Plan Gratuito",
+    "subscription.trialInfoTitle": "Plan Gratuito",
+    "subscription.trialInfoDesc": "Plan Gratuito: 5 preguntas de IA en total, 4 consultas Strong. Suscríbete para acceso ilimitado.",
     "subscription.authModalTitle": "Crear cuenta para suscribirse",
     "subscription.authModalDesc": "Para suscribirte a {plan}, necesitas crear una cuenta o iniciar sesión.",
     

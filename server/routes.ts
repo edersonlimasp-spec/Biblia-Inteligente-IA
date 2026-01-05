@@ -1844,15 +1844,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )
         .orderBy(bibleVerses.verse);
 
-      // If still no verses, try ACF as ultimate fallback
+      // If still no verses, try language-appropriate fallback
       if (!verses || verses.length === 0) {
-        if (version !== 'ACF') {
+        // Get fallback based on requested version's language
+        const reqTranslation = getTranslation(version_to_use);
+        const languageFallback = reqTranslation ? getDefaultTranslation(reqTranslation.language) : 'ACF';
+        
+        if (version !== languageFallback) {
+          console.log(`[Bible API] No data for ${version}, trying ${languageFallback} fallback`);
           verses = await db
             .select()
             .from(bibleVerses)
             .where(
               and(
-                eq(bibleVerses.versionCode, 'ACF'),
+                eq(bibleVerses.versionCode, languageFallback),
                 eq(bibleVerses.book, bookId),
                 eq(bibleVerses.chapter, chapterInt)
               )
@@ -1862,7 +1867,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (verses && verses.length > 0) {
             fallbackUsed = true;
             fallbackFrom = requestedVersion;
-            version = 'ACF';
+            version = languageFallback;
+            console.log(`[Bible API] Using ${languageFallback} as fallback for ${requestedVersion}`);
           }
         }
       }

@@ -50,9 +50,13 @@ export function AlmeidaVersionSelector({
   const spanishVersions = availableVersions.filter(v => v.language === 'es');
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     const value = e.target.value;
     console.log(`[BIBLE] VERSION_SELECTED -> translationId=${value} from=${selectedVersion} ts=${Date.now()}`);
-    onVersionChange(value);
+    if (value && value !== selectedVersion) {
+      onVersionChange(value);
+    }
   };
 
   if (isLoading) {
@@ -69,7 +73,7 @@ export function AlmeidaVersionSelector({
       onChange={handleChange}
       disabled={disabled}
       data-testid="button-version-selector"
-      className="h-9 px-2 text-xs font-bold border border-primary/30 rounded-md bg-background text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 flex-shrink-0"
+      className="h-9 px-2 text-xs font-bold border border-primary/30 rounded-md bg-background text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 flex-shrink-0 relative z-50"
       style={{ 
         width: '70px',
         minWidth: '70px',

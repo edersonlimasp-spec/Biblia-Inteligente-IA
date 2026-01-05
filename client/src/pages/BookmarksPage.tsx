@@ -4,8 +4,10 @@
  */
 
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Bookmark, MessageSquare, Search, Calendar, BookOpen, Filter } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { ArrowLeft, Bookmark, MessageSquare, Search, Calendar, BookOpen, Filter, Trash2 } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +38,7 @@ interface BookmarksPageProps {
 
 export function BookmarksPage({ onBack }: BookmarksPageProps) {
   const { navigateToVerse } = useNavigation();
+  const { toast } = useToast();
   
   const handleNavigateToVerse = (book: string, chapter: number, verse: number, source: 'bookmark' | 'annotation') => {
     console.log('[BookmarksPage] NOTE_CLICKED - book:', book, 'chapter:', chapter, 'verse:', verse, 'source:', source);
@@ -45,6 +48,45 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
   const [selectedBook, setSelectedBook] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"chronological" | "biblical">("chronological");
   const [activeTab, setActiveTab] = useState<"all" | "bookmarks" | "annotations">("all");
+
+  const deleteBookmarkMutation = useMutation({
+    mutationFn: async (bookmarkId: string) => {
+      const res = await apiRequest('DELETE', `/api/bookmarks/${bookmarkId}`);
+      if (!res.ok) throw new Error('Erro ao excluir marcador');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Marcador excluído com sucesso!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookmarks'] });
+    },
+    onError: () => {
+      toast({ title: "Erro ao excluir marcador", variant: "destructive" });
+    },
+  });
+
+  const deleteAnnotationMutation = useMutation({
+    mutationFn: async (annotationId: string) => {
+      const res = await apiRequest('DELETE', `/api/annotations/${annotationId}`);
+      if (!res.ok) throw new Error('Erro ao excluir anotação');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Anotação excluída com sucesso!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/annotations'] });
+    },
+    onError: () => {
+      toast({ title: "Erro ao excluir anotação", variant: "destructive" });
+    },
+  });
+
+  const handleDelete = (e: React.MouseEvent, markId: string, markType: 'bookmark' | 'annotation') => {
+    e.stopPropagation();
+    if (markType === 'bookmark') {
+      deleteBookmarkMutation.mutate(markId);
+    } else {
+      deleteAnnotationMutation.mutate(markId);
+    }
+  };
 
   // Fetch data
   const { data: bookmarks = [], isLoading: bookmarksLoading } = useQuery<BookmarkType[]>({
@@ -307,6 +349,18 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
                         </p>
                       )}
                     </div>
+
+                    {/* Delete Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                      onClick={(e) => handleDelete(e, mark.id, mark.type)}
+                      disabled={deleteBookmarkMutation.isPending || deleteAnnotationMutation.isPending}
+                      data-testid={`button-delete-mark-${index}`}
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

@@ -207,6 +207,10 @@ export const strongEntries = pgTable("strong_entries", {
   strongsDef: text("strongs_def"), // Full Strong's definition
   derivation: text("derivation"), // Etymology/word derivation
   extendedDefinition: text("extended_definition"), // Rich theological explanation in Portuguese (AI-generated)
+  aiGenerated: boolean("ai_generated").default(false), // Flag if definition was AI-generated
+  morphologicalInfo: text("morphological_info"), // Detailed morphological analysis (AI-generated)
+  synonymsRelated: text("synonyms_related"), // Synonyms and related biblical terms (AI-generated)
+  verseReferences: text("verse_references"), // Key verse references where term appears (AI-generated)
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   // PRIMARY index for Strong lookups by number (critical for performance)

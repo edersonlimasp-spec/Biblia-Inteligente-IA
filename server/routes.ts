@@ -2525,6 +2525,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Strong's occurrences - find all verses containing this Strong number
+  app.get("/api/strong/:number/occurrences", async (req, res) => {
+    try {
+      const { number } = req.params;
+      const { limit: limitParam } = req.query;
+      const upperNumber = number.toUpperCase();
+      const queryLimit = Math.min(parseInt(limitParam as string) || 50, 100);
+      
+      // Find all occurrences of this Strong number in bible_words
+      const occurrences = await db
+        .select({
+          book: bibleWords.book,
+          chapter: bibleWords.chapter,
+          verse: bibleWords.verse,
+          gloss: bibleWords.gloss,
+          originalWord: bibleWords.originalWord,
+        })
+        .from(bibleWords)
+        .where(eq(bibleWords.strongNumber, upperNumber))
+        .limit(queryLimit);
+      
+      // Group by verse reference
+      const verseMap = new Map<string, { book: string; chapter: number; verse: number; words: string[] }>();
+      
+      for (const occ of occurrences) {
+        const ref = `${occ.book}:${occ.chapter}:${occ.verse}`;
+        if (!verseMap.has(ref)) {
+          verseMap.set(ref, {
+            book: occ.book,
+            chapter: occ.chapter,
+            verse: occ.verse,
+            words: []
+          });
+        }
+        verseMap.get(ref)!.words.push(occ.gloss || occ.originalWord || '');
+      }
+      
+      const groupedOccurrences = Array.from(verseMap.values()).slice(0, 30);
+      
+      res.json({
+        strongNumber: upperNumber,
+        totalOccurrences: occurrences.length,
+        verses: groupedOccurrences,
+      });
+    } catch (error) {
+      console.error("Get Strong occurrences error:", error);
+      res.status(500).json({ error: "Erro ao buscar ocorrências" });
+    }
+  });
+
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
       const query = req.params.query;

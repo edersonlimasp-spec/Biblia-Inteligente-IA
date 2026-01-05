@@ -5,8 +5,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info } from "lucide-react";
+import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin } from "lucide-react";
 import { ApiError } from "@/lib/queryClient";
 import { AuthModal } from "./AuthModal";
 import { getDeviceId } from "@/hooks/use-device-id";
@@ -53,7 +54,40 @@ interface StrongModalProps {
   onClose: () => void;
   onNavigateToSubscriptions?: () => void;
   onSearch?: (query: string, type: 'strong' | 'word') => void;
+  onNavigateToVerse?: (book: string, chapter: number, verse: number) => void;
+  onAIAnalysis?: (strongNumber: string, word: string, definition: string) => void;
 }
+
+interface OccurrenceVerse {
+  book: string;
+  chapter: number;
+  verse: number;
+  words: string[];
+}
+
+interface OccurrencesData {
+  strongNumber: string;
+  totalOccurrences: number;
+  verses: OccurrenceVerse[];
+}
+
+// Book name mappings for display
+const BOOK_NAMES: Record<string, string> = {
+  gen: 'Gênesis', exo: 'Êxodo', lev: 'Levítico', num: 'Números', deu: 'Deuteronômio',
+  jos: 'Josué', jdg: 'Juízes', rut: 'Rute', '1sa': '1 Samuel', '2sa': '2 Samuel',
+  '1ki': '1 Reis', '2ki': '2 Reis', '1ch': '1 Crônicas', '2ch': '2 Crônicas',
+  ezr: 'Esdras', neh: 'Neemias', est: 'Ester', job: 'Jó', psa: 'Salmos',
+  pro: 'Provérbios', ecc: 'Eclesiastes', sng: 'Cânticos', isa: 'Isaías', jer: 'Jeremias',
+  lam: 'Lamentações', ezk: 'Ezequiel', dan: 'Daniel', hos: 'Oséias', joe: 'Joel',
+  amo: 'Amós', oba: 'Obadias', jon: 'Jonas', mic: 'Miquéias', nam: 'Naum',
+  hab: 'Habacuque', zep: 'Sofonias', hag: 'Ageu', zec: 'Zacarias', mal: 'Malaquias',
+  mat: 'Mateus', mrk: 'Marcos', luk: 'Lucas', jhn: 'João', act: 'Atos',
+  rom: 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios', gal: 'Gálatas',
+  eph: 'Efésios', php: 'Filipenses', col: 'Colossenses', '1th': '1 Tessalonicenses',
+  '2th': '2 Tessalonicenses', '1ti': '1 Timóteo', '2ti': '2 Timóteo', tit: 'Tito',
+  phm: 'Filemom', heb: 'Hebreus', jas: 'Tiago', '1pe': '1 Pedro', '2pe': '2 Pedro',
+  '1jn': '1 João', '2jn': '2 João', '3jn': '3 João', jud: 'Judas', rev: 'Apocalipse',
+};
 
 interface StrongEntry {
   number: string;
@@ -75,10 +109,11 @@ const LANGUAGE_LABELS: Record<AppLanguage, { definition: string; fallback: strin
   es: { definition: "Definición en Español", fallback: "Definición disponible solo en inglés" },
 };
 
-export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, onSearch }: StrongModalProps) {
+export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, onSearch, onNavigateToVerse, onAIAnalysis }: StrongModalProps) {
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showOccurrences, setShowOccurrences] = useState(false);
   const deviceId = getDeviceId();
   
   const getDefinition = (data: StrongEntry): { text: string; isFallback: boolean } => {
@@ -100,6 +135,14 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
     queryFn: () => fetchStrongEntry(strongNumber, deviceId),
     staleTime: 1000 * 60 * 60 * 24, // 24 hours - cache aggressively
     gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days garbage collection
+  });
+
+  // Occurrences query - only fetch when expanded
+  const { data: occurrencesData, isLoading: occurrencesLoading } = useQuery<OccurrencesData>({
+    queryKey: ['/api/strong', strongNumber, 'occurrences'],
+    queryFn: () => fetch(`/api/strong/${strongNumber}/occurrences`).then(r => r.json()),
+    enabled: showOccurrences,
+    staleTime: 1000 * 60 * 60 * 24,
   });
 
   const apiError = error as ApiError;
@@ -447,6 +490,88 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                 </div>
               )}
             </div>
+
+            {/* AI Analysis Button */}
+            {onAIAnalysis && (
+              <div className="mt-4">
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                  onClick={() => {
+                    const def = strongData.portugueseDefinition || strongData.definition || strongData.kjvDefinition || '';
+                    onAIAnalysis(strongData.number, strongData.word, def);
+                    onClose();
+                  }}
+                  data-testid="button-ai-analysis"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {language === "pt" ? "Ver Análise da IA" : language === "es" ? "Ver Análisis de IA" : "View AI Analysis"}
+                </Button>
+              </div>
+            )}
+
+            {/* Occurrences Section - Collapsible */}
+            <Collapsible open={showOccurrences} onOpenChange={setShowOccurrences} className="mt-4">
+              <CollapsibleTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between"
+                  data-testid="button-toggle-occurrences"
+                >
+                  <span className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    {language === "pt" ? "Ocorrências na Bíblia" : language === "es" ? "Ocurrencias en la Biblia" : "Occurrences in Bible"}
+                    {occurrencesData && (
+                      <Badge variant="secondary" className="ml-1">
+                        {occurrencesData.totalOccurrences}
+                      </Badge>
+                    )}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showOccurrences ? 'rotate-180' : ''}`} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="bg-card border border-border rounded p-3 max-h-48 overflow-y-auto">
+                  {occurrencesLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-5/6" />
+                    </div>
+                  ) : occurrencesData && occurrencesData.verses.length > 0 ? (
+                    <div className="space-y-1">
+                      {occurrencesData.verses.map((occ, idx) => (
+                        <button
+                          key={`${occ.book}-${occ.chapter}-${occ.verse}-${idx}`}
+                          className="block w-full text-left text-sm py-1 px-2 rounded hover:bg-muted/50 transition-colors"
+                          onClick={() => {
+                            if (onNavigateToVerse) {
+                              onNavigateToVerse(occ.book, occ.chapter, occ.verse);
+                              onClose();
+                            }
+                          }}
+                          data-testid={`link-occurrence-${idx}`}
+                        >
+                          <span className="font-medium text-primary">
+                            {BOOK_NAMES[occ.book] || occ.book} {occ.chapter}:{occ.verse}
+                          </span>
+                        </button>
+                      ))}
+                      {occurrencesData.totalOccurrences > occurrencesData.verses.length && (
+                        <p className="text-xs text-muted-foreground italic pt-2">
+                          {language === "pt" 
+                            ? `Mostrando ${occurrencesData.verses.length} de ${occurrencesData.totalOccurrences} ocorrências`
+                            : `Showing ${occurrencesData.verses.length} of ${occurrencesData.totalOccurrences} occurrences`}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">
+                      {language === "pt" ? "Nenhuma ocorrência encontrada" : "No occurrences found"}
+                    </p>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             {/* Search/Action Section */}
             <div className="bg-muted/50 border border-border rounded p-4 mt-4">

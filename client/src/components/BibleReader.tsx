@@ -1045,7 +1045,7 @@ export function BibleReader({
                 {chapterData.book.name} {selectedChapter}
               </h2>
               {/* Verses with number on left and actions on right */}
-              <div className="space-y-3 sm:space-y-4 text-xl sm:text-2xl font-serif leading-relaxed">
+              <div className="space-y-3 sm:space-y-4 text-[1.3rem] sm:text-[1.6rem] font-serif leading-relaxed">
                 {filteredVerses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 
@@ -1082,8 +1082,8 @@ export function BibleReader({
                         ) : null}
                       </div>
                       
-                      {/* Verse Text - justified */}
-                      <p className="flex-1 text-justify">
+                      {/* Verse Text - justified with improved readability */}
+                      <p className="flex-1 text-justify" style={{ letterSpacing: '0.3px', lineHeight: '1.85' }}>
                         {tokenizeVerse(verse.text, wordsWithStrong).map((token, idx) => (
                           <span key={idx}>
                             <StrongWord

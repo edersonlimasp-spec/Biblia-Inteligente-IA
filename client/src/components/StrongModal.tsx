@@ -7,13 +7,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin, Database, History, BookMarked, ScrollText, Layers, Globe } from "lucide-react";
+import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin, Database, History, BookMarked, ScrollText, Layers, Globe, Share2, Copy, Check } from "lucide-react";
 import { ApiError } from "@/lib/queryClient";
 import { AuthModal } from "./AuthModal";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage, type AppLanguage } from "@/contexts/LanguageContext";
 import { getCachedStrongEntry, cacheStrongEntry, getCachedOccurrences, cacheOccurrences } from "@/lib/strong-cache";
+import { useToast } from "@/hooks/use-toast";
 
 // Helper to get auth token
 function getAuthToken(): string | null {
@@ -122,10 +123,82 @@ const LANGUAGE_LABELS: Record<AppLanguage, { definition: string; fallback: strin
 export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, onSearch, onNavigateToVerse, onAIAnalysis }: StrongModalProps) {
   const { user } = useAuth();
   const { language, t } = useLanguage();
+  const { toast } = useToast();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showOccurrences, setShowOccurrences] = useState(false);
   const [isCached, setIsCached] = useState(false);
+  const [justCopied, setJustCopied] = useState(false);
   const deviceId = getDeviceId();
+  
+  // Build share text for Strong entry
+  const buildStrongShareText = (data: StrongEntry): string => {
+    const { text: definition } = getDefinition(data);
+    const languageLabel = data.language === 'hebrew' 
+      ? (language === "pt" ? "Hebraico" : language === "es" ? "Hebreo" : "Hebrew")
+      : (language === "pt" ? "Grego" : language === "es" ? "Griego" : "Greek");
+    
+    let shareText = `${data.word} (${data.transliteration})\n`;
+    shareText += `Strong ${data.number} - ${languageLabel}\n\n`;
+    
+    if (data.pronunciation) {
+      shareText += `${language === "pt" ? "Pronúncia" : language === "es" ? "Pronunciación" : "Pronunciation"}: ${data.pronunciation}\n\n`;
+    }
+    
+    shareText += `${language === "pt" ? "Definição" : language === "es" ? "Definición" : "Definition"}:\n${definition}`;
+    
+    if (data.extendedDefinition) {
+      const shortened = data.extendedDefinition.length > 300 
+        ? data.extendedDefinition.substring(0, 300) + "..." 
+        : data.extendedDefinition;
+      shareText += `\n\n${language === "pt" ? "Explicação Teológica" : language === "es" ? "Explicación Teológica" : "Theological Explanation"}:\n${shortened}`;
+    }
+    
+    shareText += `\n\n---\nEnviado por Bíblia Inteligente IA\nConheça a BI: https://bibliainteligente.replit.app`;
+    
+    return shareText;
+  };
+  
+  // Handle share Strong entry
+  const handleShareStrong = async (data: StrongEntry) => {
+    const shareText = buildStrongShareText(data);
+    const title = `Strong ${data.number} - ${data.word}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text: shareText,
+        });
+        return;
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return;
+      }
+    }
+    
+    // Fallback: Copy to clipboard
+    handleCopyStrong(data);
+  };
+  
+  // Handle copy Strong entry
+  const handleCopyStrong = async (data: StrongEntry) => {
+    const shareText = buildStrongShareText(data);
+    
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setJustCopied(true);
+      toast({
+        title: language === "pt" ? "Copiado!" : language === "es" ? "¡Copiado!" : "Copied!",
+        description: `Strong ${data.number} - ${data.word}`,
+      });
+      setTimeout(() => setJustCopied(false), 2000);
+    } catch {
+      toast({
+        title: language === "pt" ? "Erro" : "Error",
+        description: language === "pt" ? "Não foi possível copiar" : "Could not copy",
+        variant: "destructive",
+      });
+    }
+  };
   
   const getDefinition = (data: StrongEntry): { text: string; isFallback: boolean } => {
     if (language === "pt" && data.portugueseDefinition) {
@@ -502,6 +575,38 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                     </Badge>
                   )}
                 </div>
+              </div>
+              
+              {/* Share Actions */}
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-primary/20">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => handleShareStrong(strongData)}
+                  data-testid="button-share-strong"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  {language === "pt" ? "Compartilhar" : language === "es" ? "Compartir" : "Share"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleCopyStrong(strongData)}
+                  data-testid="button-copy-strong"
+                >
+                  {justCopied ? (
+                    <>
+                      <Check className="h-4 w-4 mr-1 text-green-500" />
+                      {language === "pt" ? "Copiado!" : "Copied!"}
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 mr-1" />
+                      {language === "pt" ? "Copiar" : "Copy"}
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
 

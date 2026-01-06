@@ -1026,9 +1026,9 @@ export function BibleReader({
         </div>
       )}
 
-      {/* Bible Text - Continuous flowing text like printed Bible */}
+      {/* Bible Text */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 sm:pb-32 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
-        <div className="w-full max-w-3xl mx-auto px-6 sm:px-10 lg:px-16 py-4 sm:py-6">
+        <div className="w-full max-w-3xl mx-auto px-6 sm:px-10 lg:px-14 py-4 sm:py-6">
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-6 w-3/4" />
@@ -1044,8 +1044,8 @@ export function BibleReader({
               <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground text-center" data-testid="chapter-title">
                 {chapterData.book.name} {selectedChapter}
               </h2>
-              {/* Continuous flowing text - justified like printed Bible */}
-              <div className="text-lg sm:text-xl font-serif leading-loose sm:leading-loose text-justify">
+              {/* Verses with number on left and actions on right */}
+              <div className="space-y-3 sm:space-y-4 text-lg sm:text-xl font-serif leading-relaxed">
                 {filteredVerses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 
@@ -1055,80 +1055,67 @@ export function BibleReader({
                   const hasNote = verseHasAnnotation(verse.verse);
                   
                   return (
-                    <span
+                    <div
                       key={`${selectedBook}-${selectedChapter}-${verse.verse}`}
-                      className={`group relative inline ${
+                      className={`flex gap-3 group relative ${
                         selectedVerse === verse.verse 
-                          ? "bg-primary/20 rounded px-0.5" 
+                          ? "bg-primary/10 -mx-3 px-3 py-2 rounded-lg" 
                           : highlightBg 
-                            ? `${highlightBg} rounded px-0.5`
+                            ? `${highlightBg} -mx-3 px-3 py-2 rounded-lg`
                             : ""
                       }`}
                       onClick={() => setSelectedVerse(verse.verse)}
                       data-testid={`verse-${verse.verse}`}
-                      data-verse={verse.verse}
                     >
-                      {/* Verse Number as superscript */}
-                      <sup className="text-xs font-bold text-muted-foreground mr-0.5 select-none align-super">
-                        {verse.verse}
-                      </sup>
-                      {/* Bookmark/Note indicators inline */}
-                      {hasNote ? (
-                        <sup className="mr-0.5">
-                          <MessageSquare className="inline h-2.5 w-2.5 text-blue-500" />
-                        </sup>
-                      ) : hasBookmark ? (
-                        <sup className="mr-0.5">
-                          <Bookmark className="inline h-2.5 w-2.5 fill-green-500 text-green-500" />
-                        </sup>
-                      ) : null}
-                      {/* Verse Text - Using unified tokenization */}
-                      {tokenizeVerse(verse.text, wordsWithStrong).map((token, idx) => (
-                        <span key={idx}>
-                          <StrongWord
-                            text={token.text}
-                            hasStrong={token.hasStrong}
-                            onWordClick={(word) => {
-                              const cleanWord = normalizeWordForLookup(word);
-                              handleWordClick(cleanWord, verse.verse);
-                            }}
-                          />
-                          {" "}
+                      {/* Verse Number + Icons on left */}
+                      <div className="flex flex-col items-center gap-0.5 min-w-[24px] pt-1">
+                        <span className="text-sm font-bold font-sans text-primary select-none">
+                          {verse.verse}
                         </span>
-                      ))}
-                    </span>
+                        {hasNote ? (
+                          <div className="flex items-center gap-0.5">
+                            <Bookmark className="h-3 w-3 fill-blue-500 text-blue-500" />
+                            <MessageSquare className="h-3 w-3 text-blue-500" />
+                          </div>
+                        ) : hasBookmark ? (
+                          <Bookmark className="h-3 w-3 fill-green-500 text-green-500" />
+                        ) : null}
+                      </div>
+                      
+                      {/* Verse Text - justified */}
+                      <p className="flex-1 text-justify">
+                        {tokenizeVerse(verse.text, wordsWithStrong).map((token, idx) => (
+                          <span key={idx}>
+                            <StrongWord
+                              text={token.text}
+                              hasStrong={token.hasStrong}
+                              onWordClick={(word) => {
+                                const cleanWord = normalizeWordForLookup(word);
+                                handleWordClick(cleanWord, verse.verse);
+                              }}
+                            />
+                            {" "}
+                          </span>
+                        ))}
+                      </p>
+                      
+                      {/* Verse Actions on right */}
+                      <VerseActions
+                        bookName={chapterData?.book.name || ""}
+                        chapter={selectedChapter}
+                        verse={verse.verse}
+                        text={verse.text}
+                        isBookmarked={hasBookmark || false}
+                        isHighlighted={!!highlightColor}
+                        onBookmark={() => user ? handleBookmarkClick(verse.verse, hasBookmark || false) : toast({ title: "Faça login", description: "Marcadores estão disponíveis apenas para usuários logados", variant: "destructive" })}
+                        onHighlight={(color) => handleHighlight(verse.verse, color)}
+                        onRemoveHighlight={() => handleRemoveHighlight(verse.verse)}
+                        onAnnotate={() => user ? handleAnnotate(verse.verse) : toast({ title: "Faça login", description: "Comentários estão disponíveis apenas para usuários logados", variant: "destructive" })}
+                      />
+                    </div>
                   );
                 })}
               </div>
-              
-              {/* Floating Verse Actions - appears when verse is selected */}
-              {selectedVerse && chapterData && (
-                <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-card border rounded-full shadow-lg px-2 py-1">
-                  <VerseActions
-                    bookName={chapterData.book.name}
-                    chapter={selectedChapter}
-                    verse={selectedVerse}
-                    text={filteredVerses.find(v => v.verse === selectedVerse)?.text || ""}
-                    isBookmarked={isVerseBookmarked(selectedVerse) || false}
-                    isHighlighted={!!getVerseHighlight(selectedVerse)}
-                    onBookmark={() => user ? handleBookmarkClick(selectedVerse, isVerseBookmarked(selectedVerse) || false) : toast({ title: "Faça login", description: "Marcadores estão disponíveis apenas para usuários logados", variant: "destructive" })}
-                    onHighlight={(color) => handleHighlight(selectedVerse, color)}
-                    onRemoveHighlight={() => handleRemoveHighlight(selectedVerse)}
-                    onAnnotate={() => user ? handleAnnotate(selectedVerse) : toast({ title: "Faça login", description: "Comentários estão disponíveis apenas para usuários logados", variant: "destructive" })}
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 ml-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedVerse(null);
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </>
           ) : null}
         </div>

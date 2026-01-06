@@ -2,27 +2,23 @@ import { useState, useEffect, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, 
   BookOpen, 
-  Calendar,
   CheckCircle2,
-  Clock,
   Flame,
   Trophy,
   ChevronRight,
-  AlertTriangle,
-  Sparkles,
-  MessageSquare
+  MessageSquare,
+  Sparkles
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import type { UserReadingPlan, UserDailyReading, ReadingPlanTemplate, DailyReading } from "@shared/schema";
 
 interface ReadingPlanDayViewProps {
@@ -163,17 +159,12 @@ export function ReadingPlanDayView({
       
       if (data.isCompleted) {
         toast({
-          title: lang === 'pt' ? "Parabéns!" : lang === 'es' ? "¡Felicidades!" : "Congratulations!",
-          description: lang === 'pt' ? "Leitura do dia concluída!" 
-                     : lang === 'es' ? "¡Lectura del día completada!"
-                     : "Today's reading completed!",
+          title: lang === 'pt' ? "Parabéns!" : lang === 'es' ? "Felicidades!" : "Congratulations!",
+          description: lang === 'pt' ? "Leitura do dia concluída!" : "Day completed!",
         });
       } else {
         toast({
-          title: lang === 'pt' ? "Progresso salvo!" : lang === 'es' ? "¡Progreso guardado!" : "Progress saved!",
-          description: lang === 'pt' ? "Continue lendo para completar o dia." 
-                     : lang === 'es' ? "Continúa leyendo para completar el día."
-                     : "Keep reading to complete the day.",
+          title: lang === 'pt' ? "Progresso salvo!" : "Progress saved!",
         });
       }
     },
@@ -197,7 +188,8 @@ export function ReadingPlanDayView({
     
     const completedReadings: { book: string; chapter: number }[] = [];
     
-    for (const key of completedChapters) {
+    const completedArray = Array.from(completedChapters);
+    for (const key of completedArray) {
       const [book, chapterStr] = key.split('-');
       const chapter = parseInt(chapterStr, 10);
       if (book && !isNaN(chapter)) {
@@ -207,10 +199,7 @@ export function ReadingPlanDayView({
     
     if (completedReadings.length === 0) {
       toast({
-        title: lang === 'pt' ? "Nenhum capítulo selecionado" : "No chapter selected",
-        description: lang === 'pt' ? "Marque pelo menos um capítulo como lido." 
-                   : lang === 'es' ? "Marca al menos un capítulo como leído."
-                   : "Mark at least one chapter as read.",
+        title: lang === 'pt' ? "Selecione pelo menos um capítulo" : "Select at least one chapter",
         variant: "destructive",
       });
       return;
@@ -238,7 +227,8 @@ export function ReadingPlanDayView({
     setCompletedChapters(allChapters);
     
     const completedReadings: { book: string; chapter: number }[] = [];
-    for (const key of allChapters) {
+    const allChaptersArray = Array.from(allChapters);
+    for (const key of allChaptersArray) {
       const [book, chapterStr] = key.split('-');
       const chapter = parseInt(chapterStr, 10);
       if (book && !isNaN(chapter)) {
@@ -265,264 +255,229 @@ export function ReadingPlanDayView({
     return chapters;
   };
 
-  const allTodayChaptersCompleted = todayReading?.readings.every(reading => {
+  const totalTodayChapters = todayReading?.readings.reduce((acc, r) => {
+    return acc + getChaptersFromReading(r).length;
+  }, 0) || 0;
+
+  const completedTodayCount = todayReading?.readings.reduce((acc, reading) => {
     const chapters = getChaptersFromReading(reading);
-    return chapters.every(ch => completedChapters.has(`${reading.book}-${ch}`));
-  }) || false;
+    return acc + chapters.filter(ch => completedChapters.has(`${reading.book}-${ch}`)).length;
+  }, 0) || 0;
+
+  const todayProgress = totalTodayChapters > 0 ? Math.round((completedTodayCount / totalTodayChapters) * 100) : 0;
 
   const progressPercent = plan.template 
     ? Math.round((plan.completedDays / plan.template.durationDays) * 100)
     : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back-plan">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">
-              {plan.template 
-                ? (lang === 'en' ? plan.template.titleEn : lang === 'es' ? plan.template.titleEs : plan.template.titlePt)
-                : lang === 'pt' ? 'Meu Plano' : lang === 'es' ? 'Mi Plan' : 'My Plan'}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {lang === 'pt' ? `Dia ${plan.currentDay}` : lang === 'es' ? `Día ${plan.currentDay}` : `Day ${plan.currentDay}`}
-            </p>
+    <div className="flex flex-col h-full bg-background">
+      <header className="shrink-0 px-4 py-3 border-b bg-background/95 backdrop-blur flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back-plan">
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg font-semibold truncate">
+            {plan.template 
+              ? (lang === 'en' ? plan.template.titleEn : lang === 'es' ? plan.template.titleEs : plan.template.titlePt)
+              : lang === 'pt' ? 'Meu Plano' : 'My Plan'}
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            {lang === 'pt' ? `Dia ${plan.currentDay}` : `Day ${plan.currentDay}`} • {progressPercent}%
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 text-sm">
+            <Flame className="w-4 h-4 text-orange-500" />
+            <span className="font-medium">{plan.streakDays}</span>
+          </div>
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <Trophy className="w-4 h-4 text-yellow-500" />
+            <span>{plan.longestStreak}</span>
           </div>
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">
-                    {lang === 'pt' ? 'Progresso Total' : lang === 'es' ? 'Progreso Total' : 'Total Progress'}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {plan.completedDays} / {plan.template?.durationDays || '?'} {lang === 'pt' ? 'dias' : lang === 'es' ? 'días' : 'days'}
-                  </span>
-                </div>
-                <Progress value={progressPercent} className="h-2" />
-              </div>
-              
-              <div className="flex items-center gap-3 text-center">
-                <div className="flex flex-col items-center">
-                  <div className="flex items-center text-orange-500">
-                    <Flame className="w-4 h-4 mr-1" />
-                    <span className="font-bold">{plan.streakDays}</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {lang === 'pt' ? 'seguidos' : 'streak'}
-                  </span>
-                </div>
-                
-                <Separator orientation="vertical" className="h-8" />
-                
-                <div className="flex flex-col items-center">
-                  <div className="flex items-center text-yellow-500">
-                    <Trophy className="w-4 h-4 mr-1" />
-                    <span className="font-bold">{plan.longestStreak}</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {lang === 'pt' ? 'recorde' : 'best'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="shrink-0 px-4 py-3">
+        <Progress value={progressPercent} className="h-1" />
+      </div>
 
-        {overdueReadings.length > 0 && (
-          <Card className="border-orange-500/30 bg-orange-50 dark:bg-orange-900/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2 text-orange-700 dark:text-orange-400">
-                <AlertTriangle className="w-4 h-4" />
-                {lang === 'pt' ? 'Leituras Atrasadas' : lang === 'es' ? 'Lecturas Atrasadas' : 'Overdue Readings'}
-                <Badge variant="secondary" className="bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200">
-                  {overdueReadings.length}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {overdueReadings.slice(0, 3).map((reading) => (
-                <div 
-                  key={reading.id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-orange-100/50 dark:bg-orange-900/20"
-                >
-                  <div>
-                    <span className="text-sm font-medium text-orange-800 dark:text-orange-300">
-                      {lang === 'pt' ? `Dia ${reading.dayIndex}` : `Day ${reading.dayIndex}`}
-                    </span>
-                    <p className="text-xs text-orange-600 dark:text-orange-400">
-                      {reading.readings.map(r => formatReadingReference(r, lang)).join(', ')}
-                    </p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-orange-500" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {todayReading && (
-          <Card className="border-primary/30">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                {lang === 'pt' ? 'Leitura de Hoje' : lang === 'es' ? 'Lectura de Hoy' : "Today's Reading"}
-                {todayReading.isCompleted && (
-                  <Badge className="bg-green-500 text-white">
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                    {lang === 'pt' ? 'Concluído' : lang === 'es' ? 'Completado' : 'Completed'}
+      <ScrollArea className="flex-1">
+        <div className="px-4 pb-32 space-y-4">
+          {overdueReadings.length > 0 && (
+            <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
+              <p className="text-sm font-medium text-orange-600 dark:text-orange-400 mb-2">
+                {overdueReadings.length} {lang === 'pt' ? 'leituras atrasadas' : 'overdue readings'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {overdueReadings.slice(0, 3).map((reading) => (
+                  <Badge 
+                    key={reading.id} 
+                    variant="secondary" 
+                    className="bg-orange-500/20 text-orange-700 dark:text-orange-300"
+                  >
+                    {lang === 'pt' ? `Dia ${reading.dayIndex}` : `Day ${reading.dayIndex}`}
+                  </Badge>
+                ))}
+                {overdueReadings.length > 3 && (
+                  <Badge variant="secondary" className="bg-orange-500/20 text-orange-700 dark:text-orange-300">
+                    +{overdueReadings.length - 3}
                   </Badge>
                 )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <AnimatePresence>
-                {todayReading.readings.map((reading, idx) => {
-                  const chapters = getChaptersFromReading(reading);
-                  
-                  return (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="p-4 rounded-lg border bg-card"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-medium flex items-center gap-2">
-                          <BookOpen className="w-4 h-4 text-primary" />
-                          {getBookName(reading.book, lang)}
-                        </h4>
-                        <span className="text-sm text-muted-foreground">
-                          {chapters.length} {lang === 'pt' ? 'capítulo(s)' : lang === 'es' ? 'capítulo(s)' : 'chapter(s)'}
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        {chapters.map(chapter => {
-                          const isChecked = completedChapters.has(`${reading.book}-${chapter}`);
-                          
-                          return (
-                            <div
-                              key={chapter}
-                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer"
-                              onClick={() => onNavigateToChapter(reading.book, chapter)}
-                              data-testid={`reading-${reading.book}-${chapter}`}
-                            >
-                              <Checkbox
-                                checked={isChecked}
-                                onCheckedChange={() => handleToggleChapter(reading, chapter)}
-                                onClick={(e) => e.stopPropagation()}
-                                data-testid={`checkbox-${reading.book}-${chapter}`}
-                              />
-                              <span className={`flex-1 ${isChecked ? 'line-through text-muted-foreground' : ''}`}>
-                                {lang === 'pt' ? 'Capítulo' : lang === 'es' ? 'Capítulo' : 'Chapter'} {chapter}
-                              </span>
-                              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
+              </div>
+            </div>
+          )}
+
+          {todayReading && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                  {lang === 'pt' ? 'Leitura de Hoje' : "Today's Reading"}
+                </h2>
+                {todayReading.isCompleted && (
+                  <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    {lang === 'pt' ? 'Completo' : 'Done'}
+                  </Badge>
+                )}
+              </div>
 
               {!todayReading.isCompleted && (
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <Button
-                      className="flex-1"
-                      onClick={handleSaveProgress}
-                      disabled={markCompleteMutation.isPending || completedChapters.size === 0}
-                      data-testid="button-save-progress"
-                    >
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      {markCompleteMutation.isPending 
-                        ? (lang === 'pt' ? 'Salvando...' : 'Saving...')
-                        : (lang === 'pt' ? 'Salvar Progresso' : lang === 'es' ? 'Guardar Progreso' : 'Save Progress')}
-                    </Button>
-                    
-                    <Button
-                      variant="secondary"
-                      onClick={handleMarkAllComplete}
-                      disabled={markCompleteMutation.isPending}
-                      data-testid="button-complete-all"
-                    >
-                      {lang === 'pt' ? 'Marcar Tudo' : lang === 'es' ? 'Marcar Todo' : 'Mark All'}
-                    </Button>
-                  </div>
-                  
-                  {onAskAI && (
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        const ref = todayReading.readings.map(r => formatReadingReference(r, lang)).join(', ');
-                        onAskAI(`Explique o contexto e principais ensinamentos de ${ref}`);
-                      }}
-                      data-testid="button-ask-ai-context"
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      {lang === 'pt' ? 'Pergunte à IA' : 'Ask AI'}
-                    </Button>
-                  )}
+                <div className="flex items-center gap-3 text-sm">
+                  <Progress value={todayProgress} className="flex-1 h-1.5" />
+                  <span className="text-muted-foreground whitespace-nowrap">
+                    {completedTodayCount}/{totalTodayChapters}
+                  </span>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        )}
 
-        {upcomingReadings.length > 1 && (
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                {lang === 'pt' ? 'Próximos Dias' : lang === 'es' ? 'Próximos Días' : 'Upcoming Days'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {upcomingReadings.slice(1, 5).map((reading) => (
+              {todayReading.readings.map((reading, idx) => {
+                const chapters = getChaptersFromReading(reading);
+                
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="rounded-xl border bg-card overflow-hidden"
+                  >
+                    <div className="px-4 py-3 border-b bg-muted/30 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-primary" />
+                      <span className="font-medium">{getBookName(reading.book, lang)}</span>
+                      <span className="text-sm text-muted-foreground ml-auto">
+                        {chapters.length} {lang === 'pt' ? 'cap.' : 'ch.'}
+                      </span>
+                    </div>
+                    
+                    <div className="divide-y">
+                      {chapters.map(chapter => {
+                        const isChecked = completedChapters.has(`${reading.book}-${chapter}`);
+                        
+                        return (
+                          <div
+                            key={chapter}
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
+                          >
+                            <Checkbox
+                              checked={isChecked}
+                              onCheckedChange={() => handleToggleChapter(reading, chapter)}
+                              data-testid={`checkbox-${reading.book}-${chapter}`}
+                            />
+                            <button
+                              onClick={() => onNavigateToChapter(reading.book, chapter)}
+                              className="flex-1 text-left flex items-center justify-between group"
+                              data-testid={`reading-${reading.book}-${chapter}`}
+                            >
+                              <span className={isChecked ? 'text-muted-foreground line-through' : ''}>
+                                {lang === 'pt' ? 'Capítulo' : 'Chapter'} {chapter}
+                              </span>
+                              <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+
+          {upcomingReadings.length > 1 && (
+            <div className="space-y-2">
+              <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                {lang === 'pt' ? 'Próximos Dias' : 'Upcoming'}
+              </h2>
+              {upcomingReadings.slice(1, 4).map((reading) => (
                 <div 
                   key={reading.id}
-                  className="flex items-center justify-between p-2 rounded-lg border bg-card hover-elevate"
+                  className="p-3 rounded-xl border bg-card flex items-center justify-between"
                 >
                   <div>
                     <span className="text-sm font-medium">
                       {lang === 'pt' ? `Dia ${reading.dayIndex}` : `Day ${reading.dayIndex}`}
                     </span>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {reading.readings.map(r => formatReadingReference(r, lang)).join(', ')}
                     </p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
               ))}
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          )}
 
-        <Card className="border-dashed border-primary/30">
-          <CardContent className="p-4 text-center">
-            <Sparkles className="w-8 h-8 mx-auto text-primary/50 mb-2" />
+          <div className="p-4 rounded-xl border border-dashed border-primary/30 bg-primary/5 text-center">
+            <Sparkles className="w-6 h-6 mx-auto text-primary/50 mb-2" />
             <p className="text-sm text-muted-foreground">
               {lang === 'pt' 
-                ? 'Use o método S.O.A.P. para aprofundar sua leitura: Escritura, Observação, Aplicação, Oração.'
-                : lang === 'es'
-                ? 'Usa el método S.O.A.P. para profundizar tu lectura: Escritura, Observación, Aplicación, Oración.'
-                : 'Use the S.O.A.P. method to deepen your reading: Scripture, Observation, Application, Prayer.'}
+                ? 'S.O.A.P.: Escritura, Observação, Aplicação, Oração'
+                : 'S.O.A.P.: Scripture, Observation, Application, Prayer'}
             </p>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </ScrollArea>
+
+      {todayReading && !todayReading.isCompleted && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t safe-area-bottom">
+          <div className="flex gap-2 max-w-lg mx-auto">
+            <Button
+              className="flex-1"
+              onClick={handleSaveProgress}
+              disabled={markCompleteMutation.isPending || completedChapters.size === 0}
+              data-testid="button-save-progress"
+            >
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              {markCompleteMutation.isPending 
+                ? (lang === 'pt' ? 'Salvando...' : 'Saving...')
+                : (lang === 'pt' ? 'Salvar' : 'Save')}
+            </Button>
+            
+            <Button
+              variant="secondary"
+              onClick={handleMarkAllComplete}
+              disabled={markCompleteMutation.isPending}
+              data-testid="button-complete-all"
+            >
+              {lang === 'pt' ? 'Tudo' : 'All'}
+            </Button>
+            
+            {onAskAI && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  const ref = todayReading.readings.map(r => formatReadingReference(r, lang)).join(', ');
+                  onAskAI(`Explique o contexto e principais ensinamentos de ${ref}`);
+                }}
+                data-testid="button-ask-ai-context"
+              >
+                <MessageSquare className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -131,6 +131,20 @@ export function ReadingPlanDayView({
   
   const [completedChapters, setCompletedChapters] = useState<Set<string>>(new Set());
 
+  const serverCompletedChapters = useMemo(() => {
+    const set = new Set<string>();
+    if (todayReading?.completedReadings) {
+      for (const cr of todayReading.completedReadings) {
+        set.add(`${cr.book}-${cr.chapter}`);
+      }
+    }
+    return set;
+  }, [todayReading?.completedReadings]);
+
+  useEffect(() => {
+    setCompletedChapters(new Set(serverCompletedChapters));
+  }, [serverCompletedChapters]);
+
   const markCompleteMutation = useMutation({
     mutationFn: async ({ planId, dayIndex, completedReadings }: { 
       planId: string; 
@@ -154,6 +168,13 @@ export function ReadingPlanDayView({
                      : lang === 'es' ? "¡Lectura del día completada!"
                      : "Today's reading completed!",
         });
+      } else {
+        toast({
+          title: lang === 'pt' ? "Progresso salvo!" : lang === 'es' ? "¡Progreso guardado!" : "Progress saved!",
+          description: lang === 'pt' ? "Continue lendo para completar o dia." 
+                     : lang === 'es' ? "Continúa leyendo para completar el día."
+                     : "Keep reading to complete the day.",
+        });
       }
     },
   });
@@ -171,17 +192,57 @@ export function ReadingPlanDayView({
     setCompletedChapters(newCompleted);
   };
 
-  const handleMarkDayComplete = () => {
+  const handleSaveProgress = () => {
     if (!todayReading) return;
     
     const completedReadings: { book: string; chapter: number }[] = [];
     
+    for (const key of completedChapters) {
+      const [book, chapterStr] = key.split('-');
+      const chapter = parseInt(chapterStr, 10);
+      if (book && !isNaN(chapter)) {
+        completedReadings.push({ book, chapter });
+      }
+    }
+    
+    if (completedReadings.length === 0) {
+      toast({
+        title: lang === 'pt' ? "Nenhum capítulo selecionado" : "No chapter selected",
+        description: lang === 'pt' ? "Marque pelo menos um capítulo como lido." 
+                   : lang === 'es' ? "Marca al menos un capítulo como leído."
+                   : "Mark at least one chapter as read.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    markCompleteMutation.mutate({
+      planId: plan.id,
+      dayIndex: todayReading.dayIndex,
+      completedReadings,
+    });
+  };
+
+  const handleMarkAllComplete = () => {
+    if (!todayReading) return;
+    
+    const allChapters = new Set<string>();
     for (const reading of todayReading.readings) {
       const startCh = reading.startChapter;
       const endCh = reading.endChapter || reading.startChapter;
-      
       for (let ch = startCh; ch <= endCh; ch++) {
-        completedReadings.push({ book: reading.book, chapter: ch });
+        allChapters.add(`${reading.book}-${ch}`);
+      }
+    }
+    
+    setCompletedChapters(allChapters);
+    
+    const completedReadings: { book: string; chapter: number }[] = [];
+    for (const key of allChapters) {
+      const [book, chapterStr] = key.split('-');
+      const chapter = parseInt(chapterStr, 10);
+      if (book && !isNaN(chapter)) {
+        completedReadings.push({ book, chapter });
       }
     }
     
@@ -376,22 +437,34 @@ export function ReadingPlanDayView({
               </AnimatePresence>
 
               {!todayReading.isCompleted && (
-                <div className="flex gap-2">
-                  <Button
-                    className="flex-1"
-                    onClick={handleMarkDayComplete}
-                    disabled={markCompleteMutation.isPending}
-                    data-testid="button-complete-day"
-                  >
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    {markCompleteMutation.isPending 
-                      ? (lang === 'pt' ? 'Salvando...' : 'Saving...')
-                      : (lang === 'pt' ? 'Marcar como Lido' : lang === 'es' ? 'Marcar como Leído' : 'Mark as Read')}
-                  </Button>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Button
+                      className="flex-1"
+                      onClick={handleSaveProgress}
+                      disabled={markCompleteMutation.isPending || completedChapters.size === 0}
+                      data-testid="button-save-progress"
+                    >
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      {markCompleteMutation.isPending 
+                        ? (lang === 'pt' ? 'Salvando...' : 'Saving...')
+                        : (lang === 'pt' ? 'Salvar Progresso' : lang === 'es' ? 'Guardar Progreso' : 'Save Progress')}
+                    </Button>
+                    
+                    <Button
+                      variant="secondary"
+                      onClick={handleMarkAllComplete}
+                      disabled={markCompleteMutation.isPending}
+                      data-testid="button-complete-all"
+                    >
+                      {lang === 'pt' ? 'Marcar Tudo' : lang === 'es' ? 'Marcar Todo' : 'Mark All'}
+                    </Button>
+                  </div>
                   
                   {onAskAI && (
                     <Button
                       variant="outline"
+                      className="w-full"
                       onClick={() => {
                         const ref = todayReading.readings.map(r => formatReadingReference(r, lang)).join(', ');
                         onAskAI(`Explique o contexto e principais ensinamentos de ${ref}`);

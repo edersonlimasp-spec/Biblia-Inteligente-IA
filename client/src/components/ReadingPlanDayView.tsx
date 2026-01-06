@@ -4,19 +4,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, 
-  BookOpen, 
-  CheckCircle2,
-  Flame,
-  Trophy,
+  Check,
+  Lightbulb,
   ChevronRight,
-  MessageSquare,
-  Sparkles
+  BookOpen
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { UserReadingPlan, UserDailyReading, ReadingPlanTemplate, DailyReading } from "@shared/schema";
@@ -125,9 +121,9 @@ export function ReadingPlanDayView({
   const { toast } = useToast();
   const lang = (language || 'pt') as 'pt' | 'en' | 'es';
   
-  const [completedChapters, setCompletedChapters] = useState<Set<string>>(new Set());
+  const [completedReadings, setCompletedReadings] = useState<Set<string>>(new Set());
 
-  const serverCompletedChapters = useMemo(() => {
+  const serverCompletedReadings = useMemo(() => {
     const set = new Set<string>();
     if (todayReading?.completedReadings) {
       for (const cr of todayReading.completedReadings) {
@@ -138,8 +134,8 @@ export function ReadingPlanDayView({
   }, [todayReading?.completedReadings]);
 
   useEffect(() => {
-    setCompletedChapters(new Set(serverCompletedChapters));
-  }, [serverCompletedChapters]);
+    setCompletedReadings(new Set(serverCompletedReadings));
+  }, [serverCompletedReadings]);
 
   const markCompleteMutation = useMutation({
     mutationFn: async ({ planId, dayIndex, completedReadings }: { 
@@ -170,36 +166,55 @@ export function ReadingPlanDayView({
     },
   });
 
-  const handleToggleChapter = (reading: DailyReading, chapter: number) => {
-    const key = `${reading.book}-${chapter}`;
-    const newCompleted = new Set(completedChapters);
-    
-    if (newCompleted.has(key)) {
-      newCompleted.delete(key);
-    } else {
-      newCompleted.add(key);
+  const getChaptersFromReading = (reading: DailyReading): number[] => {
+    const chapters: number[] = [];
+    const start = reading.startChapter;
+    const end = reading.endChapter || reading.startChapter;
+    for (let ch = start; ch <= end; ch++) {
+      chapters.push(ch);
     }
-    
-    setCompletedChapters(newCompleted);
+    return chapters;
   };
 
-  const handleSaveProgress = () => {
+  const isReadingComplete = (reading: DailyReading): boolean => {
+    const chapters = getChaptersFromReading(reading);
+    return chapters.every(ch => completedReadings.has(`${reading.book}-${ch}`));
+  };
+
+  const handleToggleReading = (reading: DailyReading) => {
+    const newCompleted = new Set(completedReadings);
+    const chapters = getChaptersFromReading(reading);
+    const allComplete = isReadingComplete(reading);
+    
+    for (const ch of chapters) {
+      const key = `${reading.book}-${ch}`;
+      if (allComplete) {
+        newCompleted.delete(key);
+      } else {
+        newCompleted.add(key);
+      }
+    }
+    
+    setCompletedReadings(newCompleted);
+  };
+
+  const handleMarkAsRead = () => {
     if (!todayReading) return;
     
-    const completedReadings: { book: string; chapter: number }[] = [];
+    const readings: { book: string; chapter: number }[] = [];
     
-    const completedArray = Array.from(completedChapters);
+    const completedArray = Array.from(completedReadings);
     for (const key of completedArray) {
       const [book, chapterStr] = key.split('-');
       const chapter = parseInt(chapterStr, 10);
       if (book && !isNaN(chapter)) {
-        completedReadings.push({ book, chapter });
+        readings.push({ book, chapter });
       }
     }
     
-    if (completedReadings.length === 0) {
+    if (readings.length === 0) {
       toast({
-        title: lang === 'pt' ? "Selecione pelo menos um capítulo" : "Select at least one chapter",
+        title: lang === 'pt' ? "Selecione pelo menos uma leitura" : "Select at least one reading",
         variant: "destructive",
       });
       return;
@@ -208,276 +223,207 @@ export function ReadingPlanDayView({
     markCompleteMutation.mutate({
       planId: plan.id,
       dayIndex: todayReading.dayIndex,
-      completedReadings,
+      completedReadings: readings,
     });
   };
 
   const handleMarkAllComplete = () => {
     if (!todayReading) return;
     
-    const allChapters = new Set<string>();
+    const allKeys = new Set<string>();
+    const allReadings: { book: string; chapter: number }[] = [];
+    
     for (const reading of todayReading.readings) {
-      const startCh = reading.startChapter;
-      const endCh = reading.endChapter || reading.startChapter;
-      for (let ch = startCh; ch <= endCh; ch++) {
-        allChapters.add(`${reading.book}-${ch}`);
+      const chapters = getChaptersFromReading(reading);
+      for (const ch of chapters) {
+        const key = `${reading.book}-${ch}`;
+        allKeys.add(key);
+        allReadings.push({ book: reading.book, chapter: ch });
       }
     }
     
-    setCompletedChapters(allChapters);
-    
-    const completedReadings: { book: string; chapter: number }[] = [];
-    const allChaptersArray = Array.from(allChapters);
-    for (const key of allChaptersArray) {
-      const [book, chapterStr] = key.split('-');
-      const chapter = parseInt(chapterStr, 10);
-      if (book && !isNaN(chapter)) {
-        completedReadings.push({ book, chapter });
-      }
-    }
+    setCompletedReadings(allKeys);
     
     markCompleteMutation.mutate({
       planId: plan.id,
       dayIndex: todayReading.dayIndex,
-      completedReadings,
+      completedReadings: allReadings,
     });
   };
-
-  const getChaptersFromReading = (reading: DailyReading): number[] => {
-    const chapters: number[] = [];
-    const startCh = reading.startChapter;
-    const endCh = reading.endChapter || reading.startChapter;
-    
-    for (let ch = startCh; ch <= endCh; ch++) {
-      chapters.push(ch);
-    }
-    
-    return chapters;
-  };
-
-  const totalTodayChapters = todayReading?.readings.reduce((acc, r) => {
-    return acc + getChaptersFromReading(r).length;
-  }, 0) || 0;
-
-  const completedTodayCount = todayReading?.readings.reduce((acc, reading) => {
-    const chapters = getChaptersFromReading(reading);
-    return acc + chapters.filter(ch => completedChapters.has(`${reading.book}-${ch}`)).length;
-  }, 0) || 0;
-
-  const todayProgress = totalTodayChapters > 0 ? Math.round((completedTodayCount / totalTodayChapters) * 100) : 0;
 
   const progressPercent = plan.template 
     ? Math.round((plan.completedDays / plan.template.durationDays) * 100)
     : 0;
 
+  const nextDayReading = upcomingReadings.length > 0 ? upcomingReadings[0] : null;
+  const nextDayRef = nextDayReading?.readings
+    .map(r => formatReadingReference(r, lang))
+    .join(', ');
+
+  const planTitle = plan.template 
+    ? (lang === 'en' ? plan.template.titleEn : lang === 'es' ? plan.template.titleEs : plan.template.titlePt)
+    : (lang === 'pt' ? 'Meu Plano' : 'My Plan');
+
   return (
-    <div className="flex flex-col h-full bg-background">
-      <header className="shrink-0 px-4 py-3 border-b bg-background/95 backdrop-blur flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back-plan">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
+      <header className="shrink-0 px-4 py-4 bg-white dark:bg-slate-800 flex items-center gap-3 shadow-sm">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onBack}
+          className="text-slate-600 dark:text-slate-300"
+          data-testid="button-back-plan"
+        >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-semibold truncate">
-            {plan.template 
-              ? (lang === 'en' ? plan.template.titleEn : lang === 'es' ? plan.template.titleEs : plan.template.titlePt)
-              : lang === 'pt' ? 'Meu Plano' : 'My Plan'}
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            {lang === 'pt' ? `Dia ${plan.currentDay}` : `Day ${plan.currentDay}`} • {progressPercent}%
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 text-sm">
-            <Flame className="w-4 h-4 text-orange-500" />
-            <span className="font-medium">{plan.streakDays}</span>
-          </div>
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <Trophy className="w-4 h-4 text-yellow-500" />
-            <span>{plan.longestStreak}</span>
-          </div>
-        </div>
+        <h1 className="text-base font-bold text-[#357ABD] flex-1 text-center pr-10">
+          {planTitle} - {lang === 'pt' ? 'Dia' : 'Day'} {plan.currentDay}
+        </h1>
       </header>
 
-      <div className="shrink-0 px-4 py-3">
-        <Progress value={progressPercent} className="h-1" />
-      </div>
-
       <ScrollArea className="flex-1">
-        <div className="px-4 pb-32 space-y-4">
-          {overdueReadings.length > 0 && (
-            <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
-              <p className="text-sm font-medium text-orange-600 dark:text-orange-400 mb-2">
-                {overdueReadings.length} {lang === 'pt' ? 'leituras atrasadas' : 'overdue readings'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {overdueReadings.slice(0, 3).map((reading) => (
-                  <Badge 
-                    key={reading.id} 
-                    variant="secondary" 
-                    className="bg-orange-500/20 text-orange-700 dark:text-orange-300"
-                  >
-                    {lang === 'pt' ? `Dia ${reading.dayIndex}` : `Day ${reading.dayIndex}`}
-                  </Badge>
-                ))}
-                {overdueReadings.length > 3 && (
-                  <Badge variant="secondary" className="bg-orange-500/20 text-orange-700 dark:text-orange-300">
-                    +{overdueReadings.length - 3}
-                  </Badge>
-                )}
-              </div>
+        <div className="px-4 py-4 space-y-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-slate-600 dark:text-slate-400">
+                {lang === 'pt' ? 'Progresso:' : 'Progress:'} {progressPercent}% {lang === 'pt' ? 'Completo' : 'Complete'}
+              </span>
             </div>
-          )}
+            <Progress 
+              value={progressPercent} 
+              className="h-3 bg-slate-200 dark:bg-slate-600" 
+            />
+          </div>
 
           {todayReading && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                  {lang === 'pt' ? 'Leitura de Hoje' : "Today's Reading"}
-                </h2>
-                {todayReading.isCompleted && (
-                  <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                    {lang === 'pt' ? 'Completo' : 'Done'}
-                  </Badge>
-                )}
-              </div>
-
-              {!todayReading.isCompleted && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Progress value={todayProgress} className="flex-1 h-1.5" />
-                  <span className="text-muted-foreground whitespace-nowrap">
-                    {completedTodayCount}/{totalTodayChapters}
-                  </span>
-                </div>
-              )}
-
-              {todayReading.readings.map((reading, idx) => {
-                const chapters = getChaptersFromReading(reading);
-                
-                return (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="rounded-xl border bg-card overflow-hidden"
-                  >
-                    <div className="px-4 py-3 border-b bg-muted/30 flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-primary" />
-                      <span className="font-medium">{getBookName(reading.book, lang)}</span>
-                      <span className="text-sm text-muted-foreground ml-auto">
-                        {chapters.length} {lang === 'pt' ? 'cap.' : 'ch.'}
-                      </span>
-                    </div>
-                    
-                    <div className="divide-y">
-                      {chapters.map(chapter => {
-                        const isChecked = completedChapters.has(`${reading.book}-${chapter}`);
-                        
-                        return (
-                          <div
-                            key={chapter}
-                            className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
-                          >
-                            <Checkbox
-                              checked={isChecked}
-                              onCheckedChange={() => handleToggleChapter(reading, chapter)}
-                              data-testid={`checkbox-${reading.book}-${chapter}`}
-                            />
-                            <button
-                              onClick={() => onNavigateToChapter(reading.book, chapter)}
-                              className="flex-1 text-left flex items-center justify-between group"
-                              data-testid={`reading-${reading.book}-${chapter}`}
-                            >
-                              <span className={isChecked ? 'text-muted-foreground line-through' : ''}>
-                                {lang === 'pt' ? 'Capítulo' : 'Chapter'} {chapter}
-                              </span>
-                              <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-
-          {upcomingReadings.length > 1 && (
-            <div className="space-y-2">
-              <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                {lang === 'pt' ? 'Próximos Dias' : 'Upcoming'}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                {lang === 'pt' ? 'Leitura de Hoje:' : "Today's Reading:"}
               </h2>
-              {upcomingReadings.slice(1, 4).map((reading) => (
-                <div 
-                  key={reading.id}
-                  className="p-3 rounded-xl border bg-card flex items-center justify-between"
-                >
-                  <div>
-                    <span className="text-sm font-medium">
-                      {lang === 'pt' ? `Dia ${reading.dayIndex}` : `Day ${reading.dayIndex}`}
-                    </span>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {reading.readings.map(r => formatReadingReference(r, lang)).join(', ')}
-                    </p>
-                  </div>
-                </div>
-              ))}
+              
+              <div className="space-y-2">
+                {todayReading.readings.map((reading, idx) => {
+                  const isChecked = isReadingComplete(reading);
+                  
+                  return (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="flex items-center gap-3 py-2"
+                    >
+                      <button
+                        onClick={() => handleToggleReading(reading)}
+                        className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
+                          isChecked 
+                            ? 'bg-[#357ABD] text-white' 
+                            : 'border-2 border-slate-300 dark:border-slate-500'
+                        }`}
+                        data-testid={`check-${reading.book}-${reading.startChapter}`}
+                      >
+                        {isChecked && <Check className="w-4 h-4" />}
+                      </button>
+                      
+                      <button
+                        onClick={() => onNavigateToChapter(reading.book, reading.startChapter)}
+                        className="flex-1 text-left text-slate-700 dark:text-slate-300 font-medium"
+                        data-testid={`reading-${reading.book}-${reading.startChapter}`}
+                      >
+                        {formatReadingReference(reading, lang)}
+                      </button>
+                      
+                      <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                        isChecked ? 'bg-[#357ABD]' : 'bg-slate-200 dark:bg-slate-600'
+                      }`}>
+                        <Check className={`w-4 h-4 ${isChecked ? 'text-white' : 'text-transparent'}`} />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          <div className="p-4 rounded-xl border border-dashed border-primary/30 bg-primary/5 text-center">
-            <Sparkles className="w-6 h-6 mx-auto text-primary/50 mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {lang === 'pt' 
-                ? 'S.O.A.P.: Escritura, Observação, Aplicação, Oração'
-                : 'S.O.A.P.: Scripture, Observation, Application, Prayer'}
-            </p>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              {lang === 'pt' ? 'Notas do Dia' : 'Daily Notes'}
+            </h2>
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <p className="text-sm text-slate-500 dark:text-slate-400 italic">
+                  {lang === 'pt' 
+                    ? 'Reflexão sobre a leitura de hoje.'
+                    : 'Reflection on today\'s reading.'}
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 italic">
+                  {lang === 'pt' 
+                    ? 'Anote insights e perguntas importantes.'
+                    : 'Write down insights and important questions.'}
+                </p>
+              </div>
+              <div className="w-16 h-16 flex items-center justify-center">
+                <BookOpen className="w-12 h-12 text-[#5CB85C]" />
+              </div>
+            </div>
           </div>
-        </div>
-      </ScrollArea>
 
-      {todayReading && !todayReading.isCompleted && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t safe-area-bottom">
-          <div className="flex gap-2 max-w-lg mx-auto">
+          <div className="flex gap-3">
             <Button
-              className="flex-1"
-              onClick={handleSaveProgress}
-              disabled={markCompleteMutation.isPending || completedChapters.size === 0}
-              data-testid="button-save-progress"
-            >
-              <CheckCircle2 className="w-4 h-4 mr-2" />
-              {markCompleteMutation.isPending 
-                ? (lang === 'pt' ? 'Salvando...' : 'Saving...')
-                : (lang === 'pt' ? 'Salvar' : 'Save')}
-            </Button>
-            
-            <Button
-              variant="secondary"
+              className="flex-1 bg-[#F0AD4E] hover:bg-[#EC971F] text-white font-semibold rounded-full py-5"
               onClick={handleMarkAllComplete}
-              disabled={markCompleteMutation.isPending}
-              data-testid="button-complete-all"
+              disabled={markCompleteMutation.isPending || todayReading?.isCompleted}
+              data-testid="button-mark-read"
             >
-              {lang === 'pt' ? 'Tudo' : 'All'}
+              {markCompleteMutation.isPending
+                ? (lang === 'pt' ? 'Salvando...' : 'Saving...')
+                : (lang === 'pt' ? 'Marcar como Lido' : 'Mark as Read')}
             </Button>
             
-            {onAskAI && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  const ref = todayReading.readings.map(r => formatReadingReference(r, lang)).join(', ');
-                  onAskAI(`Explique o contexto e principais ensinamentos de ${ref}`);
-                }}
-                data-testid="button-ask-ai-context"
+            <Button
+              className="flex-1 bg-[#357ABD] hover:bg-[#2A5F8F] text-white font-semibold rounded-full py-5"
+              onClick={() => {
+                if (onAskAI && todayReading) {
+                  const refs = todayReading.readings.map(r => formatReadingReference(r, lang)).join(', ');
+                  onAskAI(`Analise o contexto e principais ensinamentos de ${refs}`);
+                }
+              }}
+              data-testid="button-ai-analysis"
+            >
+              {lang === 'pt' ? 'Analise IA' : 'AI Analysis'}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+
+          <div className="flex justify-center gap-6 py-2">
+            <button 
+              className="text-sm text-slate-500 dark:text-slate-400 underline"
+              data-testid="button-skip-day"
+            >
+              {lang === 'pt' ? 'Pular Dia' : 'Skip Day'}
+            </button>
+            <span className="text-slate-300 dark:text-slate-600">|</span>
+            {nextDayReading && (
+              <button 
+                className="text-sm text-slate-500 dark:text-slate-400 underline"
+                data-testid="button-next-day"
               >
-                <MessageSquare className="w-4 h-4" />
-              </Button>
+                {lang === 'pt' 
+                  ? `Dia ${nextDayReading.dayIndex}: Leitura Amanhã`
+                  : `Day ${nextDayReading.dayIndex}: Tomorrow's Reading`}
+              </button>
             )}
           </div>
+
+          {nextDayRef && (
+            <div className="text-center pb-4">
+              <span className="text-base font-semibold text-slate-700 dark:text-slate-300">
+                {nextDayRef}
+              </span>
+            </div>
+          )}
         </div>
-      )}
+      </ScrollArea>
     </div>
   );
 }

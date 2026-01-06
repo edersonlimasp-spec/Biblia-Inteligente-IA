@@ -15,6 +15,7 @@ type Screen =
   | "professor"
   | "ai-modes"
   | "plans-progress"
+  | "plan-day"
   | "calendar"
   | "recordings"
   | "subscriptions"
@@ -70,6 +71,7 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "professor": "dashboard",
   "ai-modes": "dashboard",
   "plans-progress": "dashboard",
+  "plan-day": "plans-progress",
   "calendar": "dashboard",
   "recordings": "dashboard",
   "subscriptions": "dashboard",

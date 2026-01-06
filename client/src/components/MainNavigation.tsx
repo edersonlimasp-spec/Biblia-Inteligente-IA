@@ -16,6 +16,7 @@ import { BibleGames } from "./BibleGames";
 import { ProfessorScreen } from "./ProfessorScreen";
 import { AIModesScreen } from "./AIModesScreen";
 import { PlansProgressScreen } from "./PlansProgressScreen";
+import { ReadingPlanDayViewWrapper } from "./ReadingPlanDayViewWrapper";
 import { AgendaScreen } from "./AgendaScreen";
 import { RecordingsScreen } from "./RecordingsScreen";
 import { StudyModulesScreen } from "./StudyModulesScreen";
@@ -50,6 +51,9 @@ function NavigationContent() {
   
   // State for navigating to specific Bible chapter from reading plans
   const [bibleNavTarget, setBibleNavTarget] = useState<{ book: string; chapter: number } | null>(null);
+  
+  // State for selected reading plan
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const handleBackToLoginFromReset = () => {
     setLocation("/");
@@ -204,6 +208,25 @@ function NavigationContent() {
                 setBibleNavTarget(null);
               }
               navigate("bible");
+            }}
+            onOpenMyPlan={(planId: string) => {
+              setSelectedPlanId(planId);
+              navigate("plan-day");
+            }}
+          />
+        </RequireAuthScreen>
+      )}
+      {currentScreen === "plan-day" && selectedPlanId && (
+        <RequireAuthScreen featureName="Plano de Leitura" onAuthCancel={() => goBack()}>
+          <ReadingPlanDayViewWrapper
+            planId={selectedPlanId}
+            onBack={() => goBack()}
+            onNavigateToChapter={(book: string, chapter: number) => {
+              setBibleNavTarget({ book, chapter });
+              navigate("bible");
+            }}
+            onAskAI={(question: string) => {
+              navigate("professor");
             }}
           />
         </RequireAuthScreen>

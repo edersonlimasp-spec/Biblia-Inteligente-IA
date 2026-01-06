@@ -351,22 +351,49 @@ export function ReadingPlanDayView({
             </h2>
             <div className="flex items-start gap-3">
               <div className="flex-1">
-                <p className="text-sm text-slate-500 dark:text-slate-400 italic">
+                <p className="text-sm text-slate-500 dark:text-slate-400 italic mb-2">
                   {lang === 'pt' 
                     ? 'Reflexão sobre a leitura de hoje.'
                     : 'Reflection on today\'s reading.'}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 italic">
+                <p className="text-sm text-slate-500 dark:text-slate-400 italic mb-3">
                   {lang === 'pt' 
                     ? 'Anote insights e perguntas importantes.'
                     : 'Write down insights and important questions.'}
                 </p>
+                <textarea
+                  className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#357ABD]/50"
+                  placeholder={lang === 'pt' ? 'Escreva suas notas aqui...' : 'Write your notes here...'}
+                  rows={3}
+                  data-testid="input-notes"
+                />
               </div>
-              <div className="w-16 h-16 flex items-center justify-center">
+              <div className="w-16 h-16 flex items-center justify-center shrink-0">
                 <BookOpen className="w-12 h-12 text-[#5CB85C]" />
               </div>
             </div>
           </div>
+
+          {todayReading && !todayReading.isCompleted && (
+            <Button
+              className="w-full bg-[#5CB85C] hover:bg-[#449D44] text-white font-semibold rounded-full py-5"
+              onClick={() => {
+                const firstUnread = todayReading.readings.find(r => !isReadingComplete(r));
+                if (firstUnread) {
+                  onNavigateToChapter(firstUnread.book, firstUnread.startChapter);
+                } else {
+                  const first = todayReading.readings[0];
+                  if (first) {
+                    onNavigateToChapter(first.book, first.startChapter);
+                  }
+                }
+              }}
+              data-testid="button-continue-reading"
+            >
+              {lang === 'pt' ? 'Continuar Leitura' : 'Continue Reading'}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
 
           <div className="flex gap-3">
             <Button

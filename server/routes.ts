@@ -616,6 +616,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user preferred Bible version
+  app.post("/api/user/bible-version", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { version } = req.body;
+      
+      if (!version || typeof version !== "string") {
+        return res.status(400).json({ error: "Versão inválida" });
+      }
+
+      await db.update(users).set({ preferredBibleVersion: version }).where(eq(users.id, req.userId!));
+      res.json({ success: true, version });
+    } catch (error) {
+      console.error("Update Bible version error:", error);
+      res.status(500).json({ error: "Erro ao atualizar versão" });
+    }
+  });
+
+  // Get user preferred Bible version
+  app.get("/api/user/bible-version", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const user = await storage.getUser(req.userId!);
+      res.json({ version: user?.preferredBibleVersion || "ACF" });
+    } catch (error) {
+      console.error("Get Bible version error:", error);
+      res.status(500).json({ error: "Erro ao buscar versão" });
+    }
+  });
+
   // Admin Routes
   // IMPORTANT: This route allows the FIRST user to become admin without authentication
   // After the first admin exists, only authenticated admins can make others admin

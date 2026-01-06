@@ -1,0 +1,66 @@
+VOCÊ É O REPLIT AGENT. RESOLVA ISSO SEM APAGAR DADOS.
+
+CONTEXTO
+No Deploy/Publishing apareceu um conflito:
+“Add bible_versions_code_unique unique constraint to bible_versions table (13 items). It may fail if existing data doesn't match. Do you want to delete all data first?”
+EU NÃO QUERO APAGAR DADOS. Eu selecionei “No, add the constraint without deleting data”.
+
+PROBLEMA REAL DO APP
+O seletor de versões funciona no Preview, mas no Publicado não muda a versão. Isso provavelmente ocorre porque existem registros duplicados/ambíguos em bible_versions (code repetido) ou a consulta busca por code e pega sempre o mesmo registro.
+
+OBJETIVO
+1) Fazer a constraint UNIQUE em bible_versions.code (ou no campo correto “code”) funcionar SEM deletar dados.
+2) Corrigir os dados existentes para não haver duplicidade.
+3) Garantir que o seletor de versões use um identificador único e que, ao trocar a versão, o texto mude no DEPLOY.
+
+REGRAS
+- PROIBIDO deletar a tabela inteira.
+- PROIBIDO “resetar o banco”.
+- Você deve corrigir duplicados de forma segura (renomear codes, ou criar codes únicos, ou remover duplicidade apenas se for claramente registro inválido).
+- Você deve me mostrar o que encontrou e o que alterou.
+
+TAREFAS (EXECUTAR EM ORDEM)
+
+ETAPA 1 — INSPECIONAR DUPLICIDADES
+1) Verificar quais registros têm code duplicado:
+   - SQL: SELECT code, COUNT(*) FROM bible_versions GROUP BY code HAVING COUNT(*) > 1;
+2) Listar também IDs/colunas para eu entender:
+   - SQL: SELECT id, code, name, language, created_at FROM bible_versions WHERE code IN ( ...duplicados... ) ORDER BY code, id;
+
+ETAPA 2 — CORRIGIR SEM PERDER DADOS
+Para cada code duplicado:
+- Decidir uma regra automática para tornar único SEM apagar:
+  Exemplo:
+  - manter o primeiro como está
+  - nos demais, ajustar code adicionando sufixo baseado em language + id
+  - formato: `${code}_${language}_${id}`
+  Ex.: “almeida” duplicado -> “almeida_pt_12”, “almeida_pt_19”
+- Aplicar updates no banco (SQL UPDATE) para corrigir.
+
+ETAPA 3 — APLICAR A CONSTRAINT UNIQUE
+Depois de não haver duplicados:
+- aplicar a constraint unique em bible_versions.code (ou no campo correto).
+- Confirmar que passou.
+
+ETAPA 4 — GARANTIR QUE O APP USA CODE ÚNICO
+- Verificar onde o app busca versões:
+  - Se busca por code: OK (agora é único)
+  - Se o app usa name e name repete: corrigir para usar code (ou id)
+- No seletor, garantir que value=code (ou id) e que a query usa esse mesmo value.
+- Garantir que ao trocar versão o loader usa versionCode (ou id) para carregar texto.
+
+ETAPA 5 — TESTE NO DEPLOY
+- Testar no domínio publicado:
+  1) Trocar versão 3x e confirmar que o texto muda.
+  2) Refresh mantém a versão.
+- Se não mudar, imprimir logs do backend/consulta para confirmar que retorna a versão correta.
+
+ENTREGA OBRIGATÓRIA
+Me informe:
+- Quais codes estavam duplicados
+- Quais updates você executou (resumo)
+- Confirmação que a constraint UNIQUE foi aplicada
+- Quais arquivos do app foram alterados (se alterou)
+- Confirmação de teste no domínio publicado
+
+IMPORTANTE: NÃO APAGUE DADOS. NÃO USE “delete all data”.

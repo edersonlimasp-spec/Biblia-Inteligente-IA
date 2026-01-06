@@ -300,7 +300,24 @@ export function BibleReader({
     }
   }, [targetVerse, clearTargetVerse, user]);
 
-  // Save version preference to localStorage AND cookie for robust persistence
+  // Fetch user's preferred Bible version from server (for logged users)
+  const { data: serverVersionData } = useQuery<{ version: string }>({
+    queryKey: ['/api/user/bible-version'],
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Apply server version when loaded (for logged users only, on initial load)
+  const serverVersionAppliedRef = useRef(false);
+  useEffect(() => {
+    if (user && serverVersionData?.version && !serverVersionAppliedRef.current) {
+      console.log(`[BIBLE] SERVER_VERSION_LOADED -> ${serverVersionData.version}`);
+      setSelectedVersion(serverVersionData.version);
+      serverVersionAppliedRef.current = true;
+    }
+  }, [user, serverVersionData]);
+
+  // Save version preference to localStorage, cookie AND server (for logged users)
   useEffect(() => {
     if (!selectedVersion) return;
     
@@ -322,7 +339,14 @@ export function BibleReader({
     } catch (e) {
       console.warn('[BIBLE] PERSIST_ERROR -> cookie failed:', e);
     }
-  }, [selectedVersion]);
+
+    // Save to server for logged users (cross-domain persistence)
+    if (user && serverVersionAppliedRef.current) {
+      apiRequest("POST", "/api/user/bible-version", { version: selectedVersion })
+        .then(() => console.log(`[BIBLE] PERSIST_SUCCESS -> server saved: ${selectedVersion}`))
+        .catch((e: Error) => console.warn('[BIBLE] PERSIST_ERROR -> server failed:', e));
+    }
+  }, [selectedVersion, user]);
 
   // Core data queries
   const { data: books } = useQuery<BibleBook[]>({

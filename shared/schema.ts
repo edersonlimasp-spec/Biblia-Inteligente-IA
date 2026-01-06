@@ -33,6 +33,7 @@ export const users = pgTable("users", {
   lastSeenPlatform: text("last_seen_platform").default("web"),
   emailOptOut: boolean("email_opt_out").notNull().default(false),
   preferredLanguage: text("preferred_language").default("pt"),
+  preferredBibleVersion: text("preferred_bible_version").default("ACF"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

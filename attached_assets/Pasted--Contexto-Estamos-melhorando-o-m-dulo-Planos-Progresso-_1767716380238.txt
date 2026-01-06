@@ -1,0 +1,46 @@
+## Contexto
+Estamos melhorando o módulo **Planos & Progresso** do app “Bíblia Inteligente IA”. Atualmente há apenas quatro planos simples (Bíblia em 1 ano, NT em 90 dias, Evangelhos em 30 dias e Salmos em 30 dias), sem cronograma diário visível nem integração com estudos. Desejo oferecer uma experiência semelhante às melhores práticas de leitura bíblica e incluir opções de estudo.
+
+## Requisitos de novas funcionalidades
+
+1. **Adicionar planos de leitura populares**  
+   - **52‑Semana**: cada dia da semana dedicado a um gênero (epístolas, lei, história, Salmos, poesia, profetas, evangelhos).  
+   - **Five‑Day**: leitura da Bíblia ou apenas do NT em um ano, de segunda a sexta.  
+   - **5x5x5 NT**: Novo Testamento em um ano com finais de semana livres.  
+   - **Cronológico**: ordem dos eventos bíblicos.  
+   - **Livro por Livro**: dois trechos diários (AT e NT) completando um livro por vez.  
+   - **Plano Temático/Redentivo**: capítulos-chave mostrando a história da redenção.  
+   - **Planos de 2 ou 3 anos** para ritmos mais lentos.
+
+2. **Interface de cronograma**  
+   - Ao iniciar um plano, criar uma página “Meu plano” exibindo a leitura diária (lista de capítulos/versos com caixas de seleção).  
+   - Registrar o progresso quando o usuário abrir ou marcar um capítulo como lido. Atualizar a barra de progresso e a data prevista de conclusão.  
+   - Permitir adiar/levar atrasos: destacar leituras em atraso e reagendar automaticamente.
+
+3. **Integração com estudo**  
+   - Para cada dia, adicionar links rápidos para recursos de estudo: comentários, perguntas para reflexão (ex.: método S.O.A.P.), resumos e temas principais.  
+   - Integrar com a IA: botão “Análise IA” que oferece visão geral do trecho ou responde dúvidas.  
+   - Exibir resumo do gênero ou contexto no início de cada semana ou plano.
+
+4. **Personalização**  
+   - Permitir que o usuário escolha o ritmo (número de capítulos por dia) e a ordem (canônica, cronológica, alternada entre AT/NT).  
+   - Oferecer plano “Personalizado”: usuário seleciona livros desejados e define duração. Gerar automaticamente o cronograma.
+
+5. **Notificações e sincronização**  
+   - Adicionar lembretes diários via notificação local/web push para a leitura do dia.  
+   - Manter o progresso sincronizado com a conta para acesso em múltiplos dispositivos e offline.
+
+6. **Melhorias visuais**  
+   - Reformular a listagem dos planos com descrições curtas, ícone representativo e número de dias.  
+   - Destacar planos em andamento na aba principal (ex.: “Em andamento: Bíblia em 1 Ano – Dia 15/365”).  
+   - Adicionar filtros (por duração, gênero, objetivo) e marcadores de “novo” ou “popular”.
+
+## Tarefas técnicas
+- Criar estrutura de dados (JSON ou banco) para armazenar diferentes planos, cada um com lista de leituras diárias e metadados (título, duração, gênero).  
+- Implementar componentes React/Flutter (ou framework usado) para visualizar cronogramas, marcar como concluído e mostrar estatísticas de progresso.  
+- Desenvolver função que calcula leituras diárias e ajusta em função do ritmo escolhido.  
+- Integrar notificações web (Notification API) e armazenamento offline (IndexedDB).  
+- Escrever testes de integração para garantir que o progresso é salvo corretamente e que os planos aparecem de acordo com as preferências do usuário.
+
+## Resultado esperado
+Ao finalizar, o módulo “Planos & Progresso” terá uma variedade de planos amplamente recomendados pela comunidade cristã, permitirá acompanhamento detalhado da leitura, oferecerá recursos de estudo integrados e possibilitará personalização e notificações, elevando significativamente a utilidade deste módulo.

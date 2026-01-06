@@ -870,3 +870,157 @@ export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts).om
 
 export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
 export type PaymentReceipt = typeof paymentReceipts.$inferSelect;
+
+// ==========================================
+// READING PLANS MODULE
+// ==========================================
+
+// Reading Plan Templates - predefined plans (52-Week, Five-Day, Chronological, etc.)
+export const readingPlanTemplates = pgTable("reading_plan_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  slug: text("slug").notNull().unique(), // e.g., "52-week-genre", "five-day-bible"
+  titlePt: text("title_pt").notNull(),
+  titleEn: text("title_en").notNull(),
+  titleEs: text("title_es").notNull(),
+  descriptionPt: text("description_pt").notNull(),
+  descriptionEn: text("description_en").notNull(),
+  descriptionEs: text("description_es").notNull(),
+  category: text("category").notNull(), // 'full-bible', 'new-testament', 'old-testament', 'topical', 'custom'
+  durationDays: integer("duration_days").notNull(), // Total days (e.g., 365, 90, 730)
+  defaultPace: integer("default_pace").notNull().default(3), // Chapters per day
+  scheduleMode: text("schedule_mode").notNull().default('canonical'), // 'canonical', 'chronological', 'genre', 'alternating'
+  weekdaysOnly: boolean("weekdays_only").notNull().default(false), // Skip weekends (Five-Day plans)
+  icon: text("icon").notNull().default('BookOpen'), // Lucide icon name
+  colorGradient: text("color_gradient").notNull().default('from-blue-500 to-blue-700'),
+  tags: text("tags").array(), // ['popular', 'new', 'recommended']
+  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  slugIdx: index("reading_plan_templates_slug_idx").on(table.slug),
+  categoryIdx: index("reading_plan_templates_category_idx").on(table.category),
+}));
+
+export const insertReadingPlanTemplateSchema = createInsertSchema(readingPlanTemplates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReadingPlanTemplate = z.infer<typeof insertReadingPlanTemplateSchema>;
+export type ReadingPlanTemplate = typeof readingPlanTemplates.$inferSelect;
+
+// Reading Plan Entries - daily readings for each template
+export interface DailyReading {
+  book: string; // e.g., "gen", "mat"
+  startChapter: number;
+  endChapter?: number; // Optional for multi-chapter readings
+  startVerse?: number; // Optional for verse-specific readings
+  endVerse?: number;
+}
+
+export const readingPlanEntries = pgTable("reading_plan_entries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  templateId: varchar("template_id").notNull().references(() => readingPlanTemplates.id, { onDelete: "cascade" }),
+  dayIndex: integer("day_index").notNull(), // 1-based day number
+  readings: jsonb("readings").notNull().$type<DailyReading[]>(), // Array of readings for this day
+  weekSummaryPt: text("week_summary_pt"), // Optional weekly context summary
+  weekSummaryEn: text("week_summary_en"),
+  weekSummaryEs: text("week_summary_es"),
+  genre: text("genre"), // For genre-based plans: 'epistles', 'law', 'history', 'psalms', 'poetry', 'prophets', 'gospels'
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  templateDayIdx: index("reading_plan_entries_template_day_idx").on(table.templateId, table.dayIndex),
+}));
+
+export const insertReadingPlanEntrySchema = createInsertSchema(readingPlanEntries).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReadingPlanEntry = z.infer<typeof insertReadingPlanEntrySchema>;
+export type ReadingPlanEntry = typeof readingPlanEntries.$inferSelect;
+
+// User Reading Plans - user's active/completed plans
+export const userReadingPlans = pgTable("user_reading_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }), // Nullable for guests
+  deviceId: text("device_id"), // For guest tracking
+  templateId: varchar("template_id").references(() => readingPlanTemplates.id, { onDelete: "set null" }), // Null for custom plans
+  customTitle: text("custom_title"), // For custom plans
+  startDate: timestamp("start_date").notNull(),
+  targetEndDate: timestamp("target_end_date").notNull(),
+  actualEndDate: timestamp("actual_end_date"), // When completed
+  status: text("status").notNull().default('active'), // 'active', 'paused', 'completed', 'abandoned'
+  paceOverride: integer("pace_override"), // User can adjust pace
+  scheduleModeOverride: text("schedule_mode_override"), // User can change order
+  allowAutoCatchup: boolean("allow_auto_catchup").notNull().default(true),
+  notificationsEnabled: boolean("notifications_enabled").notNull().default(true),
+  notificationTime: text("notification_time").default('08:00'), // HH:MM format
+  currentDay: integer("current_day").notNull().default(1), // Current day in the plan
+  completedDays: integer("completed_days").notNull().default(0),
+  lastReadDate: timestamp("last_read_date"),
+  streakDays: integer("streak_days").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("user_reading_plans_user_id_idx").on(table.userId),
+  deviceIdIdx: index("user_reading_plans_device_id_idx").on(table.deviceId),
+  statusIdx: index("user_reading_plans_status_idx").on(table.status),
+}));
+
+export const insertUserReadingPlanSchema = createInsertSchema(userReadingPlans).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUserReadingPlan = z.infer<typeof insertUserReadingPlanSchema>;
+export type UserReadingPlan = typeof userReadingPlans.$inferSelect;
+
+// User Daily Readings - tracks completion of each day's readings
+export interface CompletedReading {
+  book: string;
+  chapter: number;
+  completedAt: string; // ISO timestamp
+}
+
+export const userDailyReadings = pgTable("user_daily_readings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userPlanId: varchar("user_plan_id").notNull().references(() => userReadingPlans.id, { onDelete: "cascade" }),
+  dayIndex: integer("day_index").notNull(), // Day in the plan
+  scheduledDate: timestamp("scheduled_date").notNull(), // Original scheduled date
+  actualDate: timestamp("actual_date"), // When actually completed (for catch-up tracking)
+  readings: jsonb("readings").notNull().$type<DailyReading[]>(), // Readings for this day
+  completedReadings: jsonb("completed_readings").$type<CompletedReading[]>(), // Which ones are done
+  completionPercent: integer("completion_percent").notNull().default(0), // 0-100
+  isCompleted: boolean("is_completed").notNull().default(false),
+  isSkipped: boolean("is_skipped").notNull().default(false),
+  wasAutoShifted: boolean("was_auto_shifted").notNull().default(false), // If rescheduled due to missed days
+  shiftedFromDay: integer("shifted_from_day"), // Original day if shifted
+  soapNotes: jsonb("soap_notes"), // S.O.A.P. method notes
+  aiSummary: text("ai_summary"), // AI-generated summary
+  userNotes: text("user_notes"), // Personal reflection
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userPlanDayIdx: index("user_daily_readings_plan_day_idx").on(table.userPlanId, table.dayIndex),
+  scheduledDateIdx: index("user_daily_readings_scheduled_date_idx").on(table.scheduledDate),
+}));
+
+export const insertUserDailyReadingSchema = createInsertSchema(userDailyReadings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUserDailyReading = z.infer<typeof insertUserDailyReadingSchema>;
+export type UserDailyReading = typeof userDailyReadings.$inferSelect;
+
+// SOAP Notes structure
+export interface SOAPNotes {
+  scripture: string; // Key verse selected
+  observation: string; // What does it say?
+  application: string; // How does it apply to me?
+  prayer: string; // Prayer response
+}

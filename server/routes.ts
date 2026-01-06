@@ -25,6 +25,7 @@ import { STRONG_DATA } from "./strong-data-embedded";
 import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTranslation, getDefaultTranslation } from "./bible/translations";
 import iapRoutes from "./payments/iap-routes";
 import { generateStrongDefinition, isEntryIncomplete } from "./services/strong-ai-generator";
+import { readingPlanService } from "./reading-plans";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -6016,6 +6017,220 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("[Admin Campaigns] Erro ao buscar histórico:", error);
       res.status(500).json({ error: "Erro ao buscar histórico" });
     }
+  });
+
+  // ==========================================
+  // READING PLANS API
+  // ==========================================
+
+  // GET /api/reading-plans/templates - Get all reading plan templates
+  app.get("/api/reading-plans/templates", async (req, res) => {
+    try {
+      const { category, duration } = req.query;
+      const templates = await readingPlanService.getAllTemplates({
+        category: category as string,
+        duration: duration as string,
+      });
+      res.json(templates);
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching templates:", error);
+      res.status(500).json({ error: "Failed to fetch reading plan templates" });
+    }
+  });
+
+  // GET /api/reading-plans/templates/:slug - Get a specific template by slug
+  app.get("/api/reading-plans/templates/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const template = await readingPlanService.getTemplateBySlug(slug);
+      
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      
+      res.json(template);
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching template:", error);
+      res.status(500).json({ error: "Failed to fetch template" });
+    }
+  });
+
+  // POST /api/reading-plans/user - Create a new user reading plan
+  app.post("/api/reading-plans/user", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { templateId, startDate } = req.body;
+      const deviceId = req.headers['x-device-id'] as string;
+      const userId = req.userId || null;
+      
+      if (!templateId) {
+        return res.status(400).json({ error: "templateId is required" });
+      }
+      
+      if (!userId && !deviceId) {
+        return res.status(400).json({ error: "User must be logged in or provide deviceId" });
+      }
+      
+      const plan = await readingPlanService.createUserPlan(
+        userId,
+        deviceId,
+        templateId,
+        startDate ? new Date(startDate) : undefined
+      );
+      
+      res.status(201).json(plan);
+    } catch (error) {
+      console.error("[Reading Plans] Error creating user plan:", error);
+      res.status(500).json({ error: "Failed to create reading plan" });
+    }
+  });
+
+  // GET /api/reading-plans/user - Get user's reading plans
+  app.get("/api/reading-plans/user", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const deviceId = req.headers['x-device-id'] as string;
+      const userId = req.userId || null;
+      const { status } = req.query;
+      
+      if (!userId && !deviceId) {
+        return res.status(400).json({ error: "User must be logged in or provide deviceId" });
+      }
+      
+      const plans = await readingPlanService.getUserPlans(
+        userId,
+        deviceId,
+        status as string
+      );
+      
+      res.json(plans);
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching user plans:", error);
+      res.status(500).json({ error: "Failed to fetch reading plans" });
+    }
+  });
+
+  // GET /api/reading-plans/user/active - Get user's active plan with today's reading
+  app.get("/api/reading-plans/user/active", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const deviceId = req.headers['x-device-id'] as string;
+      const userId = req.userId || null;
+      
+      if (!userId && !deviceId) {
+        return res.status(400).json({ error: "User must be logged in or provide deviceId" });
+      }
+      
+      const plans = await readingPlanService.getUserPlans(userId, deviceId, 'active');
+      
+      if (plans.length === 0) {
+        return res.json({ activePlan: null });
+      }
+      
+      const activePlan = plans[0];
+      const todayReading = await readingPlanService.getTodaysReading(activePlan.id);
+      const upcomingReadings = await readingPlanService.getUpcomingReadings(activePlan.id, 7);
+      const overdueReadings = await readingPlanService.getOverdueReadings(activePlan.id);
+      
+      res.json({
+        activePlan,
+        todayReading,
+        upcomingReadings,
+        overdueReadings,
+      });
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching active plan:", error);
+      res.status(500).json({ error: "Failed to fetch active plan" });
+    }
+  });
+
+  // GET /api/reading-plans/user/:planId - Get a specific user plan
+  app.get("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { planId } = req.params;
+      const plan = await readingPlanService.getUserPlanById(planId);
+      
+      if (!plan) {
+        return res.status(404).json({ error: "Plan not found" });
+      }
+      
+      const todayReading = await readingPlanService.getTodaysReading(planId);
+      const upcomingReadings = await readingPlanService.getUpcomingReadings(planId, 7);
+      const overdueReadings = await readingPlanService.getOverdueReadings(planId);
+      
+      res.json({
+        plan,
+        todayReading,
+        upcomingReadings,
+        overdueReadings,
+      });
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching user plan:", error);
+      res.status(500).json({ error: "Failed to fetch reading plan" });
+    }
+  });
+
+  // POST /api/reading-plans/user/:planId/complete - Mark a day's reading as complete
+  app.post("/api/reading-plans/user/:planId/complete", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { planId } = req.params;
+      const { dayIndex, completedReadings } = req.body;
+      
+      if (typeof dayIndex !== 'number') {
+        return res.status(400).json({ error: "dayIndex is required" });
+      }
+      
+      const result = await readingPlanService.markReadingComplete(
+        planId,
+        dayIndex,
+        completedReadings
+      );
+      
+      res.json(result);
+    } catch (error) {
+      console.error("[Reading Plans] Error completing reading:", error);
+      res.status(500).json({ error: "Failed to mark reading as complete" });
+    }
+  });
+
+  // PATCH /api/reading-plans/user/:planId - Update plan settings
+  app.patch("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { planId } = req.params;
+      const { status, notificationsEnabled, notificationTime } = req.body;
+      
+      if (status) {
+        await readingPlanService.updatePlanStatus(planId, status);
+      }
+      
+      if (typeof notificationsEnabled === 'boolean') {
+        await readingPlanService.updateNotificationSettings(
+          planId,
+          notificationsEnabled,
+          notificationTime
+        );
+      }
+      
+      const updatedPlan = await readingPlanService.getUserPlanById(planId);
+      res.json(updatedPlan);
+    } catch (error) {
+      console.error("[Reading Plans] Error updating plan:", error);
+      res.status(500).json({ error: "Failed to update reading plan" });
+    }
+  });
+
+  // DELETE /api/reading-plans/user/:planId - Delete a user plan
+  app.delete("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { planId } = req.params;
+      await readingPlanService.deletePlan(planId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Reading Plans] Error deleting plan:", error);
+      res.status(500).json({ error: "Failed to delete reading plan" });
+    }
+  });
+
+  // GET /api/reading-plans/books - Get all Bible books info
+  app.get("/api/reading-plans/books", (_req, res) => {
+    res.json(readingPlanService.getAllBooks());
   });
 
   // Health check endpoint

@@ -153,17 +153,49 @@ export function BibleReader({
   // Initialize with last reading position - only runs once on mount
   // BUT always use the version matching the current language
   useEffect(() => {
+    // === BOOT DIAGNOSTICS (PASSO 1-C) ===
+    let savedVersion: string | null = null;
+    let fallbackApplied = false;
+    
+    try {
+      savedVersion = localStorage.getItem("bible_version") || localStorage.getItem("bible-version");
+    } catch (e) {
+      console.warn('[BIBLE] BOOT localStorage error:', e);
+      // Fallback to cookie
+      const cookieMatch = document.cookie.match(/bible_version=([^;]+)/);
+      savedVersion = cookieMatch ? cookieMatch[1] : null;
+    }
+    
     const lastReading = getLastReading();
     const defaultVersion = getDefaultBibleVersion();
+    
+    // Determine version to use
+    let versionToUse = savedVersion || defaultVersion;
+    if (!savedVersion) {
+      fallbackApplied = true;
+      versionToUse = defaultVersion;
+    }
+    
+    console.log(`[BIBLE] BOOT_DIAGNOSTICS -> {
+      savedVersion: "${savedVersion || 'null'}",
+      defaultVersion: "${defaultVersion}",
+      versionToUse: "${versionToUse}",
+      fallbackApplied: ${fallbackApplied},
+      origin: "${window.location.origin}",
+      pathname: "${window.location.pathname}",
+      isProduction: ${import.meta.env.PROD},
+      isDevelopment: ${import.meta.env.DEV},
+      mode: "${import.meta.env.MODE}",
+      timestamp: ${Date.now()}
+    }`);
     
     if (lastReading && lastReading.book && lastReading.chapter) {
       setSelectedBook(lastReading.book);
       setSelectedChapter(lastReading.chapter);
     }
     
-    // Always use version matching current language on mount
-    console.log(`[BIBLE] INIT -> language=${language} defaultVersion=${defaultVersion}`);
-    setSelectedVersion(defaultVersion);
+    // Use saved version or default for current language
+    setSelectedVersion(versionToUse);
     
     // Mark as restored so tracking can begin
     hasRestoredReadingRef.current = true;
@@ -186,9 +218,16 @@ export function BibleReader({
 
   // Handler para mudança de versão com invalidação de cache
   const handleVersionChange = async (newVersion: string) => {
-    console.log(`[BIBLE] VERSION_CHANGE -> from=${selectedVersion} to=${newVersion} book=${selectedBook} chapter=${selectedChapter} ts=${Date.now()}`);
+    console.log(`[BIBLE] VERSION_CHANGE_HANDLER -> {
+      from: "${selectedVersion}",
+      to: "${newVersion}",
+      book: "${selectedBook}",
+      chapter: ${selectedChapter},
+      timestamp: ${Date.now()}
+    }`);
     
     // Remove ALL cached chapter queries to force fresh fetch
+    console.log(`[BIBLE] CACHE_CLEAR -> removing all chapter queries`);
     queryClient.removeQueries({
       queryKey: ['/api/bible/chapter'],
     });
@@ -204,16 +243,17 @@ export function BibleReader({
     });
     
     // Update version state - React Query will create new query with new key
+    console.log(`[BIBLE] STATE_UPDATE -> setSelectedVersion("${newVersion}")`);
     setSelectedVersion(newVersion);
     
     // Force immediate refetch after state update
     setTimeout(() => {
+      console.log(`[BIBLE] REFETCH_FORCED -> invalidating all chapter queries for version=${newVersion}`);
       queryClient.invalidateQueries({ 
         queryKey: ['/api/bible/chapter'],
         refetchType: 'all'
       });
-      console.log(`[BIBLE] REFETCH_FORCED -> version=${newVersion} ts=${Date.now()}`);
-    }, 50);
+    }, 100);
   };
 
   // Navigate to target verse from annotations/bookmarks page
@@ -243,11 +283,28 @@ export function BibleReader({
     }
   }, [targetVerse, clearTargetVerse, user]);
 
-  // Save version preference to localStorage
+  // Save version preference to localStorage AND cookie for robust persistence
   useEffect(() => {
+    if (!selectedVersion) return;
+    
+    console.log(`[BIBLE] PERSIST_VERSION -> version=${selectedVersion} ts=${Date.now()}`);
+    
+    // Primary: localStorage (both keys for backwards compatibility)
     try {
+      localStorage.setItem("bible_version", selectedVersion);
       localStorage.setItem("bible-version", selectedVersion);
-    } catch {}
+      console.log(`[BIBLE] PERSIST_SUCCESS -> localStorage saved: ${selectedVersion}`);
+    } catch (e) {
+      console.warn('[BIBLE] PERSIST_ERROR -> localStorage failed:', e);
+    }
+    
+    // Fallback: cookie (for TWA/PWA where localStorage might not persist)
+    try {
+      document.cookie = `bible_version=${selectedVersion}; path=/; max-age=31536000; SameSite=Lax`;
+      console.log(`[BIBLE] PERSIST_SUCCESS -> cookie saved: ${selectedVersion}`);
+    } catch (e) {
+      console.warn('[BIBLE] PERSIST_ERROR -> cookie failed:', e);
+    }
   }, [selectedVersion]);
 
   // Core data queries
@@ -266,29 +323,72 @@ export function BibleReader({
     refetchOnMount: 'always', // Force refetch on mount
     networkMode: 'always', // Always try network first
     queryFn: async ({ queryKey }) => {
-      // Extract version from queryKey to ensure we fetch the correct version
+      // === FETCH DIAGNOSTICS (PASSO 1-B) ===
       const [, book, chapter, version] = queryKey as [string, string, number, string];
-      const url = `/api/bible/${book}/${chapter}?version=${encodeURIComponent(version)}&_t=${Date.now()}`;
-      console.log(`[BIBLE] FETCHING -> url=${url} queryKey=[${queryKey.join(', ')}] ts=${Date.now()}`);
+      const timestamp = Date.now();
+      const url = `/api/bible/${book}/${chapter}?version=${encodeURIComponent(version)}&_t=${timestamp}`;
+      
+      console.log(`[BIBLE] FETCH_START -> {
+        url: "${url}",
+        book: "${book}",
+        chapter: ${chapter},
+        version: "${version}",
+        origin: "${window.location.origin}",
+        isProduction: ${import.meta.env.PROD},
+        timestamp: ${timestamp}
+      }`);
       
       // Use fetch directly with cache: 'no-store' to bypass browser cache entirely
       const token = localStorage.getItem('authToken');
       const deviceId = getDeviceId();
-      const headers: Record<string, string> = { 'Cache-Control': 'no-cache, no-store' };
+      const headers: Record<string, string> = { 
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      };
       if (token) headers['Authorization'] = `Bearer ${token}`;
       if (deviceId) headers['x-device-id'] = deviceId;
       
-      const response = await fetch(url, {
-        method: 'GET',
-        headers,
-        credentials: 'include',
-        cache: 'no-store', // CRITICAL: Bypass browser cache completely
-      });
-      
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      console.log(`[BIBLE] RESPONSE -> version=${data.version} requestedVersion=${data.requestedVersion} verse1="${data.chapter?.verses?.[0]?.text?.substring(0, 40)}..."`);
-      return data;
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers,
+          credentials: 'include',
+          cache: 'no-store', // CRITICAL: Bypass browser cache completely
+        });
+        
+        console.log(`[BIBLE] FETCH_RESPONSE -> {
+          status: ${response.status},
+          statusText: "${response.statusText}",
+          url: "${response.url}",
+          ok: ${response.ok}
+        }`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        const verse1Text = data.chapter?.verses?.[0]?.text?.substring(0, 60) || 'N/A';
+        const verseCount = data.chapter?.verses?.length || 0;
+        
+        console.log(`[BIBLE] FETCH_SUCCESS -> {
+          returnedVersion: "${data.version}",
+          requestedVersion: "${version}",
+          versionMatch: ${data.version === version},
+          verseCount: ${verseCount},
+          verse1: "${verse1Text}..."
+        }`);
+        
+        return data;
+      } catch (fetchError: any) {
+        console.error(`[BIBLE] FETCH_ERROR -> {
+          error: "${fetchError.message}",
+          url: "${url}",
+          version: "${version}",
+          timestamp: ${Date.now()}
+        }`);
+        throw fetchError;
+      }
     },
   });
 

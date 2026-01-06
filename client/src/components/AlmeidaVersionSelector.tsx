@@ -58,9 +58,24 @@ export function AlmeidaVersionSelector({
   const spanishVersions = availableVersions.filter(v => v.language === 'es');
 
   const handleValueChange = (value: string) => {
-    console.log(`[BIBLE] VERSION_SELECTED -> translationId=${value} from=${selectedVersion} ts=${Date.now()}`);
-    if (value) {
+    // === SELECTOR DIAGNOSTICS (PASSO 1-A) ===
+    console.log(`[BIBLE] VERSION_SELECTOR_CHANGE -> {
+      newVersion: "${value}",
+      previousVersion: "${selectedVersion}",
+      origin: "${window.location.origin}",
+      isProduction: ${import.meta.env.PROD},
+      isDevelopment: ${import.meta.env.DEV},
+      mode: "${import.meta.env.MODE}",
+      timestamp: ${Date.now()}
+    }`);
+    
+    if (value && value !== selectedVersion) {
+      console.log(`[BIBLE] VERSION_CHANGE_TRIGGERED -> calling onVersionChange("${value}")`);
       onVersionChange(value);
+    } else if (value === selectedVersion) {
+      console.log(`[BIBLE] VERSION_SAME -> version already selected: ${value}`);
+    } else {
+      console.warn(`[BIBLE] VERSION_INVALID -> empty or null value received`);
     }
   };
 

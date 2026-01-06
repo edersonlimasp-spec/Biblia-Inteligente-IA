@@ -1082,8 +1082,8 @@ export function BibleReader({
                         ) : null}
                       </div>
                       
-                      {/* Verse Text - justified with improved readability */}
-                      <p className="flex-1 text-justify" style={{ letterSpacing: '0.3px', lineHeight: '1.85' }}>
+                      {/* Verse Text - justified with natural spacing */}
+                      <p className="flex-1 text-justify" style={{ letterSpacing: '0.12px', lineHeight: '1.45' }}>
                         {tokenizeVerse(verse.text, wordsWithStrong).map((token, idx) => (
                           <span key={idx}>
                             <StrongWord

@@ -1,0 +1,57 @@
+AJUSTE FINO — TIPOGRAFIA DA BÍBLIA INTEIRA (SEM MUDAR LAYOUT)
+
+Contexto:
+Após ajustes anteriores, as letras do TEXTO BÍBLICO ficaram “muito espaçadas” (letter-spacing alto).
+Quero manter um leve respiro, mas reduzir o espaçamento para um visual natural e elegante.
+Isso deve valer para A BÍBLIA TODA (todos livros/capítulos/versículos), não apenas Habacuque.
+
+REGRAS OBRIGATÓRIAS:
+1) NÃO mudar o layout atual (posições, alinhamentos, grid, estrutura, responsividade)
+2) NÃO mudar fonte, cor, peso (font-weight) ou tema
+3) NÃO mudar a posição dos números dos versículos
+4) NÃO alterar módulos fora da Bíblia (Strong, IA, cursos, agenda, menus etc)
+5) Ajustar SOMENTE o estilo do texto da leitura bíblica (versículos e títulos dentro da página da Bíblia)
+
+AJUSTES PERMITIDOS (SOMENTE ESTES):
+A) Corrigir letter-spacing global da leitura bíblica:
+   - Definir letter-spacing do texto bíblico para um valor NATURAL e leve:
+     -> entre 0.08px e 0.15px
+   - Se hoje estiver acima disso (ex: 0.3px, 0.4px, 0.5px), REDUZIR para a faixa acima.
+   - NÃO zerar totalmente. É para manter leve respiro, sem “soltar demais”.
+
+B) Ajustar line-height apenas se estiver exagerado:
+   - Manter leitura confortável sem esticar demais:
+     -> line-height alvo entre 1.35 e 1.50
+   - Se estiver maior que isso e deixando “alongado”, reduzir para essa faixa.
+
+C) NÃO mexer em margens externas e paddings globais do app.
+
+COMPARTILHAR (ESPAÇO DO ÍCONE) — SEM MUDAR LAYOUT:
+- Onde existir ícone de compartilhar no topo, garantir que:
+  1) o texto NUNCA fique embaixo/colidindo com o ícone
+  2) reservar espaço do ícone sem deslocar posição dos versículos
+- Implementação correta sem mudar layout:
+  -> manter o share no lugar atual
+  -> reservar espaço para ele com padding-right no container do texto da Bíblia
+     (apenas na página de leitura bíblica; não global do app)
+  -> usar o máximo do espaço restante do header, sem empurrar o texto pra baixo.
+
+COMO IMPLEMENTAR (OBRIGATÓRIO):
+1) Identificar o(s) seletor(es)/classe(s) que renderizam o TEXTO BÍBLICO (versos).
+2) Aplicar:
+   - letter-spacing: 0.08px a 0.15px
+   - line-height: 1.35 a 1.50 (somente se necessário)
+3) Garantir que essas regras só afetem a página/componente da Bíblia.
+
+ETAPA FINAL OBRIGATÓRIA:
+- Testar no Preview:
+  1) Gênesis 1 (texto corrido)
+  2) um Salmo (formatação diferente)
+  3) um profeta (como Habacuque) com ícone de compartilhar
+- Confirmar:
+  ✔ letras não estão “soltas demais”
+  ✔ layout NÃO mudou
+  ✔ número dos versículos não mudou de posição
+  ✔ share não sobrepõe o texto
+  ✔ nada fora da Bíblia mudou
+- Somente depois publicar.

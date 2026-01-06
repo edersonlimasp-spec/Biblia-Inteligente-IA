@@ -1028,7 +1028,7 @@ export function BibleReader({
 
       {/* Bible Text */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 sm:pb-32 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
-        <div className="w-full max-w-2xl mx-auto px-8 sm:px-12 lg:px-16 py-4 sm:py-6">
+        <div className="w-full max-w-3xl mx-auto px-6 sm:px-10 lg:px-14 py-4 sm:py-6">
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-6 w-3/4" />
@@ -1045,7 +1045,7 @@ export function BibleReader({
                 {chapterData.book.name} {selectedChapter}
               </h2>
               {/* Verses with number on left and actions on right */}
-              <div className="space-y-3 sm:space-y-4 text-[1.35rem] sm:text-[1.7rem] font-serif leading-relaxed">
+              <div className="space-y-3 sm:space-y-4 text-xl sm:text-2xl font-serif leading-relaxed">
                 {filteredVerses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 
@@ -1082,8 +1082,8 @@ export function BibleReader({
                         ) : null}
                       </div>
                       
-                      {/* Verse Text - justified with natural spacing */}
-                      <p className="flex-1 text-justify" style={{ letterSpacing: '0.1px', lineHeight: '1.55' }}>
+                      {/* Verse Text - justified */}
+                      <p className="flex-1 text-justify">
                         {tokenizeVerse(verse.text, wordsWithStrong).map((token, idx) => (
                           <span key={idx}>
                             <StrongWord

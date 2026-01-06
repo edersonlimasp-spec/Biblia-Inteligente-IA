@@ -431,12 +431,24 @@ export function BibleReader({
     },
   });
   
-  // Log query errors
+  // Handle query errors - close modal and reset state
   useEffect(() => {
     if (wordSearchError) {
       console.error('[Strong Debug] Query error:', wordSearchError);
+      // Close the searching modal on error
+      setShowSearchingModal(false);
+      setSearchingWord(null);
+      setSearchingVerseNum(null);
+      
+      // Show error toast
+      const errorMessage = (wordSearchError as any)?.message || 'Erro ao buscar Strong';
+      toast({
+        title: "Erro na busca",
+        description: errorMessage,
+        variant: "destructive"
+      });
     }
-  }, [wordSearchError]);
+  }, [wordSearchError, toast]);
 
   // Global Bible search query
   const { data: globalSearchResults, isLoading: isGlobalSearching } = useQuery<GlobalSearchResponse>({
@@ -704,6 +716,9 @@ export function BibleReader({
   const [showSearchingModal, setShowSearchingModal] = useState(false);
   const [searchingWordDisplay, setSearchingWordDisplay] = useState<string>("");
 
+  // Safety timeout ref to prevent infinite loading
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   const handleWordClick = (word: string, verseNum: number) => {
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
     
@@ -714,6 +729,11 @@ export function BibleReader({
       return;
     }
     
+    // Clear any existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
     // Open modal IMMEDIATELY with loading state
     setSearchingWordDisplay(word);
     setShowSearchingModal(true);
@@ -721,7 +741,28 @@ export function BibleReader({
     console.log('[Strong Debug] Setting searchingWord:', cleanWord);
     setSearchingWord(cleanWord);
     setSearchingVerseNum(verseNum);
+    
+    // Safety timeout - close modal after 10 seconds if no response
+    searchTimeoutRef.current = setTimeout(() => {
+      console.log('[Strong Debug] Search timeout - closing modal');
+      setShowSearchingModal(false);
+      setSearchingWord(null);
+      setSearchingVerseNum(null);
+      toast({
+        title: "Tempo esgotado",
+        description: "A busca demorou muito. Tente novamente.",
+        variant: "destructive"
+      });
+    }, 10000);
   };
+  
+  // Clear timeout when search completes
+  useEffect(() => {
+    if (!showSearchingModal && searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+      searchTimeoutRef.current = null;
+    }
+  }, [showSearchingModal]);
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground dark:bg-background dark:text-foreground">

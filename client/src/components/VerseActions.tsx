@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { Share2, Copy, Bookmark, Highlighter, Check, MessageSquare, CheckSquare } from "lucide-react";
+import { Share2, Copy, Bookmark, Highlighter, Check, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,12 +22,10 @@ interface VerseActionsProps {
   text: string;
   isBookmarked?: boolean;
   isHighlighted?: boolean;
-  isSelectedForShare?: boolean;
   onBookmark?: () => void;
   onHighlight?: (color: string) => void;
   onRemoveHighlight?: () => void;
   onAnnotate?: () => void;
-  onSelectForShare?: () => void;
 }
 
 const HIGHLIGHT_COLORS = [
@@ -45,12 +43,10 @@ export function VerseActions({
   text,
   isBookmarked = false,
   isHighlighted = false,
-  isSelectedForShare = false,
   onBookmark,
   onHighlight,
   onRemoveHighlight,
   onAnnotate,
-  onSelectForShare,
 }: VerseActionsProps) {
   const { toast } = useToast();
   const [justCopied, setJustCopied] = useState(false);
@@ -128,14 +124,6 @@ export function VerseActions({
             </>
           )}
         </DropdownMenuItem>
-
-        {/* Select for multi-share */}
-        {onSelectForShare && (
-          <DropdownMenuItem onClick={onSelectForShare} data-testid={`action-select-share-${verse}`}>
-            <CheckSquare className={`h-4 w-4 mr-2 ${isSelectedForShare ? "text-primary" : ""}`} />
-            {isSelectedForShare ? "Remover da seleção" : "Selecionar p/ compartilhar"}
-          </DropdownMenuItem>
-        )}
 
         <DropdownMenuSeparator />
 

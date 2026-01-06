@@ -9,16 +9,6 @@ import { ChevronDown, ChevronUp, MessageSquare, Save, Trash2, Loader2 } from "lu
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
@@ -29,15 +19,12 @@ interface AnnotationPanelProps {
   bookName: string;
   chapter: number;
   selectedVerse?: number | null;
-  isInitiallyExpanded?: boolean;
-  onClose?: () => void;
 }
 
-export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInitiallyExpanded = false, onClose }: AnnotationPanelProps) {
-  const [isExpanded, setIsExpanded] = useState(isInitiallyExpanded);
+export function AnnotationPanel({ book, bookName, chapter, selectedVerse }: AnnotationPanelProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const { toast } = useToast();
   const { requireAuth } = useRequireAuth();
 
@@ -56,31 +43,16 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
     ? chapterAnnotations.find(a => a.verse === selectedVerse)
     : null;
 
-  // Debug logging
-  console.log('[AnnotationPanel] RENDER - book:', book, 'chapter:', chapter, 'selectedVerse:', selectedVerse);
-  console.log('[AnnotationPanel] chapterAnnotations count:', chapterAnnotations.length, 'verseAnnotation:', verseAnnotation?.id);
-  console.log('[AnnotationPanel] Current editingId:', editingId, 'noteText length:', noteText.length);
-
   // Update noteText when verse changes
   useEffect(() => {
-    console.log('[AnnotationPanel] useEffect triggered - verseAnnotation:', verseAnnotation?.id, 'selectedVerse:', selectedVerse);
     if (verseAnnotation) {
-      console.log('[AnnotationPanel] Loading annotation into editor:', verseAnnotation.id, verseAnnotation.note.substring(0, 50));
       setNoteText(verseAnnotation.note);
       setEditingId(verseAnnotation.id);
     } else {
-      console.log('[AnnotationPanel] No verseAnnotation found, clearing editor');
       setNoteText("");
       setEditingId(null);
     }
   }, [selectedVerse, verseAnnotation]);
-
-  // Expand panel when initially expanded flag is true
-  useEffect(() => {
-    if (isInitiallyExpanded && !isExpanded) {
-      setIsExpanded(true);
-    }
-  }, [isInitiallyExpanded]);
 
   // Save annotation
   const saveMutation = useMutation({
@@ -102,9 +74,6 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
         title: "Nota salva",
         description: `Anotação para ${bookName} ${chapter}:${selectedVerse || 1} salva com sucesso`,
       });
-      // Fechar painel após salvar
-      setIsExpanded(false);
-      if (onClose) onClose();
     },
     onError: () => {
       toast({
@@ -142,45 +111,26 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
   };
 
   const handleDelete = () => {
-    console.log('[AnnotationPanel] handleDelete called, editingId:', editingId);
     if (editingId) {
       requireAuth(() => {
-        console.log('[AnnotationPanel] Setting deleteConfirmId to:', editingId);
-        setDeleteConfirmId(editingId);
+        deleteMutation.mutate(editingId);
       }, "excluir anotações");
-    }
-  };
-
-  const confirmDelete = () => {
-    console.log('[AnnotationPanel] confirmDelete called, deleteConfirmId:', deleteConfirmId);
-    if (deleteConfirmId) {
-      const idToDelete = deleteConfirmId;
-      setDeleteConfirmId(null);
-      console.log('[AnnotationPanel] Calling deleteMutation.mutate with id:', idToDelete);
-      deleteMutation.mutate(idToDelete);
     }
   };
 
   const notesCount = chapterAnnotations.length;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background dark:bg-slate-950 shadow-lg">
+    <div className="border-t bg-card/50">
       {/* Collapsible Header */}
       <button
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
-        onClick={() => {
-          const newExpanded = !isExpanded;
-          setIsExpanded(newExpanded);
-          // Quando fechar, notificar o parent para restaurar AIPanel
-          if (!newExpanded && onClose) {
-            onClose();
-          }
-        }}
+        className="w-full flex items-center justify-between px-4 py-2 hover:bg-muted/50 transition-colors"
+        onClick={() => setIsExpanded(!isExpanded)}
         data-testid="button-toggle-annotations"
       >
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium text-foreground">Minhas Anotações</span>
+          <span className="text-sm font-medium">Minhas Anotações</span>
           {notesCount > 0 && (
             <Badge variant="secondary" className="text-xs">
               {notesCount}
@@ -196,10 +146,10 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-4 py-4 space-y-4 bg-muted/20">
+        <div className="px-4 pb-4 space-y-3">
           {/* Current Verse Context */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="font-medium">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>
               {selectedVerse 
                 ? `Nota para ${bookName} ${chapter}:${selectedVerse}`
                 : `Nota geral para ${bookName} ${chapter}`
@@ -212,12 +162,12 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
             placeholder="Escreva sua anotação aqui..."
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
-            className="min-h-[120px] text-base leading-relaxed resize-none bg-background dark:bg-slate-900 text-foreground dark:text-white border border-border placeholder:text-muted-foreground"
+            className="min-h-[80px] text-sm resize-none"
             data-testid="input-annotation"
           />
 
           {/* Action Buttons */}
-          <div className="flex gap-2 justify-end pt-2">
+          <div className="flex gap-2 justify-end">
             {editingId && (
               <Button
                 variant="destructive"
@@ -250,48 +200,25 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
 
           {/* List of existing notes for this chapter */}
           {chapterAnnotations.length > 0 && (
-            <div className="border-t border-border pt-4 mt-4">
-              <p className="text-sm font-medium text-foreground mb-3">
-                Notas neste capítulo ({chapterAnnotations.length}):
+            <div className="border-t pt-3 mt-3">
+              <p className="text-xs font-medium text-muted-foreground mb-2">
+                Notas neste capítulo:
               </p>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+              <div className="space-y-2 max-h-32 overflow-y-auto">
                 {chapterAnnotations.map((ann) => (
                   <div
                     key={ann.id}
-                    className={`text-sm p-3 rounded-md border transition-colors ${
-                      editingId === ann.id 
-                        ? "bg-primary/15 border-primary text-foreground" 
-                        : "bg-background dark:bg-slate-800 border-border text-foreground hover:bg-muted/50 dark:hover:bg-slate-700"
+                    className={`text-xs p-2 rounded border cursor-pointer hover:bg-muted/50 ${
+                      editingId === ann.id ? "bg-primary/10 border-primary" : ""
                     }`}
+                    onClick={() => {
+                      setNoteText(ann.note);
+                      setEditingId(ann.id);
+                    }}
                     data-testid={`annotation-item-${ann.id}`}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div 
-                        className="flex-1 cursor-pointer"
-                        onClick={() => {
-                          setNoteText(ann.note);
-                          setEditingId(ann.id);
-                        }}
-                      >
-                        <span className="font-semibold text-primary">v.{ann.verse}:</span>{" "}
-                        <span className="text-foreground/90 line-clamp-2">{ann.note}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 flex-shrink-0 text-muted-foreground hover:text-destructive"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          requireAuth(() => {
-                            setDeleteConfirmId(ann.id);
-                          }, "excluir anotações");
-                        }}
-                        disabled={deleteMutation.isPending}
-                        data-testid={`button-delete-annotation-${ann.id}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    <span className="font-medium text-primary">v.{ann.verse}:</span>{" "}
+                    <span className="text-muted-foreground line-clamp-2">{ann.note}</span>
                   </div>
                 ))}
               </div>
@@ -299,33 +226,6 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
           )}
         </div>
       )}
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => {
-        if (!open) setDeleteConfirmId(null);
-      }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir anotação?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Deseja excluir esta anotação? Essa ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={(e) => {
-                e.preventDefault();
-                confirmDelete();
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              data-testid="button-confirm-delete"
-            >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

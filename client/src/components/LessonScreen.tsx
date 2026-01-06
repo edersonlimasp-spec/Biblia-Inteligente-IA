@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 
 interface LessonScreenProps {
@@ -38,7 +37,6 @@ interface LessonData {
 
 export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps) {
   const { user } = useAuth();
-  const { language, t } = useLanguage();
   const deviceId = getDeviceId();
   const { toast } = useToast();
   
@@ -54,39 +52,9 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isAskingProfessor, setIsAskingProfessor] = useState(false);
 
-  interface ApiError {
-    error: string;
-    reason: string;
-  }
-  
-  // Get auth token from localStorage
-  const getAuthToken = () => localStorage.getItem('authToken');
-  
-  const { data: lessonData, isLoading, error } = useQuery<LessonData, ApiError>({
-    queryKey: ['/api/study/lessons', lessonId, language],
-    queryFn: async () => {
-      const token = getAuthToken();
-      const headers: HeadersInit = { 'x-device-id': deviceId || '' };
-      
-      // CRITICAL: Add JWT token for authentication
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      const res = await fetch(`/api/study/lessons/${lessonId}?lang=${language}`, {
-        credentials: 'include',
-        headers
-      });
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: 'Failed to fetch lesson', reason: 'UNKNOWN' }));
-        throw errorData;
-      }
-      return res.json();
-    },
-    retry: false,
+  const { data: lessonData, isLoading } = useQuery<LessonData>({
+    queryKey: ['/api/study/lessons', lessonId],
   });
-  
-  const accessError = error as ApiError | null;
 
   const markCompletedMutation = useMutation({
     mutationFn: async () => {
@@ -99,14 +67,14 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
       queryClient.invalidateQueries({ queryKey: ['/api/study/lessons', lessonId] });
       queryClient.invalidateQueries({ queryKey: ['/api/study/modules'] });
       toast({
-        title: t("courses.lessonCompleted"),
-        description: t("courses.progressSaved"),
+        title: "Lição concluída!",
+        description: "Seu progresso foi salvo.",
       });
     },
     onError: () => {
       toast({
-        title: t("common.error"),
-        description: t("common.saveFailed"),
+        title: "Erro",
+        description: "Não foi possível salvar o progresso.",
         variant: "destructive",
       });
     },
@@ -119,8 +87,8 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
     try {
       const endpoint = user ? '/api/ai/ask' : '/api/guest/ai/ask';
       const body = user 
-        ? { question: `Sobre a lição "${lessonData?.lesson.title}": ${question}`, mode: 'professor', language }
-        : { question: `Sobre a lição "${lessonData?.lesson.title}": ${question}`, mode: 'professor', deviceId, language };
+        ? { question: `Sobre a lição "${lessonData?.lesson.title}": ${question}`, mode: 'professor' }
+        : { question: `Sobre a lição "${lessonData?.lesson.title}": ${question}`, mode: 'professor', deviceId };
       
       const response = await apiRequest('POST', endpoint, body);
       const data = await response.json();
@@ -128,8 +96,8 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
       setAiResponse(data.answer || data.response);
     } catch (error: any) {
       toast({
-        title: t("courses.askError"),
-        description: error.message || t("courses.tryAgain"),
+        title: "Erro ao perguntar",
+        description: error.message || "Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -162,44 +130,11 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
     );
   }
 
-  if (accessError) {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back-error">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-sm font-semibold">{t("courses.accessDenied")}</h1>
-          </div>
-        </header>
-        <div className="max-w-md mx-auto px-4 py-12 text-center">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="w-8 h-8 text-primary" />
-          </div>
-          <h2 className="text-lg font-semibold mb-2">
-            {accessError?.reason === 'NOT_AUTHENTICATED' 
-              ? t("courses.loginRequired")
-              : accessError?.reason === 'UPGRADE_REQUIRED'
-              ? t("courses.upgradeRequired")
-              : t("courses.lessonUnavailable")}
-          </h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            {accessError?.error || t("courses.tryAgainLater")}
-          </p>
-          <Button onClick={onBack} data-testid="button-go-back">
-            {t("common.back")}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   const lesson = lessonData?.lesson;
   const isCompleted = lessonData?.completed;
   
-  const referencesList = lesson?.references?.split(',').map(r => r.trim()).filter(Boolean) || [];
-  const questionsList = lesson?.questions?.split('\n').filter(q => q.trim()) || [];
+  const referencesList = lesson?.references.split(',').map(r => r.trim()).filter(Boolean) || [];
+  const questionsList = lesson?.questions.split('\n').filter(q => q.trim()) || [];
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
@@ -221,7 +156,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
               {isCompleted && (
                 <Badge variant="outline" className="ml-1 text-green-600 border-green-500/30 text-xs py-0">
                   <Check className="w-3 h-3 mr-1" />
-                  {t("courses.completed")}
+                  Concluída
                 </Badge>
               )}
             </div>
@@ -248,7 +183,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           </motion.div>
 
           <Section
-            title={t("courses.biblicalReferences")}
+            title="Referências Bíblicas"
             icon={<BookOpen className="w-4 h-4" />}
             expanded={expandedSections.references}
             onToggle={() => toggleSection('references')}
@@ -263,7 +198,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           </Section>
 
           <Section
-            title={t("courses.reflectionQuestions")}
+            title="Perguntas para Reflexão"
             icon={<MessageCircle className="w-4 h-4" />}
             expanded={expandedSections.questions}
             onToggle={() => toggleSection('questions')}
@@ -279,7 +214,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           </Section>
 
           <Section
-            title={t("courses.practicalApplication")}
+            title="Aplicação Prática"
             icon={<Check className="w-4 h-4" />}
             expanded={expandedSections.application}
             onToggle={() => toggleSection('application')}
@@ -288,7 +223,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
           </Section>
 
           <Section
-            title={t("courses.summary")}
+            title="Resumo"
             icon={<BookOpen className="w-4 h-4" />}
             expanded={expandedSections.summary}
             onToggle={() => toggleSection('summary')}
@@ -311,7 +246,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
                 data-testid="button-mark-completed"
               >
                 <Check className="w-4 h-4 mr-2" />
-                {markCompletedMutation.isPending ? t("courses.saving") : t("courses.markComplete")}
+                {markCompletedMutation.isPending ? "Salvando..." : "Marcar como Concluída"}
               </Button>
             </motion.div>
           )}
@@ -328,7 +263,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             <div className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold">{t("courses.askProfessor")}</h3>
+                <h3 className="font-semibold">Perguntar ao Professor</h3>
               </div>
               <Button 
                 variant="ghost" 
@@ -351,7 +286,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
                   animate={{ opacity: 1 }}
                   className="bg-muted/50 rounded-lg p-4 mb-4"
                 >
-                  <p className="text-sm font-medium mb-2">{t("courses.professorResponse")}</p>
+                  <p className="text-sm font-medium mb-2">Resposta do Professor:</p>
                   <p className="text-sm whitespace-pre-wrap">{aiResponse}</p>
                 </motion.div>
               )}
@@ -360,7 +295,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             <div className="p-4 border-t">
               <div className="flex gap-2">
                 <Textarea
-                  placeholder={`${t("courses.askAbout")} "${lesson?.title}"...`}
+                  placeholder={`Pergunte sobre "${lesson?.title}"...`}
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   className="min-h-[60px] resize-none"

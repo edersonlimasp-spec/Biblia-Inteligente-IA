@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,6 @@ const ACHIEVEMENT_CATEGORIES = [
   { id: "special", name: "Especiais", icon: Crown },
 ];
 
-// TODO: Achievement names and descriptions need translation in future
 const ALL_ACHIEVEMENTS = [
   {
     id: "first_chapter",
@@ -212,7 +210,6 @@ const RARITY_COLORS = {
 
 export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
   const { user } = useAuth();
-  const { t } = useLanguage();
   const deviceId = getDeviceId();
 
   const { data: unlockedAchievements = [] } = useQuery<any[]>({
@@ -245,10 +242,10 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
           </Button>
           <h1 className="text-lg font-semibold flex items-center gap-2">
             <Trophy className="w-5 h-5 text-amber-500" />
-            {t("achievements.title")}
+            Conquistas
           </h1>
           <Badge variant="secondary" className="font-mono">
-            {totalPoints} {t("achievements.points")}
+            {totalPoints} pts
           </Badge>
         </div>
       </header>
@@ -263,7 +260,7 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
                 </div>
                 <div className="flex-1 min-w-0 text-center sm:text-left w-full">
                   <h2 className="text-xl sm:text-2xl font-bold">{unlockedAchievements.length} / {ALL_ACHIEVEMENTS.length}</h2>
-                  <p className="text-sm text-muted-foreground">{t("achievements.unlocked")}</p>
+                  <p className="text-sm text-muted-foreground">conquistas desbloqueadas</p>
                   <Progress 
                     value={(unlockedAchievements.length / ALL_ACHIEVEMENTS.length) * 100} 
                     className="h-2 mt-2"
@@ -271,7 +268,7 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
                 </div>
                 <div className="text-center sm:text-right shrink-0">
                   <span className="text-2xl sm:text-3xl font-bold text-amber-500">{totalPoints}</span>
-                  <p className="text-sm text-muted-foreground">{t("achievements.points")}</p>
+                  <p className="text-sm text-muted-foreground">pontos</p>
                 </div>
               </div>
             </CardContent>
@@ -279,11 +276,11 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
 
           <Tabs defaultValue="all" className="w-full">
             <TabsList className="w-full justify-start overflow-x-auto">
-              <TabsTrigger value="all" data-testid="tab-all">{t("achievements.tabAll")}</TabsTrigger>
+              <TabsTrigger value="all" data-testid="tab-all">Todas</TabsTrigger>
               {ACHIEVEMENT_CATEGORIES.map((cat) => (
                 <TabsTrigger key={cat.id} value={cat.id} data-testid={`tab-${cat.id}`}>
                   <cat.icon className="w-4 h-4 mr-1.5" />
-                  {t(`achievements.tab${cat.id.charAt(0).toUpperCase() + cat.id.slice(1)}`)}
+                  {cat.name}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -320,7 +317,7 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
                                 {achievement.description}
                               </p>
                               <Badge variant="outline" className="text-xs capitalize mt-1.5">
-                                {t(`achievements.${achievement.rarity.replace("é", "e")}`)}
+                                {achievement.rarity}
                               </Badge>
                             </div>
                           </div>
@@ -365,7 +362,7 @@ export function AchievementsScreen({ onBack }: AchievementsScreenProps) {
                                   {achievement.description}
                                 </p>
                                 <Badge variant="outline" className="text-xs capitalize mt-1.5">
-                                  {t(`achievements.${achievement.rarity.replace("é", "e")}`)}
+                                  {achievement.rarity}
                                 </Badge>
                               </div>
                             </div>

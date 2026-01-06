@@ -1,10 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent, Infinity, ShoppingCart, DollarSign, Gem } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ComposedChart } from "recharts";
+import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck } from "lucide-react";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface DashboardStats {
   totalUsers: number;
@@ -18,9 +16,6 @@ interface DashboardStats {
   totalGuests: number;
   activeGuestTrials: number;
   convertedGuests: number;
-  newGuestsToday: number;
-  activeGuestsToday: number;
-  inactiveUsers: number;
 }
 
 interface OnlineMetrics {
@@ -30,7 +25,7 @@ interface OnlineMetrics {
 interface AIUsageStats {
   total: number;
   byMode: { essential: number; premium: number };
-  byUser: Array<{ userId: string; email: string; count: number }>;
+  byUser: Array<{ userId: string; count: number }>;
 }
 
 interface HeatmapData {
@@ -43,63 +38,9 @@ interface AbandonedSubscription {
   lastSeenAt: string;
 }
 
-interface ConversionMetrics {
-  today: { redirects: number; conversions: number; rate: number };
-  thisMonth: { redirects: number; conversions: number; rate: number };
-  lastMonth: { redirects: number; conversions: number; rate: number };
-  dailyTrend: Array<{ date: string; redirects: number; conversions: number }>;
-}
-
-interface PurchaseItem {
-  id: string;
-  userId: string;
-  planType: string;
-  status: string;
-  amount: string;
-  createdAt: string;
-  startDate: string;
-  endDate: string | null;
-  user?: { id: string; email: string; name: string | null };
-}
-
-interface PurchaseMetrics {
-  summary: {
-    gold: { count: number; total: string };
-    premium: { count: number; total: string };
-    lifetime: { count: number; total: string };
-  };
-  recentPurchases: {
-    gold: PurchaseItem[];
-    premium: PurchaseItem[];
-    lifetime: PurchaseItem[];
-  };
-  dailyTrend: Array<{ date: string; gold: number; premium: number; lifetime: number }>;
-}
-
-interface UserGrowthMetrics {
-  year: number;
-  months: Array<{
-    month: string;
-    monthLabel: string;
-    users: number;
-    guests: number;
-    usersTotal: number;
-    guestsTotal: number;
-  }>;
-  totals: {
-    usersThisYear: number;
-    guestsThisYear: number;
-    usersAllTime: number;
-    guestsAllTime: number;
-  };
-}
-
 export function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/stats'],
-    staleTime: 0, // Always refetch
-    gcTime: 0, // Don't cache
-    refetchOnMount: 'always',
   });
 
   const { data: online, isLoading: onlineLoading } = useQuery<OnlineMetrics>({
@@ -117,24 +58,6 @@ export function AdminDashboard() {
 
   const { data: abandonedData, isLoading: abandonedLoading } = useQuery<{abandoned: AbandonedSubscription[]}> ({
     queryKey: ['/api/admin/metrics/abandoned-subscriptions'],
-  });
-
-  const { data: conversionMetrics, isLoading: conversionLoading } = useQuery<ConversionMetrics>({
-    queryKey: ['/api/admin/metrics/conversion'],
-    staleTime: 0,
-    refetchOnMount: 'always',
-  });
-
-  const { data: purchaseMetrics, isLoading: purchasesLoading } = useQuery<PurchaseMetrics>({
-    queryKey: ['/api/admin/metrics/purchases'],
-    staleTime: 0,
-    refetchOnMount: 'always',
-  });
-
-  const { data: userGrowth, isLoading: growthLoading } = useQuery<UserGrowthMetrics>({
-    queryKey: ['/api/admin/metrics/user-growth'],
-    staleTime: 0,
-    refetchOnMount: 'always',
   });
 
   const StatCard = ({ 
@@ -184,9 +107,9 @@ export function AdminDashboard() {
         />
         <StatCard 
           icon={Zap} 
-          label="Plano Gratuito" 
+          label="Trials Ativos" 
           value={stats?.activeTrials || 0}
-          subtext="Usuários ativos"
+          subtext="30 dias"
         />
         <StatCard 
           icon={CreditCard} 
@@ -219,163 +142,27 @@ export function AdminDashboard() {
               <Skeleton className="h-12 w-32" />
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="h-4 w-4 text-green-600" />
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400">Novos Visitantes Hoje</p>
-                  </div>
-                  <p className="text-3xl font-bold text-green-600">{stats?.newGuestsToday || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Primeira vez no app</p>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-4 bg-accent/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Total de Guests</p>
                 </div>
-                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-blue-600" />
-                    <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Visitantes Ativos Hoje</p>
-                  </div>
-                  <p className="text-3xl font-bold text-blue-600">{stats?.activeGuestsToday || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Uso diário de anônimos</p>
-                </div>
+                <p className="text-2xl font-semibold">{stats?.totalGuests || 0}</p>
               </div>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Smartphone className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Total de Guests</p>
-                  </div>
-                  <p className="text-2xl font-semibold">{stats?.totalGuests || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Dispositivos únicos</p>
+              <div className="p-4 bg-accent/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Trials Ativos (Guest)</p>
                 </div>
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Plano Gratuito</p>
-                  </div>
-                  <p className="text-2xl font-semibold">{stats?.activeGuestTrials || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Visitantes ativos</p>
-                </div>
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Convertidos</p>
-                  </div>
-                  <p className="text-2xl font-semibold">{stats?.convertedGuests || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Criaram conta</p>
-                </div>
+                <p className="text-2xl font-semibold">{stats?.activeGuestTrials || 0}</p>
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Métricas de Conversão */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-primary" />
-            Métricas de Conversão para Assinatura
-          </CardTitle>
-          <CardDescription>Redirecionamentos para página de assinatura e taxa de conversão</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {conversionLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="p-4 bg-accent/30 rounded-lg border-l-4 border-primary">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ArrowUpRight className="h-4 w-4 text-primary" />
-                    <p className="text-sm font-medium">Hoje</p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Redirect</p>
-                      <p className="text-xl font-bold">{conversionMetrics?.today.redirects || 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Conversão</p>
-                      <p className="text-xl font-bold text-green-600">{conversionMetrics?.today.conversions || 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Taxa</p>
-                      <p className="text-xl font-bold text-primary">{conversionMetrics?.today.rate || 0}%</p>
-                    </div>
-                  </div>
+              <div className="p-4 bg-accent/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Convertidos (criaram conta)</p>
                 </div>
-
-                <div className="p-4 bg-accent/30 rounded-lg border-l-4 border-blue-500">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-4 w-4 text-blue-500" />
-                    <p className="text-sm font-medium">Este Mês</p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Redirect</p>
-                      <p className="text-xl font-bold">{conversionMetrics?.thisMonth.redirects || 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Conversão</p>
-                      <p className="text-xl font-bold text-green-600">{conversionMetrics?.thisMonth.conversions || 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Taxa</p>
-                      <p className="text-xl font-bold text-blue-500">{conversionMetrics?.thisMonth.rate || 0}%</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-accent/30 rounded-lg border-l-4 border-muted-foreground">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm font-medium">Mês Anterior</p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Redirect</p>
-                      <p className="text-xl font-bold">{conversionMetrics?.lastMonth.redirects || 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Conversão</p>
-                      <p className="text-xl font-bold text-green-600">{conversionMetrics?.lastMonth.conversions || 0}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Taxa</p>
-                      <p className="text-xl font-bold">{conversionMetrics?.lastMonth.rate || 0}%</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium mb-3">Tendência dos Últimos 30 Dias</p>
-                <ResponsiveContainer width="100%" height={250}>
-                  <ComposedChart data={conversionMetrics?.dailyTrend || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={(value) => {
-                        const date = new Date(value);
-                        return `${date.getDate()}/${date.getMonth() + 1}`;
-                      }}
-                      fontSize={12}
-                    />
-                    <YAxis />
-                    <Tooltip 
-                      labelFormatter={(value) => {
-                        const date = new Date(value as string);
-                        return date.toLocaleDateString('pt-BR');
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="redirects" fill="#3b82f6" name="Redirecionamentos" />
-                    <Line type="monotone" dataKey="conversions" stroke="#22c55e" strokeWidth={2} name="Conversões" dot={false} />
-                  </ComposedChart>
-                </ResponsiveContainer>
+                <p className="text-2xl font-semibold">{stats?.convertedGuests || 0}</p>
               </div>
             </div>
           )}
@@ -465,360 +252,29 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Top 10 Usuários Mais Ativos */}
+      {/* Top Usuários IA */}
       <Card>
         <CardHeader>
-          <CardTitle>Top 10 Usuários Mais Ativos</CardTitle>
-          <CardDescription>Ranking dos usuários com maior engajamento em IA</CardDescription>
+          <CardTitle>Usuários Mais Ativos em IA</CardTitle>
+          <CardDescription>Top 10 por número de perguntas</CardDescription>
         </CardHeader>
         <CardContent>
           {aiLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : aiUsage?.byUser && aiUsage.byUser.length > 0 ? (
-            <div className="space-y-3">
-              {aiUsage.byUser.slice(0, 10).map((user, idx) => {
-                const maxCount = aiUsage.byUser[0]?.count || 1;
-                const percentage = (user.count / maxCount) * 100;
-                return (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold w-6">#{idx + 1}</span>
-                        <span className="text-sm text-muted-foreground truncate max-w-[200px]" title={user.email}>{user.email}</span>
-                      </div>
-                      <span className="text-sm font-bold text-primary">{user.count} perguntas</span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="bg-primary h-full rounded-full transition-all" 
-                        style={{width: `${percentage}%`}}
-                      />
-                    </div>
+            <div className="space-y-2">
+              {aiUsage.byUser.slice(0, 10).map((user, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Usuário {idx + 1}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 bg-primary rounded h-2" style={{width: `${(user.count / (aiUsage.byUser[0]?.count || 1)) * 100}px`}} />
+                    <span className="text-sm font-semibold">{user.count} perguntas</span>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Nenhuma pergunta registrada</p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Acompanhamento de Compras por Tipo */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5 text-primary" />
-            Acompanhamento de Compras (30 dias)
-          </CardTitle>
-          <CardDescription>Histórico detalhado de compras Gold, Premium e Lifetime</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {purchasesLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Resumo de Compras */}
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="p-4 bg-gradient-to-br from-amber-500/10 to-yellow-500/10 border border-amber-500/20 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Crown className="h-5 w-5 text-amber-500" />
-                    <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Gold</p>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-bold text-amber-600">{purchaseMetrics?.summary.gold.count || 0}</p>
-                    <p className="text-sm text-muted-foreground">compras</p>
-                  </div>
-                  <p className="text-sm text-amber-600 mt-1 flex items-center gap-1">
-                    <DollarSign className="h-3 w-3" />
-                    R$ {purchaseMetrics?.summary.gold.total || '0.00'}
-                  </p>
-                </div>
-
-                <div className="p-4 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Gem className="h-5 w-5 text-purple-500" />
-                    <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Premium</p>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-bold text-purple-600">{purchaseMetrics?.summary.premium.count || 0}</p>
-                    <p className="text-sm text-muted-foreground">compras</p>
-                  </div>
-                  <p className="text-sm text-purple-600 mt-1 flex items-center gap-1">
-                    <DollarSign className="h-3 w-3" />
-                    R$ {purchaseMetrics?.summary.premium.total || '0.00'}
-                  </p>
-                </div>
-
-                <div className="p-4 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Infinity className="h-5 w-5 text-emerald-500" />
-                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Lifetime</p>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-bold text-emerald-600">{purchaseMetrics?.summary.lifetime.count || 0}</p>
-                    <p className="text-sm text-muted-foreground">compras</p>
-                  </div>
-                  <p className="text-sm text-emerald-600 mt-1 flex items-center gap-1">
-                    <DollarSign className="h-3 w-3" />
-                    R$ {purchaseMetrics?.summary.lifetime.total || '0.00'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Gráfico de Tendência */}
-              <div>
-                <p className="text-sm font-medium mb-3">Tendência de Vendas por Tipo</p>
-                <ResponsiveContainer width="100%" height={250}>
-                  <ComposedChart data={purchaseMetrics?.dailyTrend || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={(value) => {
-                        const date = new Date(value);
-                        return `${date.getDate()}/${date.getMonth() + 1}`;
-                      }}
-                      fontSize={12}
-                    />
-                    <YAxis />
-                    <Tooltip 
-                      labelFormatter={(value) => {
-                        const date = new Date(value as string);
-                        return date.toLocaleDateString('pt-BR');
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="gold" fill="#f59e0b" name="Gold" />
-                    <Bar dataKey="premium" fill="#a855f7" name="Premium" />
-                    <Bar dataKey="lifetime" fill="#10b981" name="Lifetime" />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Compras Recentes por Tipo */}
-              <div>
-                <p className="text-sm font-medium mb-3">Compras Recentes por Tipo</p>
-                <Tabs defaultValue="gold" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="gold" className="gap-1">
-                      <Crown className="h-3 w-3" />
-                      Gold ({purchaseMetrics?.recentPurchases.gold.length || 0})
-                    </TabsTrigger>
-                    <TabsTrigger value="premium" className="gap-1">
-                      <Gem className="h-3 w-3" />
-                      Premium ({purchaseMetrics?.recentPurchases.premium.length || 0})
-                    </TabsTrigger>
-                    <TabsTrigger value="lifetime" className="gap-1">
-                      <Infinity className="h-3 w-3" />
-                      Lifetime ({purchaseMetrics?.recentPurchases.lifetime.length || 0})
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="gold" className="mt-4">
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {purchaseMetrics?.recentPurchases.gold && purchaseMetrics.recentPurchases.gold.length > 0 ? (
-                        purchaseMetrics.recentPurchases.gold.map((purchase, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-2 bg-amber-500/5 border border-amber-500/10 rounded">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="border-amber-500/30 text-amber-600">Gold</Badge>
-                              <span className="text-sm break-all">{purchase.user?.email || 'N/A'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">R$ {purchase.amount}</span>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {new Date(purchase.createdAt).toLocaleDateString('pt-BR')}
-                              </span>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground text-center py-4">Nenhuma compra Gold registrada</p>
-                      )}
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="premium" className="mt-4">
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {purchaseMetrics?.recentPurchases.premium && purchaseMetrics.recentPurchases.premium.length > 0 ? (
-                        purchaseMetrics.recentPurchases.premium.map((purchase, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-2 bg-purple-500/5 border border-purple-500/10 rounded">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="border-purple-500/30 text-purple-600">Premium</Badge>
-                              <span className="text-sm break-all">{purchase.user?.email || 'N/A'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">R$ {purchase.amount}</span>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {new Date(purchase.createdAt).toLocaleDateString('pt-BR')}
-                              </span>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground text-center py-4">Nenhuma compra Premium registrada</p>
-                      )}
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="lifetime" className="mt-4">
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {purchaseMetrics?.recentPurchases.lifetime && purchaseMetrics.recentPurchases.lifetime.length > 0 ? (
-                        purchaseMetrics.recentPurchases.lifetime.map((purchase, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-2 bg-emerald-500/5 border border-emerald-500/10 rounded">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="border-emerald-500/30 text-emerald-600">Lifetime</Badge>
-                              <span className="text-sm break-all">{purchase.user?.email || 'N/A'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">R$ {purchase.amount}</span>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {new Date(purchase.createdAt).toLocaleDateString('pt-BR')}
-                              </span>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground text-center py-4">Nenhuma compra Lifetime registrada</p>
-                      )}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Crescimento Mensal de Usuários */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            Crescimento Mensal {userGrowth?.year || new Date().getFullYear()}
-          </CardTitle>
-          <CardDescription>Evolução de usuários registrados vs visitantes (guests) ao longo do ano</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {growthLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-16 w-full" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Resumo de Crescimento */}
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="p-4 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="h-5 w-5 text-blue-500" />
-                    <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Usuários (Ano)</p>
-                  </div>
-                  <p className="text-3xl font-bold text-blue-600">{userGrowth?.totals.usersThisYear || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Total histórico: {userGrowth?.totals.usersAllTime || 0}</p>
-                </div>
-
-                <div className="p-4 bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Smartphone className="h-5 w-5 text-orange-500" />
-                    <p className="text-sm font-medium text-orange-700 dark:text-orange-400">Guests (Ano)</p>
-                  </div>
-                  <p className="text-3xl font-bold text-orange-600">{userGrowth?.totals.guestsThisYear || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Total histórico: {userGrowth?.totals.guestsAllTime || 0}</p>
-                </div>
-
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Taxa de Conversão</p>
-                  <p className="text-2xl font-bold">
-                    {userGrowth?.totals.guestsThisYear && userGrowth.totals.guestsThisYear > 0
-                      ? `${((userGrowth.totals.usersThisYear / (userGrowth.totals.usersThisYear + userGrowth.totals.guestsThisYear)) * 100).toFixed(1)}%`
-                      : '0%'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Guest → Usuário</p>
-                </div>
-
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Média Mensal</p>
-                  <p className="text-2xl font-bold">
-                    {Math.round((userGrowth?.totals.usersThisYear || 0) / Math.max(1, new Date().getMonth() + 1))}
-                  </p>
-                  <p className="text-xs text-muted-foreground">novos usuários/mês</p>
-                </div>
-              </div>
-
-              {/* Gráfico de Evolução Cumulativa */}
-              <div>
-                <p className="text-sm font-medium mb-3">Evolução Cumulativa (Total Acumulado)</p>
-                <ResponsiveContainer width="100%" height={280}>
-                  <AreaChart data={userGrowth?.months || []}>
-                    <defs>
-                      <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorGuests" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="monthLabel" fontSize={12} />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value: number, name: string) => [
-                        value,
-                        name === 'usersTotal' ? 'Usuários (Total)' : 'Guests (Total)'
-                      ]}
-                      labelFormatter={(label) => `Mês: ${label}`}
-                    />
-                    <Legend 
-                      formatter={(value) => value === 'usersTotal' ? 'Usuários Registrados' : 'Visitantes (Guests)'}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="usersTotal" 
-                      stroke="#3b82f6" 
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorUsers)"
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="guestsTotal" 
-                      stroke="#f97316" 
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorGuests)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Gráfico de Novos por Mês */}
-              <div>
-                <p className="text-sm font-medium mb-3">Novos Cadastros por Mês</p>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={userGrowth?.months || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="monthLabel" fontSize={12} />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value: number, name: string) => [
-                        value,
-                        name === 'users' ? 'Novos Usuários' : 'Novos Guests'
-                      ]}
-                    />
-                    <Legend 
-                      formatter={(value) => value === 'users' ? 'Novos Usuários' : 'Novos Guests'}
-                    />
-                    <Bar dataKey="users" fill="#3b82f6" name="users" />
-                    <Bar dataKey="guests" fill="#f97316" name="guests" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
           )}
         </CardContent>
       </Card>
@@ -844,109 +300,6 @@ export function AdminDashboard() {
               <div>
                 <p className="text-sm text-muted-foreground">Premium (Acesso Completo IA)</p>
                 <p className="text-lg font-semibold">{stats?.activePremiumSubscriptions || 0} ativos</p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Acessos e Performance */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Canceladas (mês)</CardTitle>
-            <Activity className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{stats?.cancelledThisMonth || 0}</div>
-                <p className="text-xs text-muted-foreground">Churn rate</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gold Ativos</CardTitle>
-            <CreditCard className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{stats?.activeGoldSubscriptions || 0}</div>
-                <p className="text-xs text-muted-foreground">Plano Gold</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Premium Ativos</CardTitle>
-            <Crown className="h-4 w-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{stats?.activePremiumSubscriptions || 0}</div>
-                <p className="text-xs text-muted-foreground">Plano Premium</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Métricas Profissionais Avançadas */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Métricas Profissionais Avançadas</CardTitle>
-          <CardDescription>Análise detalhada de engajamento e retenção</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {statsLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Taxa de Conversão Guest→User</p>
-                <p className="text-lg font-semibold">
-                  {stats?.totalGuests && stats.totalGuests > 0 
-                    ? `${((stats.convertedGuests / stats.totalGuests) * 100).toFixed(1)}%`
-                    : '0%'}
-                </p>
-              </div>
-
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Usuários Novos (mês)</p>
-                <p className="text-lg font-semibold">{stats?.newUsersThisMonth || 0}</p>
-              </div>
-
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Adesão Gold/Premium</p>
-                <p className="text-lg font-semibold">
-                  {stats?.totalUsers && stats.totalUsers > 0
-                    ? `${(((stats.activeGoldSubscriptions + stats.activePremiumSubscriptions) / stats.totalUsers) * 100).toFixed(1)}%`
-                    : '0%'}
-                </p>
-              </div>
-
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Usuários Inativos (30 dias)</p>
-                <p className="text-lg font-semibold">
-                  {stats?.inactiveUsers ?? '—'}
-                </p>
               </div>
             </div>
           )}

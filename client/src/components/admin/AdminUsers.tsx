@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { SearchInput } from "@/components/ui/search-input";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { Lock, Unlock, Edit2 } from "lucide-react";
@@ -38,18 +38,13 @@ export function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Search Input */}
-          <SearchInput
+          <Input
             placeholder="Buscar por email..."
             value={searchEmail}
             onChange={(e) => {
               setSearchEmail(e.target.value);
               setPage(1);
             }}
-            showIcon={true}
-            iconPosition="left"
-            singleLine={true}
-            minHeight="44px"
-            maxHeight="44px"
             data-testid="input-search-users"
           />
 

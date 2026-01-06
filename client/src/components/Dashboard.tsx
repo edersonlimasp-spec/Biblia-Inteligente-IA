@@ -1,13 +1,8 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
-import { usePWAInstall } from "@/hooks/use-pwa-install";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { InstallModal } from "@/components/InstallModal";
-import { LanguageSelector } from "@/components/LanguageSelector";
 import { 
   BookOpen, 
   Brain, 
@@ -24,11 +19,7 @@ import {
   Mic,
   Library,
   LogIn,
-  User,
-  Crown,
-  Gem,
-  Infinity,
-  Download
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -48,7 +39,6 @@ interface DashboardProps {
   onNavigateToProfessorPremium: () => void;
   onNavigateToLogin: () => void;
   onNavigateToSettings: () => void;
-  onNavigateToInstall?: () => void;
 }
 
 interface ModuleCardProps {
@@ -127,85 +117,21 @@ export function Dashboard({
   onNavigateToProfessorPremium,
   onNavigateToLogin,
   onNavigateToSettings,
-  onNavigateToInstall,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
-  const { t } = useLanguage();
   const deviceId = getDeviceId();
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || isSuperAdmin;
-  const { isInstalled, isStandalone } = usePWAInstall();
-  const [showInstallModal, setShowInstallModal] = useState(false);
-  
-  const handleInstallClick = () => {
-    setShowInstallModal(true);
-  };
-  
-  const showInstallModule = !isInstalled && !isStandalone;
 
   const { data: trialInfo } = useQuery<{ active: boolean; daysRemaining: number }>({
     queryKey: ['/api/guest/trial', deviceId],
     enabled: !!deviceId && !user,
   });
 
-  const { data: subscriptionStatus } = useQuery<{ 
-    hasGold: boolean; 
-    hasPremium: boolean; 
-    hasLifetime: boolean;
-    trialActive: boolean;
-  }>({
-    queryKey: ['/api/user/subscription-status'],
-    enabled: !!user,
-    staleTime: 0, // Always fetch fresh subscription data
-    refetchOnWindowFocus: true, // Refetch when user returns to app
-  });
-
-  const getSubscriptionBadge = () => {
-    if (!user || !subscriptionStatus) return null;
-    
-    if (subscriptionStatus.hasPremium) {
-      return (
-        <Badge 
-          className="text-xs py-1 px-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 gap-1"
-          data-testid="badge-premium"
-        >
-          <Gem className="w-3 h-3" />
-          Premium
-        </Badge>
-      );
-    }
-    
-    if (subscriptionStatus.hasLifetime) {
-      return (
-        <Badge 
-          className="text-xs py-1 px-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 gap-1"
-          data-testid="badge-lifetime"
-        >
-          <Infinity className="w-3 h-3" />
-          {t("subscription.lifetime")}
-        </Badge>
-      );
-    }
-    
-    if (subscriptionStatus.hasGold) {
-      return (
-        <Badge 
-          className="text-xs py-1 px-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0 gap-1"
-          data-testid="badge-gold"
-        >
-          <Crown className="w-3 h-3" />
-          Gold
-        </Badge>
-      );
-    }
-    
-    return null;
-  };
-
   const modules = [
     {
       id: "bible",
-      title: t("module.bible"),
-      description: t("module.bible.desc"),
+      title: "Bíblia",
+      description: "Leitura, Strong's, Hebraico e Grego",
       icon: BookOpen,
       gradient: "bg-gradient-to-br from-blue-600 to-blue-800",
       iconColor: "bg-blue-500",
@@ -214,8 +140,8 @@ export function Dashboard({
     },
     {
       id: "professor",
-      title: t("module.chat"),
-      description: t("module.chat.desc"),
+      title: "Professor",
+      description: "Chat com IA teológica",
       icon: GraduationCap,
       gradient: "bg-gradient-to-br from-violet-600 to-purple-800",
       iconColor: "bg-violet-500",
@@ -224,28 +150,28 @@ export function Dashboard({
     },
     {
       id: "ai-modes",
-      title: t("module.ai.modes"),
-      description: t("module.ai.modes.desc"),
+      title: "Modos IA Premium",
+      description: "Pregador, Exegese, Teológica",
       icon: Brain,
       gradient: "bg-gradient-to-br from-fuchsia-600 to-pink-700",
       iconColor: "bg-fuchsia-500",
       onClick: onNavigateToAIModes,
-      badge: t("module.ai.modes.badge"),
+      badge: "4 modos",
     },
     {
       id: "professor-premium",
-      title: t("module.courses"),
-      description: t("module.courses.desc"),
+      title: "Cursos Premium",
+      description: "Estudos estruturados com IA",
       icon: Library,
       gradient: "bg-gradient-to-br from-indigo-600 to-purple-700",
       iconColor: "bg-indigo-500",
       onClick: onNavigateToProfessorPremium,
-      badge: t("module.courses.badge"),
+      badge: "45 módulos",
     },
     {
       id: "plans-progress",
-      title: t("module.plans"),
-      description: t("module.plans.desc"),
+      title: "Planos & Progresso",
+      description: "Planos de leitura e progresso por livro",
       icon: TrendingUp,
       gradient: "bg-gradient-to-br from-emerald-600 to-teal-700",
       iconColor: "bg-emerald-500",
@@ -253,8 +179,8 @@ export function Dashboard({
     },
     {
       id: "prayer",
-      title: t("module.prayer"),
-      description: t("module.prayer.desc"),
+      title: "Modo Oração",
+      description: "Pedidos de oração e temporizador",
       icon: HandHeart,
       gradient: "bg-gradient-to-br from-amber-600 to-orange-700",
       iconColor: "bg-amber-500",
@@ -262,8 +188,8 @@ export function Dashboard({
     },
     {
       id: "achievements",
-      title: t("module.achievements"),
-      description: t("module.achievements.desc"),
+      title: "Conquistas",
+      description: "Distintivos e marcos alcançados",
       icon: Trophy,
       gradient: "bg-gradient-to-br from-amber-500 to-orange-600",
       iconColor: "bg-amber-500",
@@ -271,8 +197,8 @@ export function Dashboard({
     },
     {
       id: "calendar",
-      title: t("module.agenda"),
-      description: t("module.agenda.desc"),
+      title: "Minha Agenda",
+      description: "Eventos da igreja e compromissos",
       icon: Calendar,
       gradient: "bg-gradient-to-br from-cyan-600 to-blue-700",
       iconColor: "bg-cyan-500",
@@ -280,8 +206,8 @@ export function Dashboard({
     },
     {
       id: "games",
-      title: t("module.games"),
-      description: t("module.games.desc"),
+      title: "Jogos Bíblicos",
+      description: "Quiz e desafios interativos",
       icon: Gamepad2,
       gradient: "bg-gradient-to-br from-rose-500 to-red-600",
       iconColor: "bg-rose-500",
@@ -289,74 +215,66 @@ export function Dashboard({
     },
     {
       id: "recordings",
-      title: t("module.recordings"),
-      description: t("module.recordings.desc"),
+      title: "Gravações",
+      description: "Grave e organize seus sermões",
       icon: Mic,
       gradient: "bg-gradient-to-br from-red-600 to-orange-600",
       iconColor: "bg-red-500",
       onClick: onNavigateToRecordings,
-      badge: t("common.new"),
+      badge: "Novo",
     },
     {
       id: "subscriptions",
-      title: t("module.subscriptions"),
-      description: t("module.subscriptions.desc"),
+      title: "Assinaturas",
+      description: "Gerencie seu plano e conta",
       icon: CreditCard,
       gradient: "bg-gradient-to-br from-slate-600 to-gray-700",
       iconColor: "bg-slate-500",
       onClick: onNavigateToSubscriptions,
     },
-    ...(showInstallModule ? [{
-      id: "install",
-      title: t("module.install"),
-      description: t("module.install.desc"),
-      icon: Download,
-      gradient: "bg-gradient-to-br from-green-600 to-emerald-700",
-      iconColor: "bg-green-500",
-      onClick: handleInstallClick,
-    }] : []),
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent truncate">
+          <div className="flex-1">
+            <h1 className="text-lg font-serif font-bold bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent">
               Bíblia Inteligente
             </h1>
-            <p className="text-muted-foreground text-xs truncate">
-              {user ? `${t("welcome")}, ${user.name || 'estudante'}` : t("welcome.guest")}
+            <p className="text-muted-foreground text-xs">
+              {user ? `Bem-vindo, ${user.name || 'estudante'}` : "Estudo bíblico com textos originais"}
             </p>
           </div>
           
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {user && getSubscriptionBadge()}
-            
-            {user ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onNavigateToSettings}
-                data-testid="button-settings"
-              >
-                <User className="w-5 h-5" />
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onNavigateToLogin}
-                data-testid="button-login"
-                className="gap-1.5"
-              >
-                <LogIn className="w-4 h-4" />
-                {t("common.login")}
-              </Button>
-            )}
-            
-            <LanguageSelector />
-          </div>
+          {!user && trialInfo && trialInfo.active && (
+            <Badge variant="outline" className="text-xs py-1 px-2 border-primary/30">
+              <Timer className="w-3 h-3 mr-1" />
+              {trialInfo.daysRemaining}d
+            </Badge>
+          )}
+          
+          {user ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onNavigateToSettings}
+              data-testid="button-settings"
+            >
+              <User className="w-5 h-5" />
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNavigateToLogin}
+              data-testid="button-login"
+              className="gap-1.5"
+            >
+              <LogIn className="w-4 h-4" />
+              Entrar
+            </Button>
+          )}
         </div>
       </header>
 
@@ -381,8 +299,8 @@ export function Dashboard({
             
             {isAdmin && (
               <ModuleCard
-                title={t("module.admin")}
-                description={t("module.admin.desc")}
+                title="Administração"
+                description="Painel de controle e estatísticas"
                 icon={Shield}
                 gradient="bg-gradient-to-br from-red-600 to-rose-800"
                 iconColor="bg-red-500"
@@ -413,13 +331,13 @@ export function Dashboard({
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-white">{t("dashboard.unlockAll")}</h3>
+                  <h3 className="text-base font-bold text-white">Desbloqueie Tudo</h3>
                   <p className="text-xs text-white/80 truncate">
-                    {t("dashboard.unlockAllDesc")}
+                    IA ilimitada e Strong's completo
                   </p>
                 </div>
                 <div className="bg-white text-primary text-sm font-semibold px-3 py-1.5 rounded-lg shadow flex-shrink-0">
-                  {t("dashboard.viewPlans")}
+                  Ver Planos
                 </div>
               </div>
             </div>
@@ -431,16 +349,10 @@ export function Dashboard({
             transition={{ delay: 0.6 }}
             className="text-center text-muted-foreground text-xs mt-6 pb-4"
           >
-            {t("dashboard.tapToStart")}
+            Toque em qualquer módulo para começar
           </motion.p>
         </div>
       </ScrollArea>
-
-      <InstallModal 
-        open={showInstallModal} 
-        onOpenChange={setShowInstallModal}
-        autoPrompt={false}
-      />
     </div>
   );
 }

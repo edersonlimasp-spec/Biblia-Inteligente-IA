@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { SearchInput } from "@/components/ui/search-input";
-import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Send, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Search, Share2, Copy, Mail, MessageCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -9,12 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { trackAIQuestion } from "@/lib/tracking";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRequireAuth } from "@/contexts/AuthGateContext";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useNavigation } from "@/contexts/NavigationContext";
 import { getDeviceId } from "@/hooks/use-device-id";
-import { useLocation } from "wouter";
-import { useAIQuota } from "@/hooks/useAIQuota";
 import {
   Sheet,
   SheetContent,
@@ -28,13 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -62,8 +50,6 @@ interface AIRequest {
   book?: string;
   chapter?: number;
   mode: 'essential' | 'premium';
-  deviceId?: string;
-  language?: 'pt' | 'en' | 'es';
 }
 
 interface AIResponse {
@@ -134,33 +120,14 @@ interface UserSubscription {
   trialActive: boolean;
 }
 
-interface AIPanelProps {
-  hidden?: boolean;
-  shouldResetAI?: boolean;
-  onResetComplete?: () => void;
-  initialPrompt?: string | null;
-  onPromptConsumed?: () => void;
-}
-
-export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete, initialPrompt, onPromptConsumed }: AIPanelProps) {
+export function AIPanel() {
   const [question, setQuestion] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [userSub, setUserSub] = useState<UserSubscription>({ hasPremium: false, hasGold: false, trialActive: false });
   const [guestTrialInfo, setGuestTrialInfo] = useState<{ active: boolean; daysRemaining: number } | null>(null);
-  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  const { requireAuth, isAuthenticated } = useRequireAuth();
-  const { language, t } = useLanguage();
-  const { navigate: navNavigate } = useNavigation();
-  const [, setLocation] = useLocation();
-  
-  // Centralized quota system
-  const { quotaInfo, consumeQuestion, isLoading: quotaLoading } = useAIQuota();
-  
 
   // ===================================
   // STATE - Sessões e Mensagens
@@ -188,55 +155,14 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     }
   }, [messages, isExpanded]);
 
-  // Colapsar painel quando estava oculto e volta a aparecer
-  // Isso evita conflito com AnnotationPanel
-  const prevHiddenRef = useRef(hidden);
-  useEffect(() => {
-    if (prevHiddenRef.current && !hidden) {
-      // Voltou de oculto para visível - manter colapsado para evitar conflito
-      setIsExpanded(false);
-    }
-    prevHiddenRef.current = hidden;
-  }, [hidden]);
-
-  // Reset completo do Professor quando vindo de Anotações
-  // Usar ref para garantir que o reset só aconteça uma vez por ciclo
-  const hasProcessedResetRef = useRef(false);
-  useEffect(() => {
-    console.log('[AIPanel] Reset effect triggered - shouldResetAI:', shouldResetAI, 'hasProcessedResetRef:', hasProcessedResetRef.current);
-    if (shouldResetAI && !hasProcessedResetRef.current) {
-      hasProcessedResetRef.current = true;
-      console.log('[AIPanel] PERFORMING RESET - creating new session');
-      
-      // Criar nova sessão para limpar conversa
-      const newSessionId = `session-${Date.now()}`;
-      setCurrentSessionId(newSessionId);
-      setMessages([]);
-      setQuestion("");
-      setIsExpanded(false);
-      setIsHistoryOpen(false);
-      saveCurrentSessionId(newSessionId);
-      
-      // Notificar que o reset foi concluído para limpar a flag
-      console.log('[AIPanel] Calling onResetComplete');
-      onResetComplete?.();
-    }
-    // Resetar a ref quando shouldResetAI voltar a false
-    if (!shouldResetAI) {
-      hasProcessedResetRef.current = false;
-    }
-  }, [shouldResetAI, onResetComplete]);
-
   // ===================================
   // INITIALIZATION - Carregar status de assinatura
   // ===================================
 
   useEffect(() => {
     async function fetchSubscriptionStatus() {
-      if (user) {
-        // Set loading while fetching subscription
-        setSubscriptionLoading(true);
-        try {
+      try {
+        if (user) {
           // Usuário logado: buscar status de assinatura
           const res = await fetch('/api/user/subscription-status');
           if (res.ok) {
@@ -247,56 +173,27 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
               trialActive: data.trialActive || false,
             });
           }
-        } catch (error) {
-          console.error('Erro ao carregar status:', error);
-        } finally {
-          setSubscriptionLoading(false);
-        }
-      } else {
-        // Reset subscription state for guests
-        setUserSub({ hasPremium: false, hasGold: false, trialActive: false });
-        // Guest: buscar trial info por deviceId
-        try {
+        } else {
+          // Guest: buscar trial info por deviceId
           const deviceId = getDeviceId();
           const res = await fetch(`/api/guest/trial/${deviceId}`);
           if (res.ok) {
             const data = await res.json();
             setGuestTrialInfo(data);
           }
-        } catch (error) {
-          console.error('Erro ao carregar status:', error);
         }
+      } catch (error) {
+        console.error('Erro ao carregar status:', error);
       }
     }
     fetchSubscriptionStatus();
   }, [user]);
-  
-  // ===================================
-  // HELPERS - Check if user has unlimited AI access (uses centralized quota)
-  // ===================================
-  
-  const hasUnlimitedAccess = (): boolean => {
-    return quotaInfo.hasUnlimitedAccess;
-  };
 
   // ===================================
   // INITIALIZATION - Carregar sessões do localStorage (com RESET automático)
-  // IMPORTANTE: Respeitar shouldResetAI para não restaurar sessão quando vindo de anotações
   // ===================================
   
   useEffect(() => {
-    console.log('[AIPanel] INITIALIZATION effect - shouldResetAI:', shouldResetAI);
-    
-    // Se shouldResetAI está ativo, NÃO restaurar sessão anterior
-    // O efeito de reset vai cuidar de criar nova sessão limpa
-    if (shouldResetAI) {
-      console.log('[AIPanel] INITIALIZATION skipped - shouldResetAI is true, waiting for reset effect');
-      // Apenas carregar sessões para o histórico, mas não ativar nenhuma
-      const loadedSessions = loadSessions();
-      setChatSessions(loadedSessions);
-      return;
-    }
-    
     // RESET AUTOMÁTICO: Detectar se app foi reaberto (nova sessão do navegador)
     try {
       const isFirstVisitThisSession = !sessionStorage.getItem('bible-app-session-initialized');
@@ -338,9 +235,10 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
           setMessages(sessionToLoad.messages);
           setChatSessions(loadedSessions);
           
-          // NÃO expandir painel automaticamente - deixar o usuário controlar
-          // Isso evita conflito com anotações e comportamento invasivo
-          // O usuário pode clicar no painel para expandir quando quiser
+          // Expandir painel se já houver mensagens
+          if (sessionToLoad.messages.length > 0) {
+            setIsExpanded(true);
+          }
         } else {
           // Criar primeira sessão vazia
           const newSessionId = `session-${Date.now()}`;
@@ -359,21 +257,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       setChatSessions([]);
       saveCurrentSessionId(newSessionId);
     }
-  }, [shouldResetAI]);
-
-  // ===================================
-  // INITIAL PROMPT - Handle external prompt from Strong's dictionary
-  // ===================================
-  
-  useEffect(() => {
-    if (initialPrompt && !hidden) {
-      setQuestion(initialPrompt);
-      setIsExpanded(true);
-      if (onPromptConsumed) {
-        onPromptConsumed();
-      }
-    }
-  }, [initialPrompt, hidden, onPromptConsumed]);
+  }, []);
 
   // ===================================
   // AUTO-SAVE - Salvar sempre que mensagens mudarem
@@ -384,7 +268,6 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       updateCurrentSession();
     }
   }, [messages]);
-  
 
   // ===================================
   // HELPERS - Gerenciamento de Sessões
@@ -397,7 +280,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       : firstQuestion;
   };
 
-  const updateCurrentSession = useCallback(() => {
+  const updateCurrentSession = () => {
     const title = messages.length > 0 && messages[0].role === "user"
       ? generateTitle(messages[0].text)
       : "Nova Conversa";
@@ -427,10 +310,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       // Salvar no localStorage
       saveSessions(updated);
       saveCurrentSessionId(currentSessionId);
-      
       return updated;
     });
-  }, [messages, currentSessionId]);
+  };
 
   // ===================================
   // ACTIONS - Nova Conversa
@@ -491,23 +373,23 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   // ===================================
 
   const askAIMutation = useMutation({
-    mutationFn: async (request: AIRequest & { sessionId: string; isGuest?: boolean; deviceId?: string }) => {
-      const { sessionId, isGuest, deviceId, ...aiRequest } = request;
+    mutationFn: async (request: AIRequest & { sessionId: string; isGuest?: boolean }) => {
+      const { sessionId, isGuest, ...aiRequest } = request;
       
       let data: AIResponse;
       
       if (isGuest) {
         // Guest: usar rota de guest (sem autenticação)
+        const deviceId = getDeviceId();
         const res = await fetch('/api/guest/ai/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            deviceId: deviceId || getDeviceId(),
+            deviceId,
             question: aiRequest.question,
             book: aiRequest.book,
             chapter: aiRequest.chapter,
             verse: aiRequest.verse,
-            language: aiRequest.language,
           }),
         });
         
@@ -649,76 +531,29 @@ Conheça: https://bibliainteligente.replit.app`;
   const handleAsk = () => {
     if (!question.trim()) return;
     
-    // Store question before clearing
-    const currentQuestion = question.trim();
-    
-    // Clear input immediately for better UX
-    setQuestion("");
-    
-    // ===================================
-    // CHECK QUOTA (Centralized system)
-    // Guest: 2 permanent questions, User: 5 permanent total
-    // ===================================
-    
-    // Wait for quota to load if authenticated
-    if (isAuthenticated && quotaLoading) {
-      toast({
-        title: "Aguarde",
-        description: "Carregando seu plano...",
-      });
-      setQuestion(currentQuestion); // Restore question
-      return;
-    }
-    
-    // ===================================
-    // CASE 1: Guest - require login if limit reached
-    // ===================================
-    if (quotaInfo.requiresLogin) {
-      setQuestion(currentQuestion); // Restore question
-      setShowLoginPrompt(true);
-      return;
-    }
-    
-    // ===================================
-    // CASE 2: User without subscription - require upgrade if limit reached
-    // ===================================
-    if (quotaInfo.requiresSubscription) {
-      setQuestion(currentQuestion); // Restore question
-      setShowUpgradePrompt(true);
-      return;
-    }
-    
-    // ===================================
-    // PROCEED - User has quota or unlimited access
-    // ===================================
-    
-    // Add user message to chat
+    // APPEND pergunta do usuário (NÃO substituir)
     const userMessage: ChatMessage = {
       role: "user",
-      text: currentQuestion,
+      text: question.trim(),
       createdAt: new Date(),
     };
+    
     setMessages(prev => [...prev, userMessage]);
-    
-    // Consume quota (unless unlimited)
-    if (!quotaInfo.hasUnlimitedAccess) {
-      consumeQuestion();
-    }
-    
-    // Determine mode based on access
+
+    // Determine mode based on subscription (admins get full premium, guests use essential)
+    const isGuest = !user;
     const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
-    const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
+    const mode = isGuest ? 'essential' : (isAdminUser || userSub.hasPremium ? 'premium' : 'essential');
     
-    // Track and send question
+    // Track AI question
     trackAIQuestion(mode).catch(() => {});
-    
+
+    // Fazer pergunta à API, capturando sessionId atual para prevenir race conditions
     askAIMutation.mutate({
-      question: currentQuestion,
+      question: question.trim(),
       mode,
-      sessionId: currentSessionId,
-      isGuest: !isAuthenticated,
-      deviceId: getDeviceId(),
-      language,
+      sessionId: currentSessionId, // CRITICAL: Track which session this response belongs to
+      isGuest, // Flag para usar rota de guest
     });
   };
 
@@ -726,19 +561,14 @@ Conheça: https://bibliainteligente.replit.app`;
   // RENDER
   // ===================================
 
-  // Ocultar completamente quando hidden=true (ex: AnnotationPanel aberto)
-  if (hidden) {
-    return null;
-  }
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg pb-3">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg">
       {/* Expanded Chat Area */}
       {isExpanded && messages.length > 0 && (
         <div className="border-b bg-background">
           <div className="max-w-3xl mx-auto px-4 py-3">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-              <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
                 <span className="font-semibold text-primary">Professor</span>
                 {(userSub.hasPremium || user?.role === 'admin' || user?.role === 'super_admin') && (
@@ -751,7 +581,7 @@ Conheça: https://bibliainteligente.replit.app`;
                     Gold
                   </Badge>
                 )}
-                <Badge variant="outline" className="text-xs hidden sm:inline-flex">
+                <Badge variant="outline" className="text-xs">
                   {messages.length} {messages.length === 1 ? 'mensagem' : 'mensagens'}
                 </Badge>
               </div>
@@ -761,10 +591,9 @@ Conheça: https://bibliainteligente.replit.app`;
                   size="sm"
                   onClick={handleNewConversation}
                   data-testid="button-new-conversation"
-                  className="text-xs sm:text-sm"
                 >
-                  <MessageSquarePlus className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Nova Conversa</span>
+                  <MessageSquarePlus className="h-4 w-4 mr-2" />
+                  Nova Conversa
                 </Button>
                 <Button
                   variant="ghost"
@@ -861,15 +690,14 @@ Conheça: https://bibliainteligente.replit.app`;
       )}
 
       {/* Input Area */}
-      <div className="max-w-3xl mx-auto px-3 py-2">
-        <div className="flex items-end gap-1.5">
-          {/* History Button - Compact */}
+      <div className="max-w-3xl mx-auto px-4 py-3">
+        <div className="flex items-center gap-2">
+          {/* History Drawer */}
           <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
             <SheetTrigger asChild>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
-                className="h-10 w-10 shrink-0 rounded-lg"
                 data-testid="button-open-history"
               >
                 <History className="h-4 w-4" />
@@ -879,22 +707,7 @@ Conheça: https://bibliainteligente.replit.app`;
               <SheetHeader>
                 <SheetTitle>Histórico de Conversas</SheetTitle>
               </SheetHeader>
-              <div className="mt-4 mb-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => {
-                    setIsHistoryOpen(false);
-                    navNavigate("history");
-                  }}
-                  data-testid="button-view-full-history"
-                >
-                  <History className="w-4 h-4 mr-2" />
-                  {language === "pt" ? "Ver histórico completo" : language === "es" ? "Ver historial completo" : "View full history"}
-                </Button>
-              </div>
-              <ScrollArea className="h-[calc(100vh-12rem)] mt-2">
+              <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
                 <div className="space-y-2">
                   {chatSessions.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
@@ -960,157 +773,54 @@ Conheça: https://bibliainteligente.replit.app`;
             </SheetContent>
           </Sheet>
 
-          {/* Input Field - ChatGPT Style - Takes ~85% of space */}
-          <div className="flex-1 min-w-0">
-            <SearchInput
-              placeholder={t("professor.placeholder")}
-              aria-label={t("professor.placeholder")}
+          {/* Input Field */}
+          <div className="flex-1 flex gap-2">
+            <Input
+              placeholder="Pergunte ao Professor..."
+              aria-label="Pergunte ao Professor"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              onSearch={handleAsk}
-              showIcon={false}
-              minHeight="36px"
-              maxHeight="80px"
-              className="w-full"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAsk();
+                }
+              }}
+              className="flex-1 text-base sm:text-lg"
               data-testid="input-ai-question"
             />
+            <Button
+              onClick={handleAsk}
+              disabled={!question.trim() || askAIMutation.isPending}
+              data-testid="button-ask-ai"
+              className="mobile-search-button text-base sm:text-lg"
+            >
+              {askAIMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Search className="h-4 w-4 mr-2" />
+              )}
+              {askAIMutation.isPending ? 'Pensando...' : 'Buscar'}
+            </Button>
           </div>
 
-          {/* Send Button - Compact */}
-          <Button
-            onClick={handleAsk}
-            disabled={askAIMutation.isPending || subscriptionLoading || !question.trim()}
-            data-testid="button-ask-ai"
-            size="icon"
-            className="h-10 w-10 rounded-lg shrink-0"
-          >
-            {askAIMutation.isPending || subscriptionLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
-
-          {/* Remaining Free Questions Badge - Compact */}
-          {!quotaInfo.hasUnlimitedAccess && (
-            <Badge 
-              variant={quotaInfo.remaining > 0 ? "secondary" : (quotaInfo.isGuest ? "outline" : "destructive")} 
-              className="text-[10px] px-1.5 py-0.5 whitespace-nowrap shrink-0"
-              data-testid="badge-remaining-questions"
-            >
-              {quotaInfo.remaining > 0 ? (
-                <>{quotaInfo.remaining}/{quotaInfo.limit}</>
-              ) : quotaInfo.isGuest ? (
-                <><LogIn className="h-2.5 w-2.5 mr-0.5" />Login</>
-              ) : (
-                <><Lock className="h-2.5 w-2.5 mr-0.5" />Limite</>
-              )}
-            </Badge>
-          )}
-
-          {/* Toggle Expand/Collapse - Compact */}
+          {/* Toggle Expand/Collapse */}
           {messages.length > 0 && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 shrink-0"
               onClick={() => setIsExpanded(!isExpanded)}
               data-testid="button-toggle-ai-panel"
             >
               {isExpanded ? (
-                <ChevronDown className="h-3.5 w-3.5" />
+                <ChevronDown className="h-4 w-4" />
               ) : (
-                <ChevronUp className="h-3.5 w-3.5" />
+                <ChevronUp className="h-4 w-4" />
               )}
             </Button>
           )}
         </div>
       </div>
-      
-      {/* Upgrade Prompt Dialog */}
-      <Dialog open={showUpgradePrompt} onOpenChange={setShowUpgradePrompt}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-500" />
-              Limite de perguntas atingido
-            </DialogTitle>
-            <DialogDescription className="pt-2 space-y-3">
-              <p>
-                Você utilizou suas <strong>5 perguntas gratuitas</strong> para o Professor IA.
-              </p>
-              <p>
-                Para continuar usando a IA ilimitadamente, faça upgrade para um plano <strong>Gold</strong> ou <strong>Premium</strong>.
-              </p>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2 mt-4">
-            <Button 
-              onClick={() => {
-                setShowUpgradePrompt(false);
-                navNavigate("subscriptions");
-              }}
-              className="w-full"
-              data-testid="button-upgrade-plan"
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              Ver Planos
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowUpgradePrompt(false)}
-              data-testid="button-close-upgrade"
-            >
-              Voltar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Login Prompt Dialog - shows when guest uses all 2 questions */}
-      <Dialog open={showLoginPrompt} onOpenChange={setShowLoginPrompt}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <LogIn className="w-5 h-5 text-primary" />
-              Faça login para continuar
-            </DialogTitle>
-            <DialogDescription className="pt-2 space-y-3">
-              <p>
-                Você utilizou suas <strong>2 perguntas gratuitas</strong> como visitante.
-              </p>
-              <p>
-                Faça login ou crie uma conta para ganhar mais <strong>3 perguntas gratuitas</strong>!
-              </p>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2 mt-4">
-            <Button 
-              onClick={() => {
-                setShowLoginPrompt(false);
-                requireAuth(() => {
-                  toast({
-                    title: "Login realizado!",
-                    description: "Você ganhou mais 3 perguntas gratuitas!",
-                  });
-                }, "Professor IA");
-              }}
-              className="w-full"
-              data-testid="button-login-continue"
-            >
-              <LogIn className="w-4 h-4 mr-2" />
-              Entrar / Criar Conta
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowLoginPrompt(false)}
-              data-testid="button-close-login"
-            >
-              Voltar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

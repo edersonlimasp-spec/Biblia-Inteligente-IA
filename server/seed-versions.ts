@@ -85,13 +85,6 @@ export async function seedBibleVersions() {
         sourceUrl: 'https://www.kingjamesbibleonline.org',
       },
       {
-        code: 'NKJV',
-        name: 'New King James Version',
-        language: 'en',
-        license: 'commercial',
-        sourceUrl: 'https://www.thomasnelson.com',
-      },
-      {
         code: 'NASB',
         name: 'New American Standard Bible',
         language: 'en',

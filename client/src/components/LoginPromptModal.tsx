@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +26,7 @@ export function LoginPromptModal({
   open, 
   onOpenChange, 
   onAuthSuccess,
-  featureName
+  featureName = "este recurso"
 }: LoginPromptModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
@@ -37,9 +36,6 @@ export function LoginPromptModal({
   const [registerPassword, setRegisterPassword] = useState("");
   const { login, register } = useAuth();
   const { toast } = useToast();
-  const { t } = useLanguage();
-  
-  const displayFeatureName = featureName || t("loginPrompt.thisFeature");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,15 +44,15 @@ export function LoginPromptModal({
     try {
       await login(loginEmail, loginPassword);
       toast({
-        title: t("auth.loginSuccess"),
-        description: t("auth.welcomeBack"),
+        title: "Login realizado",
+        description: "Bem-vindo de volta!",
       });
       onOpenChange(false);
       onAuthSuccess?.();
     } catch (error: any) {
       toast({
-        title: t("auth.loginError"),
-        description: error.data?.error || error.message || t("auth.checkCredentials"),
+        title: "Erro ao fazer login",
+        description: error.data?.error || error.message || "Verifique suas credenciais",
         variant: "destructive",
       });
     } finally {
@@ -72,15 +68,15 @@ export function LoginPromptModal({
       const deviceId = getDeviceId();
       await register(registerName, registerEmail, registerPassword, deviceId);
       toast({
-        title: t("auth.accountCreated"),
-        description: t("auth.trialGranted"),
+        title: "Conta criada",
+        description: "Bem-vindo! Você ganhou 30 dias de trial.",
       });
       onOpenChange(false);
       onAuthSuccess?.();
     } catch (error: any) {
       toast({
-        title: t("auth.registerError"),
-        description: error.data?.error || error.message || t("error.tryAgain"),
+        title: "Erro ao criar conta",
+        description: error.data?.error || error.message || "Tente novamente",
         variant: "destructive",
       });
     } finally {
@@ -94,10 +90,10 @@ export function LoginPromptModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <LogIn className="w-5 h-5 text-primary" />
-            {t("loginPrompt.title")}
+            Entre para continuar
           </DialogTitle>
           <DialogDescription>
-            {t("loginPrompt.descriptionPart1")} {displayFeatureName}{t("loginPrompt.descriptionPart2")}
+            Para utilizar {featureName}, você precisa estar logado. Crie uma conta grátis ou faça login.
           </DialogDescription>
         </DialogHeader>
         
@@ -105,22 +101,22 @@ export function LoginPromptModal({
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login" data-testid="tab-prompt-login">
               <LogIn className="w-4 h-4 mr-1.5" />
-              {t("auth.login")}
+              Entrar
             </TabsTrigger>
             <TabsTrigger value="register" data-testid="tab-prompt-register">
               <UserPlus className="w-4 h-4 mr-1.5" />
-              {t("auth.createAccount")}
+              Criar Conta
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="login" className="space-y-4 mt-4">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="prompt-login-email">{t("auth.email")}</Label>
+                <Label htmlFor="prompt-login-email">Email</Label>
                 <Input
                   id="prompt-login-email"
                   type="email"
-                  placeholder={t("auth.enterEmail")}
+                  placeholder="seu@email.com"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   required
@@ -128,7 +124,7 @@ export function LoginPromptModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="prompt-login-password">{t("auth.password")}</Label>
+                <Label htmlFor="prompt-login-password">Senha</Label>
                 <Input
                   id="prompt-login-password"
                   type="password"
@@ -145,7 +141,7 @@ export function LoginPromptModal({
                 disabled={isLoading}
                 data-testid="button-prompt-login-submit"
               >
-                {isLoading ? t("auth.loggingIn") : t("auth.login")}
+                {isLoading ? "Entrando..." : "Entrar"}
               </Button>
             </form>
           </TabsContent>
@@ -153,11 +149,11 @@ export function LoginPromptModal({
           <TabsContent value="register" className="space-y-4 mt-4">
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="prompt-register-name">{t("auth.name")}</Label>
+                <Label htmlFor="prompt-register-name">Nome</Label>
                 <Input
                   id="prompt-register-name"
                   type="text"
-                  placeholder={t("auth.yourName")}
+                  placeholder="Seu nome"
                   value={registerName}
                   onChange={(e) => setRegisterName(e.target.value)}
                   required
@@ -165,11 +161,11 @@ export function LoginPromptModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="prompt-register-email">{t("auth.email")}</Label>
+                <Label htmlFor="prompt-register-email">Email</Label>
                 <Input
                   id="prompt-register-email"
                   type="email"
-                  placeholder={t("auth.enterEmail")}
+                  placeholder="seu@email.com"
                   value={registerEmail}
                   onChange={(e) => setRegisterEmail(e.target.value)}
                   required
@@ -177,7 +173,7 @@ export function LoginPromptModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="prompt-register-password">{t("auth.password")}</Label>
+                <Label htmlFor="prompt-register-password">Senha</Label>
                 <Input
                   id="prompt-register-password"
                   type="password"
@@ -195,7 +191,7 @@ export function LoginPromptModal({
                 disabled={isLoading}
                 data-testid="button-prompt-register-submit"
               >
-                {isLoading ? t("auth.creatingAccount") : t("auth.createFreeAccount")}
+                {isLoading ? "Criando conta..." : "Criar conta grátis"}
               </Button>
             </form>
           </TabsContent>

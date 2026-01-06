@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,15 +20,14 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
   const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
       toast({
-        title: t("auth.passwordsNotMatch"),
-        description: t("auth.loginErrorDesc"),
+        title: "Senhas não coincidem",
+        description: "Por favor, verifique as senhas digitadas",
         variant: "destructive",
       });
       return;
@@ -40,14 +38,14 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
     try {
       await register(name, email, password);
       toast({
-        title: t("auth.registerSuccess"),
-        description: t("auth.registerSuccessDesc"),
+        title: "Conta criada com sucesso!",
+        description: "Bem-vindo! Você ganhou 30 dias de trial.",
       });
       onRegister?.();
     } catch (error: any) {
       toast({
-        title: t("auth.registerError"),
-        description: error.data?.error || error.message || t("error.tryAgain"),
+        title: "Erro ao criar conta",
+        description: error.data?.error || error.message || "Tente novamente mais tarde",
         variant: "destructive",
       });
     } finally {
@@ -62,17 +60,17 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
           <div className="flex justify-center">
             <img src={appLogo} alt="Logo" className="w-16 h-16" data-testid="img-register-logo" />
           </div>
-          <CardTitle className="text-2xl font-bold text-primary">{t("auth.createAccount")}</CardTitle>
-          <CardDescription>{t("auth.createAccountDesc")}</CardDescription>
+          <CardTitle className="text-2xl font-bold text-primary">Criar Conta</CardTitle>
+          <CardDescription>Inicie seus estudos bíblicos hoje</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">{t("auth.name")}</Label>
+              <Label htmlFor="name">Nome</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder={t("auth.enterName")}
+                placeholder="Seu nome"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -80,11 +78,11 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">{t("auth.email")}</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder={t("auth.enterEmail")}
+                placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -92,11 +90,11 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">{t("auth.password")}</Label>
+              <Label htmlFor="password">Senha</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder={t("auth.enterPassword")}
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -104,11 +102,11 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">{t("auth.confirmPassword")}</Label>
+              <Label htmlFor="confirmPassword">Confirmar Senha</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder={t("auth.enterPassword")}
+                placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -121,7 +119,7 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
               data-testid="button-register"
               disabled={isLoading}
             >
-              {isLoading ? t("auth.registering") : t("auth.createAccount")}
+              {isLoading ? "Criando conta..." : "Criar Conta"}
             </Button>
             <div className="text-center">
               <Button
@@ -130,7 +128,7 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
                 onClick={onNavigateToLogin}
                 data-testid="link-login"
               >
-                {t("auth.hasAccount")} {t("auth.login")}
+                Já tem conta? Entre aqui
               </Button>
             </div>
           </form>

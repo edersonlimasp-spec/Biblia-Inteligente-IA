@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 
@@ -53,23 +52,23 @@ const ICON_MAP: Record<string, React.ElementType> = {
   graduation: GraduationCap,
 };
 
-const LEVEL_CONFIG: Record<string, { labelKey: string; color: string; bgClass: string; borderClass: string; icon: React.ElementType }> = {
+const LEVEL_CONFIG: Record<string, { label: string; color: string; bgClass: string; borderClass: string; icon: React.ElementType }> = {
   iniciante: { 
-    labelKey: "courses.beginner", 
+    label: "Iniciante", 
     color: "text-green-600 dark:text-green-400",
     bgClass: "bg-green-500/10",
     borderClass: "border-green-500/30",
     icon: Sprout
   },
   moderado: { 
-    labelKey: "courses.intermediate", 
+    label: "Moderado", 
     color: "text-amber-600 dark:text-amber-400",
     bgClass: "bg-amber-500/10",
     borderClass: "border-amber-500/30",
     icon: Star
   },
   avancado: { 
-    labelKey: "courses.advanced", 
+    label: "Avançado", 
     color: "text-red-600 dark:text-red-400",
     bgClass: "bg-red-500/10",
     borderClass: "border-red-500/30",
@@ -87,8 +86,7 @@ function ModuleCard({
   delay,
   isLocked,
   lockReason,
-  onUnlock,
-  t
+  onUnlock
 }: { 
   module: StudyModule; 
   onClick: () => void; 
@@ -96,7 +94,6 @@ function ModuleCard({
   isLocked: boolean;
   lockReason?: string;
   onUnlock: () => void;
-  t: (key: string) => string;
 }) {
   const Icon = getIconComponent(module.icon);
   const hasProgress = module.progress.percentage > 0;
@@ -126,7 +123,7 @@ function ModuleCard({
               <p className="text-xs text-muted-foreground mb-2">{lockReason}</p>
               <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); onUnlock(); }}>
                 <Crown className="w-3 h-3 mr-1" />
-                {t("courses.unlocked")}
+                Desbloquear
               </Button>
             </div>
           </div>
@@ -165,7 +162,7 @@ function ModuleCard({
             {!isLocked && hasProgress ? (
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs text-white/80">
-                  <span>{module.progress.completed}/{module.progress.total} {t("courses.lessons")}</span>
+                  <span>{module.progress.completed}/{module.progress.total} lições</span>
                   <span>{module.progress.percentage}%</span>
                 </div>
                 <Progress value={module.progress.percentage} className="h-1.5 bg-white/20" />
@@ -173,7 +170,7 @@ function ModuleCard({
             ) : !isLocked ? (
               <div className="flex items-center justify-between">
                 <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
-                  {module.progress.total} {t("courses.lessons")}
+                  {module.progress.total} lições
                 </Badge>
                 <ChevronRight className="w-4 h-4 text-white/70" />
               </div>
@@ -205,8 +202,7 @@ function LevelSection({
   onUnlock,
   userPlan,
   isAdmin,
-  completedModuleIds,
-  t
+  completedModuleIds
 }: { 
   level: string; 
   modules: StudyModule[];
@@ -216,21 +212,17 @@ function LevelSection({
   userPlan: string | null;
   isAdmin: boolean;
   completedModuleIds: Set<string>;
-  t: (key: string) => string;
 }) {
   const config = LEVEL_CONFIG[level] || LEVEL_CONFIG.iniciante;
   const LevelIcon = config.icon;
-  const levelLabel = t(config.labelKey);
   
   const levelLessons = modules.reduce((sum, m) => sum + m.progress.total, 0);
   const levelCompleted = modules.reduce((sum, m) => sum + m.progress.completed, 0);
   const levelPercentage = levelLessons > 0 ? Math.round((levelCompleted / levelLessons) * 100) : 0;
   
-  // Regras de acesso aos MÓDULOS (visualização):
-  // - Todos podem ABRIR qualquer módulo e ver a lista de aulas
-  // - O bloqueio acontece no nível de AULA em ModuleDetailScreen
-  // - Isto é essencial para conversão (usuário vê o conteúdo disponível)
-  const canAccessLevel = true; // Sempre pode abrir o módulo para ver a lista de aulas
+  const canAccessLevel = isAdmin || 
+    (level === 'iniciante' && (userPlan === 'gold' || userPlan === 'premium')) ||
+    ((level === 'moderado' || level === 'avancado') && userPlan === 'premium');
   
   const getGlobalPreviousModule = (module: StudyModule): StudyModule | undefined => {
     const globalIndex = allModulesSorted.findIndex(m => m.id === module.id);
@@ -238,14 +230,31 @@ function LevelSection({
     return allModulesSorted[globalIndex - 1];
   };
   
-  // Módulos nunca são bloqueados - o bloqueio é no nível de aula
-  const getLockReason = (_module: StudyModule): string | undefined => {
+  const getLockReason = (module: StudyModule): string | undefined => {
+    if (isAdmin) return undefined;
+    
+    if (!canAccessLevel) {
+      return level === 'iniciante' 
+        ? 'Assine Gold ou Premium' 
+        : 'Exclusivo para Premium';
+    }
+    
+    const prevModule = getGlobalPreviousModule(module);
+    if (prevModule && !completedModuleIds.has(prevModule.id)) {
+      return `Complete "${prevModule.name}" primeiro`;
+    }
+    
     return undefined;
   };
   
-  // Módulos nunca são bloqueados - usuário pode abrir qualquer módulo para ver aulas
-  const isModuleLocked = (_module: StudyModule): boolean => {
-    return false;
+  const isModuleLocked = (module: StudyModule): boolean => {
+    if (isAdmin) return false;
+    if (!canAccessLevel) return true;
+    
+    const prevModule = getGlobalPreviousModule(module);
+    if (!prevModule) return false;
+    
+    return !completedModuleIds.has(prevModule.id);
   };
   
   return (
@@ -260,14 +269,14 @@ function LevelSection({
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h2 className={`font-bold ${config.color}`}>{levelLabel}</h2>
+            <h2 className={`font-bold ${config.color}`}>{config.label}</h2>
             <Badge variant="outline" className={`text-xs ${config.borderClass} ${config.color}`}>
-              {modules.length} {t("courses.modules")}
+              {modules.length} módulos
             </Badge>
             {!canAccessLevel && (
               <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600">
                 <Crown className="w-3 h-3 mr-1" />
-                {t("subscription.gold")}
+                {level === 'iniciante' ? 'Gold+' : 'Premium'}
               </Badge>
             )}
           </div>
@@ -288,7 +297,6 @@ function LevelSection({
             isLocked={isModuleLocked(module)}
             lockReason={getLockReason(module)}
             onUnlock={onUnlock}
-            t={t}
           />
         ))}
       </div>
@@ -296,44 +304,20 @@ function LevelSection({
   );
 }
 
-interface GuestTrialInfo {
-  active: boolean;
-  daysRemaining: number;
-}
-
 export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSubscriptions }: StudyModulesScreenProps) {
   const { user, isAdmin } = useAuth();
-  const { t, language } = useLanguage();
   const deviceId = getDeviceId();
   
   const { data: modules, isLoading } = useQuery<StudyModule[]>({
-    queryKey: ['/api/study/modules', language],
-    queryFn: async () => {
-      const res = await fetch(`/api/study/modules?lang=${language}`, {
-        headers: { 'x-device-id': deviceId || '' }
-      });
-      if (!res.ok) throw new Error('Failed to fetch modules');
-      return res.json();
-    }
+    queryKey: ['/api/study/modules'],
   });
   
   const { data: subscriptionData } = useQuery<SubscriptionStatus>({
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
-    staleTime: 0, // Always fetch fresh subscription data
-    refetchOnWindowFocus: true,
-  });
-
-  // Fetch guest trial info when not logged in
-  const { data: guestTrialData } = useQuery<GuestTrialInfo>({
-    queryKey: ['/api/guest/trial', deviceId],
-    enabled: !user && !!deviceId,
   });
   
-  // Determine user plan: logged in user's subscription OR guest with active trial gets 'gold' access
-  const userPlan = user
-    ? (subscriptionData?.hasPremium ? 'premium' : subscriptionData?.hasGold ? 'gold' : null)
-    : (guestTrialData?.active ? 'gold' : null);
+  const userPlan = subscriptionData?.hasPremium ? 'premium' : subscriptionData?.hasGold ? 'gold' : null;
   
   const allModulesSorted = [...(modules || [])].sort((a, b) => a.order - b.order);
   const inicianteModules = allModulesSorted.filter(m => m.level === 'iniciante');
@@ -361,8 +345,8 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-lg font-serif font-bold">{t("courses.title")}</h1>
-            <p className="text-xs text-muted-foreground">{t("courses.structured")}</p>
+            <h1 className="text-lg font-serif font-bold">Cursos Premium</h1>
+            <p className="text-xs text-muted-foreground">Estudos bíblicos estruturados</p>
           </div>
           {isAdmin && (
             <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
@@ -374,7 +358,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
           {!user && (
             <Badge variant="outline" className="text-xs border-primary/30">
               <Clock className="w-3 h-3 mr-1" />
-              {t("subscription.trial")}
+              Trial
             </Badge>
           )}
         </div>
@@ -392,8 +376,8 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                 <Library className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h2 className="font-bold">{t("courses.overallProgress")}</h2>
-                <p className="text-sm text-white/80">{completedLessons} / {totalLessons} {t("courses.lessonsCompleted")}</p>
+                <h2 className="font-bold">Seu Progresso Geral</h2>
+                <p className="text-sm text-white/80">{completedLessons} de {totalLessons} lições concluídas</p>
               </div>
               <div className="text-2xl font-bold">{overallPercentage}%</div>
             </div>
@@ -424,7 +408,6 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                   userPlan={userPlan}
                   isAdmin={isAdmin}
                   completedModuleIds={completedModuleIds}
-                  t={t}
                 />
               )}
               
@@ -438,7 +421,6 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                   userPlan={userPlan}
                   isAdmin={isAdmin}
                   completedModuleIds={completedModuleIds}
-                  t={t}
                 />
               )}
               
@@ -452,13 +434,12 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                   userPlan={userPlan}
                   isAdmin={isAdmin}
                   completedModuleIds={completedModuleIds}
-                  t={t}
                 />
               )}
             </>
           )}
 
-          {userPlan !== 'gold' && !isAdmin && (
+          {!userPlan && !isAdmin && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -466,13 +447,14 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
               className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl text-center"
             >
               <Crown className="w-8 h-8 mx-auto text-amber-500 mb-2" />
-              <h3 className="font-semibold mb-1">{t("courses.unlockAll")}</h3>
+              <h3 className="font-semibold mb-1">Desbloqueie todo o conteúdo</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                {t("courses.subscribeGold")}
+                <strong>Gold:</strong> Acesso aos módulos Iniciantes<br />
+                <strong>Premium:</strong> Acesso completo a todos os níveis
               </p>
               <Button onClick={onNavigateToSubscriptions} data-testid="button-subscribe-cta">
                 <Crown className="w-4 h-4 mr-1" />
-                {t("subscription.viewPlans")}
+                Ver Planos
               </Button>
             </motion.div>
           )}

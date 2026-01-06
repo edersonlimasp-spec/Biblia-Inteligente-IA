@@ -35,28 +35,6 @@ export function verifyToken(token: string): { userId: string; email: string; rol
   }
 }
 
-// Middleware: Optional authentication (populates userId if token present, but doesn't block)
-export function optionalAuth(
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) {
-  const authHeader = req.headers.authorization;
-  
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    const payload = verifyToken(token);
-    
-    if (payload) {
-      req.userId = payload.userId;
-      req.userEmail = payload.email;
-      req.userRole = payload.role || 'user';
-    }
-  }
-  
-  next();
-}
-
 // Middleware: Ensure authenticated
 export function ensureAuthenticated(
   req: AuthRequest,

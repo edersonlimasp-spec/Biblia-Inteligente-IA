@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -31,55 +30,52 @@ interface AIModesScreenProps {
   onNavigateToSubscriptions: () => void;
 }
 
+const AI_MODES = [
+  {
+    id: "professor",
+    name: "Modo Professor",
+    description: "Explicações didáticas e claras sobre passagens bíblicas",
+    icon: GraduationCap,
+    color: "from-blue-500 to-blue-700",
+    iconBg: "bg-blue-500",
+    premium: false,
+    prompt: "Você é um professor de teologia. Explique de forma didática e clara:",
+  },
+  {
+    id: "pregador",
+    name: "Modo Pregador",
+    description: "Mensagens inspiradoras e edificantes para pregação",
+    icon: Church,
+    color: "from-purple-500 to-purple-700",
+    iconBg: "bg-purple-500",
+    premium: true,
+    prompt: "Você é um pregador experiente. Crie uma mensagem inspiradora sobre:",
+  },
+  {
+    id: "exegese",
+    name: "Exegese Profunda",
+    description: "Análise textual detalhada do original hebraico/grego",
+    icon: Microscope,
+    color: "from-emerald-500 to-emerald-700",
+    iconBg: "bg-emerald-500",
+    premium: true,
+    prompt: "Você é um exegeta bíblico. Faça uma análise profunda do texto original:",
+  },
+  {
+    id: "teologica",
+    name: "Comparação Teológica",
+    description: "Compare diferentes perspectivas denominacionais",
+    icon: Scale,
+    color: "from-amber-500 to-amber-700",
+    iconBg: "bg-amber-500",
+    premium: true,
+    prompt: "Compare as interpretações teológicas de diferentes denominações sobre:",
+  },
+];
+
 export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScreenProps) {
   const { user, isAdmin } = useAuth();
-  const { t } = useLanguage();
   const { toast } = useToast();
-  
-  const getAIModes = () => [
-    {
-      id: "professor",
-      name: t("aiModes.professor.name"),
-      description: t("aiModes.professor.desc"),
-      icon: GraduationCap,
-      color: "from-blue-500 to-blue-700",
-      iconBg: "bg-blue-500",
-      requiredPlan: "gold",
-      prompt: "Você é um professor de teologia. Explique de forma didática e clara:",
-    },
-    {
-      id: "pregador",
-      name: t("aiModes.pregador.name"),
-      description: t("aiModes.pregador.desc"),
-      icon: Church,
-      color: "from-purple-500 to-purple-700",
-      iconBg: "bg-purple-500",
-      requiredPlan: "gold",
-      prompt: "Você é um pregador experiente. Crie uma mensagem inspiradora sobre:",
-    },
-    {
-      id: "exegese",
-      name: t("aiModes.exegese.name"),
-      description: t("aiModes.exegese.desc"),
-      icon: Microscope,
-      color: "from-emerald-500 to-emerald-700",
-      iconBg: "bg-emerald-500",
-      requiredPlan: "premium",
-      prompt: "Você é um exegeta bíblico. Faça uma análise profunda do texto original:",
-    },
-    {
-      id: "teologica",
-      name: t("aiModes.teologica.name"),
-      description: t("aiModes.teologica.desc"),
-      icon: Scale,
-      color: "from-amber-500 to-amber-700",
-      iconBg: "bg-amber-500",
-      requiredPlan: "premium",
-      prompt: "Compare as interpretações teológicas de diferentes denominações sobre:",
-    },
-  ];
-  
-  const AI_MODES = getAIModes();
   const deviceId = getDeviceId();
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
@@ -87,32 +83,12 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState(false);
 
-  const { data: subStatus } = useQuery<{ hasPremium: boolean; hasGold: boolean; hasLifetime: boolean; trialActive: boolean }>({
+  const { data: subStatus } = useQuery<{ hasPremium: boolean; hasGold: boolean }>({
     queryKey: ['/api/user/subscription-status'],
     enabled: !!user,
-    staleTime: 0, // Always fetch fresh subscription data
-    refetchOnWindowFocus: true,
   });
 
-  const { data: guestTrialInfo } = useQuery<{ active: boolean; daysRemaining: number }>({
-    queryKey: ['/api/guest/trial', deviceId],
-    enabled: !user && !!deviceId,
-  });
-
-  const hasPremium = isAdmin || subStatus?.hasPremium || false;
-  const hasGold = subStatus?.hasGold || subStatus?.hasLifetime || subStatus?.trialActive || false;
-  const hasGuestTrial = !user && (guestTrialInfo?.active || false);
-  
-  const canAccessMode = (mode: typeof AI_MODES[0]): boolean => {
-    if (isAdmin) return true;
-    if (mode.requiredPlan === "gold") {
-      return hasPremium || hasGold || hasGuestTrial;
-    }
-    if (mode.requiredPlan === "premium") {
-      return hasPremium;
-    }
-    return true;
-  };
+  const hasPremium = isAdmin || subStatus?.hasPremium || subStatus?.hasGold || false;
 
   const askMutation = useMutation({
     mutationFn: async ({ mode, text }: { mode: string; text: string }) => {
@@ -125,12 +101,12 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
       return res.json();
     },
     onSuccess: (data) => {
-      setResponse(data.response || data.answer || t("aiModes.responseReceived"));
+      setResponse(data.response || data.answer || "Resposta recebida.");
     },
     onError: (error: any) => {
       toast({
-        title: t("common.error"),
-        description: error.message || t("aiModes.errorGettingResponse"),
+        title: "Erro",
+        description: error.message || "Não foi possível obter resposta da IA",
         variant: "destructive",
       });
     },
@@ -146,12 +122,10 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
     }
     
     const mode = AI_MODES.find(m => m.id === selectedMode);
-    if (mode && !canAccessMode(mode)) {
+    if (mode?.premium && !hasPremium) {
       toast({
-        title: mode.requiredPlan === "premium" ? t("aiModes.modePremium") : t("aiModes.modeGoldPlus"),
-        description: mode.requiredPlan === "premium" 
-          ? t("aiModes.requiresPremium") 
-          : t("aiModes.requiresGoldOrPremium"),
+        title: "Modo Premium",
+        description: "Este modo requer uma assinatura Premium ou Gold",
       });
       return;
     }
@@ -165,11 +139,11 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
     if (pendingSubmit && question.trim() && selectedMode) {
       setPendingSubmit(false);
       const mode = AI_MODES.find(m => m.id === selectedMode);
-      if (mode && !canAccessMode(mode)) {
+      if (mode?.premium) {
         queryClient.invalidateQueries({ queryKey: ['/api/user/subscription-status'] });
         toast({
-          title: t("aiModes.loginSuccess"),
-          description: t("aiModes.checkSubscription"),
+          title: "Login realizado!",
+          description: "Verifique sua assinatura para acessar modos premium.",
         });
       } else {
         setResponse("");
@@ -188,8 +162,8 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold">{t("aiModes.title")}</h1>
-            <p className="text-sm text-muted-foreground">{t("aiModes.subtitle")}</p>
+            <h1 className="text-xl font-bold">Modos IA Premium</h1>
+            <p className="text-sm text-muted-foreground">4 modos especializados de estudo</p>
           </div>
           <UserButton onNavigateToSubscriptions={onNavigateToSubscriptions} showSubscriptionOption />
         </div>
@@ -204,8 +178,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
               className="grid grid-cols-1 sm:grid-cols-2 gap-4"
             >
               {AI_MODES.map((mode, index) => {
-                const isLocked = !canAccessMode(mode);
-                const planLabel = mode.requiredPlan === "premium" ? "Premium" : "Gold+";
+                const isLocked = mode.premium && !hasPremium;
                 return (
                   <motion.div
                     key={mode.id}
@@ -226,10 +199,11 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="font-bold text-white">{mode.name}</h3>
-                              <Badge className="bg-white/20 text-white border-0 text-xs">
-                                {isLocked ? <Lock className="w-3 h-3 mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
-                                {planLabel}
-                              </Badge>
+                              {mode.premium && (
+                                <Badge className="bg-white/20 text-white border-0 text-xs">
+                                  {isLocked ? <Lock className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+                                </Badge>
+                              )}
                             </div>
                             <p className="text-sm text-white/80">{mode.description}</p>
                           </div>
@@ -266,7 +240,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                         setQuestion("");
                       }}
                     >
-                      {t("aiModes.changeMode")}
+                      Trocar modo
                     </Button>
                   </div>
                 </CardContent>
@@ -274,14 +248,14 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
 
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">{t("aiModes.yourQuestion")}</CardTitle>
+                  <CardTitle className="text-lg">Sua Pergunta</CardTitle>
                   <CardDescription>
-                    {t("aiModes.questionDesc")}
+                    Digite sua dúvida ou o texto que deseja analisar
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Textarea
-                    placeholder={t("aiModes.questionPlaceholder")}
+                    placeholder="Ex: Explique João 3:16..."
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     rows={4}
@@ -297,12 +271,12 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                     {askMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {t("aiModes.processing")}
+                        Processando...
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        {t("aiModes.sendQuestion")}
+                        Enviar Pergunta
                       </>
                     )}
                   </Button>
@@ -318,7 +292,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-primary" />
-                        {t("aiModes.aiResponse")}
+                        Resposta da IA
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -340,13 +314,13 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
                     <Sparkles className="w-6 h-6 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold">{t("aiModes.unlockAllModes")}</h3>
+                    <h3 className="font-semibold">Desbloqueie todos os modos</h3>
                     <p className="text-sm text-muted-foreground">
-                      {t("aiModes.subscribePremiumOrGold")}
+                      Assine Premium ou Gold para acesso completo
                     </p>
                   </div>
                   <Button onClick={onNavigateToSubscriptions} data-testid="button-upgrade">
-                    {t("subscription.subscribe")}
+                    Assinar
                   </Button>
                 </div>
               </CardContent>
@@ -358,7 +332,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
       <LoginPromptModal
         open={showLoginPrompt}
         onOpenChange={setShowLoginPrompt}
-        featureName={t("aiModes.featureName")}
+        featureName="os Modos IA Premium"
         onAuthSuccess={handleAuthSuccess}
       />
     </div>

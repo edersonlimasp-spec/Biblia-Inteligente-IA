@@ -12,24 +12,13 @@ const ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID;
 // AI Mode types - expanded for advanced features
 export type AIMode = 'essential' | 'premium' | 'professor' | 'pregador' | 'exegese' | 'teologica';
 
-// Language type for multi-language support
-export type AILanguage = 'pt' | 'en' | 'es';
-
 interface ProfessorQuestionParams {
   question: string;
   verse?: string;
   book?: string;
   chapter?: number;
   mode: AIMode;
-  language?: AILanguage;
 }
-
-// Language-specific instructions to append to prompts
-const LANGUAGE_INSTRUCTIONS: Record<AILanguage, string> = {
-  pt: "\n\nIMPORTANTE: Responda SEMPRE em Português do Brasil, de forma clara e acessível.",
-  en: "\n\nIMPORTANT: ALWAYS respond in English, clearly and accessibly.",
-  es: "\n\nIMPORTANTE: Responda SIEMPRE en Español, de forma clara y accesible.",
-};
 
 // System prompts for each AI mode
 const SYSTEM_PROMPTS: Record<AIMode, string> = {
@@ -148,43 +137,29 @@ const TOKEN_LIMITS: Record<AIMode, number> = {
 export const PREMIUM_MODES: AIMode[] = ['premium', 'pregador', 'exegese', 'teologica'];
 
 export async function askProfessor(params: ProfessorQuestionParams): Promise<string> {
-  const { question, verse, book, chapter, mode, language = 'pt' } = params;
+  const { question, verse, book, chapter, mode } = params;
 
-  // Build context information based on language
-  const contextLabels: Record<AILanguage, { biblical: string; verse: string }> = {
-    pt: { biblical: "Contexto Bíblico", verse: "Texto do versículo" },
-    en: { biblical: "Biblical Context", verse: "Verse text" },
-    es: { biblical: "Contexto Bíblico", verse: "Texto del versículo" },
-  };
-
-  const labels = contextLabels[language] || contextLabels.pt;
+  // Build context information
   const contextInfo = verse 
-    ? `\n\n${labels.biblical}: ${book} ${chapter}\n${labels.verse}: "${verse}"`
+    ? `\n\nContexto Bíblico: ${book} ${chapter}\nTexto do versículo: "${verse}"`
     : book && chapter
-    ? `\n\n${labels.biblical}: ${book} ${chapter}`
+    ? `\n\nContexto Bíblico: ${book} ${chapter}`
     : '';
 
   const userMessage = `${question}${contextInfo}`;
 
   try {
-    // Use Chat Completions API with language support
-    return await askViaChat(userMessage, mode, language);
+    // Use Chat Completions API
+    return await askViaChat(userMessage, mode);
   } catch (error: any) {
     console.error('OpenAI API error:', error);
-    const errorMessages: Record<AILanguage, string> = {
-      pt: 'Erro ao processar sua pergunta. Tente novamente.',
-      en: 'Error processing your question. Please try again.',
-      es: 'Error al procesar su pregunta. Inténtelo de nuevo.',
-    };
-    throw new Error(errorMessages[language] || errorMessages.pt);
+    throw new Error('Erro ao processar sua pergunta. Tente novamente.');
   }
 }
 
-// Direct chat completions with language support
-async function askViaChat(userMessage: string, mode: AIMode, language: AILanguage = 'pt'): Promise<string> {
-  const basePrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.essential;
-  const languageInstruction = LANGUAGE_INSTRUCTIONS[language] || LANGUAGE_INSTRUCTIONS.pt;
-  const systemPrompt = basePrompt + languageInstruction;
+// Direct chat completions
+async function askViaChat(userMessage: string, mode: AIMode): Promise<string> {
+  const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.essential;
   const maxTokens = TOKEN_LIMITS[mode] || 1024;
 
   try {
@@ -197,12 +172,7 @@ async function askViaChat(userMessage: string, mode: AIMode, language: AILanguag
       max_tokens: maxTokens,
     });
 
-    const defaultResponses: Record<AILanguage, string> = {
-      pt: "Desculpe, não consegui gerar uma resposta.",
-      en: "Sorry, I couldn't generate a response.",
-      es: "Lo siento, no pude generar una respuesta.",
-    };
-    return response.choices[0]?.message?.content || defaultResponses[language];
+    return response.choices[0]?.message?.content || "Desculpe, não consegui gerar uma resposta.";
   } catch (error: any) {
     console.error('OpenAI Chat Completions Error:', {
       message: error.message,

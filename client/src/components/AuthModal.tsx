@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,10 +26,9 @@ export function AuthModal({
   open, 
   onOpenChange, 
   onAuthSuccess,
-  title,
-  description
+  title = "Criar conta para assinar",
+  description = "Para assinar um plano, você precisa criar uma conta ou fazer login."
 }: AuthModalProps) {
-  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -39,9 +37,6 @@ export function AuthModal({
   const [registerPassword, setRegisterPassword] = useState("");
   const { login, register } = useAuth();
   const { toast } = useToast();
-  
-  const modalTitle = title || t("authModal.title");
-  const modalDescription = description || t("authModal.description");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,15 +45,15 @@ export function AuthModal({
     try {
       await login(loginEmail, loginPassword);
       toast({
-        title: t("auth.loginSuccess"),
-        description: t("auth.welcomeBack"),
+        title: "Login realizado",
+        description: "Bem-vindo de volta!",
       });
       onOpenChange(false);
       onAuthSuccess?.();
     } catch (error: any) {
       toast({
-        title: t("auth.loginError"),
-        description: error.data?.error || error.message || t("auth.checkCredentials"),
+        title: "Erro ao fazer login",
+        description: error.data?.error || error.message || "Verifique suas credenciais",
         variant: "destructive",
       });
     } finally {
@@ -74,15 +69,15 @@ export function AuthModal({
       const deviceId = getDeviceId();
       await register(registerName, registerEmail, registerPassword, deviceId);
       toast({
-        title: t("auth.registerSuccess"),
-        description: t("authModal.nowSubscribe"),
+        title: "Conta criada",
+        description: "Bem-vindo! Agora você pode assinar um plano.",
       });
       onOpenChange(false);
       onAuthSuccess?.();
     } catch (error: any) {
       toast({
-        title: t("auth.registerError"),
-        description: error.data?.error || error.message || t("common.tryAgain"),
+        title: "Erro ao criar conta",
+        description: error.data?.error || error.message || "Tente novamente",
         variant: "destructive",
       });
     } finally {
@@ -94,24 +89,24 @@ export function AuthModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{modalTitle}</DialogTitle>
-          <DialogDescription>{modalDescription}</DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="register" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="register" data-testid="tab-register">{t("auth.createAccount")}</TabsTrigger>
-            <TabsTrigger value="login" data-testid="tab-login">{t("common.login")}</TabsTrigger>
+            <TabsTrigger value="register" data-testid="tab-register">Criar Conta</TabsTrigger>
+            <TabsTrigger value="login" data-testid="tab-login">Entrar</TabsTrigger>
           </TabsList>
           
           <TabsContent value="register" className="space-y-4 mt-4">
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="register-name">{t("auth.name")}</Label>
+                <Label htmlFor="register-name">Nome</Label>
                 <Input
                   id="register-name"
                   type="text"
-                  placeholder={t("auth.yourName")}
+                  placeholder="Seu nome"
                   value={registerName}
                   onChange={(e) => setRegisterName(e.target.value)}
                   required
@@ -119,11 +114,11 @@ export function AuthModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="register-email">{t("auth.email")}</Label>
+                <Label htmlFor="register-email">Email</Label>
                 <Input
                   id="register-email"
                   type="email"
-                  placeholder={t("auth.enterEmail")}
+                  placeholder="seu@email.com"
                   value={registerEmail}
                   onChange={(e) => setRegisterEmail(e.target.value)}
                   required
@@ -131,11 +126,11 @@ export function AuthModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="register-password">{t("auth.password")}</Label>
+                <Label htmlFor="register-password">Senha</Label>
                 <Input
                   id="register-password"
                   type="password"
-                  placeholder={t("auth.enterPassword")}
+                  placeholder="••••••••"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
                   required
@@ -149,7 +144,7 @@ export function AuthModal({
                 disabled={isLoading}
                 data-testid="button-register-submit"
               >
-                {isLoading ? t("auth.creatingAccount") : t("authModal.createAndContinue")}
+                {isLoading ? "Criando conta..." : "Criar conta e continuar"}
               </Button>
             </form>
           </TabsContent>
@@ -157,11 +152,11 @@ export function AuthModal({
           <TabsContent value="login" className="space-y-4 mt-4">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="login-email">{t("auth.email")}</Label>
+                <Label htmlFor="login-email">Email</Label>
                 <Input
                   id="login-email"
                   type="email"
-                  placeholder={t("auth.enterEmail")}
+                  placeholder="seu@email.com"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   required
@@ -169,11 +164,11 @@ export function AuthModal({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="login-password">{t("auth.password")}</Label>
+                <Label htmlFor="login-password">Senha</Label>
                 <Input
                   id="login-password"
                   type="password"
-                  placeholder={t("auth.enterPassword")}
+                  placeholder="••••••••"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   required
@@ -186,7 +181,7 @@ export function AuthModal({
                 disabled={isLoading}
                 data-testid="button-login-submit"
               >
-                {isLoading ? t("auth.loggingIn") : t("authModal.loginAndContinue")}
+                {isLoading ? "Entrando..." : "Entrar e continuar"}
               </Button>
             </form>
           </TabsContent>

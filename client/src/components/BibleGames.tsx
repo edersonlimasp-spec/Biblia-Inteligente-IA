@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -91,7 +90,6 @@ const BOOK_ORDER_GAME = {
 type GameMode = "menu" | "quiz" | "order" | "verses" | "characters";
 
 export function BibleGames({ onBack }: BibleGamesProps) {
-  const { t } = useLanguage();
   const [gameMode, setGameMode] = useState<GameMode>("menu");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -133,32 +131,32 @@ export function BibleGames({ onBack }: BibleGamesProps) {
   const GAMES = [
     {
       id: "quiz",
-      name: t("games.quizBiblico"),
-      description: t("games.quizDesc"),
+      name: "Quiz Bíblico",
+      description: "Teste seus conhecimentos com perguntas",
       icon: Brain,
       color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
       available: true,
     },
     {
       id: "order",
-      name: t("games.orderBooks"),
-      description: t("games.orderBooksDesc"),
+      name: "Ordem dos Livros",
+      description: "Organize os livros na sequência correta",
       icon: BookOpen,
       color: "bg-purple-500/10 text-purple-500 border-purple-500/20",
       available: false,
     },
     {
       id: "verses",
-      name: t("games.completeVerse"),
-      description: t("games.completeVerseDesc"),
+      name: "Complete o Versículo",
+      description: "Complete versículos famosos",
       icon: MessageCircle,
       color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
       available: false,
     },
     {
       id: "characters",
-      name: t("games.whoIsWho"),
-      description: t("games.whoIsWhoDesc"),
+      name: "Quem é Quem?",
+      description: "Identifique personagens bíblicos",
       icon: Star,
       color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
       available: false,
@@ -173,7 +171,7 @@ export function BibleGames({ onBack }: BibleGamesProps) {
             <Button variant="ghost" size="icon" onClick={() => setGameMode("menu")} data-testid="button-back-menu">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-lg font-semibold">{t("games.quizBiblico")}</h1>
+            <h1 className="text-lg font-semibold">Quiz Bíblico</h1>
             <Badge variant="secondary" className="font-mono">
               {score}/{shuffledQuestions.length}
             </Badge>
@@ -259,7 +257,7 @@ export function BibleGames({ onBack }: BibleGamesProps) {
                       onClick={nextQuestion}
                       data-testid="button-next"
                     >
-                      {currentQuestion < shuffledQuestions.length - 1 ? t("games.nextQuestion") : t("games.seeResult")}
+                      {currentQuestion < shuffledQuestions.length - 1 ? "Próxima Pergunta" : "Ver Resultado"}
                       <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>
                   </motion.div>

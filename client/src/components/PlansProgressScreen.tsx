@@ -194,12 +194,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
                   size="sm"
                   className="bg-[#357ABD] hover:bg-[#2A5F8F] text-white rounded-full px-4"
                   onClick={() => {
-                    if (activePlanData?.todayReading) {
-                      const reading = activePlanData.todayReading.readings[0];
-                      if (reading) {
-                        onNavigateToBible(reading.book, reading.startChapter);
-                      }
-                    } else if (onOpenMyPlan && activePlanData?.activePlan) {
+                    if (onOpenMyPlan && activePlanData?.activePlan) {
                       onOpenMyPlan(activePlanData.activePlan.id);
                     }
                   }}

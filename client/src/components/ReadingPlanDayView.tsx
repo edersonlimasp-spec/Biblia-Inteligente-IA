@@ -3,14 +3,12 @@ import { useMutation } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, 
   Check,
-  Lightbulb,
   ChevronRight,
   BookOpen
 } from "lucide-react";
@@ -122,6 +120,7 @@ export function ReadingPlanDayView({
   const lang = (language || 'pt') as 'pt' | 'en' | 'es';
   
   const [completedReadings, setCompletedReadings] = useState<Set<string>>(new Set());
+  const [notes, setNotes] = useState<string>("");
 
   const serverCompletedReadings = useMemo(() => {
     const set = new Set<string>();
@@ -152,6 +151,7 @@ export function ReadingPlanDayView({
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/reading-plans/user/active'] });
       queryClient.invalidateQueries({ queryKey: ['/api/reading-plans/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/reading-plans/user', plan.id] });
       
       if (data.isCompleted) {
         toast({
@@ -265,8 +265,8 @@ export function ReadingPlanDayView({
     : (lang === 'pt' ? 'Meu Plano' : 'My Plan');
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
-      <header className="shrink-0 px-4 py-4 bg-white dark:bg-slate-800 flex items-center gap-3 shadow-sm">
+    <div className="flex flex-col h-full bg-slate-100 dark:bg-slate-900">
+      <header className="shrink-0 px-4 py-3 bg-white dark:bg-slate-800 flex items-center gap-3 border-b border-slate-200 dark:border-slate-700">
         <Button 
           variant="ghost" 
           size="icon" 
@@ -276,32 +276,32 @@ export function ReadingPlanDayView({
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h1 className="text-base font-bold text-[#357ABD] flex-1 text-center pr-10">
+        <h1 className="text-lg font-bold text-[#357ABD] flex-1 text-center pr-10">
           {planTitle} - {lang === 'pt' ? 'Dia' : 'Day'} {plan.currentDay}
         </h1>
       </header>
 
       <ScrollArea className="flex-1">
         <div className="px-4 py-4 space-y-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-600 dark:text-slate-400">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 {lang === 'pt' ? 'Progresso:' : 'Progress:'} {progressPercent}% {lang === 'pt' ? 'Completo' : 'Complete'}
               </span>
             </div>
             <Progress 
               value={progressPercent} 
-              className="h-3 bg-slate-200 dark:bg-slate-600" 
+              className="h-2 bg-slate-200 dark:bg-slate-600" 
             />
           </div>
 
           {todayReading && (
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-              <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+              <h2 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-4">
                 {lang === 'pt' ? 'Leitura de Hoje:' : "Today's Reading:"}
               </h2>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {todayReading.readings.map((reading, idx) => {
                   const isChecked = isReadingComplete(reading);
                   
@@ -311,33 +311,35 @@ export function ReadingPlanDayView({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
-                      className="flex items-center gap-3 py-2"
+                      className="flex items-center gap-3 py-3 border-b border-slate-100 dark:border-slate-700 last:border-0"
                     >
                       <button
                         onClick={() => handleToggleReading(reading)}
-                        className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
-                          isChecked 
-                            ? 'bg-[#357ABD] text-white' 
-                            : 'border-2 border-slate-300 dark:border-slate-500'
-                        }`}
-                        data-testid={`check-${reading.book}-${reading.startChapter}`}
+                        className="text-[#357ABD] shrink-0"
+                        data-testid={`check-left-${reading.book}-${reading.startChapter}`}
                       >
-                        {isChecked && <Check className="w-4 h-4" />}
+                        <Check className="w-5 h-5" />
                       </button>
                       
                       <button
                         onClick={() => onNavigateToChapter(reading.book, reading.startChapter)}
-                        className="flex-1 text-left text-slate-700 dark:text-slate-300 font-medium"
+                        className="flex-1 text-left text-slate-700 dark:text-slate-300 font-medium text-base"
                         data-testid={`reading-${reading.book}-${reading.startChapter}`}
                       >
                         {formatReadingReference(reading, lang)}
                       </button>
                       
-                      <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
-                        isChecked ? 'bg-[#357ABD]' : 'bg-slate-200 dark:bg-slate-600'
-                      }`}>
-                        <Check className={`w-4 h-4 ${isChecked ? 'text-white' : 'text-transparent'}`} />
-                      </div>
+                      <button
+                        onClick={() => handleToggleReading(reading)}
+                        className={`w-6 h-6 rounded flex items-center justify-center shrink-0 transition-colors ${
+                          isChecked 
+                            ? 'bg-[#357ABD]' 
+                            : 'border-2 border-[#357ABD]'
+                        }`}
+                        data-testid={`check-${reading.book}-${reading.startChapter}`}
+                      >
+                        {isChecked && <Check className="w-4 h-4 text-white" />}
+                      </button>
                     </motion.div>
                   );
                 })}
@@ -345,13 +347,13 @@ export function ReadingPlanDayView({
             </div>
           )}
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+            <h2 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-2">
               {lang === 'pt' ? 'Notas do Dia' : 'Daily Notes'}
             </h2>
             <div className="flex items-start gap-3">
               <div className="flex-1">
-                <p className="text-sm text-slate-500 dark:text-slate-400 italic mb-2">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
                   {lang === 'pt' 
                     ? 'Reflexão sobre a leitura de hoje.'
                     : 'Reflection on today\'s reading.'}
@@ -362,42 +364,23 @@ export function ReadingPlanDayView({
                     : 'Write down insights and important questions.'}
                 </p>
                 <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                   className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#357ABD]/50"
                   placeholder={lang === 'pt' ? 'Escreva suas notas aqui...' : 'Write your notes here...'}
                   rows={3}
                   data-testid="input-notes"
                 />
               </div>
-              <div className="w-16 h-16 flex items-center justify-center shrink-0">
-                <BookOpen className="w-12 h-12 text-[#5CB85C]" />
+              <div className="w-14 h-14 flex items-center justify-center shrink-0">
+                <BookOpen className="w-10 h-10 text-[#5CB85C]" />
               </div>
             </div>
           </div>
 
-          {todayReading && !todayReading.isCompleted && (
-            <Button
-              className="w-full bg-[#5CB85C] hover:bg-[#449D44] text-white font-semibold rounded-full py-5"
-              onClick={() => {
-                const firstUnread = todayReading.readings.find(r => !isReadingComplete(r));
-                if (firstUnread) {
-                  onNavigateToChapter(firstUnread.book, firstUnread.startChapter);
-                } else {
-                  const first = todayReading.readings[0];
-                  if (first) {
-                    onNavigateToChapter(first.book, first.startChapter);
-                  }
-                }
-              }}
-              data-testid="button-continue-reading"
-            >
-              {lang === 'pt' ? 'Continuar Leitura' : 'Continue Reading'}
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
-
           <div className="flex gap-3">
             <Button
-              className="flex-1 bg-[#F0AD4E] hover:bg-[#EC971F] text-white font-semibold rounded-full py-5"
+              className="flex-1 bg-[#F0AD4E] hover:bg-[#EC971F] text-white font-semibold rounded-full py-3 h-12"
               onClick={handleMarkAllComplete}
               disabled={markCompleteMutation.isPending || todayReading?.isCompleted}
               data-testid="button-mark-read"
@@ -408,7 +391,7 @@ export function ReadingPlanDayView({
             </Button>
             
             <Button
-              className="flex-1 bg-[#357ABD] hover:bg-[#2A5F8F] text-white font-semibold rounded-full py-5"
+              className="flex-1 bg-[#357ABD] hover:bg-[#2A5F8F] text-white font-semibold rounded-full py-3 h-12"
               onClick={() => {
                 if (onAskAI && todayReading) {
                   const refs = todayReading.readings.map(r => formatReadingReference(r, lang)).join(', ');
@@ -422,9 +405,9 @@ export function ReadingPlanDayView({
             </Button>
           </div>
 
-          <div className="flex justify-center gap-6 py-2">
+          <div className="flex justify-center items-center gap-4 py-3">
             <button 
-              className="text-sm text-slate-500 dark:text-slate-400 underline"
+              className="text-sm text-slate-500 dark:text-slate-400"
               data-testid="button-skip-day"
             >
               {lang === 'pt' ? 'Pular Dia' : 'Skip Day'}
@@ -432,7 +415,7 @@ export function ReadingPlanDayView({
             <span className="text-slate-300 dark:text-slate-600">|</span>
             {nextDayReading && (
               <button 
-                className="text-sm text-slate-500 dark:text-slate-400 underline"
+                className="text-sm text-slate-500 dark:text-slate-400"
                 data-testid="button-next-day"
               >
                 {lang === 'pt' 
@@ -444,7 +427,7 @@ export function ReadingPlanDayView({
 
           {nextDayRef && (
             <div className="text-center pb-4">
-              <span className="text-base font-semibold text-slate-700 dark:text-slate-300">
+              <span className="text-base font-bold text-slate-700 dark:text-slate-300">
                 {nextDayRef}
               </span>
             </div>

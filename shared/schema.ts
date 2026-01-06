@@ -25,6 +25,7 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   googleId: varchar("google_id"),
   role: text("role").notNull().default("user"),
+  isAdmin: boolean("is_admin").notNull().default(false),
   isBlocked: boolean("is_blocked").notNull().default(false),
   trialStartDate: timestamp("trial_start_date").defaultNow(),
   lastLoginAt: timestamp("last_login_at"),
@@ -255,6 +256,8 @@ export type BibleWord = typeof bibleWords.$inferSelect;
 // Admin Actions (Audit Log) table
 export const adminActions = pgTable("admin_actions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  action: text("action"),
   adminId: varchar("admin_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   actionType: text("action_type").notNull(), // BONUS_GRANTED, PLAN_CHANGED, ADMIN_CREATED, USER_BLOCKED, etc.
   targetUserId: varchar("target_user_id").references(() => users.id, { onDelete: "cascade" }),
@@ -282,6 +285,7 @@ export const bonuses = pgTable("bonuses", {
   isActive: boolean("is_active").notNull().default(true),
   startAt: timestamp("start_at").notNull().defaultNow(),
   endAt: timestamp("end_at"), // null for lifetime/permanent bonuses
+  expiresAt: timestamp("expires_at"), // Legacy column - kept for compatibility
   reason: text("reason"),
   grantedByAdminId: varchar("granted_by_admin_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),

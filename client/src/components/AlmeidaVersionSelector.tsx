@@ -1,21 +1,10 @@
 /**
  * Bible Version Selector Component
- * Usa Shadcn Select para melhor compatibilidade em produção
- * CORRIGIDO: Adiciona fallback com onClick direto nos items para produção
+ * CORRIGIDO v3: Usa select nativo HTML para máxima compatibilidade mobile/PWA
  */
 
-import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Loader2 } from "lucide-react";
 
 interface VersionSelectorProps {
   selectedVersion: string;
@@ -38,8 +27,6 @@ export function AlmeidaVersionSelector({
   onVersionChange,
   disabled = false,
 }: VersionSelectorProps) {
-  const [open, setOpen] = useState(false);
-  
   const { data: versions, isLoading } = useQuery<BibleVersion[]>({
     queryKey: ['/api/versions'],
     staleTime: 1000 * 60 * 5,
@@ -61,20 +48,20 @@ export function AlmeidaVersionSelector({
   const englishVersions = availableVersions.filter(v => v.language === 'en');
   const spanishVersions = availableVersions.filter(v => v.language === 'es');
 
-  // Direct click handler - more reliable in production/PWA
-  const handleVersionClick = (versionCode: string) => {
-    console.log(`[VERSION_CHANGE] {
+  // Native HTML select onChange - most reliable across all platforms
+  const handleNativeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newVersion = e.target.value;
+    console.log(`[VERSION_CHANGE_NATIVE] {
       from: "${selectedVersion}",
-      to: "${versionCode}",
+      to: "${newVersion}",
       origin: "${window.location.origin}",
       isProduction: ${import.meta.env.PROD},
       timestamp: ${Date.now()}
     }`);
     
-    if (versionCode && versionCode !== selectedVersion) {
-      console.log(`[VERSION_CHANGE_TRIGGERED] calling onVersionChange("${versionCode}")`);
-      onVersionChange(versionCode);
-      setOpen(false);
+    if (newVersion && newVersion !== selectedVersion) {
+      console.log(`[VERSION_CHANGE_TRIGGERED] calling onVersionChange("${newVersion}")`);
+      onVersionChange(newVersion);
     }
   };
 
@@ -87,70 +74,43 @@ export function AlmeidaVersionSelector({
   }
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild disabled={disabled}>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-[70px] h-9 text-xs font-bold border-primary/30 justify-between"
-          data-testid="button-version-selector"
-        >
-          <span>{selectedVersion}</span>
-          <ChevronDown className="h-3 w-3 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64 z-[100]" align="start">
-        {portugueseVersions.length > 0 && (
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>Português</DropdownMenuLabel>
-            {portugueseVersions.map((version) => (
-              <DropdownMenuItem
-                key={version.code}
-                onClick={() => handleVersionClick(version.code)}
-                className={selectedVersion === version.code ? "bg-accent" : ""}
-                data-testid={`version-item-${version.code}`}
-              >
-                <span className="font-medium">{version.code}</span>
-                <span className="ml-2 text-muted-foreground text-xs">{version.name}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuGroup>
-        )}
-        
-        {spanishVersions.length > 0 && (
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>Español</DropdownMenuLabel>
-            {spanishVersions.map((version) => (
-              <DropdownMenuItem
-                key={version.code}
-                onClick={() => handleVersionClick(version.code)}
-                className={selectedVersion === version.code ? "bg-accent" : ""}
-                data-testid={`version-item-${version.code}`}
-              >
-                <span className="font-medium">{version.code}</span>
-                <span className="ml-2 text-muted-foreground text-xs">{version.name}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuGroup>
-        )}
-        
-        {englishVersions.length > 0 && (
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>English</DropdownMenuLabel>
-            {englishVersions.map((version) => (
-              <DropdownMenuItem
-                key={version.code}
-                onClick={() => handleVersionClick(version.code)}
-                className={selectedVersion === version.code ? "bg-accent" : ""}
-                data-testid={`version-item-${version.code}`}
-              >
-                <span className="font-medium">{version.code}</span>
-                <span className="ml-2 text-muted-foreground text-xs">{version.name}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuGroup>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <select
+      value={selectedVersion}
+      onChange={handleNativeChange}
+      disabled={disabled}
+      data-testid="button-version-selector"
+      className="h-9 px-2 text-xs font-bold border border-primary/30 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer appearance-auto"
+      style={{ minWidth: '70px' }}
+    >
+      {portugueseVersions.length > 0 && (
+        <optgroup label="Português">
+          {portugueseVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+      
+      {spanishVersions.length > 0 && (
+        <optgroup label="Español">
+          {spanishVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+      
+      {englishVersions.length > 0 && (
+        <optgroup label="English">
+          {englishVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+    </select>
   );
 }

@@ -1045,7 +1045,7 @@ export function BibleReader({
                 {chapterData.book.name} {selectedChapter}
               </h2>
               {/* Verses with number on left and actions on right */}
-              <div className="space-y-5 sm:space-y-6 text-[1.35rem] sm:text-[1.7rem] font-serif leading-relaxed">
+              <div className="space-y-3 sm:space-y-4 text-[1.35rem] sm:text-[1.7rem] font-serif leading-relaxed">
                 {filteredVerses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 

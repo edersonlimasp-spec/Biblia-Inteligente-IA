@@ -1,19 +1,21 @@
 /**
  * Bible Version Selector Component
  * Usa Shadcn Select para melhor compatibilidade em produção
+ * CORRIGIDO: Adiciona fallback com onClick direto nos items para produção
  */
 
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface VersionSelectorProps {
   selectedVersion: string;
@@ -36,6 +38,8 @@ export function AlmeidaVersionSelector({
   onVersionChange,
   disabled = false,
 }: VersionSelectorProps) {
+  const [open, setOpen] = useState(false);
+  
   const { data: versions, isLoading } = useQuery<BibleVersion[]>({
     queryKey: ['/api/versions'],
     staleTime: 1000 * 60 * 5,
@@ -57,25 +61,20 @@ export function AlmeidaVersionSelector({
   const englishVersions = availableVersions.filter(v => v.language === 'en');
   const spanishVersions = availableVersions.filter(v => v.language === 'es');
 
-  const handleValueChange = (value: string) => {
-    // === SELECTOR DIAGNOSTICS (PASSO 1-A) ===
-    console.log(`[BIBLE] VERSION_SELECTOR_CHANGE -> {
-      newVersion: "${value}",
-      previousVersion: "${selectedVersion}",
+  // Direct click handler - more reliable in production/PWA
+  const handleVersionClick = (versionCode: string) => {
+    console.log(`[VERSION_CHANGE] {
+      from: "${selectedVersion}",
+      to: "${versionCode}",
       origin: "${window.location.origin}",
       isProduction: ${import.meta.env.PROD},
-      isDevelopment: ${import.meta.env.DEV},
-      mode: "${import.meta.env.MODE}",
       timestamp: ${Date.now()}
     }`);
     
-    if (value && value !== selectedVersion) {
-      console.log(`[BIBLE] VERSION_CHANGE_TRIGGERED -> calling onVersionChange("${value}")`);
-      onVersionChange(value);
-    } else if (value === selectedVersion) {
-      console.log(`[BIBLE] VERSION_SAME -> version already selected: ${value}`);
-    } else {
-      console.warn(`[BIBLE] VERSION_INVALID -> empty or null value received`);
+    if (versionCode && versionCode !== selectedVersion) {
+      console.log(`[VERSION_CHANGE_TRIGGERED] calling onVersionChange("${versionCode}")`);
+      onVersionChange(versionCode);
+      setOpen(false);
     }
   };
 
@@ -88,47 +87,70 @@ export function AlmeidaVersionSelector({
   }
 
   return (
-    <Select value={selectedVersion} onValueChange={handleValueChange} disabled={disabled}>
-      <SelectTrigger 
-        className="w-[70px] h-9 text-xs font-bold border-primary/30"
-        data-testid="button-version-selector"
-      >
-        <SelectValue placeholder="Versão" />
-      </SelectTrigger>
-      <SelectContent className="z-[100]">
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild disabled={disabled}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-[70px] h-9 text-xs font-bold border-primary/30 justify-between"
+          data-testid="button-version-selector"
+        >
+          <span>{selectedVersion}</span>
+          <ChevronDown className="h-3 w-3 opacity-50" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-64 z-[100]" align="start">
         {portugueseVersions.length > 0 && (
-          <SelectGroup>
-            <SelectLabel>Português</SelectLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Português</DropdownMenuLabel>
             {portugueseVersions.map((version) => (
-              <SelectItem key={version.code} value={version.code}>
-                {version.code} - {version.name}
-              </SelectItem>
+              <DropdownMenuItem
+                key={version.code}
+                onClick={() => handleVersionClick(version.code)}
+                className={selectedVersion === version.code ? "bg-accent" : ""}
+                data-testid={`version-item-${version.code}`}
+              >
+                <span className="font-medium">{version.code}</span>
+                <span className="ml-2 text-muted-foreground text-xs">{version.name}</span>
+              </DropdownMenuItem>
             ))}
-          </SelectGroup>
+          </DropdownMenuGroup>
         )}
         
         {spanishVersions.length > 0 && (
-          <SelectGroup>
-            <SelectLabel>Español</SelectLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Español</DropdownMenuLabel>
             {spanishVersions.map((version) => (
-              <SelectItem key={version.code} value={version.code}>
-                {version.code} - {version.name}
-              </SelectItem>
+              <DropdownMenuItem
+                key={version.code}
+                onClick={() => handleVersionClick(version.code)}
+                className={selectedVersion === version.code ? "bg-accent" : ""}
+                data-testid={`version-item-${version.code}`}
+              >
+                <span className="font-medium">{version.code}</span>
+                <span className="ml-2 text-muted-foreground text-xs">{version.name}</span>
+              </DropdownMenuItem>
             ))}
-          </SelectGroup>
+          </DropdownMenuGroup>
         )}
         
         {englishVersions.length > 0 && (
-          <SelectGroup>
-            <SelectLabel>English</SelectLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>English</DropdownMenuLabel>
             {englishVersions.map((version) => (
-              <SelectItem key={version.code} value={version.code}>
-                {version.code} - {version.name}
-              </SelectItem>
+              <DropdownMenuItem
+                key={version.code}
+                onClick={() => handleVersionClick(version.code)}
+                className={selectedVersion === version.code ? "bg-accent" : ""}
+                data-testid={`version-item-${version.code}`}
+              >
+                <span className="font-medium">{version.code}</span>
+                <span className="ml-2 text-muted-foreground text-xs">{version.name}</span>
+              </DropdownMenuItem>
             ))}
-          </SelectGroup>
+          </DropdownMenuGroup>
         )}
-      </SelectContent>
-    </Select>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

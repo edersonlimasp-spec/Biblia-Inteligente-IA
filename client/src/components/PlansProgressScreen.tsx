@@ -38,8 +38,34 @@ import type { ReadingPlanTemplate } from "@shared/schema";
 
 interface PlansProgressScreenProps {
   onBack: () => void;
-  onNavigateToBible: () => void;
+  onNavigateToBible: (book?: string, chapter?: number) => void;
   onOpenMyPlan?: (planId: string) => void;
+}
+
+interface DailyReading {
+  book: string;
+  startChapter: number;
+  endChapter?: number;
+}
+
+interface TodayReading {
+  dayIndex: number;
+  readings: DailyReading[];
+  isCompleted: boolean;
+  completedReadings?: DailyReading[];
+}
+
+interface ActivePlanResponse {
+  activePlan: {
+    id: string;
+    templateId: string;
+    startDate: string;
+    completedDays: number;
+    streakDays: number;
+    template?: ReadingPlanTemplate;
+  } | null;
+  todayReading?: TodayReading;
+  overdueReadings?: Array<{ dayIndex: number; readings: DailyReading[] }>;
 }
 
 const BIBLE_BOOKS = [
@@ -177,7 +203,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
     enabled: true,
   });
 
-  const { data: activePlanData } = useQuery({
+  const { data: activePlanData } = useQuery<ActivePlanResponse>({
     queryKey: ['/api/reading-plans/user/active'],
     enabled: true,
   });
@@ -487,7 +513,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
                         <div className="space-y-2">
                           {activePlanData.todayReading.readings?.map((reading: any, idx: number) => (
                             <div key={idx} className="flex items-center gap-2">
-                              <CheckCircle2 className={`w-4 h-4 ${activePlanData.todayReading.isCompleted ? 'text-green-500' : 'text-muted-foreground'}`} />
+                              <CheckCircle2 className={`w-4 h-4 ${activePlanData.todayReading?.isCompleted ? 'text-green-500' : 'text-muted-foreground'}`} />
                               <span className="text-sm">
                                 {reading.book.toUpperCase()} {reading.startChapter}
                                 {reading.endChapter && reading.endChapter !== reading.startChapter && `-${reading.endChapter}`}
@@ -497,7 +523,14 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
                         </div>
                         <Button 
                           className="w-full mt-4" 
-                          onClick={onNavigateToBible}
+                          onClick={() => {
+                            const firstReading = activePlanData.todayReading?.readings?.[0];
+                            if (firstReading) {
+                              onNavigateToBible(firstReading.book, firstReading.startChapter);
+                            } else {
+                              onNavigateToBible();
+                            }
+                          }}
                           data-testid="button-go-to-reading"
                         >
                           <BookOpen className="w-4 h-4 mr-2" />
@@ -506,10 +539,10 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
                       </div>
                     )}
 
-                    {activePlanData.overdueReadings?.length > 0 && (
+                    {(activePlanData.overdueReadings?.length ?? 0) > 0 && (
                       <div className="p-4 rounded-lg border border-orange-500/30 bg-orange-50 dark:bg-orange-900/10">
                         <h4 className="font-medium text-orange-700 dark:text-orange-400 mb-2">
-                          {lang === 'pt' ? 'Leituras Atrasadas' : lang === 'es' ? 'Lecturas Atrasadas' : 'Overdue Readings'} ({activePlanData.overdueReadings.length})
+                          {lang === 'pt' ? 'Leituras Atrasadas' : lang === 'es' ? 'Lecturas Atrasadas' : 'Overdue Readings'} ({activePlanData.overdueReadings?.length ?? 0})
                         </h4>
                         <p className="text-sm text-orange-600 dark:text-orange-300">
                           {lang === 'pt' ? 'Você tem leituras pendentes. Complete-as para manter seu progresso!'
@@ -593,7 +626,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
                         <div
                           key={book.name}
                           className="p-2 rounded-lg border bg-card cursor-pointer hover-elevate"
-                          onClick={onNavigateToBible}
+                          onClick={() => onNavigateToBible()}
                           data-testid={`book-at-${book.name}`}
                         >
                           <div className="flex items-center justify-between mb-1">
@@ -622,7 +655,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
                         <div
                           key={book.name}
                           className="p-2 rounded-lg border bg-card cursor-pointer hover-elevate"
-                          onClick={onNavigateToBible}
+                          onClick={() => onNavigateToBible()}
                           data-testid={`book-nt-${book.name}`}
                         >
                           <div className="flex items-center justify-between mb-1">

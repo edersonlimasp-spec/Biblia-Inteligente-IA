@@ -63,6 +63,8 @@ interface BibleReaderProps {
   onNavigateToAdmin?: () => void;
   onNavigateToLogin?: () => void;
   onNavigateToDashboard?: () => void;
+  initialBook?: string;
+  initialChapter?: number;
 }
 
 interface GlobalSearchResult {
@@ -103,6 +105,8 @@ export function BibleReader({
   onNavigateToAdmin,
   onNavigateToLogin,
   onNavigateToDashboard,
+  initialBook,
+  initialChapter,
 }: BibleReaderProps) {
   const { user, isAdmin, logout } = useAuth();
   const { toast } = useToast();
@@ -157,6 +161,7 @@ export function BibleReader({
 
   // Initialize with last reading position - only runs once on mount
   // BUT always use the version matching the current language
+  // Priority: initialBook/initialChapter props > last reading > default (gen 1)
   useEffect(() => {
     // === BOOT DIAGNOSTICS (PASSO 1-C) ===
     let savedVersion: string | null = null;
@@ -191,10 +196,17 @@ export function BibleReader({
       isProduction: ${import.meta.env.PROD},
       isDevelopment: ${import.meta.env.DEV},
       mode: "${import.meta.env.MODE}",
+      initialBook: "${initialBook || 'null'}",
+      initialChapter: ${initialChapter || 'null'},
       timestamp: ${Date.now()}
     }`);
     
-    if (lastReading && lastReading.book && lastReading.chapter) {
+    // Priority: props > last reading > default
+    if (initialBook && initialChapter) {
+      console.log(`[BIBLE] NAVIGATING_FROM_PLAN -> book=${initialBook} chapter=${initialChapter}`);
+      setSelectedBook(initialBook);
+      setSelectedChapter(initialChapter);
+    } else if (lastReading && lastReading.book && lastReading.chapter) {
       setSelectedBook(lastReading.book);
       setSelectedChapter(lastReading.chapter);
     }

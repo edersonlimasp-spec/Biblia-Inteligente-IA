@@ -47,6 +47,9 @@ function NavigationContent() {
   
   const { user, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
+  
+  // State for navigating to specific Bible chapter from reading plans
+  const [bibleNavTarget, setBibleNavTarget] = useState<{ book: string; chapter: number } | null>(null);
 
   const handleBackToLoginFromReset = () => {
     setLocation("/");
@@ -162,7 +165,12 @@ function NavigationContent() {
           onNavigateToHistory={() => navigate("bookmarks")}
           onNavigateToAdmin={() => navigate("admin")}
           onNavigateToLogin={() => navigate("login")}
-          onNavigateToDashboard={() => goBack()}
+          onNavigateToDashboard={() => {
+            setBibleNavTarget(null);
+            goBack();
+          }}
+          initialBook={bibleNavTarget?.book}
+          initialChapter={bibleNavTarget?.chapter}
         />
       )}
       {currentScreen === "bookmarks" && (
@@ -189,7 +197,14 @@ function NavigationContent() {
         <RequireAuthScreen featureName="Progresso de Leitura" onAuthCancel={() => goBack()}>
           <PlansProgressScreen 
             onBack={() => goBack()} 
-            onNavigateToBible={() => navigate("bible")}
+            onNavigateToBible={(book?: string, chapter?: number) => {
+              if (book && chapter) {
+                setBibleNavTarget({ book, chapter });
+              } else {
+                setBibleNavTarget(null);
+              }
+              navigate("bible");
+            }}
           />
         </RequireAuthScreen>
       )}

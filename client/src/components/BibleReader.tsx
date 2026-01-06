@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Loader2, Globe, BookOpen, Home } from "lucide-react";
+import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Loader2, Globe, BookOpen, Home, Share2, Copy, Check, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import {
@@ -149,6 +149,11 @@ export function BibleReader({
   // Trial status
   const [trialActive, setTrialActive] = useState(false);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
+  
+  // Multi-verse selection for sharing
+  const [selectedVersesForShare, setSelectedVersesForShare] = useState<Set<number>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [justCopied, setJustCopied] = useState(false);
 
   // Initialize with last reading position - only runs once on mount
   // BUT always use the version matching the current language
@@ -612,6 +617,107 @@ export function BibleReader({
     setShowAnnotationPanel(true);
   };
 
+  // Toggle verse selection for multi-share
+  const toggleVerseForShare = (verseNum: number) => {
+    setSelectedVersesForShare(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(verseNum)) {
+        newSet.delete(verseNum);
+      } else {
+        newSet.add(verseNum);
+      }
+      // Exit selection mode if no verses selected
+      if (newSet.size === 0) {
+        setIsSelectionMode(false);
+      }
+      return newSet;
+    });
+  };
+
+  // Get selected verses text for sharing
+  const getSelectedVersesText = useCallback(() => {
+    if (!chapterData?.chapter?.verses || selectedVersesForShare.size === 0) return "";
+    
+    const sortedVerses = Array.from(selectedVersesForShare).sort((a, b) => a - b);
+    const versesText = sortedVerses.map(verseNum => {
+      const verse = chapterData.chapter.verses.find(v => v.verse === verseNum);
+      return verse ? `${verseNum} ${verse.text}` : "";
+    }).filter(Boolean).join("\n");
+    
+    const reference = sortedVerses.length === 1
+      ? `${chapterData.book.name} ${selectedChapter}:${sortedVerses[0]}`
+      : `${chapterData.book.name} ${selectedChapter}:${sortedVerses[0]}-${sortedVerses[sortedVerses.length - 1]}`;
+    
+    return `"${versesText}"\n\n${reference}\n\n---\nEnviado por Bíblia Inteligente IA\nConheça a BI: https://bibliainteligente.replit.app`;
+  }, [chapterData, selectedChapter, selectedVersesForShare]);
+
+  // Handle share multiple verses
+  const handleShareSelected = async () => {
+    const shareText = getSelectedVersesText();
+    if (!shareText) return;
+    
+    const sortedVerses = Array.from(selectedVersesForShare).sort((a, b) => a - b);
+    const reference = sortedVerses.length === 1
+      ? `${chapterData?.book.name} ${selectedChapter}:${sortedVerses[0]}`
+      : `${chapterData?.book.name} ${selectedChapter}:${sortedVerses[0]}-${sortedVerses[sortedVerses.length - 1]}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: reference,
+          text: shareText,
+        });
+        // Clear selection after successful share
+        setSelectedVersesForShare(new Set());
+        setIsSelectionMode(false);
+        return;
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return;
+      }
+    }
+    
+    // Fallback: Copy to clipboard
+    handleCopySelected();
+  };
+
+  // Handle copy multiple verses
+  const handleCopySelected = async () => {
+    const shareText = getSelectedVersesText();
+    if (!shareText) return;
+    
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setJustCopied(true);
+      toast({
+        title: "Copiado!",
+        description: `${selectedVersesForShare.size} versículo(s) copiado(s)`,
+      });
+      setTimeout(() => {
+        setJustCopied(false);
+        setSelectedVersesForShare(new Set());
+        setIsSelectionMode(false);
+      }, 1500);
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Não foi possível copiar o texto",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Clear verse selection
+  const clearVerseSelection = () => {
+    setSelectedVersesForShare(new Set());
+    setIsSelectionMode(false);
+  };
+
+  // Start selection mode with a verse
+  const startSelectionMode = (verseNum: number) => {
+    setIsSelectionMode(true);
+    setSelectedVersesForShare(new Set([verseNum]));
+  };
+
   const handlePreviousChapter = () => {
     if (selectedChapter > 1) {
       setSelectedChapter(selectedChapter - 1);
@@ -1054,17 +1160,27 @@ export function BibleReader({
                   const hasBookmark = isVerseBookmarked(verse.verse);
                   const hasNote = verseHasAnnotation(verse.verse);
                   
+                  const isSelectedForShare = selectedVersesForShare.has(verse.verse);
+                  
                   return (
                     <div
                       key={`${selectedBook}-${selectedChapter}-${verse.verse}`}
                       className={`flex gap-3 group relative ${
-                        selectedVerse === verse.verse 
-                          ? "bg-primary/10 -mx-3 px-3 py-2 rounded-lg" 
-                          : highlightBg 
-                            ? `${highlightBg} -mx-3 px-3 py-2 rounded-lg`
-                            : ""
+                        isSelectedForShare
+                          ? "bg-blue-100 dark:bg-blue-900/40 -mx-3 px-3 py-2 rounded-lg ring-2 ring-blue-400/50"
+                          : selectedVerse === verse.verse 
+                            ? "bg-primary/10 -mx-3 px-3 py-2 rounded-lg" 
+                            : highlightBg 
+                              ? `${highlightBg} -mx-3 px-3 py-2 rounded-lg`
+                              : ""
                       }`}
-                      onClick={() => setSelectedVerse(verse.verse)}
+                      onClick={() => {
+                        if (isSelectionMode) {
+                          toggleVerseForShare(verse.verse);
+                        } else {
+                          setSelectedVerse(verse.verse);
+                        }
+                      }}
                       data-testid={`verse-${verse.verse}`}
                     >
                       {/* Verse Number + Icons on left */}
@@ -1107,10 +1223,18 @@ export function BibleReader({
                         text={verse.text}
                         isBookmarked={hasBookmark || false}
                         isHighlighted={!!highlightColor}
+                        isSelectedForShare={isSelectedForShare}
                         onBookmark={() => user ? handleBookmarkClick(verse.verse, hasBookmark || false) : toast({ title: "Faça login", description: "Marcadores estão disponíveis apenas para usuários logados", variant: "destructive" })}
                         onHighlight={(color) => handleHighlight(verse.verse, color)}
                         onRemoveHighlight={() => handleRemoveHighlight(verse.verse)}
                         onAnnotate={() => user ? handleAnnotate(verse.verse) : toast({ title: "Faça login", description: "Comentários estão disponíveis apenas para usuários logados", variant: "destructive" })}
+                        onSelectForShare={() => {
+                          if (!isSelectionMode) {
+                            startSelectionMode(verse.verse);
+                          } else {
+                            toggleVerseForShare(verse.verse);
+                          }
+                        }}
                       />
                     </div>
                   );
@@ -1120,6 +1244,57 @@ export function BibleReader({
           ) : null}
         </div>
       </main>
+
+      {/* Floating Share Bar - appears when verses are selected */}
+      {selectedVersesForShare.size > 0 && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 fade-in duration-200">
+          <div className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-3 rounded-full shadow-lg">
+            <span className="text-sm font-medium">
+              {selectedVersesForShare.size} versículo(s)
+            </span>
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 px-3 text-primary-foreground hover:bg-primary-foreground/20"
+                onClick={handleShareSelected}
+                data-testid="button-share-selected"
+              >
+                <Share2 className="h-4 w-4 mr-1" />
+                Compartilhar
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 px-3 text-primary-foreground hover:bg-primary-foreground/20"
+                onClick={handleCopySelected}
+                data-testid="button-copy-selected"
+              >
+                {justCopied ? (
+                  <>
+                    <Check className="h-4 w-4 mr-1" />
+                    Copiado!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4 mr-1" />
+                    Copiar
+                  </>
+                )}
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
+                onClick={clearVerseSelection}
+                data-testid="button-clear-selection"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* AI Panel - completamente desmontado quando AnnotationPanel está aberto para garantir isolamento de estado */}
       {!showAnnotationPanel && (

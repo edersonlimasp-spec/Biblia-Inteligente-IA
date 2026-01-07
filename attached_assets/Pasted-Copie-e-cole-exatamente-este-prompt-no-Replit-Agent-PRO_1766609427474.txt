@@ -1,0 +1,108 @@
+Copie e cole exatamente este prompt no Replit Agent:
+
+⸻
+
+PROMPT REPLIT — AJUSTE FUNDAMENTAL (CURSOS: LOGIN + GATING GOLD/PREMIUM)
+
+Você vai corrigir o controle de acesso do Módulo “Cursos”. Hoje está liberando tudo para todos e isso está ERRADO. Faça o ajuste sem quebrar nada e com validação no frontend e no backend.
+
+1) PLANOS EXISTENTES (OFICIAL)
+
+Só existem 2 planos pagos:
+	•	gold
+	•	premium
+
+Qualquer usuário sem plano ativo é FREE (sem assinatura).
+
+2) REGRA NOVA DE LOGIN (OBRIGATÓRIA)
+
+Para acessar QUALQUER lição (inclusive as 3 primeiras gratuitas), o usuário precisa estar LOGADO.
+
+Fluxo:
+	•	Usuário pode ver o módulo “Cursos” e ver a lista de módulos/lições sem login.
+	•	Mas, ao clicar para abrir uma lição:
+	•	Se não estiver logado → abrir modal: “Entre ou crie uma conta para continuar” (CTA: Login/Criar conta).
+	•	Se estiver logado → aplicar regras de assinatura abaixo.
+
+3) REGRA OFICIAL DE ACESSO (NÃO PODE MUDAR)
+
+A lista de módulos e lições NÃO deve ficar desfocada nem escondida.
+Todos podem ver títulos/descrições.
+O bloqueio é SOMENTE na tentativa de ABRIR o conteúdo da lição.
+
+3.1) FREE (logado, sem assinatura)
+	•	Pode abrir APENAS as 3 PRIMEIRAS lições do primeiro módulo do curso Iniciante.
+	•	Qualquer lição após a 3ª no Iniciante → bloquear com paywall: “Assine Gold para liberar o Iniciante completo”.
+	•	Qualquer lição do Moderado ou Avançado → bloquear com paywall: “Assine no mínimo Gold”.
+
+3.2) GOLD
+	•	Pode abrir 100% das lições do Iniciante.
+	•	Pode abrir APENAS as 7 PRIMEIRAS lições do Moderado.
+	•	Moderado acima da 7ª e qualquer Avançado → paywall: “Assine Premium para liberar Moderado completo e Avançado”.
+
+3.3) PREMIUM
+	•	Pode abrir TODAS as lições de TODOS os módulos, incluindo Avançado.
+
+4) IMPLEMENTAÇÃO (OBRIGATÓRIA)
+	1.	Centralize a regra em UMA função única, por exemplo:
+
+	•	canOpenLesson({ isLoggedIn, plan, courseLevel, moduleIndex, lessonIndex })
+onde:
+	•	plan ∈ free | gold | premium
+	•	lessonIndex começa em 1 (primeira lição = 1)
+	•	moduleIndex começa em 1
+	•	“primeiro módulo do curso iniciante” = courseLevel="iniciante" e moduleIndex=1
+
+	2.	Backend: proteger o conteúdo
+
+	•	Em qualquer endpoint/rota que retorna o conteúdo da lição, validar o acesso.
+	•	Se não estiver logado → retornar 401 (NOT_AUTHENTICATED)
+	•	Se logado mas sem permissão → retornar 403 (UPGRADE_REQUIRED)
+Isso impede acesso por link direto/URL.
+
+	3.	Frontend: experiência correta
+
+	•	Sempre mostrar a lista de lições (sem blur).
+	•	Ao clicar para abrir:
+	•	Se 401 → abrir modal de login/criar conta.
+	•	Se 403 → abrir modal/paywall com CTA de assinatura (Gold/Premium conforme regra).
+	•	Se permitido → abrir normal.
+
+	4.	Não refatorar o app inteiro
+
+	•	Não mudar layout global.
+	•	Não mexer no pagamento além do necessário para “ler o plano atual do usuário”.
+
+5) CASOS DE TESTE (VOCÊ DEVE RODAR E ME MOSTRAR)
+
+A) DESLOGADO:
+	•	Clicar em qualquer lição (inclusive Iniciante M1 L1) → pedir login ✅
+
+B) LOGADO + FREE:
+	•	Iniciante módulo 1 lição 1,2,3 abre ✅
+	•	Iniciante módulo 1 lição 4 bloqueia (paywall Gold) ✅
+	•	Iniciante módulo 2 lição 1 bloqueia (paywall Gold) ✅
+	•	Moderado lição 1 bloqueia (paywall Gold) ✅
+	•	Avançado lição 1 bloqueia (paywall Gold) ✅
+
+C) LOGADO + GOLD:
+	•	Iniciante (qualquer módulo/lição) abre ✅
+	•	Moderado lição 7 abre ✅
+	•	Moderado lição 8 bloqueia (paywall Premium) ✅
+	•	Avançado lição 1 bloqueia (paywall Premium) ✅
+
+D) LOGADO + PREMIUM:
+	•	Moderado qualquer lição abre ✅
+	•	Avançado qualquer lição abre ✅
+
+6) ENTREGÁVEL
+
+Ao final, você deve me responder com:
+	•	Lista dos arquivos alterados
+	•	A função canOpenLesson(...) completa
+	•	Onde fez a validação no backend (endpoint/rota)
+	•	Resultado dos testes acima com ✅/❌
+
+⸻
+
+Se no seu sistema o “plano do usuário” estiver salvo com outro nome/campo (ex.: user.subscription.plan, userPlan, entitlement, etc.), descubra onde fica e adapte, mas garanta que somente gold e premium são planos pagos e o resto é FREE.

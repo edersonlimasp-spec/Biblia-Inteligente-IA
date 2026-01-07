@@ -1,0 +1,158 @@
+NÃO REMOVER OS EMOJIS DAS BANDEIRAS (🇧🇷 🇺🇸 🇪🇸). 
+Eles devem continuar como botões para troca de idioma.
+
+OBJETIVO ABSOLUTO
+Implementar troca de idioma GLOBAL em TODO o app (100%):
+- TODAS as telas e componentes
+- TODOS os módulos: Bíblia, IA “Perguntas ao Professor”, Agendas, Cursos/Lições (iniciante/moderado/avançado), Premium/Gold, telas de assinatura/pagamento (somente textos), login/cadastro/reset, mensagens, validações, placeholders, botões, menus, toasts, modais, erros.
+Ao clicar 🇧🇷 🇺🇸 🇪🇸 deve mudar tudo imediatamente (sem recarregar) e persistir após recarregar.
+
+REGRAS PARA NÃO QUEBRAR O APP
+1) Não alterar rotas, não remover telas, não mudar lógica de login/assinatura/pagamento/webhooks.
+2) NÃO fazer refactor grande. Mudanças pequenas, incrementais e seguras.
+3) Se qualquer tela ficar branca ou erro aparecer no console, desfazer e corrigir.
+4) Só finalizar se testado no Preview e funcionando. Se não funcionar, NÃO finalize.
+
+PASSO 0 — AUDITORIA OBRIGATÓRIA (ANTES DE CODAR)
+Você deve localizar e listar:
+- Arquivo de entrada (main.tsx/index.tsx)
+- App root (App.tsx/Routes)
+- Componente das bandeiras
+- Módulos principais:
+  a) Perguntas ao Professor (IA)
+  b) Agendas
+  c) Cursos/Lições (iniciante/moderado/avançado)
+  d) Bíblia
+  e) Assinatura/Pagamento (somente UI)
+E mapear onde estão textos hardcoded.
+Use busca no projeto por termos comuns:
+"Pergunte" "Enviar" "Agenda" "Lições" "Assinar" "Premium" "Gold" "Erro" "Sucesso"
+e também por placeholders e textos visíveis.
+
+PASSO 1 — CRIAR UMA FONTE ÚNICA DE VERDADE DO IDIOMA (GLOBAL + PERSISTENTE)
+Crie src/i18n/languageStore.ts (ou .js):
+- type Lang = 'pt' | 'en' | 'es'
+- STORAGE_KEY = 'app_lang'
+- getInitialLanguage(): Lang (localStorage -> fallback pt)
+- persistLanguage(lang)
+- React Context Provider (LanguageProvider) com:
+  - state: lang
+  - action: setLang(lang)
+  - ao setLang: persistir + disparar i18n.changeLanguage(lang)
+- hook useLanguage()
+
+Se já houver Zustand/Redux, pode usar, mas com persistência e hook equivalente.
+
+PASSO 2 — i18n PARA 100% DA UI
+Se já existe i18next/react-i18next:
+- Não reinstalar. Conecte com languageStore e pronto.
+
+Se NÃO existe:
+1) Instalar: i18next + react-i18next
+2) Criar src/i18n/index.ts inicializando i18n:
+   - fallbackLng: 'pt'
+   - interpolation escapeValue: false
+3) Criar resources:
+   - src/i18n/locales/pt.json
+   - src/i18n/locales/en.json
+   - src/i18n/locales/es.json
+
+IMPORTANTE: NADA de strings soltas em componentes após a migração.
+Tudo que é texto visível deve vir de t("...").
+
+PASSO 3 — ENVELOPAR O APP NO PROVIDER (SEM QUEBRAR ROTAS)
+No arquivo de entrada:
+- inicialize i18n antes do render
+- envolva App com:
+  <LanguageProvider>
+    <I18nextProvider/i18n init>
+      <App />
+    </...>
+  </LanguageProvider>
+
+PASSO 4 — CONECTAR AS BANDEIRAS (SEM REMOVER EMOJIS)
+No componente de bandeiras:
+- manter 🇧🇷 🇺🇸 🇪🇸
+- onClick -> setLang('pt'|'en'|'es')
+- adicionar estado visual do ativo (ex: borda/opacity)
+- garantir que NÃO depende de refresh
+
+PASSO 5 — MIGRAR TODOS OS MÓDULOS PARA TRADUÇÃO (OBRIGATÓRIO)
+Você deve substituir textos hardcoded por t("chave") nos seguintes pontos:
+
+A) Módulo IA “Perguntas ao Professor”
+- Título, instruções, placeholder do input, botão Enviar, contador de perguntas, mensagens:
+  - “Você precisa fazer login...”
+  - “Limite atingido...”
+  - “Assine para continuar...”
+  - “Carregando...”
+  - “Erro ao responder...”
+- Se existem prompts exibidos na UI, traduzir labels (não o conteúdo da resposta da IA).
+
+B) Agendas
+- Título “Agendas”, botões “Adicionar”, “Salvar”, “Editar”, “Excluir”, placeholders, validações, status.
+
+C) Cursos/Lições (iniciante/moderado/avançado)
+- Tudo que é UI: nomes de botões, “Bloqueado”, “Desbloqueado”, “Assinar para acessar”, “Gold”, “Premium”
+- Avisos de acesso:
+  - “Você pode ver o título mas precisa assinar para abrir”
+  - “Gold acessa iniciante e 7 lições moderado…”
+  - “Premium acessa tudo…”
+- Telas/listas/cards/labels devem mudar idioma.
+
+D) Bíblia
+- UI da Bíblia: botões, busca, seleção de livros, capítulos, versículos, compartilhar, etc.
+- Nomes de livros em pt/en/es (mínimo garantido).
+- Conteúdo bíblico:
+  - se há dataset por idioma: trocar também o texto
+  - se NÃO há dataset en/es: fallback sem quebrar, e mostrar aviso traduzido.
+
+E) Telas Globais
+- Navbar/menu lateral
+- Login/cadastro/reset
+- Assinatura/planos (somente textos, sem alterar lógica)
+- Toasters/modais/alerts/erros do app
+- Mensagens e validações de formulário
+
+PASSO 6 — PADRÃO DE CHAVES (PARA NÃO VIRAR BAGUNÇA)
+Crie uma estrutura de chaves consistente:
+- common.*
+- nav.*
+- auth.*
+- billing.*
+- bible.*
+- aiProfessor.*
+- agenda.*
+- courses.*
+- lessons.*
+- errors.*
+- notifications.*
+
+Exemplo:
+common.save, common.cancel, common.send, common.loading
+aiProfessor.title, aiProfessor.placeholder, aiProfessor.limitReached
+courses.locked, courses.subscribeToAccess
+agenda.add, agenda.edit
+
+PASSO 7 — REGRA PARA TEXTOS DINÂMICOS (COM VARIÁVEIS)
+Use placeholders do i18n:
+Ex: "Você tem {{count}} perguntas restantes"
+E as versões em EN/ES.
+
+PASSO 8 — TESTES OBRIGATÓRIOS NO PREVIEW (SEM ISSO NÃO ENTREGAR)
+Checklist:
+1) Home/menu: 🇺🇸 e 🇪🇸 mudam tudo visível
+2) IA Professor: título, placeholder, botões, contador, mensagens mudam
+3) Agendas: botões e textos mudam
+4) Cursos/Lições: labels e avisos de bloqueio/assinatura mudam
+5) Bíblia: UI muda + livros mudam; conteúdo muda ou fallback com aviso
+6) Recarregar página: idioma persiste
+7) Console sem erros
+8) Nada quebrou (rotas/login/assinatura/pagamento intactos)
+
+ENTREGA OBRIGATÓRIA (NO FINAL)
+- Liste todos os arquivos alterados
+- Explique como testou cada módulo no Preview (o que clicou e o que viu)
+- Confirme explicitamente: “Não removi os emojis 🇧🇷 🇺🇸 🇪🇸”
+- Se algum conteúdo não tem dataset EN/ES, indique o fallback e onde aparece o aviso
+- Se algum ponto falhar, NÃO finalize.

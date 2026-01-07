@@ -1,24 +1,10 @@
 /**
  * Bible Version Selector Component
- * Permite ao usuário escolher entre múltiplas versões
+ * CORRIGIDO v3: Usa select nativo HTML para máxima compatibilidade mobile/PWA
  */
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 interface VersionSelectorProps {
   selectedVersion: string;
@@ -26,79 +12,105 @@ interface VersionSelectorProps {
   disabled?: boolean;
 }
 
-const PORTUGUESE_VERSIONS = [
-  { code: "ACF", label: "ACF - Corrigida Fiel", short: "ACF" },
-  { code: "ARC", label: "ARC - Revista e Corrigida", short: "ARC" },
-  { code: "AA", label: "AA - Atualizada", short: "AA" },
-  { code: "ALMEIDA_1911", label: "Almeida 1911", short: "ALM" },
-  { code: "NBV", label: "NBV - Nova Bíblia Viva", short: "NBV" },
-  { code: "NVI", label: "NVI - King James", short: "NVI" },
-  { code: "NTLH", label: "NTLH - Linguagem de Hoje", short: "NTL" },
-  { code: "TLA", label: "TLA - Linguagem Atual", short: "TLA" },
-  { code: "KJA", label: "KJA - King James Atualizada", short: "KJA" },
-];
-
-const ENGLISH_VERSIONS = [
-  { code: "KJV", label: "KJV - King James Version", short: "KJV" },
-  { code: "NASB", label: "NASB - New American Standard", short: "NAS" },
-  { code: "ESV", label: "ESV - English Standard", short: "ESV" },
-];
+interface BibleVersion {
+  code: string;
+  name: string;
+  language: string;
+  licenseType: string;
+  hasData: boolean;
+  verseCount: number;
+  notes?: string;
+}
 
 export function AlmeidaVersionSelector({
   selectedVersion,
   onVersionChange,
   disabled = false,
 }: VersionSelectorProps) {
-  const allVersions = [...PORTUGUESE_VERSIONS, ...ENGLISH_VERSIONS];
-  const currentVersion = allVersions.find(v => v.code === selectedVersion);
-  const displayText = currentVersion?.short || "ACF";
+  const { data: versions, isLoading } = useQuery<BibleVersion[]>({
+    queryKey: ['/api/versions'],
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const fallbackVersions: BibleVersion[] = [
+    { code: 'ACF', name: 'Almeida Corrigida Fiel', language: 'pt', licenseType: 'public_domain', hasData: true, verseCount: 31106 },
+    { code: 'ARC', name: 'Almeida Revista e Corrigida', language: 'pt', licenseType: 'public_domain', hasData: true, verseCount: 29779 },
+    { code: 'NVI', name: 'Nova Versão Internacional', language: 'pt', licenseType: 'public_domain', hasData: true, verseCount: 29779 },
+    { code: 'RVR1960', name: 'Reina Valera 1960', language: 'es', licenseType: 'public_domain', hasData: true, verseCount: 30819 },
+    { code: 'KJV', name: 'King James Version', language: 'en', licenseType: 'public_domain', hasData: true, verseCount: 31102 },
+  ];
+
+  const availableVersions = (versions?.filter(v => v.hasData) || []).length > 0 
+    ? versions!.filter(v => v.hasData) 
+    : fallbackVersions;
   
+  const portugueseVersions = availableVersions.filter(v => v.language === 'pt');
+  const englishVersions = availableVersions.filter(v => v.language === 'en');
+  const spanishVersions = availableVersions.filter(v => v.language === 'es');
+
+  // Native HTML select onChange - most reliable across all platforms
+  const handleNativeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newVersion = e.target.value;
+    console.log(`[VERSION_CHANGE_NATIVE] {
+      from: "${selectedVersion}",
+      to: "${newVersion}",
+      origin: "${window.location.origin}",
+      isProduction: ${import.meta.env.PROD},
+      timestamp: ${Date.now()}
+    }`);
+    
+    if (newVersion && newVersion !== selectedVersion) {
+      console.log(`[VERSION_CHANGE_TRIGGERED] calling onVersionChange("${newVersion}")`);
+      onVersionChange(newVersion);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-9 px-3 flex items-center border rounded-md border-primary/30 bg-background">
+        <Loader2 className="h-3 w-3 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-14 h-9 px-1.5 font-bold text-xs border border-primary/30 hover:bg-primary/5"
-          data-testid="button-version-selector"
-          disabled={disabled}
-        >
-          {displayText}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="text-xs font-semibold text-primary">
-          🇧🇷 Português
-        </DropdownMenuLabel>
-        {PORTUGUESE_VERSIONS.map((version) => (
-          <DropdownMenuItem
-            key={version.code}
-            onClick={() => onVersionChange(version.code)}
-            data-testid={`select-version-${version.code}`}
-            className={selectedVersion === version.code ? "bg-primary/10" : ""}
-          >
-            <span className="font-mono text-xs font-bold mr-2 w-12">{version.short}</span>
-            <span className="text-sm">{version.label.replace(/^[A-Z]+\s*-\s*/, '')}</span>
-          </DropdownMenuItem>
-        ))}
-        
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuLabel className="text-xs font-semibold text-primary">
-          🇬🇧 English
-        </DropdownMenuLabel>
-        {ENGLISH_VERSIONS.map((version) => (
-          <DropdownMenuItem
-            key={version.code}
-            onClick={() => onVersionChange(version.code)}
-            data-testid={`select-version-${version.code}`}
-            className={selectedVersion === version.code ? "bg-primary/10" : ""}
-          >
-            <span className="font-mono text-xs font-bold mr-2 w-12">{version.short}</span>
-            <span className="text-sm">{version.label.replace(/^[A-Z]+\s*-\s*/, '')}</span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <select
+      value={selectedVersion}
+      onChange={handleNativeChange}
+      disabled={disabled}
+      data-testid="button-version-selector"
+      className="h-9 px-2 text-xs font-bold border border-primary/30 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer appearance-auto"
+      style={{ minWidth: '70px' }}
+    >
+      {portugueseVersions.length > 0 && (
+        <optgroup label="Português">
+          {portugueseVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+      
+      {spanishVersions.length > 0 && (
+        <optgroup label="Español">
+          {spanishVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+      
+      {englishVersions.length > 0 && (
+        <optgroup label="English">
+          {englishVersions.map((version) => (
+            <option key={version.code} value={version.code}>
+              {version.code} - {version.name}
+            </option>
+          ))}
+        </optgroup>
+      )}
+    </select>
   );
 }

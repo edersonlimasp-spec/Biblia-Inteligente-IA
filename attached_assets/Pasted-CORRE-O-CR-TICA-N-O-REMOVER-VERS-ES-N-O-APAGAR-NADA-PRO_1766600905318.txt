@@ -1,0 +1,133 @@
+CORREÇÃO CRÍTICA — NÃO REMOVER VERSÕES — NÃO APAGAR NADA — PROVAR EM PRODUÇÃO
+Você já tentou e falhou. Agora siga o procedimento abaixo SEM atalhos.
+Não considere concluído e NÃO COBRE enquanto não houver PROVA em PRODUÇÃO.
+
+========================
+PROBLEMA 1: TROCA DE VERSÃO NÃO MUDA O TEXTO
+========================
+O dropdown aparece (ou apareceu), mas ao selecionar outra versão o TEXTO NÃO MUDA.
+No último ajuste você REMOVEU versões. Isso é proibido.
+
+REGRA 0 (OBRIGATÓRIA):
+- É PROIBIDO remover versões, esconder opções, ou “simplificar” o dropdown.
+- Se alguma versão não for legal/licenciada, mantenha no menu como “Indisponível (licença)” e explique no Admin; mas NÃO apague.
+
+OBJETIVO:
+- Ao escolher versão X, o capítulo atual deve ser recarregado na versão X.
+- A mudança deve ser REAL (payload diferente), não só visual.
+- Deve funcionar no PREVIEW e principalmente no PUBLICADO.
+
+========================
+PASSO A: DIAGNÓSTICO (ANTES DE MEXER EM QUALQUER CÓDIGO)
+========================
+1) Identifique como o texto da Bíblia é carregado HOJE:
+   - Qual endpoint (ex: GET /api/bible/chapter ou similar)?
+   - Qual fonte (DB / JSON / API)?
+   - Onde a versão atual é guardada no frontend (state/store/localStorage)?
+
+2) Adicione LOGS OBRIGATÓRIOS:
+   - No frontend: ao trocar a versão, logar: translationId selecionado + book/chapter atual.
+   - No backend: em cada request de capítulo, logar: translationId recebido + book/chapter + origem (DB/API).
+   - Se translationId não vier, logar WARNING e retornar 400 (NÃO pode cair em default silencioso).
+
+3) Crie um ENDPOINT DE DEBUG (obrigatório) para eu validar:
+   - GET /api/debug/bible?translationId=pt-acf&book=gen&chapter=1
+   Deve retornar JSON com:
+   {
+     translationId,
+     book,
+     chapter,
+     sampleVerse1: "...texto...",
+     source: "db|json|api",
+     cacheKeyUsed: "...",
+     buildVersion: "..."
+   }
+
+4) Se o app tiver Service Worker / PWA:
+   - criar um endpoint GET /api/debug/build-info
+     retornando buildVersion (commit hash, build time).
+   - usar esse buildVersion no frontend (rodapé oculto ou console) pra provar que produção está atualizado.
+
+========================
+PASSO B: CORRIGIR A TROCA DE VERSÃO (SEM REMOVER VERSÕES)
+========================
+1) O dropdown deve alterar UM estado global único: selectedTranslationId.
+2) A cada mudança, deve chamar o loader com:
+   - translationId + book + chapter
+   - e invalidar cache do capítulo anterior (cache key deve incluir translationId)
+3) Corrigir qualquer bug típico:
+   - query/endpoint ignorando translationId
+   - frontend não enviando translationId
+   - backend substituindo por default
+   - cache/service worker servindo sempre o mesmo JSON
+4) Persistência:
+   - salvar translationId no localStorage (anon)
+   - e se usuário logado, salvar em user_preferences no banco
+   - ao abrir, usar preferencia salva
+
+========================
+PASSO C: RESTAURAR LISTA COMPLETA DE VERSÕES (COM CONTROLE DE LICENÇA)
+========================
+1) Criar/Restaurar registry único: translationsRegistry (server e client)
+   - NÃO hardcode espalhado em componentes.
+2) As versões devem aparecer no menu com idioma:
+   - PT: ACF, ARC, AA, ALM, etc (as que já existiam antes)
+   - EN: KJV, ESV, NAS, etc (as que já existiam antes)
+   - ES: adicionar pelo menos 1 versão (domínio público OU via API licenciada)
+3) Se uma versão não existir na base, ela fica no menu mas:
+   - aparece como “(indisponível)” e ao clicar mostra um modal “Em breve / requer licença”
+   - NÃO some e NÃO é removida
+
+========================
+PASSO D: ESPANHOL + STRONG EM ESPANHOL (SEM INVENTAR TEXTO BÍBLICO)
+========================
+IMPORTANTE: Não gerar texto bíblico via IA. Apenas usar fontes legais (domínio público ou API licenciada).
+1) Espanhol:
+   - implementar pelo menos 1 tradução ES de domínio público (se disponível) OU integrar API licenciada.
+2) Strong em espanhol:
+   - manter o número Strong o mesmo (Hxxxx/Gxxxx)
+   - ao idioma ES, mostrar definição ES se existir
+   - se não existir, fallback EN + aviso “Definição em inglês”.
+
+========================
+PROBLEMA 2: ADMIN NÃO CONTA GOLD CORRETAMENTE
+========================
+O painel Admin precisa refletir PRODUÇÃO, não dev, nem seed.
+
+PASSO E: DIAGNÓSTICO ADMIN
+1) Criar endpoint:
+   - GET /api/admin/debug/subscriptions
+   retornando:
+   {
+     totalUsers,
+     totalSubscriptions,
+     byPlan: { gold: n, premium: n, strong_lifetime: n },
+     byStatus: { active: n, trialing: n, canceled: n, expired: n },
+     dbNameOrUrlMasked: "...",
+     buildVersion: "..."
+   }
+
+2) Corrigir causas comuns:
+   - admin lendo DB errado (dev vs prod)
+   - filtros errados (status/plan)
+   - cache retornando números antigos
+
+========================
+PASSO FINAL: PROVA OBRIGATÓRIA EM PRODUÇÃO (SEM ISSO NÃO FINALIZA)
+========================
+Você deve executar e registrar evidências (logs) em PRODUÇÃO:
+1) Abrir GEN 1 e trocar:
+   PT-ACF -> PT-ARC -> EN-KJV -> ES-<versão>
+   E confirmar que sampleVerse1 muda no payload e na UI.
+2) Abrir Strong em cada versão e confirmar que abre.
+3) Abrir Admin e provar que GOLD = 1 (ou o número real do banco).
+4) Entregar no final:
+   - causa raiz
+   - arquivos alterados
+   - endpoints criados
+   - como validar manualmente
+
+REPITO:
+- Não remover versões.
+- Não concluir sem prova em produção.
+- Não cobrar sem validar.

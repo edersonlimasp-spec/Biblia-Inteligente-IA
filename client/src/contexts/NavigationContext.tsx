@@ -8,12 +8,14 @@ type Screen =
   | "reset-password"
   | "dashboard"
   | "bible"
+  | "bookmarks"
   | "prayer"
   | "achievements"
   | "games"
   | "professor"
   | "ai-modes"
   | "plans-progress"
+  | "plan-day"
   | "calendar"
   | "recordings"
   | "subscriptions"
@@ -22,7 +24,15 @@ type Screen =
   | "admin"
   | "professor-premium"
   | "module-detail"
-  | "lesson";
+  | "lesson"
+  | "install";
+
+interface TargetVerse {
+  book: string;
+  chapter: number;
+  verse: number;
+  source?: 'bookmark' | 'annotation';
+}
 
 interface NavigationContextValue {
   currentScreen: Screen;
@@ -35,6 +45,11 @@ interface NavigationContextValue {
   setSelectedLessonId: (id: string | null) => void;
   selectedTrackLevel: string;
   setSelectedTrackLevel: (level: string) => void;
+  targetVerse: TargetVerse | null;
+  navigateToVerse: (book: string, chapter: number, verse: number, source?: 'bookmark' | 'annotation') => void;
+  clearTargetVerse: () => void;
+  shouldResetAI: boolean;
+  clearResetAI: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextValue | null>(null);
@@ -49,12 +64,14 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "reset-password": "login",
   "dashboard": null,
   "bible": "dashboard",
+  "bookmarks": "bible",
   "prayer": "dashboard",
   "achievements": "dashboard",
   "games": "dashboard",
   "professor": "dashboard",
   "ai-modes": "dashboard",
   "plans-progress": "dashboard",
+  "plan-day": "plans-progress",
   "calendar": "dashboard",
   "recordings": "dashboard",
   "subscriptions": "dashboard",
@@ -64,6 +81,7 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "professor-premium": "dashboard",
   "module-detail": "professor-premium",
   "lesson": "module-detail",
+  "install": "dashboard",
 };
 
 interface NavigationProviderProps {
@@ -76,6 +94,8 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [selectedTrackLevel, setSelectedTrackLevel] = useState<string>("iniciante");
+  const [targetVerse, setTargetVerse] = useState<TargetVerse | null>(null);
+  const [shouldResetAI, setShouldResetAI] = useState(false);
   
   const historyStack = useRef<Screen[]>(["splash"]);
   const isHandlingPopState = useRef(false);
@@ -144,6 +164,25 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
     return false;
   }, [currentScreen, performBack]);
 
+  const navigateToVerse = useCallback((book: string, chapter: number, verse: number, source?: 'bookmark' | 'annotation') => {
+    console.log('[NavigationContext] navigateToVerse called - book:', book, 'chapter:', chapter, 'verse:', verse, 'source:', source);
+    setTargetVerse({ book, chapter, verse, source });
+    // Só resetar AI se vier de anotações (não de bookmarks)
+    if (source === 'annotation') {
+      console.log('[NavigationContext] Setting shouldResetAI to TRUE');
+      setShouldResetAI(true);
+    }
+    navigate("bible");
+  }, [navigate]);
+
+  const clearTargetVerse = useCallback(() => {
+    setTargetVerse(null);
+  }, []);
+
+  const clearResetAI = useCallback(() => {
+    setShouldResetAI(false);
+  }, []);
+
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       event.preventDefault();
@@ -191,6 +230,11 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
     setSelectedLessonId,
     selectedTrackLevel,
     setSelectedTrackLevel,
+    targetVerse,
+    navigateToVerse,
+    clearTargetVerse,
+    shouldResetAI,
+    clearResetAI,
   };
 
   return (

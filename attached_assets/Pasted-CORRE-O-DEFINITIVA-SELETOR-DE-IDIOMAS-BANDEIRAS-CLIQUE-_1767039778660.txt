@@ -1,0 +1,59 @@
+CORREÇÃO DEFINITIVA — SELETOR DE IDIOMAS (BANDEIRAS) + CLIQUE FUNCIONANDO
+NÃO COBRAR / NÃO FINALIZAR sem TESTE REAL no PREVIEW (e evidência).
+
+STATUS ATUAL: Você diz que “simplificou”, mas:
+1) Clicar 🇺🇸 NÃO muda o idioma para inglês (não funciona).
+2) Quero os ícones 50% menores e 50% mais próximos entre si.
+3) Quero bandeiras (🇧🇷 🇺🇸 🇪🇸) no topo — isso ainda NÃO foi implementado corretamente/visível.
+
+OBJETIVO EXATO (O QUE TEM QUE ACONTECER):
+A) No topo (Header), deve aparecer um grupo de 3 botões com bandeiras:
+   🇧🇷 🇺🇸 🇪🇸
+B) Ao clicar:
+   - 🇧🇷 => UI do app + labels + textos do menu ficam em PT (pt-BR)
+   - 🇺🇸 => UI do app + labels + textos do menu ficam em EN
+   - 🇪🇸 => UI do app + labels + textos do menu ficam em ES
+C) A seleção deve PERSISTIR após recarregar a página (localStorage).
+D) O botão ativo deve ficar destacado (borda/sombra leve).
+E) Tamanho e espaçamento:
+   - ícones 50% menores do que estão hoje
+   - distância entre eles 50% menor (gap reduzido)
+   - deve ficar discreto e alinhado com o título “Bíblia Inteligente”, sem quebrar layout.
+
+IMPLEMENTAÇÃO OBRIGATÓRIA (NÃO FAZER “MEIO TERMO”):
+1) Garantir que o clique realmente altera o estado global de idioma:
+   - Se existe um LanguageContext/Store, usar ele.
+   - Caso não exista, criar um LanguageProvider global no App root (Layout) e usar em TODAS as telas.
+2) Trocar idioma precisa refletir imediatamente nos textos do dashboard (ex.: “Bíblia”, “Chat com Professor”, “Cursos Premium”, etc).
+   - Se isso não muda, então você NÃO conectou o seletor ao sistema real de i18n.
+3) Se estiver usando i18next:
+   - chame i18n.changeLanguage('pt'|'en'|'es')
+   - e atualize localStorage 'lang'
+4) Se NÃO estiver usando i18n:
+   - implementar um dicionário mínimo (PT/EN/ES) para os labels principais e ligar no provider.
+
+UI/ESTILO (EXATO):
+- Trocar qualquer botão atual por um grupo de 3 botões quadrados:
+  width/height ~ 18px a 20px (ou 50% do tamanho atual).
+- gap entre eles: 2px a 4px (ou 50% menor que o atual).
+- usar Tailwind exemplo:
+  className="flex items-center gap-1"
+  button: className="w-5 h-5 text-xs leading-none ..."
+- alinhar no canto superior direito do Header, antes do avatar.
+
+VALIDAÇÃO OBRIGATÓRIA ANTES DE DIZER “PRONTO”:
+Você DEVE executar e comprovar no PREVIEW:
+1) Abra o dashboard.
+2) Clique 🇺🇸 -> confirme que os labels mudaram para inglês.
+3) Clique 🇪🇸 -> confirme que mudou para espanhol.
+4) Recarregue a página (F5) -> confirme que permanece no idioma escolhido.
+5) Me informe:
+   - quais arquivos alterou
+   - quais chaves de tradução criou (PT/EN/ES)
+   - onde persiste o idioma (localStorage key)
+NÃO peça para eu “atualizar e ver”. Você precisa testar e relatar o resultado.
+
+IMPORTANTE:
+- Não remover recursos existentes.
+- Não mexer em Strong/IA.
+- O seletor precisa funcionar em preview e depois em produção.

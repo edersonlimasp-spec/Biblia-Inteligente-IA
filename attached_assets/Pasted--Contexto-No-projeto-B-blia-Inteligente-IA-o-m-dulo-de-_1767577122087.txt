@@ -1,0 +1,43 @@
+## Contexto
+No projeto “Bíblia Inteligente IA”, o módulo de leitura foi atualizado para exibir informações do dicionário Strong ao clicar em uma palavra. Porém, o layout do painel resultante ficou confuso e sem um botão de fechar. Além disso, o conteúdo do Strong exibido não abrange todas as informações que constam na Bíblia Almeida Revista e Atualizada com números de Strong, que traz definições completas, formas originais e análise morfológica (tempo‑voz‑modo) de cada palavra [oai_citation:2‡accordancebible.com](https://www.accordancebible.com/product/portuguese-bible-biblia-almeida-revista-e-atualizada-com-numeros-de-strong/#:~:text=,2002).
+
+## Objetivos da correção
+
+1. **Melhorar o layout e usabilidade**:
+   - Ajustar o painel/modal que abre com os dados do Strong para que apareça sobre o texto com margens e bordas claras.
+   - Adicionar um botão de fechar (ícone “X” no canto superior direito) para que o usuário possa ocultar o modal após a consulta.
+   - Garantir que o modal seja responsivo (tamanho adequado para telas de celular e desktop) e não comprometa a leitura do texto principal.
+
+2. **Completar o conteúdo do Strong**:
+   - Certificar-se de que o dicionário exibido carregue todas as informações disponíveis nos léxicos hebraico/aramaico e grego de Strong (como na Bíblia Almeida RA com números de Strong [oai_citation:3‡accordancebible.com](https://www.accordancebible.com/product/portuguese-bible-biblia-almeida-revista-e-atualizada-com-numeros-de-strong/#:~:text=,2002)), incluindo:
+     - Número Strong.
+     - Palavra original (hebraico/aramaico ou grego) e transliteração.
+     - Definição em português conforme o léxico.
+     - Parseamento verbal (tempo, voz e modo, quando aplicável).
+     - Referências a outras ocorrências da palavra na Bíblia.
+   - Se necessário, expandir a base de dados para incluir termos que estavam ausentes, importando as entradas faltantes do PDF “Dicionário Bíblico Strong – Léxico Hebraico, Aramaico e Grego em Português” ou fontes similares.
+
+3. **Navegação e interação**:
+   - Permitir que o usuário role o conteúdo dentro do modal se a definição for extensa.
+   - Adicionar uma breve mensagem indicando quando não houver definição disponível (ex.: “Termo não encontrado no léxico”).
+   - Manter as funções de compartilhamento/exportação existentes.
+
+## Tarefas técnicas sugeridas
+
+1. **Layout**:
+   - Refatore o componente de modal utilizando uma biblioteca de UI (Chakra UI, Material UI) ou CSS customizado.
+   - Adicione o botão de fechar com um handler para ocultar o componente (`setOpen(false)` ou similar).
+   - Use `position: fixed` ou `absolute` para sobrepor o modal ao conteúdo da página, com `z-index` alto.
+
+2. **Dados do Strong**:
+   - Verifique se o JSON atual de termos contém todos os campos descritos. Caso não, importe as entradas faltantes:
+     1. Baixe o PDF do léxico (ex.: `dicionario-biblico-strong-lexico-hebraico-aramaico-e-grego-em-portugues.pdf`) para a pasta `data/lexicons`.
+     2. Extraia/parseie os dados do PDF e atualize o arquivo JSON.
+   - Revise a função de busca do Strong para garantir que ela referencia os novos campos.
+
+3. **Comportamento**:
+   - Garanta que o modal se feche quando o usuário clicar fora dele ou no botão “X”.
+   - Teste em diferentes tamanhos de tela e ajuste o CSS para manter a legibilidade.
+
+## Resultado esperado
+Após implementar estas melhorias, o usuário poderá abrir um painel de Strong com todas as informações disponíveis (igual ou superior à edição Almeida RA com números de Strong), navegar pelo conteúdo de forma clara e fechá-lo quando desejar. O layout deve ficar organizado e funcional, refletindo a qualidade do aplicativo.

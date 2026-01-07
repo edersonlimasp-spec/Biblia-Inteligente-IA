@@ -1,0 +1,79 @@
+URGENTE: A regra de assinatura dos cursos NÃO FOI corrigida. O comportamento continua igual.
+Você deve PARAR de “ajustar UI” e fazer um debug real.
+
+OBJETIVO:
+Implementar o bloqueio correto (não logado / logado sem plano / GOLD / PREMIUM) para abertura de AULAS,
+com checagem no FRONT e no BACKEND, garantindo que não existe outro lugar liberando acesso.
+
+REGRA OFICIAL:
+A) Não logado: não abre nenhuma aula (só vê títulos)
+B) Logado sem plano: abre SOMENTE Iniciante aulas 1-3
+C) GOLD: abre Iniciante completo + Intermediário 1-7
+D) PREMIUM: abre tudo (iniciante, intermediário, avançado/premium)
+
+PASSO 1 — LOCALIZAR TODOS OS PONTOS DE DECISÃO (OBRIGATÓRIO)
+Faça busca no projeto por termos (ripgrep/search):
+- "premium", "gold", "plan", "subscription", "entitlement", "paywall", "canAccess", "locked", "isPro"
+- rotas de aula, ex: "/lesson", "/courses", "/course", "/api/lesson", "/api/courses", "/api/content"
+
+Liste no seu output:
+1) Arquivo(s) e linha(s) onde o app decide liberar/bloquear (FRONT)
+2) Arquivo(s) e linha(s) onde o backend devolve o conteúdo da aula (BACK)
+3) Qual fonte define o plano do usuário (DB / session / jwt / api / env)
+
+NÃO prossiga sem mapear isso.
+
+PASSO 2 — CRIAR UMA ÚNICA FUNÇÃO DE AUTORIZAÇÃO
+Criar função única e reutilizável:
+canAccessLesson({ isLoggedIn, plan, courseLevel, lessonIndex })
+
+courseLevel ∈ ["iniciante","intermediario","premium","avancado"]
+plan ∈ ["FREE","GOLD","PREMIUM"]
+
+Regras:
+- se !isLoggedIn -> false para qualquer aula
+- FREE -> true somente se courseLevel="iniciante" e lessonIndex <= 3
+- GOLD -> true se courseLevel="iniciante" (qualquer) OU (courseLevel="intermediario" e lessonIndex <= 7)
+- PREMIUM -> true sempre
+
+IMPORTANTE: lessonIndex deve ser numeração REAL (1..N). Se o projeto usa 0-based, ajuste e documente.
+
+PASSO 3 — APLICAR O BLOQUEIO EM 2 CAMADAS (FRONT + BACK)
+FRONT:
+- No clique da aula: se não autorizado, abrir modal de upgrade e NÃO navegar para a página de conteúdo.
+- Exibir título/descrição normalmente.
+
+BACKEND (OBRIGATÓRIO):
+- Na rota/API que entrega o conteúdo da aula (texto, vídeo, markdown, etc), validar canAccessLesson.
+- Se não autorizado: retornar 401 (não logado) ou 403 (sem permissão) com payload:
+  { error: "UPGRADE_REQUIRED", requiredPlan: "GOLD|PREMIUM" }
+
+Isso evita que o usuário burle via URL direta.
+
+PASSO 4 — CORRIGIR O “lessonIndex”
+Se as aulas são identificadas por slug/id, você deve mapear a ordem para um index numérico.
+Exemplo:
+- no dataset/json do curso, garantir que cada aula tenha "index" (1..N)
+- ou calcular index pela posição no array (mas de forma consistente)
+Sem isso, a regra 1-3 e 1-7 nunca funciona.
+
+PASSO 5 — PROVAR QUE FUNCIONA (SEM “ACHO QUE”)
+Adicionar logs temporários (somente em dev):
+- console.log em FRONT ao clicar: userPlan, courseLevel, lessonIndex, allowed
+- log no BACK ao requisitar aula: userId, plan, courseLevel, lessonIndex, allowed
+
+Rodar e mostrar no output os resultados destes 4 testes:
+1) Não logado tentando abrir iniciante 1
+2) Logado FREE abrindo iniciante 1 e tentando iniciante 4
+3) GOLD abrindo intermediário 7 e tentando intermediário 8
+4) PREMIUM abrindo premium/avançado
+
+PASSO 6 — NÃO QUEBRAR O APP
+- Não renomear rotas sem necessidade
+- Não apagar conteúdo
+- Se houver regras duplicadas antigas, remover e substituir pela função central
+- Garantir build sem erros
+
+ENTREGA:
+- Indique exatamente quais arquivos foram alterados e por quê
+- Não finalize sem confirmar os 4 testes acima.

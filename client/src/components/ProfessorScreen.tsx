@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -44,6 +45,7 @@ interface Message {
 
 export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const { toast } = useToast();
   const deviceId = getDeviceId();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -87,11 +89,12 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
         question,
         mode: "professor",
         deviceId,
+        language,
       });
       return res.json();
     },
     onSuccess: (data) => {
-      const response = data.response || data.answer || "Desculpe, não consegui gerar uma resposta.";
+      const response = data.response || data.answer || t("professor.errorResponse");
       setMessages(prev => [...prev, {
         role: "assistant",
         content: response,
@@ -100,8 +103,8 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
     },
     onError: (error: any) => {
       toast({
-        title: "Erro",
-        description: error.message || "Não foi possível obter resposta",
+        title: t("common.error"),
+        description: error.message || t("professor.errorDesc"),
         variant: "destructive",
       });
       setMessages(prev => prev.slice(0, -1));
@@ -150,8 +153,8 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
       localStorage.removeItem('professor_chat_history');
     } catch (e) {}
     toast({
-      title: "Nova conversa",
-      description: "Histórico limpo. Comece uma nova conversa!",
+      title: t("professor.newConversation"),
+      description: t("professor.newConversationDesc"),
     });
   };
 
@@ -165,13 +168,13 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
   const getShareText = (assistantMessage: Message, index: number) => {
     const userMessage = messages[index - 1];
     const question = userMessage?.role === 'user' ? userMessage.content : '';
-    return `Pergunta: ${question}
+    return `${t("professor.question")}: ${question}
 
-Resposta do Professor IA: ${assistantMessage.content}
+${t("professor.answer")}: ${assistantMessage.content}
 
 ---
-Enviado por Bíblia Inteligente IA
-Conheça: https://bibliainteligente.replit.app`;
+${t("professor.sentBy")}
+https://bibliainteligente.replit.app`;
   };
 
   const handleShare = async (message: Message, index: number, method: 'whatsapp' | 'email' | 'copy' | 'native') => {
@@ -182,19 +185,19 @@ Conheça: https://bibliainteligente.replit.app`;
         window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
         break;
       case 'email':
-        window.open(`mailto:?subject=${encodeURIComponent('Resposta do Professor IA - Bíblia Inteligente')}&body=${encodeURIComponent(shareText)}`, '_blank');
+        window.open(`mailto:?subject=${encodeURIComponent(t("professor.emailSubject"))}&body=${encodeURIComponent(shareText)}`, '_blank');
         break;
       case 'copy':
         try {
           await navigator.clipboard.writeText(shareText);
           toast({
-            title: "Copiado!",
-            description: "Resposta copiada para a área de transferência",
+            title: t("common.copied"),
+            description: t("professor.copiedToClipboard"),
           });
         } catch {
           toast({
-            title: "Erro",
-            description: "Não foi possível copiar",
+            title: t("common.error"),
+            description: t("professor.copyError"),
             variant: "destructive",
           });
         }
@@ -203,14 +206,14 @@ Conheça: https://bibliainteligente.replit.app`;
         if (navigator.share) {
           try {
             await navigator.share({
-              title: 'Resposta do Professor IA',
+              title: t("professor.answer"),
               text: shareText,
             });
           } catch (err) {
             if ((err as Error).name !== 'AbortError') {
               toast({
-                title: "Erro",
-                description: "Não foi possível compartilhar",
+                title: t("common.error"),
+                description: t("professor.shareError"),
                 variant: "destructive",
               });
             }
@@ -232,8 +235,8 @@ Conheça: https://bibliainteligente.replit.app`;
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold">Professor IA</h1>
-              <p className="text-xs text-muted-foreground">Chat teológico contínuo</p>
+              <h1 className="text-lg font-bold">{t("professor.title")}</h1>
+              <p className="text-xs text-muted-foreground">{t("professor.subtitle")}</p>
             </div>
           </div>
           <Button 
@@ -243,7 +246,7 @@ Conheça: https://bibliainteligente.replit.app`;
             data-testid="button-new-conversation"
           >
             <Plus className="w-4 h-4 mr-1" />
-            Nova
+            {t("common.new")}
           </Button>
           <UserButton />
         </div>
@@ -260,16 +263,15 @@ Conheça: https://bibliainteligente.replit.app`;
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
                 <GraduationCap className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-xl font-semibold mb-2">Olá! Sou o Professor IA</h2>
+              <h2 className="text-xl font-semibold mb-2">{t("professor.greeting")}</h2>
               <p className="text-muted-foreground max-w-sm mx-auto">
-                Pergunte-me sobre qualquer passagem bíblica, teologia, história ou interpretação. 
-                Estou aqui para ajudar em seus estudos!
+                {t("professor.greetingDesc")}
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-2">
                 {[
-                  "O que significa João 3:16?",
-                  "Explique as parábolas de Jesus",
-                  "Quem foi o apóstolo Paulo?",
+                  t("professor.suggestedQuestions.1"),
+                  t("professor.suggestedQuestions.2"),
+                  t("professor.suggestedQuestions.3"),
                 ].map((suggestion, i) => (
                   <Button
                     key={i}
@@ -307,7 +309,7 @@ Conheça: https://bibliainteligente.replit.app`;
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 <div className="flex items-center justify-between mt-1 gap-2">
                   <span className="text-[10px] opacity-60">
-                    {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    {message.timestamp.toLocaleTimeString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : 'pt-BR', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                   {message.role === 'assistant' && (
                     <DropdownMenu>
@@ -332,12 +334,12 @@ Conheça: https://bibliainteligente.replit.app`;
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleShare(message, index, 'copy')} data-testid="share-copy">
                           <Copy className="w-4 h-4 mr-2" />
-                          Copiar texto
+                          {t("common.copy")}
                         </DropdownMenuItem>
                         {'share' in navigator && (
                           <DropdownMenuItem onClick={() => handleShare(message, index, 'native')} data-testid="share-native">
                             <Share2 className="w-4 h-4 mr-2" />
-                            Mais opções...
+                            {t("common.share")}...
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
@@ -365,7 +367,7 @@ Conheça: https://bibliainteligente.replit.app`;
               <div className="bg-muted rounded-2xl px-4 py-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Pensando...
+                  {t("professor.thinking")}
                 </div>
               </div>
             </motion.div>
@@ -376,7 +378,7 @@ Conheça: https://bibliainteligente.replit.app`;
       <div className="border-t bg-background p-4">
         <div className="max-w-3xl mx-auto flex gap-3">
           <Textarea
-            placeholder="Digite sua pergunta..."
+            placeholder={t("professor.placeholder")}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
@@ -403,7 +405,7 @@ Conheça: https://bibliainteligente.replit.app`;
       <LoginPromptModal
         open={showLoginPrompt}
         onOpenChange={setShowLoginPrompt}
-        featureName="o Professor IA"
+        featureName={t("professor.featureName")}
         onAuthSuccess={handleAuthSuccess}
       />
     </div>

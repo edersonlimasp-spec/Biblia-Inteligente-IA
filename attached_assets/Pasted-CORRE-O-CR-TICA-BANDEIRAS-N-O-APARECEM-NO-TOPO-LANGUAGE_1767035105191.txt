@@ -1,0 +1,64 @@
+CORREÇÃO CRÍTICA: BANDEIRAS NÃO APARECEM NO TOPO (LANGUAGE SELECTOR)
+
+Problema real: você diz que “restaurou as bandeiras”, mas na UI elas NÃO aparecem.
+Pare de pedir para eu dar Ctrl+Shift+R. Quero correção definitiva no código e em produção.
+
+OBJETIVO:
+Exibir um seletor de idioma com 3 BOTÕES de bandeiras (🇧🇷 🇺🇸 🇪🇸) no canto superior direito,
+ao lado do título “Bíblia Inteligente”, visível SEMPRE (desktop + mobile + PWA + produção).
+
+PASSO 1 — LOCALIZAR O HEADER REAL
+1) Encontre o componente que renderiza o topo da tela do dashboard:
+   - Header/TopBar/MainHeader/NavBar/Layout (onde aparece “Bíblia Inteligente” e o ícone de usuário).
+2) Me diga QUAL arquivo é (ex: client/src/components/Header.tsx ou Layout.tsx).
+3) As bandeiras devem ser renderizadas dentro desse header real (não em página diferente).
+
+PASSO 2 — IMPLEMENTAR COMPONENTE LanguageSelector (SEM EMOJI PERDIDO)
+1) Crie/ajuste um componente único: client/src/components/LanguageSelector.tsx
+2) Ele deve renderizar 3 botões:
+   - BR: 🇧🇷
+   - US: 🇺🇸
+   - ES: 🇪🇸
+3) Não usar “texto escondido”; usar <button> com aria-label e tooltip.
+4) Ao clicar, disparar setLanguage('pt'|'en'|'es') e persistir em localStorage.
+5) Exibir destaque no idioma ativo (borda leve) e reduzir opacidade nos demais.
+
+PASSO 3 — GARANTIR VISIBILIDADE (CSS / Z-INDEX / OVERFLOW)
+O motivo mais comum de “não aparece” é CSS.
+
+Regras obrigatórias no container das bandeiras:
+- position: relative
+- display: flex
+- gap: 8px
+- z-index: 9999
+- pointer-events: auto
+- NÃO pode ficar dentro de elemento com overflow:hidden que corte o conteúdo
+- Garantir contraste no tema escuro (ícones visíveis).
+
+Além disso:
+- Colocar as bandeiras dentro de um wrapper no canto superior direito do header:
+  (title à esquerda, bandeiras à direita).
+- Se houver menu/avatar na direita, as bandeiras devem ficar ANTES do avatar.
+
+PASSO 4 — NÃO DEPENDER DE CACHE / SERVICE WORKER
+1) Se o app é PWA, verifique o service worker/manifest:
+   - Ajustar para não “prender” HTML antigo.
+2) Se existir service worker, force atualização:
+   - usar skipWaiting + clientsClaim
+   - ou versão do cache com build hash.
+3) Garanta que em produção (Published) a mudança aparece sem precisar limpar cache.
+
+PASSO 5 — TESTE AUTOMÁTICO (OBRIGATÓRIO)
+Antes de finalizar:
+1) Rodar app no preview e confirmar visualmente as bandeiras.
+2) Fazer build e confirmar que o componente está no bundle final.
+3) Publicar e confirmar que as bandeiras aparecem na URL pública.
+
+NÃO CONSIDERAR CONCLUÍDO E NÃO COBRAR ATÉ:
+- Eu ver as 3 bandeiras no topo ao lado de “Bíblia Inteligente” em produção.
+- Clicar nas bandeiras mudar o idioma e permanecer após F5/reabrir.
+
+Entregue no final:
+- Arquivos alterados
+- Print/descrição do ponto exato onde as bandeiras foram inseridas no header
+- Explicação da causa raiz (CSS/overflow/z-index/layout incorreto/cache PWA)

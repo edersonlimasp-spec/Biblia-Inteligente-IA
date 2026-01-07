@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { UserButton } from "@/components/UserButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,9 @@ import {
   formatDate,
   type RecordingMetadata,
 } from "@/hooks/use-recordings";
+import { useUsageLimits, getRecordingsLimitMessage } from "@/hooks/useUsageLimits";
+import { SubscriptionLimitModal } from "@/components/SubscriptionLimitModal";
+import { useNavigation } from "@/contexts/NavigationContext";
 import {
   Mic,
   Square,
@@ -48,8 +52,11 @@ interface RecordingsScreenProps {
 }
 
 export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
+  const { t } = useLanguage();
   const { requireAuth } = useRequireAuth();
   const { toast } = useToast();
+  const { navigate } = useNavigation();
+  const { recordingsLimit, subscriptionType, isLoading: isLoadingLimits } = useUsageLimits();
   const {
     recordings,
     isLoading,
@@ -78,19 +85,32 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [shareRecordingId, setShareRecordingId] = useState<string | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
+  const isAtLimit = recordings.length >= recordingsLimit;
+
   const handleStartRecording = () => {
+    if (isAtLimit) {
+      setShowLimitModal(true);
+      return;
+    }
+    
     requireAuth(async () => {
       const success = await startRecording();
       if (success) {
         toast({
-          title: "Gravação iniciada",
-          description: "Fale próximo ao microfone",
+          title: t("recordings.started"),
+          description: t("recordings.speakClose"),
         });
       }
-    }, "gravar sermões");
+    }, t("recordings.recordSermons"));
+  };
+
+  const handleGoToSubscription = () => {
+    setShowLimitModal(false);
+    navigate('subscriptions');
   };
 
   const handleStopRecording = async () => {
@@ -98,7 +118,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
     if (blob) {
       setRecordedBlob(blob);
       setRecordingDuration(duration);
-      setRecordingTitle(`Sermão - ${new Date().toLocaleDateString("pt-BR")}`);
+      setRecordingTitle(`${t("recordings.sermonDefault")} - ${new Date().toLocaleDateString()}`);
       setShowSaveDialog(true);
     }
   };
@@ -106,8 +126,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const handleSaveRecording = async () => {
     if (!recordedBlob || !recordingTitle.trim()) {
       toast({
-        title: "Erro",
-        description: "Informe um título para a gravação",
+        title: t("common.error"),
+        description: t("recordings.requireTitle"),
         variant: "destructive",
       });
       return;
@@ -116,8 +136,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
     try {
       await saveRecording(recordedBlob, recordingTitle.trim(), recordingDuration);
       toast({
-        title: "Gravação salva",
-        description: `"${recordingTitle}" foi salva com sucesso`,
+        title: t("recordings.saved"),
+        description: `"${recordingTitle}" ${t("recordings.savedSuccess")}`,
       });
       setShowSaveDialog(false);
       setRecordedBlob(null);
@@ -125,8 +145,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       setRecordingDuration(0);
     } catch {
       toast({
-        title: "Erro ao salvar",
-        description: "Não foi possível salvar a gravação",
+        title: t("recordings.saveError"),
+        description: t("recordings.saveErrorDesc"),
         variant: "destructive",
       });
     }
@@ -157,8 +177,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       const blob = await getRecordingBlob(recording.id);
       if (!blob) {
         toast({
-          title: "Erro",
-          description: "Áudio não encontrado",
+          title: t("common.error"),
+          description: t("recordings.audioNotFound"),
           variant: "destructive",
         });
         return;
@@ -175,8 +195,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       audio.onerror = () => {
         setPlayingId(null);
         toast({
-          title: "Erro",
-          description: "Não foi possível reproduzir o áudio",
+          title: t("common.error"),
+          description: t("recordings.playError"),
           variant: "destructive",
         });
       };
@@ -186,8 +206,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       setPlayingId(recording.id);
     } catch {
       toast({
-        title: "Erro",
-        description: "Erro ao reproduzir gravação",
+        title: t("common.error"),
+        description: t("recordings.playErrorGeneric"),
         variant: "destructive",
       });
     }
@@ -205,13 +225,13 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       
       await deleteRecording(deleteConfirmId);
       toast({
-        title: "Gravação excluída",
-        description: "A gravação foi removida com sucesso",
+        title: t("recordings.deleted"),
+        description: t("recordings.deletedSuccess"),
       });
     } catch {
       toast({
-        title: "Erro",
-        description: "Não foi possível excluir a gravação",
+        title: t("common.error"),
+        description: t("recordings.deleteError"),
         variant: "destructive",
       });
     }
@@ -223,8 +243,8 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       const blob = await getRecordingBlob(recording.id);
       if (!blob) {
         toast({
-          title: "Erro",
-          description: "Áudio não encontrado",
+          title: t("common.error"),
+          description: t("recordings.audioNotFound"),
           variant: "destructive",
         });
         return;
@@ -288,14 +308,14 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       URL.revokeObjectURL(url);
       
       toast({
-        title: "Download iniciado",
-        description: "O arquivo está sendo baixado",
+        title: t("recordings.downloadStarted"),
+        description: t("recordings.downloadStartedDesc"),
       });
       setShareRecordingId(null);
     } catch {
       toast({
-        title: "Erro",
-        description: "Não foi possível baixar o arquivo",
+        title: t("common.error"),
+        description: t("recordings.downloadError"),
         variant: "destructive",
       });
     }
@@ -325,9 +345,9 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-lg font-bold">Gravações de Sermões</h1>
+              <h1 className="text-lg font-bold">{t("recordings.title")}</h1>
               <p className="text-xs text-muted-foreground">
-                Grave e organize suas mensagens
+                {t("recordings.subtitle")}
               </p>
             </div>
           </div>
@@ -350,7 +370,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Mic className="h-5 w-5" />
-                Gravador
+                {t("recordings.recorder")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -378,7 +398,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                       <div className="text-center">
                         <Badge variant="destructive" className="mb-2">
                           <span className="animate-pulse mr-1">●</span>
-                          Gravando
+                          {t("recordings.recording")}
                         </Badge>
                         <p className="text-3xl font-mono font-bold" data-testid="text-recording-duration">
                           {formatDuration(duration)}
@@ -393,7 +413,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                           data-testid="button-pause-recording"
                         >
                           {isPaused ? <Play className="h-5 w-5 mr-2" /> : <Pause className="h-5 w-5 mr-2" />}
-                          {isPaused ? "Continuar" : "Pausar"}
+                          {isPaused ? t("recordings.resume") : t("recordings.pause")}
                         </Button>
                         <Button
                           variant="destructive"
@@ -402,7 +422,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                           data-testid="button-stop-recording"
                         >
                           <Square className="h-5 w-5 mr-2" />
-                          Parar
+                          {t("recordings.stop")}
                         </Button>
                       </div>
 
@@ -414,7 +434,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                         data-testid="button-cancel-recording"
                       >
                         <X className="h-4 w-4 mr-1" />
-                        Cancelar gravação
+                        {t("recordings.cancelRecording")}
                       </Button>
                     </motion.div>
                   ) : (
@@ -434,7 +454,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                         <Mic className="h-10 w-10" />
                       </Button>
                       <p className="text-sm text-muted-foreground text-center">
-                        Toque para iniciar a gravação do sermão
+                        {t("recordings.tapToStart")}
                       </p>
                     </motion.div>
                   )}
@@ -445,8 +465,13 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Gravações Salvas</h2>
-              <Badge variant="secondary">{recordings.length}</Badge>
+              <h2 className="text-lg font-semibold">{t("recordings.savedRecordings")}</h2>
+              <Badge 
+                variant={isAtLimit && !isLoadingLimits ? "destructive" : "secondary"}
+                data-testid="badge-recordings-count"
+              >
+                {isLoadingLimits ? `${recordings.length}` : `${recordings.length}/${recordingsLimit}`}
+              </Badge>
             </div>
 
             {isLoading ? (
@@ -465,9 +490,9 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                 <CardContent className="p-8 text-center">
                   <Mic className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
                   <p className="text-muted-foreground">
-                    Nenhuma gravação salva ainda.
+                    {t("recordings.noRecordings")}
                     <br />
-                    Grave seu primeiro sermão!
+                    {t("recordings.noRecordingsDesc")}
                   </p>
                 </CardContent>
               </Card>
@@ -564,15 +589,15 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Salvar Gravação</AlertDialogTitle>
+            <AlertDialogTitle>{t("recordings.saveTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Dê um título para sua gravação. Ela ficará salva no app para você ouvir depois.
+              {t("recordings.saveDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="space-y-4 py-4">
             <Input
-              placeholder="Ex: Sermão de Domingo - 12/12"
+              placeholder={t("recordings.placeholder")}
               value={recordingTitle}
               onChange={(e) => setRecordingTitle(e.target.value)}
               data-testid="input-recording-title"
@@ -581,13 +606,13 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                Duração: {formatDuration(recordingDuration)}
+                {t("recordings.duration")}: {formatDuration(recordingDuration)}
               </span>
             </div>
 
             {recordedBlob && (
               <div className="bg-muted rounded-lg p-3">
-                <p className="text-sm font-medium mb-2">Prévia do áudio:</p>
+                <p className="text-sm font-medium mb-2">{t("recordings.preview")}:</p>
                 <audio
                   ref={previewAudioRef}
                   controls
@@ -600,11 +625,11 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
 
           <AlertDialogFooter>
             <AlertDialogCancel onClick={handleCancelSave} data-testid="button-cancel-save">
-              Descartar
+              {t("recordings.discard")}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleSaveRecording} data-testid="button-confirm-save">
               <Save className="h-4 w-4 mr-2" />
-              Salvar
+              {t("common.save")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -613,20 +638,20 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Gravação</AlertDialogTitle>
+            <AlertDialogTitle>{t("recordings.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta gravação? Esta ação não pode ser desfeita.
+              {t("recordings.deleteConfirm")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete">{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteRecording}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-delete"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Excluir
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -635,9 +660,9 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
       <AlertDialog open={!!shareRecordingId} onOpenChange={() => setShareRecordingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Compartilhar Gravação</AlertDialogTitle>
+            <AlertDialogTitle>{t("recordings.shareTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Escolha como deseja compartilhar esta gravação:
+              {t("recordings.shareChoose")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -654,7 +679,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                   data-testid="button-share-whatsapp"
                 >
                   <MessageCircle className="h-5 w-5 mr-3 text-green-500" />
-                  Compartilhar via WhatsApp
+                  {t("recordings.shareWhatsApp")}
                 </Button>
 
                 <Button
@@ -667,7 +692,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                   data-testid="button-share-email"
                 >
                   <Mail className="h-5 w-5 mr-3 text-blue-500" />
-                  Compartilhar via E-mail
+                  {t("recordings.shareEmail")}
                 </Button>
 
                 <Button
@@ -680,29 +705,25 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                   data-testid="button-download-recording"
                 >
                   <Download className="h-5 w-5 mr-3 text-purple-500" />
-                  Baixar arquivo para anexar
+                  {t("recordings.downloadFile")}
                 </Button>
               </>
             )}
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-close-share">Fechar</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-close-share">{t("common.close")}</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
-      <LoginPromptModal
-        open={showLoginPrompt}
-        onOpenChange={setShowLoginPrompt}
-        featureName="as Gravações"
-        onAuthSuccess={() => {
-          setShowLoginPrompt(false);
-          toast({
-            title: "Login realizado!",
-            description: "Agora você pode gravar seus sermões.",
-          });
-        }}
+
+      <SubscriptionLimitModal
+        open={showLimitModal}
+        onOpenChange={setShowLimitModal}
+        title={t("recordings.limitTitle")}
+        message={getRecordingsLimitMessage(subscriptionType)}
+        onSubscribe={handleGoToSubscription}
+        subscriptionType={subscriptionType}
       />
     </div>
   );

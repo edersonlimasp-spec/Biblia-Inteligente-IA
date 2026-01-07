@@ -1,0 +1,105 @@
+ATENÇÃO: AJUSTES CRÍTICOS E URGENTES – NÃO AVANÇAR / NÃO COBRAR SEM CORREÇÃO TOTAL
+
+Existem DOIS PROBLEMAS GRAVES EM PRODUÇÃO afetando usuários e monetização.
+Ambos precisam ser corrigidos de forma DEFINITIVA, testados em PRODUÇÃO e confirmados antes de qualquer cobrança.
+
+══════════════════════════════════════
+PROBLEMA 1 – TROCA DE VERSÃO DA BÍBLIA NÃO FUNCIONA
+══════════════════════════════════════
+
+CENÁRIO:
+- Foi implementado o seletor de versões da Bíblia (ACF, ARC, AA, ALM, NVI, KJV, etc.)
+- O seletor aparece corretamente no canto esquerdo (conforme UI já criada)
+❌ PORÉM: ao selecionar outra versão, o texto NÃO MUDA
+❌ O conteúdo continua sempre na mesma versão
+❌ Em produção e preview o comportamento é inconsistente
+
+OBJETIVO OBRIGATÓRIO:
+1) A troca de versão deve:
+   - Atualizar IMEDIATAMENTE o texto bíblico exibido
+   - Recarregar corretamente livro, capítulo e versículos
+   - Persistir a escolha do usuário (localStorage ou user profile)
+   - Funcionar em TODOS os livros, capítulos e versículos
+
+2) Implementar NOVA LÍNGUA:
+   - Adicionar Bíblia em ESPANHOL (ex: RVR1960 ou equivalente livre)
+   - Permitir alternar:
+     • Português 🇧🇷
+     • English 🇺🇸
+     • Español 🇪🇸
+
+3) STRONG EM ESPANHOL:
+   - O dicionário Strong já existente deve:
+     ✔ funcionar também quando a Bíblia estiver em Espanhol
+     ✔ exibir definição em Espanhol
+     ✔ manter número Strong correto (H/G)
+   - NÃO duplicar números Strong
+   - Apenas trocar o idioma da definição
+
+AÇÃO TÉCNICA ESPERADA:
+- Revisar:
+  • estado da versão selecionada
+  • chamadas de API / queries
+  • cache indevido
+  • fallback silencioso para versão padrão
+- Garantir que a troca de versão NÃO seja apenas visual, mas funcional.
+
+TESTE OBRIGATÓRIO:
+- Trocar ACF → ARC → NVI → KJV → Espanhol
+- Confirmar que o TEXTO MUDA
+- Confirmar que o STRONG abre corretamente em cada idioma
+
+══════════════════════════════════════
+PROBLEMA 2 – DASHBOARD ADMIN NÃO CONTABILIZA ASSINATURAS
+══════════════════════════════════════
+
+CENÁRIO:
+- Existe pelo menos 1 ASSINATURA GOLD ATIVA (real, paga)
+❌ O painel administrativo NÃO contabiliza essa assinatura
+❌ Dashboard mostra dados incorretos (zero ou número antigo)
+❌ Isso afeta controle financeiro e gestão do app
+
+OBJETIVO OBRIGATÓRIO:
+1) O Dashboard Admin deve mostrar:
+   ✔ Total real de assinaturas por plano (Gold, Premium, etc.)
+   ✔ Usuários ativos
+   ✔ Assinaturas ativas, canceladas e em trial
+   ✔ Receita estimada corretamente
+
+2) Revisar:
+   - Query de assinaturas
+   - Filtro por status (active, trialing, canceled)
+   - Integração com sistema de pagamento (RevenueCat / Stripe / Play Store)
+   - Diferença entre DEV database e PROD database
+
+3) Corrigir qualquer:
+   - cache incorreto
+   - seed sobrescrevendo dados reais
+   - lógica de contagem baseada em ambiente errado
+
+TESTE OBRIGATÓRIO:
+- Confirmar que a assinatura Gold existente aparece no painel
+- Conferir número de usuários x assinaturas
+- Conferir após refresh e novo login admin
+
+══════════════════════════════════════
+REGRA FINAL (MUITO IMPORTANTE)
+══════════════════════════════════════
+
+🚫 NÃO CONSIDERAR CONCLUÍDO
+🚫 NÃO AVANÇAR
+🚫 NÃO COBRAR
+
+sem que:
+
+✔ troca de versão da Bíblia funcione de verdade
+✔ Espanhol esteja disponível e funcional
+✔ Strong funcione em Espanhol
+✔ Dashboard admin reflita dados reais de produção
+✔ Testes sejam feitos em PRODUÇÃO (não apenas preview)
+
+ANTES DE FINALIZAR, APRESENTAR:
+1) O que estava errado
+2) O que foi corrigido
+3) Onde foi testado
+4) Evidência funcional (descrição clara do teste)

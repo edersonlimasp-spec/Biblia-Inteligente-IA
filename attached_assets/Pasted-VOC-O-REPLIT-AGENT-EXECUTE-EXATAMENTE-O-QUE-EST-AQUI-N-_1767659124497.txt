@@ -1,0 +1,84 @@
+VOCÊ É O REPLIT AGENT. EXECUTE EXATAMENTE O QUE ESTÁ AQUI. NÃO CRIE TELAS NOVAS. NÃO MUDE OUTRAS ÁREAS DO APP. O PROBLEMA É: O SELETOR DE VERSÕES DA BÍBLIA FUNCIONA NO PREVIEW, MAS NO APP PUBLICADO (DEPLOY/PRODUCTION) NÃO FUNCIONA. CORRIGIR A CAUSA RAIZ E PROVAR NO DOMÍNIO PUBLICADO.
+
+OBJETIVO
+1) Fazer o seletor de versões funcionar IGUAL no Preview e no Deploy.
+2) Garantir que ao trocar a versão, o texto muda de fato.
+3) Persistir a versão escolhida (não pode voltar após refresh).
+4) Se falhar carregar uma versão, mostrar mensagem de erro e manter uma versão funcional (sem travar).
+
+REGRAS IMPORTANTES
+- PROIBIDO criar novas telas/componentes desnecessários.
+- PROIBIDO “refazer tudo”. Corrija somente o fluxo do seletor de versões.
+- PROIBIDO finalizar sem testar NO DOMÍNIO PUBLICADO .replit.app (não apenas Preview).
+
+PASSO 1 — DIAGNÓSTICO COM LOGS (OBRIGATÓRIO)
+Adicionar logs temporários (console.log) em 3 pontos:
+A) No onChange do seletor de versões:
+   - logar: versionSelecionada, idiomaAtual, livroAtual, capituloAtual, timestamp
+B) Na função que carrega o texto/versão (fetch/getBibleText):
+   - logar: URL final usada, status HTTP, tamanho do retorno, erro se houver
+C) No boot do app (init do provider/store):
+   - logar: versão carregada do storage/cookie, fallback aplicado, window.location.origin, NODE_ENV/ambiente (se existir)
+
+Depois rodar no Preview e no Deploy e comparar os logs. Você deve identificar QUAL É A DIFERENÇA REAL entre Preview e Deploy:
+- erro 404 (arquivo não encontrado)
+- erro CORS
+- ENV/Secrets faltando no Deploy
+- baseURL diferente
+- localStorage não persistindo no Deploy/TWA
+- path de assets diferente no build
+
+PASSO 2 — CORREÇÃO DEFINITIVA (OBRIGATÓRIA)
+Corrigir conforme a causa encontrada, seguindo estas exigências:
+
+(1) PERSISTÊNCIA ROBUSTA
+- Quando o usuário escolher uma versão, salvar imediatamente em:
+  - localStorage com chave fixa: "bible_version" (e também "bible_language" se necessário)
+- Na inicialização do app, ler essa chave e aplicar antes de renderizar a Bíblia.
+- Se localStorage falhar (try/catch), usar fallback com cookie simples "bible_version".
+- Nunca depender só de estado em memória.
+
+(2) CARREGAMENTO DA VERSÃO (SEM PATH QUEBRADO)
+- Se as versões/textos vêm de arquivos locais (JSON/assets):
+  - garantir que estão em /public (ou pasta correta do framework) e que o fetch em produção aponta corretamente
+  - evitar fetch de caminho relativo quebrado
+  - garantir que o build inclui os arquivos no deploy
+- Se as versões/textos vêm de API:
+  - garantir que a BASE_URL usada no Deploy está definida (Secrets/ENV também no Deploy)
+  - se for Vite: usar VITE_*
+  - se for Next: usar NEXT_PUBLIC_*
+  - e confirmar que no Deploy essas variáveis existem
+
+(3) EVITAR “DEV ONLY”
+- Remover qualquer condição que só funcione em preview/dev.
+- O mesmo código deve rodar em production sem alterar comportamento.
+
+(4) UX DE ERRO (SEM TRAVAR)
+- Se a troca de versão falhar (erro de fetch/404/500), mostrar um aviso dentro da mesma tela:
+  “Não foi possível carregar esta versão agora. Tente novamente.”
+- Manter a última versão válida carregada (não deixar branco).
+
+PASSO 3 — PUBLICAÇÃO IGUAL AO PREVIEW (OBRIGATÓRIO)
+Verificar se o Deploy está usando os mesmos comandos do Preview:
+- build command e start command
+- pasta de saída (dist/build/.next etc.)
+Garantir que o deploy serve o build correto e não um path errado.
+
+PASSO 4 — TESTE FINAL OBRIGATÓRIO (SEM ISSO NÃO FINALIZE)
+Você deve testar e relatar os resultados NO DOMÍNIO PUBLICADO:
+1) Selecionar 3 versões diferentes e confirmar que o texto muda (visivelmente).
+2) Dar refresh (F5) e confirmar que mantém a versão escolhida.
+3) Trocar idioma e trocar versão, confirmar que continua funcionando.
+4) Conferir no Network que as requisições retornam 200 (sem 404/CORS).
+
+ENTREGA (OBRIGATÓRIA)
+Ao terminar, responda com:
+- Causa raiz encontrada (ex.: 404 asset path, ENV ausente no deploy, localStorage bloqueado, CORS, baseURL errada)
+- Arquivos exatos alterados
+- Quais logs confirmaram a correção
+- Confirmação: “Testado no domínio publicado e funcionando”
+
+SE VOCÊ NÃO CONSEGUIR
+- Reverta para o último checkpoint que funciona
+- E aplique apenas as correções mínimas de persistência + path correto
+- Sem quebrar outras funcionalidades

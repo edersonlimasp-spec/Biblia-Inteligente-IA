@@ -1,0 +1,40 @@
+## Contexto
+No módulo de dicionário Strong do app “Bíblia Inteligente IA”, ainda faltam verbetes completos. É preciso que, ao pesquisar um número de Strong inexistente ou incompleto no léxico importado, o sistema utilize o ChatGPT para gerar uma definição abrangente e equivalente em qualidade ao conteúdo da Bíblia Almeida RA com números de Strong (que inclui definições, formas originais e análise morfológica [oai_citation:0‡accordancebible.com](https://www.accordancebible.com/product/portuguese-bible-biblia-almeida-revista-e-atualizada-com-numeros-de-strong/#:~:text=,2002)).
+
+## Objetivo
+Integrar a API da OpenAI para que, em tempo de execução, o aplicativo consulte o ChatGPT e obtenha definições em português quando o dicionário local não tiver uma entrada completa. O retorno deve conter:
+- Número de Strong consultado.
+- Palavra original (hebraico/aramaico ou grego) e transliteração.
+- Definição em português (significado do termo).
+- Análise morfológica (tempo, voz, modo, categoria gramatical etc.), se aplicável.
+- Sinônimos ou termos relacionados na Bíblia.
+- Referências resumidas a outros versículos onde o termo aparece (listar alguns livros/capítulos).
+
+## Passos técnicos
+
+1. **Preparar a integração com a OpenAI**:
+   - Instale a biblioteca oficial `openai` se ainda não estiver instalada.
+   - Configure a chave de API via variáveis de ambiente (`process.env.OPENAI_API_KEY`) para segurança.
+   - Crie um serviço assíncrono que receba um número de Strong (e, se possível, a palavra original) e formate uma chamada ao ChatGPT.
+
+2. **Definir o prompt para o ChatGPT**:
+   - Use um template como base, por exemplo:
+     ```plaintext
+     Você é um especialista em línguas bíblicas. Forneça, em português, uma explicação completa para o número de Strong {{NUMERO}}. Inclua a palavra original em hebraico ou grego e sua transliteração, um significado claro, notas morfológicas (tempo, voz, modo se for um verbo), possíveis sinônimos e uma lista de versículos onde esse termo aparece (resumindo referência de livro e capítulo). Evite copiar verbetes existentes; escreva de forma original e concisa.
+     ```
+   - Substitua `{{NUMERO}}` pelo número de Strong solicitado.
+
+3. **Lógica de fallback**:
+   - Ao consultar o dicionário local, se não houver entrada ou se a entrada estiver incompleta, chame o serviço do ChatGPT com o número de Strong.
+   - Armazene a resposta no cache/local storage para uso futuro, evitando chamadas repetidas.
+
+4. **Atualizar o modal de exibição**:
+   - Quando a definição vier do ChatGPT, inclua um marcador “Gerado por IA” para transparência.
+   - Mantenha o botão de fechar e a rolagem interna como já planejado.
+
+5. **Testes e ajustes**:
+   - Crie testes unitários simulando a ausência de um termo no léxico e verificando se o sistema obtém e armazena a resposta do ChatGPT.
+   - Ajuste o tamanho máximo do texto retornado (por exemplo, limitar a 800 caracteres) para não sobrecarregar o modal.
+
+## Resultado esperado
+Com essa integração, o dicionário Strong do aplicativo passará a exibir definições completas para todos os números, seja a partir do léxico importado ou via geração pelo ChatGPT. O conteúdo ficará comparável, em qualidade e completude, ao da Bíblia Almeida RA com números de Strong [oai_citation:1‡accordancebible.com](https://www.accordancebible.com/product/portuguese-bible-biblia-almeida-revista-e-atualizada-com-numeros-de-strong/#:~:text=,2002), elevando a experiência de estudo dos usuários.

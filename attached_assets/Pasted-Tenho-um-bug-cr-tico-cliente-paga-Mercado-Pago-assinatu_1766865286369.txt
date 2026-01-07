@@ -1,0 +1,76 @@
+Tenho um bug crítico: cliente paga Mercado Pago (assinatura/premium) e o acesso premium NÃO é liberado. Quero corrigir de ponta a ponta, com logs e validação, SEM quebrar o app.
+
+Objetivo: toda compra aprovada deve ativar premium/gold automaticamente no usuário correto.
+
+FAÇA EM ETAPAS:
+
+ETAPA A — Diagnóstico (obrigatório)
+	1.	Localize as rotas atuais do Mercado Pago:
+	•	criação do checkout/assinatura (ex: /api/mp/create-checkout ou /api/mp/create-subscription)
+	•	webhook (ex: /api/mp/webhook)
+	2.	Adicione logs claros em:
+	•	criação do checkout/assinatura (logar payload enviado ao MP e o retorno)
+	•	webhook (logar req.query, req.body, e também o resultado do GET na API do MP)
+	3.	Crie um endpoint de teste para eu confirmar rápido:
+	•	GET /api/mp/health -> retorna 200 { ok: true }
+	•	GET /api/mp/last-webhook -> retorna o último payload recebido (armazenar em memória por 15 min)
+
+ETAPA B — Webhook correto para ASSINATURA e PAGAMENTO
+	4.	Ajuste o webhook para suportar os 2 cenários:
+	•	PAYMENT: buscar /v1/payments/{id} e se status === "approved" ativar plano
+	•	ASSINATURA (preapproval): buscar /preapproval/{id} e se status in ["authorized","approved"] ativar plano
+	5.	O webhook deve responder 200 imediatamente e processar depois.
+	6.	Garantir app.use(express.json()) antes das rotas.
+
+ETAPA C — Identificar o usuário certo (isso é a causa mais comum)
+	7.	No momento de criar checkout/assinatura, garantir que enviamos para o Mercado Pago:
+	•	external_reference com o identificador do usuário (userId do banco)
+	•	metadata com { userId, plan: "premium" | "gold" }
+	8.	No webhook, usar a prioridade:
+	•	metadata.userId (se existir)
+	•	senão external_reference
+	•	senão payer.email (último recurso)
+	9.	Se não conseguir identificar o usuário, logar erro “NÃO IDENTIFICOU USUÁRIO” e não ativar silenciosamente.
+
+ETAPA D — Ativar o plano no banco e refletir no app
+	10.	Implementar/ajustar função única e central:
+
+	•	activatePlan(userId, plan, source, mpData)
+Essa função deve atualizar o banco no MESMO formato que o app usa hoje para checar acesso (ex.: user.plan, user.isPremium, user.subscriptionStatus, etc).
+
+	11.	Implementar também:
+
+	•	deactivatePlan(userId) para cancelado/paused (se aplicável)
+
+	12.	No frontend, após voltar do pagamento, forçar recarregar status do usuário:
+
+	•	chamar endpoint /api/me (ou equivalente) para atualizar UI
+	•	se não existir, criar GET /api/subscription/status que retorna { plan, active } do usuário logado
+
+ETAPA E — Teste guiado (você deve me entregar instruções)
+	13.	Me diga exatamente como testar com pagamento real e quais logs eu devo ver no Console.
+	14.	Me diga quais arquivos foram alterados e quais variáveis de ambiente são obrigatórias.
+
+REGRAS:
+	•	Não usar domínio *.replit.dev no retorno. Apenas https://bibliainteligente.replit.app.
+	•	Não quebrar outras áreas do app.
+	•	Todo passo deve ter logs para prova.
+
+⸻
+
+✅ O que você deve checar AGORA (sem Replit ainda)
+
+Só para te orientar rapidamente:
+
+1) No Mercado Pago > Webhooks
+
+Tem marcado Planos e assinaturas ✅ e Pagamentos ✅?
+(se faltar “Planos e assinaturas”, premium não ativa)
+
+2) O checkout/subscription envia external_reference?
+
+Se não enviar, o webhook não sabe qual usuário liberar.
+
+3) Token é de PRODUÇÃO?
+
+Webhook em “Modo produção” + token de teste = não ativa.

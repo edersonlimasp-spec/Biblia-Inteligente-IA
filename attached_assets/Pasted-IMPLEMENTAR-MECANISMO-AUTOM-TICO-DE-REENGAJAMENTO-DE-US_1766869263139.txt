@@ -1,0 +1,113 @@
+IMPLEMENTAR MECANISMO AUTOMÁTICO DE REENGAJAMENTO DE USUÁRIOS INATIVOS (30 DIAS)
+
+OBJETIVO GERAL
+Criar um sistema automático que identifique usuários que estão há 30 dias ou mais sem utilizar o app Bíblia Inteligente IA e envie uma mensagem de reengajamento, inicialmente por EMAIL, com controle total no painel administrativo.
+
+====================================================
+FASE 1 — REGISTRO DE ATIVIDADE DO USUÁRIO
+====================================================
+1) Criar/confirmar no banco de dados do usuário os campos:
+   - last_seen_at (timestamp obrigatório)
+   - last_seen_platform (web / android / ios – opcional)
+
+2) Atualizar automaticamente o campo last_seen_at:
+   - Ao login
+   - Ao abrir o app com sessão ativa
+   - Ao acessar qualquer módulo (Bíblia, Strong, IA, Cursos, Agenda, Oração)
+
+3) Criar endpoint leve:
+   POST /api/telemetry/heartbeat
+   - Atualiza last_seen_at
+   - Protegido por token
+   - Rate limit: no máximo 1 atualização a cada 6 horas por usuário
+
+====================================================
+FASE 2 — IDENTIFICAÇÃO DE USUÁRIOS INATIVOS (30 DIAS)
+====================================================
+Criar lógica que selecione usuários que atendam TODOS os critérios abaixo:
+- last_seen_at <= agora - 30 dias
+- email IS NOT NULL
+- usuário ativo
+- NÃO recebeu campanha de reengajamento nos últimos 30 dias
+- NÃO optou por descadastramento (opt_out = false)
+
+Criar tabela:
+campaign_logs
+Campos mínimos:
+- id
+- user_id
+- campaign_name (ex: "inactive_30_days")
+- sent_at
+- status (sent | failed)
+- provider_message_id
+- error_message
+
+====================================================
+FASE 3 — ENVIO DE EMAIL DE REENGAJAMENTO
+====================================================
+1) Integrar serviço de envio de email (Resend / SendGrid / outro já usado no projeto).
+
+2) Criar template de email:
+- Assunto: “Sentimos sua falta 🙏 Novidades na Bíblia Inteligente IA”
+- Corpo:
+  • Mensagem acolhedora
+  • Destaque de funcionalidades novas
+  • Botão CTA: “Voltar a estudar a Palavra”
+  • Rodapé: “Enviado por Bíblia Inteligente IA”
+  • Link para acessar o app
+  • Link de descadastro (opt-out)
+
+3) Criar endpoint:
+POST /api/email/unsubscribe
+- Marca usuário como opt_out = true
+
+====================================================
+FASE 4 — AGENDAMENTO AUTOMÁTICO
+====================================================
+Escolher UMA das opções (documentar qual foi usada):
+
+OPÇÃO A — Cron interno do Replit (se disponível):
+- Executar 1 vez por dia (09:00)
+
+OPÇÃO B — Endpoint protegido para cron externo:
+GET /api/cron/send-inactive-30d
+- Protegido por SECRET
+- Chamado 1x ao dia por cron externo
+
+====================================================
+FASE 5 — PAINEL ADMINISTRATIVO
+====================================================
+Adicionar no Admin um módulo “Campanhas” com:
+
+- Total de usuários elegíveis (30 dias)
+- Quantos já receberam campanha
+- Quantos falharam
+- Botão “Dry-run”:
+  • Lista até 10 usuários que receberiam o email (SEM ENVIAR)
+- Botão “Executar campanha”:
+  • Confirmação obrigatória
+  • Executa envio real
+- Histórico completo por data
+
+====================================================
+FASE 6 — TESTES OBRIGATÓRIOS (NÃO FINALIZAR SEM ISSO)
+====================================================
+1) Criar usuários de teste com:
+   - last_seen_at = hoje - 31 dias
+2) Executar Dry-run e validar listagem
+3) Executar envio real
+4) Confirmar:
+   - Email enviado
+   - Registro criado em campaign_logs
+5) Executar novamente e garantir:
+   - NÃO reenviar (cooldown 30 dias)
+
+====================================================
+REGRA FINAL
+====================================================
+NÃO CONSIDERAR CONCLUÍDO E NÃO COBRAR enquanto:
+- last_seen_at estiver sendo atualizado corretamente
+- Usuários de 30 dias forem detectados corretamente
+- Dry-run funcionar
+- Email for enviado e logado
+- Reenvio duplicado estiver bloqueado

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { login, loginWithGoogle, isGoogleLoginAvailable } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,14 +31,14 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
     try {
       await login(email, password);
       toast({
-        title: "Login realizado",
-        description: "Bem-vindo de volta!",
+        title: t("auth.loginSuccess"),
+        description: t("auth.loginSuccessDesc"),
       });
       onLogin?.();
     } catch (error: any) {
       toast({
-        title: "Erro ao fazer login",
-        description: error.data?.error || error.message || "Verifique suas credenciais",
+        title: t("auth.loginError"),
+        description: error.data?.error || error.message || t("auth.loginErrorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -49,14 +51,14 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
     try {
       await loginWithGoogle();
       toast({
-        title: "Login realizado",
-        description: "Bem-vindo!",
+        title: t("auth.loginSuccess"),
+        description: t("auth.registerSuccessDesc"),
       });
       onLogin?.();
     } catch (error: any) {
       toast({
-        title: "Erro ao fazer login com Google",
-        description: error.message || "Tente novamente",
+        title: t("auth.loginError"),
+        description: error.message || t("error.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -71,17 +73,17 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
           <div className="flex justify-center">
             <img src={appLogo} alt="Logo" className="w-16 h-16" data-testid="img-login-logo" />
           </div>
-          <CardTitle className="text-2xl font-bold text-primary">Bem-vindo</CardTitle>
-          <CardDescription>Entre para acessar a Bíblia com IA</CardDescription>
+          <CardTitle className="text-2xl font-bold text-primary">{t("auth.welcome")}</CardTitle>
+          <CardDescription>{t("auth.welcomeDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="seu@email.com"
+                placeholder={t("auth.enterEmail")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -89,11 +91,11 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth.enterPassword")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -106,7 +108,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
               data-testid="button-login"
               disabled={isLoading}
             >
-              {isLoading ? "Entrando..." : "Entrar"}
+              {isLoading ? t("auth.loggingIn") : t("auth.login")}
             </Button>
             
             {isGoogleLoginAvailable && (
@@ -116,7 +118,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
                     <span className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">ou</span>
+                    <span className="bg-card px-2 text-muted-foreground">{t("common.or")}</span>
                   </div>
                 </div>
                 
@@ -129,7 +131,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
                   data-testid="button-google-login"
                 >
                   <SiGoogle className="h-4 w-4" />
-                  {isGoogleLoading ? "Entrando..." : "Entrar com Google"}
+                  {isGoogleLoading ? t("auth.loggingIn") : t("auth.loginWithGoogle")}
                 </Button>
               </>
             )}
@@ -141,7 +143,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
                 onClick={onNavigateToRegister}
                 data-testid="link-register"
               >
-                Não tem conta? Cadastre-se
+                {t("auth.noAccount")} {t("auth.register")}
               </Button>
             </div>
             <div className="text-center">
@@ -152,7 +154,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
                 onClick={onNavigateToForgotPassword}
                 data-testid="link-forgot-password"
               >
-                Esqueceu a senha?
+                {t("auth.forgotPassword")}?
               </Button>
             </div>
           </form>

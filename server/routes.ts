@@ -1,22 +1,31 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
-import { sendPasswordResetEmail } from "./email";
+import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, optionalAuth, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "./auth";
+import { sendPasswordResetEmail, sendReengagementEmail } from "./email";
 import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, readingPlans, readingPlanDays, userReadingPlanProgress } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
 import { db } from "./db";
-import { eq, or, like, sql, and } from "drizzle-orm";
+import { eq, or, like, sql, and, inArray, gte, desc } from "drizzle-orm";
 import path from "path";
+import { fileURLToPath } from "url";
 import fs from "fs";
+
+// ESM compatibility: recreate __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
 import { STRONG_DATA } from "./strong-data-embedded";
+import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTranslation, getDefaultTranslation } from "./bible/translations";
+import iapRoutes from "./payments/iap-routes";
+import { generateStrongDefinition, isEntryIncomplete } from "./services/strong-ai-generator";
+import { readingPlanService } from "./reading-plans";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -271,8 +280,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const token = generateToken(user.id, user.email || '', user.role || 'user');
       const { password: _, ...userWithoutPassword } = user;
       
-      // Update last login
+      // Update last login and last seen
       await storage.updateUserLastLogin(user.id);
+      await storage.updateUserLastSeen(user.id, 'web');
       
       const trialActive = isTrialActive(user.trialStartDate);
       const daysRemaining = getTrialDaysRemaining(user.trialStartDate);
@@ -445,8 +455,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.createPasswordResetToken(user.id, resetToken, expiresAt);
 
-      // Generate reset link
-      const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+      // Generate reset link using request origin or configured URL
+      const origin = req.get('origin') || req.get('referer')?.split('?')[0].split('#')[0] || process.env.FRONTEND_URL || 'http://localhost:5000';
+      const baseUrl = origin.endsWith('/') ? origin.slice(0, -1) : origin;
       const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
       
       // Send email with reset link
@@ -555,6 +566,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User subscription status (used by AIPanel to check access)
   app.get("/api/user/subscription-status", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
+      // Prevent caching of subscription status
+      res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      });
+      
       const user = await storage.getUser(req.userId!);
       if (!user) {
         return res.status(404).json({ error: "Usuário não encontrado" });
@@ -563,16 +581,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const trialActive = isTrialActive(user.trialStartDate);
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
+
+      // Debug log for subscription status
+      console.log(`[Subscription Status] userId=${req.userId}, hasGold=${hasGold}, hasPremium=${hasPremium}, hasLifetime=${hasLifetime}`);
 
       res.json({
         hasPremium,
         hasGold,
+        hasLifetime,
         trialActive,
         userId: req.userId,
       });
     } catch (error) {
       console.error("Get subscription status error:", error);
       res.status(500).json({ error: "Erro ao buscar status de assinatura" });
+    }
+  });
+
+  // Update user preferred language
+  app.post("/api/user/language", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { language } = req.body;
+      
+      if (!language || !["pt", "en", "es"].includes(language)) {
+        return res.status(400).json({ error: "Idioma inválido" });
+      }
+
+      await storage.updateUserLanguage(req.userId!, language);
+      res.json({ success: true, language });
+    } catch (error) {
+      console.error("Update language error:", error);
+      res.status(500).json({ error: "Erro ao atualizar idioma" });
     }
   });
 
@@ -650,7 +690,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check access permissions
+  // Check access permissions - PLANO GRATUITO com limites
+  // Strong: Visitante = 2 consultas, Logado = 4 consultas
   app.get("/api/access/strong", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const user = await storage.getUser(req.userId!);
@@ -658,16 +699,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
-      // Admin bypass - admins have full access
+      // Admin tem acesso ilimitado
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      if (isAdmin) {
+        return res.json({ 
+          hasAccess: true,
+          reason: 'admin',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
       
-      // Check trial or lifetime subscription
-      const trialActive = isTrialActive(user.trialStartDate);
+      // Assinantes têm acesso ilimitado
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
       const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
       
+      if (hasGold || hasPremium || hasLifetime) {
+        return res.json({ 
+          hasAccess: true,
+          reason: 'subscription',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
+      
+      // PLANO GRATUITO: 4 consultas Strong no total
+      const STRONG_FREE_LIMIT = 4;
+      const strongUsed = await storage.getTotalStrongLookups(req.userId!);
+      const remaining = Math.max(0, STRONG_FREE_LIMIT - strongUsed);
+      
       res.json({ 
-        hasAccess: isAdmin || trialActive || hasLifetime,
-        reason: isAdmin ? 'admin' : trialActive ? 'trial' : hasLifetime ? 'subscription' : 'none',
+        hasAccess: remaining > 0,
+        reason: remaining > 0 ? 'free_plan' : 'limit_reached',
+        used: strongUsed,
+        limit: STRONG_FREE_LIMIT,
+        remaining,
+        requiresSubscription: remaining === 0,
       });
     } catch (error) {
       console.error("Check strong access error:", error);
@@ -675,6 +745,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // IA Professor: PLANO GRATUITO = 5 perguntas NO TOTAL (não renovável)
   app.get("/api/access/ai/:mode", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const mode = req.params.mode; // 'essential' or 'premium'
@@ -684,30 +755,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
-      // Admin bypass - admins have full access to all modes
+      // Admin tem acesso ilimitado
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-      
-      // Check trial (gives access to essential mode during 30 days)
-      const trialActive = isTrialActive(user.trialStartDate);
+      if (isAdmin) {
+        return res.json({ 
+          hasAccess: true,
+          reason: 'admin',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
       
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
 
+      // Assinantes têm acesso ilimitado
+      if (hasGold || hasPremium) {
+        return res.json({ 
+          hasAccess: true,
+          reason: hasPremium ? 'premium' : 'gold',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
+
+      // PLANO GRATUITO: 5 perguntas NO TOTAL
+      const AI_FREE_LIMIT = 5;
+      const totalUsed = await storage.getTotalUsageCount(req.userId!);
+      const remaining = Math.max(0, AI_FREE_LIMIT - totalUsed);
+      
       let hasAccess = false;
-      if (isAdmin) {
-        // Admins have full access to all modes
-        hasAccess = true;
-      } else if (mode === 'essential') {
-        // Trial grants access to essential mode
-        hasAccess = trialActive || hasGold || hasPremium;
+      if (mode === 'essential') {
+        hasAccess = remaining > 0;
       } else if (mode === 'premium') {
-        // Only premium subscription grants premium access
-        hasAccess = hasPremium;
+        // Modos premium requerem assinatura Premium
+        hasAccess = false;
       }
 
       res.json({ 
         hasAccess,
-        reason: isAdmin ? 'admin' : trialActive ? 'trial' : hasPremium ? 'premium' : hasGold ? 'gold' : 'none'
+        reason: hasAccess ? 'free_plan' : 'limit_reached',
+        used: totalUsed,
+        limit: AI_FREE_LIMIT,
+        remaining,
+        requiresSubscription: !hasAccess,
       });
     } catch (error) {
       console.error("Check AI access error:", error);
@@ -718,11 +811,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Professor
   app.post("/api/ai/ask", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const { question, book, chapter, verse, mode = 'essential' } = req.body;
+      const { question, book, chapter, verse, mode = 'essential', language = 'pt' } = req.body;
 
       // Validate input
       if (!question || typeof question !== 'string') {
         return res.status(400).json({ error: "Pergunta é obrigatória" });
+      }
+
+      // Validate language
+      const validLanguages = ['pt', 'en', 'es'];
+      if (!validLanguages.includes(language)) {
+        return res.status(400).json({ error: "Idioma inválido" });
       }
 
       // Validate mode - accept all AI modes
@@ -740,17 +839,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
-      const trialActive = isTrialActive(user.trialStartDate);
-      
       // Admin bypass - admins have full access to all features
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
       
-      // Check subscription status
+      // PLANO GRATUITO ESTRITO: Check subscription status (sem trial, sem bonus)
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
 
       // Enforce plan permissions BEFORE making OpenAI call (admins bypass all restrictions)
-      if (premiumModes.includes(mode) && !hasPremium && !isAdmin) {
+      if (premiumModes.includes(mode) && !hasPremium && !hasLifetime && !isAdmin) {
         const modeNames: Record<string, string> = {
           premium: 'Premium',
           pregador: 'Pregador',
@@ -763,41 +861,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
           subscriptionType: 'premium'
         });
       }
+      
+      // Apenas assinantes têm acesso ilimitado (Gold/Premium/Lifetime)
+      const hasFullAccess = hasGold || hasPremium || hasLifetime;
 
-      // Check for active bonus (extends trial/access)
-      const hasActiveBonus = await storage.hasActiveBonus(req.userId!);
-      const hasFullAccess = trialActive || hasGold || hasPremium || hasActiveBonus;
-
-      // Enforce rate limits BEFORE making OpenAI call (admins have no limit)
+      // ========================================
+      // PLANO GRATUITO: 5 perguntas NO TOTAL (não renovável)
+      // ========================================
+      const AI_FREE_LIMIT = 5;  // 5 perguntas totais para usuários gratuitos
+      const totalUsed = await storage.getTotalUsageCount(req.userId!);
+      
+      // Para assinantes, usar limite diário mais alto
       const todayCount = await storage.getTodayUsageCount(req.userId!);
       
-      // Limits: Premium=100, Gold/Trial/Bonus=30, Expired trial (free)=3
-      const FREE_DAILY_LIMIT = 3;
-      const limit = isAdmin ? 999999 : (hasPremium ? 100 : hasFullAccess ? 30 : FREE_DAILY_LIMIT);
-
-      if (todayCount >= limit && !isAdmin) {
-        // Special message for expired trial users on 4th attempt
-        if (!hasFullAccess && todayCount >= FREE_DAILY_LIMIT) {
+      if (!hasFullAccess && !isAdmin) {
+        // Plano gratuito: verificar limite total
+        if (totalUsed >= AI_FREE_LIMIT) {
           return res.status(429).json({ 
-            error: `Você atingiu o limite diário de ${FREE_DAILY_LIMIT} perguntas gratuitas. Assine um plano para perguntas ilimitadas, ou aguarde até amanhã para mais ${FREE_DAILY_LIMIT} perguntas.`,
+            error: `Você atingiu o limite de ${AI_FREE_LIMIT} perguntas do plano gratuito. Assine um plano para continuar usando o Professor IA.`,
             requiresSubscription: true,
-            subscriptionType: 'gold',
-            dailyLimit: FREE_DAILY_LIMIT,
-            usedToday: todayCount,
-            upgradeRequired: true
+            totalLimit: AI_FREE_LIMIT,
+            usedTotal: totalUsed
           });
         }
-        
-        return res.status(429).json({ 
-          error: `Você atingiu o limite diário de ${limit} perguntas. ${
-            hasGold ? 'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.' : 
-            hasPremium ? 'Aguarde até amanhã para continuar.' :
-            'Assine um plano para continuar usando o Professor.'
-          }`,
-          requiresSubscription: !hasGold && !hasPremium,
-          dailyLimit: limit,
-          usedToday: todayCount
-        });
+      } else if (!isAdmin) {
+        // Assinantes: verificar limite diário (100 para Premium, 30 para Gold)
+        const dailyLimit = hasPremium ? 100 : 30;
+        if (todayCount >= dailyLimit) {
+          return res.status(429).json({ 
+            error: `Você atingiu o limite diário de ${dailyLimit} perguntas. ${
+              hasPremium ? 'Aguarde até amanhã para continuar.' :
+              'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.'
+            }`,
+            dailyLimit,
+            usedToday: todayCount
+          });
+        }
       }
 
       // All validations passed - make OpenAI call
@@ -807,10 +906,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         book,
         chapter,
         mode,
+        language,
       });
 
       // Only increment usage count after successful response
       await storage.incrementUsageCount(req.userId!);
+
+      // Track AI usage event for admin stats
+      await storage.trackPageEvent(req.userId!, 'AI_QUESTION', {
+        mode,
+        book,
+        chapter,
+        verse,
+      });
 
       // Save to history
       await storage.createAIHistory({
@@ -823,13 +931,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         aiMode: mode,
       });
 
+      // Retornar informações de uso baseadas no tipo de acesso
+      const usageInfo = hasFullAccess || isAdmin
+        ? {
+            usedToday: todayCount + 1,
+            dailyLimit: hasPremium ? 100 : 30,
+            remaining: (hasPremium ? 100 : 30) - (todayCount + 1)
+          }
+        : {
+            usedTotal: totalUsed + 1,
+            totalLimit: AI_FREE_LIMIT,
+            remaining: AI_FREE_LIMIT - (totalUsed + 1)
+          };
+      
       res.json({ 
         response,
-        usageInfo: {
-          usedToday: todayCount + 1,
-          dailyLimit: limit,
-          remaining: limit - (todayCount + 1)
-        }
+        usageInfo
       });
     } catch (error: any) {
       console.error("AI ask error:", error);
@@ -845,6 +962,175 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get AI history error:", error);
       res.status(500).json({ error: "Erro ao buscar histórico" });
+    }
+  });
+
+  // AI Free Questions Quota (permanent count, not daily reset)
+  // PLANO GRATUITO: 5 perguntas NO TOTAL (não renovável)
+  const FREE_QUESTIONS_LIMIT = 5;
+  
+  app.get("/api/ai/quota", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      // Check if user has unlimited access (admin, subscription)
+      // PLANO GRATUITO ESTRITO: apenas assinantes (Gold/Premium/Lifetime) têm acesso ilimitado
+      // Sem trial, sem bonus - apenas assinaturas pagas
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
+      
+      const hasUnlimitedAccess = isAdmin || hasGold || hasPremium || hasLifetime;
+      
+      if (hasUnlimitedAccess) {
+        return res.json({
+          used: 0,
+          limit: -1, // Unlimited
+          remaining: -1,
+          hasUnlimitedAccess: true,
+        });
+      }
+      
+      // PLANO GRATUITO: 5 perguntas no total
+      const totalUsed = await storage.getTotalUsageCount(req.userId!);
+      const remaining = Math.max(0, FREE_QUESTIONS_LIMIT - totalUsed);
+      
+      res.json({
+        used: totalUsed,
+        limit: FREE_QUESTIONS_LIMIT,
+        remaining,
+        hasUnlimitedAccess: false,
+      });
+    } catch (error) {
+      console.error("Get AI quota error:", error);
+      res.status(500).json({ error: "Erro ao buscar quota" });
+    }
+  });
+  
+  app.post("/api/ai/migrate-guest-quota", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { guestQuestionsUsed } = req.body;
+      
+      if (typeof guestQuestionsUsed !== 'number' || guestQuestionsUsed < 0) {
+        return res.status(400).json({ error: "Valor inválido" });
+      }
+      
+      await storage.migrateGuestQuotaToUser(req.userId!, guestQuestionsUsed);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Migrate guest quota error:", error);
+      res.status(500).json({ error: "Erro ao migrar quota" });
+    }
+  });
+
+  // Strong Dictionary Quota endpoints
+  const FREE_STRONG_LIMIT = 4; // Free users get 4 total
+  const GUEST_STRONG_LIMIT = 2; // Guests get 2 total
+  const GOLD_STRONG_DAILY_LIMIT = 20; // Gold users get 20/day
+  
+  app.get("/api/strong/quota", async (req, res) => {
+    try {
+      const { deviceId } = req.query as { deviceId?: string };
+      
+      // Check if authenticated user
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+          const user = await storage.getUser(decoded.userId);
+          
+          if (user) {
+            const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+            const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
+            const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
+            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
+            const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
+            
+            // Premium, Lifetime, Bonus and Admin have unlimited access
+            if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
+              return res.json({
+                used: 0,
+                limit: -1,
+                remaining: -1,
+                type: 'unlimited',
+                hasUnlimitedAccess: true,
+              });
+            }
+            
+            if (hasGold) {
+              const todayLookups = await storage.getTodayStrongLookups(decoded.userId);
+              return res.json({
+                used: todayLookups,
+                limit: GOLD_STRONG_DAILY_LIMIT,
+                remaining: Math.max(0, GOLD_STRONG_DAILY_LIMIT - todayLookups),
+                type: 'gold',
+                hasUnlimitedAccess: false,
+              });
+            }
+            
+            // Free user
+            const quota = await storage.getFreeStrongQuota(decoded.userId);
+            const used = quota?.lookupsUsed || 0;
+            
+            return res.json({
+              used,
+              limit: FREE_STRONG_LIMIT,
+              remaining: Math.max(0, FREE_STRONG_LIMIT - used),
+              type: 'free',
+              hasUnlimitedAccess: false,
+            });
+          }
+        } catch (tokenError) {
+          // Invalid token, treat as guest
+        }
+      }
+      
+      // Guest user
+      if (deviceId) {
+        const used = await storage.getGuestStrongQuota(deviceId);
+        return res.json({
+          used,
+          limit: GUEST_STRONG_LIMIT,
+          remaining: Math.max(0, GUEST_STRONG_LIMIT - used),
+          type: 'guest',
+          hasUnlimitedAccess: false,
+        });
+      }
+      
+      // No auth, no deviceId - return guest default
+      res.json({
+        used: 0,
+        limit: GUEST_STRONG_LIMIT,
+        remaining: GUEST_STRONG_LIMIT,
+        type: 'guest',
+        hasUnlimitedAccess: false,
+      });
+    } catch (error) {
+      console.error("Get Strong quota error:", error);
+      res.status(500).json({ error: "Erro ao buscar quota Strong" });
+    }
+  });
+  
+  app.post("/api/strong/migrate-guest-quota", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { guestLookupsUsed } = req.body;
+      
+      if (typeof guestLookupsUsed !== 'number' || guestLookupsUsed < 0) {
+        return res.status(400).json({ error: "Valor inválido" });
+      }
+      
+      await storage.migrateGuestStrongQuotaToUser(req.userId!, guestLookupsUsed);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Migrate guest Strong quota error:", error);
+      res.status(500).json({ error: "Erro ao migrar quota Strong" });
     }
   });
 
@@ -1102,6 +1388,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===================================
+  // CHAT SESSIONS CLOUD SYNC
+  // ===================================
+
+  // Get all chat sessions from cloud
+  app.get("/api/sync/chat-sessions", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const sessions = await storage.getUserChatSessions(req.userId!);
+      const syncMeta = await storage.getUserSyncMeta(req.userId!);
+      
+      res.json({
+        success: true,
+        sessions,
+        lastSyncedAt: syncMeta?.lastSyncedAt?.toISOString() || null,
+      });
+    } catch (error) {
+      console.error("[Sync] Get chat sessions error:", error);
+      res.status(500).json({ error: "Erro ao buscar sessões de chat" });
+    }
+  });
+
+  // Sync chat sessions to cloud (upsert multiple)
+  app.post("/api/sync/chat-sessions", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { sessions, deletedIds } = req.body;
+      const deviceId = req.headers['x-device-id'] as string || 'default';
+      
+      console.log(`[Sync] User ${req.userId} syncing ${sessions?.length || 0} sessions, deleting ${deletedIds?.length || 0}`);
+      
+      // Delete sessions marked for deletion
+      if (deletedIds && Array.isArray(deletedIds)) {
+        for (const id of deletedIds) {
+          await storage.deleteChatSession(id, req.userId!);
+        }
+      }
+      
+      // Upsert all sessions
+      const syncedSessions = [];
+      if (sessions && Array.isArray(sessions)) {
+        for (const session of sessions) {
+          const synced = await storage.upsertChatSession({
+            id: session.id,
+            userId: req.userId!,
+            title: session.title,
+            messages: session.messages,
+            createdAt: new Date(session.createdAt),
+            updatedAt: new Date(session.updatedAt),
+          });
+          syncedSessions.push(synced);
+        }
+      }
+      
+      // Update sync metadata
+      await storage.updateUserSyncMeta(req.userId!, deviceId);
+      
+      res.json({
+        success: true,
+        syncedCount: syncedSessions.length,
+        deletedCount: deletedIds?.length || 0,
+        syncedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[Sync] Sync chat sessions error:", error);
+      res.status(500).json({ error: "Erro ao sincronizar sessões de chat" });
+    }
+  });
+
+  // Get sessions updated since a specific timestamp (incremental sync)
+  app.get("/api/sync/chat-sessions/since/:timestamp", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const since = new Date(req.params.timestamp);
+      if (isNaN(since.getTime())) {
+        return res.status(400).json({ error: "Timestamp inválido" });
+      }
+      
+      const sessions = await storage.getChatSessionsSince(req.userId!, since);
+      
+      res.json({
+        success: true,
+        sessions,
+        since: since.toISOString(),
+      });
+    } catch (error) {
+      console.error("[Sync] Get sessions since error:", error);
+      res.status(500).json({ error: "Erro ao buscar sessões atualizadas" });
+    }
+  });
+
+  // Delete a specific chat session from cloud
+  app.delete("/api/sync/chat-sessions/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      await storage.deleteChatSession(req.params.id, req.userId!);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Sync] Delete chat session error:", error);
+      res.status(500).json({ error: "Erro ao deletar sessão de chat" });
+    }
+  });
+
+  // ===================================
   // GUEST ROUTES (anonymous visitors)
   // ===================================
 
@@ -1154,10 +1539,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Track app event (for analytics)
   app.post("/api/events/track", async (req, res) => {
     try {
-      const { deviceId, eventType, eventData, userId } = req.body;
+      const { deviceId, eventType, eventData } = req.body;
       
       if (!deviceId || !eventType) {
         return res.status(400).json({ error: "deviceId e eventType são obrigatórios" });
+      }
+      
+      // Try to extract userId from auth token if provided
+      let userId: string | undefined;
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith('Bearer ')) {
+        try {
+          const token = authHeader.substring(7);
+          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+          userId = decoded.userId;
+        } catch {}
       }
       
       // Update guest lastSeenAt to track online status
@@ -1174,6 +1570,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guest AI access check (for AI without login)
+  // PLANO GRATUITO: Visitante tem 5 perguntas NO TOTAL (não renovável)
+  const GUEST_AI_LIMIT = 5;
+  
   app.post("/api/guest/ai/check", async (req, res) => {
     try {
       const { deviceId } = req.body;
@@ -1182,43 +1581,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "deviceId é obrigatório" });
       }
       
-      // Check if trial is active
-      const trialInfo = await storage.getGuestTrialInfo(deviceId);
-      if (!trialInfo) {
-        // New device, trial starts now
-        return res.json({ 
-          canAsk: true, 
-          remainingQuestions: 30,
-          mode: 'essential',
-          isNew: true,
-        });
-      }
+      // Check total usage (not daily) for guests
+      const totalUsed = await storage.getGuestTotalUsageCount(deviceId);
+      const remaining = Math.max(0, GUEST_AI_LIMIT - totalUsed);
       
-      if (!trialInfo.active) {
-        return res.json({ 
-          canAsk: false, 
-          reason: 'trial_expired',
-          message: 'Seu período de teste expirou. Assine para continuar.',
-        });
-      }
-      
-      // Check daily usage limit (30 questions/day for guests)
-      const todayCount = await storage.getGuestTodayUsageCount(deviceId);
-      const limit = 30;
-      
-      if (todayCount >= limit) {
+      if (remaining <= 0) {
         return res.json({
           canAsk: false,
-          reason: 'daily_limit',
-          message: `Limite diário de ${limit} perguntas atingido. Tente novamente amanhã.`,
+          reason: 'limit_reached',
+          message: `Você atingiu o limite de ${GUEST_AI_LIMIT} perguntas do plano gratuito. Crie uma conta e assine para continuar.`,
+          used: totalUsed,
+          limit: GUEST_AI_LIMIT,
         });
       }
       
       res.json({
         canAsk: true,
-        remainingQuestions: limit - todayCount,
+        remainingQuestions: remaining,
+        used: totalUsed,
+        limit: GUEST_AI_LIMIT,
         mode: 'essential',
-        trial: trialInfo,
       });
     } catch (error) {
       console.error("Guest AI check error:", error);
@@ -1227,36 +1609,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guest AI ask (AI without login)
+  // PLANO GRATUITO: Visitante tem 5 perguntas NO TOTAL (não renovável)
   app.post("/api/guest/ai/ask", async (req, res) => {
     try {
-      const { deviceId, question, book, chapter, verse } = req.body;
+      const { deviceId, question, book, chapter, verse, language } = req.body;
       
       if (!deviceId || !question) {
         return res.status(400).json({ error: "deviceId e question são obrigatórios" });
       }
       
-      // Auto-register guest if not exists (ensures guest record before AI usage)
-      let trialInfo = await storage.getGuestTrialInfo(deviceId);
-      if (!trialInfo) {
-        // Create guest record on-the-fly
+      // Auto-register guest if not exists
+      const guestExists = await storage.getGuestTrialInfo(deviceId);
+      if (!guestExists) {
         await storage.createOrUpdateGuest(deviceId, 'web');
-        trialInfo = await storage.getGuestTrialInfo(deviceId);
       }
       
-      // Check trial
-      if (trialInfo && !trialInfo.active) {
-        return res.status(403).json({ 
-          error: "Trial expirado",
-          message: "Seu período de teste expirou. Assine para continuar."
-        });
-      }
-      
-      // Check daily limit
-      const todayCount = await storage.getGuestTodayUsageCount(deviceId);
-      if (todayCount >= 30) {
+      // Check TOTAL limit (not daily) - 5 perguntas no total para visitantes
+      const totalUsed = await storage.getGuestTotalUsageCount(deviceId);
+      if (totalUsed >= GUEST_AI_LIMIT) {
         return res.status(429).json({
-          error: "Limite diário atingido",
-          message: "Você atingiu o limite de 30 perguntas por dia."
+          error: "Limite atingido",
+          message: `Você atingiu o limite de ${GUEST_AI_LIMIT} perguntas do plano gratuito. Crie uma conta e assine para continuar.`,
+          requiresSubscription: true,
         });
       }
       
@@ -1267,6 +1641,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         book,
         chapter,
         verse,
+        language,
       });
       
       // Increment usage
@@ -1282,7 +1657,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         response,
-        remainingQuestions: 30 - todayCount - 1,
+        remainingQuestions: GUEST_AI_LIMIT - totalUsed - 1,
+        used: totalUsed + 1,
+        limit: GUEST_AI_LIMIT,
       });
     } catch (error) {
       console.error("Guest AI ask error:", error);
@@ -1294,14 +1671,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // BIBLE VERSIONS ROUTES
   // ===================================
   
-  // Get all available versions
+  // Get all available versions from Translation Registry
   app.get("/api/versions", async (req, res) => {
     try {
-      const versions = await db.select().from(bibleVersions).where(eq(bibleVersions.isActive, true));
-      res.json(versions);
+      // Get verse counts from database to verify data availability
+      const verseCounts = await db
+        .select({
+          versionCode: bibleVerses.versionCode,
+          count: sql<number>`count(*)`
+        })
+        .from(bibleVerses)
+        .groupBy(bibleVerses.versionCode);
+      
+      const countMap = verseCounts.reduce((acc, row) => {
+        acc[row.versionCode] = Number(row.count);
+        return acc;
+      }, {} as Record<string, number>);
+
+      // Return enabled translations with actual data status
+      // Use hasData from registry (allows fallback versions to appear)
+      const translations = getEnabledTranslations().map(t => ({
+        code: t.code,
+        name: t.name,
+        language: t.language,
+        licenseType: t.licenseType,
+        hasData: t.hasData || (countMap[t.code] || 0) > 1000,
+        verseCount: countMap[t.code] || 0,
+        notes: t.notes,
+        sourceUrl: t.sourceUrl
+      }));
+
+      res.json(translations);
     } catch (error) {
       console.error("Get versions error:", error);
       res.status(500).json({ error: "Erro ao buscar versões" });
+    }
+  });
+
+  // Get full translation registry (for admin)
+  app.get("/api/versions/registry", async (req, res) => {
+    try {
+      res.json(TRANSLATION_REGISTRY);
+    } catch (error) {
+      console.error("Get registry error:", error);
+      res.status(500).json({ error: "Erro ao buscar registro" });
     }
   });
 
@@ -1411,9 +1824,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/bible/:bookId/:chapter", async (req, res) => {
+    // Prevent browser caching - version changes must always fetch fresh data
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
     try {
       const { bookId, chapter: chapterNum } = req.params;
-      const version = (req.query.version as string) || 'ACF';
+      const requestedVersion = (req.query.version as string);
+      
+      // OBRIGATÓRIO: Log de entrada com todos os parâmetros
+      console.log(`[Bible API] REQUEST: book=${bookId}, chapter=${chapterNum}, version=${requestedVersion || '(não enviado)'}`);
+      
+      // WARNING: Se version não for enviado, retornar erro em vez de default silencioso
+      if (!requestedVersion) {
+        console.warn(`[Bible API] WARNING: version não fornecida, usando ACF como fallback`);
+      }
+      
+      const version_to_use = requestedVersion || 'ACF';
       const book = getBookById(bookId);
       
       if (!book) {
@@ -1428,7 +1856,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Try to fetch from database first
+      // Resolve version - use fallback if no data available
+      let version = version_to_use;
+      let fallbackUsed = false;
+      let fallbackFrom: string | undefined;
+
+      // Check if requested version has data
+      const translation = getTranslation(version_to_use);
+      if (!hasDataAvailable(version_to_use) && translation) {
+        // Fallback to default for same language
+        version = getDefaultTranslation(translation.language);
+        fallbackUsed = true;
+        fallbackFrom = version_to_use;
+        console.log(`[Bible API] Fallback: ${version_to_use} -> ${version} (versão sem dados)`);
+      }
+      
+      console.log(`[Bible API] RESOLVING: requested=${version_to_use}, resolved=${version}, fallback=${fallbackUsed}`);
+      
+
+      // Try to fetch from database
       let verses = await db
         .select()
         .from(bibleVerses)
@@ -1441,23 +1887,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )
         .orderBy(bibleVerses.verse);
 
-      // If database has no verses for this version, fall back to hardcoded data
+      // If still no verses, try language-appropriate fallback
+      if (!verses || verses.length === 0) {
+        // Get fallback based on requested version's language
+        const reqTranslation = getTranslation(version_to_use);
+        const languageFallback = reqTranslation ? getDefaultTranslation(reqTranslation.language) : 'ACF';
+        
+        if (version !== languageFallback) {
+          console.log(`[Bible API] No data for ${version}, trying ${languageFallback} fallback`);
+          verses = await db
+            .select()
+            .from(bibleVerses)
+            .where(
+              and(
+                eq(bibleVerses.versionCode, languageFallback),
+                eq(bibleVerses.book, bookId),
+                eq(bibleVerses.chapter, chapterInt)
+              )
+            )
+            .orderBy(bibleVerses.verse);
+          
+          if (verses && verses.length > 0) {
+            fallbackUsed = true;
+            fallbackFrom = requestedVersion;
+            version = languageFallback;
+            console.log(`[Bible API] Using ${languageFallback} as fallback for ${requestedVersion}`);
+          }
+        }
+      }
+
+      // If still no data, try hardcoded fallback
       if (!verses || verses.length === 0) {
         const fallbackChapterData = getBookChapter(bookId, chapterInt);
         if (!fallbackChapterData) {
           return res.status(404).json({ 
             error: "Capítulo não encontrado",
-            message: `Nenhum dado disponível para ${book.name} ${chapterInt} na versão ${version}`
+            message: `Nenhum dado disponível para ${book.name} ${chapterInt}`
           });
         }
         
-        // Return fallback data with version info
         res.json({ 
           book, 
           chapter: fallbackChapterData, 
           available: true, 
-          version,
-          source: 'fallback'
+          version: 'ACF',
+          requestedVersion,
+          source: 'fallback',
+          fallbackUsed: true,
+          fallbackFrom: requestedVersion
         });
         return;
       }
@@ -1476,7 +1953,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         available: true, 
         version,
-        source: 'database'
+        requestedVersion,
+        source: 'database',
+        fallbackUsed,
+        fallbackFrom
       });
     } catch (error) {
       console.error("Get chapter error:", error);
@@ -1484,7 +1964,611 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cache for Strong word mappings by language (Greek vs Hebrew)
+  // Loaded once on first request per language, avoids repeated 14k+ row queries
+  let strongWordMappingCacheGreek: Map<string, string> | null = null;
+  let strongWordMappingCacheHebrew: Map<string, string> | null = null;
+  let strongCacheLoadTime: number = 0;
+  const STRONG_CACHE_TTL = 3600000; // 1 hour in milliseconds
+
+  // New Testament books (use Greek Strong numbers starting with G)
+  const NT_BOOKS = new Set([
+    'mat', 'mrk', 'luk', 'jhn', 'act', 'rom', '1co', '2co', 'gal', 'eph',
+    'php', 'col', '1th', '2th', '1ti', '2ti', 'tit', 'phm', 'heb', 'jas',
+    '1pe', '2pe', '1jn', '2jn', '3jn', 'jud', 'rev'
+  ]);
+
+  function isNewTestament(bookId: string): boolean {
+    return NT_BOOKS.has(bookId.toLowerCase());
+  }
+
+  // COMPREHENSIVE Portuguese word mappings for GREEK (New Testament)
+  const GREEK_WORD_MAPPINGS: Record<string, string> = {
+    // Core theological terms
+    'deus': 'G2316', 'senhor': 'G2962', 'jesus': 'G2424', 'cristo': 'G5547',
+    'espírito': 'G4151', 'santo': 'G40', 'pai': 'G3962',
+    'palavra': 'G3056', 'vida': 'G2222', 'amor': 'G26', 'amou': 'G25', 'ama': 'G25', 'amar': 'G25',
+    'graça': 'G5485', 'verdade': 'G225', 'luz': 'G5457', 'trevas': 'G4655',
+    'salvação': 'G4991', 'salvador': 'G4990', 'pecado': 'G266', 'pecados': 'G266',
+    'justiça': 'G1343', 'justo': 'G1342', 'fé': 'G4102', 'crê': 'G4100', 'crer': 'G4100',
+    'esperança': 'G1680', 'glória': 'G1391', 'poder': 'G1411', 'sabedoria': 'G4678',
+    // People and relationships
+    'homem': 'G444', 'homens': 'G444', 'mulher': 'G1135', 'mulheres': 'G1135',
+    'irmão': 'G80', 'irmãos': 'G80', 'povo': 'G2992', 'igreja': 'G1577', 'igrejas': 'G1577',
+    'discípulo': 'G3101', 'discípulos': 'G3101', 'apóstolo': 'G652', 'apóstolos': 'G652',
+    'profeta': 'G4396', 'profetas': 'G4396', 'rei': 'G935', 'reino': 'G932',
+    'filho': 'G5207', 'filhos': 'G5207', 'filha': 'G2364', 'filhas': 'G2364',
+    'servo': 'G1401', 'servos': 'G1401', 'escravo': 'G1401', 'mestre': 'G1320',
+    // Common verbs
+    'disse': 'G2036', 'diz': 'G3004', 'dizer': 'G3004', 'dizendo': 'G3004', 'dizem': 'G3004',
+    'fala': 'G2980', 'falou': 'G2980', 'falar': 'G2980', 'falando': 'G2980',
+    'veio': 'G2064', 'vem': 'G2064', 'vir': 'G2064', 'vindo': 'G2064', 'virá': 'G2064',
+    'vai': 'G4198', 'foi': 'G1096', 'era': 'G1510', 'ser': 'G1510', 'está': 'G1510', 'são': 'G1510',
+    'deu': 'G1325', 'dar': 'G1325', 'dá': 'G1325', 'dando': 'G1325', 'dado': 'G1325',
+    'recebeu': 'G2983', 'receber': 'G2983', 'recebendo': 'G2983', 'recebido': 'G2983',
+    'enviou': 'G649', 'enviar': 'G649', 'enviado': 'G649', 'envia': 'G649',
+    'ouvir': 'G191', 'ouviu': 'G191', 'ouve': 'G191', 'ouvindo': 'G191', 'ouvi': 'G191',
+    'ver': 'G3708', 'viu': 'G3708', 'vê': 'G3708', 'vendo': 'G3708', 'visto': 'G3708',
+    'conhecer': 'G1097', 'conhece': 'G1097', 'conheceu': 'G1097', 'conhecendo': 'G1097',
+    'saber': 'G1492', 'sabe': 'G1492', 'sabemos': 'G1492', 'sabia': 'G1492',
+    'fazer': 'G4160', 'faz': 'G4160', 'fez': 'G4160', 'fazendo': 'G4160', 'feito': 'G4160',
+    'andar': 'G4043', 'anda': 'G4043', 'andou': 'G4043', 'andando': 'G4043',
+    'viver': 'G2198', 'vive': 'G2198', 'viveu': 'G2198', 'vivendo': 'G2198',
+    'morrer': 'G599', 'morreu': 'G599', 'morre': 'G599', 'morrendo': 'G599',
+    'creu': 'G4100', 'crendo': 'G4100', 'creram': 'G4100',
+    'orar': 'G4336', 'ora': 'G4336', 'orou': 'G4336', 'orando': 'G4336', 'oração': 'G4335',
+    // Places and things
+    'mundo': 'G2889', 'terra': 'G1093', 'céu': 'G3772', 'céus': 'G3772',
+    'casa': 'G3624', 'templo': 'G2411', 'corpo': 'G4983', 'sangue': 'G129',
+    'água': 'G5204', 'pão': 'G740', 'vinho': 'G3631', 'cruz': 'G4716',
+    'morte': 'G2288', 'ressurreição': 'G386', 'tumulo': 'G3419', 'sepulcro': 'G3419',
+    'nome': 'G3686', 'mão': 'G5495', 'mãos': 'G5495', 'olho': 'G3788', 'olhos': 'G3788',
+    'coração': 'G2588', 'alma': 'G5590', 'mente': 'G3563', 'boca': 'G4750',
+    'caminho': 'G3598', 'porta': 'G2374', 'cidade': 'G4172', 'aldeia': 'G2968',
+    // Time and manner
+    'dia': 'G2250', 'dias': 'G2250', 'hora': 'G5610', 'tempo': 'G2540', 'noite': 'G3571',
+    'sempre': 'G3842', 'eterno': 'G166', 'eterna': 'G166', 'eternamente': 'G166',
+    'agora': 'G3568', 'hoje': 'G4594', 'ontem': 'G5504', 'amanhã': 'G839',
+    // Adjectives and quantities
+    'grande': 'G3173', 'bom': 'G18', 'boa': 'G18', 'mau': 'G2556', 'má': 'G2556',
+    'todo': 'G3956', 'todos': 'G3956', 'toda': 'G3956', 'todas': 'G3956',
+    'muito': 'G4183', 'muitos': 'G4183', 'muita': 'G4183', 'muitas': 'G4183',
+    'novo': 'G2537', 'nova': 'G2537', 'primeiro': 'G4413', 'último': 'G2078',
+    'outro': 'G243', 'outra': 'G243', 'outros': 'G243', 'outras': 'G243',
+    'próprio': 'G2398', 'própria': 'G2398', 'próprios': 'G2398',
+    // Prepositions and conjunctions (important biblical terms)
+    'com': 'G3326', 'para': 'G1519', 'sobre': 'G1909', 'entre': 'G1722',
+    'contra': 'G2596', 'através': 'G1223', 'segundo': 'G2596', 'antes': 'G4253',
+    'depois': 'G3326', 'desde': 'G575', 'até': 'G2193', 'porque': 'G3754',
+    'quando': 'G3752', 'onde': 'G3699', 'como': 'G5613', 'assim': 'G3779',
+    // Key NT concepts
+    'evangelho': 'G2098', 'batismo': 'G908', 'batizar': 'G907', 'batizado': 'G907',
+    'comunhão': 'G2842', 'mandamento': 'G1785', 'mandamentos': 'G1785',
+    'lei': 'G3551', 'promessa': 'G1860', 'aliança': 'G1242', 'pacto': 'G1242',
+    'testemunho': 'G3141', 'testemunha': 'G3144', 'testemunhas': 'G3144',
+    'milagre': 'G4592', 'milagres': 'G4592', 'sinal': 'G4592', 'sinais': 'G4592',
+    'parábola': 'G3850', 'parábolas': 'G3850', 'ensinamento': 'G1322',
+    'fruto': 'G2590', 'frutos': 'G2590', 'semente': 'G4690',
+    // Additional verb forms and variations
+    'entrou': 'G1525', 'entrar': 'G1525', 'entra': 'G1525', 'entrando': 'G1525',
+    'saiu': 'G1831', 'sair': 'G1831', 'sai': 'G1831', 'saindo': 'G1831',
+    'levantou': 'G450', 'levantar': 'G450', 'levanta': 'G450', 'levantando': 'G450',
+    'desceu': 'G2597', 'descer': 'G2597', 'desce': 'G2597', 'descendo': 'G2597',
+    'subiu': 'G305', 'subir': 'G305', 'sobe': 'G305', 'subindo': 'G305',
+    'escreveu': 'G1125', 'escrever': 'G1125', 'escreve': 'G1125', 'escrito': 'G1125',
+    'tomou': 'G2983', 'tomar': 'G2983', 'toma': 'G2983', 'tomando': 'G2983',
+    'deixou': 'G863', 'deixar': 'G863', 'deixa': 'G863', 'deixando': 'G863',
+    'seguiu': 'G190', 'seguir': 'G190', 'segue': 'G190', 'seguindo': 'G190',
+    'respondeu': 'G611', 'responder': 'G611', 'responde': 'G611', 'respondendo': 'G611',
+    'perguntou': 'G2065', 'perguntar': 'G2065', 'pergunta': 'G2065', 'perguntando': 'G2065',
+    'curou': 'G2323', 'curar': 'G2323', 'cura': 'G2323', 'curando': 'G2323',
+    'ensinou': 'G1321', 'ensinar': 'G1321', 'ensina': 'G1321', 'ensinando': 'G1321',
+    'pregou': 'G2784', 'pregar': 'G2784', 'prega': 'G2784', 'pregando': 'G2784',
+    'mandou': 'G2753', 'mandar': 'G2753', 'manda': 'G2753', 'mandando': 'G2753',
+    'voltou': 'G1994', 'voltar': 'G1994', 'volta': 'G1994', 'voltando': 'G1994',
+    'chegou': 'G2064', 'chegar': 'G2064', 'chega': 'G2064', 'chegando': 'G2064',
+    'começou': 'G756', 'começar': 'G756', 'começa': 'G756', 'começando': 'G756',
+    'procurou': 'G2212', 'procurar': 'G2212', 'procura': 'G2212', 'procurando': 'G2212',
+    'buscou': 'G2212', 'buscar': 'G2212', 'busca': 'G2212', 'buscando': 'G2212',
+    'encontrou': 'G2147', 'encontrar': 'G2147', 'encontra': 'G2147', 'encontrando': 'G2147',
+    'achou': 'G2147', 'achar': 'G2147', 'acha': 'G2147', 'achando': 'G2147',
+    'chamou': 'G2564', 'chamar': 'G2564', 'chama': 'G2564', 'chamando': 'G2564',
+    'trouxe': 'G5342', 'trazer': 'G5342', 'traz': 'G5342', 'trazendo': 'G5342',
+    'levou': 'G5342', 'levar': 'G5342', 'leva': 'G5342', 'levando': 'G5342',
+    'pôs': 'G5087', 'pôr': 'G5087', 'põe': 'G5087', 'pondo': 'G5087',
+    'colocou': 'G5087', 'colocar': 'G5087', 'coloca': 'G5087', 'colocando': 'G5087',
+    'sentou': 'G2523', 'sentar': 'G2523', 'senta': 'G2523', 'sentando': 'G2523',
+    'permanece': 'G3306', 'permanecer': 'G3306', 'permaneceu': 'G3306', 'permanecendo': 'G3306',
+    'habita': 'G3306', 'habitar': 'G3306', 'habitou': 'G3306', 'habitando': 'G3306',
+    // More prepositions and particles
+    'pelo': 'G1223', 'pela': 'G1223', 'pelos': 'G1223', 'pelas': 'G1223',
+    'dele': 'G846', 'dela': 'G846', 'deles': 'G846', 'delas': 'G846',
+    'nele': 'G1722', 'nela': 'G1722', 'neles': 'G1722', 'nelas': 'G1722',
+    'aquele': 'G1565', 'aquela': 'G1565', 'aqueles': 'G1565', 'aquelas': 'G1565',
+    'este': 'G3778', 'esta': 'G3778', 'estes': 'G3778', 'estas': 'G3778',
+    'esse': 'G1565', 'essa': 'G1565', 'esses': 'G1565', 'essas': 'G1565',
+    'qual': 'G3739', 'quais': 'G3739', 'cujo': 'G3739', 'cuja': 'G3739',
+    'mesmo': 'G846', 'mesma': 'G846', 'mesmos': 'G846', 'mesmas': 'G846',
+    'ainda': 'G2089', 'também': 'G2532', 'porém': 'G1161', 'mas': 'G235',
+    'pois': 'G1063', 'portanto': 'G3767', 'logo': 'G3767', 'então': 'G5119',
+    // Quantities and comparatives
+    'mais': 'G4183', 'menos': 'G1640', 'maior': 'G3187', 'menor': 'G3398',
+    'melhor': 'G2909', 'pior': 'G5501', 'tanto': 'G5118', 'tão': 'G3779',
+    'nada': 'G3762', 'ninguém': 'G3762', 'algum': 'G5100', 'alguma': 'G5100',
+    'cada': 'G1538', 'qualquer': 'G3956', 'certo': 'G5100', 'certa': 'G5100',
+    // Additional NT concepts
+    'anjo': 'G32', 'anjos': 'G32', 'demônio': 'G1140', 'demônios': 'G1140',
+    'diabo': 'G1228', 'satanás': 'G4567', 'espíritos': 'G4151', 'imundo': 'G169',
+    'doente': 'G770', 'doentes': 'G770', 'enfermo': 'G770', 'enfermos': 'G770',
+    'cego': 'G5185', 'cegos': 'G5185', 'surdo': 'G2974', 'surdos': 'G2974',
+    'mudo': 'G2974', 'mudos': 'G2974', 'leproso': 'G3015', 'leprosos': 'G3015',
+    'paralítico': 'G3885', 'paralíticos': 'G3885', 'morto': 'G3498', 'mortos': 'G3498',
+    'pecador': 'G268', 'pecadores': 'G268', 'justos': 'G1342',
+    'publicano': 'G5057', 'publicanos': 'G5057', 'fariseu': 'G5330', 'fariseus': 'G5330',
+    'escriba': 'G1122', 'escribas': 'G1122', 'saduceu': 'G4523', 'saduceus': 'G4523',
+    'gentio': 'G1484', 'gentios': 'G1484', 'judeu': 'G2453', 'judeus': 'G2453',
+    'grego': 'G1672', 'gregos': 'G1672', 'romano': 'G4514', 'romanos': 'G4514',
+    
+    // === PAULINE EPISTLES VOCABULARY (Romans, Corinthians, Galatians, etc.) ===
+    // Justification and salvation
+    'justificação': 'G1347', 'justificar': 'G1344', 'justifica': 'G1344', 'justificado': 'G1344', 'justificados': 'G1344',
+    'redenção': 'G629', 'redentor': 'G3086', 'redimir': 'G1805', 'redimido': 'G1805', 'redimidos': 'G1805',
+    'reconciliação': 'G2643', 'reconciliar': 'G2644', 'reconciliado': 'G2644',
+    'propiciação': 'G2435', 'expiação': 'G2435', 'propiciatório': 'G2435',
+    'santificação': 'G38', 'santificar': 'G37', 'santificado': 'G37', 'santificados': 'G37',
+    'adoção': 'G5206', 'herdeiro': 'G2818', 'herdeiros': 'G2818', 'herança': 'G2817',
+    
+    // Grace and law
+    'obras': 'G2041', 'obra': 'G2041', 'trabalho': 'G2041', 'trabalhos': 'G2041',
+    'circuncisão': 'G4061', 'circuncidar': 'G4059', 'circuncidado': 'G4059', 'incircunciso': 'G564',
+    'liberdade': 'G1657', 'livre': 'G1658', 'livres': 'G1658', 'libertar': 'G1659', 'libertado': 'G1659',
+    'escravidão': 'G1397',
+    
+    // Spirit and flesh
+    'espiritual': 'G4152', 'espirituais': 'G4152', 'carnal': 'G4559', 'carnais': 'G4559',
+    'carnes': 'G4561', 'corpos': 'G4983',
+    'membro': 'G3196', 'membros': 'G3196', 'santuário': 'G3485',
+    
+    // Gifts and ministry
+    'dom': 'G5486', 'dons': 'G5486', 'carisma': 'G5486', 'carismas': 'G5486',
+    'ministério': 'G1248', 'ministrar': 'G1247', 'ministro': 'G1249', 'ministros': 'G1249',
+    'edificação': 'G3619', 'edificar': 'G3618', 'edifica': 'G3618', 'edificado': 'G3618',
+    'profecia': 'G4394', 'profetizar': 'G4395', 'profetiza': 'G4395',
+    'língua': 'G1100', 'línguas': 'G1100', 'interpretação': 'G2058', 'interpretar': 'G2059',
+    
+    // Church life
+    'assembleia': 'G1577', 'congregação': 'G1577', 'reunião': 'G1997',
+    'ancião': 'G4245', 'anciãos': 'G4245', 'presbítero': 'G4245', 'presbíteros': 'G4245',
+    'bispo': 'G1985', 'bispos': 'G1985', 'diácono': 'G1249', 'diáconos': 'G1249',
+    'pastor': 'G4166', 'pastores': 'G4166', 'mestres': 'G1320',
+    'evangelista': 'G2099', 'evangelistas': 'G2099', 'pregador': 'G2783',
+    
+    // Virtues (Galatians 5)
+    'paciência': 'G3115', 'longanimidade': 'G3115', 'paciente': 'G3116',
+    'bondade': 'G19', 'benignidade': 'G5544', 'mansidão': 'G4236', 'manso': 'G4239',
+    'temperança': 'G1466', 'domínio': 'G1466', 'autocontrole': 'G1466',
+    'fidelidade': 'G4102', 'fiel': 'G4103', 'fiéis': 'G4103',
+    'alegria': 'G5479', 'alegre': 'G5463', 'alegrar': 'G5463', 'alegrai': 'G5463',
+    'gozo': 'G5479', 'regozijo': 'G5479', 'regozijar': 'G5463',
+    'paz': 'G1515', 'pacífico': 'G1516', 'pacificador': 'G1518',
+    
+    // Vices and sins
+    'concupiscência': 'G1939', 'cobiça': 'G4124', 'cobiçar': 'G1937', 'avareza': 'G4124',
+    'fornicação': 'G4202', 'adultério': 'G3430', 'impureza': 'G167', 'lascívia': 'G766',
+    'idolatria': 'G1495', 'ídolo': 'G1497', 'ídolos': 'G1497', 'idólatra': 'G1496',
+    'feitiçaria': 'G5331', 'inimizade': 'G2189', 'contenda': 'G2054', 'ciúme': 'G2205',
+    'ira': 'G2372', 'discórdia': 'G2052', 'divisão': 'G1370', 'heresia': 'G139',
+    'inveja': 'G5355', 'homicídio': 'G5408', 'embriaguez': 'G3178', 'glutonaria': 'G2970',
+    
+    // Armor of God (Ephesians 6)
+    'armadura': 'G3833', 'cinto': 'G2223', 'couraça': 'G2382',
+    'calçado': 'G5266', 'sandália': 'G5266', 'escudo': 'G2375',
+    'capacete': 'G4030', 'espada': 'G3162',
+    
+    // Colossians/Ephesians themes
+    'mistério': 'G3466', 'mistérios': 'G3466', 'revelação': 'G602', 'revelar': 'G601',
+    'plenitude': 'G4138', 'pleno': 'G4134', 'plena': 'G4134',
+    'riqueza': 'G4149', 'riquezas': 'G4149', 'tesouro': 'G2344', 'tesouros': 'G2344',
+    'conhecimento': 'G1108', 'entendimento': 'G4907',
+    'principado': 'G746', 'principados': 'G746', 'potestade': 'G1849', 'potestades': 'G1849',
+    
+    // === HEBREWS VOCABULARY ===
+    'sacerdote': 'G2409', 'sacerdotes': 'G2409', 'sumo': 'G749',
+    'sacrifício': 'G2378', 'sacrifícios': 'G2378', 'oferta': 'G4376', 'ofertas': 'G4376',
+    'altar': 'G2379', 'santíssimo': 'G39',
+    'mediador': 'G3316', 'fiador': 'G1450', 'intercessor': 'G1793',
+    'testamento': 'G1242', 'testamentos': 'G1242', 'antigo': 'G3820',
+    'melquisedeque': 'G3198', 'arão': 'G2', 'levítico': 'G3020',
+    'perfeição': 'G5050', 'perfeito': 'G5046', 'perfeita': 'G5046', 'perfeitos': 'G5046',
+    'sombra': 'G4639', 'figura': 'G5179', 'tipo': 'G5179', 'tipos': 'G5179',
+    
+    // === GENERAL EPISTLES VOCABULARY (James, Peter, John, Jude) ===
+    // James
+    'provação': 'G3986', 'provar': 'G3985', 'tentação': 'G3986', 'tentar': 'G3985',
+    'perseverança': 'G5281', 'perseverar': 'G5278', 'perseverou': 'G5278',
+    'sábio': 'G4680', 'sábios': 'G4680',
+    'rico': 'G4145', 'ricos': 'G4145', 'pobre': 'G4434', 'pobres': 'G4434',
+    'humilde': 'G5011', 'humildes': 'G5011', 'humildade': 'G5012', 'humilhar': 'G5013',
+    'soberba': 'G5243', 'soberbo': 'G5244', 'soberbos': 'G5244', 'orgulho': 'G5243',
+    
+    // 1 Peter
+    'eleito': 'G1588', 'eleitos': 'G1588', 'eleição': 'G1589',
+    'estrangeiro': 'G3927', 'estrangeiros': 'G3927', 'peregrino': 'G3927', 'peregrinos': 'G3927',
+    'sofrer': 'G3958', 'sofre': 'G3958', 'sofreu': 'G3958', 'sofrimento': 'G3804', 'sofrimentos': 'G3804',
+    'submissão': 'G5292', 'submeter': 'G5293', 'submisso': 'G5293',
+    
+    // 1 John
+    // 1 John (comunhão and irmão already defined above)
+    'anticristo': 'G500', 'anticristos': 'G500', 'enganador': 'G4108', 'enganadores': 'G4108',
+    'confissão': 'G3671', 'confessar': 'G3670', 'confessa': 'G3670', 'confessou': 'G3670',
+    'guardar': 'G5083', 'guarda': 'G5083',
+    
+    // === REVELATION/APOCALYPSE VOCABULARY ===
+    // Heavenly beings
+    'cordeiro': 'G721', 'leão': 'G3023', 'dragão': 'G1404', 'serpente': 'G3789',
+    'besta': 'G2342', 'bestas': 'G2342', 'fera': 'G2342', 'feras': 'G2342',
+    'querubim': 'G5502', 'serafim': 'G4587',
+    
+    // Heavenly imagery
+    'trono': 'G2362', 'tronos': 'G2362', 'coroa': 'G4735', 'coroas': 'G4735',
+    'veste': 'G4749', 'vestes': 'G4749', 'branco': 'G3022', 'branca': 'G3022', 'brancos': 'G3022',
+    'ouro': 'G5553', 'dourado': 'G5552', 'pedra': 'G3037', 'pedras': 'G3037',
+    'jaspe': 'G2393', 'sardônio': 'G4556', 'esmeralda': 'G4665', 'safira': 'G4552',
+    'arco-íris': 'G2463', 'mar': 'G2281', 'cristal': 'G2930',
+    
+    // Judgment imagery
+    'selo': 'G4973', 'selos': 'G4973', 'taça': 'G5357', 'taças': 'G5357',
+    'trombeta': 'G4536', 'trombetas': 'G4536', 'praga': 'G4127', 'pragas': 'G4127',
+    'lago': 'G3041', 'fogo': 'G4442',
+    'enxofre': 'G2303', 'hades': 'G86',
+    
+    // End times
+    'vitória': 'G3529', 'vencer': 'G3528', 'vencedor': 'G3528', 'vencedores': 'G3528',
+    'mártir': 'G3144', 'mártires': 'G3144',
+    'tribulação': 'G2347', 'tribulações': 'G2347', 'aflição': 'G2347',
+    'milênio': 'G5507', 'mil': 'G5507', 'anos': 'G2094',
+    
+    // New Jerusalem
+    'noiva': 'G3565', 'muro': 'G5038', 'muros': 'G5038',
+    'fundamento': 'G2310', 'fundamentos': 'G2310', 'rua': 'G4113', 'ruas': 'G4113',
+    'rio': 'G4215', 'árvore': 'G3586',
+    'folha': 'G5444', 'folhas': 'G5444',
+    
+    // Worship in Revelation
+    'digno': 'G514', 'digna': 'G514', 'dignos': 'G514',
+    'aleluia': 'G239', 'amém': 'G281', 'hosana': 'G5614',
+    'honra': 'G5092', 'louvor': 'G133',
+    'bendito': 'G2128', 'bendita': 'G2128', 'bendizer': 'G2127',
+  };
+
+  // COMPREHENSIVE Portuguese word mappings for HEBREW (Old Testament)
+  const HEBREW_WORD_MAPPINGS: Record<string, string> = {
+    // Core theological terms
+    'deus': 'H430', 'senhor': 'H3068', 'jeová': 'H3068', 'yahweh': 'H3068',
+    'espírito': 'H7307', 'santo': 'H6918', 'pai': 'H1',
+    'palavra': 'H1697', 'vida': 'H2416', 'amor': 'H160', 'amou': 'H157', 'amar': 'H157',
+    'graça': 'H2580', 'verdade': 'H571', 'luz': 'H216', 'trevas': 'H2822',
+    'salvação': 'H3444', 'salvador': 'H3467', 'pecado': 'H2403', 'pecados': 'H2403',
+    'justiça': 'H6666', 'justo': 'H6662', 'fé': 'H530', 'fiel': 'H539',
+    'esperança': 'H8615', 'glória': 'H3519', 'poder': 'H3581', 'sabedoria': 'H2451',
+    // People and relationships
+    'homem': 'H120', 'homens': 'H120', 'mulher': 'H802', 'mulheres': 'H802',
+    'irmão': 'H251', 'irmãos': 'H251', 'povo': 'H5971', 'nação': 'H1471', 'nações': 'H1471',
+    'profeta': 'H5030', 'profetas': 'H5030', 'rei': 'H4428', 'reis': 'H4428', 'reino': 'H4467',
+    'filho': 'H1121', 'filhos': 'H1121', 'filha': 'H1323', 'filhas': 'H1323',
+    'servo': 'H5650', 'servos': 'H5650', 'escravo': 'H5650', 'adon': 'H113', 'amo': 'H113',
+    'sacerdote': 'H3548', 'sacerdotes': 'H3548', 'levita': 'H3881', 'levitas': 'H3881',
+    // Common verbs
+    'disse': 'H559', 'diz': 'H559', 'dizer': 'H559', 'dizendo': 'H559', 'dizem': 'H559',
+    'fala': 'H1696', 'falou': 'H1696', 'falar': 'H1696', 'falando': 'H1696',
+    'veio': 'H935', 'vem': 'H935', 'vir': 'H935', 'vindo': 'H935', 'virá': 'H935',
+    'vai': 'H1980', 'foi': 'H1961', 'era': 'H1961', 'ser': 'H1961', 'está': 'H1961', 'são': 'H1961',
+    'deu': 'H5414', 'dar': 'H5414', 'dá': 'H5414', 'dando': 'H5414', 'dado': 'H5414',
+    'enviou': 'H7971', 'enviar': 'H7971', 'enviado': 'H7971', 'envia': 'H7971',
+    'ouvir': 'H8085', 'ouviu': 'H8085', 'ouve': 'H8085', 'ouvindo': 'H8085', 'ouvi': 'H8085',
+    'ver': 'H7200', 'viu': 'H7200', 'vê': 'H7200', 'vendo': 'H7200', 'visto': 'H7200',
+    'conhecer': 'H3045', 'conhece': 'H3045', 'conheceu': 'H3045', 'conhecendo': 'H3045',
+    'saber': 'H3045', 'sabe': 'H3045', 'sabemos': 'H3045', 'sabia': 'H3045',
+    'fazer': 'H6213', 'faz': 'H6213', 'fez': 'H6213', 'fazendo': 'H6213', 'feito': 'H6213',
+    'andar': 'H1980', 'anda': 'H1980', 'andou': 'H1980', 'andando': 'H1980',
+    'viver': 'H2421', 'vive': 'H2421', 'viveu': 'H2421', 'vivendo': 'H2421',
+    'morrer': 'H4191', 'morreu': 'H4191', 'morre': 'H4191', 'morrendo': 'H4191',
+    'chamar': 'H7121', 'chamou': 'H7121', 'chama': 'H7121', 'chamado': 'H7121',
+    'criar': 'H1254', 'criou': 'H1254', 'cria': 'H1254', 'criado': 'H1254',
+    'separar': 'H914', 'separou': 'H914', 'separa': 'H914', 'separação': 'H914',
+    // Places and things
+    'mundo': 'H8398', 'terra': 'H776', 'céu': 'H8064', 'céus': 'H8064',
+    'casa': 'H1004', 'templo': 'H1964', 'corpo': 'H1320', 'sangue': 'H1818',
+    'água': 'H4325', 'pão': 'H3899', 'vinho': 'H3196', 'fogo': 'H784',
+    'morte': 'H4194', 'túmulo': 'H6913', 'sepulcro': 'H6913',
+    'nome': 'H8034', 'mão': 'H3027', 'mãos': 'H3027', 'olho': 'H5869', 'olhos': 'H5869',
+    'coração': 'H3820', 'alma': 'H5315', 'boca': 'H6310', 'face': 'H6440', 'rosto': 'H6440',
+    'caminho': 'H1870', 'porta': 'H8179', 'cidade': 'H5892', 'monte': 'H2022', 'montanha': 'H2022',
+    'mar': 'H3220', 'rio': 'H5104', 'deserto': 'H4057', 'campo': 'H7704',
+    // Time and manner
+    'dia': 'H3117', 'dias': 'H3117', 'noite': 'H3915', 'tempo': 'H6256',
+    'manhã': 'H1242', 'tarde': 'H6153', 'ano': 'H8141', 'anos': 'H8141',
+    'sempre': 'H5769', 'eterno': 'H5769', 'eterna': 'H5769', 'eternamente': 'H5769',
+    'agora': 'H6258', 'hoje': 'H3117', 'princípio': 'H7225',
+    // Adjectives and quantities
+    'grande': 'H1419', 'bom': 'H2896', 'boa': 'H2896', 'mau': 'H7451', 'má': 'H7451',
+    'todo': 'H3605', 'todos': 'H3605', 'toda': 'H3605', 'todas': 'H3605',
+    'muito': 'H3966', 'muitos': 'H7227', 'muita': 'H7227', 'muitas': 'H7227',
+    'novo': 'H2319', 'nova': 'H2319', 'primeiro': 'H7223', 'último': 'H314',
+    'outro': 'H312', 'outra': 'H312', 'outros': 'H312', 'outras': 'H312',
+    // Prepositions and conjunctions
+    'com': 'H5973', 'para': 'H413', 'sobre': 'H5921', 'entre': 'H996',
+    'contra': 'H5921', 'diante': 'H6440', 'debaixo': 'H8478', 'acima': 'H4605',
+    'depois': 'H310', 'desde': 'H4480', 'até': 'H5704', 'porque': 'H3588',
+    'quando': 'H3588', 'onde': 'H834', 'como': 'H834', 'assim': 'H3651',
+    // Key OT concepts
+    'lei': 'H8451', 'torá': 'H8451', 'mandamento': 'H4687', 'mandamentos': 'H4687',
+    'aliança': 'H1285', 'pacto': 'H1285', 'promessa': 'H1697',
+    'testemunho': 'H5715', 'testemunha': 'H5707', 'testemunhas': 'H5707',
+    'sacrifício': 'H2077', 'oferta': 'H4503', 'altar': 'H4196',
+    'bênção': 'H1293', 'maldição': 'H7045', 'juízo': 'H4941', 'juízos': 'H4941',
+    'misericórdia': 'H2617', 'bondade': 'H2617', 'paz': 'H7965', 'guerra': 'H4421',
+    // Genesis specific
+    'firmamento': 'H7549', 'expansão': 'H7549', 'abismo': 'H8415', 'vazio': 'H922',
+    'seco': 'H3004', 'seca': 'H3004', 'erva': 'H6212', 'árvore': 'H6086', 'árvores': 'H6086',
+    'semente': 'H2233', 'fruto': 'H6529', 'frutos': 'H6529',
+    // Patriarchs and names
+    'israel': 'H3478', 'jacó': 'H3290', 'abraão': 'H85', 'isaque': 'H3327',
+    'moisés': 'H4872', 'davi': 'H1732', 'salomão': 'H8010',
+    'judá': 'H3063', 'jerusalém': 'H3389', 'sião': 'H6726', 'egito': 'H4714',
+    // Additional verb forms and variations
+    'entrou': 'H935', 'entrar': 'H935', 'entra': 'H935', 'entrando': 'H935',
+    'saiu': 'H3318', 'sair': 'H3318', 'sai': 'H3318', 'saindo': 'H3318',
+    'levantou': 'H6965', 'levantar': 'H6965', 'levanta': 'H6965', 'levantando': 'H6965',
+    'desceu': 'H3381', 'descer': 'H3381', 'desce': 'H3381', 'descendo': 'H3381',
+    'subiu': 'H5927', 'subir': 'H5927', 'sobe': 'H5927', 'subindo': 'H5927',
+    'escreveu': 'H3789', 'escrever': 'H3789', 'escreve': 'H3789', 'escrito': 'H3789',
+    'tomou': 'H3947', 'tomar': 'H3947', 'toma': 'H3947', 'tomando': 'H3947',
+    'deixou': 'H5800', 'deixar': 'H5800', 'deixa': 'H5800', 'deixando': 'H5800',
+    'guardou': 'H8104', 'guardar': 'H8104', 'guarda': 'H8104', 'guardando': 'H8104',
+    'voltou': 'H7725', 'voltar': 'H7725', 'volta': 'H7725', 'voltando': 'H7725',
+    'chegou': 'H935', 'chegar': 'H935', 'chega': 'H935', 'chegando': 'H935',
+    'procurou': 'H1245', 'procurar': 'H1245', 'procura': 'H1245', 'procurando': 'H1245',
+    'buscou': 'H1245', 'buscar': 'H1245', 'busca': 'H1245', 'buscando': 'H1245',
+    'encontrou': 'H4672', 'encontrar': 'H4672', 'encontra': 'H4672', 'encontrando': 'H4672',
+    'achou': 'H4672', 'achar': 'H4672', 'acha': 'H4672', 'achando': 'H4672',
+    'trouxe': 'H935', 'trazer': 'H935', 'traz': 'H935', 'trazendo': 'H935',
+    'levou': 'H3947', 'levar': 'H3947', 'leva': 'H3947', 'levando': 'H3947',
+    'pôs': 'H7760', 'pôr': 'H7760', 'põe': 'H7760', 'pondo': 'H7760',
+    'colocou': 'H7760', 'colocar': 'H7760', 'coloca': 'H7760', 'colocando': 'H7760',
+    'sentou': 'H3427', 'sentar': 'H3427', 'senta': 'H3427', 'sentando': 'H3427',
+    'habitou': 'H3427', 'habitar': 'H3427', 'habita': 'H3427', 'habitando': 'H3427',
+    'edificou': 'H1129', 'edificar': 'H1129', 'edifica': 'H1129', 'edificando': 'H1129',
+    'construiu': 'H1129', 'construir': 'H1129', 'constrói': 'H1129', 'construindo': 'H1129',
+    'matou': 'H2026', 'matar': 'H2026', 'mata': 'H2026', 'matando': 'H2026',
+    'feriu': 'H5221', 'ferir': 'H5221', 'fere': 'H5221', 'ferindo': 'H5221',
+    'salvou': 'H3467', 'salvar': 'H3467', 'salva': 'H3467', 'salvando': 'H3467',
+    'livrou': 'H5337', 'livrar': 'H5337', 'livra': 'H5337', 'livrando': 'H5337',
+    'julgou': 'H8199', 'julgar': 'H8199', 'julga': 'H8199', 'julgando': 'H8199',
+    'reinou': 'H4427', 'reinar': 'H4427', 'reina': 'H4427', 'reinando': 'H4427',
+    'nasceu': 'H3205', 'nascer': 'H3205', 'nasce': 'H3205', 'nascendo': 'H3205',
+    'gerou': 'H3205', 'gerar': 'H3205', 'gera': 'H3205', 'gerando': 'H3205',
+    // Demonstrative pronouns (accurate mappings only)
+    'dele': 'H1931', 'dela': 'H1931', 'deles': 'H1992', 'delas': 'H1992',
+    'aquele': 'H1931', 'aquela': 'H1931', 'aqueles': 'H1992', 'aquelas': 'H1992',
+    'este': 'H2088', 'esta': 'H2063', 'estes': 'H428', 'estas': 'H428',
+    'esse': 'H1931', 'essa': 'H1931', 'esses': 'H1992', 'essas': 'H1992',
+    'qual': 'H834', 'quais': 'H834', 'cujo': 'H834', 'cuja': 'H834',
+    'mesmo': 'H1931', 'mesma': 'H1931', 'mesmos': 'H1992', 'mesmas': 'H1992',
+    'ainda': 'H5750', 'também': 'H1571', 'então': 'H227',
+    'pois': 'H3588', 'portanto': 'H3651',
+    // Quantities and comparatives (semantically accurate mappings)
+    'maior': 'H1419', 'menor': 'H6996',
+    'melhor': 'H2896',
+    'cada': 'H3605', 'qualquer': 'H3605',
+    'nada': 'H369',
+    'certo': 'H259', 'certa': 'H259',
+    // Additional OT concepts  
+    'anjo': 'H4397', 'anjos': 'H4397', 'querubim': 'H3742', 'serafim': 'H8314',
+    'inimigo': 'H341', 'inimigos': 'H341', 'adversário': 'H6862', 'adversários': 'H6862',
+    'juiz': 'H8199', 'juízes': 'H8199', 'príncipe': 'H5387', 'príncipes': 'H5387',
+    'capitão': 'H8269', 'capitães': 'H8269', 'exército': 'H6635', 'exércitos': 'H6635',
+    'guerreiro': 'H1368', 'guerreiros': 'H1368', 'soldado': 'H6635', 'soldados': 'H6635',
+    'espada': 'H2719', 'espadas': 'H2719', 'lança': 'H2595', 'lanças': 'H2595',
+    'escudo': 'H4043', 'escudos': 'H4043', 'arco': 'H7198', 'arcos': 'H7198',
+    'flecha': 'H2671', 'flechas': 'H2671', 'armadura': 'H5402',
+    'ovelha': 'H6629', 'ovelhas': 'H6629', 'cordeiro': 'H3532', 'cordeiros': 'H3532',
+    'boi': 'H7794', 'bois': 'H7794', 'vaca': 'H6510', 'vacas': 'H6510',
+    'cavalo': 'H5483', 'cavalos': 'H5483', 'jumento': 'H2543', 'jumentos': 'H2543',
+    'camelo': 'H1581', 'camelos': 'H1581', 'leão': 'H738', 'leões': 'H738',
+    'serpente': 'H5175', 'serpentes': 'H5175', 'águia': 'H5404', 'águias': 'H5404',
+    'ouro': 'H2091', 'prata': 'H3701', 'bronze': 'H5178', 'ferro': 'H1270',
+    'pedra': 'H68', 'pedras': 'H68', 'rocha': 'H5553', 'rochas': 'H5553',
+    'arca': 'H727', 'tenda': 'H168', 'tabernáculo': 'H4908', 'santuário': 'H4720',
+    'vestes': 'H899', 'vestido': 'H899', 'manto': 'H4598', 'coroa': 'H5850',
+    
+    // === POETIC BOOKS VOCABULARY (Psalms, Proverbs, Job) ===
+    // Praise and worship
+    'louvor': 'H8416', 'louvores': 'H8416', 'louvar': 'H1984', 'louvai': 'H1984', 'louvado': 'H1984',
+    'aleluia': 'H1984', 'hosana': 'H3467', 'cântico': 'H7892', 'cânticos': 'H7892',
+    'salmo': 'H4210', 'salmos': 'H4210', 'harpa': 'H3658', 'harpas': 'H3658',
+    'lira': 'H3658', 'címbalo': 'H6767', 'címbalos': 'H6767', 'trombeta': 'H7782', 'trombetas': 'H7782',
+    'adorar': 'H7812', 'adora': 'H7812', 'adorou': 'H7812', 'adoração': 'H7812',
+    'prostrar': 'H7812', 'prostrou': 'H7812', 'prostra': 'H7812',
+    'cantar': 'H7891', 'canta': 'H7891', 'cantou': 'H7891', 'cantando': 'H7891', 'cantai': 'H7891',
+    'exaltar': 'H7311', 'exalta': 'H7311', 'exaltou': 'H7311', 'exaltado': 'H7311', 'exaltai': 'H7311',
+    'bendizer': 'H1288', 'bendiz': 'H1288', 'bendisse': 'H1288', 'bendito': 'H1288', 'bendita': 'H1288',
+    'glorificar': 'H3513', 'glorifica': 'H3513', 'glorificou': 'H3513', 'glorificado': 'H3513',
+    
+    // Wisdom vocabulary
+    'sábio': 'H2450', 'sábia': 'H2450', 'sábios': 'H2450',
+    'entendimento': 'H998', 'entender': 'H995', 'entende': 'H995', 'entendeu': 'H995',
+    'prudência': 'H6195', 'prudente': 'H6175', 'prudentes': 'H6175',
+    'instrução': 'H4148', 'instruir': 'H3256', 'instrui': 'H3256', 'instruído': 'H3256',
+    'conhecimento': 'H1847', 'conselho': 'H6098', 'conselhos': 'H6098',
+    'disciplina': 'H4148', 'repreensão': 'H8433', 'correção': 'H4148',
+    'insensato': 'H3684', 'insensatos': 'H3684', 'tolo': 'H191', 'tolos': 'H191',
+    'louco': 'H7696', 'loucos': 'H7696', 'simples': 'H6612',
+    
+    // Emotions and spiritual states  
+    'alegria': 'H8057', 'alegre': 'H8056', 'alegrar': 'H8055', 'alegrou': 'H8055', 'alegrai': 'H8055',
+    'gozo': 'H1524', 'gozar': 'H1523', 'regozijo': 'H7797', 'regozijar': 'H7797',
+    'júbilo': 'H7440', 'júbilos': 'H7440', 'exultar': 'H5937', 'exulta': 'H5937',
+    'tristeza': 'H6089', 'triste': 'H6087', 'lamento': 'H5092', 'lamentar': 'H5091',
+    'choro': 'H1065', 'chorar': 'H1058', 'chora': 'H1058', 'chorou': 'H1058', 'lágrima': 'H1832', 'lágrimas': 'H1832',
+    'angústia': 'H6869', 'aflição': 'H6040', 'afligido': 'H6041', 'afligidos': 'H6041',
+    'temor': 'H3374', 'temer': 'H3372', 'teme': 'H3372', 'temeu': 'H3372', 'temendo': 'H3372',
+    'medo': 'H6343', 'pavor': 'H6343', 'terror': 'H367',
+    'esperar': 'H3176', 'espera': 'H3176', 'esperou': 'H3176', 'esperando': 'H3176',
+    'confiança': 'H982', 'confiar': 'H982', 'confia': 'H982', 'confiou': 'H982', 'confiando': 'H982',
+    'descanso': 'H4496', 'descansar': 'H5117', 'descansa': 'H5117', 'descansou': 'H5117',
+    
+    // Job vocabulary
+    'sofrimento': 'H6040', 'sofrer': 'H6031', 'sofre': 'H6031', 'sofreu': 'H6031',
+    'dor': 'H3511', 'dores': 'H3511', 'doloroso': 'H3510', 'dolorosa': 'H3510',
+    'prova': 'H5254', 'provar': 'H5254', 'provado': 'H5254', 'provação': 'H5254',
+    'paciência': 'H750', 'paciente': 'H750',
+    'justa': 'H6662', 'justos': 'H6662', 'justas': 'H6662',
+    'retidão': 'H3476', 'reto': 'H3477', 'reta': 'H3477', 'retos': 'H3477',
+    'íntegro': 'H8549', 'íntegra': 'H8549', 'integridade': 'H8537',
+    'inocente': 'H5355', 'inocentes': 'H5355', 'inocência': 'H5356',
+    'culpa': 'H817', 'culpado': 'H816', 'culpados': 'H816',
+    'ímpio': 'H7563', 'ímpios': 'H7563', 'impiedade': 'H7562',
+    'pecar': 'H2398', 'pecou': 'H2398', 'pecador': 'H2400', 'pecadores': 'H2400',
+    'iniquidade': 'H5771', 'iniquidades': 'H5771', 'transgressão': 'H6588', 'transgressões': 'H6588',
+    
+    // Nature imagery in poetry
+    'penedo': 'H6697', 'refúgio': 'H4268', 'fortaleza': 'H4581',
+    'esconderijo': 'H5643', 'sombra': 'H6738', 'asas': 'H3671', 'asa': 'H3671',
+    'pastor': 'H7462', 'pastores': 'H7462', 'apascentar': 'H7462', 'rebanho': 'H6629',
+    'fonte': 'H4599', 'fontes': 'H4599', 'ribeiro': 'H5158', 'ribeiros': 'H5158',
+    'vale': 'H6010', 'vales': 'H6010', 'colina': 'H1389', 'colinas': 'H1389',
+    'floresta': 'H3293', 'bosque': 'H3293', 'oliveira': 'H2132', 'oliveiras': 'H2132',
+    'palmeira': 'H8558', 'cedro': 'H730', 'cedros': 'H730', 'cipreste': 'H1265',
+    'lírio': 'H7799', 'lírios': 'H7799', 'rosa': 'H2261', 'rosas': 'H2261',
+    'vinha': 'H3754', 'vinhas': 'H3754', 'uva': 'H6025', 'uvas': 'H6025',
+    
+    // === PROPHETIC VOCABULARY (Isaiah, Jeremiah, Ezekiel, Minor Prophets) ===
+    // Prophetic terms
+    'profecia': 'H5016', 'profecias': 'H5016', 'profetizar': 'H5012', 'profetiza': 'H5012',
+    'visão': 'H2377', 'visões': 'H2377', 'sonho': 'H2472', 'sonhos': 'H2472',
+    'revelação': 'H1540', 'revelar': 'H1540', 'revelou': 'H1540', 'revelado': 'H1540',
+    'oráculo': 'H4853', 'oráculos': 'H4853', 'palavras': 'H1697',
+    'mensagem': 'H1697', 'mensageiro': 'H4397', 'mensageiros': 'H4397',
+    
+    // Judgment vocabulary
+    'julgamento': 'H4941', 'ira': 'H639', 'furor': 'H2534', 'indignação': 'H2195',
+    'castigo': 'H6066', 'castigar': 'H3256', 'castigou': 'H3256', 'castigado': 'H3256',
+    'punição': 'H6066', 'punir': 'H6485', 'puniu': 'H6485',
+    'destruição': 'H7701', 'destruir': 'H7843', 'destruiu': 'H7843', 'destruído': 'H7843',
+    'assolação': 'H8047', 'assolar': 'H8074', 'assolou': 'H8074', 'assolado': 'H8074',
+    'ruína': 'H7612', 'ruínas': 'H7612', 'cair': 'H5307', 'caiu': 'H5307', 'queda': 'H5307',
+    'cativeiro': 'H7628', 'cativo': 'H7628', 'cativos': 'H7628', 'exílio': 'H1473',
+    'deportação': 'H1546', 'deportar': 'H1540', 'deportado': 'H1540', 'deportados': 'H1540',
+    
+    // Restoration vocabulary
+    'restauração': 'H7725', 'restaurar': 'H7725', 'restaurou': 'H7725', 'restaurado': 'H7725',
+    'redenção': 'H1353', 'redentor': 'H1350', 'redimir': 'H1350', 'redimiu': 'H1350', 'redimido': 'H1350',
+    'resgate': 'H6306', 'resgatar': 'H6299', 'resgatou': 'H6299', 'resgatado': 'H6299',
+    'consolar': 'H5162', 'consola': 'H5162', 'consolou': 'H5162', 'consolação': 'H5165', 'consolado': 'H5162',
+    'renovar': 'H2318', 'renova': 'H2318', 'renovado': 'H2318', 'renovação': 'H2318',
+    'curar': 'H7495', 'cura': 'H7495', 'curou': 'H7495', 'curado': 'H7495', 'curas': 'H7495',
+    'sarar': 'H7495', 'sara': 'H7495', 'sarou': 'H7495', 'sarado': 'H7495',
+    
+    // Messianic vocabulary
+    'messias': 'H4899', 'ungido': 'H4899', 'ungidos': 'H4899', 'ungir': 'H4886', 'ungiu': 'H4886',
+    'escravos': 'H5650',
+    'remanescente': 'H7611', 'resto': 'H7611', 'sobrevivente': 'H6412', 'sobreviventes': 'H6412',
+    'varão': 'H376', 'varões': 'H376', 'renovo': 'H6780',
+    'raiz': 'H8328', 'raízes': 'H8328', 'tronco': 'H1503', 'ramo': 'H5342', 'ramos': 'H5342',
+    
+    // Covenant and faithfulness
+    'fiéis': 'H539',
+    'verdadeiro': 'H571', 'verdadeira': 'H571',
+    'amado': 'H157', 'amada': 'H157',
+    'benignidade': 'H2617', 'clemência': 'H2617',
+    'favor': 'H2580', 'favorecer': 'H2603', 'favoreceu': 'H2603',
+    'perdão': 'H5547', 'perdoar': 'H5545', 'perdoa': 'H5545', 'perdoou': 'H5545', 'perdoado': 'H5545',
+    
+    // Nations and peoples
+    'gentio': 'H1471', 'gentios': 'H1471', 'pagão': 'H1471', 'pagãos': 'H1471',
+    'estrangeiro': 'H5236', 'estrangeiros': 'H5236', 'forasteiro': 'H1616', 'forasteiros': 'H1616',
+    'peregrino': 'H1616', 'peregrinos': 'H1616',
+    'babilônia': 'H894', 'assíria': 'H804', 'assírios': 'H804',
+    'edom': 'H123', 'moabe': 'H4124', 'amom': 'H5983', 'filisteus': 'H6430',
+    
+    // Temple and worship
+    'incenso': 'H7004', 'holocausto': 'H5930', 'holocaustos': 'H5930',
+    'expiação': 'H3725', 'expiar': 'H3722', 'expiou': 'H3722',
+    'purificação': 'H2893', 'purificar': 'H2891', 'purificou': 'H2891', 'purificado': 'H2891', 'puro': 'H2889', 'pura': 'H2889',
+    'imundo': 'H2931', 'imunda': 'H2931', 'imundos': 'H2931', 'imundas': 'H2931', 'imundícia': 'H2932',
+    'santa': 'H6918', 'santos': 'H6918', 'santas': 'H6918',
+    'santidade': 'H6944', 'santificar': 'H6942', 'santificou': 'H6942', 'santificado': 'H6942',
+    'consagrar': 'H6942', 'consagrou': 'H6942', 'consagrado': 'H6942', 'consagração': 'H4394',
+    
+    // Eschatological terms
+    'fim': 'H7093', 'fins': 'H7093', 'últimos': 'H314',
+    'tribunal': 'H4941',
+    'ressurreição': 'H6965', 'ressuscitar': 'H6965', 'ressuscitou': 'H6965',
+    'vivente': 'H2416', 'viventes': 'H2416',
+  };
+
+  async function getStrongWordMapping(forGreek: boolean): Promise<Map<string, string>> {
+    const now = Date.now();
+    
+    // Check cached version for this language
+    if (forGreek && strongWordMappingCacheGreek && (now - strongCacheLoadTime) < STRONG_CACHE_TTL) {
+      return strongWordMappingCacheGreek;
+    }
+    if (!forGreek && strongWordMappingCacheHebrew && (now - strongCacheLoadTime) < STRONG_CACHE_TTL) {
+      return strongWordMappingCacheHebrew;
+    }
+
+    console.log(`[Strong Cache] Loading ${forGreek ? 'Greek' : 'Hebrew'} word mappings...`);
+    const startTime = Date.now();
+    
+    // Filter by language prefix (G for Greek, H for Hebrew)
+    const prefix = forGreek ? 'G' : 'H';
+    const allStrongEntries = await db.select({
+      strongNumber: strongEntries.strongNumber,
+      portugueseDef: strongEntries.portugueseDef,
+    }).from(strongEntries)
+      .where(sql`${strongEntries.strongNumber} LIKE ${prefix + '%'}`);
+
+    const defWordsToStrong = new Map<string, string>();
+    
+    // First, add all comprehensive Portuguese biblical word mappings (highest priority)
+    const priorityMappings = forGreek ? GREEK_WORD_MAPPINGS : HEBREW_WORD_MAPPINGS;
+    for (const [word, strongNum] of Object.entries(priorityMappings)) {
+      defWordsToStrong.set(word, strongNum);
+    }
+    
+    // Then extract words from Portuguese definitions
+    for (const entry of allStrongEntries) {
+      if (entry.portugueseDef) {
+        const words = entry.portugueseDef.toLowerCase()
+          .split(/[,;.:\s\-—()'"\/]/g)
+          .filter((w: string) => w.length >= 3);
+        for (const word of words) {
+          const cleanWord = word.replace(/[.,;:!?"'()0-9]/g, '').trim();
+          // Only add if not already mapped (priority mappings take precedence)
+          if (cleanWord.length >= 3 && !defWordsToStrong.has(cleanWord)) {
+            defWordsToStrong.set(cleanWord, entry.strongNumber);
+          }
+        }
+      }
+    }
+
+    // Cache by language
+    if (forGreek) {
+      strongWordMappingCacheGreek = defWordsToStrong;
+    } else {
+      strongWordMappingCacheHebrew = defWordsToStrong;
+    }
+    strongCacheLoadTime = now;
+    console.log(`[Strong Cache] Loaded ${defWordsToStrong.size} ${forGreek ? 'Greek' : 'Hebrew'} word mappings (${Object.keys(priorityMappings).length} priority) in ${Date.now() - startTime}ms`);
+    
+    return defWordsToStrong;
+  }
+
   // Get words with Strong numbers for a chapter (for pre-highlighting)
+  // STRATEGY 1: Use bible_words table (for Genesis and other mapped chapters)
+  // STRATEGY 2: Fallback to heuristic matching against strong_entries.portugueseDef (for all books)
   app.get("/api/bible/:bookId/:chapter/strong-words", async (req, res) => {
     try {
       const { bookId, chapter: chapterNum } = req.params;
@@ -1494,7 +2578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Capítulo inválido" });
       }
 
-      // Query bible_words for this chapter that have Strong numbers
+      // STRATEGY 1: Try exact match from bible_words table (most accurate)
       const wordsWithStrong = await db
         .select({
           verse: bibleWords.verse,
@@ -1512,26 +2596,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )
         .orderBy(bibleWords.verse, bibleWords.wordPosition);
 
-      // Create a map of verse -> list of words with Strong
+      // Create a map of verse -> list of individual words with Strong
       const verseWordsMap: Record<number, string[]> = {};
       for (const w of wordsWithStrong) {
         if (w.gloss) {
           if (!verseWordsMap[w.verse]) {
             verseWordsMap[w.verse] = [];
           }
-          // Normalize the gloss word for matching
-          const normalizedWord = w.gloss.toLowerCase().trim();
-          if (!verseWordsMap[w.verse].includes(normalizedWord)) {
-            verseWordsMap[w.verse].push(normalizedWord);
+          const glossWords = w.gloss.toLowerCase().trim().split(/\s+/);
+          for (const word of glossWords) {
+            const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
+            if (cleanWord.length >= 3 && !verseWordsMap[w.verse].includes(cleanWord)) {
+              verseWordsMap[w.verse].push(cleanWord);
+            }
           }
         }
+      }
+
+      // STRATEGY 2: ALWAYS apply heuristic matching to SUPPLEMENT bible_words data
+      // Uses testament-aware mapping (Greek for NT, Hebrew for OT)
+      try {
+        // Determine testament for correct language mapping
+        const isNT = isNewTestament(bookId);
+        const defWordsToStrong = await getStrongWordMapping(isNT);
+
+        // Get the chapter text to extract words
+        const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
+        if (chapter && chapter.verses) {
+          // Now match verse words against Strong definitions
+          for (const verse of chapter.verses) {
+            const verseWords = verse.text.toLowerCase()
+              .split(/\s+/)
+              .map((w: string) => w.replace(/[.,;:!?"'()]/g, '').trim())
+              .filter((w: string) => w.length >= 3);
+
+            for (const word of verseWords) {
+              // Add word if it matches Strong definition AND not already in list
+              if (defWordsToStrong.has(word) && !verseWordsMap[verse.verse]?.includes(word)) {
+                if (!verseWordsMap[verse.verse]) {
+                  verseWordsMap[verse.verse] = [];
+                }
+                verseWordsMap[verse.verse].push(word);
+              }
+            }
+          }
+        }
+      } catch (fallbackError) {
+        console.warn("Heuristic Strong matching failed:", fallbackError);
+        // Continue with bible_words result only - don't crash
       }
 
       res.json({
         book: bookId,
         chapter: chapterInt,
         strongWords: verseWordsMap,
-        totalWords: wordsWithStrong.length,
+        totalWords: Object.values(verseWordsMap).flat().length,
       });
     } catch (error) {
       console.error("Get Strong words error:", error);
@@ -1702,7 +2821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[Admin] User ${req.userId} iniciando RESEED COMPLETO dos cursos...`);
       
       // Step 1: Clear progress data (references lessons)
-      await db.execute(sql`DELETE FROM user_lesson_progress`);
+      await db.execute(sql`DELETE FROM user_study_progress`);
       console.log('[Reseed Study] Progresso de lições deletado');
       
       // Step 2: Clear all study data in correct order
@@ -1800,7 +2919,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log(`[Admin] User ${req.userId} iniciando RESET completo dos módulos de estudo...`);
       
-      // Delete all existing data in correct order (lessons first, then tracks, then modules)
+      // Delete all existing data in correct order (progress first, then lessons, tracks, modules)
+      await db.execute(sql`DELETE FROM user_study_progress`);
+      console.log('[Admin Reset] Progresso deletado');
       await db.execute(sql`DELETE FROM study_lessons`);
       console.log('[Admin Reset] Lições deletadas');
       await db.execute(sql`DELETE FROM study_tracks`);
@@ -1857,17 +2978,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Strong's Dictionary routes (Database-driven with in-memory cache)
+  // Quota limits: Guest=2 total, Free=4 total (incl. guest), Gold=20/day, Premium=unlimited
   app.get("/api/strong/:number", async (req, res) => {
     const startTime = Date.now();
     try {
       const { number } = req.params;
+      // Check both query param and header for deviceId (frontend may send via either)
+      const deviceId = (req.query.deviceId as string) || (req.headers['x-device-id'] as string) || undefined;
       const upperNumber = number.toUpperCase();
+      
+      // Strong quota limits (permanent for free tiers)
+      const STRONG_GUEST_LIMIT = 2;      // 2 words total for guests
+      const STRONG_FREE_LIMIT = 4;       // 4 words total for free users (incl. migrated guest)
+      const STRONG_GOLD_DAILY_LIMIT = 20; // 20/day for Gold
+      // Premium/Lifetime = unlimited
+      
+      let shouldIncrementQuota = true;
+      let quotaInfo: { used: number; limit: number; type: 'guest' | 'free' | 'gold' | 'unlimited' } | null = null;
+      
+      // Check if authenticated user
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+          const user = await storage.getUser(decoded.userId);
+          
+          if (user) {
+            const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+            const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
+            const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
+            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
+            const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
+            
+            // Premium, Lifetime, Bonus and Admin have unlimited access
+            if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
+              shouldIncrementQuota = false;
+              quotaInfo = { used: 0, limit: -1, type: 'unlimited' };
+            } else if (hasGold) {
+              // Gold users: 20 lookups per day
+              const todayLookups = await storage.getTodayStrongLookups(decoded.userId);
+              if (todayLookups >= STRONG_GOLD_DAILY_LIMIT) {
+                return res.status(429).json({
+                  error: "Limite diário de 20 palavras Strong atingido. Aguarde até amanhã ou assine Premium para acesso ilimitado.",
+                  requiresSubscription: true,
+                  subscriptionType: 'premium',
+                  requiresLogin: false,
+                  used: todayLookups,
+                  limit: STRONG_GOLD_DAILY_LIMIT,
+                });
+              }
+              quotaInfo = { used: todayLookups, limit: STRONG_GOLD_DAILY_LIMIT, type: 'gold' };
+              await storage.incrementStrongLookups(decoded.userId);
+              shouldIncrementQuota = false;
+            } else {
+              // Free user: 4 total (permanent)
+              const freeQuota = await storage.getFreeStrongQuota(decoded.userId);
+              const used = freeQuota?.lookupsUsed || 0;
+              
+              if (used >= STRONG_FREE_LIMIT) {
+                return res.status(429).json({
+                  error: "Você usou suas 4 palavras Strong gratuitas. Assine Gold para 20 palavras/dia ou Premium para ilimitado.",
+                  requiresSubscription: true,
+                  subscriptionType: 'gold',
+                  requiresLogin: false,
+                  used: used,
+                  limit: STRONG_FREE_LIMIT,
+                });
+              }
+              quotaInfo = { used, limit: STRONG_FREE_LIMIT, type: 'free' };
+              await storage.incrementFreeStrongQuota(decoded.userId);
+              shouldIncrementQuota = false;
+            }
+          }
+        } catch (tokenError) {
+          // Invalid token, treat as guest
+        }
+      }
+      
+      // Guest user quota check
+      if (shouldIncrementQuota) {
+        if (deviceId) {
+          const guestUsed = await storage.getGuestStrongQuota(deviceId);
+          
+          if (guestUsed >= STRONG_GUEST_LIMIT) {
+            return res.status(429).json({
+              error: "Você usou suas 2 palavras Strong gratuitas. Faça login para continuar (mais 2 palavras) ou assine para acesso completo.",
+              requiresLogin: true,
+              requiresSubscription: false,
+              used: guestUsed,
+              limit: STRONG_GUEST_LIMIT,
+            });
+          }
+          quotaInfo = { used: guestUsed, limit: STRONG_GUEST_LIMIT, type: 'guest' };
+          await storage.incrementGuestStrongQuota(deviceId);
+        } else {
+          // No deviceId provided - require login to proceed (prevents quota bypass)
+          return res.status(400).json({
+            error: "DeviceId necessário para acessar Strong. Recarregue a página ou faça login.",
+            requiresLogin: true,
+            requiresSubscription: false,
+            used: 0,
+            limit: STRONG_GUEST_LIMIT,
+          });
+        }
+      }
       
       // Check cache first (instant response)
       const cached = getFromStrongCache(upperNumber);
       if (cached) {
         console.log(`[Strong API] Cache HIT for ${upperNumber} (${Date.now() - startTime}ms)`);
-        return res.json(cached);
+        return res.json({ ...cached, quotaInfo });
       }
       
       // Query database for Strong's entry (single optimized query with index)
@@ -1880,11 +3101,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const elapsed = Date.now() - startTime;
       console.log(`[Strong API] DB query for ${upperNumber}: ${elapsed}ms`);
       
-      if (!entry) {
-        return res.status(404).json({ 
-          error: "Entrada não encontrada",
-          message: `Número Strong ${upperNumber} não encontrado`
-        });
+      // If entry not found OR entry is incomplete, try AI generation
+      const needsAIGeneration = !entry || (entry && isEntryIncomplete(entry));
+      
+      if (needsAIGeneration) {
+        console.log(`[Strong API] Entry ${upperNumber} ${!entry ? 'not found' : 'incomplete'}, trying AI generation...`);
+        
+        const aiResult = await generateStrongDefinition(upperNumber, entry?.lemma);
+        
+        if (aiResult) {
+          console.log(`[Strong API] AI generated definition for ${upperNumber}`);
+          
+          // If we have a partial entry, merge AI data with it
+          if (entry) {
+            // Update existing entry with AI-generated content
+            await db.update(strongEntries)
+              .set({
+                portugueseDef: aiResult.portugueseDefinition,
+                extendedDefinition: aiResult.portugueseDefinition,
+                morphologicalInfo: aiResult.morphologicalInfo,
+                synonymsRelated: aiResult.synonymsRelated,
+                verseReferences: aiResult.verseReferences,
+                aiGenerated: true,
+              })
+              .where(eq(strongEntries.strongNumber, upperNumber));
+            
+            const response = {
+              number: entry.strongNumber,
+              word: entry.lemma,
+              transliteration: entry.translit || entry.xlit || aiResult.transliteration,
+              pronunciation: entry.pron || aiResult.pronunciation || '',
+              definition: entry.kjvDef || entry.strongsDef || aiResult.definition,
+              portugueseDefinition: aiResult.portugueseDefinition,
+              strongsDefinition: entry.strongsDef || aiResult.definition,
+              kjvDefinition: entry.kjvDef || null,
+              derivation: entry.derivation || null,
+              extendedDefinition: aiResult.portugueseDefinition,
+              morphologicalInfo: aiResult.morphologicalInfo,
+              synonymsRelated: aiResult.synonymsRelated,
+              verseReferences: aiResult.verseReferences,
+              etymology: aiResult.etymology || null,
+              historicalContext: aiResult.historicalContext || null,
+              theologicalSignificance: aiResult.theologicalSignificance || null,
+              semanticRange: aiResult.semanticRange || null,
+              culturalBackground: aiResult.culturalBackground || null,
+              language: entry.language,
+              aiGenerated: true,
+              quotaInfo,
+            };
+            
+            const cacheData = { ...response };
+            delete (cacheData as any).quotaInfo;
+            setInStrongCache(upperNumber, cacheData);
+            
+            return res.json(response);
+          } else {
+            // Create new entry entirely from AI
+            const newEntry = {
+              strongNumber: upperNumber,
+              language: aiResult.language,
+              lemma: aiResult.word,
+              translit: aiResult.transliteration,
+              pron: aiResult.pronunciation,
+              kjvDef: aiResult.definition,
+              portugueseDef: aiResult.portugueseDefinition,
+              strongsDef: aiResult.definition,
+              extendedDefinition: aiResult.portugueseDefinition,
+              morphologicalInfo: aiResult.morphologicalInfo,
+              synonymsRelated: aiResult.synonymsRelated,
+              verseReferences: aiResult.verseReferences,
+              aiGenerated: true,
+            };
+            
+            // Save to database for future lookups
+            await db.insert(strongEntries).values(newEntry).onConflictDoNothing();
+            
+            const response = {
+              number: upperNumber,
+              word: aiResult.word,
+              transliteration: aiResult.transliteration,
+              pronunciation: aiResult.pronunciation,
+              definition: aiResult.definition,
+              portugueseDefinition: aiResult.portugueseDefinition,
+              strongsDefinition: aiResult.definition,
+              kjvDefinition: aiResult.definition,
+              derivation: null,
+              extendedDefinition: aiResult.portugueseDefinition,
+              morphologicalInfo: aiResult.morphologicalInfo,
+              synonymsRelated: aiResult.synonymsRelated,
+              verseReferences: aiResult.verseReferences,
+              etymology: aiResult.etymology || null,
+              historicalContext: aiResult.historicalContext || null,
+              theologicalSignificance: aiResult.theologicalSignificance || null,
+              semanticRange: aiResult.semanticRange || null,
+              culturalBackground: aiResult.culturalBackground || null,
+              language: aiResult.language,
+              aiGenerated: true,
+              quotaInfo,
+            };
+            
+            const cacheData = { ...response };
+            delete (cacheData as any).quotaInfo;
+            setInStrongCache(upperNumber, cacheData);
+            
+            return res.json(response);
+          }
+        }
+        
+        // AI generation failed and no entry exists
+        if (!entry) {
+          return res.status(404).json({ 
+            error: "Entrada não encontrada",
+            message: `Número Strong ${upperNumber} não encontrado e não foi possível gerar definição`
+          });
+        }
       }
       
       // Format response with ALL available fields for rich display
@@ -1899,16 +3229,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
         kjvDefinition: entry.kjvDef || null,
         derivation: entry.derivation || null,
         extendedDefinition: entry.extendedDefinition || null,
+        morphologicalInfo: (entry as any).morphologicalInfo || null,
+        synonymsRelated: (entry as any).synonymsRelated || null,
+        verseReferences: (entry as any).verseReferences || null,
         language: entry.language,
+        aiGenerated: (entry as any).aiGenerated || false,
+        quotaInfo,
       };
       
-      // Cache the result
-      setInStrongCache(upperNumber, response);
+      // Cache the result (without quotaInfo to keep cache clean)
+      const cacheData = { ...response };
+      delete (cacheData as any).quotaInfo;
+      setInStrongCache(upperNumber, cacheData);
       
       res.json(response);
     } catch (error) {
       console.error("Get Strong entry error:", error);
       res.status(500).json({ error: "Erro ao buscar entrada do dicionário" });
+    }
+  });
+
+  // Strong's occurrences - find all verses containing this Strong number
+  app.get("/api/strong/:number/occurrences", async (req, res) => {
+    try {
+      const { number } = req.params;
+      const { limit: limitParam } = req.query;
+      const upperNumber = number.toUpperCase();
+      const queryLimit = Math.min(parseInt(limitParam as string) || 50, 100);
+      
+      // Find all occurrences of this Strong number in bible_words
+      const occurrences = await db
+        .select({
+          book: bibleWords.book,
+          chapter: bibleWords.chapter,
+          verse: bibleWords.verse,
+          gloss: bibleWords.gloss,
+          originalWord: bibleWords.originalWord,
+        })
+        .from(bibleWords)
+        .where(eq(bibleWords.strongNumber, upperNumber))
+        .limit(queryLimit);
+      
+      // Group by verse reference
+      const verseMap = new Map<string, { book: string; chapter: number; verse: number; words: string[] }>();
+      
+      for (const occ of occurrences) {
+        const ref = `${occ.book}:${occ.chapter}:${occ.verse}`;
+        if (!verseMap.has(ref)) {
+          verseMap.set(ref, {
+            book: occ.book,
+            chapter: occ.chapter,
+            verse: occ.verse,
+            words: []
+          });
+        }
+        verseMap.get(ref)!.words.push(occ.gloss || occ.originalWord || '');
+      }
+      
+      const groupedOccurrences = Array.from(verseMap.values()).slice(0, 30);
+      
+      res.json({
+        strongNumber: upperNumber,
+        totalOccurrences: occurrences.length,
+        verses: groupedOccurrences,
+      });
+    } catch (error) {
+      console.error("Get Strong occurrences error:", error);
+      res.status(500).json({ error: "Erro ao buscar ocorrências" });
     }
   });
 
@@ -1918,9 +3305,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { book, chapter, verse, deviceId } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Strong lookup limit enforcement
+      // Strong lookup limit enforcement - tiered by plan
       const STRONG_FREE_DAILY_LIMIT = 3;
-      let canLookup = true;
+      const STRONG_GOLD_DAILY_LIMIT = 20;
+      // Premium/Lifetime = unlimited
+      
       let lookupInfo: { isLimited: boolean; remaining: number; total: number } | null = null;
       
       // Check if authenticated user
@@ -1936,25 +3325,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const trialActive = isTrialActive(user.trialStartDate);
             const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
             const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
+            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
             const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
-            const hasFullAccess = trialActive || hasGold || hasPremium || hasActiveBonus || isAdmin;
             
-            if (!hasFullAccess) {
+            // Premium, Lifetime and Admin have unlimited access
+            const hasUnlimitedAccess = hasPremium || hasLifetime || hasActiveBonus || isAdmin;
+            // Gold and Trial have 20/day limit
+            const hasGoldAccess = hasGold || trialActive;
+            
+            if (!hasUnlimitedAccess) {
               const todayStrongLookups = await storage.getTodayStrongLookups(decoded.userId);
+              const dailyLimit = hasGoldAccess ? STRONG_GOLD_DAILY_LIMIT : STRONG_FREE_DAILY_LIMIT;
               
-              if (todayStrongLookups >= STRONG_FREE_DAILY_LIMIT) {
+              if (todayStrongLookups >= dailyLimit) {
+                const upgradeMsg = hasGoldAccess 
+                  ? "Limite diário de 20 consultas Strong atingido. Assine Premium para acesso ilimitado, ou aguarde até amanhã."
+                  : "Limite diário de 3 consultas Strong atingido. Assine Gold para 20 consultas/dia ou Premium para ilimitado.";
                 return res.status(429).json({
-                  error: `Limite diário de ${STRONG_FREE_DAILY_LIMIT} consultas Strong atingido. Assine um plano para acesso ilimitado, ou aguarde até amanhã.`,
+                  error: upgradeMsg,
                   requiresSubscription: true,
-                  subscriptionType: 'gold',
-                  dailyLimit: STRONG_FREE_DAILY_LIMIT,
+                  subscriptionType: hasGoldAccess ? 'premium' : 'gold',
+                  dailyLimit: dailyLimit,
                   usedToday: todayStrongLookups,
                   upgradeRequired: true
                 });
               }
               
-              lookupInfo = { isLimited: true, remaining: STRONG_FREE_DAILY_LIMIT - todayStrongLookups - 1, total: STRONG_FREE_DAILY_LIMIT };
-              // Increment after successful lookup
+              lookupInfo = { isLimited: true, remaining: dailyLimit - todayStrongLookups - 1, total: dailyLimit };
               await storage.incrementStrongLookups(decoded.userId);
             }
           }
@@ -1966,22 +3363,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const guestTrialInfo = await storage.getGuestTrialInfo(deviceId);
         const guestTrialActive = guestTrialInfo?.active ?? true;
         
-        if (!guestTrialActive) {
-          const todayStrongLookups = await storage.getGuestTodayStrongLookups(deviceId);
-          
-          if (todayStrongLookups >= STRONG_FREE_DAILY_LIMIT) {
-            return res.status(429).json({
-              error: `Limite diário de ${STRONG_FREE_DAILY_LIMIT} consultas Strong atingido. Cadastre-se para continuar usando, ou aguarde até amanhã.`,
-              requiresSubscription: true,
-              dailyLimit: STRONG_FREE_DAILY_LIMIT,
-              usedToday: todayStrongLookups,
-              upgradeRequired: true
-            });
-          }
-          
-          lookupInfo = { isLimited: true, remaining: STRONG_FREE_DAILY_LIMIT - todayStrongLookups - 1, total: STRONG_FREE_DAILY_LIMIT };
-          await storage.incrementGuestStrongLookups(deviceId);
+        // Guests with active trial get Gold-level access (20/day)
+        const dailyLimit = guestTrialActive ? STRONG_GOLD_DAILY_LIMIT : STRONG_FREE_DAILY_LIMIT;
+        const todayStrongLookups = await storage.getGuestTodayStrongLookups(deviceId);
+        
+        if (todayStrongLookups >= dailyLimit) {
+          const upgradeMsg = guestTrialActive
+            ? "Limite diário de 20 consultas Strong atingido. Aguarde até amanhã ou assine para acesso ilimitado."
+            : "Limite diário de 3 consultas Strong atingido. Cadastre-se para continuar usando, ou aguarde até amanhã.";
+          return res.status(429).json({
+            error: upgradeMsg,
+            requiresSubscription: true,
+            dailyLimit: dailyLimit,
+            usedToday: todayStrongLookups,
+            upgradeRequired: true
+          });
         }
+        
+        lookupInfo = { isLimited: true, remaining: dailyLimit - todayStrongLookups - 1, total: dailyLimit };
+        await storage.incrementGuestStrongLookups(deviceId);
       }
       
       // STRATEGY 1: Try exact match from bible_words table (most accurate)
@@ -2201,49 +3601,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/stats", ensureAdmin, async (req: AuthRequest, res) => {
     try {
       const { users: allUsers, total: totalCount } = await storage.getAllUsers(undefined, 10000, 0);
-      const activeSubscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
       
       const now = new Date();
+      
+      // Efficient SQL query: get subscriptions with active-like status
+      const allActiveSubscriptions = await db
+        .select()
+        .from(subscriptions)
+        .where(
+          or(
+            eq(subscriptions.status, 'active'),
+            eq(subscriptions.status, 'Active'),
+            eq(subscriptions.status, 'ACTIVE'),
+            eq(subscriptions.status, 'approved'),
+            eq(subscriptions.status, 'Approved'),
+            eq(subscriptions.status, 'APPROVED'),
+            eq(subscriptions.status, 'authorized')
+          )
+        );
+      
+      // Filter to only truly active subscriptions (not expired)
+      const activeSubscriptions = allActiveSubscriptions.filter(s => {
+        // Lifetime subscriptions have no end_date
+        if (s.planType?.toLowerCase() === 'strong_lifetime' || !s.endDate) return true;
+        // Check if end_date is in the future
+        return new Date(s.endDate) > now;
+      });
+      
+      console.log(`[Admin Stats] Active subs: ${activeSubscriptions.length}, Plans: ${activeSubscriptions.map(s => s.planType).join(', ')}`);
+      
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const recentUsers = allUsers.filter(u => new Date(u.createdAt) >= monthStart);
 
       const activeTrials = allUsers.filter(u => isTrialActive(u.trialStartDate)).length;
-      const activeGold = activeSubscriptions.filter(s => s.planType === 'gold').length;
-      const activePremium = activeSubscriptions.filter(s => s.planType === 'premium').length;
-      const lifetimeStrong = activeSubscriptions.filter(s => s.planType === 'strong_lifetime').length;
+      // Case-insensitive plan type matching
+      const activeGold = activeSubscriptions.filter(s => s.planType?.toLowerCase() === 'gold').length;
+      const activePremium = activeSubscriptions.filter(s => s.planType?.toLowerCase() === 'premium').length;
+      const lifetimeStrong = activeSubscriptions.filter(s => s.planType?.toLowerCase() === 'strong_lifetime').length;
+      
+      console.log(`[Admin Stats] Filtered counts - Gold: ${activeGold}, Premium: ${activePremium}, Lifetime: ${lifetimeStrong}`);
 
       const monthlyRevenue = activeSubscriptions
         .filter(s => new Date(s.createdAt) >= monthStart)
         .reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
         .toFixed(2);
 
+      // Inactive users - users who haven't accessed in 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const inactiveUsers = allUsers.filter(u => {
+        const lastAccess = u.lastLoginAt ? new Date(u.lastLoginAt) : null;
+        // If never logged in, check createdAt
+        if (!lastAccess) {
+          return new Date(u.createdAt) < thirtyDaysAgo;
+        }
+        return lastAccess < thirtyDaysAgo;
+      }).length;
+
       // Guest stats
       let totalGuests = 0;
       let activeGuestTrials = 0;
       let convertedGuests = 0;
+      let newGuestsToday = 0;
+      let activeGuestsToday = 0;
       try {
         if (typeof storage.getGuestStats === 'function') {
           const guestStats = await storage.getGuestStats();
           totalGuests = guestStats.totalGuests || 0;
           activeGuestTrials = guestStats.guestsInTrial || 0;
           convertedGuests = guestStats.linkedToUsers || 0;
+          newGuestsToday = guestStats.newGuestsToday || 0;
+          activeGuestsToday = guestStats.activeGuestsToday || 0;
         }
       } catch (e) {
         console.warn('Erro ao buscar guest stats:', e);
       }
 
+      // Ensure all values are numbers (not strings)
       res.json({
-        totalUsers: totalCount,
+        totalUsers: Number(totalCount) || 0,
         newUsersThisMonth: recentUsers.length,
         activeTrials,
         activeGoldSubscriptions: activeGold,
         activePremiumSubscriptions: activePremium,
         lifetimeStrong,
         estimatedMonthlyRevenue: monthlyRevenue,
-        cancelledThisMonth: 0, // Would need subscription history
-        totalGuests,
-        activeGuestTrials,
-        convertedGuests,
+        cancelledThisMonth: 0,
+        totalGuests: Number(totalGuests) || 0,
+        activeGuestTrials: Number(activeGuestTrials) || 0,
+        convertedGuests: Number(convertedGuests) || 0,
+        newGuestsToday: Number(newGuestsToday) || 0,
+        activeGuestsToday: Number(activeGuestsToday) || 0,
+        inactiveUsers,
       });
     } catch (error) {
       console.error("Admin stats error:", error);
@@ -2297,6 +3746,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Metrics - Conversion Metrics
+  app.get("/api/admin/metrics/conversion", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const metrics = await storage.getConversionMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Conversion metrics error:", error);
+      res.status(500).json({ error: "Erro ao buscar métricas de conversão" });
+    }
+  });
+
   // Track Event (Authenticated)
   app.post("/api/admin/events/track", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
@@ -2306,6 +3766,195 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Event tracking error:", error);
       res.status(500).json({ error: "Erro ao rastrear evento" });
+    }
+  });
+
+  // Admin Metrics - Purchase History by Plan Type
+  app.get("/api/admin/metrics/purchases", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { days = "30" } = req.query;
+      const daysAgo = parseInt(days as string) || 30;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - daysAgo);
+
+      // Get all subscriptions with active-like status
+      const allSubscriptions = await db
+        .select({
+          id: subscriptions.id,
+          userId: subscriptions.userId,
+          planType: subscriptions.planType,
+          status: subscriptions.status,
+          amount: subscriptions.amount,
+          createdAt: subscriptions.createdAt,
+          startDate: subscriptions.startDate,
+          endDate: subscriptions.endDate,
+        })
+        .from(subscriptions)
+        .where(gte(subscriptions.createdAt, startDate))
+        .orderBy(desc(subscriptions.createdAt));
+
+      // Get users for these subscriptions
+      const userIds = Array.from(new Set(allSubscriptions.map(s => s.userId)));
+      const usersData = await db
+        .select({ id: users.id, email: users.email, name: users.name })
+        .from(users)
+        .where(inArray(users.id, userIds.length > 0 ? userIds : ['']));
+      
+      const usersMap = new Map(usersData.map(u => [u.id, u]));
+
+      // Categorize by plan type
+      const goldPurchases = allSubscriptions
+        .filter(s => s.planType?.toLowerCase() === 'gold')
+        .map(s => ({
+          ...s,
+          user: usersMap.get(s.userId),
+        }));
+
+      const premiumPurchases = allSubscriptions
+        .filter(s => s.planType?.toLowerCase() === 'premium')
+        .map(s => ({
+          ...s,
+          user: usersMap.get(s.userId),
+        }));
+
+      const lifetimePurchases = allSubscriptions
+        .filter(s => s.planType?.toLowerCase() === 'strong_lifetime')
+        .map(s => ({
+          ...s,
+          user: usersMap.get(s.userId),
+        }));
+
+      // Calculate totals
+      const goldTotal = goldPurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
+      const premiumTotal = premiumPurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
+      const lifetimeTotal = lifetimePurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
+
+      // Daily breakdown for charts
+      const dailyData: Record<string, { gold: number; premium: number; lifetime: number }> = {};
+      for (let i = 0; i < daysAgo; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        dailyData[dateStr] = { gold: 0, premium: 0, lifetime: 0 };
+      }
+
+      allSubscriptions.forEach(s => {
+        const dateStr = new Date(s.createdAt).toISOString().split('T')[0];
+        if (dailyData[dateStr]) {
+          const planType = s.planType?.toLowerCase();
+          if (planType === 'gold') dailyData[dateStr].gold++;
+          else if (planType === 'premium') dailyData[dateStr].premium++;
+          else if (planType === 'strong_lifetime') dailyData[dateStr].lifetime++;
+        }
+      });
+
+      const dailyTrend = Object.entries(dailyData)
+        .map(([date, counts]) => ({ date, ...counts }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      res.json({
+        summary: {
+          gold: { count: goldPurchases.length, total: goldTotal.toFixed(2) },
+          premium: { count: premiumPurchases.length, total: premiumTotal.toFixed(2) },
+          lifetime: { count: lifetimePurchases.length, total: lifetimeTotal.toFixed(2) },
+        },
+        recentPurchases: {
+          gold: goldPurchases.slice(0, 20),
+          premium: premiumPurchases.slice(0, 20),
+          lifetime: lifetimePurchases.slice(0, 20),
+        },
+        dailyTrend,
+      });
+    } catch (error) {
+      console.error("Purchase history error:", error);
+      res.status(500).json({ error: "Erro ao buscar histórico de compras" });
+    }
+  });
+
+  // Admin Metrics - Monthly User Growth (Users vs Guests)
+  app.get("/api/admin/metrics/user-growth", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth(); // 0-indexed
+      
+      // Get monthly user counts
+      const userGrowth = await db
+        .select({
+          month: sql<string>`to_char(date_trunc('month', ${users.createdAt}), 'YYYY-MM')`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(users)
+        .where(sql`EXTRACT(YEAR FROM ${users.createdAt}) = ${currentYear}`)
+        .groupBy(sql`date_trunc('month', ${users.createdAt})`)
+        .orderBy(sql`date_trunc('month', ${users.createdAt})`);
+
+      // Get monthly guest counts
+      const guestGrowth = await db
+        .select({
+          month: sql<string>`to_char(date_trunc('month', ${guests.createdAt}), 'YYYY-MM')`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(guests)
+        .where(sql`EXTRACT(YEAR FROM ${guests.createdAt}) = ${currentYear}`)
+        .groupBy(sql`date_trunc('month', ${guests.createdAt})`)
+        .orderBy(sql`date_trunc('month', ${guests.createdAt})`);
+
+      // Create maps for easy lookup
+      const userMap = new Map(userGrowth.map(r => [r.month, r.count]));
+      const guestMap = new Map(guestGrowth.map(r => [r.month, r.count]));
+
+      // Build 12-month series (Jan to Dec) with cumulative totals
+      const months: Array<{ month: string; monthLabel: string; users: number; guests: number; usersTotal: number; guestsTotal: number }> = [];
+      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      
+      let usersCumulative = 0;
+      let guestsCumulative = 0;
+
+      for (let m = 0; m < 12; m++) {
+        const monthKey = `${currentYear}-${String(m + 1).padStart(2, '0')}`;
+        const monthlyUsers = userMap.get(monthKey) || 0;
+        const monthlyGuests = guestMap.get(monthKey) || 0;
+        
+        // Only count actual data up to current month, show zero for future
+        if (m <= currentMonth) {
+          usersCumulative += monthlyUsers;
+          guestsCumulative += monthlyGuests;
+        }
+        
+        months.push({
+          month: monthKey,
+          monthLabel: monthNames[m],
+          users: m <= currentMonth ? monthlyUsers : 0,
+          guests: m <= currentMonth ? monthlyGuests : 0,
+          usersTotal: m <= currentMonth ? usersCumulative : usersCumulative,
+          guestsTotal: m <= currentMonth ? guestsCumulative : guestsCumulative,
+        });
+      }
+
+      // Get total counts before current year for cumulative baseline
+      const usersBeforeYear = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(users)
+        .where(sql`${users.createdAt} < '${currentYear}-01-01'`);
+      
+      const guestsBeforeYear = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(guests)
+        .where(sql`${guests.createdAt} < '${currentYear}-01-01'`);
+
+      res.json({
+        year: currentYear,
+        months,
+        totals: {
+          usersThisYear: usersCumulative,
+          guestsThisYear: guestsCumulative,
+          usersAllTime: (usersBeforeYear[0]?.count || 0) + usersCumulative,
+          guestsAllTime: (guestsBeforeYear[0]?.count || 0) + guestsCumulative,
+        }
+      });
+    } catch (error) {
+      console.error("User growth error:", error);
+      res.status(500).json({ error: "Erro ao buscar crescimento de usuários" });
     }
   });
 
@@ -2391,6 +4040,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin - Ativar assinatura manualmente (SUPER_ADMIN only)
+  app.post("/api/admin/subscriptions/activate", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { email, planType, durationDays } = req.body;
+
+      if (!email || !planType) {
+        return res.status(400).json({ error: "Email e planType são obrigatórios" });
+      }
+
+      if (!['gold', 'premium', 'strong_lifetime'].includes(planType)) {
+        return res.status(400).json({ error: "planType deve ser: gold, premium ou strong_lifetime" });
+      }
+
+      const targetUser = await storage.getUserByEmail(email);
+      if (!targetUser) {
+        return res.status(404).json({ error: `Usuário não encontrado: ${email}` });
+      }
+
+      const now = new Date();
+      const duration = durationDays || (planType === 'strong_lifetime' ? 36500 : 30);
+      const endDate = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
+
+      const amounts: Record<string, string> = {
+        gold: '9.90',
+        premium: '19.90',
+        strong_lifetime: '49.90'
+      };
+
+      const newSubscription = await db.insert(subscriptions).values({
+        userId: targetUser.id,
+        planType,
+        status: 'active',
+        amount: amounts[planType],
+        startDate: now,
+        endDate,
+      }).returning();
+
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'SUBSCRIPTION_ACTIVATED_MANUALLY',
+        targetUserId: targetUser.id,
+        details: { planType, duration, endDate: endDate.toISOString() },
+      });
+
+      console.log(`[Admin] Assinatura ${planType} ativada manualmente para ${email} por admin ${req.userId}`);
+
+      res.json({ 
+        success: true, 
+        subscription: newSubscription[0],
+        message: `Assinatura ${planType} ativada para ${email} até ${endDate.toLocaleDateString('pt-BR')}`
+      });
+    } catch (error) {
+      console.error("Admin activate subscription error:", error);
+      res.status(500).json({ error: "Erro ao ativar assinatura" });
+    }
+  });
+
+  // Admin - Listar todas as assinaturas
+  app.get("/api/admin/subscriptions", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const allSubs = await db
+        .select({
+          id: subscriptions.id,
+          planType: subscriptions.planType,
+          status: subscriptions.status,
+          amount: subscriptions.amount,
+          startDate: subscriptions.startDate,
+          endDate: subscriptions.endDate,
+          createdAt: subscriptions.createdAt,
+          userId: subscriptions.userId,
+          userEmail: users.email,
+        })
+        .from(subscriptions)
+        .leftJoin(users, eq(subscriptions.userId, users.id))
+        .orderBy(subscriptions.createdAt);
+
+      res.json({ subscriptions: allSubs });
+    } catch (error) {
+      console.error("Admin subscriptions list error:", error);
+      res.status(500).json({ error: "Erro ao listar assinaturas" });
+    }
+  });
+
   // Admin Monetization - Stats
   app.get("/api/admin/monetization", ensureAdmin, async (req: AuthRequest, res) => {
     try {
@@ -2459,7 +4191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin Bonuses - List active bonuses
+  // Admin Bonuses - List active bonuses (legacy endpoint)
   app.get("/api/admin/bonuses", ensureAdmin, async (req: AuthRequest, res) => {
     try {
       const activeBonuses = await storage.getActiveBonuses();
@@ -2467,6 +4199,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get bonuses error:", error);
       res.status(500).json({ error: "Erro ao buscar bônus" });
+    }
+  });
+
+  // Admin Bonuses - Search bonuses with email and expiry info
+  app.get("/api/admin/bonuses/search", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { email, includeExpired } = req.query;
+      const bonuses = await storage.getBonusesWithEmail(
+        email as string | undefined,
+        includeExpired === 'true'
+      );
+      res.json(bonuses);
+    } catch (error) {
+      console.error("Search bonuses error:", error);
+      res.status(500).json({ error: "Erro ao buscar bônus" });
+    }
+  });
+
+  // Admin Bonuses - Renew/extend bonus
+  app.patch("/api/admin/bonuses/:bonusId/renew", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { bonusId } = req.params;
+      const { extraDays } = req.body;
+      
+      if (!extraDays || extraDays <= 0) {
+        return res.status(400).json({ error: "Dias adicionais inválidos" });
+      }
+      
+      const updated = await storage.renewBonus(bonusId, extraDays);
+      
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'BONUS_RENEWED',
+        details: { bonusId, extraDays, newEndAt: updated.endAt },
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Renew bonus error:", error);
+      res.status(500).json({ error: "Erro ao renovar bônus" });
     }
   });
 
@@ -2487,6 +4259,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Bonuses - Delete bonus permanently (SUPER_ADMIN only)
+  app.delete("/api/admin/bonuses/:bonusId/permanent", ensureSuperAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { bonusId } = req.params;
+      await storage.deleteBonus(bonusId);
+      await storage.logAdminAction({
+        adminId: req.userId!,
+        actionType: 'BONUS_DELETED',
+        details: { bonusId },
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete bonus error:", error);
+      res.status(500).json({ error: "Erro ao excluir bônus" });
+    }
+  });
+
   // Admin Logs - Get audit log
   app.get("/api/admin/logs", ensureAdmin, async (req: AuthRequest, res) => {
     try {
@@ -2500,19 +4289,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== PROFESSOR PREMIUM (Study Modules) ====================
   
+  // Helper function to get translated module
+  async function getTranslatedModule(module: any, lang: string): Promise<any> {
+    if (lang === 'pt') return module;
+    
+    const [translation] = await db.select().from(studyModuleTranslations)
+      .where(and(eq(studyModuleTranslations.moduleId, module.id), eq(studyModuleTranslations.language, lang)));
+    
+    if (translation) {
+      return { ...module, name: translation.name, description: translation.description };
+    }
+    return module; // Fallback to PT
+  }
+  
+  // Helper function to get translated track
+  async function getTranslatedTrack(track: any, lang: string): Promise<any> {
+    if (lang === 'pt') return track;
+    
+    const [translation] = await db.select().from(studyTrackTranslations)
+      .where(and(eq(studyTrackTranslations.trackId, track.id), eq(studyTrackTranslations.language, lang)));
+    
+    if (translation) {
+      return { ...track, name: translation.name, description: translation.description };
+    }
+    return track; // Fallback to PT
+  }
+  
+  // Helper function to get translated lesson
+  async function getTranslatedLesson(lesson: any, lang: string): Promise<any> {
+    console.log(`[Translation] Lesson ${lesson.id}, lang=${lang}`);
+    if (lang === 'pt') return lesson;
+    
+    const [translation] = await db.select().from(studyLessonTranslations)
+      .where(and(eq(studyLessonTranslations.lessonId, lesson.id), eq(studyLessonTranslations.language, lang)));
+    
+    if (translation) {
+      console.log(`[Translation] Found translation for ${lesson.id} in ${lang}: "${translation.title}"`);
+      return {
+        ...lesson,
+        title: translation.title,
+        content: translation.content,
+        references: translation.references,
+        questions: translation.questions,
+        application: translation.application,
+        summary: translation.summary,
+      };
+    }
+    console.log(`[Translation] No translation found for ${lesson.id} in ${lang}, using PT fallback`);
+    return lesson; // Fallback to PT
+  }
+  
   // Get all study modules
   app.get("/api/study/modules", async (req, res) => {
     try {
+      const lang = (req.query.lang as string) || 'pt';
       const modules = await storage.getStudyModules();
       
       // Get user/guest info for progress
       const userId = (req as any).userId || null;
       const deviceId = req.headers['x-device-id'] as string || null;
       
-      // Add progress info to each module
+      // Add progress info and translate each module
       const modulesWithProgress = await Promise.all(modules.map(async (module) => {
         const progress = await storage.getModuleProgress(module.id, userId, deviceId);
-        return { ...module, progress };
+        const translatedModule = await getTranslatedModule(module, lang);
+        return { ...translatedModule, progress };
       }));
       
       res.json(modulesWithProgress);
@@ -2526,19 +4367,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/study/modules/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      const lang = (req.query.lang as string) || 'pt';
       const module = await storage.getStudyModuleById(id);
       
       if (!module) {
         return res.status(404).json({ error: "Módulo não encontrado" });
       }
       
+      const translatedModule = await getTranslatedModule(module, lang);
       const userId = (req as any).userId || null;
       const deviceId = req.headers['x-device-id'] as string || null;
       
       const tracks = await storage.getModuleTracks(id);
       
-      // Add lesson counts and progress to tracks
+      // Add lesson counts and progress to tracks, with translation
       const tracksWithDetails = await Promise.all(tracks.map(async (track) => {
+        const translatedTrack = await getTranslatedTrack(track, lang);
         const lessons = await storage.getTrackLessons(track.id);
         const userProgress = await storage.getUserStudyProgress(userId, deviceId);
         const trackLessonIds = lessons.map(l => l.id);
@@ -2547,7 +4391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ).length;
         
         return {
-          ...track,
+          ...translatedTrack,
           totalLessons: lessons.length,
           completedLessons,
           percentage: lessons.length > 0 ? Math.round((completedLessons / lessons.length) * 100) : 0,
@@ -2557,7 +4401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const overallProgress = await storage.getModuleProgress(id, userId, deviceId);
       
       res.json({ 
-        module, 
+        module: translatedModule, 
         tracks: tracksWithDetails,
         progress: overallProgress,
       });
@@ -2567,26 +4411,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get track with lessons
+  // Get track with lessons (metadata only - no content for security)
   app.get("/api/study/tracks/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      const lang = (req.query.lang as string) || 'pt';
       const lessons = await storage.getTrackLessons(id);
       
       const userId = (req as any).userId || null;
       const deviceId = req.headers['x-device-id'] as string || null;
       
       const userProgress = await storage.getUserStudyProgress(userId, deviceId);
-      const lessonIds = lessons.map(l => l.id);
       
-      const lessonsWithProgress = lessons.map(lesson => {
+      // Return only metadata - NOT content (content is protected in /api/study/lessons/:id)
+      // Translate lesson titles
+      const lessonsWithProgress = await Promise.all(lessons.map(async (lesson) => {
+        const translatedLesson = await getTranslatedLesson(lesson, lang);
         const progress = userProgress.find(p => p.lessonId === lesson.id);
         return {
-          ...lesson,
+          id: lesson.id,
+          title: translatedLesson.title,
+          order: lesson.order,
+          estimatedMinutes: lesson.estimatedMinutes,
           completed: progress?.completed || false,
           lastAccessAt: progress?.lastAccessAt || null,
         };
-      });
+      }));
       
       res.json({ lessons: lessonsWithProgress });
     } catch (error) {
@@ -2595,30 +4445,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get a specific lesson
-  app.get("/api/study/lessons/:id", async (req, res) => {
+  // Get a specific lesson (with access control)
+  app.get("/api/study/lessons/:id", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const lesson = await storage.getLessonById(id);
+      const lang = (req.query.lang as string) || 'pt';
       
-      if (!lesson) {
+      // Get lesson with full context (track, module, indices)
+      const lessonContext = await storage.getLessonWithContext(id);
+      
+      if (!lessonContext) {
         return res.status(404).json({ error: "Lição não encontrada" });
       }
       
-      const userId = (req as any).userId || null;
+      const { lesson, track, module, lessonIndex, moduleIndex } = lessonContext;
+      const userId = req.userId || null;
       const deviceId = req.headers['x-device-id'] as string || null;
+      const isLoggedIn = !!userId;
+      
+      // Check if admin (including super_admin)
+      let isAdmin = false;
+      if (userId) {
+        const user = await storage.getUser(userId);
+        isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
+      }
+      
+      // Get user plan (using hasActiveSubscription which checks BOTH subscriptions AND bonuses)
+      let userPlan: 'free' | 'gold' | 'premium' = 'free';
+      if (userId) {
+        const hasPremium = await storage.hasActiveSubscription(userId, 'premium');
+        const hasGold = await storage.hasActiveSubscription(userId, 'gold');
+        const hasLifetime = await storage.hasActiveSubscription(userId, 'strong_lifetime');
+        
+        if (hasPremium) {
+          userPlan = 'premium';
+        } else if (hasGold || hasLifetime) {
+          userPlan = 'gold';
+        }
+      }
+      
+      // Import and use canOpenLesson
+      const { canOpenLesson } = await import("@shared/courseAccess");
+      const courseLevel = track.level as 'iniciante' | 'moderado' | 'avancado';
+      
+      // DEBUG: Log access check parameters
+      console.log(`[Lesson Access] userId=${userId}, plan=${userPlan}, courseLevel=${courseLevel}, moduleIndex=${moduleIndex}, lessonIndex=${lessonIndex}, isAdmin=${isAdmin}, isLoggedIn=${isLoggedIn}`);
+      
+      const accessResult = canOpenLesson({
+        isLoggedIn,
+        plan: userPlan,
+        courseLevel,
+        moduleIndex,
+        lessonIndex,
+        isAdmin,
+      });
+      
+      console.log(`[Lesson Access] RESULT: allowed=${accessResult.allowed}, reason=${accessResult.reason}, requiredPlan=${accessResult.requiredPlan}`);
+      
+      if (!accessResult.allowed) {
+        if (accessResult.reason === 'NOT_AUTHENTICATED') {
+          return res.status(401).json({ 
+            error: accessResult.message,
+            reason: 'NOT_AUTHENTICATED',
+          });
+        }
+        return res.status(403).json({ 
+          error: accessResult.message,
+          reason: 'UPGRADE_REQUIRED',
+          requiredPlan: accessResult.requiredPlan,
+        });
+      }
       
       // Mark as accessed
       if (userId || deviceId) {
         await storage.updateStudyProgress(userId, deviceId, id, false);
       }
       
+      // Get translated lesson
+      const translatedLesson = await getTranslatedLesson(lesson, lang);
+      
       // Get progress info
       const userProgress = await storage.getUserStudyProgress(userId, deviceId);
       const progress = userProgress.find(p => p.lessonId === id);
       
       res.json({ 
-        lesson,
+        lesson: translatedLesson,
         completed: progress?.completed || false,
       });
     } catch (error) {
@@ -2652,438 +4563,1679 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // =========================================
-  // READING PLANS ROUTES
-  // =========================================
+  // ============================================
+  // IN-APP PURCHASE (iOS/Android) ROUTES
+  // ============================================
+  app.use('/api/iap', iapRoutes);
 
-  // Get all available reading plans
-  app.get("/api/reading-plans", async (req, res) => {
+  // ============================================
+  // MERCADO PAGO CHECKOUT PRO INTEGRATION
+  // ============================================
+  
+  // Plan configuration with fixed prices (BRL)
+  const MP_PLAN_CONFIG: Record<string, { title: string; price: number; days: number | null }> = {
+    gold: { title: "Bíblia Inteligente - Plano Gold", price: 9.90, days: 30 },
+    premium: { title: "Bíblia Inteligente - Plano Premium", price: 19.90, days: 30 },
+    vitalicio: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
+    strong_lifetime: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
+  };
+  
+  // PRODUCTION URL - Always use this for redirects after payment
+  // This ensures users are NEVER redirected to *.picard.replit.dev
+  const PRODUCTION_APP_URL = 'https://bibliainteligente.replit.app';
+  
+  // Get APP_URL - for webhooks (can use dev domain)
+  function getAppUrl(): string {
+    if (process.env.APP_URL) {
+      return process.env.APP_URL.replace(/\/$/, '');
+    }
+    // For REPLIT_DOMAINS, prefer the .replit.app production domain
+    if (process.env.REPLIT_DOMAINS) {
+      const domains = process.env.REPLIT_DOMAINS.split(',');
+      // Find the production domain (ends with .replit.app)
+      const prodDomain = domains.find(d => d.endsWith('.replit.app'));
+      if (prodDomain) {
+        return `https://${prodDomain}`;
+      }
+      if (domains.length > 0) {
+        return `https://${domains[0]}`;
+      }
+    }
+    // Fallback to dev domain only if no production domain
+    if (process.env.REPLIT_DEV_DOMAIN) {
+      return `https://${process.env.REPLIT_DEV_DOMAIN}`;
+    }
+    return 'https://localhost:5000';
+  }
+  
+  // Create Mercado Pago Checkout preference
+  app.post("/api/mp/create-checkout", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const plans = await db.select().from(readingPlans).where(eq(readingPlans.isActive, true)).orderBy(readingPlans.order);
-      
-      const userId = (req as any).userId || null;
-      const deviceId = req.headers['x-device-id'] as string || null;
-      
-      // Get active user plans if user/device is identified
-      let userProgress: any[] = [];
-      if (userId || deviceId) {
-        userProgress = await db.select()
-          .from(userReadingPlanProgress)
-          .where(
-            userId 
-              ? eq(userReadingPlanProgress.userId, userId)
-              : eq(userReadingPlanProgress.deviceId, deviceId!)
-          );
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
       }
       
-      // Add user progress info to each plan
-      const plansWithProgress = plans.map(plan => {
-        const progress = userProgress.find(p => p.planId === plan.id && p.isActive);
-        const completedProgress = userProgress.filter(p => p.planId === plan.id && p.completedAt);
-        
-        return {
-          ...plan,
-          userProgress: progress ? {
-            currentDay: progress.currentDay,
-            completedDays: (progress.completedDays as number[])?.length || 0,
-            startDate: progress.startDate,
-            isActive: progress.isActive,
-            progressId: progress.id,
-          } : null,
-          timesCompleted: completedProgress.length,
-        };
+      const { plan } = req.body;
+      if (!plan || !MP_PLAN_CONFIG[plan]) {
+        return res.status(400).json({ error: "Plano inválido. Escolha: gold, premium ou vitalicio" });
+      }
+      
+      const mpAccessToken = process.env.MP_ACCESS_TOKEN;
+      if (!mpAccessToken) {
+        console.error("[MP] MP_ACCESS_TOKEN não configurado");
+        return res.status(500).json({ error: "Configuração de pagamento não disponível" });
+      }
+      
+      const planConfig = MP_PLAN_CONFIG[plan];
+      const planType = plan === 'strong_lifetime' ? 'vitalicio' : plan;
+      
+      // Fetch user email for payer info
+      const user = await storage.getUser(userId);
+      if (!user) {
+        console.error(`[MP] ❌ Usuário não encontrado: ${userId}`);
+        return res.status(400).json({ error: "Usuário não encontrado" });
+      }
+      
+      const userEmail = user.email;
+      if (!userEmail) {
+        console.warn(`[MP] ⚠️ Usuário ${userId} não tem email cadastrado`);
+      }
+      
+      // Create external reference with user and plan info (CRITICAL for webhook)
+      const externalReference = JSON.stringify({
+        userId,
+        plan: planType,
+        days: planConfig.days,
+        lifetime: planConfig.days === null,
       });
       
-      res.json({ plans: plansWithProgress });
+      console.log(`[MP] ════════════════════════════════════════════════════`);
+      console.log(`[MP] CRIANDO CHECKOUT`);
+      console.log(`[MP] userId: ${userId}`);
+      console.log(`[MP] email: ${userEmail}`);
+      console.log(`[MP] plan: ${plan}`);
+      console.log(`[MP] price: R$${planConfig.price}`);
+      console.log(`[MP] external_reference: ${externalReference}`);
+      console.log(`[MP] ════════════════════════════════════════════════════`);
+      
+      // Create Mercado Pago preference
+      // IMPORTANT: back_urls MUST use PRODUCTION_APP_URL to avoid *.picard.replit.dev redirect
+      const preference = {
+        items: [{
+          id: `plan_${planType}`,
+          title: planConfig.title,
+          description: `Plano ${planType.charAt(0).toUpperCase() + planType.slice(1)} - Bíblia Inteligente IA`,
+          quantity: 1,
+          currency_id: "BRL",
+          unit_price: planConfig.price,
+        }],
+        // ETAPA C: external_reference com userId (CRÍTICO)
+        external_reference: externalReference,
+        // ETAPA C: metadata com userId e plan (redundância para segurança)
+        metadata: {
+          userId: userId,
+          user_id: userId,
+          plan: planType,
+          planType: planType,
+          userEmail: userEmail || '',
+        },
+        // Payer info (only if email exists)
+        ...(userEmail ? { payer: { email: userEmail } } : {}),
+        back_urls: {
+          success: `${PRODUCTION_APP_URL}/mp/return?status=success`,
+          failure: `${PRODUCTION_APP_URL}/mp/return?status=failure`,
+          pending: `${PRODUCTION_APP_URL}/mp/return?status=pending`,
+        },
+        auto_return: "approved",
+        notification_url: `${PRODUCTION_APP_URL}/api/mp/webhook`,
+        // Statement descriptor
+        statement_descriptor: "BIBLIA IA",
+      };
+      
+      console.log(`[MP] Preference payload:`, JSON.stringify(preference, null, 2));
+      
+      console.log(`[MP] create-checkout plan=${plan} userId=${userId} price=${planConfig.price}`);
+      
+      const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${mpAccessToken}`,
+        },
+        body: JSON.stringify(preference),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[MP] Erro ao criar preferência: ${response.status} - ${errorText}`);
+        return res.status(500).json({ error: "Erro ao criar checkout" });
+      }
+      
+      const data = await response.json();
+      console.log(`[MP] Checkout criado: preference_id=${data.id}`);
+      console.log(`[MP] init_point=${data.init_point}`);
+      
+      res.json({
+        init_point: data.init_point,
+        preference_id: data.id,
+      });
     } catch (error) {
-      console.error("Get reading plans error:", error);
-      res.status(500).json({ error: "Erro ao buscar planos de leitura" });
+      console.error("[MP] Erro ao criar checkout:", error);
+      res.status(500).json({ error: "Erro interno ao processar pagamento" });
     }
   });
-
-  // Get a specific reading plan with days
-  app.get("/api/reading-plans/:slug", async (req, res) => {
+  
+  // ===================================
+  // MERCADO PAGO RETURN ROUTE - Redirect after payment
+  // ===================================
+  
+  // GET /mp/return - Rota de retorno após pagamento no Mercado Pago
+  // Esta rota SEMPRE redireciona para o app, nunca mostra erro
+  app.get("/mp/return", (req, res) => {
+    console.log("[MP Return] ========================================");
+    console.log("[MP Return] Query params:", req.query);
+    
+    // Extrair parâmetros do Mercado Pago
+    const status = req.query.status as string || 'unknown';
+    const paymentId = req.query.payment_id as string || req.query.collection_id as string || '';
+    const preferenceId = req.query.preference_id as string || '';
+    const externalReference = req.query.external_reference as string || '';
+    const merchantOrderId = req.query.merchant_order_id as string || '';
+    
+    console.log(`[MP Return] status=${status}, payment_id=${paymentId}, preference_id=${preferenceId}`);
+    
+    // Construir URL de redirecionamento para as páginas existentes no frontend
+    // O frontend tem: /pagamento/sucesso, /pagamento/erro, /pagamento/pendente
+    let redirectPath = '/pagamento/sucesso'; // default para sucesso
+    
+    if (status === 'success' || status === 'approved') {
+      redirectPath = '/pagamento/sucesso';
+    } else if (status === 'failure' || status === 'rejected') {
+      redirectPath = '/pagamento/erro';
+    } else if (status === 'pending' || status === 'in_process') {
+      redirectPath = '/pagamento/pendente';
+    }
+    
+    // Adicionar parâmetros úteis
+    const queryParams = new URLSearchParams();
+    if (paymentId) queryParams.set('payment_id', paymentId);
+    if (preferenceId) queryParams.set('preference_id', preferenceId);
+    
+    const queryString = queryParams.toString();
+    if (queryString) {
+      redirectPath += `?${queryString}`;
+    }
+    
+    // Construir URL final (SEMPRE para produção, nunca para *.picard.replit.dev)
+    const finalUrl = `${PRODUCTION_APP_URL}${redirectPath}`;
+    
+    console.log(`[MP Return] Redirecionando para: ${finalUrl}`);
+    
+    // SEMPRE retornar redirect 302
+    res.redirect(302, finalUrl);
+  });
+  
+  // GET /api/mp/status - Verificar status da assinatura do usuário
+  app.get("/api/mp/status", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const { slug } = req.params;
-      
-      const [plan] = await db.select().from(readingPlans).where(eq(readingPlans.slug, slug));
-      
-      if (!plan) {
-        return res.status(404).json({ error: "Plano não encontrado" });
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
       }
       
-      // Get all days for this plan
-      const days = await db.select()
-        .from(readingPlanDays)
-        .where(eq(readingPlanDays.planId, plan.id))
-        .orderBy(readingPlanDays.dayNumber);
+      // Buscar assinaturas ativas do usuário
+      const hasGold = await storage.hasActiveSubscription(userId, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(userId, 'premium');
+      const hasStrongLifetime = await storage.hasActiveSubscription(userId, 'strong_lifetime');
       
-      // Get user progress if authenticated
-      const userId = (req as any).userId || null;
-      const deviceId = req.headers['x-device-id'] as string || null;
+      // Buscar detalhes da assinatura
+      const subscription = await storage.getActiveSubscription(userId);
       
-      let userProgress = null;
-      if (userId || deviceId) {
-        const [progress] = await db.select()
-          .from(userReadingPlanProgress)
-          .where(
-            and(
-              eq(userReadingPlanProgress.planId, plan.id),
-              eq(userReadingPlanProgress.isActive, true),
-              userId 
-                ? eq(userReadingPlanProgress.userId, userId)
-                : eq(userReadingPlanProgress.deviceId, deviceId!)
-            )
-          );
-        userProgress = progress || null;
-      }
-      
-      res.json({ 
-        plan, 
-        days,
-        userProgress: userProgress ? {
-          id: userProgress.id,
-          currentDay: userProgress.currentDay,
-          completedDays: userProgress.completedDays as number[],
-          completedReadings: userProgress.completedReadings as Record<number, number[]>,
-          notes: userProgress.notes as Record<number, string>,
-          startDate: userProgress.startDate,
+      res.json({
+        success: true,
+        hasActiveSubscription: hasGold || hasPremium || hasStrongLifetime,
+        plans: {
+          gold: hasGold,
+          premium: hasPremium,
+          strong_lifetime: hasStrongLifetime,
+        },
+        subscription: subscription ? {
+          id: subscription.id,
+          planType: subscription.planType,
+          status: subscription.status,
+          startDate: subscription.startDate,
+          endDate: subscription.endDate,
         } : null,
       });
     } catch (error) {
-      console.error("Get reading plan error:", error);
-      res.status(500).json({ error: "Erro ao buscar plano de leitura" });
+      console.error("[MP Status] Error:", error);
+      res.status(500).json({ error: "Erro ao verificar status" });
     }
   });
-
-  // Start a reading plan
-  app.post("/api/reading-plans/:slug/start", async (req, res) => {
+  
+  // ===================================
+  // MERCADO PAGO WEBHOOK - COMPLETE IMPLEMENTATION
+  // ===================================
+  
+  // Memory storage for last webhook (expires after 15 minutes)
+  interface LastWebhookData {
+    receivedAt: Date;
+    query: any;
+    body: any;
+    headers: any;
+    processedResult?: {
+      success: boolean;
+      userId?: string;
+      plan?: string;
+      error?: string;
+      receiptCreated?: boolean;
+      grossAmount?: number;
+      netAmount?: number;
+    };
+  }
+  let lastWebhookData: LastWebhookData | null = null;
+  
+  // GET /api/mp/health - Health check endpoint
+  app.get("/api/mp/health", (_req, res) => {
+    console.log("[MP] Health check");
+    res.status(200).json({ 
+      ok: true,
+      timestamp: new Date().toISOString(),
+      webhookUrl: `${PRODUCTION_APP_URL}/api/mp/webhook`,
+      hasToken: !!process.env.MP_ACCESS_TOKEN,
+    });
+  });
+  
+  // GET /api/mp/last-webhook - Returns the last webhook received (for debugging)
+  app.get("/api/mp/last-webhook", (_req, res) => {
+    console.log("[MP] Last webhook request");
+    
+    if (!lastWebhookData) {
+      return res.status(200).json({ 
+        message: "Nenhum webhook recebido ainda",
+        lastWebhook: null,
+      });
+    }
+    
+    // Check if expired (15 minutes)
+    const now = new Date();
+    const age = now.getTime() - lastWebhookData.receivedAt.getTime();
+    const maxAge = 15 * 60 * 1000; // 15 minutes
+    
+    if (age > maxAge) {
+      return res.status(200).json({
+        message: "Último webhook expirou (mais de 15 minutos)",
+        expiredAt: new Date(lastWebhookData.receivedAt.getTime() + maxAge).toISOString(),
+        lastWebhook: null,
+      });
+    }
+    
+    res.status(200).json({
+      message: "Último webhook recebido",
+      ageSeconds: Math.round(age / 1000),
+      lastWebhook: lastWebhookData,
+    });
+  });
+  
+  // GET /api/mp/webhook - Endpoint de teste para verificar se webhook está online
+  app.get("/api/mp/webhook", (_req, res) => {
+    console.log("[MP Webhook] GET - Teste de verificação do endpoint");
+    res.status(200).send("OK webhook endpoint online");
+  });
+  
+  // POST /api/mp/webhook - Recebe notificações do Mercado Pago
+  app.post("/api/mp/webhook", async (req, res) => {
+    const webhookReceivedAt = new Date();
+    
+    // Log imediato de recebimento
+    console.log("╔════════════════════════════════════════════════════════════╗");
+    console.log("║           WEBHOOK MERCADO PAGO RECEBIDO                    ║");
+    console.log("╚════════════════════════════════════════════════════════════╝");
+    console.log("[MP Webhook] Timestamp:", webhookReceivedAt.toISOString());
+    console.log("[MP Webhook] Query:", JSON.stringify(req.query, null, 2));
+    console.log("[MP Webhook] Body:", JSON.stringify(req.body, null, 2));
+    console.log("[MP Webhook] Headers:", JSON.stringify({
+      'content-type': req.headers['content-type'],
+      'x-signature': req.headers['x-signature'],
+      'x-request-id': req.headers['x-request-id'],
+    }, null, 2));
+    
+    // Armazenar dados do webhook para debug (clonar de forma segura)
+    const safeClone = (obj: unknown): unknown => {
+      try {
+        if (obj === null || obj === undefined) return null;
+        if (typeof obj !== 'object') return obj;
+        return JSON.parse(JSON.stringify(obj, (key, value) => {
+          if (typeof value === 'bigint') return value.toString();
+          if (typeof value === 'function') return '[function]';
+          if (value instanceof Date) return value.toISOString();
+          return value;
+        }));
+      } catch {
+        return { _cloneError: true, toString: String(obj).substring(0, 500) };
+      }
+    };
+    
+    lastWebhookData = {
+      receivedAt: webhookReceivedAt,
+      query: safeClone(req.query) as any,
+      body: safeClone(req.body) as any,
+      headers: {
+        'content-type': req.headers['content-type'] || null,
+        'x-signature': req.headers['x-signature'] || null,
+        'x-request-id': req.headers['x-request-id'] || null,
+      },
+    };
+    
+    // Responder 200 IMEDIATAMENTE para o Mercado Pago não reenviar
+    res.sendStatus(200);
+    console.log("[MP Webhook] ✓ Respondeu 200 OK ao Mercado Pago");
+    
+    // Processar em background (após resposta)
     try {
-      const { slug } = req.params;
+      // Extrair type de múltiplas fontes possíveis
+      const type = 
+        req.query.type as string || 
+        req.query.topic as string || 
+        req.body?.type || 
+        req.body?.topic || 
+        req.body?.action || 
+        '';
       
-      const [plan] = await db.select().from(readingPlans).where(eq(readingPlans.slug, slug));
+      // Extrair dataId de múltiplas fontes possíveis
+      const dataId = 
+        req.query["data.id"] as string || 
+        req.query.id as string || 
+        req.body?.data?.id || 
+        req.body?.id || 
+        '';
+      
+      console.log(`[MP Webhook] Extracted: type="${type}", dataId="${dataId}"`);
+      
+      if (!dataId) {
+        console.log("[MP Webhook] ❌ Sem dataId - ignorando notificação");
+        lastWebhookData.processedResult = { success: false, error: "Sem dataId" };
+        return;
+      }
+      
+      const mpAccessToken = process.env.MP_ACCESS_TOKEN;
+      if (!mpAccessToken) {
+        console.error("[MP Webhook] ❌ MP_ACCESS_TOKEN não configurado!");
+        lastWebhookData.processedResult = { success: false, error: "MP_ACCESS_TOKEN não configurado" };
+        return;
+      }
+      
+      // Determinar se é payment ou preapproval (assinatura recorrente)
+      const isPayment = type === 'payment' || type.startsWith('payment.');
+      const isPreapproval = type === 'subscription_preapproval' || type === 'preapproval' || type.startsWith('subscription');
+      
+      console.log(`[MP Webhook] Tipo de notificação: isPayment=${isPayment}, isPreapproval=${isPreapproval}`);
+      
+      let apiUrl: string;
+      if (isPreapproval) {
+        apiUrl = `https://api.mercadopago.com/preapproval/${dataId}`;
+      } else {
+        // Default: tratar como payment
+        apiUrl = `https://api.mercadopago.com/v1/payments/${dataId}`;
+      }
+      
+      console.log(`[MP Webhook] Buscando dados em: ${apiUrl}`);
+      
+      // Buscar detalhes do pagamento/assinatura no Mercado Pago
+      const mpResponse = await fetch(apiUrl, {
+        headers: {
+          "Authorization": `Bearer ${mpAccessToken}`,
+        },
+      });
+      
+      if (!mpResponse.ok) {
+        const errorText = await mpResponse.text();
+        console.error(`[MP Webhook] ❌ Erro ao buscar MP API: ${mpResponse.status} - ${errorText}`);
+        lastWebhookData.processedResult = { success: false, error: `Erro MP API: ${mpResponse.status}` };
+        return;
+      }
+      
+      const mpData = await mpResponse.json();
+      console.log(`[MP Webhook] ✓ Dados recebidos do MP API`);
+      console.log(`[MP Webhook] Dados do MP:`, JSON.stringify(mpData, null, 2));
+      
+      // Verificar status aprovado
+      const status = mpData.status;
+      const isApproved = 
+        status === 'approved' || 
+        status === 'authorized' || 
+        status === 'active';
+      
+      console.log(`[MP Webhook] Status: ${status}, isApproved: ${isApproved}`);
+      
+      if (!isApproved) {
+        console.log(`[MP Webhook] ⏳ Pagamento não aprovado ainda (status=${status}) - aguardando`);
+        return;
+      }
+      
+      // ========================================
+      // IDENTIFICAR USUÁRIO E PLANO
+      // ========================================
+      
+      // Tentar obter dados do external_reference (JSON com userId, plan, days, lifetime)
+      let userId: string | null = null;
+      let plan: string | null = null;
+      let days: number | null = null;
+      let lifetime: boolean = false;
+      
+      // Primeiro: tentar external_reference (prioridade)
+      const externalRef = mpData.external_reference || mpData.reason || '';
+      console.log(`[MP Webhook] external_reference: "${externalRef}"`);
+      
+      if (externalRef) {
+        try {
+          const refData = JSON.parse(externalRef);
+          userId = refData.userId || refData.user_id || null;
+          plan = refData.plan || refData.planType || null;
+          days = refData.days || null;
+          lifetime = refData.lifetime || false;
+          console.log(`[MP Webhook] Parsed external_reference: userId=${userId}, plan=${plan}, days=${days}, lifetime=${lifetime}`);
+        } catch (e) {
+          // external_reference não é JSON, pode ser string simples (email ou ID)
+          console.log(`[MP Webhook] external_reference não é JSON: "${externalRef}"`);
+          // Tentar usar como userId diretamente se parecer um UUID ou email
+          if (externalRef.includes('@') || externalRef.length > 20) {
+            // Pode ser email, tentar buscar usuário
+            const userByEmail = await storage.getUserByEmail(externalRef);
+            if (userByEmail) {
+              userId = userByEmail.id;
+              console.log(`[MP Webhook] Encontrado usuário por email: ${userId}`);
+            }
+          }
+        }
+      }
+      
+      // Segundo: tentar metadata (pode ser objeto, string JSON, ou URL-encoded)
+      // Procurar metadata em vários locais possíveis
+      const possibleMetadatas = [
+        mpData.metadata,
+        mpData.preapproval_plan?.metadata,
+        mpData.data?.metadata,
+      ].filter(Boolean);
+      
+      for (const rawMetadata of possibleMetadatas) {
+        if (userId) break; // Já encontrou usuário
+        
+        let metadataObj = rawMetadata;
+        
+        // Se metadata for string, tentar parsear
+        if (typeof metadataObj === 'string') {
+          const trimmed = metadataObj.trim();
+          
+          // Tentar JSON parse
+          if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+            try {
+              metadataObj = JSON.parse(trimmed);
+              console.log(`[MP Webhook] Metadata era string JSON, parseado:`, JSON.stringify(metadataObj));
+            } catch (e) {
+              console.log(`[MP Webhook] Metadata string falhou JSON parse: "${trimmed.substring(0, 100)}"`);
+              metadataObj = null;
+            }
+          } 
+          // Tentar URL-encoded (ex: "userId=123&plan=premium")
+          else if (trimmed.includes('=')) {
+            try {
+              const params = new URLSearchParams(trimmed);
+              metadataObj = Object.fromEntries(params);
+              console.log(`[MP Webhook] Metadata era URL-encoded, parseado:`, JSON.stringify(metadataObj));
+            } catch (e) {
+              console.log(`[MP Webhook] Metadata URL-encoded falhou: "${trimmed.substring(0, 100)}"`);
+              metadataObj = null;
+            }
+          } else {
+            metadataObj = null;
+          }
+        }
+        
+        if (metadataObj && typeof metadataObj === 'object') {
+          userId = metadataObj.user_id || metadataObj.userId || null;
+          plan = metadataObj.plan || metadataObj.planType || plan;
+          console.log(`[MP Webhook] Metadata object: userId=${userId}, plan=${plan}`);
+        }
+      }
+      
+      // Terceiro: tentar payer email
+      if (!userId && mpData.payer?.email) {
+        const payerEmail = mpData.payer.email;
+        console.log(`[MP Webhook] Tentando buscar usuário pelo email do pagador: ${payerEmail}`);
+        const userByEmail = await storage.getUserByEmail(payerEmail);
+        if (userByEmail) {
+          userId = userByEmail.id;
+          console.log(`[MP Webhook] ✓ Encontrado usuário pelo email do pagador: ${userId}`);
+        }
+      }
+      
+      if (!userId) {
+        console.error(`[MP Webhook] ❌ Não foi possível identificar usuário! external_reference="${externalRef}", metadata=${JSON.stringify(mpData.metadata)}, payer=${JSON.stringify(mpData.payer)}`);
+        return;
+      }
+      
+      // Inferir plano pelo valor se não foi especificado
+      // Para payments: transaction_amount
+      // Para preapprovals: auto_recurring.transaction_amount (pode estar em vários níveis)
+      const transactionAmount = mpData.transaction_amount || 
+                               mpData.auto_recurring?.transaction_amount ||
+                               mpData.data?.auto_recurring?.transaction_amount ||
+                               mpData.preapproval_plan?.auto_recurring?.transaction_amount ||
+                               null;
+      
+      if (!plan && transactionAmount) {
+        const amount = parseFloat(transactionAmount);
+        if (amount <= 10) plan = 'gold';
+        else if (amount <= 25) plan = 'premium';
+        else plan = 'strong_lifetime';
+        console.log(`[MP Webhook] Plano inferido pelo valor R$${amount}: ${plan}`);
+      }
+      
+      // Tentar também pelo 'reason' do preapproval (pode conter nome do plano)
+      if (!plan && mpData.reason) {
+        const reason = mpData.reason.toLowerCase();
+        if (reason.includes('gold')) plan = 'gold';
+        else if (reason.includes('premium')) plan = 'premium';
+        else if (reason.includes('vitalicio') || reason.includes('lifetime')) plan = 'strong_lifetime';
+        if (plan) {
+          console.log(`[MP Webhook] Plano inferido pelo reason "${mpData.reason}": ${plan}`);
+        }
+      }
       
       if (!plan) {
-        return res.status(404).json({ error: "Plano não encontrado" });
+        plan = 'premium'; // Default para premium se não conseguir identificar
+        console.log(`[MP Webhook] ⚠️ Plano não identificado, usando default: ${plan}`);
       }
       
-      const userId = (req as any).userId || null;
-      const deviceId = req.headers['x-device-id'] as string || null;
-      
-      if (!userId && !deviceId) {
-        return res.status(401).json({ error: "Usuário não identificado" });
+      // Inferir dias pelo plano se não especificado
+      if (!days && !lifetime) {
+        if (plan === 'strong_lifetime' || plan === 'vitalicio') {
+          lifetime = true;
+        } else {
+          days = 30; // Default 30 dias
+        }
       }
       
-      // Check if user already has an active plan of this type
-      const existingProgress = await db.select()
-        .from(userReadingPlanProgress)
-        .where(
-          and(
-            eq(userReadingPlanProgress.planId, plan.id),
-            eq(userReadingPlanProgress.isActive, true),
-            userId 
-              ? eq(userReadingPlanProgress.userId, userId)
-              : eq(userReadingPlanProgress.deviceId, deviceId!)
-          )
-        );
+      // ========================================
+      // ATIVAR PLANO DO USUÁRIO
+      // ========================================
       
-      if (existingProgress.length > 0) {
-        return res.json({ 
-          success: true, 
-          progress: existingProgress[0],
-          message: "Plano já iniciado" 
+      // Calcular data de término
+      let endDate: Date | null = null;
+      if (!lifetime && days) {
+        endDate = new Date();
+        endDate.setDate(endDate.getDate() + days);
+      }
+      
+      // Normalizar nome do plano
+      const planType = plan === 'vitalicio' ? 'strong_lifetime' : plan;
+      const amount = mpData.transaction_amount?.toString() || 
+                     MP_PLAN_CONFIG[plan]?.price.toFixed(2) || 
+                     MP_PLAN_CONFIG[planType]?.price.toFixed(2) || 
+                     "0.00";
+      
+      console.log(`[MP Webhook] 🔄 Ativando plano: userId=${userId}, planType=${planType}, days=${days}, lifetime=${lifetime}, endDate=${endDate?.toISOString()}`);
+      
+      // ========================================
+      // EXTRAIR VALORES FINANCEIROS DETALHADOS
+      // ========================================
+      
+      // Valor bruto (transaction_amount) em centavos
+      const grossAmountFloat = parseFloat(mpData.transaction_amount || mpData.auto_recurring?.transaction_amount || '0');
+      const grossAmount = Math.round(grossAmountFloat * 100); // Converter para centavos
+      
+      // Taxas do Mercado Pago (fee_details)
+      let feeAmount = 0;
+      if (mpData.fee_details && Array.isArray(mpData.fee_details)) {
+        for (const fee of mpData.fee_details) {
+          feeAmount += Math.round(parseFloat(fee.amount || '0') * 100);
+        }
+      }
+      
+      // Impostos (taxes_amount se disponível)
+      const taxAmount = Math.round(parseFloat(mpData.taxes_amount || '0') * 100);
+      
+      // Valor líquido (net_amount ou calculado)
+      let netAmount = Math.round(parseFloat(mpData.net_amount || '0') * 100);
+      if (!netAmount && grossAmount) {
+        netAmount = grossAmount - feeAmount - taxAmount;
+      }
+      
+      // Logging detalhado dos valores financeiros
+      console.log(`[MP Webhook] ╔════════════════════════════════════════════════════════════╗`);
+      console.log(`[MP Webhook] ║           DETALHES FINANCEIROS DO RECIBO                   ║`);
+      console.log(`[MP Webhook] ╠════════════════════════════════════════════════════════════╣`);
+      console.log(`[MP Webhook] ║ Valor Bruto:   R$ ${(grossAmount / 100).toFixed(2).padStart(10)}`);
+      console.log(`[MP Webhook] ║ Taxas MP:      R$ ${(feeAmount / 100).toFixed(2).padStart(10)}`);
+      console.log(`[MP Webhook] ║ Impostos:      R$ ${(taxAmount / 100).toFixed(2).padStart(10)}`);
+      console.log(`[MP Webhook] ║ Valor Líquido: R$ ${(netAmount / 100).toFixed(2).padStart(10)}`);
+      console.log(`[MP Webhook] ║ Origem:        ${isPreapproval ? 'Assinatura Recorrente' : 'Pagamento Único'}`);
+      console.log(`[MP Webhook] ╚════════════════════════════════════════════════════════════╝`);
+      
+      // Verificar se já existe recibo para este pagamento (evitar duplicidade)
+      const existingReceipt = await storage.getPaymentReceiptByExternalId(dataId);
+      if (existingReceipt) {
+        console.log(`[MP Webhook] ⚠️ Recibo já existe para paymentId=${dataId}, atualizando...`);
+        await storage.updatePaymentReceipt(existingReceipt.id, {
+          status: status,
+          statusDetail: mpData.status_detail || null,
+          processedAt: new Date(),
         });
       }
       
-      // Create new progress
-      const [newProgress] = await db.insert(userReadingPlanProgress)
-        .values({
-          userId,
-          deviceId,
-          planId: plan.id,
-          currentDay: 1,
-          completedDays: [],
-          completedReadings: {},
-          notes: {},
-          isActive: true,
-        })
-        .returning();
+      // Usar função existente para criar/atualizar assinatura
+      const subscription = await storage.upsertSubscription({
+        userId,
+        planType,
+        status: 'active',
+        startDate: new Date(),
+        endDate,
+        amount,
+      });
       
-      res.json({ success: true, progress: newProgress });
+      console.log(`[MP Webhook] ✅ ASSINATURA ATIVADA!`);
+      console.log(`[MP Webhook] ✅ subscriptionId=${subscription.id}`);
+      console.log(`[MP Webhook] ✅ userId=${userId}`);
+      console.log(`[MP Webhook] ✅ planType=${planType}`);
+      console.log(`[MP Webhook] ✅ endDate=${subscription.endDate}`);
+      
+      // ========================================
+      // CRIAR RECIBO DE PAGAMENTO DETALHADO
+      // ========================================
+      
+      if (!existingReceipt) {
+        const payerEmail = mpData.payer?.email || null;
+        
+        // Validação do recibo
+        const validationErrors: string[] = [];
+        if (!userId) validationErrors.push('userId não identificado');
+        if (!grossAmount) validationErrors.push('grossAmount zerado');
+        if (!planType) validationErrors.push('planType não identificado');
+        
+        const paymentReceipt = await storage.createPaymentReceipt({
+          externalPaymentId: dataId,
+          paymentProvider: 'mercadopago',
+          paymentType: isPreapproval ? 'preapproval' : 'payment',
+          userId: userId || null,
+          userEmail: payerEmail,
+          planType: planType,
+          subscriptionDays: lifetime ? null : (days || 30),
+          isLifetime: lifetime,
+          grossAmount,
+          feeAmount,
+          taxAmount,
+          netAmount,
+          currency: mpData.currency_id || 'BRL',
+          status: status,
+          statusDetail: mpData.status_detail || null,
+          origin: 'webhook',
+          ipAddress: req.ip || req.headers['x-forwarded-for']?.toString() || null,
+          userAgent: req.headers['user-agent'] || null,
+          deviceId: null,
+          providerRawData: mpData,
+          isValidated: validationErrors.length === 0,
+          validationErrors: validationErrors.length > 0 ? validationErrors : null,
+          validatedAt: validationErrors.length === 0 ? new Date() : null,
+          subscriptionId: subscription.id,
+          activatedAt: new Date(),
+          paymentDate: new Date(mpData.date_created || mpData.date_approved || new Date()),
+          processedAt: new Date(),
+        });
+        
+        console.log(`[MP Webhook] ✅ RECIBO CRIADO: receiptId=${paymentReceipt.id}`);
+        console.log(`[MP Webhook] ✅ isValidated=${paymentReceipt.isValidated}`);
+        if (validationErrors.length > 0) {
+          console.log(`[MP Webhook] ⚠️ Erros de validação: ${validationErrors.join(', ')}`);
+        }
+      }
+      
+      // Rastrear evento de conversão para métricas admin
+      await storage.trackPageEvent(userId, 'SUBSCRIPTION_ACTIVATED', { 
+        planType, 
+        paymentId: dataId,
+        amount,
+        source: 'mp_webhook',
+        grossAmount,
+        netAmount,
+        feeAmount,
+      });
+      console.log(`[MP Webhook] ✅ Evento SUBSCRIPTION_ACTIVATED rastreado`);
+      
+      // Verificação final
+      const verify = await storage.hasActiveSubscription(userId, planType);
+      console.log(`[MP Webhook] ✅ VERIFICAÇÃO FINAL: hasActiveSubscription(${userId}, ${planType}) = ${verify}`);
+      console.log(`[MP Webhook] ╔════════════════════════════════════════════════════════════╗`);
+      console.log(`[MP Webhook] ║     PROCESSAMENTO CONCLUÍDO COM SUCESSO!                  ║`);
+      console.log(`[MP Webhook] ╚════════════════════════════════════════════════════════════╝`);
+      
+      // Armazenar resultado de sucesso
+      if (lastWebhookData) {
+        lastWebhookData.processedResult = { 
+          success: true, 
+          userId, 
+          plan: planType,
+          receiptCreated: !existingReceipt,
+          grossAmount,
+          netAmount,
+        };
+      }
+      
     } catch (error) {
-      console.error("Start reading plan error:", error);
-      res.status(500).json({ error: "Erro ao iniciar plano de leitura" });
+      console.error("[MP Webhook] ❌ ERRO ao processar webhook:", error);
+      // Armazenar resultado de erro
+      if (lastWebhookData) {
+        lastWebhookData.processedResult = { 
+          success: false, 
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     }
   });
 
-  // Update reading plan progress (mark readings as completed)
-  app.post("/api/reading-plans/progress", async (req, res) => {
+  // ===================================
+  // DEBUG ENDPOINTS (Obrigatórios para validação)
+  // ===================================
+
+  // Build info endpoint - para validar versão em produção
+  app.get("/api/debug/build-info", (_req, res) => {
+    let buildInfo: any = null;
     try {
-      const { progressId, dayNumber, readingIndex, completed, note } = req.body;
-      
-      if (!progressId) {
-        return res.status(400).json({ error: "ID do progresso é obrigatório" });
+      const buildInfoPath = path.resolve(__dirname, '..', 'build-info.json');
+      if (fs.existsSync(buildInfoPath)) {
+        buildInfo = JSON.parse(fs.readFileSync(buildInfoPath, 'utf-8'));
       }
-      
-      const userId = (req as any).userId || null;
-      const deviceId = req.headers['x-device-id'] as string || null;
-      
-      // Get current progress
-      const [progress] = await db.select()
-        .from(userReadingPlanProgress)
-        .where(eq(userReadingPlanProgress.id, progressId));
-      
-      if (!progress) {
-        return res.status(404).json({ error: "Progresso não encontrado" });
+    } catch (e) {
+      console.log('[Debug] Error reading build-info.json:', e);
+    }
+    
+    res.json({
+      buildId: buildInfo?.buildId || 'development',
+      buildEnv: buildInfo?.env || 'development',
+      timestamp: buildInfo?.timestamp || new Date().toISOString(),
+      nodeEnv: process.env.NODE_ENV || "development",
+      replDeployment: process.env.REPLIT_DEPLOYMENT || "not-deployed",
+      replDevDomain: process.env.REPLIT_DEV_DOMAIN || "unknown",
+      replDomains: process.env.REPLIT_DOMAINS || "unknown",
+      databaseConnected: !!process.env.DATABASE_URL,
+    });
+  });
+
+  // Bible debug endpoint - para validar dados por versão
+  app.get("/api/debug/bible", async (req, res) => {
+    try {
+      const translationId = req.query.translationId as string || req.query.version as string;
+      const book = req.query.book as string || "gen";
+      const chapter = parseInt(req.query.chapter as string) || 1;
+
+      if (!translationId) {
+        console.warn("[DEBUG] WARNING: translationId não fornecido!");
+        return res.status(400).json({ 
+          error: "translationId é obrigatório",
+          warning: "Versão não pode ser default silencioso"
+        });
       }
+
+      console.log(`[DEBUG Bible] Request: translationId=${translationId}, book=${book}, chapter=${chapter}`);
+
+      // Check translation registry
+      const translation = getTranslation(translationId);
+      const hasData = hasDataAvailable(translationId);
+
+      // Fetch first verse from database
+      const verses = await db
+        .select()
+        .from(bibleVerses)
+        .where(
+          and(
+            eq(bibleVerses.versionCode, translationId),
+            eq(bibleVerses.book, book),
+            eq(bibleVerses.chapter, chapter)
+          )
+        )
+        .orderBy(bibleVerses.verse)
+        .limit(1);
+
+      const sampleVerse1 = verses[0]?.text || "(não encontrado)";
+
+      // Count total verses for this version
+      const countResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(bibleVerses)
+        .where(eq(bibleVerses.versionCode, translationId));
+
+      res.json({
+        translationId,
+        book,
+        chapter,
+        sampleVerse1,
+        source: verses.length > 0 ? "db" : "not_found",
+        translationRegistry: translation ? {
+          name: translation.name,
+          hasData: translation.hasData,
+          licenseType: translation.licenseType,
+          enabled: translation.enabled,
+        } : null,
+        totalVersesInDb: countResult[0]?.count || 0,
+        buildVersion: process.env.REPL_ID || "dev-local",
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[DEBUG Bible] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar debug bible" });
+    }
+  });
+
+  // Admin debug subscriptions endpoint
+  app.get("/api/admin/debug/subscriptions", async (req, res) => {
+    try {
+      // Count total users
+      const userCount = await db.select({ count: sql<number>`count(*)` }).from(users);
       
-      // Verify ownership
-      if (progress.userId !== userId && progress.deviceId !== deviceId) {
-        return res.status(403).json({ error: "Acesso negado" });
+      // Count subscriptions by plan
+      const subsByPlan = await db
+        .select({
+          planType: subscriptions.planType,
+          count: sql<number>`count(*)`
+        })
+        .from(subscriptions)
+        .groupBy(subscriptions.planType);
+
+      // Count subscriptions by status
+      const subsByStatus = await db
+        .select({
+          status: subscriptions.status,
+          count: sql<number>`count(*)`
+        })
+        .from(subscriptions)
+        .groupBy(subscriptions.status);
+
+      // Count active subscriptions only
+      const activeCount = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(subscriptions)
+        .where(eq(subscriptions.status, 'active'));
+
+      const byPlan: Record<string, number> = {};
+      for (const row of subsByPlan) {
+        byPlan[row.planType || 'unknown'] = Number(row.count);
       }
+
+      const byStatus: Record<string, number> = {};
+      for (const row of subsByStatus) {
+        byStatus[row.status || 'unknown'] = Number(row.count);
+      }
+
+      res.json({
+        totalUsers: Number(userCount[0]?.count || 0),
+        totalSubscriptions: Object.values(byPlan).reduce((a, b) => a + b, 0),
+        activeSubscriptions: Number(activeCount[0]?.count || 0),
+        byPlan,
+        byStatus,
+        dbNameOrUrlMasked: process.env.PGDATABASE || "unknown",
+        buildVersion: process.env.REPL_ID || "dev-local",
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[DEBUG Subscriptions] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar debug subscriptions" });
+    }
+  });
+
+  // Debug endpoint to check a specific user's subscription (for diagnosing premium issues)
+  app.get("/api/debug/user-subscription/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
       
-      const completedReadings = (progress.completedReadings as Record<string, number[]>) || {};
-      const completedDays = (progress.completedDays as number[]) || [];
-      const notes = (progress.notes as Record<string, string>) || {};
+      if (!userId) {
+        return res.status(400).json({ error: "userId é obrigatório" });
+      }
+
+      // Get user info
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Get all subscriptions for this user (raw from DB)
+      const userSubs = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.userId, userId));
+
+      // Check active subscriptions using storage method
+      const hasGold = await storage.hasActiveSubscription(userId, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(userId, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(userId, 'strong_lifetime');
+
+      // Get bonuses
+      const userBonuses = await db
+        .select()
+        .from(bonuses)
+        .where(eq(bonuses.userId, userId));
+
+      console.log(`[DEBUG User Sub] userId=${userId}, hasGold=${hasGold}, hasPremium=${hasPremium}, rawSubs=${userSubs.length}`);
+
+      res.json({
+        userId,
+        email: user.email,
+        role: user.role,
+        trialStartDate: user.trialStartDate,
+        subscriptionsInDb: userSubs.map(s => ({
+          id: s.id,
+          planType: s.planType,
+          status: s.status,
+          startDate: s.startDate,
+          endDate: s.endDate,
+        })),
+        bonusesInDb: userBonuses.map(b => ({
+          id: b.id,
+          bonusType: b.bonusType,
+          startAt: b.startAt,
+          endAt: b.endAt,
+          isActive: b.isActive,
+        })),
+        computedFlags: {
+          hasGold,
+          hasPremium,
+          hasLifetime,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[DEBUG User Sub] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar debug user subscription" });
+    }
+  });
+
+  // Debug endpoint to list all bonuses in the system (for admin diagnosis)
+  app.get("/api/debug/all-bonuses", async (req, res) => {
+    try {
+      const allBonuses = await db
+        .select({
+          bonusId: bonuses.id,
+          bonusType: bonuses.bonusType,
+          reason: bonuses.reason,
+          isActive: bonuses.isActive,
+          startAt: bonuses.startAt,
+          endAt: bonuses.endAt,
+          createdAt: bonuses.createdAt,
+          userId: bonuses.userId,
+          userEmail: users.email,
+          userName: users.name,
+        })
+        .from(bonuses)
+        .leftJoin(users, eq(bonuses.userId, users.id))
+        .orderBy(desc(bonuses.createdAt));
+
+      const now = new Date();
+      const summary = {
+        total: allBonuses.length,
+        active: allBonuses.filter(b => b.isActive).length,
+        premium_free: allBonuses.filter(b => b.bonusType === 'premium_free' && b.isActive).length,
+        gold_free: allBonuses.filter(b => b.bonusType === 'gold_free' && b.isActive).length,
+        trial_extend: allBonuses.filter(b => b.bonusType === 'trial_extend' && b.isActive).length,
+      };
+
+      res.json({
+        summary,
+        bonuses: allBonuses.map(b => ({
+          id: b.bonusId,
+          type: b.bonusType,
+          reason: b.reason,
+          isActive: b.isActive,
+          startAt: b.startAt,
+          endAt: b.endAt,
+          isExpired: b.endAt ? new Date(b.endAt) < now : false,
+          user: {
+            id: b.userId,
+            email: b.userEmail,
+            name: b.userName,
+          },
+        })),
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[DEBUG All Bonuses] Error:", error);
+      res.status(500).json({ error: "Erro ao buscar bônus" });
+    }
+  });
+
+  // ============================================
+  // USER ACTIVITY TRACKING & RE-ENGAGEMENT
+  // ============================================
+
+  // Rate limiter for heartbeat (6 hours cooldown per user)
+  const heartbeatCache = new Map<string, number>();
+  const HEARTBEAT_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+  // POST /api/telemetry/heartbeat - Update user's last seen timestamp
+  app.post("/api/telemetry/heartbeat", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Não autenticado" });
+      }
+
+      // Rate limit: only update once every 6 hours
+      const lastUpdate = heartbeatCache.get(userId) || 0;
+      const now = Date.now();
       
-      // Update completed readings for the day
-      if (typeof readingIndex === 'number' && typeof dayNumber === 'number') {
-        const dayKey = dayNumber.toString();
-        if (!completedReadings[dayKey]) {
-          completedReadings[dayKey] = [];
+      if (now - lastUpdate < HEARTBEAT_COOLDOWN_MS) {
+        const minutesRemaining = Math.ceil((HEARTBEAT_COOLDOWN_MS - (now - lastUpdate)) / 60000);
+        return res.json({ 
+          updated: false, 
+          message: `Rate limited. Próxima atualização em ${minutesRemaining} minutos.` 
+        });
+      }
+
+      // Update last seen
+      const platform = req.body.platform || 'web';
+      await storage.updateUserLastSeen(userId, platform);
+      
+      // Update rate limit cache
+      heartbeatCache.set(userId, now);
+
+      console.log(`[Heartbeat] Usuário ${userId} atualizado (platform: ${platform})`);
+      res.json({ updated: true, message: "Atividade registrada" });
+    } catch (error) {
+      console.error("[Heartbeat] Erro:", error);
+      res.status(500).json({ error: "Erro ao registrar atividade" });
+    }
+  });
+
+  // POST /api/email/unsubscribe - Opt out of marketing emails
+  app.post("/api/email/unsubscribe", async (req, res) => {
+    try {
+      const { userId, token } = req.body;
+      
+      // For now, use userId directly. In production, you'd verify a signed token.
+      if (!userId) {
+        return res.status(400).json({ error: "userId é obrigatório" });
+      }
+
+      // Check if user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Set opt-out
+      await storage.setUserEmailOptOut(userId, true);
+      
+      console.log(`[Unsubscribe] Usuário ${userId} (${user.email}) optou por não receber emails`);
+      
+      res.json({ success: true, message: "Você foi descadastrado com sucesso. Não receberá mais emails de marketing." });
+    } catch (error) {
+      console.error("[Unsubscribe] Erro:", error);
+      res.status(500).json({ error: "Erro ao processar descadastro" });
+    }
+  });
+
+  // GET /api/cron/send-inactive-30d - Protected cron endpoint for sending re-engagement emails
+  const CRON_SECRET = process.env.CRON_SECRET || 'dev-cron-secret';
+  
+  app.get("/api/cron/send-inactive-30d", async (req, res) => {
+    try {
+      // Verify secret
+      const secret = req.headers['x-cron-secret'] || req.query.secret;
+      if (secret !== CRON_SECRET) {
+        console.log("[Cron] Tentativa de acesso não autorizada");
+        return res.status(401).json({ error: "Não autorizado" });
+      }
+
+      console.log("[Cron] Iniciando campanha inactive_30_days...");
+      
+      const CAMPAIGN_NAME = 'inactive_30_days';
+      const DAYS_INACTIVE = 30;
+      const COOLDOWN_DAYS = 30;
+      
+      // Get inactive users
+      const inactiveUsers = await storage.getInactiveUsers(DAYS_INACTIVE);
+      console.log(`[Cron] Encontrados ${inactiveUsers.length} usuários inativos há ${DAYS_INACTIVE}+ dias`);
+
+      const results = {
+        total: inactiveUsers.length,
+        eligible: 0,
+        sent: 0,
+        failed: 0,
+        skipped: 0,
+      };
+
+      const appUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : 'https://bibliainteligente.replit.app';
+
+      for (const user of inactiveUsers) {
+        // Check if already received campaign in last 30 days
+        const alreadyReceived = await storage.hasReceivedCampaign(user.id, CAMPAIGN_NAME, COOLDOWN_DAYS);
+        if (alreadyReceived) {
+          results.skipped++;
+          continue;
         }
-        
-        if (completed) {
-          if (!completedReadings[dayKey].includes(readingIndex)) {
-            completedReadings[dayKey].push(readingIndex);
-          }
+
+        results.eligible++;
+
+        // Generate unsubscribe link
+        const unsubscribeLink = `${appUrl}/api/email/unsubscribe?userId=${user.id}`;
+
+        // Send email
+        const emailResult = await sendReengagementEmail(user.email, user.name || undefined, unsubscribeLink);
+
+        // Log the campaign
+        await storage.logCampaign({
+          userId: user.id,
+          campaignName: CAMPAIGN_NAME,
+          sentAt: new Date(),
+          status: emailResult.success ? 'sent' : 'failed',
+          providerMessageId: emailResult.messageId || null,
+          errorMessage: emailResult.success ? null : emailResult.message,
+        });
+
+        if (emailResult.success) {
+          results.sent++;
+          console.log(`[Cron] Email enviado para ${user.email}`);
         } else {
-          completedReadings[dayKey] = completedReadings[dayKey].filter(i => i !== readingIndex);
+          results.failed++;
+          console.log(`[Cron] Falha ao enviar para ${user.email}: ${emailResult.message}`);
         }
       }
+
+      console.log(`[Cron] Campanha concluída: ${JSON.stringify(results)}`);
+      res.json({ success: true, results });
+    } catch (error) {
+      console.error("[Cron] Erro na campanha:", error);
+      res.status(500).json({ error: "Erro ao executar campanha" });
+    }
+  });
+
+  // ============================================
+  // ADMIN - PAYMENT RECEIPTS
+  // ============================================
+
+  // GET /api/admin/receipts - List payment receipts with optional filters
+  app.get("/api/admin/receipts", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const options = {
+        userId: req.query.userId as string | undefined,
+        status: req.query.status as string | undefined,
+        planType: req.query.planType as string | undefined,
+        limit: parseInt(req.query.limit as string) || 50,
+        offset: parseInt(req.query.offset as string) || 0,
+      };
       
-      // Update notes for the day
-      if (typeof note === 'string' && typeof dayNumber === 'number') {
-        notes[dayNumber.toString()] = note;
+      const result = await storage.getPaymentReceipts(options);
+      
+      res.json({
+        success: true,
+        receipts: result.receipts.map(r => ({
+          ...r,
+          grossAmountFormatted: `R$ ${(r.grossAmount / 100).toFixed(2)}`,
+          feeAmountFormatted: `R$ ${((r.feeAmount || 0) / 100).toFixed(2)}`,
+          taxAmountFormatted: `R$ ${((r.taxAmount || 0) / 100).toFixed(2)}`,
+          netAmountFormatted: `R$ ${(r.netAmount / 100).toFixed(2)}`,
+        })),
+        total: result.total,
+        limit: options.limit,
+        offset: options.offset,
+      });
+    } catch (error) {
+      console.error("[Admin Receipts] Erro ao listar recibos:", error);
+      res.status(500).json({ error: "Erro ao listar recibos" });
+    }
+  });
+
+  // GET /api/admin/receipts/stats - Get payment receipt statistics
+  app.get("/api/admin/receipts/stats", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const stats = await storage.getPaymentReceiptStats();
+      
+      res.json({
+        success: true,
+        stats: {
+          ...stats,
+          totalGrossFormatted: `R$ ${(stats.totalGrossAmount / 100).toFixed(2)}`,
+          totalNetFormatted: `R$ ${(stats.totalNetAmount / 100).toFixed(2)}`,
+          totalFeesFormatted: `R$ ${(stats.totalFees / 100).toFixed(2)}`,
+          last30Days: {
+            ...stats.last30Days,
+            grossFormatted: `R$ ${(stats.last30Days.grossAmount / 100).toFixed(2)}`,
+            netFormatted: `R$ ${(stats.last30Days.netAmount / 100).toFixed(2)}`,
+          },
+          byPlanFormatted: Object.entries(stats.byPlan).reduce((acc, [plan, data]) => {
+            acc[plan] = {
+              ...data,
+              grossFormatted: `R$ ${(data.grossAmount / 100).toFixed(2)}`,
+              netFormatted: `R$ ${(data.netAmount / 100).toFixed(2)}`,
+            };
+            return acc;
+          }, {} as Record<string, any>),
+        },
+      });
+    } catch (error) {
+      console.error("[Admin Receipts] Erro ao buscar estatísticas:", error);
+      res.status(500).json({ error: "Erro ao buscar estatísticas de recibos" });
+    }
+  });
+
+  // GET /api/admin/receipts/:id - Get single receipt with full details
+  app.get("/api/admin/receipts/:id", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const receipt = await storage.getPaymentReceiptById(id);
+      
+      if (!receipt) {
+        return res.status(404).json({ error: "Recibo não encontrado" });
       }
       
-      // Check if day is fully completed (get day info)
-      if (typeof dayNumber === 'number') {
-        const [dayInfo] = await db.select()
-          .from(readingPlanDays)
-          .where(
-            and(
-              eq(readingPlanDays.planId, progress.planId),
-              eq(readingPlanDays.dayNumber, dayNumber)
-            )
-          );
+      // Get user info if available
+      let user = null;
+      if (receipt.userId) {
+        user = await storage.getUser(receipt.userId);
+      }
+      
+      res.json({
+        success: true,
+        receipt: {
+          ...receipt,
+          grossAmountFormatted: `R$ ${(receipt.grossAmount / 100).toFixed(2)}`,
+          feeAmountFormatted: `R$ ${((receipt.feeAmount || 0) / 100).toFixed(2)}`,
+          taxAmountFormatted: `R$ ${((receipt.taxAmount || 0) / 100).toFixed(2)}`,
+          netAmountFormatted: `R$ ${(receipt.netAmount / 100).toFixed(2)}`,
+        },
+        user: user ? { id: user.id, email: user.email, name: user.name } : null,
+      });
+    } catch (error) {
+      console.error("[Admin Receipts] Erro ao buscar recibo:", error);
+      res.status(500).json({ error: "Erro ao buscar recibo" });
+    }
+  });
+
+  // ============================================
+  // ADMIN - CAMPAIGN MANAGEMENT
+  // ============================================
+
+  // GET /api/admin/campaigns/stats - Get campaign statistics
+  app.get("/api/admin/campaigns/stats", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const CAMPAIGN_NAME = 'inactive_30_days';
+      const DAYS_INACTIVE = 30;
+
+      // Get inactive users count
+      const inactiveUsers = await storage.getInactiveUsers(DAYS_INACTIVE);
+      
+      // Get campaign stats
+      const stats = await storage.getCampaignStats(CAMPAIGN_NAME);
+      
+      // Count eligible (not received in last 30 days)
+      let eligible = 0;
+      for (const user of inactiveUsers) {
+        const received = await storage.hasReceivedCampaign(user.id, CAMPAIGN_NAME, 30);
+        if (!received) eligible++;
+      }
+
+      res.json({
+        totalInactive: inactiveUsers.length,
+        eligible,
+        alreadyReceived: inactiveUsers.length - eligible,
+        campaignStats: stats,
+      });
+    } catch (error) {
+      console.error("[Admin Campaigns] Erro ao buscar stats:", error);
+      res.status(500).json({ error: "Erro ao buscar estatísticas" });
+    }
+  });
+
+  // GET /api/admin/campaigns/dry-run - List up to 10 users that would receive email (without sending)
+  app.get("/api/admin/campaigns/dry-run", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const CAMPAIGN_NAME = 'inactive_30_days';
+      const DAYS_INACTIVE = 30;
+      const COOLDOWN_DAYS = 30;
+
+      // Get inactive users
+      const inactiveUsers = await storage.getInactiveUsers(DAYS_INACTIVE);
+      
+      // Filter eligible users (not received in last 30 days)
+      const eligible: Array<{ id: string; email: string; name: string | null; lastSeenAt: Date | null }> = [];
+      
+      for (const user of inactiveUsers) {
+        if (eligible.length >= 10) break;
         
-        if (dayInfo) {
-          const readings = dayInfo.readings as any[];
-          const dayKey = dayNumber.toString();
-          const completedForDay = completedReadings[dayKey] || [];
-          
-          if (completedForDay.length >= readings.length) {
-            if (!completedDays.includes(dayNumber)) {
-              completedDays.push(dayNumber);
-              completedDays.sort((a, b) => a - b);
-            }
-          } else {
-            const idx = completedDays.indexOf(dayNumber);
-            if (idx > -1) {
-              completedDays.splice(idx, 1);
-            }
-          }
+        const received = await storage.hasReceivedCampaign(user.id, CAMPAIGN_NAME, COOLDOWN_DAYS);
+        if (!received) {
+          eligible.push(user);
         }
       }
-      
-      // Update current day to next uncompleted day
-      let currentDay = progress.currentDay;
-      const maxDay = Math.max(...completedDays, currentDay);
-      for (let d = 1; d <= maxDay + 1; d++) {
-        if (!completedDays.includes(d)) {
-          currentDay = d;
-          break;
-        }
-      }
-      
-      // Update progress
-      const [updated] = await db.update(userReadingPlanProgress)
-        .set({
-          completedReadings,
-          completedDays,
-          notes,
-          currentDay,
-          updatedAt: new Date(),
-        })
-        .where(eq(userReadingPlanProgress.id, progressId))
-        .returning();
-      
-      res.json({ 
-        success: true, 
-        progress: {
-          id: updated.id,
-          currentDay: updated.currentDay,
-          completedDays: updated.completedDays,
-          completedReadings: updated.completedReadings,
-          notes: updated.notes,
-        }
+
+      res.json({
+        dryRun: true,
+        totalInactive: inactiveUsers.length,
+        showingFirst: eligible.length,
+        users: eligible.map(u => ({
+          id: u.id,
+          email: u.email,
+          name: u.name,
+          lastSeenAt: u.lastSeenAt,
+          daysSinceLastSeen: u.lastSeenAt 
+            ? Math.floor((Date.now() - new Date(u.lastSeenAt).getTime()) / (1000 * 60 * 60 * 24))
+            : null,
+        })),
       });
     } catch (error) {
-      console.error("Update reading plan progress error:", error);
-      res.status(500).json({ error: "Erro ao atualizar progresso" });
+      console.error("[Admin Campaigns] Erro no dry-run:", error);
+      res.status(500).json({ error: "Erro ao executar dry-run" });
     }
   });
 
-  // Mark entire day as completed
-  app.post("/api/reading-plans/complete-day", async (req, res) => {
+  // POST /api/admin/campaigns/execute - Execute campaign (send emails)
+  app.post("/api/admin/campaigns/execute", ensureSuperAdmin, async (req: AuthRequest, res) => {
     try {
-      const { progressId, dayNumber } = req.body;
+      const { confirm } = req.body;
       
-      if (!progressId || typeof dayNumber !== 'number') {
-        return res.status(400).json({ error: "Parâmetros inválidos" });
+      if (confirm !== true) {
+        return res.status(400).json({ error: "Confirmação obrigatória. Envie { confirm: true }" });
       }
+
+      console.log("[Admin Campaigns] Executando campanha via admin...");
       
-      const userId = (req as any).userId || null;
-      const deviceId = req.headers['x-device-id'] as string || null;
+      const CAMPAIGN_NAME = 'inactive_30_days';
+      const DAYS_INACTIVE = 30;
+      const COOLDOWN_DAYS = 30;
       
-      // Get current progress
-      const [progress] = await db.select()
-        .from(userReadingPlanProgress)
-        .where(eq(userReadingPlanProgress.id, progressId));
-      
-      if (!progress) {
-        return res.status(404).json({ error: "Progresso não encontrado" });
-      }
-      
-      // Get day info
-      const [dayInfo] = await db.select()
-        .from(readingPlanDays)
-        .where(
-          and(
-            eq(readingPlanDays.planId, progress.planId),
-            eq(readingPlanDays.dayNumber, dayNumber)
-          )
-        );
-      
-      if (!dayInfo) {
-        return res.status(404).json({ error: "Dia não encontrado" });
-      }
-      
-      const readings = dayInfo.readings as any[];
-      const completedReadings = (progress.completedReadings as Record<string, number[]>) || {};
-      const completedDays = (progress.completedDays as number[]) || [];
-      
-      // Mark all readings for this day as completed
-      completedReadings[dayNumber.toString()] = readings.map((_, i) => i);
-      
-      // Add day to completed days
-      if (!completedDays.includes(dayNumber)) {
-        completedDays.push(dayNumber);
-        completedDays.sort((a, b) => a - b);
-      }
-      
-      // Move to next day
-      const currentDay = dayNumber + 1;
-      
-      // Check if plan is completed
-      const [plan] = await db.select().from(readingPlans).where(eq(readingPlans.id, progress.planId));
-      const isCompleted = completedDays.length >= (plan?.duration || 999);
-      
-      // Update progress
-      const [updated] = await db.update(userReadingPlanProgress)
-        .set({
-          completedReadings,
-          completedDays,
-          currentDay,
-          completedAt: isCompleted ? new Date() : null,
-          isActive: !isCompleted,
-          updatedAt: new Date(),
-        })
-        .where(eq(userReadingPlanProgress.id, progressId))
-        .returning();
-      
-      res.json({ 
-        success: true, 
-        isCompleted,
-        progress: {
-          id: updated.id,
-          currentDay: updated.currentDay,
-          completedDays: updated.completedDays,
-          completedReadings: updated.completedReadings,
+      // Get inactive users
+      const inactiveUsers = await storage.getInactiveUsers(DAYS_INACTIVE);
+
+      const results = {
+        total: inactiveUsers.length,
+        eligible: 0,
+        sent: 0,
+        failed: 0,
+        skipped: 0,
+      };
+
+      const appUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+        : 'https://bibliainteligente.replit.app';
+
+      for (const user of inactiveUsers) {
+        const alreadyReceived = await storage.hasReceivedCampaign(user.id, CAMPAIGN_NAME, COOLDOWN_DAYS);
+        if (alreadyReceived) {
+          results.skipped++;
+          continue;
         }
-      });
+
+        results.eligible++;
+
+        const unsubscribeLink = `${appUrl}/api/email/unsubscribe?userId=${user.id}`;
+        const emailResult = await sendReengagementEmail(user.email, user.name || undefined, unsubscribeLink);
+
+        await storage.logCampaign({
+          userId: user.id,
+          campaignName: CAMPAIGN_NAME,
+          sentAt: new Date(),
+          status: emailResult.success ? 'sent' : 'failed',
+          providerMessageId: emailResult.messageId || null,
+          errorMessage: emailResult.success ? null : emailResult.message,
+        });
+
+        if (emailResult.success) {
+          results.sent++;
+        } else {
+          results.failed++;
+        }
+      }
+
+      // Log admin action
+      if (req.userId) {
+        await storage.logAdminAction({
+          adminId: req.userId,
+          actionType: 'CAMPAIGN_EXECUTED',
+          details: { campaignName: CAMPAIGN_NAME, results },
+        });
+      }
+
+      console.log(`[Admin Campaigns] Concluído: ${JSON.stringify(results)}`);
+      res.json({ success: true, results });
     } catch (error) {
-      console.error("Complete day error:", error);
-      res.status(500).json({ error: "Erro ao completar dia" });
+      console.error("[Admin Campaigns] Erro ao executar:", error);
+      res.status(500).json({ error: "Erro ao executar campanha" });
     }
   });
 
-  // AI Analysis for reading plan day
-  app.post("/api/reading-plans/analyze", async (req, res) => {
+  // GET /api/admin/campaigns/history - Get campaign history
+  app.get("/api/admin/campaigns/history", ensureAdmin, async (req: AuthRequest, res) => {
     try {
-      const { progressId, dayNumber } = req.body;
+      const limit = parseInt(req.query.limit as string) || 100;
+      const campaignName = req.query.campaign as string || undefined;
       
-      if (!progressId || typeof dayNumber !== 'number') {
-        return res.status(400).json({ error: "Parâmetros inválidos" });
-      }
+      const logs = await storage.getCampaignLogs(campaignName, limit);
       
-      const userId = (req as any).userId || null;
-      const deviceId = req.headers['x-device-id'] as string || null;
-      
-      // Get progress
-      const [progress] = await db.select()
-        .from(userReadingPlanProgress)
-        .where(eq(userReadingPlanProgress.id, progressId));
-      
-      if (!progress) {
-        return res.status(404).json({ error: "Progresso não encontrado" });
-      }
-      
-      // Get day info
-      const [dayInfo] = await db.select()
-        .from(readingPlanDays)
-        .where(
-          and(
-            eq(readingPlanDays.planId, progress.planId),
-            eq(readingPlanDays.dayNumber, dayNumber)
-          )
-        );
-      
-      if (!dayInfo) {
-        return res.status(404).json({ error: "Dia não encontrado" });
-      }
-      
-      const readings = dayInfo.readings as any[];
-      const readingsText = readings.map((r: any) => {
-        const book = bibleBooks.find(b => b.id === r.book);
-        return `${book?.name || r.book} ${r.chapter}`;
-      }).join(", ");
-      
-      // Build the analysis question
-      const question = `Faça uma análise espiritual e contextual das seguintes passagens bíblicas: ${readingsText}. 
-      Inclua:
-      1. Contexto histórico
-      2. Principais temas e mensagens
-      3. Conexões entre as passagens
-      4. Aplicação prática para hoje
-      5. Uma pergunta para reflexão`;
-      
-      // Use the existing AI function
-      const response = await askTheologicalQuestion({
-        question,
-        mode: "essential"
+      res.json({ logs });
+    } catch (error) {
+      console.error("[Admin Campaigns] Erro ao buscar histórico:", error);
+      res.status(500).json({ error: "Erro ao buscar histórico" });
+    }
+  });
+
+  // ==========================================
+  // READING PLANS API
+  // ==========================================
+
+  // GET /api/reading-plans/templates - Get all reading plan templates
+  app.get("/api/reading-plans/templates", async (req, res) => {
+    try {
+      const { category, duration } = req.query;
+      const templates = await readingPlanService.getAllTemplates({
+        category: category as string,
+        duration: duration as string,
       });
+      res.json(templates);
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching templates:", error);
+      res.status(500).json({ error: "Failed to fetch reading plan templates" });
+    }
+  });
+
+  // GET /api/reading-plans/templates/:slug - Get a specific template by slug
+  app.get("/api/reading-plans/templates/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const template = await readingPlanService.getTemplateBySlug(slug);
       
-      res.json({ 
-        success: true, 
-        analysis: response,
-        readings: readingsText,
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      
+      res.json(template);
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching template:", error);
+      res.status(500).json({ error: "Failed to fetch template" });
+    }
+  });
+
+  // POST /api/reading-plans/user - Create a new user reading plan
+  app.post("/api/reading-plans/user", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { templateId, startDate } = req.body;
+      const deviceId = req.headers['x-device-id'] as string;
+      const userId = req.userId || null;
+      
+      if (!templateId) {
+        return res.status(400).json({ error: "templateId is required" });
+      }
+      
+      if (!userId && !deviceId) {
+        return res.status(400).json({ error: "User must be logged in or provide deviceId" });
+      }
+      
+      const plan = await readingPlanService.createUserPlan(
+        userId,
+        deviceId,
+        templateId,
+        startDate ? new Date(startDate) : undefined
+      );
+      
+      res.status(201).json(plan);
+    } catch (error) {
+      console.error("[Reading Plans] Error creating user plan:", error);
+      res.status(500).json({ error: "Failed to create reading plan" });
+    }
+  });
+
+  // GET /api/reading-plans/user - Get user's reading plans
+  app.get("/api/reading-plans/user", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const deviceId = req.headers['x-device-id'] as string;
+      const userId = req.userId || null;
+      const { status } = req.query;
+      
+      if (!userId && !deviceId) {
+        return res.status(400).json({ error: "User must be logged in or provide deviceId" });
+      }
+      
+      const plans = await readingPlanService.getUserPlans(
+        userId,
+        deviceId,
+        status as string
+      );
+      
+      res.json(plans);
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching user plans:", error);
+      res.status(500).json({ error: "Failed to fetch reading plans" });
+    }
+  });
+
+  // GET /api/reading-plans/user/active - Get user's active plan with today's reading
+  app.get("/api/reading-plans/user/active", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const deviceId = req.headers['x-device-id'] as string;
+      const userId = req.userId || null;
+      
+      if (!userId && !deviceId) {
+        return res.status(400).json({ error: "User must be logged in or provide deviceId" });
+      }
+      
+      const plans = await readingPlanService.getUserPlans(userId, deviceId, 'active');
+      
+      if (plans.length === 0) {
+        return res.json({ activePlan: null });
+      }
+      
+      const activePlan = plans[0];
+      const todayReading = await readingPlanService.getTodaysReading(activePlan.id);
+      const upcomingReadings = await readingPlanService.getUpcomingReadings(activePlan.id, 7);
+      const overdueReadings = await readingPlanService.getOverdueReadings(activePlan.id);
+      
+      res.json({
+        activePlan,
+        todayReading,
+        upcomingReadings,
+        overdueReadings,
       });
     } catch (error) {
-      console.error("Analyze reading plan error:", error);
-      res.status(500).json({ error: "Erro ao analisar leituras" });
+      console.error("[Reading Plans] Error fetching active plan:", error);
+      res.status(500).json({ error: "Failed to fetch active plan" });
     }
+  });
+
+  // GET /api/reading-plans/user/:planId - Get a specific user plan
+  app.get("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { planId } = req.params;
+      const plan = await readingPlanService.getUserPlanById(planId);
+      
+      if (!plan) {
+        return res.status(404).json({ error: "Plan not found" });
+      }
+      
+      const todayReading = await readingPlanService.getTodaysReading(planId);
+      const upcomingReadings = await readingPlanService.getUpcomingReadings(planId, 7);
+      const overdueReadings = await readingPlanService.getOverdueReadings(planId);
+      
+      res.json({
+        plan,
+        todayReading,
+        upcomingReadings,
+        overdueReadings,
+      });
+    } catch (error) {
+      console.error("[Reading Plans] Error fetching user plan:", error);
+      res.status(500).json({ error: "Failed to fetch reading plan" });
+    }
+  });
+
+  // POST /api/reading-plans/user/:planId/complete - Mark a day's reading as complete
+  app.post("/api/reading-plans/user/:planId/complete", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { planId } = req.params;
+      const { dayIndex, completedReadings } = req.body;
+      
+      if (typeof dayIndex !== 'number') {
+        return res.status(400).json({ error: "dayIndex is required" });
+      }
+      
+      const result = await readingPlanService.markReadingComplete(
+        planId,
+        dayIndex,
+        completedReadings
+      );
+      
+      res.json(result);
+    } catch (error) {
+      console.error("[Reading Plans] Error completing reading:", error);
+      res.status(500).json({ error: "Failed to mark reading as complete" });
+    }
+  });
+
+  // PATCH /api/reading-plans/user/:planId - Update plan settings
+  app.patch("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { planId } = req.params;
+      const { status, notificationsEnabled, notificationTime } = req.body;
+      
+      if (status) {
+        await readingPlanService.updatePlanStatus(planId, status);
+      }
+      
+      if (typeof notificationsEnabled === 'boolean') {
+        await readingPlanService.updateNotificationSettings(
+          planId,
+          notificationsEnabled,
+          notificationTime
+        );
+      }
+      
+      const updatedPlan = await readingPlanService.getUserPlanById(planId);
+      res.json(updatedPlan);
+    } catch (error) {
+      console.error("[Reading Plans] Error updating plan:", error);
+      res.status(500).json({ error: "Failed to update reading plan" });
+    }
+  });
+
+  // DELETE /api/reading-plans/user/:planId - Delete a user plan
+  app.delete("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { planId } = req.params;
+      await readingPlanService.deletePlan(planId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Reading Plans] Error deleting plan:", error);
+      res.status(500).json({ error: "Failed to delete reading plan" });
+    }
+  });
+
+  // GET /api/reading-plans/books - Get all Bible books info
+  app.get("/api/reading-plans/books", (_req, res) => {
+    res.json(readingPlanService.getAllBooks());
+  });
+
+  // Health check endpoint
+  app.get("/api/health", (_req, res) => {
+    res.json({ ok: true, timestamp: new Date().toISOString() });
   });
 
   const httpServer = createServer(app);

@@ -1,11 +1,38 @@
-import { apiRequest } from './queryClient';
+import { getDeviceId } from '@/hooks/use-device-id';
+
+// Get auth token to include in tracking requests for user identification
+function getAuthToken(): string | null {
+  try {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('authToken');
+  } catch {
+    return null;
+  }
+}
 
 export async function trackEvent(eventType: string, eventData?: any) {
   try {
-    await fetch('/api/admin/events/track', {
+    // Safety check for SSR/build environment
+    if (typeof window === 'undefined') return;
+    
+    const deviceId = getDeviceId();
+    const token = getAuthToken();
+    
+    // Build headers - include auth token if available for user identification
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // Use public endpoint that works for both guests and authenticated users
+    await fetch('/api/events/track', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ eventType, eventData }),
+      headers,
+      body: JSON.stringify({ 
+        deviceId, 
+        eventType, 
+        eventData,
+      }),
     }).catch(() => {}); // Silently fail - don't interrupt user experience
   } catch {}
 }

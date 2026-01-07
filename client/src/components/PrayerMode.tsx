@@ -57,6 +57,7 @@ import {
   VolumeX
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PrayerModeProps {
   onBack: () => void;
@@ -72,15 +73,6 @@ interface PrayerRequest {
   answered: boolean;
   answeredAt?: string;
 }
-
-const CATEGORIES = [
-  { id: "family", name: "Família", icon: Home, color: "text-pink-500" },
-  { id: "work", name: "Trabalho", icon: Briefcase, color: "text-blue-500" },
-  { id: "health", name: "Saúde", icon: Stethoscope, color: "text-green-500" },
-  { id: "relationships", name: "Relacionamentos", icon: Users, color: "text-purple-500" },
-  { id: "spiritual", name: "Espiritual", icon: Sparkles, color: "text-amber-500" },
-  { id: "other", name: "Outros", icon: Heart, color: "text-rose-500" },
-];
 
 const TIMER_PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
@@ -129,7 +121,17 @@ const savePrayerRequests = (requests: PrayerRequest[]) => {
 };
 
 export function PrayerMode({ onBack }: PrayerModeProps) {
+  const { t } = useLanguage();
   const { toast } = useToast();
+
+  const CATEGORIES = [
+    { id: "family", name: t("prayer.categories.family"), icon: Home, color: "text-pink-500" },
+    { id: "work", name: t("prayer.categories.work"), icon: Briefcase, color: "text-blue-500" },
+    { id: "health", name: t("prayer.categories.health"), icon: Stethoscope, color: "text-green-500" },
+    { id: "relationships", name: t("prayer.categories.relationships"), icon: Users, color: "text-purple-500" },
+    { id: "spiritual", name: t("prayer.categories.spiritual"), icon: Sparkles, color: "text-amber-500" },
+    { id: "other", name: t("prayer.categories.other"), icon: Heart, color: "text-rose-500" },
+  ];
   const { requireAuth } = useRequireAuth();
   const [activeTab, setActiveTab] = useState("timer");
   
@@ -444,7 +446,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
           </Button>
           <h1 className="text-lg font-semibold flex items-center gap-2">
             <HandHeart className="w-5 h-5 text-amber-500" />
-            Modo Oração
+            {t("prayer.title")}
           </h1>
           <UserButton />
         </div>
@@ -455,18 +457,18 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
           <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="timer" data-testid="tab-timer">
               <Clock className="w-4 h-4 mr-2" />
-              Tempo
+              {t("prayer.tabTimer")}
             </TabsTrigger>
             <TabsTrigger value="requests" data-testid="tab-requests">
               <Heart className="w-4 h-4 mr-2" />
-              Pedidos
+              {t("prayer.tabRequests")}
               {pendingCount > 0 && (
                 <Badge variant="secondary" className="ml-2 text-xs">{pendingCount}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="worship" data-testid="tab-worship">
               <Music className="w-4 h-4 mr-2" />
-              Louvor
+              {t("prayer.tabWorship")}
             </TabsTrigger>
           </TabsList>
 
@@ -534,7 +536,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                               {formatTime(timeRemaining)}
                             </span>
                             <p className="text-sm text-muted-foreground mt-2">
-                              {isRunning ? "Orando..." : "Prepare seu coração"}
+                              {isRunning ? t("prayer.start") + "..." : t("prayer.prepareHeart")}
                             </p>
                           </motion.div>
                         )}
@@ -579,7 +581,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Duração da Oração</CardTitle>
+                <CardTitle className="text-base">{t("prayer.duration")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -636,7 +638,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   data-testid="button-toggle-answered"
                 >
                   <Check className="w-4 h-4 mr-1" />
-                  Respondidas ({answeredCount})
+                  {t("prayer.answered")} ({answeredCount})
                 </Button>
 
                 <Button
@@ -644,7 +646,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   data-testid="button-add-prayer"
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  Adicionar
+                  {t("prayer.addRequest")}
                 </Button>
               </div>
             </div>
@@ -657,8 +659,8 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                       <Heart className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
                       <p className="text-muted-foreground">
                         {showAnswered
-                          ? "Nenhuma oração respondida ainda"
-                          : "Adicione seus motivos de oração"}
+                          ? t("prayer.noRequests")
+                          : t("prayer.noRequestsDesc")}
                       </p>
                     </CardContent>
                   </Card>
@@ -688,7 +690,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                                   {request.answered && (
                                     <Badge variant="outline" className="text-green-600 border-green-600">
                                       <Check className="w-3 h-3 mr-1" />
-                                      Respondida
+                                      {t("prayer.answered")}
                                     </Badge>
                                   )}
                                 </div>
@@ -709,7 +711,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                                   )}
                                   {request.answeredAt && (
                                     <span className="text-green-600">
-                                      • Respondida: {formatDate(request.answeredAt)}
+                                      • {t("prayer.answered")}: {formatDate(request.answeredAt)}
                                     </span>
                                   )}
                                 </div>
@@ -843,13 +845,13 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingRequest ? "Editar Pedido de Oração" : "Novo Pedido de Oração"}
+              {editingRequest ? t("common.edit") : t("prayer.addRequest")}
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Título *</label>
+              <label className="text-sm font-medium">{t("auth.name")} *</label>
               <Input
                 placeholder="Ex: Saúde da minha mãe"
                 value={newTitle}
@@ -901,13 +903,13 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
 
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog} data-testid="button-cancel-prayer">
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button 
               onClick={editingRequest ? handleEditRequest : handleAddRequest} 
               data-testid="button-save-prayer"
             >
-              {editingRequest ? "Salvar" : "Adicionar"}
+              {editingRequest ? t("common.save") : t("common.add")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -916,15 +918,15 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
       <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir pedido de oração?</AlertDialogTitle>
+            <AlertDialogTitle>{t("common.delete")}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O pedido de oração será removido permanentemente.
+              {t("agenda.deleteConfirm")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete">{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRequest} data-testid="button-confirm-delete">
-              Excluir
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

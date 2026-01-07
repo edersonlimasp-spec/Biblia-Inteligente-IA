@@ -1,5 +1,7 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts, chatSessions, userSyncMeta } from '@shared/schema';
+import type { FreeStrongQuota, GuestStrongQuota, PaymentReceipt, InsertPaymentReceipt, ChatSession, InsertChatSession, UserSyncMeta } from '@shared/schema';
+import { getBookById } from './bible-data/books';
 import type {
   User,
   InsertUser,
@@ -37,8 +39,11 @@ import type {
   InsertStudyLesson,
   UserStudyProgress,
   InsertUserStudyProgress,
+  FreeAiQuota,
+  CampaignLog,
+  InsertCampaignLog,
 } from '@shared/schema';
-import { eq, and, desc, gte, sql, like } from 'drizzle-orm';
+import { eq, and, desc, gte, sql, like, or } from 'drizzle-orm';
 
 export interface IStorage {
   // Users
@@ -50,6 +55,7 @@ export interface IStorage {
   makeUserAdmin(userId: string): Promise<void>;
   updateUserPassword(userId: string, hashedPassword: string): Promise<void>;
   updateUser(userId: string, data: Partial<{ profileImageUrl: string | null; firstName: string | null; lastName: string | null; googleId: string | null }>): Promise<void>;
+  updateUserLanguage(userId: string, language: string): Promise<void>;
   createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void>;
   getPasswordResetToken(token: string): Promise<{userId: string; expiresAt: Date; used: boolean} | undefined>;
   markResetTokenAsUsed(token: string): Promise<void>;
@@ -57,7 +63,9 @@ export interface IStorage {
   // Subscriptions
   getUserSubscriptions(userId: string): Promise<Subscription[]>;
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
+  upsertSubscription(subscription: InsertSubscription): Promise<Subscription>;
   hasActiveSubscription(userId: string, planType: string): Promise<boolean>;
+  getActiveSubscription(userId: string): Promise<Subscription | null>;
 
   // Bookmarks
   getUserBookmarks(userId: string): Promise<Bookmark[]>;
@@ -77,8 +85,10 @@ export interface IStorage {
 
   // AI Usage Limits (Rate Limiting)
   getTodayUsageCount(userId: string): Promise<number>;
+  getTotalUsageCount(userId: string): Promise<number>;
   incrementUsageCount(userId: string): Promise<void>;
   getTodayStrongLookups(userId: string): Promise<number>;
+  getTotalStrongLookups(userId: string): Promise<number>;
   incrementStrongLookups(userId: string): Promise<void>;
 
   // Admin Operations
@@ -93,7 +103,10 @@ export interface IStorage {
   getUserBonuses(userId: string): Promise<Bonus[]>;
   hasActiveBonus(userId: string, bonusType?: string): Promise<boolean>;
   revokeBonus(bonusId: string): Promise<void>;
+  deleteBonus(bonusId: string): Promise<void>;
   getActiveBonuses(): Promise<Bonus[]>;
+  getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string; userName: string | null; daysRemaining: number | null }>>;
+  renewBonus(bonusId: string, extraDays: number): Promise<Bonus>;
 
   // Audit Log
   logAdminAction(action: InsertAdminAction): Promise<AdminAction>;
@@ -103,9 +116,15 @@ export interface IStorage {
   createOrUpdateSession(userId: string, sessionId: string): Promise<UserSession>;
   getOnlineUsers(minutesAgo?: number): Promise<number>;
   trackPageEvent(userId: string, eventType: string, eventData?: any): Promise<void>;
-  getAIUsageStats(days?: number): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}>;
+  getAIUsageStats(days?: number): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; email: string; count: number}>}>;
   getUsageHeatmap(days?: number): Promise<Array<{hour: number; count: number}>>;
   getAbandonedSubscriptions(): Promise<Array<{userId: string; email: string; lastSeenAt: string}>>;
+  getConversionMetrics(): Promise<{
+    today: { redirects: number; conversions: number; rate: number };
+    thisMonth: { redirects: number; conversions: number; rate: number };
+    lastMonth: { redirects: number; conversions: number; rate: number };
+    dailyTrend: Array<{ date: string; redirects: number; conversions: number }>;
+  }>;
 
   // Highlights (Cloud Sync)
   getUserHighlights(userId: string): Promise<Highlight[]>;
@@ -140,6 +159,7 @@ export interface IStorage {
   
   // Guest AI Usage Limits
   getGuestTodayUsageCount(deviceId: string): Promise<number>;
+  getGuestTotalUsageCount(deviceId: string): Promise<number>;
   incrementGuestUsageCount(deviceId: string): Promise<void>;
   getGuestTodayStrongLookups(deviceId: string): Promise<number>;
   incrementGuestStrongLookups(deviceId: string): Promise<void>;
@@ -153,6 +173,8 @@ export interface IStorage {
     guestsInTrial: number;
     trialExpired: number;
     linkedToUsers: number;
+    newGuestsToday: number;
+    activeGuestsToday: number;
   }>;
   getEventStats(days?: number): Promise<{
     totalEvents: number;
@@ -166,12 +188,65 @@ export interface IStorage {
   getModuleTracks(moduleId: string): Promise<StudyTrack[]>;
   getTrackLessons(trackId: string): Promise<StudyLesson[]>;
   getLessonById(id: string): Promise<StudyLesson | undefined>;
+  getLessonWithContext(id: string): Promise<{ lesson: StudyLesson; track: StudyTrack; module: StudyModule; lessonIndex: number; moduleIndex: number } | undefined>;
   getUserStudyProgress(userId: string | null, deviceId: string | null): Promise<UserStudyProgress[]>;
   updateStudyProgress(userId: string | null, deviceId: string | null, lessonId: string, completed: boolean): Promise<UserStudyProgress>;
   getModuleProgress(moduleId: string, userId: string | null, deviceId: string | null): Promise<{ total: number; completed: number; percentage: number }>;
   createStudyModule(module: InsertStudyModule): Promise<StudyModule>;
   createStudyTrack(track: InsertStudyTrack): Promise<StudyTrack>;
   createStudyLesson(lesson: InsertStudyLesson): Promise<StudyLesson>;
+
+  // Free AI Questions Quota (permanent, not daily reset)
+  getFreeAiQuota(userId: string): Promise<{ questionsUsed: number; guestQuestionsImported: number } | undefined>;
+  incrementFreeAiQuota(userId: string): Promise<number>;
+  migrateGuestQuotaToUser(userId: string, guestQuestionsUsed: number): Promise<void>;
+  
+  // Strong Dictionary Quota (permanent, not daily reset)
+  // Guest: 2 total, Free User: 4 total (incl. migrated), Gold: 20/day, Premium: unlimited
+  getFreeStrongQuota(userId: string): Promise<{ lookupsUsed: number; guestLookupsImported: number } | undefined>;
+  incrementFreeStrongQuota(userId: string): Promise<number>;
+  migrateGuestStrongQuotaToUser(userId: string, guestLookupsUsed: number): Promise<void>;
+  getGuestStrongQuota(deviceId: string): Promise<number>;
+  incrementGuestStrongQuota(deviceId: string): Promise<number>;
+
+  // User Activity & Re-engagement Campaigns
+  updateUserLastSeen(userId: string, platform?: string): Promise<void>;
+  setUserEmailOptOut(userId: string, optOut: boolean): Promise<void>;
+  getInactiveUsers(daysInactive: number): Promise<Array<{ id: string; email: string; name: string | null; lastSeenAt: Date | null }>>;
+  hasReceivedCampaign(userId: string, campaignName: string, withinDays: number): Promise<boolean>;
+  logCampaign(log: InsertCampaignLog): Promise<CampaignLog>;
+  getCampaignLogs(campaignName?: string, limit?: number): Promise<CampaignLog[]>;
+  getCampaignStats(campaignName: string): Promise<{ total: number; sent: number; failed: number }>;
+
+  // Payment Receipts (validation and logging)
+  createPaymentReceipt(receipt: InsertPaymentReceipt): Promise<PaymentReceipt>;
+  getPaymentReceiptByExternalId(externalPaymentId: string): Promise<PaymentReceipt | undefined>;
+  getPaymentReceiptById(id: string): Promise<PaymentReceipt | undefined>;
+  updatePaymentReceipt(id: string, data: Partial<InsertPaymentReceipt>): Promise<PaymentReceipt | undefined>;
+  getPaymentReceipts(options?: { 
+    userId?: string; 
+    status?: string; 
+    planType?: string;
+    limit?: number; 
+    offset?: number;
+  }): Promise<{ receipts: PaymentReceipt[]; total: number }>;
+  getPaymentReceiptStats(): Promise<{
+    totalReceipts: number;
+    totalGrossAmount: number;
+    totalNetAmount: number;
+    totalFees: number;
+    byPlan: Record<string, { count: number; grossAmount: number; netAmount: number }>;
+    byStatus: Record<string, number>;
+    last30Days: { count: number; grossAmount: number; netAmount: number };
+  }>;
+
+  // Cloud Sync - Chat Sessions
+  getUserChatSessions(userId: string): Promise<ChatSession[]>;
+  upsertChatSession(session: InsertChatSession): Promise<ChatSession>;
+  deleteChatSession(id: string, userId: string): Promise<void>;
+  getChatSessionsSince(userId: string, since: Date): Promise<ChatSession[]>;
+  getUserSyncMeta(userId: string): Promise<UserSyncMeta | undefined>;
+  updateUserSyncMeta(userId: string, deviceId?: string): Promise<UserSyncMeta>;
 }
 
 class PostgresStorage implements IStorage {
@@ -236,7 +311,7 @@ class PostgresStorage implements IStorage {
     if (take) query = query.limit(take);
     if (skip) query = query.offset(skip);
 
-    const usersList = await query;
+    const usersList = (await query) as User[];
     return { users: usersList, total };
   }
 
@@ -262,6 +337,10 @@ class PostgresStorage implements IStorage {
 
   async updateUser(userId: string, data: Partial<{ profileImageUrl: string | null; firstName: string | null; lastName: string | null; googleId: string | null }>): Promise<void> {
     await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, userId));
+  }
+
+  async updateUserLanguage(userId: string, language: string): Promise<void> {
+    await db.update(users).set({ preferredLanguage: language, updatedAt: new Date() }).where(eq(users.id, userId));
   }
 
   async createPasswordResetToken(userId: string, token: string, expiresAt: Date): Promise<void> {
@@ -291,8 +370,46 @@ class PostgresStorage implements IStorage {
     return result[0];
   }
 
+  async upsertSubscription(subscription: InsertSubscription): Promise<Subscription> {
+    // Check if user already has a subscription for this plan type
+    const existing = await db
+      .select()
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.userId, subscription.userId),
+          eq(subscriptions.planType, subscription.planType)
+        )
+      )
+      .limit(1);
+    
+    if (existing.length > 0) {
+      // Update existing subscription
+      const updated = await db
+        .update(subscriptions)
+        .set({
+          status: subscription.status || 'active',
+          startDate: subscription.startDate || new Date(),
+          endDate: subscription.endDate,
+          amount: subscription.amount,
+        })
+        .where(eq(subscriptions.id, existing[0].id))
+        .returning();
+      console.log(`[Storage] Updated existing subscription: ${updated[0].id}`);
+      return updated[0];
+    }
+    
+    // Create new subscription
+    const result = await db.insert(subscriptions).values(subscription).returning();
+    console.log(`[Storage] Created new subscription: ${result[0].id}`);
+    return result[0];
+  }
+
   async hasActiveSubscription(userId: string, planType: string): Promise<boolean> {
-    // Check regular subscriptions
+    const now = new Date();
+    
+    // Check regular subscriptions - accept all valid active statuses from Mercado Pago
+    // Status can be: active, approved, authorized, ACTIVE, APPROVED, AUTHORIZED
     const subResult = await db
       .select()
       .from(subscriptions)
@@ -300,15 +417,31 @@ class PostgresStorage implements IStorage {
         and(
           eq(subscriptions.userId, userId),
           eq(subscriptions.planType, planType),
-          eq(subscriptions.status, 'active')
+          or(
+            eq(subscriptions.status, 'active'),
+            eq(subscriptions.status, 'Active'),
+            eq(subscriptions.status, 'ACTIVE'),
+            eq(subscriptions.status, 'approved'),
+            eq(subscriptions.status, 'Approved'),
+            eq(subscriptions.status, 'APPROVED'),
+            eq(subscriptions.status, 'authorized'),
+            eq(subscriptions.status, 'Authorized'),
+            eq(subscriptions.status, 'AUTHORIZED')
+          )
         )
       );
-    if (subResult.length > 0) return true;
+    
+    // Only return true if subscription hasn't expired
+    for (const sub of subResult) {
+      // If no endDate (lifetime), always active
+      if (!sub.endDate) return true;
+      // If endDate exists and is in the future, it's active
+      if (new Date(sub.endDate) > now) return true;
+    }
 
     // Check active bonuses
     const bonusType = planType === 'gold' ? 'gold_free' : planType === 'premium' ? 'premium_free' : null;
     if (bonusType) {
-      const now = new Date();
       const bonusResult = await db
         .select()
         .from(bonuses)
@@ -328,6 +461,42 @@ class PostgresStorage implements IStorage {
     }
 
     return false;
+  }
+
+  async getActiveSubscription(userId: string): Promise<Subscription | null> {
+    const now = new Date();
+    
+    // Get all subscriptions for user, ordered by most recent
+    const userSubs = await db
+      .select()
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.userId, userId),
+          or(
+            eq(subscriptions.status, 'active'),
+            eq(subscriptions.status, 'Active'),
+            eq(subscriptions.status, 'ACTIVE'),
+            eq(subscriptions.status, 'approved'),
+            eq(subscriptions.status, 'Approved'),
+            eq(subscriptions.status, 'APPROVED'),
+            eq(subscriptions.status, 'authorized'),
+            eq(subscriptions.status, 'Authorized'),
+            eq(subscriptions.status, 'AUTHORIZED')
+          )
+        )
+      )
+      .orderBy(desc(subscriptions.createdAt));
+    
+    // Find the first active (non-expired) subscription
+    for (const sub of userSubs) {
+      // If no endDate (lifetime), it's active
+      if (!sub.endDate) return sub;
+      // If endDate is in the future, it's active
+      if (new Date(sub.endDate) > now) return sub;
+    }
+    
+    return null;
   }
 
   // Bookmarks
@@ -409,6 +578,16 @@ class PostgresStorage implements IStorage {
     return result.reduce((sum, record) => sum + record.questionCount, 0);
   }
 
+  // Contagem TOTAL de uso de IA (não renovável para plano gratuito)
+  async getTotalUsageCount(userId: string): Promise<number> {
+    const result = await db
+      .select()
+      .from(aiUsageLimits)
+      .where(eq(aiUsageLimits.userId, userId));
+
+    return result.reduce((sum, record) => sum + record.questionCount, 0);
+  }
+
   async incrementUsageCount(userId: string): Promise<void> {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
@@ -455,6 +634,16 @@ class PostgresStorage implements IStorage {
       );
 
     return result[0]?.strongLookups || 0;
+  }
+
+  // Contagem TOTAL de consultas Strong (não renovável para plano gratuito)
+  async getTotalStrongLookups(userId: string): Promise<number> {
+    const result = await db
+      .select()
+      .from(aiUsageLimits)
+      .where(eq(aiUsageLimits.userId, userId));
+
+    return result.reduce((sum, record) => sum + (record.strongLookups || 0), 0);
   }
 
   async incrementStrongLookups(userId: string): Promise<void> {
@@ -522,8 +711,96 @@ class PostgresStorage implements IStorage {
     await db.update(bonuses).set({ isActive: false }).where(eq(bonuses.id, bonusId));
   }
 
+  async deleteBonus(bonusId: string): Promise<void> {
+    await db.delete(bonuses).where(eq(bonuses.id, bonusId));
+  }
+
   async getActiveBonuses(): Promise<Bonus[]> {
     return db.select().from(bonuses).where(eq(bonuses.isActive, true)).orderBy(desc(bonuses.createdAt));
+  }
+
+  async getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string; userName: string | null; daysRemaining: number | null }>> {
+    const now = new Date();
+    
+    // Build query with join to users table
+    let conditions: any[] = [];
+    
+    if (!includeExpired) {
+      conditions.push(eq(bonuses.isActive, true));
+    }
+    
+    if (searchEmail && searchEmail.trim()) {
+      conditions.push(sql`LOWER(${users.email}) LIKE LOWER(${'%' + searchEmail.trim() + '%'})`);
+    }
+    
+    // Build the query
+    const baseQuery = db
+      .select({
+        id: bonuses.id,
+        userId: bonuses.userId,
+        bonusType: bonuses.bonusType,
+        reason: bonuses.reason,
+        isActive: bonuses.isActive,
+        startAt: bonuses.startAt,
+        endAt: bonuses.endAt,
+        grantedByAdminId: bonuses.grantedByAdminId,
+        createdAt: bonuses.createdAt,
+        userEmail: users.email,
+        userName: users.name,
+      })
+      .from(bonuses)
+      .innerJoin(users, eq(bonuses.userId, users.id));
+    
+    // Apply conditions only if there are any
+    const results = conditions.length > 0
+      ? await baseQuery.where(and(...conditions)).orderBy(desc(bonuses.createdAt))
+      : await baseQuery.orderBy(desc(bonuses.createdAt));
+    
+    // Calculate days remaining for each bonus
+    return results.map(bonus => {
+      let daysRemaining: number | null = null;
+      if (bonus.endAt) {
+        const diffMs = new Date(bonus.endAt).getTime() - now.getTime();
+        daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      }
+      return {
+        ...bonus,
+        daysRemaining,
+      };
+    });
+  }
+
+  async renewBonus(bonusId: string, extraDays: number): Promise<Bonus> {
+    // Get the current bonus
+    const [currentBonus] = await db.select().from(bonuses).where(eq(bonuses.id, bonusId));
+    
+    if (!currentBonus) {
+      throw new Error('Bônus não encontrado');
+    }
+    
+    // For lifetime bonuses, don't modify endAt
+    if (currentBonus.endAt === null) {
+      throw new Error('Bônus vitalício não pode ser renovado');
+    }
+    
+    // Calculate new end date: use max(existing endAt, now) as base
+    // This ensures expired bonuses start from now, not from past date
+    const now = new Date();
+    const existingEndAt = new Date(currentBonus.endAt);
+    const baseDate = existingEndAt > now ? existingEndAt : now;
+    const newEndAt = new Date(baseDate.getTime() + extraDays * 24 * 60 * 60 * 1000);
+    
+    // Update the bonus
+    const [updated] = await db
+      .update(bonuses)
+      .set({ 
+        endAt: newEndAt,
+        isActive: true, // Reactivate if it was deactivated
+      })
+      .where(eq(bonuses.id, bonusId))
+      .returning();
+    
+    return updated;
   }
 
   // Audit Log
@@ -584,32 +861,53 @@ class PostgresStorage implements IStorage {
     });
   }
 
-  async getAIUsageStats(days: number = 30): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; count: number}>}> {
+  async getAIUsageStats(days: number = 30): Promise<{total: number; byMode: {essential: number; premium: number}; byUser: Array<{userId: string; email: string; count: number}>}> {
     const cutoffDate = new Date(Date.now() - days * 86400000);
     
-    const allAIEvents = await db.select().from(pageEvents)
+    // Get AI events from logged-in users (pageEvents table)
+    const userAIEvents = await db.select().from(pageEvents)
       .where(and(
         eq(pageEvents.eventType, 'AI_QUESTION'),
         gte(pageEvents.createdAt, cutoffDate)
       ));
 
-    const total = allAIEvents.length;
+    // Get AI events from guests (appEvents table) - they use 'ia_question' event type
+    const guestAIEvents = await db.select().from(appEvents)
+      .where(and(
+        eq(appEvents.eventType, 'ia_question'),
+        gte(appEvents.createdAt, cutoffDate)
+      ));
+
+    // Combine both sources
+    const total = userAIEvents.length + guestAIEvents.length;
+    
     const byMode = {
-      essential: allAIEvents.filter(e => e.eventData?.mode === 'essential').length,
-      premium: allAIEvents.filter(e => e.eventData?.mode === 'premium').length,
+      essential: userAIEvents.filter(e => (e.eventData as any)?.mode === 'essential').length + 
+                 guestAIEvents.filter(e => (e.eventData as any)?.mode === 'essential').length,
+      premium: userAIEvents.filter(e => {
+        const mode = (e.eventData as any)?.mode;
+        return mode === 'premium' || mode === 'pregador' || mode === 'exegese' || mode === 'teologica';
+      }).length,
     };
 
+    // Count by user (only logged-in users)
     const userMap = new Map<string, number>();
-    allAIEvents.forEach(e => {
+    userAIEvents.forEach(e => {
       if (e.userId) {
         userMap.set(e.userId, (userMap.get(e.userId) || 0) + 1);
       }
     });
 
-    const byUser = Array.from(userMap.entries())
-      .map(([userId, count]) => ({ userId, count }))
-      .sort((a, b) => b.count - a.count)
+    const topUserIds = Array.from(userMap.entries())
+      .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
+
+    // Fetch emails for top users
+    const byUser: Array<{userId: string; email: string; count: number}> = [];
+    for (const [userId, count] of topUserIds) {
+      const user = await this.getUser(userId);
+      byUser.push({ userId, email: user?.email || 'Desconhecido', count });
+    }
 
     return { total, byMode, byUser };
   }
@@ -659,6 +957,82 @@ class PostgresStorage implements IStorage {
         lastSeenAt: data.lastSeenAt.toISOString(),
       }))
       .sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
+  }
+
+  async getConversionMetrics(): Promise<{
+    today: { redirects: number; conversions: number; rate: number };
+    thisMonth: { redirects: number; conversions: number; rate: number };
+    lastMonth: { redirects: number; conversions: number; rate: number };
+    dailyTrend: Array<{ date: string; redirects: number; conversions: number }>;
+  }> {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const redirectEvents = ['SUBSCRIPTION_PAGE_VISIT', 'subscribe_cta_click', 'subscription_redirect'];
+    const conversionEvents = ['subscription_activated', 'SUBSCRIPTION_ACTIVATED', 'payment_success'];
+
+    const allPageEvents = await db.select().from(pageEvents)
+      .where(gte(pageEvents.createdAt, lastMonthStart));
+    
+    const allAppEvents = await db.select().from(appEvents)
+      .where(gte(appEvents.createdAt, lastMonthStart));
+
+    const countEvents = (events: any[], types: string[], start: Date, end: Date) => {
+      return events.filter(e => 
+        types.includes(e.eventType) && 
+        new Date(e.createdAt) >= start && 
+        new Date(e.createdAt) <= end
+      ).length;
+    };
+
+    const countUniqueRedirects = (pageEvts: any[], appEvts: any[], start: Date, end: Date) => {
+      const pageCount = countEvents(pageEvts, redirectEvents, start, end);
+      const appCount = countEvents(appEvts, redirectEvents, start, end);
+      return pageCount + appCount;
+    };
+
+    const countConversions = (pageEvts: any[], appEvts: any[], start: Date, end: Date) => {
+      const pageCount = countEvents(pageEvts, conversionEvents, start, end);
+      const appCount = countEvents(appEvts, conversionEvents, start, end);
+      return pageCount + appCount;
+    };
+
+    const calcRate = (redirects: number, conversions: number) => {
+      return redirects > 0 ? Math.round((conversions / redirects) * 10000) / 100 : 0;
+    };
+
+    const todayRedirects = countUniqueRedirects(allPageEvents, allAppEvents, todayStart, now);
+    const todayConversions = countConversions(allPageEvents, allAppEvents, todayStart, now);
+
+    const monthRedirects = countUniqueRedirects(allPageEvents, allAppEvents, monthStart, now);
+    const monthConversions = countConversions(allPageEvents, allAppEvents, monthStart, now);
+
+    const lastMonthRedirects = countUniqueRedirects(allPageEvents, allAppEvents, lastMonthStart, lastMonthEnd);
+    const lastMonthConversions = countConversions(allPageEvents, allAppEvents, lastMonthStart, lastMonthEnd);
+
+    const dailyTrend: Array<{ date: string; redirects: number; conversions: number }> = [];
+    for (let i = 29; i >= 0; i--) {
+      const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
+      const redirects = countUniqueRedirects(allPageEvents, allAppEvents, dayStart, dayEnd);
+      const conversions = countConversions(allPageEvents, allAppEvents, dayStart, dayEnd);
+      dailyTrend.push({
+        date: dayStart.toISOString().split('T')[0],
+        redirects,
+        conversions,
+      });
+    }
+
+    return {
+      today: { redirects: todayRedirects, conversions: todayConversions, rate: calcRate(todayRedirects, todayConversions) },
+      thisMonth: { redirects: monthRedirects, conversions: monthConversions, rate: calcRate(monthRedirects, monthConversions) },
+      lastMonth: { redirects: lastMonthRedirects, conversions: lastMonthConversions, rate: calcRate(lastMonthRedirects, lastMonthConversions) },
+      dailyTrend,
+    };
   }
 
   // Highlights (Cloud Sync)
@@ -875,6 +1249,15 @@ class PostgresStorage implements IStorage {
     return result[0]?.questionCount || 0;
   }
 
+  // Contagem TOTAL de uso de IA para visitantes (não renovável)
+  async getGuestTotalUsageCount(deviceId: string): Promise<number> {
+    const result = await db.select()
+      .from(guestAiUsageLimits)
+      .where(eq(guestAiUsageLimits.deviceId, deviceId));
+    
+    return result.reduce((sum, record) => sum + record.questionCount, 0);
+  }
+
   async incrementGuestUsageCount(deviceId: string): Promise<void> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -954,20 +1337,74 @@ class PostgresStorage implements IStorage {
     });
   }
 
-  // Admin Stats (guests)
+  async getDashboardStats() {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalUsers,
+      newUsers,
+      activeGold,
+      activePremium,
+      lifetimeStrong,
+      cancelled,
+      guestStats,
+      inactiveUsers
+    ] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(users),
+      db.select({ count: sql<number>`count(*)` }).from(users).where(gte(users.trialStartDate, firstDayOfMonth)),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'gold'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'premium'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'strong_lifetime'), eq(subscriptions.status, 'active'))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.status, 'cancelled'), gte(subscriptions.createdAt, firstDayOfMonth))),
+      this.getGuestStats(),
+      db.select({ count: sql<number>`count(*)` }).from(users).where(sql`${users.lastLoginAt} < ${thirtyDaysAgo} OR ${users.lastLoginAt} IS NULL`),
+    ]);
+
+    // Calcular faturamento estimado
+    // Gold: R$ 9.90, Premium: R$ 19.90, Lifetime: R$ 49.90
+    const goldCount = Number(activeGold[0]?.count || 0);
+    const premiumCount = Number(activePremium[0]?.count || 0);
+    const lifetimeCount = Number(lifetimeStrong[0]?.count || 0);
+    
+    const revenue = (goldCount * 9.90) + (premiumCount * 19.90) + (lifetimeCount * 49.90);
+
+    return {
+      totalUsers: Number(totalUsers[0]?.count || 0),
+      newUsersThisMonth: Number(newUsers[0]?.count || 0),
+      activeTrials: Number(totalUsers[0]?.count || 0), // Simplificado: todos os usuários novos/ativos estão em trial se não assinaram
+      activeGoldSubscriptions: goldCount,
+      activePremiumSubscriptions: premiumCount,
+      lifetimeStrong: lifetimeCount,
+      estimatedMonthlyRevenue: revenue.toFixed(2),
+      cancelledThisMonth: Number(cancelled[0]?.count || 0),
+      totalGuests: guestStats.totalGuests,
+      activeGuestTrials: guestStats.guestsInTrial,
+      convertedGuests: guestStats.linkedToUsers,
+      inactiveUsers: Number(inactiveUsers[0]?.count || 0)
+    };
+  }
+
   async getGuestStats(): Promise<{
     totalGuests: number;
     guestsInTrial: number;
     trialExpired: number;
     linkedToUsers: number;
+    newGuestsToday: number;
+    activeGuestsToday: number;
   }> {
     const now = new Date();
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
     
-    const [total, inTrial, expired, linked] = await Promise.all([
+    const [total, inTrial, expired, linked, newToday, activeToday] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(guests),
       db.select({ count: sql<number>`count(*)` }).from(guests).where(gte(guests.trialEndAt, now)),
       db.select({ count: sql<number>`count(*)` }).from(guests).where(sql`${guests.trialEndAt} < ${now}`),
       db.select({ count: sql<number>`count(*)` }).from(guests).where(sql`${guests.linkedUserId} IS NOT NULL`),
+      db.select({ count: sql<number>`count(*)` }).from(guests).where(gte(guests.firstSeenAt, todayStart)),
+      db.select({ count: sql<number>`count(*)` }).from(guests).where(gte(guests.lastSeenAt, todayStart)),
     ]);
     
     return {
@@ -975,6 +1412,8 @@ class PostgresStorage implements IStorage {
       guestsInTrial: Number(inTrial[0]?.count || 0),
       trialExpired: Number(expired[0]?.count || 0),
       linkedToUsers: Number(linked[0]?.count || 0),
+      newGuestsToday: Number(newToday[0]?.count || 0),
+      activeGuestsToday: Number(activeToday[0]?.count || 0),
     };
   }
 
@@ -1018,24 +1457,22 @@ class PostgresStorage implements IStorage {
     
     const rows = await db.select().from(readingProgress).where(conditions[0]);
     
-    const progressByBook: Record<string, Set<number>> = {};
-    rows.forEach(row => {
-      if (!progressByBook[row.book]) {
-        progressByBook[row.book] = new Set();
-      }
-      progressByBook[row.book].add(row.chapter);
-    });
-    
-    return Object.entries(progressByBook).map(([book, chapters]) => ({
-      book,
-      chaptersRead: Array.from(chapters).sort((a, b) => a - b),
+    return rows.map(row => ({
+      book: row.book,
+      chaptersRead: (row.chaptersRead as number[]) || [],
+      totalChapters: row.totalChapters,
+      completedAt: row.completedAt,
     }));
   }
 
   async trackChapterRead(userId: string | undefined, deviceId: string | undefined, book: string, chapter: number) {
     if (!userId && !deviceId) return;
     
-    const conditions = [eq(readingProgress.book, book), eq(readingProgress.chapter, chapter)];
+    // Get actual chapter count for this book
+    const bookData = getBookById(book);
+    const totalChapters = bookData?.chapters || 50; // Fallback to 50 if book not found
+    
+    const conditions = [eq(readingProgress.book, book)];
     if (userId) conditions.push(eq(readingProgress.userId, userId));
     else if (deviceId) conditions.push(eq(readingProgress.deviceId, deviceId!));
     
@@ -1046,13 +1483,28 @@ class PostgresStorage implements IStorage {
         userId: userId || null,
         deviceId: deviceId || null,
         book,
-        chapter,
-        readAt: new Date(),
+        chaptersRead: [chapter],
+        totalChapters,
+        updatedAt: new Date(),
       });
     } else {
-      await db.update(readingProgress)
-        .set({ readAt: new Date() })
-        .where(eq(readingProgress.id, existing[0].id));
+      const currentChapters = (existing[0].chaptersRead as number[]) || [];
+      const needsChapterUpdate = !currentChapters.includes(chapter);
+      const needsTotalFix = existing[0].totalChapters !== totalChapters;
+      
+      if (needsChapterUpdate || needsTotalFix) {
+        const updatedChapters = needsChapterUpdate 
+          ? [...currentChapters, chapter].sort((a, b) => a - b) 
+          : currentChapters;
+        await db.update(readingProgress)
+          .set({ 
+            chaptersRead: updatedChapters,
+            totalChapters, // Fix incorrect totalChapters in existing records
+            updatedAt: new Date(),
+            completedAt: updatedChapters.length >= totalChapters ? new Date() : null,
+          })
+          .where(eq(readingProgress.id, existing[0].id));
+      }
     }
   }
 
@@ -1089,6 +1541,30 @@ class PostgresStorage implements IStorage {
     return result[0];
   }
 
+  async getLessonWithContext(id: string): Promise<{ lesson: StudyLesson; track: StudyTrack; module: StudyModule; lessonIndex: number; moduleIndex: number } | undefined> {
+    const lesson = await this.getLessonById(id);
+    if (!lesson) return undefined;
+    
+    const trackResult = await db.select().from(studyTracks).where(eq(studyTracks.id, lesson.trackId));
+    const track = trackResult[0];
+    if (!track) return undefined;
+    
+    const moduleResult = await db.select().from(studyModules).where(eq(studyModules.id, track.moduleId));
+    const module = moduleResult[0];
+    if (!module) return undefined;
+    
+    const allLessons = await this.getTrackLessons(track.id);
+    const lessonIndex = allLessons.findIndex(l => l.id === id) + 1;
+    
+    const allModulesInLevel = await db.select()
+      .from(studyModules)
+      .where(eq(studyModules.level, module.level))
+      .orderBy(studyModules.order);
+    const moduleIndex = allModulesInLevel.findIndex(m => m.id === module.id) + 1;
+    
+    return { lesson, track, module, lessonIndex, moduleIndex };
+  }
+
   async getUserStudyProgress(userId: string | null, deviceId: string | null): Promise<UserStudyProgress[]> {
     if (!userId && !deviceId) return [];
     
@@ -1115,7 +1591,7 @@ class PostgresStorage implements IStorage {
         })
         .where(eq(userStudyProgress.id, existing[0].id))
         .returning();
-      return updated;
+      return updated as UserStudyProgress;
     } else {
       const [created] = await db.insert(userStudyProgress).values({
         userId: userId || null,
@@ -1125,7 +1601,7 @@ class PostgresStorage implements IStorage {
         completedAt: completed ? new Date() : null,
         lastAccessAt: new Date(),
       }).returning();
-      return created;
+      return created as UserStudyProgress;
     }
   }
 
@@ -1173,6 +1649,423 @@ class PostgresStorage implements IStorage {
   async createStudyLesson(lesson: InsertStudyLesson): Promise<StudyLesson> {
     const [created] = await db.insert(studyLessons).values(lesson).returning();
     return created;
+  }
+
+  // Free AI Questions Quota (permanent count, not daily reset)
+  async getFreeAiQuota(userId: string): Promise<{ questionsUsed: number; guestQuestionsImported: number } | undefined> {
+    const result = await db.select().from(freeAiQuota).where(eq(freeAiQuota.userId, userId));
+    if (result.length === 0) return undefined;
+    return {
+      questionsUsed: result[0].questionsUsed,
+      guestQuestionsImported: result[0].guestQuestionsImported,
+    };
+  }
+
+  async incrementFreeAiQuota(userId: string): Promise<number> {
+    const existing = await db.select().from(freeAiQuota).where(eq(freeAiQuota.userId, userId));
+    
+    if (existing.length === 0) {
+      const [created] = await db.insert(freeAiQuota).values({
+        userId,
+        questionsUsed: 1,
+        guestQuestionsImported: 0,
+      }).returning();
+      return created.questionsUsed;
+    }
+    
+    const [updated] = await db.update(freeAiQuota)
+      .set({ 
+        questionsUsed: existing[0].questionsUsed + 1,
+        updatedAt: new Date(),
+      })
+      .where(eq(freeAiQuota.userId, userId))
+      .returning();
+    return updated.questionsUsed;
+  }
+
+  async migrateGuestQuotaToUser(userId: string, guestQuestionsUsed: number): Promise<void> {
+    const existing = await db.select().from(freeAiQuota).where(eq(freeAiQuota.userId, userId));
+    
+    if (existing.length === 0) {
+      await db.insert(freeAiQuota).values({
+        userId,
+        questionsUsed: guestQuestionsUsed,
+        guestQuestionsImported: guestQuestionsUsed,
+      });
+    } else if (existing[0].guestQuestionsImported === 0) {
+      await db.update(freeAiQuota)
+        .set({ 
+          questionsUsed: existing[0].questionsUsed + guestQuestionsUsed,
+          guestQuestionsImported: guestQuestionsUsed,
+          updatedAt: new Date(),
+        })
+        .where(eq(freeAiQuota.userId, userId));
+    }
+  }
+
+  // Strong Dictionary Quota (permanent count, not daily reset)
+  async getFreeStrongQuota(userId: string): Promise<{ lookupsUsed: number; guestLookupsImported: number } | undefined> {
+    const result = await db.select().from(freeStrongQuota).where(eq(freeStrongQuota.userId, userId));
+    if (result.length === 0) return undefined;
+    return {
+      lookupsUsed: result[0].lookupsUsed,
+      guestLookupsImported: result[0].guestLookupsImported,
+    };
+  }
+
+  async incrementFreeStrongQuota(userId: string): Promise<number> {
+    const existing = await db.select().from(freeStrongQuota).where(eq(freeStrongQuota.userId, userId));
+    
+    if (existing.length === 0) {
+      const [created] = await db.insert(freeStrongQuota).values({
+        userId,
+        lookupsUsed: 1,
+        guestLookupsImported: 0,
+      }).returning();
+      return created.lookupsUsed;
+    }
+    
+    const [updated] = await db.update(freeStrongQuota)
+      .set({ 
+        lookupsUsed: existing[0].lookupsUsed + 1,
+        updatedAt: new Date(),
+      })
+      .where(eq(freeStrongQuota.userId, userId))
+      .returning();
+    return updated.lookupsUsed;
+  }
+
+  async migrateGuestStrongQuotaToUser(userId: string, guestLookupsUsed: number): Promise<void> {
+    const existing = await db.select().from(freeStrongQuota).where(eq(freeStrongQuota.userId, userId));
+    
+    if (existing.length === 0) {
+      await db.insert(freeStrongQuota).values({
+        userId,
+        lookupsUsed: guestLookupsUsed,
+        guestLookupsImported: guestLookupsUsed,
+      });
+    } else if (existing[0].guestLookupsImported === 0) {
+      await db.update(freeStrongQuota)
+        .set({ 
+          lookupsUsed: existing[0].lookupsUsed + guestLookupsUsed,
+          guestLookupsImported: guestLookupsUsed,
+          updatedAt: new Date(),
+        })
+        .where(eq(freeStrongQuota.userId, userId));
+    }
+  }
+
+  async getGuestStrongQuota(deviceId: string): Promise<number> {
+    const result = await db.select().from(guestStrongQuota).where(eq(guestStrongQuota.deviceId, deviceId));
+    return result.length > 0 ? result[0].lookupsUsed : 0;
+  }
+
+  async incrementGuestStrongQuota(deviceId: string): Promise<number> {
+    const existing = await db.select().from(guestStrongQuota).where(eq(guestStrongQuota.deviceId, deviceId));
+    
+    if (existing.length === 0) {
+      const [created] = await db.insert(guestStrongQuota).values({
+        deviceId,
+        lookupsUsed: 1,
+      }).returning();
+      return created.lookupsUsed;
+    }
+    
+    const [updated] = await db.update(guestStrongQuota)
+      .set({ 
+        lookupsUsed: existing[0].lookupsUsed + 1,
+        updatedAt: new Date(),
+      })
+      .where(eq(guestStrongQuota.deviceId, deviceId))
+      .returning();
+    return updated.lookupsUsed;
+  }
+
+  // User Activity & Re-engagement Campaigns
+  async updateUserLastSeen(userId: string, platform: string = 'web'): Promise<void> {
+    await db.update(users)
+      .set({ 
+        lastSeenAt: new Date(),
+        lastSeenPlatform: platform,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async setUserEmailOptOut(userId: string, optOut: boolean): Promise<void> {
+    await db.update(users)
+      .set({ 
+        emailOptOut: optOut,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async getInactiveUsers(daysInactive: number): Promise<Array<{ id: string; email: string; name: string | null; lastSeenAt: Date | null }>> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysInactive);
+
+    const result = await db.select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      lastSeenAt: users.lastSeenAt,
+    })
+    .from(users)
+    .where(
+      and(
+        or(
+          sql`${users.lastSeenAt} <= ${cutoffDate}`,
+          sql`${users.lastSeenAt} IS NULL`
+        ),
+        sql`${users.email} IS NOT NULL`,
+        eq(users.isBlocked, false),
+        eq(users.emailOptOut, false)
+      )
+    );
+
+    return result.filter(u => u.email !== null) as Array<{ id: string; email: string; name: string | null; lastSeenAt: Date | null }>;
+  }
+
+  async hasReceivedCampaign(userId: string, campaignName: string, withinDays: number): Promise<boolean> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - withinDays);
+
+    const result = await db.select()
+      .from(campaignLogs)
+      .where(
+        and(
+          eq(campaignLogs.userId, userId),
+          eq(campaignLogs.campaignName, campaignName),
+          gte(campaignLogs.sentAt, cutoffDate)
+        )
+      )
+      .limit(1);
+
+    return result.length > 0;
+  }
+
+  async logCampaign(log: InsertCampaignLog): Promise<CampaignLog> {
+    const [result] = await db.insert(campaignLogs).values(log).returning();
+    return result;
+  }
+
+  async getCampaignLogs(campaignName?: string, limit: number = 100): Promise<CampaignLog[]> {
+    let query = db.select().from(campaignLogs);
+    
+    if (campaignName) {
+      query = query.where(eq(campaignLogs.campaignName, campaignName)) as any;
+    }
+    
+    return query.orderBy(desc(campaignLogs.sentAt)).limit(limit);
+  }
+
+  async getCampaignStats(campaignName: string): Promise<{ total: number; sent: number; failed: number }> {
+    const logs = await db.select()
+      .from(campaignLogs)
+      .where(eq(campaignLogs.campaignName, campaignName));
+
+    return {
+      total: logs.length,
+      sent: logs.filter(l => l.status === 'sent').length,
+      failed: logs.filter(l => l.status === 'failed').length,
+    };
+  }
+
+  // Payment Receipts (validation and logging)
+  async createPaymentReceipt(receipt: InsertPaymentReceipt): Promise<PaymentReceipt> {
+    const [result] = await db.insert(paymentReceipts).values(receipt).returning();
+    return result;
+  }
+
+  async getPaymentReceiptByExternalId(externalPaymentId: string): Promise<PaymentReceipt | undefined> {
+    const result = await db.select()
+      .from(paymentReceipts)
+      .where(eq(paymentReceipts.externalPaymentId, externalPaymentId))
+      .limit(1);
+    return result[0];
+  }
+
+  async getPaymentReceiptById(id: string): Promise<PaymentReceipt | undefined> {
+    const result = await db.select()
+      .from(paymentReceipts)
+      .where(eq(paymentReceipts.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async updatePaymentReceipt(id: string, data: Partial<InsertPaymentReceipt>): Promise<PaymentReceipt | undefined> {
+    const [result] = await db.update(paymentReceipts)
+      .set(data)
+      .where(eq(paymentReceipts.id, id))
+      .returning();
+    return result;
+  }
+
+  async getPaymentReceipts(options?: { 
+    userId?: string; 
+    status?: string; 
+    planType?: string;
+    limit?: number; 
+    offset?: number;
+  }): Promise<{ receipts: PaymentReceipt[]; total: number }> {
+    const limit = options?.limit || 50;
+    const offset = options?.offset || 0;
+
+    let conditions: any[] = [];
+    if (options?.userId) {
+      conditions.push(eq(paymentReceipts.userId, options.userId));
+    }
+    if (options?.status) {
+      conditions.push(eq(paymentReceipts.status, options.status));
+    }
+    if (options?.planType) {
+      conditions.push(eq(paymentReceipts.planType, options.planType));
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const [receipts, countResult] = await Promise.all([
+      whereClause
+        ? db.select().from(paymentReceipts).where(whereClause).orderBy(desc(paymentReceipts.paymentDate)).limit(limit).offset(offset)
+        : db.select().from(paymentReceipts).orderBy(desc(paymentReceipts.paymentDate)).limit(limit).offset(offset),
+      whereClause
+        ? db.select({ count: sql<number>`count(*)::int` }).from(paymentReceipts).where(whereClause)
+        : db.select({ count: sql<number>`count(*)::int` }).from(paymentReceipts),
+    ]);
+
+    return {
+      receipts,
+      total: countResult[0]?.count || 0,
+    };
+  }
+
+  async getPaymentReceiptStats(): Promise<{
+    totalReceipts: number;
+    totalGrossAmount: number;
+    totalNetAmount: number;
+    totalFees: number;
+    byPlan: Record<string, { count: number; grossAmount: number; netAmount: number }>;
+    byStatus: Record<string, number>;
+    last30Days: { count: number; grossAmount: number; netAmount: number };
+  }> {
+    const allReceipts = await db.select().from(paymentReceipts);
+    
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const byPlan: Record<string, { count: number; grossAmount: number; netAmount: number }> = {};
+    const byStatus: Record<string, number> = {};
+    let totalGrossAmount = 0;
+    let totalNetAmount = 0;
+    let totalFees = 0;
+    let last30Count = 0;
+    let last30Gross = 0;
+    let last30Net = 0;
+
+    for (const receipt of allReceipts) {
+      totalGrossAmount += receipt.grossAmount;
+      totalNetAmount += receipt.netAmount;
+      totalFees += (receipt.feeAmount || 0) + (receipt.taxAmount || 0);
+
+      // By plan
+      if (!byPlan[receipt.planType]) {
+        byPlan[receipt.planType] = { count: 0, grossAmount: 0, netAmount: 0 };
+      }
+      byPlan[receipt.planType].count++;
+      byPlan[receipt.planType].grossAmount += receipt.grossAmount;
+      byPlan[receipt.planType].netAmount += receipt.netAmount;
+
+      // By status
+      byStatus[receipt.status] = (byStatus[receipt.status] || 0) + 1;
+
+      // Last 30 days
+      if (receipt.paymentDate >= thirtyDaysAgo) {
+        last30Count++;
+        last30Gross += receipt.grossAmount;
+        last30Net += receipt.netAmount;
+      }
+    }
+
+    return {
+      totalReceipts: allReceipts.length,
+      totalGrossAmount,
+      totalNetAmount,
+      totalFees,
+      byPlan,
+      byStatus,
+      last30Days: {
+        count: last30Count,
+        grossAmount: last30Gross,
+        netAmount: last30Net,
+      },
+    };
+  }
+
+  // Cloud Sync - Chat Sessions
+  async getUserChatSessions(userId: string): Promise<ChatSession[]> {
+    return db.select().from(chatSessions)
+      .where(eq(chatSessions.userId, userId))
+      .orderBy(desc(chatSessions.updatedAt));
+  }
+
+  async upsertChatSession(session: InsertChatSession): Promise<ChatSession> {
+    const [result] = await db
+      .insert(chatSessions)
+      .values({
+        ...session,
+        syncedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: chatSessions.id,
+        set: {
+          title: session.title,
+          messages: session.messages,
+          updatedAt: session.updatedAt,
+          syncedAt: new Date(),
+        },
+      })
+      .returning();
+    return result;
+  }
+
+  async deleteChatSession(id: string, userId: string): Promise<void> {
+    await db.delete(chatSessions)
+      .where(and(eq(chatSessions.id, id), eq(chatSessions.userId, userId)));
+  }
+
+  async getChatSessionsSince(userId: string, since: Date): Promise<ChatSession[]> {
+    return db.select().from(chatSessions)
+      .where(and(
+        eq(chatSessions.userId, userId),
+        gte(chatSessions.updatedAt, since)
+      ))
+      .orderBy(desc(chatSessions.updatedAt));
+  }
+
+  async getUserSyncMeta(userId: string): Promise<UserSyncMeta | undefined> {
+    const [result] = await db.select().from(userSyncMeta)
+      .where(eq(userSyncMeta.userId, userId));
+    return result;
+  }
+
+  async updateUserSyncMeta(userId: string, deviceId?: string): Promise<UserSyncMeta> {
+    const [result] = await db
+      .insert(userSyncMeta)
+      .values({
+        userId,
+        lastSyncedAt: new Date(),
+        deviceId: deviceId || null,
+      })
+      .onConflictDoUpdate({
+        target: userSyncMeta.userId,
+        set: {
+          lastSyncedAt: new Date(),
+          deviceId: deviceId || null,
+        },
+      })
+      .returning();
+    return result;
   }
 }
 

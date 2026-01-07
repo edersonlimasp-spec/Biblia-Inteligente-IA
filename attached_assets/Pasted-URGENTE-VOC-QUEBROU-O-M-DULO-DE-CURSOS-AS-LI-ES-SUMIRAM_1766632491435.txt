@@ -1,0 +1,60 @@
+URGENTE: VOCÊ QUEBROU O MÓDULO DE CURSOS. AS LIÇÕES SUMIRAM.
+TAREFA: RESTAURAR A ÁREA DE ESTUDOS/CURSOS PARA FUNCIONAR COMO ANTES, TRAZENDO DE VOLTA TODAS AS LIÇÕES.
+
+REGRAS IMPORTANTES:
+- NÃO refatorar o app inteiro.
+- NÃO mudar layout geral.
+- NÃO alterar rotas sem necessidade.
+- Fazer o mínimo necessário para RESTAURAR as lições e a navegação.
+- Se você tiver feito mudanças recentes, use o histórico/commit/checkpoint para comparar e recuperar o que sumiu.
+
+PASSO 1 — DIAGNÓSTICO RÁPIDO (OBRIGATÓRIO)
+1) Localize onde o app monta a lista de cursos/módulos/matérias/lições:
+   - componente de Cursos
+   - componente de Módulo
+   - componente de Matérias
+   - componente de Lição/Aula
+2) Verifique se as lições sumiram por:
+   a) filtro de permissão/assinatura bloqueando errado
+   b) query/API retornando vazio
+   c) mudança de estrutura do JSON/dados
+   d) rota quebrada
+   e) erro de state (ex: sobrescreveu lessons = [])
+
+PASSO 2 — RESTAURAR LIÇÕES (PRIORIDADE MÁXIMA)
+- Restaurar a renderização das lições como era antes:
+  ✅ a lista de lições deve aparecer novamente dentro da matéria
+  ✅ ao entrar no curso e abrir um módulo -> matérias aparecem
+  ✅ ao abrir uma matéria -> lições aparecem
+
+Se for necessário, faça:
+- Reverter somente os trechos que impactaram cursos/lições para o estado anterior
+- Restaurar o schema antigo dos dados (ex: lessons, units, topics — manter exatamente o que existia)
+
+PASSO 3 — CORRIGIR O CONTROLE DE ACESSO SEM APAGAR LIÇÕES
+O bloqueio deve ser SOMENTE quando clicar na Lição/Aula premium.
+A lista NÃO pode sumir por causa de permissão.
+Implementar assim:
+
+- Sempre mostrar módulos/matérias/lições (visível)
+- Ao clicar para abrir uma lição:
+   - se tiver acesso -> abre
+   - se NÃO tiver acesso -> abrir modal de assinatura e NÃO navegar
+
+IMPORTANTE:
+- Não usar blur
+- Não ocultar lições
+- Não remover lições do array por filtro (não filtrar no map/lista)
+
+PASSO 4 — TESTES OBRIGATÓRIOS
+Testar com 3 perfis (simular no código se necessário):
+1) FREE: vê cursos e lições, mas ao abrir lição premium aparece modal
+2) PREMIUM: consegue abrir moderado/avançado (lições premium liberadas para premium)
+3) GOLD: abre tudo sem modal
+
+PASSO 5 — CONFIRMAÇÃO FINAL
+Antes de concluir, você deve me responder com:
+- Quais arquivos foram alterados
+- O que estava causando as lições sumirem
+- Evidência de teste (ex: prints do console/logs ou descrição de passos que executou)
+- Confirmar: "As lições voltaram e a navegação Estudos/Cursos está restaurada"

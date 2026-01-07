@@ -1,0 +1,35 @@
+## Contexto
+Estou desenvolvendo o aplicativo “Bíblia Inteligente IA” no Replit. Quero melhorar o módulo de leitura bíblica para que supere a “Bíblia Almeida Revista e Atualizada com números de Strong” em conteúdo. A edição Strong marca cada palavra com um número e oferece léxicos hebraico/aramaico e grego com definições e análise de verbos [oai_citation:3‡accordancebible.com](https://www.accordancebible.com/product/portuguese-bible-biblia-almeida-revista-e-atualizada-com-numeros-de-strong/#:~:text=Almeida%20Revised%20and%20Updated%3A%20Holy,a%20translation%20of%20its%20lexicon) [oai_citation:4‡accordancebible.com](https://www.accordancebible.com/product/portuguese-bible-biblia-almeida-revista-e-atualizada-com-numeros-de-strong/#:~:text=,2002). Desejo integrar essas informações no próprio app, complementando‑as com recursos multimídia e IA.
+
+## Metas
+
+1. **Adicionar marcação de Strong no texto**:
+   - Associe cada palavra da tradução portuguesa a um número de Strong (quando houver). Para isso, utilize a base “Bíblia Almeida RA com Strong” e os léxicos “Léxico Hebraico/Aramaico de Strong” e “Léxico Grego de Strong” [oai_citation:5‡accordancebible.com](https://www.accordancebible.com/product/portuguese-bible-biblia-almeida-revista-e-atualizada-com-numeros-de-strong/#:~:text=,2002).
+   - Faça o download desses léxicos em PDF (ex.: `dicionario-biblico-strong-lexico-hebraico-aramaico-e-grego-em-portugues.pdf`, disponível publicamente em alguns sites) e extraia os dados para um formato JSON legível. Armazene os arquivos na pasta `/data/lexicons` do projeto.
+   - Crie um módulo de parsing que, dado um número de Strong, busque o termo no léxico correspondente e retorne forma original, transliteração, pronúncia, significado e análise morfológica.
+
+2. **Interface de consulta**:
+   - Na tela de leitura da Bíblia, adicione uma opção (número ou ícone discreto) após cada palavra marcada; ao tocar nesse indicador, abrir um card ou modal com os detalhes acima.
+   - Inclua links para “ocorrências” (lista de outras passagens onde o termo aparece) usando o índice dos números de Strong.
+   - Disponibilize botões para ouvir a pronúncia (carregando arquivos de áudio, quando disponíveis) e compartilhar ou copiar o resultado.
+
+3. **Enriquecimento do conteúdo**:
+   - Amplie o dicionário com etimologia e sinônimos (extraídos de fontes públicas confiáveis) e inclua notas contextuais breves sobre o uso histórico do termo.
+   - Integre com o modo de exegese da IA: ofereça um botão “Ver Análise IA” no modal, que envia o termo e o verso para a IA gerar uma explicação aprofundada.
+
+4. **Modo offline**:
+   - Permita que os léxicos e os números de Strong sejam baixados e armazenados localmente para consultas offline. Crie funções de verificação de atualização dos dados no servidor quando online.
+
+## Tarefas técnicas
+- Baixar os PDFs dos léxicos de Strong (hebraico/aramaico e grego) e a versão RA com números; armazenar em `/downloads` e processar para JSON.
+- Criar scripts Node/JS para extrair os campos (número, transliteração, palavra original, definição, análise morfológica) dos PDFs.
+- Implementar componentes React (ou framework usado) para:
+  - Exibir marcadores de Strong no texto.
+  - Abrir o modal de detalhes com dados carregados do JSON.
+  - Buscar ocorrências de um número no texto.
+- Estilizar o modal para combinar com a identidade visual do app (cores, fontes) e garantir responsividade.
+- Sincronizar downloads de dados com o servidor e armazenar localmente (IndexedDB ou outro mecanismo PWA) para uso offline.
+- Escrever testes unitários para verificar que a extração dos léxicos e a associação de números de Strong às palavras estão corretas.
+
+## Resultado esperado
+Ao concluir, o leitor da Bíblia poderá tocar em qualquer palavra marcada, visualizar rapidamente seu número de Strong, a palavra original, a pronúncia e uma definição rica em português, com links para outras passagens. Esse sistema integrará e aprimorará os conteúdos da Bíblia Almeida Strong [oai_citation:6‡accordancebible.com](https://www.accordancebible.com/product/portuguese-bible-biblia-almeida-revista-e-atualizada-com-numeros-de-strong/#:~:text=,2002), elevando a experiência de estudo no “Bíblia Inteligente IA”.

@@ -25,9 +25,14 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   googleId: varchar("google_id"),
   role: text("role").notNull().default("user"),
+  isAdmin: boolean("is_admin").notNull().default(false),
   isBlocked: boolean("is_blocked").notNull().default(false),
   trialStartDate: timestamp("trial_start_date").defaultNow(),
   lastLoginAt: timestamp("last_login_at"),
+  lastSeenAt: timestamp("last_seen_at").defaultNow(),
+  lastSeenPlatform: text("last_seen_platform").default("web"),
+  emailOptOut: boolean("email_opt_out").notNull().default(false),
+  preferredLanguage: text("preferred_language").default("pt"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -56,6 +61,14 @@ export const subscriptions = pgTable("subscriptions", {
   startDate: timestamp("start_date").notNull().defaultNow(),
   endDate: timestamp("end_date"), // null for lifetime
   amount: text("amount").notNull(), // Store as text: "189.90" (Strong Vitalício), "19.90" (Gold), "29.90" (Premium)
+  // Native IAP fields (Apple/Google)
+  source: text("source").notNull().default('web'), // 'web', 'apple', 'google'
+  storeTransactionId: text("store_transaction_id"), // Apple transactionId or Google purchaseToken
+  originalTransactionId: text("original_transaction_id"), // For subscription renewals
+  storeProductId: text("store_product_id"), // Product ID in App Store/Play Store
+  lastVerifiedAt: timestamp("last_verified_at"),
+  nextRenewalCheck: timestamp("next_renewal_check"),
+  cancellationAt: timestamp("cancellation_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -128,6 +141,47 @@ export const insertAIHistorySchema = createInsertSchema(aiHistory).omit({
 export type InsertAIHistory = z.infer<typeof insertAIHistorySchema>;
 export type AIHistory = typeof aiHistory.$inferSelect;
 
+// Chat Sessions table (Cloud Sync for AI conversations)
+export const chatSessions = pgTable("chat_sessions", {
+  id: varchar("id").primaryKey(), // Client-generated UUID for sync
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  messages: jsonb("messages").notNull().$type<ChatMessage[]>(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  syncedAt: timestamp("synced_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("chat_sessions_user_id_idx").on(table.userId),
+  updatedAtIdx: index("chat_sessions_updated_at_idx").on(table.updatedAt),
+}));
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  text: string;
+  timestamp: string;
+  verseContext?: {
+    book: string;
+    chapter: number;
+    verse: number;
+  };
+}
+
+export const insertChatSessionSchema = createInsertSchema(chatSessions).omit({
+  syncedAt: true,
+});
+
+export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
+export type ChatSession = typeof chatSessions.$inferSelect;
+
+// User Sync Metadata table (tracks last sync timestamp per user)
+export const userSyncMeta = pgTable("user_sync_meta", {
+  userId: varchar("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  lastSyncedAt: timestamp("last_synced_at").notNull().defaultNow(),
+  deviceId: text("device_id"),
+});
+
+export type UserSyncMeta = typeof userSyncMeta.$inferSelect;
+
 // Password Reset Tokens table
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -154,6 +208,10 @@ export const strongEntries = pgTable("strong_entries", {
   strongsDef: text("strongs_def"), // Full Strong's definition
   derivation: text("derivation"), // Etymology/word derivation
   extendedDefinition: text("extended_definition"), // Rich theological explanation in Portuguese (AI-generated)
+  aiGenerated: boolean("ai_generated").default(false), // Flag if definition was AI-generated
+  morphologicalInfo: text("morphological_info"), // Detailed morphological analysis (AI-generated)
+  synonymsRelated: text("synonyms_related"), // Synonyms and related biblical terms (AI-generated)
+  verseReferences: text("verse_references"), // Key verse references where term appears (AI-generated)
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   // PRIMARY index for Strong lookups by number (critical for performance)
@@ -198,6 +256,8 @@ export type BibleWord = typeof bibleWords.$inferSelect;
 // Admin Actions (Audit Log) table
 export const adminActions = pgTable("admin_actions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  action: text("action"),
   adminId: varchar("admin_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   actionType: text("action_type").notNull(), // BONUS_GRANTED, PLAN_CHANGED, ADMIN_CREATED, USER_BLOCKED, etc.
   targetUserId: varchar("target_user_id").references(() => users.id, { onDelete: "cascade" }),
@@ -225,6 +285,7 @@ export const bonuses = pgTable("bonuses", {
   isActive: boolean("is_active").notNull().default(true),
   startAt: timestamp("start_at").notNull().defaultNow(),
   endAt: timestamp("end_at"), // null for lifetime/permanent bonuses
+  expiresAt: timestamp("expires_at"), // Legacy column - kept for compatibility
   reason: text("reason"),
   grantedByAdminId: varchar("granted_by_admin_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -609,6 +670,52 @@ export const insertStudyLessonSchema = createInsertSchema(studyLessons).omit({
 export type InsertStudyLesson = z.infer<typeof insertStudyLessonSchema>;
 export type StudyLesson = typeof studyLessons.$inferSelect;
 
+// Study Module Translations table (EN/ES translations)
+export const studyModuleTranslations = pgTable("study_module_translations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id").notNull().references(() => studyModules.id, { onDelete: "cascade" }),
+  language: text("language").notNull(), // 'en' or 'es'
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  moduleLanguageIdx: index("study_module_translations_module_lang_idx").on(table.moduleId, table.language),
+}));
+
+export type StudyModuleTranslation = typeof studyModuleTranslations.$inferSelect;
+
+// Study Track Translations table (EN/ES translations)
+export const studyTrackTranslations = pgTable("study_track_translations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  trackId: varchar("track_id").notNull().references(() => studyTracks.id, { onDelete: "cascade" }),
+  language: text("language").notNull(), // 'en' or 'es'
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  trackLanguageIdx: index("study_track_translations_track_lang_idx").on(table.trackId, table.language),
+}));
+
+export type StudyTrackTranslation = typeof studyTrackTranslations.$inferSelect;
+
+// Study Lesson Translations table (EN/ES translations)
+export const studyLessonTranslations = pgTable("study_lesson_translations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  lessonId: varchar("lesson_id").notNull().references(() => studyLessons.id, { onDelete: "cascade" }),
+  language: text("language").notNull(), // 'en' or 'es'
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  references: text("references").notNull(),
+  questions: text("questions").notNull(),
+  application: text("application").notNull(),
+  summary: text("summary").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  lessonLanguageIdx: index("study_lesson_translations_lesson_lang_idx").on(table.lessonId, table.language),
+}));
+
+export type StudyLessonTranslation = typeof studyLessonTranslations.$inferSelect;
+
 // User Study Progress table
 export const userStudyProgress = pgTable("user_study_progress", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -633,85 +740,291 @@ export const insertUserStudyProgressSchema = createInsertSchema(userStudyProgres
 export type InsertUserStudyProgress = z.infer<typeof insertUserStudyProgressSchema>;
 export type UserStudyProgress = typeof userStudyProgress.$inferSelect;
 
-// Reading Plans table
-export const readingPlans = pgTable("reading_plans", {
+// Free AI Questions Quota table (permanent count - NOT daily reset)
+// Tracks the cumulative number of free AI questions used by users
+export const freeAiQuota = pgTable("free_ai_quota", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  slug: text("slug").notNull().unique(), // e.g., "52-weeks", "5-days", "chronological", "book-by-book"
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  duration: integer("duration").notNull(), // Total days
-  icon: text("icon").notNull(), // Icon name from lucide-react
-  gradientFrom: text("gradient_from").notNull(), // Gradient start color
-  gradientTo: text("gradient_to").notNull(), // Gradient end color
-  weekdaysOnly: boolean("weekdays_only").notNull().default(false),
-  isActive: boolean("is_active").notNull().default(true),
-  order: integer("order").notNull().default(0),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-export const insertReadingPlanSchema = createInsertSchema(readingPlans).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type InsertReadingPlan = z.infer<typeof insertReadingPlanSchema>;
-export type ReadingPlan = typeof readingPlans.$inferSelect;
-
-// Reading Plan Days table (contains the readings for each day)
-export const readingPlanDays = pgTable("reading_plan_days", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  planId: varchar("plan_id").notNull().references(() => readingPlans.id, { onDelete: "cascade" }),
-  dayNumber: integer("day_number").notNull(),
-  readings: jsonb("readings").notNull(), // Array of { book, chapter, verseStart?, verseEnd? }
-  title: text("title"), // Optional day title/theme
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-}, (table) => ({
-  planIdIdx: index("reading_plan_days_plan_id_idx").on(table.planId),
-  dayNumberIdx: index("reading_plan_days_day_number_idx").on(table.dayNumber),
-}));
-
-export const insertReadingPlanDaySchema = createInsertSchema(readingPlanDays).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type InsertReadingPlanDay = z.infer<typeof insertReadingPlanDaySchema>;
-export type ReadingPlanDay = typeof readingPlanDays.$inferSelect;
-
-// User Reading Plan Progress table
-export const userReadingPlanProgress = pgTable("user_reading_plan_progress", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
-  deviceId: text("device_id"), // For guest users
-  planId: varchar("plan_id").notNull().references(() => readingPlans.id, { onDelete: "cascade" }),
-  startDate: timestamp("start_date").notNull().defaultNow(),
-  currentDay: integer("current_day").notNull().default(1),
-  completedDays: jsonb("completed_days").notNull().default([]), // Array of completed day numbers
-  completedReadings: jsonb("completed_readings").notNull().default({}), // { dayNumber: [readingIndex] }
-  notes: jsonb("notes").notNull().default({}), // { dayNumber: "note text" }
-  isActive: boolean("is_active").notNull().default(true),
-  completedAt: timestamp("completed_at"),
+  userId: varchar("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  questionsUsed: integer("questions_used").notNull().default(0),
+  guestQuestionsImported: integer("guest_questions_imported").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => ({
-  userIdIdx: index("user_reading_plan_progress_user_id_idx").on(table.userId),
-  deviceIdIdx: index("user_reading_plan_progress_device_id_idx").on(table.deviceId),
-  planIdIdx: index("user_reading_plan_progress_plan_id_idx").on(table.planId),
+  userIdIdx: index("free_ai_quota_user_id_idx").on(table.userId),
 }));
 
-export const insertUserReadingPlanProgressSchema = createInsertSchema(userReadingPlanProgress).omit({
+export type FreeAiQuota = typeof freeAiQuota.$inferSelect;
+
+// Strong Dictionary Quota for registered users (permanent count - NOT daily reset)
+// Tracks cumulative Strong lookups: Guest=2 total, Free User=4 total (incl. migrated), Gold=20/day, Premium=unlimited
+export const freeStrongQuota = pgTable("free_strong_quota", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  lookupsUsed: integer("lookups_used").notNull().default(0),
+  guestLookupsImported: integer("guest_lookups_imported").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("free_strong_quota_user_id_idx").on(table.userId),
+}));
+
+export type FreeStrongQuota = typeof freeStrongQuota.$inferSelect;
+
+// Strong Dictionary Quota for guest users (by deviceId - permanent count)
+export const guestStrongQuota = pgTable("guest_strong_quota", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  deviceId: text("device_id").notNull().unique(),
+  lookupsUsed: integer("lookups_used").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  deviceIdIdx: index("guest_strong_quota_device_id_idx").on(table.deviceId),
+}));
+
+export type GuestStrongQuota = typeof guestStrongQuota.$inferSelect;
+
+// Campaign Logs table (for tracking re-engagement campaigns)
+export const campaignLogs = pgTable("campaign_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  campaignName: text("campaign_name").notNull(), // 'inactive_30_days', 'trial_expiring', etc.
+  sentAt: timestamp("sent_at").notNull().defaultNow(),
+  status: text("status").notNull().default('sent'), // 'sent', 'failed', 'delivered', 'opened'
+  providerMessageId: text("provider_message_id"), // ID from email provider (Resend)
+  errorMessage: text("error_message"), // Error details if failed
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("campaign_logs_user_id_idx").on(table.userId),
+  campaignNameIdx: index("campaign_logs_campaign_name_idx").on(table.campaignName),
+  sentAtIdx: index("campaign_logs_sent_at_idx").on(table.sentAt),
+}));
+
+export const insertCampaignLogSchema = createInsertSchema(campaignLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCampaignLog = z.infer<typeof insertCampaignLogSchema>;
+export type CampaignLog = typeof campaignLogs.$inferSelect;
+
+// Payment Receipts table - Detailed validation and logging of payment transactions
+export const paymentReceipts = pgTable("payment_receipts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Payment identification
+  externalPaymentId: text("external_payment_id").notNull(), // MP payment_id or preapproval_id
+  paymentProvider: text("payment_provider").notNull().default("mercadopago"), // mercadopago, stripe, etc.
+  paymentType: text("payment_type").notNull(), // 'payment', 'preapproval', 'subscription'
+  
+  // User association
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  userEmail: text("user_email"), // Backup in case user is deleted
+  
+  // Plan information
+  planType: text("plan_type").notNull(), // 'gold', 'premium', 'strong_lifetime'
+  subscriptionDays: integer("subscription_days"), // null for lifetime
+  isLifetime: boolean("is_lifetime").notNull().default(false),
+  
+  // Financial details (in BRL cents for precision)
+  grossAmount: integer("gross_amount").notNull(), // Valor bruto (e.g., 1990 = R$ 19,90)
+  feeAmount: integer("fee_amount").default(0), // Taxas do provedor
+  taxAmount: integer("tax_amount").default(0), // Impostos
+  netAmount: integer("net_amount").notNull(), // Valor líquido recebido
+  currency: text("currency").notNull().default("BRL"),
+  
+  // Payment status
+  status: text("status").notNull(), // 'approved', 'pending', 'rejected', 'refunded', 'cancelled'
+  statusDetail: text("status_detail"), // Detailed status from provider
+  
+  // Origin and context
+  origin: text("origin").notNull(), // 'checkout', 'webhook', 'api', 'manual'
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  deviceId: text("device_id"),
+  
+  // Provider raw data (for debugging)
+  providerRawData: jsonb("provider_raw_data"),
+  
+  // Validation
+  isValidated: boolean("is_validated").notNull().default(false),
+  validationErrors: text("validation_errors").array(),
+  validatedAt: timestamp("validated_at"),
+  
+  // Subscription activation
+  subscriptionId: varchar("subscription_id").references(() => subscriptions.id, { onDelete: "set null" }),
+  activatedAt: timestamp("activated_at"),
+  
+  // Timestamps
+  paymentDate: timestamp("payment_date").notNull(), // When payment was made
+  receivedAt: timestamp("received_at").notNull().defaultNow(), // When we received notification
+  processedAt: timestamp("processed_at"), // When we finished processing
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  externalPaymentIdx: index("payment_receipts_external_payment_idx").on(table.externalPaymentId),
+  userIdIdx: index("payment_receipts_user_id_idx").on(table.userId),
+  statusIdx: index("payment_receipts_status_idx").on(table.status),
+  paymentDateIdx: index("payment_receipts_payment_date_idx").on(table.paymentDate),
+  planTypeIdx: index("payment_receipts_plan_type_idx").on(table.planType),
+}));
+
+export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
+export type PaymentReceipt = typeof paymentReceipts.$inferSelect;
+
+// ==========================================
+// READING PLANS MODULE
+// ==========================================
+
+// Reading Plan Templates - predefined plans (52-Week, Five-Day, Chronological, etc.)
+export const readingPlanTemplates = pgTable("reading_plan_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  slug: text("slug").notNull().unique(), // e.g., "52-week-genre", "five-day-bible"
+  titlePt: text("title_pt").notNull(),
+  titleEn: text("title_en").notNull(),
+  titleEs: text("title_es").notNull(),
+  descriptionPt: text("description_pt").notNull(),
+  descriptionEn: text("description_en").notNull(),
+  descriptionEs: text("description_es").notNull(),
+  category: text("category").notNull(), // 'full-bible', 'new-testament', 'old-testament', 'topical', 'custom'
+  durationDays: integer("duration_days").notNull(), // Total days (e.g., 365, 90, 730)
+  defaultPace: integer("default_pace").notNull().default(3), // Chapters per day
+  scheduleMode: text("schedule_mode").notNull().default('canonical'), // 'canonical', 'chronological', 'genre', 'alternating'
+  weekdaysOnly: boolean("weekdays_only").notNull().default(false), // Skip weekends (Five-Day plans)
+  icon: text("icon").notNull().default('BookOpen'), // Lucide icon name
+  colorGradient: text("color_gradient").notNull().default('from-blue-500 to-blue-700'),
+  tags: text("tags").array(), // ['popular', 'new', 'recommended']
+  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  slugIdx: index("reading_plan_templates_slug_idx").on(table.slug),
+  categoryIdx: index("reading_plan_templates_category_idx").on(table.category),
+}));
+
+export const insertReadingPlanTemplateSchema = createInsertSchema(readingPlanTemplates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReadingPlanTemplate = z.infer<typeof insertReadingPlanTemplateSchema>;
+export type ReadingPlanTemplate = typeof readingPlanTemplates.$inferSelect;
+
+// Reading Plan Entries - daily readings for each template
+export interface DailyReading {
+  book: string; // e.g., "gen", "mat"
+  startChapter: number;
+  endChapter?: number; // Optional for multi-chapter readings
+  startVerse?: number; // Optional for verse-specific readings
+  endVerse?: number;
+}
+
+export const readingPlanEntries = pgTable("reading_plan_entries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  templateId: varchar("template_id").notNull().references(() => readingPlanTemplates.id, { onDelete: "cascade" }),
+  dayIndex: integer("day_index").notNull(), // 1-based day number
+  readings: jsonb("readings").notNull().$type<DailyReading[]>(), // Array of readings for this day
+  weekSummaryPt: text("week_summary_pt"), // Optional weekly context summary
+  weekSummaryEn: text("week_summary_en"),
+  weekSummaryEs: text("week_summary_es"),
+  genre: text("genre"), // For genre-based plans: 'epistles', 'law', 'history', 'psalms', 'poetry', 'prophets', 'gospels'
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  templateDayIdx: index("reading_plan_entries_template_day_idx").on(table.templateId, table.dayIndex),
+}));
+
+export const insertReadingPlanEntrySchema = createInsertSchema(readingPlanEntries).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReadingPlanEntry = z.infer<typeof insertReadingPlanEntrySchema>;
+export type ReadingPlanEntry = typeof readingPlanEntries.$inferSelect;
+
+// User Reading Plans - user's active/completed plans
+export const userReadingPlans = pgTable("user_reading_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }), // Nullable for guests
+  deviceId: text("device_id"), // For guest tracking
+  templateId: varchar("template_id").references(() => readingPlanTemplates.id, { onDelete: "set null" }), // Null for custom plans
+  customTitle: text("custom_title"), // For custom plans
+  startDate: timestamp("start_date").notNull(),
+  targetEndDate: timestamp("target_end_date").notNull(),
+  actualEndDate: timestamp("actual_end_date"), // When completed
+  status: text("status").notNull().default('active'), // 'active', 'paused', 'completed', 'abandoned'
+  paceOverride: integer("pace_override"), // User can adjust pace
+  scheduleModeOverride: text("schedule_mode_override"), // User can change order
+  allowAutoCatchup: boolean("allow_auto_catchup").notNull().default(true),
+  notificationsEnabled: boolean("notifications_enabled").notNull().default(true),
+  notificationTime: text("notification_time").default('08:00'), // HH:MM format
+  currentDay: integer("current_day").notNull().default(1), // Current day in the plan
+  completedDays: integer("completed_days").notNull().default(0),
+  lastReadDate: timestamp("last_read_date"),
+  streakDays: integer("streak_days").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("user_reading_plans_user_id_idx").on(table.userId),
+  deviceIdIdx: index("user_reading_plans_device_id_idx").on(table.deviceId),
+  statusIdx: index("user_reading_plans_status_idx").on(table.status),
+}));
+
+export const insertUserReadingPlanSchema = createInsertSchema(userReadingPlans).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export type InsertUserReadingPlanProgress = z.infer<typeof insertUserReadingPlanProgressSchema>;
-export type UserReadingPlanProgress = typeof userReadingPlanProgress.$inferSelect;
+export type InsertUserReadingPlan = z.infer<typeof insertUserReadingPlanSchema>;
+export type UserReadingPlan = typeof userReadingPlans.$inferSelect;
 
-// Type for readings in a day
-export interface PlanReading {
+// User Daily Readings - tracks completion of each day's readings
+export interface CompletedReading {
   book: string;
   chapter: number;
-  verseStart?: number;
-  verseEnd?: number;
+  completedAt: string; // ISO timestamp
+}
+
+export const userDailyReadings = pgTable("user_daily_readings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userPlanId: varchar("user_plan_id").notNull().references(() => userReadingPlans.id, { onDelete: "cascade" }),
+  dayIndex: integer("day_index").notNull(), // Day in the plan
+  scheduledDate: timestamp("scheduled_date").notNull(), // Original scheduled date
+  actualDate: timestamp("actual_date"), // When actually completed (for catch-up tracking)
+  readings: jsonb("readings").notNull().$type<DailyReading[]>(), // Readings for this day
+  completedReadings: jsonb("completed_readings").$type<CompletedReading[]>(), // Which ones are done
+  completionPercent: integer("completion_percent").notNull().default(0), // 0-100
+  isCompleted: boolean("is_completed").notNull().default(false),
+  isSkipped: boolean("is_skipped").notNull().default(false),
+  wasAutoShifted: boolean("was_auto_shifted").notNull().default(false), // If rescheduled due to missed days
+  shiftedFromDay: integer("shifted_from_day"), // Original day if shifted
+  soapNotes: jsonb("soap_notes"), // S.O.A.P. method notes
+  aiSummary: text("ai_summary"), // AI-generated summary
+  userNotes: text("user_notes"), // Personal reflection
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userPlanDayIdx: index("user_daily_readings_plan_day_idx").on(table.userPlanId, table.dayIndex),
+  scheduledDateIdx: index("user_daily_readings_scheduled_date_idx").on(table.scheduledDate),
+}));
+
+export const insertUserDailyReadingSchema = createInsertSchema(userDailyReadings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUserDailyReading = z.infer<typeof insertUserDailyReadingSchema>;
+export type UserDailyReading = typeof userDailyReadings.$inferSelect;
+
+// SOAP Notes structure
+export interface SOAPNotes {
+  scripture: string; // Key verse selected
+  observation: string; // What does it say?
+  application: string; // How does it apply to me?
+  prayer: string; // Prayer response
 }

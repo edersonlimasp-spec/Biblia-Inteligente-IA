@@ -1,0 +1,128 @@
+LEIA COM ATENÇÃO E SIGA EM ORDEM. NÃO PULE ETAPAS. NÃO REMOVA CONTEÚDO EXISTENTE.
+
+🎯 OBJETIVO PRINCIPAL
+	1.	RESTAURAR 100% do conteúdo original do app Bíblia Inteligente, incluindo:
+	•	Todas as lições
+	•	Todos os módulos
+	•	Cursos Premium (Iniciante, Moderado e Avançado)
+	•	Conteúdos de IA (Professor, IA Premium, agendas, estudos, perguntas, etc.)
+	2.	CORRIGIR o erro onde o módulo “Cursos Premium” abre em branco
+	3.	IMPLEMENTAR tradução COMPLETA e FUNCIONAL para:
+	•	🇺🇸 Inglês
+	•	🇪🇸 Espanhol
+	4.	NÃO QUEBRAR o app
+	5.	TESTAR antes de entregar
+
+⸻
+
+🔒 ETAPA 1 — RESTAURAÇÃO (OBRIGATÓRIA)
+	•	Reverter qualquer alteração que:
+	•	Removeu lições
+	•	Apagou módulos
+	•	Deixou telas em branco
+	•	O módulo Cursos Premium NÃO pode ficar vazio
+	•	Todas as lições devem:
+	•	Aparecer na lista
+	•	Abrir corretamente
+	•	Se necessário:
+	•	Recarregar os dados do backup / banco / JSON / seed original
+	•	NÃO traduzir ainda nesta etapa
+
+👉 Somente avance quando o app estiver 100% restaurado e funcional em português
+
+⸻
+
+🌍 ETAPA 2 — INTERNACIONALIZAÇÃO CORRETA (i18n)
+
+Implementar sistema real de idiomas, NÃO texto fixo.
+
+Idiomas:
+	•	pt-BR (padrão)
+	•	en-US
+	•	es-ES
+
+Deve ser traduzido:
+
+✅ Toda a UI
+✅ Menus
+✅ Botões
+✅ Títulos
+✅ Mensagens
+✅ Labels
+✅ Conteúdo da Bíblia conforme a versão escolhida
+✅ TODAS as lições dos Cursos Premium
+✅ IA Professor / IA Premium
+✅ Agendas
+✅ Treinamentos
+✅ Qualquer texto visível ao usuário
+
+⚠️ Não é aceitável traduzir só a interface
+⚠️ Conteúdo interno NÃO pode permanecer em português
+
+⸻
+
+📘 ETAPA 3 — BÍBLIA
+	•	Ao trocar o idioma:
+	•	Os nomes dos livros mudam
+	•	O texto bíblico muda conforme a versão do idioma
+	•	Exemplo:
+	•	Português → Almeida / ARC / ARA
+	•	Inglês → KJV / NIV
+	•	Espanhol → RVR
+	•	Nunca misturar idiomas
+
+⸻
+
+🏳️ ETAPA 4 — ÍCONES DE IDIOMA
+	•	Adicionar ícones de bandeiras:
+	•	🇧🇷 🇺🇸 🇪🇸
+	•	Localização:
+	•	Canto superior direito
+	•	Na mesma linha do título “Bíblia Inteligente”
+	•	Ao lado do botão de login
+	•	Regras:
+	•	Tamanho: 50% do atual
+	•	Espaçamento pequeno entre ícones
+	•	Ao tocar:
+	•	Trocar idioma INSTANTANEAMENTE
+	•	UI + conteúdo + Bíblia + cursos + IA
+
+⸻
+
+🧪 ETAPA 5 — TESTES OBRIGATÓRIOS
+
+Antes de entregar, TESTAR no Preview:
+
+☑ Abrir Cursos Premium
+☑ Conferir se todas as lições aparecem
+☑ Abrir uma lição em PT, EN e ES
+☑ Trocar idioma e confirmar que:
+	•	Nada fica em branco
+	•	Nada volta para português
+	•	Nenhum módulo quebra
+
+⚠️ Se algum conteúdo não puder ser traduzido agora:
+	•	NÃO APAGAR
+	•	Manter visível
+	•	Informar explicitamente o motivo
+
+⸻
+
+🚫 PROIBIÇÕES
+
+❌ Não apagar dados
+❌ Não recriar módulos vazios
+❌ Não entregar sem testar
+❌ Não dizer “está traduzido” sem validar lições
+❌ Não quebrar cursos premium novamente
+
+⸻
+
+✅ CONFIRMAÇÃO FINAL OBRIGATÓRIA
+
+Antes de finalizar, responder explicitamente:
+	•	✔ App restaurado
+	•	✔ Cursos Premium funcionando
+	•	✔ Tradução completa PT / EN / ES
+	•	✔ Troca de idioma testada
+	•	✔ Nenhuma tela em branco

@@ -8,6 +8,45 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// ========== ENVIRONMENT DIAGNOSTICS ==========
+function logEnvironmentDiagnostics() {
+  const diagnostics = {
+    NODE_ENV: process.env.NODE_ENV || 'undefined',
+    REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT || 'undefined',
+    REPLIT_DEV_DOMAIN: process.env.REPLIT_DEV_DOMAIN || 'undefined',
+    REPLIT_DOMAINS: process.env.REPLIT_DOMAINS || 'undefined',
+    DATABASE_URL: process.env.DATABASE_URL ? '[SET]' : '[MISSING]',
+    PORT: process.env.PORT || '5000',
+    BUILD_ID: 'runtime-check-below'
+  };
+  
+  console.log('');
+  console.log('╔══════════════════════════════════════════════════════════════╗');
+  console.log('║             🔍 ENVIRONMENT DIAGNOSTICS                       ║');
+  console.log('╠══════════════════════════════════════════════════════════════╣');
+  Object.entries(diagnostics).forEach(([key, value]) => {
+    console.log(`║  ${key.padEnd(22)} = ${String(value).slice(0, 35).padEnd(35)} ║`);
+  });
+  console.log('╚══════════════════════════════════════════════════════════════╝');
+  console.log('');
+  
+  // Try to load build-info.json
+  try {
+    const buildInfoPath = path.resolve(__dirname, '..', 'build-info.json');
+    if (fs.existsSync(buildInfoPath)) {
+      const buildInfo = JSON.parse(fs.readFileSync(buildInfoPath, 'utf-8'));
+      console.log(`📌 BUILD_ID: ${buildInfo.buildId}`);
+      console.log(`📌 BUILD_TIMESTAMP: ${buildInfo.timestamp}`);
+      console.log(`📌 BUILD_ENV: ${buildInfo.env}`);
+    } else {
+      console.log('📌 BUILD_ID: development (no build-info.json)');
+    }
+  } catch (e) {
+    console.log('📌 BUILD_ID: error reading build-info.json');
+  }
+  console.log('');
+}
+
 // SYNC: Ensure frontend files are available for production serving
 // This runs before Express starts, verifying files are in the right place
 function ensureFrontendFilesReady() {
@@ -91,6 +130,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static files from public folder (for .well-known, etc.)
+app.use(express.static(path.join(process.cwd(), "public")));
+
+// Explicit route for Digital Asset Links (Google Play domain verification)
+app.get("/.well-known/assetlinks.json", (_req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.sendFile(path.join(process.cwd(), "public", ".well-known", "assetlinks.json"));
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -122,6 +170,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Log environment diagnostics on startup
+  logEnvironmentDiagnostics();
+  
   // Ensure frontend files are in correct location before starting server
   ensureFrontendFilesReady();
 

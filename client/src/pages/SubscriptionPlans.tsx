@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, ArrowLeft } from 'lucide-react';
-import { revenueCat, type Offering } from '@/lib/revenueCat';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { trackSubscriptionPageVisit } from '@/lib/tracking';
@@ -13,81 +12,68 @@ interface SubscriptionPlansProps {
 }
 
 export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansProps) {
-  const [offerings, setOfferings] = useState<Offering[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     trackSubscriptionPageVisit().catch(() => {});
-    loadOfferings();
   }, []);
 
-  const loadOfferings = async () => {
+  const handlePurchase = async (planId: string) => {
+    setIsPurchasing(planId);
     try {
-      await revenueCat.initialize();
-      const offers = await revenueCat.getOfferings();
-      setOfferings(offers);
-    } catch (error) {
-      console.error('Failed to load offerings:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar os planos',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePurchase = async (productId: string) => {
-    setIsPurchasing(productId);
-    try {
-      const success = await revenueCat.purchase(productId);
-      if (success) {
-        toast({
-          title: 'Sucesso',
-          description: 'Compra realizada com sucesso!',
-        });
-        onSubscriptionChange?.();
+      // Map plan IDs to backend plan names
+      const planMap: Record<string, string> = {
+        'gold_monthly': 'gold',
+        'premium_monthly': 'premium',
+        'strong_lifetime': 'vitalicio',
+      };
+      
+      const plan = planMap[planId] || planId;
+      
+      // Call Mercado Pago checkout endpoint
+      const response = await apiRequest('POST', '/api/mp/create-checkout', { plan });
+      
+      const data = await response.json();
+      
+      if (data.init_point) {
+        console.log('[MP] Redirecionando para checkout:', data.init_point);
+        
+        // Detecta se está em iframe (preview do Replit ou webview)
+        const isInIframe = window.self !== window.top;
+        
+        if (isInIframe) {
+          // Se em iframe, abre em nova aba para evitar problemas de CORS/CSP
+          const newWindow = window.open(data.init_point, '_blank');
+          if (!newWindow) {
+            // Popup bloqueado - tenta top-level
+            window.top?.location.assign(data.init_point);
+          }
+        } else {
+          // Navegação top-level normal
+          window.location.assign(data.init_point);
+        }
+      } else {
+        throw new Error('Erro ao criar checkout');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Purchase failed:', error);
       toast({
         title: 'Erro',
-        description: 'Falha ao processar a compra',
+        description: error.message || 'Falha ao processar a compra',
         variant: 'destructive',
       });
-    } finally {
       setIsPurchasing(null);
     }
   };
 
   const handleRestorePurchases = async () => {
-    try {
-      await revenueCat.restorePurchases();
-      toast({
-        title: 'Sucesso',
-        description: 'Compras restauradas',
-      });
-      onSubscriptionChange?.();
-    } catch (error) {
-      console.error('Restore failed:', error);
-      toast({
-        title: 'Erro',
-        description: 'Falha ao restaurar compras',
-        variant: 'destructive',
-      });
-    }
+    toast({
+      title: 'Info',
+      description: 'Se você já fez uma compra, seu plano será ativado automaticamente após confirmação do pagamento.',
+    });
+    onSubscriptionChange?.();
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <p>Carregando planos...</p>
-      </div>
-    );
-  }
 
   const plans = [
     {
@@ -122,7 +108,7 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
     {
       id: 'strong_lifetime',
       name: 'Strong Vitalício',
-      price: 'R$ 59,90',
+      price: 'R$ 49,90',
       period: ' único',
       description: 'Acesso permanente',
       features: [
@@ -232,9 +218,9 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
               </p>
             </div>
             <div>
-              <p className="font-semibold mb-2">Há período de teste?</p>
+              <p className="font-semibold mb-2">É gratuito?</p>
               <p className="text-sm text-muted-foreground">
-                Sim! Novos usuários ganham 30 dias de teste com acesso completo.
+                Sim! Todos os visitantes têm acesso gratuito ao Strong e IA Essencial desde o início.
               </p>
             </div>
             <div>

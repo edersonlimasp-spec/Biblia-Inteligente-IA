@@ -425,11 +425,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
         <TabsContent value="prayer" className="mt-0">
           <ScrollArea className="h-[calc(100vh-140px)]">
             <div className="p-4 space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm"
-          >
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
             <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
               Memorial de Oração
             </h2>
@@ -441,19 +437,19 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                     {item.name}
                   </span>
                   <div className="flex-1 h-8 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.max((item.value / Math.max(totalRequests, 1)) * 100, item.value > 0 ? 10 : 0)}%` }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="h-full rounded-full flex items-center justify-end pr-2"
-                      style={{ backgroundColor: item.color }}
+                    <div
+                      className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-300"
+                      style={{ 
+                        backgroundColor: item.color,
+                        width: `${Math.max((item.value / Math.max(totalRequests, 1)) * 100, item.value > 0 ? 10 : 0)}%`
+                      }}
                     >
                       {item.value > 0 && (
                         <span className="text-xs font-bold text-white">
                           {item.value}
                         </span>
                       )}
-                    </motion.div>
+                    </div>
                   </div>
                   {item.value === 0 && (
                     <span className="text-lg font-bold text-slate-400 w-8 text-right">
@@ -463,29 +459,22 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+          <div>
             <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-3">
               Categorias de Oração
             </h2>
             
             <div className="grid grid-cols-2 gap-3">
-              {PRESET_CATEGORIES.map((category, index) => {
+              {PRESET_CATEGORIES.map((category) => {
                 const IconComponent = category.icon;
                 const requests = getCategoryRequests(category.key);
                 const answeredCount = requests.filter(r => r.status === 'answered').length;
                 
                 return (
-                  <motion.button
+                  <button
                     key={category.key}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 + index * 0.05 }}
                     onClick={() => handleCategoryClick(category.key)}
                     className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
                     data-testid={`category-${category.key}`}
@@ -511,18 +500,13 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                         </>
                       )}
                     </div>
-                  </motion.button>
+                  </button>
                 );
               })}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm"
-          >
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -592,14 +576,9 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 )}
               </div>
             )}
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm"
-          >
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-slate-800 dark:text-white">
                 Horários de Oração
@@ -644,7 +623,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
             </div>
           </ScrollArea>
@@ -653,11 +632,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
         <TabsContent value="hymns" className="mt-0">
           <ScrollArea className="h-[calc(100vh-140px)]">
             <div className="p-4 space-y-4">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-r from-[#357ABD] to-[#4A90D9] rounded-2xl p-6 text-white"
-              >
+              <div className="bg-gradient-to-r from-[#357ABD] to-[#4A90D9] rounded-2xl p-6 text-white">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
                     <BookOpen className="w-7 h-7" />
@@ -670,7 +645,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 <p className="text-sm text-white/90">
                   Escolha um hino para meditar durante seu momento de oração.
                 </p>
-              </motion.div>
+              </div>
 
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-slate-200 dark:border-slate-700">
@@ -680,12 +655,9 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   </h3>
                 </div>
                 <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                  {CLASSIC_HYMNS.map((hymn, index) => (
-                    <motion.div
+                  {CLASSIC_HYMNS.map((hymn) => (
+                    <div
                       key={hymn.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.03 }}
                       className="flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                       data-testid={`hymn-${hymn.id}`}
                     >
@@ -702,17 +674,12 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                           {hymn.author}
                         </p>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-slate-100 dark:bg-slate-800 rounded-2xl p-4 text-center"
-              >
+              <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl p-4 text-center">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   Use o temporizador de oração enquanto medita nos hinos
                 </p>
@@ -724,7 +691,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   <Timer className="w-4 h-4 mr-2" />
                   Iniciar Temporizador
                 </Button>
-              </motion.div>
+              </div>
             </div>
           </ScrollArea>
         </TabsContent>

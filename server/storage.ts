@@ -1,6 +1,6 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts, chatSessions, userSyncMeta } from '@shared/schema';
-import type { FreeStrongQuota, GuestStrongQuota, PaymentReceipt, InsertPaymentReceipt, ChatSession, InsertChatSession, UserSyncMeta } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts, chatSessions, userSyncMeta, prayerLists, prayerRequests } from '@shared/schema';
+import type { FreeStrongQuota, GuestStrongQuota, PaymentReceipt, InsertPaymentReceipt, ChatSession, InsertChatSession, UserSyncMeta, PrayerList, PrayerRequest } from '@shared/schema';
 import { getBookById } from './bible-data/books';
 import type {
   User,
@@ -247,6 +247,16 @@ export interface IStorage {
   getChatSessionsSince(userId: string, since: Date): Promise<ChatSession[]>;
   getUserSyncMeta(userId: string): Promise<UserSyncMeta | undefined>;
   updateUserSyncMeta(userId: string, deviceId?: string): Promise<UserSyncMeta>;
+
+  // Prayer Module
+  getPrayerLists(userId: string | null, deviceId: string): Promise<PrayerList[]>;
+  createPrayerList(data: { userId: string | null; deviceId: string; title: string; icon: string; color: string }): Promise<PrayerList>;
+  updatePrayerList(id: string, data: Partial<{ title: string; icon: string; color: string; isPublic: boolean }>): Promise<PrayerList | undefined>;
+  deletePrayerList(id: string): Promise<void>;
+  getPrayerRequests(userId: string | null, deviceId: string, listId?: string): Promise<PrayerRequest[]>;
+  createPrayerRequest(data: { listId: string; userId: string | null; deviceId: string; title: string; description?: string; category?: string }): Promise<PrayerRequest>;
+  updatePrayerRequest(id: string, data: Partial<{ title: string; description: string; category: string; status: string; answeredAt: Date }>): Promise<PrayerRequest | undefined>;
+  deletePrayerRequest(id: string): Promise<void>;
 }
 
 class PostgresStorage implements IStorage {
@@ -2066,6 +2076,114 @@ class PostgresStorage implements IStorage {
       })
       .returning();
     return result;
+  }
+
+  // Prayer Module Implementation
+  async getPrayerLists(userId: string | null, deviceId: string): Promise<PrayerList[]> {
+    if (!userId && !deviceId) {
+      return [];
+    }
+
+    let whereClause;
+    if (userId && deviceId) {
+      whereClause = or(eq(prayerLists.userId, userId), eq(prayerLists.deviceId, deviceId));
+    } else if (userId) {
+      whereClause = eq(prayerLists.userId, userId);
+    } else {
+      whereClause = eq(prayerLists.deviceId, deviceId);
+    }
+
+    return db.select().from(prayerLists)
+      .where(whereClause)
+      .orderBy(prayerLists.displayOrder);
+  }
+
+  async createPrayerList(data: { userId: string | null; deviceId: string; title: string; icon: string; color: string }): Promise<PrayerList> {
+    const [result] = await db.insert(prayerLists)
+      .values({
+        userId: data.userId,
+        deviceId: data.deviceId,
+        title: data.title,
+        icon: data.icon,
+        color: data.color,
+        shareId: crypto.randomUUID().substring(0, 8),
+      })
+      .returning();
+    return result;
+  }
+
+  async updatePrayerList(id: string, data: Partial<{ title: string; icon: string; color: string; isPublic: boolean }>): Promise<PrayerList | undefined> {
+    const updateData: any = { updatedAt: new Date() };
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.icon !== undefined) updateData.icon = data.icon;
+    if (data.color !== undefined) updateData.color = data.color;
+    if (data.isPublic !== undefined) updateData.isPublic = data.isPublic;
+
+    const [result] = await db.update(prayerLists)
+      .set(updateData)
+      .where(eq(prayerLists.id, id))
+      .returning();
+    return result;
+  }
+
+  async deletePrayerList(id: string): Promise<void> {
+    await db.delete(prayerLists).where(eq(prayerLists.id, id));
+  }
+
+  async getPrayerRequests(userId: string | null, deviceId: string, listId?: string): Promise<PrayerRequest[]> {
+    if (!userId && !deviceId) {
+      return [];
+    }
+
+    let ownerClause;
+    if (userId && deviceId) {
+      ownerClause = or(eq(prayerRequests.userId, userId), eq(prayerRequests.deviceId, deviceId));
+    } else if (userId) {
+      ownerClause = eq(prayerRequests.userId, userId);
+    } else {
+      ownerClause = eq(prayerRequests.deviceId, deviceId);
+    }
+
+    const whereClause = listId 
+      ? and(ownerClause, eq(prayerRequests.listId, listId))
+      : ownerClause;
+
+    return db.select().from(prayerRequests)
+      .where(whereClause)
+      .orderBy(prayerRequests.displayOrder);
+  }
+
+  async createPrayerRequest(data: { listId: string; userId: string | null; deviceId: string; title: string; description?: string; category?: string }): Promise<PrayerRequest> {
+    const [result] = await db.insert(prayerRequests)
+      .values({
+        listId: data.listId,
+        userId: data.userId,
+        deviceId: data.deviceId,
+        title: data.title,
+        description: data.description,
+        category: data.category || 'general',
+      })
+      .returning();
+    return result;
+  }
+
+  async updatePrayerRequest(id: string, data: Partial<{ title: string; description: string; category: string; status: string; answeredAt: Date }>): Promise<PrayerRequest | undefined> {
+    const updateData: any = { updatedAt: new Date() };
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.category !== undefined) updateData.category = data.category;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.answeredAt !== undefined) updateData.answeredAt = data.answeredAt;
+
+    const [result] = await db.update(prayerRequests)
+      .set(updateData)
+      .where(eq(prayerRequests.id, id))
+      .returning();
+    return result;
+  }
+
+  async deletePrayerRequest(id: string): Promise<void> {
+    await db.delete(prayerRequests).where(eq(prayerRequests.id, id));
   }
 }
 

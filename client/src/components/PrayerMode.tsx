@@ -1,21 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Slider } from "@/components/ui/slider";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -23,349 +15,198 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   ArrowLeft, 
-  Play, 
-  Pause, 
-  RotateCcw,
   Plus,
   Heart,
   Home,
-  Briefcase,
-  Stethoscope,
-  Users,
+  Globe,
+  Share2,
+  Bell,
+  BellOff,
+  Music,
+  ChevronDown,
+  ChevronRight,
+  Play,
+  Pause,
   Check,
   Trash2,
   Edit2,
-  Clock,
-  Music,
-  HandHeart,
-  Sparkles,
-  Calendar,
-  Volume2,
-  VolumeX
+  Copy,
+  X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { PrayerList, PrayerRequest, PrayerAlarm } from "@shared/schema";
+import { BarChart, Bar, XAxis, Cell, ResponsiveContainer } from "recharts";
 
 interface PrayerModeProps {
   onBack: () => void;
 }
 
-interface PrayerRequest {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  createdAt: string;
-  dueDate?: string;
-  answered: boolean;
-  answeredAt?: string;
-}
-
-const TIMER_PRESETS = [5, 10, 15, 20, 30, 45, 60];
-
-const WORSHIP_TRACKS = [
-  { 
-    id: "piano", 
-    name: "Piano Suave", 
-    description: "Melodias tranquilas ao piano",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-  },
-  { 
-    id: "ambient", 
-    name: "Ambiente Celestial", 
-    description: "Sons ambientes para meditação",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
-  },
-  { 
-    id: "strings", 
-    name: "Cordas Clássicas", 
-    description: "Violino e violoncelo suaves",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
-  },
-  { 
-    id: "worship", 
-    name: "Louvor Instrumental", 
-    description: "Hinos tradicionais instrumentais",
-    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
-  },
+const LIST_ICONS = [
+  { id: "heart", icon: Heart, label: "Coração" },
+  { id: "home", icon: Home, label: "Casa" },
+  { id: "globe", icon: Globe, label: "Missões" },
 ];
 
-const getPrayerRequests = (): PrayerRequest[] => {
-  try {
-    const stored = localStorage.getItem("prayer-requests");
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
+const LIST_COLORS = [
+  { id: "blue", color: "#3B82F6", bg: "bg-blue-500" },
+  { id: "green", color: "#22C55E", bg: "bg-green-500" },
+  { id: "orange", color: "#F59E0B", bg: "bg-amber-500" },
+  { id: "purple", color: "#8B5CF6", bg: "bg-purple-500" },
+  { id: "pink", color: "#EC4899", bg: "bg-pink-500" },
+];
 
-const savePrayerRequests = (requests: PrayerRequest[]) => {
-  try {
-    localStorage.setItem("prayer-requests", JSON.stringify(requests));
-  } catch (error) {
-    console.error("Erro ao salvar pedidos de oração:", error);
-  }
-};
+const CLASSIC_HYMNS = [
+  { id: "1", title: "Mais Perto Quero Estar", audioUrl: "" },
+  { id: "2", title: "Se Paz Há Mais Doce", audioUrl: "" },
+  { id: "3", title: "Divino Companheiro", audioUrl: "" },
+  { id: "4", title: "Quando Jesus Estendeu a Sua Mão", audioUrl: "" },
+];
+
+const INSTRUMENTAL_HYMNS = [
+  { id: "i1", title: "Piano Suave - Hinos", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+  { id: "i2", title: "Cordas Clássicas", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+  { id: "i3", title: "Ambiente Celestial", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+];
+
+const DEFAULT_ALARMS = [
+  { time: "08:00", label: "Oração Matinal", enabled: true },
+  { time: "13:00", label: "Intercessão à Tarde", enabled: true },
+  { time: "18:00", label: "Oração Vespertina", enabled: true },
+  { time: "21:30", label: "Oração Noturna", enabled: true },
+];
 
 export function PrayerMode({ onBack }: PrayerModeProps) {
   const { t } = useLanguage();
   const { toast } = useToast();
-
-  const CATEGORIES = [
-    { id: "family", name: t("prayer.categories.family"), icon: Home, color: "text-pink-500" },
-    { id: "work", name: t("prayer.categories.work"), icon: Briefcase, color: "text-blue-500" },
-    { id: "health", name: t("prayer.categories.health"), icon: Stethoscope, color: "text-green-500" },
-    { id: "relationships", name: t("prayer.categories.relationships"), icon: Users, color: "text-purple-500" },
-    { id: "spiritual", name: t("prayer.categories.spiritual"), icon: Sparkles, color: "text-amber-500" },
-    { id: "other", name: t("prayer.categories.other"), icon: Heart, color: "text-rose-500" },
-  ];
+  const { user } = useAuth();
+  const { deviceId } = useDeviceId();
   const { requireAuth } = useRequireAuth();
-  const [activeTab, setActiveTab] = useState("timer");
+  const queryClient = useQueryClient();
   
-  const [timerMinutes, setTimerMinutes] = useState(15);
-  const [timeRemaining, setTimeRemaining] = useState(15 * 60);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const [prayerRequests, setPrayerRequests] = useState<PrayerRequest[]>(getPrayerRequests);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [editingRequest, setEditingRequest] = useState<PrayerRequest | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [showAnswered, setShowAnswered] = useState(false);
-
-  const [newTitle, setNewTitle] = useState("");
-  const [newDescription, setNewDescription] = useState("");
-  const [newCategory, setNewCategory] = useState("family");
-  const [newDueDate, setNewDueDate] = useState("");
-
-  const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(50);
-  const [isMuted, setIsMuted] = useState(false);
+  const [activeTab, setActiveTab] = useState<"pedidos" | "hinos">("pedidos");
+  const [activeSubTab, setActiveSubTab] = useState<"louvor" | "hinos">("louvor");
+  
+  const [showAddListDialog, setShowAddListDialog] = useState(false);
+  const [showAddAlarmDialog, setShowAddAlarmDialog] = useState(false);
+  const [editingList, setEditingList] = useState<PrayerList | null>(null);
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  
+  const [newListTitle, setNewListTitle] = useState("");
+  const [newListIcon, setNewListIcon] = useState("heart");
+  const [newListColor, setNewListColor] = useState("#3B82F6");
+  
+  const [newAlarmTime, setNewAlarmTime] = useState("08:00");
+  const [newAlarmLabel, setNewAlarmLabel] = useState("");
+  
+  const [hymnsOpen, setHymnsOpen] = useState(true);
+  const [instrumentalOpen, setInstrumentalOpen] = useState(false);
+  
+  const [playingTrack, setPlayingTrack] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    savePrayerRequests(prayerRequests);
-  }, [prayerRequests]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume / 100;
+  
+  const [localAlarms, setLocalAlarms] = useState(() => {
+    try {
+      const stored = localStorage.getItem("prayer-alarms");
+      return stored ? JSON.parse(stored) : DEFAULT_ALARMS;
+    } catch {
+      return DEFAULT_ALARMS;
     }
-  }, [volume, isMuted]);
+  });
 
   useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
-    };
-  }, []);
+    localStorage.setItem("prayer-alarms", JSON.stringify(localAlarms));
+  }, [localAlarms]);
 
-  const formatTime = useCallback((seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }, []);
+  const { data: prayerLists = [], isLoading: listsLoading } = useQuery<PrayerList[]>({
+    queryKey: ['/api/prayer/lists'],
+    enabled: !!(user || deviceId),
+  });
 
-  const progress = ((timerMinutes * 60 - timeRemaining) / (timerMinutes * 60)) * 100;
+  const { data: prayerRequests = [] } = useQuery<PrayerRequest[]>({
+    queryKey: ['/api/prayer/requests'],
+    enabled: !!(user || deviceId),
+  });
 
-  useEffect(() => {
-    if (isRunning && timeRemaining > 0) {
-      timerIntervalRef.current = setInterval(() => {
-        setTimeRemaining((prev) => {
-          if (prev <= 1) {
-            setIsRunning(false);
-            setIsCompleted(true);
-            toast({
-              title: "Tempo de oração completo!",
-              description: "Que Deus abençoe seu momento de comunhão.",
-            });
-            return 0;
-          }
-          return prev - 1;
+  const createListMutation = useMutation({
+    mutationFn: async (data: { title: string; icon: string; color: string }) => {
+      const response = await apiRequest('POST', '/api/prayer/lists', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/prayer/lists'] });
+      setShowAddListDialog(false);
+      setNewListTitle("");
+      toast({ title: "Lista criada!" });
+    },
+  });
+
+  const updateListMutation = useMutation({
+    mutationFn: async ({ id, ...data }: { id: string; title: string; icon: string; color: string }) => {
+      const response = await apiRequest('PATCH', `/api/prayer/lists/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/prayer/lists'] });
+      setEditingList(null);
+      setNewListTitle("");
+      toast({ title: "Lista atualizada!" });
+    },
+  });
+
+  const deleteListMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/prayer/lists/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/prayer/lists'] });
+      toast({ title: "Lista removida!" });
+    },
+  });
+
+  const stats = {
+    answered: prayerRequests.filter(r => r.status === 'answered').length,
+    praying: prayerRequests.filter(r => r.status === 'praying').length,
+    other: prayerRequests.filter(r => r.status === 'other').length,
+  };
+
+  const chartData = [
+    { name: 'Respondidos', value: stats.answered, color: '#3B82F6' },
+    { name: 'Em Oração', value: stats.praying, color: '#22C55E' },
+    { name: 'Outros', value: stats.other, color: '#F59E0B' },
+  ];
+
+  const handleShare = async (list: PrayerList) => {
+    const shareUrl = `${window.location.origin}/lista/${list.shareId || list.id}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Orações: ${list.title}`,
+          text: 'Compartilhe suas orações com a Bíblia Inteligente',
+          url: shareUrl,
         });
-      }, 1000);
-    }
-
-    return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
+      } catch {
       }
-    };
-  }, [isRunning, timeRemaining, toast]);
-
-  const handleStart = () => {
-    if (timeRemaining === 0) {
-      setTimeRemaining(timerMinutes * 60);
-    }
-    setIsRunning(true);
-    setIsCompleted(false);
-  };
-
-  const handlePause = () => {
-    setIsRunning(false);
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setTimeRemaining(timerMinutes * 60);
-    setIsCompleted(false);
-  };
-
-  const handleTimerChange = (minutes: number) => {
-    setTimerMinutes(minutes);
-    if (!isRunning) {
-      setTimeRemaining(minutes * 60);
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({ title: "Link copiado!" });
     }
   };
 
-  const resetForm = () => {
-    setNewTitle("");
-    setNewDescription("");
-    setNewCategory("family");
-    setNewDueDate("");
-  };
-
-  const handleAddRequest = () => {
-    if (!newTitle.trim()) {
-      toast({
-        title: "Erro",
-        description: "Informe um título para o pedido de oração",
-        variant: "destructive",
-      });
+  const handlePlayTrack = (trackId: string, audioUrl: string) => {
+    if (!audioUrl) {
+      toast({ title: "Áudio não disponível", variant: "destructive" });
       return;
     }
 
-    requireAuth(() => {
-      const newRequest: PrayerRequest = {
-        id: Date.now().toString(),
-        title: newTitle.trim(),
-        description: newDescription.trim(),
-        category: newCategory,
-        createdAt: new Date().toISOString(),
-        dueDate: newDueDate || undefined,
-        answered: false,
-      };
-
-      setPrayerRequests((prev) => [newRequest, ...prev]);
-      resetForm();
-      setShowAddDialog(false);
-      
-      toast({
-        title: "Pedido adicionado",
-        description: "Seu motivo de oração foi registrado",
-      });
-    }, "adicionar pedido de oração");
-  };
-
-  const handleEditRequest = () => {
-    if (!editingRequest || !newTitle.trim()) {
-      toast({
-        title: "Erro",
-        description: "Informe um título para o pedido de oração",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    requireAuth(() => {
-      setPrayerRequests((prev) =>
-        prev.map((req) =>
-          req.id === editingRequest.id
-            ? { 
-                ...req, 
-                title: newTitle.trim(), 
-                description: newDescription.trim(), 
-                category: newCategory,
-                dueDate: newDueDate || undefined
-              }
-            : req
-        )
-      );
-      
-      setEditingRequest(null);
-      resetForm();
-      
-      toast({
-        title: "Pedido atualizado",
-        description: "As alterações foram salvas",
-      });
-    }, "editar pedido de oração");
-  };
-
-  const handleDeleteRequest = () => {
-    if (!deleteConfirmId) return;
-    requireAuth(() => {
-      setPrayerRequests((prev) => prev.filter((req) => req.id !== deleteConfirmId));
-      setDeleteConfirmId(null);
-      toast({
-        title: "Pedido removido",
-        description: "O motivo de oração foi excluído",
-      });
-    }, "excluir pedido de oração");
-  };
-
-  const handleMarkAnswered = (id: string) => {
-    requireAuth(() => {
-      setPrayerRequests((prev) =>
-        prev.map((req) =>
-          req.id === id
-            ? { ...req, answered: !req.answered, answeredAt: req.answered ? undefined : new Date().toISOString() }
-            : req
-        )
-      );
-      
-      const request = prayerRequests.find((r) => r.id === id);
-      if (request && !request.answered) {
-        toast({
-          title: "Oração respondida!",
-          description: "Glória a Deus pela resposta!",
-        });
-      }
-    }, "marcar oração como respondida");
-  };
-
-  const openEditDialog = (request: PrayerRequest) => {
-    setEditingRequest(request);
-    setNewTitle(request.title);
-    setNewDescription(request.description);
-    setNewCategory(request.category);
-    setNewDueDate(request.dueDate || "");
-  };
-
-  const closeDialog = () => {
-    setShowAddDialog(false);
-    setEditingRequest(null);
-    resetForm();
-  };
-
-  const handlePlayTrack = (trackId: string) => {
-    const track = WORSHIP_TRACKS.find(t => t.id === trackId);
-    if (!track) return;
-
-    if (selectedTrack === trackId && isPlaying) {
+    if (playingTrack === trackId) {
       audioRef.current?.pause();
-      setIsPlaying(false);
+      setPlayingTrack(null);
       return;
     }
 
@@ -373,564 +214,487 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
       audioRef.current.pause();
     }
 
-    const audio = new Audio(track.audioUrl);
-    audio.volume = isMuted ? 0 : volume / 100;
-    audio.loop = true;
-    
-    audio.onended = () => {
-      setIsPlaying(false);
-    };
-
-    audio.onerror = () => {
-      toast({
-        title: "Erro ao carregar áudio",
-        description: "Não foi possível reproduzir este louvor",
-        variant: "destructive",
-      });
-      setIsPlaying(false);
-    };
-
+    const audio = new Audio(audioUrl);
+    audio.onended = () => setPlayingTrack(null);
     audio.play().then(() => {
       audioRef.current = audio;
-      setSelectedTrack(trackId);
-      setIsPlaying(true);
+      setPlayingTrack(trackId);
     }).catch(() => {
-      toast({
-        title: "Erro",
-        description: "Não foi possível iniciar a reprodução",
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao reproduzir", variant: "destructive" });
     });
   };
 
-  const handleToggleMute = () => {
-    setIsMuted(!isMuted);
-    if (audioRef.current) {
-      audioRef.current.volume = !isMuted ? 0 : volume / 100;
+  const toggleAlarm = (index: number) => {
+    setLocalAlarms((prev: typeof DEFAULT_ALARMS) => 
+      prev.map((alarm, i) => 
+        i === index ? { ...alarm, enabled: !alarm.enabled } : alarm
+      )
+    );
+  };
+
+  const addAlarm = () => {
+    if (!newAlarmLabel.trim()) {
+      toast({ title: "Informe uma descrição", variant: "destructive" });
+      return;
     }
+    setLocalAlarms((prev: typeof DEFAULT_ALARMS) => [
+      ...prev,
+      { time: newAlarmTime, label: newAlarmLabel, enabled: true }
+    ]);
+    setShowAddAlarmDialog(false);
+    setNewAlarmLabel("");
+    toast({ title: "Horário adicionado!" });
   };
 
-  const filteredRequests = prayerRequests.filter((req) => {
-    if (filterCategory !== "all" && req.category !== filterCategory) return false;
-    if (!showAnswered && req.answered) return false;
-    return true;
-  });
-
-  const getCategoryIcon = (categoryId: string) => {
-    const cat = CATEGORIES.find((c) => c.id === categoryId);
-    return cat?.icon || Heart;
+  const getListIcon = (iconId: string) => {
+    const item = LIST_ICONS.find(i => i.id === iconId);
+    return item?.icon || Heart;
   };
 
-  const getCategoryColor = (categoryId: string) => {
-    const cat = CATEGORIES.find((c) => c.id === categoryId);
-    return cat?.color || "text-rose-500";
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  const pendingCount = prayerRequests.filter((r) => !r.answered).length;
-  const answeredCount = prayerRequests.filter((r) => r.answered).length;
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-amber-950/10 dark:to-amber-900/5">
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b">
-        <div className="flex items-center justify-between p-4 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
+      <header className="sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="flex items-center justify-between p-4">
           <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-slate-300" />
           </Button>
-          <h1 className="text-lg font-semibold flex items-center gap-2">
-            <HandHeart className="w-5 h-5 text-amber-500" />
-            {t("prayer.title")}
-          </h1>
+          
+          <div className="flex bg-slate-100 dark:bg-slate-700 rounded-full p-1">
+            <button
+              onClick={() => setActiveTab("pedidos")}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                activeTab === "pedidos"
+                  ? "bg-[#357ABD] text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-300"
+              }`}
+              data-testid="tab-pedidos"
+            >
+              Pedidos
+            </button>
+            <button
+              onClick={() => setActiveTab("hinos")}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                activeTab === "hinos"
+                  ? "bg-[#357ABD] text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-300"
+              }`}
+              data-testid="tab-hinos"
+            >
+              Hinos
+            </button>
+          </div>
+          
           <UserButton />
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto p-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="timer" data-testid="tab-timer">
-              <Clock className="w-4 h-4 mr-2" />
-              {t("prayer.tabTimer")}
-            </TabsTrigger>
-            <TabsTrigger value="requests" data-testid="tab-requests">
-              <Heart className="w-4 h-4 mr-2" />
-              {t("prayer.tabRequests")}
-              {pendingCount > 0 && (
-                <Badge variant="secondary" className="ml-2 text-xs">{pendingCount}</Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="worship" data-testid="tab-worship">
-              <Music className="w-4 h-4 mr-2" />
-              {t("prayer.tabWorship")}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="timer" className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="relative"
-            >
-              <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent overflow-hidden">
-                <CardContent className="p-8 flex flex-col items-center">
-                  <div className="relative w-64 h-64 flex items-center justify-center">
-                    <svg className="absolute inset-0 w-full h-full -rotate-90">
-                      <circle
-                        cx="128"
-                        cy="128"
-                        r="120"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        className="text-muted/20"
-                      />
-                      <circle
-                        cx="128"
-                        cy="128"
-                        r="120"
-                        fill="none"
-                        stroke="url(#gradientPrayer)"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray={2 * Math.PI * 120}
-                        strokeDashoffset={2 * Math.PI * 120 * (1 - progress / 100)}
-                        className="transition-all duration-1000"
-                      />
-                      <defs>
-                        <linearGradient id="gradientPrayer" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#f59e0b" />
-                          <stop offset="100%" stopColor="#d97706" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    
-                    <div className="text-center z-10">
-                      <AnimatePresence mode="wait">
-                        {isCompleted ? (
-                          <motion.div
-                            key="completed"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="text-center"
-                          >
-                            <Sparkles className="w-16 h-16 text-amber-500 mx-auto mb-2" />
-                            <p className="text-lg font-medium text-amber-500">Amém!</p>
-                            <p className="text-sm text-muted-foreground">Oração completa</p>
-                          </motion.div>
-                        ) : (
-                          <motion.div
-                            key="timer"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                          >
-                            <span className="text-5xl font-mono font-bold" data-testid="text-timer">
-                              {formatTime(timeRemaining)}
-                            </span>
-                            <p className="text-sm text-muted-foreground mt-2">
-                              {isRunning ? t("prayer.start") + "..." : t("prayer.prepareHeart")}
-                            </p>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 mt-6">
-                    {isRunning ? (
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        className="w-14 h-14 rounded-full"
-                        onClick={handlePause}
-                        data-testid="button-pause"
-                      >
-                        <Pause className="w-6 h-6" />
-                      </Button>
-                    ) : (
-                      <Button
-                        size="lg"
-                        className="w-14 h-14 rounded-full bg-amber-600 hover:bg-amber-700"
-                        onClick={handleStart}
-                        data-testid="button-start"
-                      >
-                        <Play className="w-6 h-6 ml-1" />
-                      </Button>
-                    )}
+      <ScrollArea className="h-[calc(100vh-80px)]">
+        <div className="p-4 space-y-4">
+          <AnimatePresence mode="wait">
+            {activeTab === "pedidos" ? (
+              <motion.div
+                key="pedidos"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="space-y-4"
+              >
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+                      Minhas Listas de Oração
+                    </h2>
                     <Button
-                      size="lg"
-                      variant="ghost"
-                      className="w-14 h-14 rounded-full"
-                      onClick={handleReset}
-                      data-testid="button-reset"
-                    >
-                      <RotateCcw className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">{t("prayer.duration")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {TIMER_PRESETS.map((minutes) => (
-                    <Button
-                      key={minutes}
-                      variant={timerMinutes === minutes ? "default" : "outline"}
                       size="sm"
-                      onClick={() => handleTimerChange(minutes)}
-                      disabled={isRunning}
-                      data-testid={`button-timer-${minutes}`}
+                      variant="ghost"
+                      onClick={() => setShowAddListDialog(true)}
+                      data-testid="button-add-list"
                     >
-                      {minutes} min
+                      <Plus className="w-4 h-4" />
                     </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-muted/50">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <HandHeart className="w-5 h-5 text-amber-500 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Versículo do Dia</p>
-                    <p className="text-sm text-muted-foreground italic">
-                      "Orai sem cessar." - 1 Tessalonicenses 5:17
-                    </p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {prayerLists.length === 0 && !listsLoading && (
+                      <div className="text-center py-6 text-slate-500">
+                        <Heart className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                        <p>Crie sua primeira lista de oração</p>
+                      </div>
+                    )}
+                    
+                    {prayerLists.map((list) => {
+                      const IconComponent = getListIcon(list.icon);
+                      return (
+                        <motion.div
+                          key={list.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex items-center justify-between p-3 rounded-xl"
+                          style={{ backgroundColor: `${list.color}15` }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center"
+                              style={{ backgroundColor: list.color }}
+                            >
+                              <IconComponent className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="font-medium text-slate-800 dark:text-white">
+                              {list.title}
+                            </span>
+                          </div>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="text-slate-400 hover:text-slate-600"
+                            onClick={() => handleShare(list)}
+                            data-testid={`button-share-${list.id}`}
+                          >
+                            <Share2 className="w-5 h-5" />
+                          </Button>
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          <TabsContent value="requests" className="space-y-4">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <Select value={filterCategory} onValueChange={setFilterCategory}>
-                <SelectTrigger className="w-[160px]" data-testid="select-filter-category">
-                  <SelectValue placeholder="Categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" data-testid="filter-all">Todas</SelectItem>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id} data-testid={`filter-${cat.id}`}>{cat.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={showAnswered ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowAnswered(!showAnswered)}
-                  data-testid="button-toggle-answered"
-                >
-                  <Check className="w-4 h-4 mr-1" />
-                  {t("prayer.answered")} ({answeredCount})
-                </Button>
-
-                <Button
-                  onClick={() => setShowAddDialog(true)}
-                  data-testid="button-add-prayer"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  {t("prayer.addRequest")}
-                </Button>
-              </div>
-            </div>
-
-            <ScrollArea className="h-[calc(100vh-320px)]">
-              <div className="space-y-3 pr-2">
-                {filteredRequests.length === 0 ? (
-                  <Card className="border-dashed">
-                    <CardContent className="p-8 text-center">
-                      <Heart className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-                      <p className="text-muted-foreground">
-                        {showAnswered
-                          ? t("prayer.noRequests")
-                          : t("prayer.noRequestsDesc")}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  filteredRequests.map((request) => {
-                    const CategoryIcon = getCategoryIcon(request.category);
-                    return (
-                      <motion.div
-                        key={request.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
-                        <Card
-                          className={`${request.answered ? "border-green-500/30 bg-green-500/5" : ""}`}
-                          data-testid={`prayer-request-${request.id}`}
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+                  <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
+                    Louvor & Hinos
+                  </h2>
+                  
+                  <Collapsible open={hymnsOpen} onOpenChange={setHymnsOpen}>
+                    <CollapsibleTrigger className="flex items-center gap-2 w-full p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                      <Music className="w-5 h-5 text-[#357ABD]" />
+                      <span className="font-medium text-[#357ABD]">Hinos Clássicos</span>
+                      {hymnsOpen ? (
+                        <ChevronDown className="w-4 h-4 ml-auto text-slate-400" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 ml-auto text-slate-400" />
+                      )}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pl-4 mt-2 space-y-1">
+                      {CLASSIC_HYMNS.map((hymn) => (
+                        <div
+                          key={hymn.id}
+                          className="flex items-center gap-2 py-2 text-slate-600 dark:text-slate-300"
                         >
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-3">
-                              <div className={`p-2 rounded-lg bg-muted ${getCategoryColor(request.category)}`}>
-                                <CategoryIcon className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                  <h3 className={`font-medium truncate ${request.answered ? "line-through text-muted-foreground" : ""}`}>
-                                    {request.title}
-                                  </h3>
-                                  {request.answered && (
-                                    <Badge variant="outline" className="text-green-600 border-green-600">
-                                      <Check className="w-3 h-3 mr-1" />
-                                      {t("prayer.answered")}
-                                    </Badge>
-                                  )}
-                                </div>
-                                {request.description && (
-                                  <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                                    {request.description}
-                                  </p>
-                                )}
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                                  <span className="flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {formatDate(request.createdAt)}
-                                  </span>
-                                  {request.dueDate && (
-                                    <span className="text-amber-600">
-                                      • Data: {formatDate(request.dueDate)}
-                                    </span>
-                                  )}
-                                  {request.answeredAt && (
-                                    <span className="text-green-600">
-                                      • {t("prayer.answered")}: {formatDate(request.answeredAt)}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleMarkAnswered(request.id)}
-                                  data-testid={`button-mark-answered-${request.id}`}
-                                >
-                                  <Check className={`w-4 h-4 ${request.answered ? "text-green-600" : ""}`} />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => openEditDialog(request)}
-                                  data-testid={`button-edit-${request.id}`}
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => setDeleteConfirmId(request.id)}
-                                  data-testid={`button-delete-${request.id}`}
-                                >
-                                  <Trash2 className="w-4 h-4 text-destructive" />
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    );
-                  })
-                )}
-              </div>
-            </ScrollArea>
-          </TabsContent>
+                          <span className="text-slate-400">•</span>
+                          <span>{hymn.title}</span>
+                        </div>
+                      ))}
+                    </CollapsibleContent>
+                  </Collapsible>
 
-          <TabsContent value="worship" className="space-y-4">
-            <Card className="bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/20">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Music className="w-5 h-5 text-amber-500" />
-                  Louvores e Hinos
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Selecione um louvor para ouvir enquanto ora:
-                </p>
-                
-                <div className="grid gap-3">
-                  {WORSHIP_TRACKS.map((track) => (
-                    <Card
-                      key={track.id}
-                      className={`cursor-pointer transition-all ${
-                        selectedTrack === track.id
-                          ? "border-amber-500 bg-amber-500/10"
-                          : "hover-elevate"
-                      }`}
-                      onClick={() => handlePlayTrack(track.id)}
-                      data-testid={`track-${track.id}`}
+                  <Collapsible open={instrumentalOpen} onOpenChange={setInstrumentalOpen} className="mt-2">
+                    <CollapsibleTrigger className="flex items-center gap-2 w-full p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                      <Music className="w-5 h-5 text-slate-500" />
+                      <span className="font-medium text-slate-700 dark:text-slate-300">Instrumentais</span>
+                      {instrumentalOpen ? (
+                        <ChevronDown className="w-4 h-4 ml-auto text-slate-400" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 ml-auto text-slate-400" />
+                      )}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pl-4 mt-2 space-y-1">
+                      {INSTRUMENTAL_HYMNS.map((hymn) => (
+                        <button
+                          key={hymn.id}
+                          onClick={() => handlePlayTrack(hymn.id, hymn.audioUrl)}
+                          className="flex items-center gap-2 py-2 w-full text-left text-slate-600 dark:text-slate-300 hover:text-[#357ABD]"
+                        >
+                          {playingTrack === hymn.id ? (
+                            <Pause className="w-4 h-4" />
+                          ) : (
+                            <Play className="w-4 h-4" />
+                          )}
+                          <span>{hymn.title}</span>
+                        </button>
+                      ))}
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="hinos"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-4"
+              >
+                <div className="flex bg-slate-200 dark:bg-slate-700 rounded-full p-1 mb-4">
+                  <button
+                    onClick={() => setActiveSubTab("louvor")}
+                    className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      activeSubTab === "louvor"
+                        ? "bg-[#357ABD] text-white"
+                        : "text-slate-600 dark:text-slate-300"
+                    }`}
+                  >
+                    Louvor
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab("hinos")}
+                    className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      activeSubTab === "hinos"
+                        ? "bg-[#357ABD] text-white"
+                        : "text-slate-600 dark:text-slate-300"
+                    }`}
+                  >
+                    Hinos
+                  </button>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+                  <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
+                    Dashboard de Oração
+                  </h2>
+                  
+                  <div className="space-y-3">
+                    {chartData.map((item, index) => (
+                      <div key={item.name} className="flex items-center gap-3">
+                        <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.max((item.value / Math.max(stats.answered + stats.praying + stats.other, 1)) * 100, 5)}%` }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className="h-full rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+                        </div>
+                        <span className="text-lg font-bold text-slate-700 dark:text-slate-300 w-8 text-right">
+                          {item.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+                      Lista de Pedidos
+                    </h2>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShowAddAlarmDialog(true)}
+                      data-testid="button-add-alarm"
                     >
-                      <CardContent className="p-4 flex items-center justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium">{track.name}</h4>
-                          <p className="text-sm text-muted-foreground">{track.description}</p>
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {localAlarms.map((alarm: typeof DEFAULT_ALARMS[0], index: number) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-700 last:border-0"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-mono font-bold text-[#357ABD]">
+                            {alarm.time}
+                          </span>
+                          <span className="text-slate-600 dark:text-slate-300">
+                            {alarm.label}
+                          </span>
                         </div>
                         <Button
                           size="icon"
-                          variant={selectedTrack === track.id && isPlaying ? "default" : "outline"}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePlayTrack(track.id);
-                          }}
-                          data-testid={`button-play-${track.id}`}
+                          variant="ghost"
+                          onClick={() => toggleAlarm(index)}
+                          className={alarm.enabled ? "text-[#357ABD]" : "text-slate-300"}
+                          data-testid={`button-alarm-${index}`}
                         >
-                          {selectedTrack === track.id && isPlaying ? (
-                            <Pause className="w-5 h-5" />
+                          {alarm.enabled ? (
+                            <Bell className="w-5 h-5" />
                           ) : (
-                            <Play className="w-5 h-5" />
+                            <BellOff className="w-5 h-5" />
                           )}
                         </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {selectedTrack && (
-                  <Card>
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Volume</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleToggleMute}
-                          data-testid="button-mute"
-                        >
-                          {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                        </Button>
+                <div className="bg-gradient-to-r from-[#357ABD] to-[#4A90D9] rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <Plus className="w-6 h-6 text-white" />
                       </div>
-                      <div className="flex items-center gap-4">
-                        <VolumeX className="w-4 h-4 text-muted-foreground" />
-                        <Slider
-                          value={[volume]}
-                          onValueChange={([v]) => setVolume(v)}
-                          max={100}
-                          step={1}
-                          className="flex-1"
-                          disabled={isMuted}
-                          data-testid="slider-volume"
-                        />
-                        <Volume2 className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
+                      <span className="font-medium text-white">
+                        Compartilhe suas Orações!
+                      </span>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-white hover:bg-white/20"
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({
+                            title: 'Minhas Orações',
+                            text: 'Compartilhe suas orações com a Bíblia Inteligente',
+                            url: window.location.origin,
+                          });
+                        }
+                      }}
+                    >
+                      <Share2 className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </ScrollArea>
 
-      <Dialog open={showAddDialog || !!editingRequest} onOpenChange={(open) => {
-        if (!open) closeDialog();
+      <Dialog open={showAddListDialog || !!editingList} onOpenChange={(open) => {
+        if (!open) {
+          setShowAddListDialog(false);
+          setEditingList(null);
+          setNewListTitle("");
+        }
       }}>
-        <DialogContent>
+        <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {editingRequest ? t("common.edit") : t("prayer.addRequest")}
+              {editingList ? "Editar Lista" : "Nova Lista de Oração"}
             </DialogTitle>
           </DialogHeader>
-          
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t("auth.name")} *</label>
-              <Input
-                placeholder="Ex: Saúde da minha mãe"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                data-testid="input-prayer-title"
-              />
+            <Input
+              placeholder="Nome da lista"
+              value={newListTitle}
+              onChange={(e) => setNewListTitle(e.target.value)}
+              data-testid="input-list-title"
+            />
+            
+            <div>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                Ícone
+              </label>
+              <div className="flex gap-2">
+                {LIST_ICONS.map((item) => {
+                  const IconComp = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setNewListIcon(item.id)}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center border-2 transition-all ${
+                        newListIcon === item.id
+                          ? "border-[#357ABD] bg-[#357ABD]/10"
+                          : "border-slate-200 dark:border-slate-600"
+                      }`}
+                    >
+                      <IconComp className="w-5 h-5" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Descrição (opcional)</label>
-              <Textarea
-                placeholder="Detalhes do seu pedido de oração..."
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                rows={3}
-                data-testid="input-prayer-description"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Categoria</label>
-              <Select value={newCategory} onValueChange={setNewCategory}>
-                <SelectTrigger data-testid="select-prayer-category">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id} data-testid={`category-${cat.id}`}>
-                      <div className="flex items-center gap-2">
-                        <cat.icon className={`w-4 h-4 ${cat.color}`} />
-                        {cat.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Data (opcional)</label>
-              <Input
-                type="date"
-                value={newDueDate}
-                onChange={(e) => setNewDueDate(e.target.value)}
-                data-testid="input-prayer-date"
-              />
+            
+            <div>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                Cor
+              </label>
+              <div className="flex gap-2">
+                {LIST_COLORS.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setNewListColor(item.color)}
+                    className={`w-8 h-8 rounded-full transition-all ${item.bg} ${
+                      newListColor === item.color
+                        ? "ring-2 ring-offset-2 ring-slate-400"
+                        : ""
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-
           <DialogFooter>
-            <Button variant="outline" onClick={closeDialog} data-testid="button-cancel-prayer">
-              {t("common.cancel")}
-            </Button>
-            <Button 
-              onClick={editingRequest ? handleEditRequest : handleAddRequest} 
-              data-testid="button-save-prayer"
+            <Button
+              onClick={() => {
+                if (!newListTitle.trim()) {
+                  toast({ title: "Informe um nome", variant: "destructive" });
+                  return;
+                }
+                if (editingList) {
+                  updateListMutation.mutate({
+                    id: editingList.id,
+                    title: newListTitle,
+                    icon: newListIcon,
+                    color: newListColor,
+                  });
+                } else {
+                  createListMutation.mutate({
+                    title: newListTitle,
+                    icon: newListIcon,
+                    color: newListColor,
+                  });
+                }
+              }}
+              disabled={createListMutation.isPending || updateListMutation.isPending}
+              data-testid="button-save-list"
             >
-              {editingRequest ? t("common.save") : t("common.add")}
+              {editingList ? "Salvar" : "Criar Lista"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("common.delete")}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("agenda.deleteConfirm")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteRequest} data-testid="button-confirm-delete">
-              {t("common.delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={showAddAlarmDialog} onOpenChange={setShowAddAlarmDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Novo Horário de Oração</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                Horário
+              </label>
+              <Input
+                type="time"
+                value={newAlarmTime}
+                onChange={(e) => setNewAlarmTime(e.target.value)}
+                data-testid="input-alarm-time"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+                Descrição
+              </label>
+              <Input
+                placeholder="Ex: Oração da Manhã"
+                value={newAlarmLabel}
+                onChange={(e) => setNewAlarmLabel(e.target.value)}
+                data-testid="input-alarm-label"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={addAlarm}
+              data-testid="button-save-alarm"
+            >
+              Adicionar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

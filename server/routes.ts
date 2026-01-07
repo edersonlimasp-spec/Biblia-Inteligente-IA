@@ -6233,6 +6233,175 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(readingPlanService.getAllBooks());
   });
 
+  // ============================================================
+  // PRAYER MODULE ROUTES
+  // ============================================================
+
+  // GET /api/prayer/lists - Get user's prayer lists
+  app.get("/api/prayer/lists", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId || null;
+      const deviceId = req.headers['x-device-id'] as string;
+      
+      if (!userId && !deviceId) {
+        return res.json([]);
+      }
+
+      const lists = await storage.getPrayerLists(userId, deviceId);
+      res.json(lists);
+    } catch (error) {
+      console.error("[Prayer] Error fetching lists:", error);
+      res.status(500).json({ error: "Failed to fetch prayer lists" });
+    }
+  });
+
+  // POST /api/prayer/lists - Create a new prayer list
+  app.post("/api/prayer/lists", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId || null;
+      const deviceId = req.headers['x-device-id'] as string;
+      
+      if (!userId && !deviceId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { title, icon, color } = req.body;
+      
+      if (!title?.trim()) {
+        return res.status(400).json({ error: "Title is required" });
+      }
+
+      const list = await storage.createPrayerList({
+        userId,
+        deviceId,
+        title: title.trim(),
+        icon: icon || "heart",
+        color: color || "#3B82F6",
+      });
+      
+      res.json(list);
+    } catch (error) {
+      console.error("[Prayer] Error creating list:", error);
+      res.status(500).json({ error: "Failed to create prayer list" });
+    }
+  });
+
+  // PATCH /api/prayer/lists/:id - Update a prayer list
+  app.patch("/api/prayer/lists/:id", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const { title, icon, color, isPublic } = req.body;
+
+      const list = await storage.updatePrayerList(id, {
+        title,
+        icon,
+        color,
+        isPublic,
+      });
+      
+      res.json(list);
+    } catch (error) {
+      console.error("[Prayer] Error updating list:", error);
+      res.status(500).json({ error: "Failed to update prayer list" });
+    }
+  });
+
+  // DELETE /api/prayer/lists/:id - Delete a prayer list
+  app.delete("/api/prayer/lists/:id", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deletePrayerList(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Prayer] Error deleting list:", error);
+      res.status(500).json({ error: "Failed to delete prayer list" });
+    }
+  });
+
+  // GET /api/prayer/requests - Get user's prayer requests
+  app.get("/api/prayer/requests", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId || null;
+      const deviceId = req.headers['x-device-id'] as string;
+      const listId = req.query.listId as string | undefined;
+      
+      if (!userId && !deviceId) {
+        return res.json([]);
+      }
+
+      const requests = await storage.getPrayerRequests(userId, deviceId, listId);
+      res.json(requests);
+    } catch (error) {
+      console.error("[Prayer] Error fetching requests:", error);
+      res.status(500).json({ error: "Failed to fetch prayer requests" });
+    }
+  });
+
+  // POST /api/prayer/requests - Create a new prayer request
+  app.post("/api/prayer/requests", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId || null;
+      const deviceId = req.headers['x-device-id'] as string;
+      
+      if (!userId && !deviceId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { listId, title, description, category } = req.body;
+      
+      if (!listId || !title?.trim()) {
+        return res.status(400).json({ error: "List ID and title are required" });
+      }
+
+      const request = await storage.createPrayerRequest({
+        listId,
+        userId,
+        deviceId,
+        title: title.trim(),
+        description: description?.trim(),
+        category: category || "general",
+      });
+      
+      res.json(request);
+    } catch (error) {
+      console.error("[Prayer] Error creating request:", error);
+      res.status(500).json({ error: "Failed to create prayer request" });
+    }
+  });
+
+  // PATCH /api/prayer/requests/:id - Update a prayer request
+  app.patch("/api/prayer/requests/:id", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const { title, description, category, status } = req.body;
+
+      const request = await storage.updatePrayerRequest(id, {
+        title,
+        description,
+        category,
+        status,
+        answeredAt: status === 'answered' ? new Date() : undefined,
+      });
+      
+      res.json(request);
+    } catch (error) {
+      console.error("[Prayer] Error updating request:", error);
+      res.status(500).json({ error: "Failed to update prayer request" });
+    }
+  });
+
+  // DELETE /api/prayer/requests/:id - Delete a prayer request
+  app.delete("/api/prayer/requests/:id", optionalAuth, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deletePrayerRequest(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Prayer] Error deleting request:", error);
+      res.status(500).json({ error: "Failed to delete prayer request" });
+    }
+  });
+
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: new Date().toISOString() });

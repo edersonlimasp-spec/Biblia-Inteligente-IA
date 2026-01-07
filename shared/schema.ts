@@ -1028,3 +1028,108 @@ export interface SOAPNotes {
   application: string; // How does it apply to me?
   prayer: string; // Prayer response
 }
+
+// Prayer Lists - User's prayer categories/lists
+export const prayerLists = pgTable("prayer_lists", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"),
+  title: text("title").notNull(),
+  icon: text("icon").notNull().default("heart"), // lucide icon name
+  color: text("color").notNull().default("#3B82F6"), // hex color
+  shareId: varchar("share_id").unique(), // For public sharing
+  isPublic: boolean("is_public").notNull().default(false),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("prayer_lists_user_id_idx").on(table.userId),
+  deviceIdIdx: index("prayer_lists_device_id_idx").on(table.deviceId),
+  shareIdIdx: index("prayer_lists_share_id_idx").on(table.shareId),
+}));
+
+export const insertPrayerListSchema = createInsertSchema(prayerLists).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPrayerList = z.infer<typeof insertPrayerListSchema>;
+export type PrayerList = typeof prayerLists.$inferSelect;
+
+// Prayer Requests - Individual prayer items within lists
+export const prayerRequests = pgTable("prayer_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listId: varchar("list_id").notNull().references(() => prayerLists.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"),
+  title: text("title").notNull(),
+  description: text("description"),
+  category: text("category").notNull().default("general"), // general, urgent, thanksgiving
+  status: text("status").notNull().default("praying"), // praying, answered, other
+  answeredAt: timestamp("answered_at"),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  listIdIdx: index("prayer_requests_list_id_idx").on(table.listId),
+  userIdIdx: index("prayer_requests_user_id_idx").on(table.userId),
+  statusIdx: index("prayer_requests_status_idx").on(table.status),
+}));
+
+export const insertPrayerRequestSchema = createInsertSchema(prayerRequests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPrayerRequest = z.infer<typeof insertPrayerRequestSchema>;
+export type PrayerRequest = typeof prayerRequests.$inferSelect;
+
+// Prayer Alarms - Scheduled prayer reminders
+export const prayerAlarms = pgTable("prayer_alarms", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"),
+  time: text("time").notNull(), // HH:MM format
+  label: text("label").notNull(),
+  isEnabled: boolean("is_enabled").notNull().default(true),
+  daysOfWeek: jsonb("days_of_week").$type<number[]>().default([0, 1, 2, 3, 4, 5, 6]), // 0=Sun, 6=Sat
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("prayer_alarms_user_id_idx").on(table.userId),
+  deviceIdIdx: index("prayer_alarms_device_id_idx").on(table.deviceId),
+}));
+
+export const insertPrayerAlarmSchema = createInsertSchema(prayerAlarms).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPrayerAlarm = z.infer<typeof insertPrayerAlarmSchema>;
+export type PrayerAlarm = typeof prayerAlarms.$inferSelect;
+
+// Prayer Sessions - History of prayer time
+export const prayerSessions = pgTable("prayer_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"),
+  durationMinutes: integer("duration_minutes").notNull(),
+  completedAt: timestamp("completed_at").notNull().defaultNow(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("prayer_sessions_user_id_idx").on(table.userId),
+  deviceIdIdx: index("prayer_sessions_device_id_idx").on(table.deviceId),
+  completedAtIdx: index("prayer_sessions_completed_at_idx").on(table.completedAt),
+}));
+
+export const insertPrayerSessionSchema = createInsertSchema(prayerSessions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPrayerSession = z.infer<typeof insertPrayerSessionSchema>;
+export type PrayerSession = typeof prayerSessions.$inferSelect;

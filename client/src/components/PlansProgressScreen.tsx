@@ -494,9 +494,9 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
                         return (
                           <motion.div
                             key={plan.id}
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
+                            transition={{ delay: index * 0.03 }}
                           >
                             <Card 
                               className="overflow-visible hover-elevate cursor-pointer border-0"
@@ -651,7 +651,8 @@ function PlanDetailView({
               return (
                 <div 
                   key={idx}
-                  className="flex items-center justify-between py-2 border-b last:border-b-0"
+                  className="flex items-center justify-between py-2 border-b last:border-b-0 cursor-pointer hover:bg-muted/30 rounded px-2 -mx-2"
+                  onClick={onNavigateToBible}
                   data-testid={`reading-item-${currentDay}-${idx}`}
                 >
                   <div className="flex items-center gap-3">
@@ -659,7 +660,8 @@ function PlanDetailView({
                     <span className="font-medium">{readingText}</span>
                   </div>
                   <Checkbox
-                    checked={isReadingCompleted}
+                    checked={isReadingCompleted || false}
+                    onCheckedChange={() => {}}
                     className="h-6 w-6 rounded border-primary data-[state=checked]:bg-primary"
                     data-testid={`checkbox-reading-${currentDay}-${idx}`}
                   />

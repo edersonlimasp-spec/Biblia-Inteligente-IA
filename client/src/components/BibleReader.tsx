@@ -1257,6 +1257,30 @@ export function BibleReader({
         </div>
       </main>
 
+      {/* Fixed Chapter Navigation Arrows - Minimalist watermark style */}
+      <div className="fixed left-0 top-1/2 -translate-y-1/2 z-30 pointer-events-none">
+        <button
+          onClick={handlePreviousChapter}
+          disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
+          className="pointer-events-auto p-2 sm:p-3 text-foreground/15 hover:text-foreground/40 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
+          data-testid="button-prev-chapter-fixed"
+          aria-label="Capítulo anterior"
+        >
+          <ChevronLeft className="h-8 w-8 sm:h-10 sm:w-10" strokeWidth={1} />
+        </button>
+      </div>
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-30 pointer-events-none">
+        <button
+          onClick={handleNextChapter}
+          disabled={selectedBook === books?.[books.length - 1]?.id && selectedChapter === currentBook?.chapters}
+          className="pointer-events-auto p-2 sm:p-3 text-foreground/15 hover:text-foreground/40 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
+          data-testid="button-next-chapter-fixed"
+          aria-label="Próximo capítulo"
+        >
+          <ChevronRight className="h-8 w-8 sm:h-10 sm:w-10" strokeWidth={1} />
+        </button>
+      </div>
+
       {/* Floating Share Bar - appears when verses are selected */}
       {selectedVersesForShare.size > 0 && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 fade-in duration-200">

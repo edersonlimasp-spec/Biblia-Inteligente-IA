@@ -431,7 +431,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
             className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm"
           >
             <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
-              Dashboard de Oração
+              Memorial de Oração
             </h2>
             
             <div className="space-y-3">

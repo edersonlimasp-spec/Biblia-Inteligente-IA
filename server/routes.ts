@@ -7,7 +7,7 @@ import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { askTheologicalQuestion } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, readingPlans, readingPlanDays, userReadingPlanProgress } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -2649,6 +2649,440 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Update study progress error:", error);
       res.status(500).json({ error: "Erro ao atualizar progresso" });
+    }
+  });
+
+  // =========================================
+  // READING PLANS ROUTES
+  // =========================================
+
+  // Get all available reading plans
+  app.get("/api/reading-plans", async (req, res) => {
+    try {
+      const plans = await db.select().from(readingPlans).where(eq(readingPlans.isActive, true)).orderBy(readingPlans.order);
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      // Get active user plans if user/device is identified
+      let userProgress: any[] = [];
+      if (userId || deviceId) {
+        userProgress = await db.select()
+          .from(userReadingPlanProgress)
+          .where(
+            userId 
+              ? eq(userReadingPlanProgress.userId, userId)
+              : eq(userReadingPlanProgress.deviceId, deviceId!)
+          );
+      }
+      
+      // Add user progress info to each plan
+      const plansWithProgress = plans.map(plan => {
+        const progress = userProgress.find(p => p.planId === plan.id && p.isActive);
+        const completedProgress = userProgress.filter(p => p.planId === plan.id && p.completedAt);
+        
+        return {
+          ...plan,
+          userProgress: progress ? {
+            currentDay: progress.currentDay,
+            completedDays: (progress.completedDays as number[])?.length || 0,
+            startDate: progress.startDate,
+            isActive: progress.isActive,
+            progressId: progress.id,
+          } : null,
+          timesCompleted: completedProgress.length,
+        };
+      });
+      
+      res.json({ plans: plansWithProgress });
+    } catch (error) {
+      console.error("Get reading plans error:", error);
+      res.status(500).json({ error: "Erro ao buscar planos de leitura" });
+    }
+  });
+
+  // Get a specific reading plan with days
+  app.get("/api/reading-plans/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      
+      const [plan] = await db.select().from(readingPlans).where(eq(readingPlans.slug, slug));
+      
+      if (!plan) {
+        return res.status(404).json({ error: "Plano não encontrado" });
+      }
+      
+      // Get all days for this plan
+      const days = await db.select()
+        .from(readingPlanDays)
+        .where(eq(readingPlanDays.planId, plan.id))
+        .orderBy(readingPlanDays.dayNumber);
+      
+      // Get user progress if authenticated
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      let userProgress = null;
+      if (userId || deviceId) {
+        const [progress] = await db.select()
+          .from(userReadingPlanProgress)
+          .where(
+            and(
+              eq(userReadingPlanProgress.planId, plan.id),
+              eq(userReadingPlanProgress.isActive, true),
+              userId 
+                ? eq(userReadingPlanProgress.userId, userId)
+                : eq(userReadingPlanProgress.deviceId, deviceId!)
+            )
+          );
+        userProgress = progress || null;
+      }
+      
+      res.json({ 
+        plan, 
+        days,
+        userProgress: userProgress ? {
+          id: userProgress.id,
+          currentDay: userProgress.currentDay,
+          completedDays: userProgress.completedDays as number[],
+          completedReadings: userProgress.completedReadings as Record<number, number[]>,
+          notes: userProgress.notes as Record<number, string>,
+          startDate: userProgress.startDate,
+        } : null,
+      });
+    } catch (error) {
+      console.error("Get reading plan error:", error);
+      res.status(500).json({ error: "Erro ao buscar plano de leitura" });
+    }
+  });
+
+  // Start a reading plan
+  app.post("/api/reading-plans/:slug/start", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      
+      const [plan] = await db.select().from(readingPlans).where(eq(readingPlans.slug, slug));
+      
+      if (!plan) {
+        return res.status(404).json({ error: "Plano não encontrado" });
+      }
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      if (!userId && !deviceId) {
+        return res.status(401).json({ error: "Usuário não identificado" });
+      }
+      
+      // Check if user already has an active plan of this type
+      const existingProgress = await db.select()
+        .from(userReadingPlanProgress)
+        .where(
+          and(
+            eq(userReadingPlanProgress.planId, plan.id),
+            eq(userReadingPlanProgress.isActive, true),
+            userId 
+              ? eq(userReadingPlanProgress.userId, userId)
+              : eq(userReadingPlanProgress.deviceId, deviceId!)
+          )
+        );
+      
+      if (existingProgress.length > 0) {
+        return res.json({ 
+          success: true, 
+          progress: existingProgress[0],
+          message: "Plano já iniciado" 
+        });
+      }
+      
+      // Create new progress
+      const [newProgress] = await db.insert(userReadingPlanProgress)
+        .values({
+          userId,
+          deviceId,
+          planId: plan.id,
+          currentDay: 1,
+          completedDays: [],
+          completedReadings: {},
+          notes: {},
+          isActive: true,
+        })
+        .returning();
+      
+      res.json({ success: true, progress: newProgress });
+    } catch (error) {
+      console.error("Start reading plan error:", error);
+      res.status(500).json({ error: "Erro ao iniciar plano de leitura" });
+    }
+  });
+
+  // Update reading plan progress (mark readings as completed)
+  app.post("/api/reading-plans/progress", async (req, res) => {
+    try {
+      const { progressId, dayNumber, readingIndex, completed, note } = req.body;
+      
+      if (!progressId) {
+        return res.status(400).json({ error: "ID do progresso é obrigatório" });
+      }
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      // Get current progress
+      const [progress] = await db.select()
+        .from(userReadingPlanProgress)
+        .where(eq(userReadingPlanProgress.id, progressId));
+      
+      if (!progress) {
+        return res.status(404).json({ error: "Progresso não encontrado" });
+      }
+      
+      // Verify ownership
+      if (progress.userId !== userId && progress.deviceId !== deviceId) {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+      
+      const completedReadings = (progress.completedReadings as Record<string, number[]>) || {};
+      const completedDays = (progress.completedDays as number[]) || [];
+      const notes = (progress.notes as Record<string, string>) || {};
+      
+      // Update completed readings for the day
+      if (typeof readingIndex === 'number' && typeof dayNumber === 'number') {
+        const dayKey = dayNumber.toString();
+        if (!completedReadings[dayKey]) {
+          completedReadings[dayKey] = [];
+        }
+        
+        if (completed) {
+          if (!completedReadings[dayKey].includes(readingIndex)) {
+            completedReadings[dayKey].push(readingIndex);
+          }
+        } else {
+          completedReadings[dayKey] = completedReadings[dayKey].filter(i => i !== readingIndex);
+        }
+      }
+      
+      // Update notes for the day
+      if (typeof note === 'string' && typeof dayNumber === 'number') {
+        notes[dayNumber.toString()] = note;
+      }
+      
+      // Check if day is fully completed (get day info)
+      if (typeof dayNumber === 'number') {
+        const [dayInfo] = await db.select()
+          .from(readingPlanDays)
+          .where(
+            and(
+              eq(readingPlanDays.planId, progress.planId),
+              eq(readingPlanDays.dayNumber, dayNumber)
+            )
+          );
+        
+        if (dayInfo) {
+          const readings = dayInfo.readings as any[];
+          const dayKey = dayNumber.toString();
+          const completedForDay = completedReadings[dayKey] || [];
+          
+          if (completedForDay.length >= readings.length) {
+            if (!completedDays.includes(dayNumber)) {
+              completedDays.push(dayNumber);
+              completedDays.sort((a, b) => a - b);
+            }
+          } else {
+            const idx = completedDays.indexOf(dayNumber);
+            if (idx > -1) {
+              completedDays.splice(idx, 1);
+            }
+          }
+        }
+      }
+      
+      // Update current day to next uncompleted day
+      let currentDay = progress.currentDay;
+      const maxDay = Math.max(...completedDays, currentDay);
+      for (let d = 1; d <= maxDay + 1; d++) {
+        if (!completedDays.includes(d)) {
+          currentDay = d;
+          break;
+        }
+      }
+      
+      // Update progress
+      const [updated] = await db.update(userReadingPlanProgress)
+        .set({
+          completedReadings,
+          completedDays,
+          notes,
+          currentDay,
+          updatedAt: new Date(),
+        })
+        .where(eq(userReadingPlanProgress.id, progressId))
+        .returning();
+      
+      res.json({ 
+        success: true, 
+        progress: {
+          id: updated.id,
+          currentDay: updated.currentDay,
+          completedDays: updated.completedDays,
+          completedReadings: updated.completedReadings,
+          notes: updated.notes,
+        }
+      });
+    } catch (error) {
+      console.error("Update reading plan progress error:", error);
+      res.status(500).json({ error: "Erro ao atualizar progresso" });
+    }
+  });
+
+  // Mark entire day as completed
+  app.post("/api/reading-plans/complete-day", async (req, res) => {
+    try {
+      const { progressId, dayNumber } = req.body;
+      
+      if (!progressId || typeof dayNumber !== 'number') {
+        return res.status(400).json({ error: "Parâmetros inválidos" });
+      }
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      // Get current progress
+      const [progress] = await db.select()
+        .from(userReadingPlanProgress)
+        .where(eq(userReadingPlanProgress.id, progressId));
+      
+      if (!progress) {
+        return res.status(404).json({ error: "Progresso não encontrado" });
+      }
+      
+      // Get day info
+      const [dayInfo] = await db.select()
+        .from(readingPlanDays)
+        .where(
+          and(
+            eq(readingPlanDays.planId, progress.planId),
+            eq(readingPlanDays.dayNumber, dayNumber)
+          )
+        );
+      
+      if (!dayInfo) {
+        return res.status(404).json({ error: "Dia não encontrado" });
+      }
+      
+      const readings = dayInfo.readings as any[];
+      const completedReadings = (progress.completedReadings as Record<string, number[]>) || {};
+      const completedDays = (progress.completedDays as number[]) || [];
+      
+      // Mark all readings for this day as completed
+      completedReadings[dayNumber.toString()] = readings.map((_, i) => i);
+      
+      // Add day to completed days
+      if (!completedDays.includes(dayNumber)) {
+        completedDays.push(dayNumber);
+        completedDays.sort((a, b) => a - b);
+      }
+      
+      // Move to next day
+      const currentDay = dayNumber + 1;
+      
+      // Check if plan is completed
+      const [plan] = await db.select().from(readingPlans).where(eq(readingPlans.id, progress.planId));
+      const isCompleted = completedDays.length >= (plan?.duration || 999);
+      
+      // Update progress
+      const [updated] = await db.update(userReadingPlanProgress)
+        .set({
+          completedReadings,
+          completedDays,
+          currentDay,
+          completedAt: isCompleted ? new Date() : null,
+          isActive: !isCompleted,
+          updatedAt: new Date(),
+        })
+        .where(eq(userReadingPlanProgress.id, progressId))
+        .returning();
+      
+      res.json({ 
+        success: true, 
+        isCompleted,
+        progress: {
+          id: updated.id,
+          currentDay: updated.currentDay,
+          completedDays: updated.completedDays,
+          completedReadings: updated.completedReadings,
+        }
+      });
+    } catch (error) {
+      console.error("Complete day error:", error);
+      res.status(500).json({ error: "Erro ao completar dia" });
+    }
+  });
+
+  // AI Analysis for reading plan day
+  app.post("/api/reading-plans/analyze", async (req, res) => {
+    try {
+      const { progressId, dayNumber } = req.body;
+      
+      if (!progressId || typeof dayNumber !== 'number') {
+        return res.status(400).json({ error: "Parâmetros inválidos" });
+      }
+      
+      const userId = (req as any).userId || null;
+      const deviceId = req.headers['x-device-id'] as string || null;
+      
+      // Get progress
+      const [progress] = await db.select()
+        .from(userReadingPlanProgress)
+        .where(eq(userReadingPlanProgress.id, progressId));
+      
+      if (!progress) {
+        return res.status(404).json({ error: "Progresso não encontrado" });
+      }
+      
+      // Get day info
+      const [dayInfo] = await db.select()
+        .from(readingPlanDays)
+        .where(
+          and(
+            eq(readingPlanDays.planId, progress.planId),
+            eq(readingPlanDays.dayNumber, dayNumber)
+          )
+        );
+      
+      if (!dayInfo) {
+        return res.status(404).json({ error: "Dia não encontrado" });
+      }
+      
+      const readings = dayInfo.readings as any[];
+      const readingsText = readings.map((r: any) => {
+        const book = bibleBooks.find(b => b.id === r.book);
+        return `${book?.name || r.book} ${r.chapter}`;
+      }).join(", ");
+      
+      // Build the analysis question
+      const question = `Faça uma análise espiritual e contextual das seguintes passagens bíblicas: ${readingsText}. 
+      Inclua:
+      1. Contexto histórico
+      2. Principais temas e mensagens
+      3. Conexões entre as passagens
+      4. Aplicação prática para hoje
+      5. Uma pergunta para reflexão`;
+      
+      // Use the existing AI function
+      const response = await askTheologicalQuestion({
+        question,
+        mode: "essential"
+      });
+      
+      res.json({ 
+        success: true, 
+        analysis: response,
+        readings: readingsText,
+      });
+    } catch (error) {
+      console.error("Analyze reading plan error:", error);
+      res.status(500).json({ error: "Erro ao analisar leituras" });
     }
   });
 

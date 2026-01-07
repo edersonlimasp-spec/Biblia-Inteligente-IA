@@ -1,13 +1,14 @@
 import { db } from './db';
-import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons } from '@shared/schema';
+import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons, readingPlans, readingPlanDays } from '@shared/schema';
 import { seedAdminUsers } from './seed-admins';
 import { seedBibleVersions } from './seed-versions';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import { STRONG_DATA } from './strong-data-embedded';
 import { STUDY_MODULES_DATA } from './study-modules-data-embedded';
+import { readingPlanTemplates } from './reading-plans-data';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -315,6 +316,9 @@ export async function initializeDatabase() {
 
     // Auto-seed Study Modules if table is empty
     await autoSeedStudyModules();
+    
+    // Auto-seed Reading Plans if table is empty
+    await seedReadingPlans();
 
   } catch (error) {
     console.error('❌ Erro ao inicializar banco de dados:', error);
@@ -367,5 +371,75 @@ async function autoSeedStudyModules() {
     }
   } catch (error) {
     console.error('❌ Erro ao auto-seed study modules:', error);
+  }
+}
+
+// Seed reading plans
+export async function seedReadingPlans(): Promise<{ success: boolean; count: number; message: string }> {
+  try {
+    // Check if reading plans already exist
+    const existingPlans = await db.select().from(readingPlans);
+    
+    if (existingPlans.length >= readingPlanTemplates.length) {
+      console.log('✅ Planos de leitura já populados');
+      return { success: true, count: existingPlans.length, message: 'Planos já existem' };
+    }
+    
+    console.log('📥 Populando planos de leitura...');
+    
+    let totalDaysInserted = 0;
+    
+    for (const template of readingPlanTemplates) {
+      // Check if this plan already exists
+      const [existing] = await db.select().from(readingPlans).where(eq(readingPlans.slug, template.slug));
+      
+      if (existing) {
+        console.log(`  ✓ Plano já existe: ${template.title}`);
+        continue;
+      }
+      
+      // Insert the plan
+      const [insertedPlan] = await db.insert(readingPlans).values({
+        slug: template.slug,
+        title: template.title,
+        description: template.description,
+        duration: template.duration,
+        icon: template.icon,
+        gradientFrom: template.gradientFrom,
+        gradientTo: template.gradientTo,
+        weekdaysOnly: template.weekdaysOnly,
+        order: template.order,
+        isActive: true,
+      }).returning();
+      
+      console.log(`  + Plano criado: ${template.title} (${template.days.length} dias)`);
+      
+      // Insert all days for this plan in batches
+      const batchSize = 100;
+      for (let i = 0; i < template.days.length; i += batchSize) {
+        const batch = template.days.slice(i, i + batchSize);
+        await db.insert(readingPlanDays).values(
+          batch.map(day => ({
+            planId: insertedPlan.id,
+            dayNumber: day.dayNumber,
+            readings: day.readings,
+            title: day.title || null,
+          }))
+        );
+        totalDaysInserted += batch.length;
+      }
+    }
+    
+    const finalCount = await db.select().from(readingPlans);
+    console.log(`✅ ${finalCount.length} planos de leitura prontos (${totalDaysInserted} dias inseridos)`);
+    
+    return { 
+      success: true, 
+      count: finalCount.length, 
+      message: `${finalCount.length} planos criados com ${totalDaysInserted} dias` 
+    };
+  } catch (error) {
+    console.error('❌ Erro ao popular planos de leitura:', error);
+    return { success: false, count: 0, message: String(error) };
   }
 }

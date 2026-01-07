@@ -632,3 +632,86 @@ export const insertUserStudyProgressSchema = createInsertSchema(userStudyProgres
 
 export type InsertUserStudyProgress = z.infer<typeof insertUserStudyProgressSchema>;
 export type UserStudyProgress = typeof userStudyProgress.$inferSelect;
+
+// Reading Plans table
+export const readingPlans = pgTable("reading_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  slug: text("slug").notNull().unique(), // e.g., "52-weeks", "5-days", "chronological", "book-by-book"
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  duration: integer("duration").notNull(), // Total days
+  icon: text("icon").notNull(), // Icon name from lucide-react
+  gradientFrom: text("gradient_from").notNull(), // Gradient start color
+  gradientTo: text("gradient_to").notNull(), // Gradient end color
+  weekdaysOnly: boolean("weekdays_only").notNull().default(false),
+  isActive: boolean("is_active").notNull().default(true),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertReadingPlanSchema = createInsertSchema(readingPlans).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReadingPlan = z.infer<typeof insertReadingPlanSchema>;
+export type ReadingPlan = typeof readingPlans.$inferSelect;
+
+// Reading Plan Days table (contains the readings for each day)
+export const readingPlanDays = pgTable("reading_plan_days", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  planId: varchar("plan_id").notNull().references(() => readingPlans.id, { onDelete: "cascade" }),
+  dayNumber: integer("day_number").notNull(),
+  readings: jsonb("readings").notNull(), // Array of { book, chapter, verseStart?, verseEnd? }
+  title: text("title"), // Optional day title/theme
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  planIdIdx: index("reading_plan_days_plan_id_idx").on(table.planId),
+  dayNumberIdx: index("reading_plan_days_day_number_idx").on(table.dayNumber),
+}));
+
+export const insertReadingPlanDaySchema = createInsertSchema(readingPlanDays).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReadingPlanDay = z.infer<typeof insertReadingPlanDaySchema>;
+export type ReadingPlanDay = typeof readingPlanDays.$inferSelect;
+
+// User Reading Plan Progress table
+export const userReadingPlanProgress = pgTable("user_reading_plan_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  deviceId: text("device_id"), // For guest users
+  planId: varchar("plan_id").notNull().references(() => readingPlans.id, { onDelete: "cascade" }),
+  startDate: timestamp("start_date").notNull().defaultNow(),
+  currentDay: integer("current_day").notNull().default(1),
+  completedDays: jsonb("completed_days").notNull().default([]), // Array of completed day numbers
+  completedReadings: jsonb("completed_readings").notNull().default({}), // { dayNumber: [readingIndex] }
+  notes: jsonb("notes").notNull().default({}), // { dayNumber: "note text" }
+  isActive: boolean("is_active").notNull().default(true),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("user_reading_plan_progress_user_id_idx").on(table.userId),
+  deviceIdIdx: index("user_reading_plan_progress_device_id_idx").on(table.deviceId),
+  planIdIdx: index("user_reading_plan_progress_plan_id_idx").on(table.planId),
+}));
+
+export const insertUserReadingPlanProgressSchema = createInsertSchema(userReadingPlanProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUserReadingPlanProgress = z.infer<typeof insertUserReadingPlanProgressSchema>;
+export type UserReadingPlanProgress = typeof userReadingPlanProgress.$inferSelect;
+
+// Type for readings in a day
+export interface PlanReading {
+  book: string;
+  chapter: number;
+  verseStart?: number;
+  verseEnd?: number;
+}

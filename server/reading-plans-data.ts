@@ -82,17 +82,7 @@ const bibleBooks = [
   { id: "rev", name: "Apocalipse", chapters: 22, testament: "new" },
 ];
 
-function generateDays(totalDays: number, readings: PlanReading[][]): { dayNumber: number; readings: PlanReading[] }[] {
-  const days: { dayNumber: number; readings: PlanReading[] }[] = [];
-  for (let i = 0; i < totalDays && i < readings.length; i++) {
-    days.push({
-      dayNumber: i + 1,
-      readings: readings[i] || [],
-    });
-  }
-  return days;
-}
-
+// Plan 1: 52 Weeks - Reading by genre
 function generate52WeeksPlan(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
   const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
   const genres = {
@@ -150,36 +140,23 @@ function generate52WeeksPlan(): { dayNumber: number; readings: PlanReading[]; ti
   return days;
 }
 
-function generate5DaysPlan(): { dayNumber: number; readings: PlanReading[] }[] {
-  const days: { dayNumber: number; readings: PlanReading[] }[] = [];
-  let bookIdx = 0;
-  let chapter = 1;
+// Plan 2: 5 Days per week - Bible in 1 year
+function generate5DaysPlan(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
+  const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
   let dayNumber = 1;
   
-  while (bookIdx < bibleBooks.length && dayNumber <= 260) {
-    const readings: PlanReading[] = [];
-    let chaptersToRead = 4;
-    
-    while (chaptersToRead > 0 && bookIdx < bibleBooks.length) {
-      const book = bibleBooks[bookIdx];
-      readings.push({
-        book: book.id,
-        chapter: chapter,
-      });
+  for (const book of bibleBooks) {
+    let chapter = 1;
+    while (chapter <= book.chapters) {
+      const readings: PlanReading[] = [];
+      const chaptersToRead = Math.min(4, book.chapters - chapter + 1);
       
-      chapter++;
-      if (chapter > book.chapters) {
-        bookIdx++;
-        chapter = 1;
+      for (let i = 0; i < chaptersToRead; i++) {
+        readings.push({ book: book.id, chapter: chapter + i });
       }
-      chaptersToRead--;
-    }
-    
-    if (readings.length > 0) {
-      days.push({
-        dayNumber,
-        readings,
-      });
+      
+      days.push({ dayNumber, readings, title: book.name });
+      chapter += chaptersToRead;
       dayNumber++;
     }
   }
@@ -187,6 +164,7 @@ function generate5DaysPlan(): { dayNumber: number; readings: PlanReading[] }[] {
   return days;
 }
 
+// Plan 3: Chronological Order
 function generateChronologicalPlan(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
   const chronologicalOrder = [
     { book: "gen", chapters: [1, 2, 3], title: "Criação" },
@@ -257,6 +235,7 @@ function generateChronologicalPlan(): { dayNumber: number; readings: PlanReading
   }));
 }
 
+// Plan 4: Book by Book
 function generateBookByBookPlan(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
   const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
   let dayNumber = 1;
@@ -265,21 +244,13 @@ function generateBookByBookPlan(): { dayNumber: number; readings: PlanReading[];
     let chapter = 1;
     while (chapter <= book.chapters) {
       const readings: PlanReading[] = [];
-      const chaptersToRead = Math.min(3, book.chapters - chapter + 1);
+      const chaptersToRead = Math.min(2, book.chapters - chapter + 1);
       
       for (let i = 0; i < chaptersToRead; i++) {
-        readings.push({
-          book: book.id,
-          chapter: chapter + i,
-        });
+        readings.push({ book: book.id, chapter: chapter + i });
       }
       
-      days.push({
-        dayNumber,
-        readings,
-        title: book.name,
-      });
-      
+      days.push({ dayNumber, readings, title: book.name });
       chapter += chaptersToRead;
       dayNumber++;
     }
@@ -288,60 +259,342 @@ function generateBookByBookPlan(): { dayNumber: number; readings: PlanReading[];
   return days;
 }
 
-// Generate days first, then calculate duration from actual length
+// Plan 5: New Testament in 90 Days
+function generateNewTestament90Days(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
+  const ntBooks = bibleBooks.filter(b => b.testament === "new");
+  const totalNTChapters = ntBooks.reduce((sum, b) => sum + b.chapters, 0); // 260 chapters
+  const chaptersPerDay = Math.ceil(totalNTChapters / 90); // ~3 chapters per day
+  
+  const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
+  let dayNumber = 1;
+  let currentBookIdx = 0;
+  let currentChapter = 1;
+  
+  while (currentBookIdx < ntBooks.length && dayNumber <= 90) {
+    const readings: PlanReading[] = [];
+    let chaptersRead = 0;
+    
+    while (chaptersRead < chaptersPerDay && currentBookIdx < ntBooks.length) {
+      const book = ntBooks[currentBookIdx];
+      readings.push({ book: book.id, chapter: currentChapter });
+      currentChapter++;
+      chaptersRead++;
+      
+      if (currentChapter > book.chapters) {
+        currentBookIdx++;
+        currentChapter = 1;
+      }
+    }
+    
+    if (readings.length > 0) {
+      const firstBook = ntBooks.find(b => b.id === readings[0].book);
+      days.push({ dayNumber, readings, title: firstBook?.name });
+      dayNumber++;
+    }
+  }
+  
+  return days;
+}
+
+// Plan 6: Psalms in 30 Days
+function generatePsalms30Days(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
+  const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
+  const totalPsalms = 150;
+  const psalmsPerDay = Math.ceil(totalPsalms / 30); // 5 psalms per day
+  
+  for (let day = 1; day <= 30; day++) {
+    const startPsalm = (day - 1) * psalmsPerDay + 1;
+    const endPsalm = Math.min(day * psalmsPerDay, totalPsalms);
+    const readings: PlanReading[] = [];
+    
+    for (let psalm = startPsalm; psalm <= endPsalm; psalm++) {
+      readings.push({ book: "psa", chapter: psalm });
+    }
+    
+    days.push({ dayNumber: day, readings, title: `Salmos ${startPsalm}-${endPsalm}` });
+  }
+  
+  return days;
+}
+
+// Plan 7: Proverbs in 31 Days (1 chapter per day)
+function generateProverbs31Days(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
+  const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
+  
+  for (let day = 1; day <= 31; day++) {
+    days.push({
+      dayNumber: day,
+      readings: [{ book: "pro", chapter: day }],
+      title: `Provérbios ${day}`,
+    });
+  }
+  
+  return days;
+}
+
+// Plan 8: Gospels in 40 Days
+function generateGospels40Days(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
+  const gospelBooks = [
+    { id: "mat", name: "Mateus", chapters: 28 },
+    { id: "mrk", name: "Marcos", chapters: 16 },
+    { id: "luk", name: "Lucas", chapters: 24 },
+    { id: "jhn", name: "João", chapters: 21 },
+  ];
+  
+  const totalChapters = gospelBooks.reduce((sum, b) => sum + b.chapters, 0); // 89 chapters
+  const chaptersPerDay = Math.ceil(totalChapters / 40); // ~2-3 chapters per day
+  
+  const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
+  let dayNumber = 1;
+  let currentBookIdx = 0;
+  let currentChapter = 1;
+  
+  while (currentBookIdx < gospelBooks.length && dayNumber <= 40) {
+    const readings: PlanReading[] = [];
+    let chaptersRead = 0;
+    
+    while (chaptersRead < chaptersPerDay && currentBookIdx < gospelBooks.length) {
+      const book = gospelBooks[currentBookIdx];
+      readings.push({ book: book.id, chapter: currentChapter });
+      currentChapter++;
+      chaptersRead++;
+      
+      if (currentChapter > book.chapters) {
+        currentBookIdx++;
+        currentChapter = 1;
+      }
+    }
+    
+    if (readings.length > 0) {
+      const firstBook = gospelBooks.find(b => b.id === readings[0].book);
+      days.push({ dayNumber, readings, title: firstBook?.name });
+      dayNumber++;
+    }
+  }
+  
+  return days;
+}
+
+// Plan 9: Bible in 1 Year (3-4 chapters per day)
+function generateBible1Year(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
+  const totalChapters = bibleBooks.reduce((sum, b) => sum + b.chapters, 0); // 1189 chapters
+  const chaptersPerDay = Math.ceil(totalChapters / 365); // ~3-4 chapters per day
+  
+  const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
+  let dayNumber = 1;
+  let currentBookIdx = 0;
+  let currentChapter = 1;
+  
+  while (currentBookIdx < bibleBooks.length && dayNumber <= 365) {
+    const readings: PlanReading[] = [];
+    let chaptersRead = 0;
+    
+    while (chaptersRead < chaptersPerDay && currentBookIdx < bibleBooks.length) {
+      const book = bibleBooks[currentBookIdx];
+      readings.push({ book: book.id, chapter: currentChapter });
+      currentChapter++;
+      chaptersRead++;
+      
+      if (currentChapter > book.chapters) {
+        currentBookIdx++;
+        currentChapter = 1;
+      }
+    }
+    
+    if (readings.length > 0) {
+      const firstBook = bibleBooks.find(b => b.id === readings[0].book);
+      days.push({ dayNumber, readings, title: firstBook?.name });
+      dayNumber++;
+    }
+  }
+  
+  return days;
+}
+
+// Plan 10: Epistles of Paul in 30 Days
+function generatePaulEpistles30Days(): { dayNumber: number; readings: PlanReading[]; title?: string }[] {
+  const paulBooks = [
+    { id: "rom", name: "Romanos", chapters: 16 },
+    { id: "1co", name: "1 Coríntios", chapters: 16 },
+    { id: "2co", name: "2 Coríntios", chapters: 13 },
+    { id: "gal", name: "Gálatas", chapters: 6 },
+    { id: "eph", name: "Efésios", chapters: 6 },
+    { id: "php", name: "Filipenses", chapters: 4 },
+    { id: "col", name: "Colossenses", chapters: 4 },
+    { id: "1th", name: "1 Tessalonicenses", chapters: 5 },
+    { id: "2th", name: "2 Tessalonicenses", chapters: 3 },
+    { id: "1ti", name: "1 Timóteo", chapters: 6 },
+    { id: "2ti", name: "2 Timóteo", chapters: 4 },
+    { id: "tit", name: "Tito", chapters: 3 },
+    { id: "phm", name: "Filemom", chapters: 1 },
+  ];
+  
+  const totalChapters = paulBooks.reduce((sum, b) => sum + b.chapters, 0); // 87 chapters
+  const chaptersPerDay = Math.ceil(totalChapters / 30); // ~3 chapters per day
+  
+  const days: { dayNumber: number; readings: PlanReading[]; title?: string }[] = [];
+  let dayNumber = 1;
+  let currentBookIdx = 0;
+  let currentChapter = 1;
+  
+  while (currentBookIdx < paulBooks.length && dayNumber <= 30) {
+    const readings: PlanReading[] = [];
+    let chaptersRead = 0;
+    
+    while (chaptersRead < chaptersPerDay && currentBookIdx < paulBooks.length) {
+      const book = paulBooks[currentBookIdx];
+      readings.push({ book: book.id, chapter: currentChapter });
+      currentChapter++;
+      chaptersRead++;
+      
+      if (currentChapter > book.chapters) {
+        currentBookIdx++;
+        currentChapter = 1;
+      }
+    }
+    
+    if (readings.length > 0) {
+      const firstBook = paulBooks.find(b => b.id === readings[0].book);
+      days.push({ dayNumber, readings, title: firstBook?.name });
+      dayNumber++;
+    }
+  }
+  
+  return days;
+}
+
+// Generate all plan days
 const weeks52Days = generate52WeeksPlan();
 const fiveDaysDays = generate5DaysPlan();
 const chronologicalDays = generateChronologicalPlan();
 const bookByBookDays = generateBookByBookPlan();
+const nt90Days = generateNewTestament90Days();
+const psalms30Days = generatePsalms30Days();
+const proverbs31Days = generateProverbs31Days();
+const gospels40Days = generateGospels40Days();
+const bible1YearDays = generateBible1Year();
+const paulEpistles30Days = generatePaulEpistles30Days();
 
 export const readingPlanTemplates: ReadingPlanTemplate[] = [
   {
-    slug: "52-weeks",
-    title: "Plano 52 Semanas",
-    description: "Leituras diárias por gênero literário em 52 semanas",
-    duration: weeks52Days.length,
-    icon: "Calendar",
-    gradientFrom: "#1E3A5F",
+    slug: "bible-1-year",
+    title: "Bíblia em 1 Ano",
+    description: "Leitura completa em 365 dias",
+    duration: bible1YearDays.length,
+    icon: "BookOpen",
+    gradientFrom: "#1E40AF",
     gradientTo: "#3B82F6",
     weekdaysOnly: false,
     order: 1,
+    days: bible1YearDays,
+  },
+  {
+    slug: "52-weeks",
+    title: "Plano 52 Semanas",
+    description: "Leitura em 1 ano por gênero",
+    duration: weeks52Days.length,
+    icon: "Calendar",
+    gradientFrom: "#1E3A5F",
+    gradientTo: "#60A5FA",
+    weekdaysOnly: false,
+    order: 2,
     days: weeks52Days,
   },
   {
     slug: "5-days",
     title: "Plano 5 Dias",
-    description: "Leitura em 1 ano, 5 dias por semana",
+    description: "Leitura em 1 ano, 5 dias/semana",
     duration: fiveDaysDays.length,
     icon: "Clock",
     gradientFrom: "#065F46",
-    gradientTo: "#10B981",
+    gradientTo: "#34D399",
     weekdaysOnly: true,
-    order: 2,
+    order: 3,
     days: fiveDaysDays,
   },
   {
     slug: "chronological",
     title: "Plano Cronológico",
-    description: "Ordem histórica dos eventos bíblicos",
+    description: "Sequência histórica",
     duration: chronologicalDays.length,
     icon: "History",
-    gradientFrom: "#581C87",
-    gradientTo: "#A855F7",
+    gradientFrom: "#5B21B6",
+    gradientTo: "#A78BFA",
     weekdaysOnly: false,
-    order: 3,
+    order: 4,
     days: chronologicalDays,
   },
   {
     slug: "book-by-book",
     title: "Livro por Livro",
-    description: "Um livro da Bíblia por vez, 2 trechos diários",
+    description: "Um livro de cada vez, 2 trechos/dia",
     duration: bookByBookDays.length,
-    icon: "BookOpen",
+    icon: "Library",
     gradientFrom: "#C2410C",
     gradientTo: "#FB923C",
     weekdaysOnly: false,
-    order: 4,
+    order: 5,
     days: bookByBookDays,
+  },
+  {
+    slug: "new-testament-90",
+    title: "Novo Testamento",
+    description: "Leitura em 90 dias",
+    duration: nt90Days.length,
+    icon: "ScrollText",
+    gradientFrom: "#0891B2",
+    gradientTo: "#22D3EE",
+    weekdaysOnly: false,
+    order: 6,
+    days: nt90Days,
+  },
+  {
+    slug: "gospels-40",
+    title: "Evangelhos",
+    description: "Os 4 Evangelhos em 40 dias",
+    duration: gospels40Days.length,
+    icon: "Heart",
+    gradientFrom: "#BE185D",
+    gradientTo: "#F472B6",
+    weekdaysOnly: false,
+    order: 7,
+    days: gospels40Days,
+  },
+  {
+    slug: "psalms-30",
+    title: "Salmos em 30 Dias",
+    description: "5 salmos por dia",
+    duration: psalms30Days.length,
+    icon: "Music",
+    gradientFrom: "#7C3AED",
+    gradientTo: "#C4B5FD",
+    weekdaysOnly: false,
+    order: 8,
+    days: psalms30Days,
+  },
+  {
+    slug: "proverbs-31",
+    title: "Provérbios em 31 Dias",
+    description: "1 capítulo por dia",
+    duration: proverbs31Days.length,
+    icon: "Lightbulb",
+    gradientFrom: "#CA8A04",
+    gradientTo: "#FDE047",
+    weekdaysOnly: false,
+    order: 9,
+    days: proverbs31Days,
+  },
+  {
+    slug: "paul-epistles-30",
+    title: "Cartas de Paulo",
+    description: "13 epístolas em 30 dias",
+    duration: paulEpistles30Days.length,
+    icon: "Mail",
+    gradientFrom: "#059669",
+    gradientTo: "#6EE7B7",
+    weekdaysOnly: false,
+    order: 10,
+    days: paulEpistles30Days,
   },
 ];
 

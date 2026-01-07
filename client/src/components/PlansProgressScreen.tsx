@@ -23,7 +23,17 @@ import {
   Sparkles,
   ChevronRight,
   Loader2,
-  RotateCcw
+  RotateCcw,
+  History,
+  Library,
+  ScrollText,
+  Heart,
+  Music,
+  Lightbulb,
+  Mail,
+  Check,
+  SkipForward,
+  FileText
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -72,6 +82,14 @@ const getIconComponent = (iconName: string) => {
   const icons: Record<string, typeof Calendar> = {
     Calendar,
     BookOpen,
+    Clock,
+    History,
+    Library,
+    ScrollText,
+    Heart,
+    Music,
+    Lightbulb,
+    Mail,
   };
   return icons[iconName] || BookOpen;
 };
@@ -431,100 +449,115 @@ export function PlansProgressScreen({ onBack, onNavigateToBible }: PlansProgress
                       <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                     </div>
                   ) : (
-                    plans.map((plan, index) => {
-                      const IconComponent = getIconComponent(plan.icon);
-                      const hasProgress = plan.userProgress?.isActive;
-                      const progressPercent = hasProgress 
-                        ? Math.round((plan.userProgress!.completedDays / plan.duration) * 100)
-                        : 0;
-
-                      return (
-                        <motion.div
-                          key={plan.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
+                    <>
+                      {plans.filter(p => p.userProgress?.isActive).map((plan) => {
+                        const IconComponent = getIconComponent(plan.icon);
+                        const progressPercent = Math.round((plan.userProgress!.completedDays / plan.duration) * 100);
+                        
+                        return (
                           <Card 
-                            className="overflow-visible hover-elevate cursor-pointer"
-                            onClick={() => {
-                              setSelectedPlanSlug(plan.slug);
-                              setSelectedPlanId(plan.id);
-                            }}
-                            data-testid={`card-plan-${plan.slug}`}
+                            key={`active-${plan.id}`}
+                            className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+                            data-testid={`card-active-${plan.slug}`}
                           >
-                            <CardContent 
-                              className="p-5 rounded-lg"
-                              style={{
-                                background: `linear-gradient(to bottom right, ${plan.gradientFrom}, ${plan.gradientTo})`
-                              }}
-                            >
-                              <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                                  <IconComponent className="w-6 h-6 text-white" />
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="font-bold text-white text-lg">{plan.title}</h3>
-                                    {hasProgress && (
-                                      <Badge className="bg-white/20 text-white text-xs border-0">
-                                        {progressPercent}%
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <p className="text-sm text-white/80 mb-3">{plan.description}</p>
-                                  <div className="flex items-center gap-4 text-xs text-white/70">
-                                    <span className="flex items-center gap-1">
-                                      <Clock className="w-3 h-3" />
-                                      {plan.duration} dias
-                                    </span>
-                                    {plan.weekdaysOnly && (
-                                      <span className="flex items-center gap-1">
-                                        <Calendar className="w-3 h-3" />
-                                        Seg-Sex
-                                      </span>
-                                    )}
-                                  </div>
-                                  {hasProgress && (
-                                    <div className="mt-3">
-                                      <Progress 
-                                        value={progressPercent} 
-                                        className="h-2 bg-white/20" 
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="flex items-center">
-                                  {hasProgress ? (
-                                    <ChevronRight className="w-6 h-6 text-white/70" />
-                                  ) : (
-                                    <Button 
-                                      size="sm" 
-                                      className="bg-white/20 text-white border-0"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        startPlanMutation.mutate(plan.slug);
-                                      }}
-                                      disabled={startPlanMutation.isPending}
-                                      data-testid={`button-start-${plan.slug}`}
-                                    >
-                                      {startPlanMutation.isPending ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                      ) : (
-                                        <>
-                                          <Play className="w-4 h-4 mr-1" />
-                                          Iniciar
-                                        </>
-                                      )}
-                                    </Button>
-                                  )}
-                                </div>
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-primary">Plano Ativo: {plan.title}</span>
+                                <Button 
+                                  size="sm"
+                                  className="bg-primary text-white"
+                                  onClick={() => {
+                                    setSelectedPlanSlug(plan.slug);
+                                    setSelectedPlanId(plan.id);
+                                  }}
+                                  data-testid={`button-continue-${plan.slug}`}
+                                >
+                                  Continuar
+                                </Button>
                               </div>
+                              <Progress value={progressPercent} className="h-2" />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Dia {plan.userProgress?.currentDay} de {plan.duration} - {progressPercent}%
+                              </p>
                             </CardContent>
                           </Card>
-                        </motion.div>
-                      );
-                    })
+                        );
+                      })}
+
+                      {plans.map((plan, index) => {
+                        const IconComponent = getIconComponent(plan.icon);
+                        const hasProgress = plan.userProgress?.isActive;
+                        const progressPercent = hasProgress 
+                          ? Math.round((plan.userProgress!.completedDays / plan.duration) * 100)
+                          : 0;
+
+                        return (
+                          <motion.div
+                            key={plan.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                          >
+                            <Card 
+                              className="overflow-visible hover-elevate cursor-pointer border-0"
+                              onClick={() => {
+                                setSelectedPlanSlug(plan.slug);
+                                setSelectedPlanId(plan.id);
+                              }}
+                              data-testid={`card-plan-${plan.slug}`}
+                            >
+                              <CardContent 
+                                className="p-4 rounded-lg"
+                                style={{
+                                  background: `linear-gradient(135deg, ${plan.gradientFrom}, ${plan.gradientTo})`
+                                }}
+                              >
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                                    <IconComponent className="w-6 h-6 text-white" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="font-bold text-white text-base">{plan.title}</h3>
+                                    <p className="text-sm text-white/80">{plan.description}</p>
+                                    <p className="text-xs text-white/60 mt-1">
+                                      {plan.weekdaysOnly ? `${plan.duration} dias (Seg-Sex)` : `${plan.duration} dias`}
+                                    </p>
+                                  </div>
+                                  <div className="flex-shrink-0">
+                                    {hasProgress ? (
+                                      <Button 
+                                        size="sm" 
+                                        className="bg-white/30 text-white border-0 hover:bg-white/40"
+                                        data-testid={`button-continue-plan-${plan.slug}`}
+                                      >
+                                        Continuar
+                                      </Button>
+                                    ) : (
+                                      <Button 
+                                        size="sm" 
+                                        className="bg-white/30 text-white border-0 hover:bg-white/40"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startPlanMutation.mutate(plan.slug);
+                                        }}
+                                        disabled={startPlanMutation.isPending}
+                                        data-testid={`button-start-${plan.slug}`}
+                                      >
+                                        {startPlanMutation.isPending ? (
+                                          <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                          "Iniciar"
+                                        )}
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        );
+                      })}
+                    </>
                   )}
                 </div>
               )}
@@ -565,6 +598,10 @@ function PlanDetailView({
   const currentDay = progress?.currentDay || 1;
   const completedDays = progress?.completedDays || [];
   const IconComponent = getIconComponent(plan.icon);
+  const progressPercent = progress ? Math.round((completedDays.length / plan.duration) * 100) : 0;
+  
+  const currentDayData = days.find(d => d.dayNumber === currentDay);
+  const nextDayData = days.find(d => d.dayNumber === currentDay + 1);
 
   if (isLoading) {
     return (
@@ -575,43 +612,84 @@ function PlanDetailView({
   }
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className="space-y-4 pb-20">
       <div className="flex items-center gap-3 mb-4">
         <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back-plan">
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5 text-primary" />
         </Button>
-        <div 
-          className="w-10 h-10 rounded-lg flex items-center justify-center"
-          style={{
-            background: `linear-gradient(to bottom right, ${plan.gradientFrom}, ${plan.gradientTo})`
-          }}
-        >
-          <IconComponent className="w-5 h-5 text-white" />
-        </div>
-        <div className="flex-1">
-          <h2 className="font-bold text-lg">{plan.title}</h2>
-          <p className="text-sm text-muted-foreground">
-            Dia {currentDay} de {plan.duration}
-          </p>
+        <div className="flex-1 text-center">
+          <h2 className="font-bold text-lg text-primary">{plan.title} - Dia {currentDay}</h2>
         </div>
       </div>
 
       {progress && (
-        <Card className="mb-4">
+        <Card className="bg-muted/30 border-0">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Progresso</span>
-              <span className="text-sm text-muted-foreground">
-                {completedDays.length}/{plan.duration} dias
-              </span>
+              <span className="text-sm font-medium">Progresso: {progressPercent}% Completo</span>
             </div>
             <Progress 
-              value={(completedDays.length / plan.duration) * 100} 
-              className="h-2" 
+              value={progressPercent} 
+              className="h-3" 
             />
           </CardContent>
         </Card>
       )}
+
+      {currentDayData && (
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Leitura de Hoje:</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {currentDayData.readings.map((reading, idx) => {
+              const readingText = typeof reading === 'string' 
+                ? reading 
+                : `${reading.book} ${reading.chapter}`;
+              const isReadingCompleted = progress?.completedReadings?.[currentDay]?.includes(idx);
+              
+              return (
+                <div 
+                  key={idx}
+                  className="flex items-center justify-between py-2 border-b last:border-b-0"
+                  data-testid={`reading-item-${currentDay}-${idx}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Check className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">{readingText}</span>
+                  </div>
+                  <Checkbox
+                    checked={isReadingCompleted}
+                    className="h-6 w-6 rounded border-primary data-[state=checked]:bg-primary"
+                    data-testid={`checkbox-reading-${currentDay}-${idx}`}
+                  />
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">Notas do Dia</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground italic">
+                Reflexão sobre a leitura de hoje.
+              </p>
+              <p className="text-sm text-muted-foreground italic">
+                Anote insights e perguntas importantes.
+              </p>
+            </div>
+            <div className="w-16 h-16 flex items-center justify-center">
+              <BookOpen className="w-12 h-12 text-primary/30" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {analysisResult && (
         <Card className="border-primary/30 bg-primary/5">
@@ -627,83 +705,92 @@ function PlanDetailView({
         </Card>
       )}
 
-      <div className="space-y-3">
-        {days.slice(0, 30).map((day) => {
-          const isCompleted = completedDays.includes(day.dayNumber);
-          const isCurrent = day.dayNumber === currentDay;
-          
-          return (
-            <Card 
-              key={day.id}
-              className={`${isCurrent ? 'border-primary ring-1 ring-primary/20' : ''}`}
-              data-testid={`card-day-${day.dayNumber}`}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    {isCompleted ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <Checkbox
-                        checked={isCompleted}
-                        onCheckedChange={() => onCompleteDay(day.dayNumber)}
-                        data-testid={`checkbox-day-${day.dayNumber}`}
-                      />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`font-medium ${isCompleted ? 'text-muted-foreground line-through' : ''}`}>
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 space-y-3">
+        <div className="flex gap-3 max-w-3xl mx-auto">
+          <Button 
+            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
+            onClick={() => onCompleteDay(currentDay)}
+            data-testid="button-mark-read"
+          >
+            Marcar como Lido
+          </Button>
+          <Button 
+            className="flex-1 bg-primary hover:bg-primary/90 text-white"
+            onClick={() => onAIAnalysis(currentDay)}
+            disabled={isAnalyzing}
+            data-testid="button-ai-analysis"
+          >
+            {isAnalyzing ? (
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
+            Analise IA
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
+        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground max-w-3xl mx-auto">
+          <Button variant="ghost" size="sm" className="text-muted-foreground">
+            <SkipForward className="w-4 h-4 mr-1" />
+            Pular Dia
+          </Button>
+          <span className="text-muted-foreground">|</span>
+          {nextDayData && (
+            <span className="text-muted-foreground">
+              Dia {currentDay + 1}: Leitura Amanhã
+            </span>
+          )}
+        </div>
+        {nextDayData && (
+          <div className="text-center text-sm font-medium text-primary">
+            {nextDayData.readings.map((r, i) => 
+              typeof r === 'string' ? r : `${r.book} ${r.chapter}`
+            ).join(', ')}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-6">
+        <h3 className="font-semibold mb-3">Todos os Dias</h3>
+        <div className="space-y-2">
+          {days.slice(0, 30).map((day) => {
+            const isCompleted = completedDays.includes(day.dayNumber);
+            const isCurrent = day.dayNumber === currentDay;
+            
+            return (
+              <Card 
+                key={day.id}
+                className={`${isCurrent ? 'border-primary ring-1 ring-primary/20' : ''} ${isCompleted ? 'opacity-60' : ''}`}
+                data-testid={`card-day-${day.dayNumber}`}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      {isCompleted ? (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      ) : isCurrent ? (
+                        <Circle className="w-5 h-5 text-primary" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <span className={`text-sm font-medium ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
                         Dia {day.dayNumber}
                       </span>
-                      {isCurrent && !isCompleted && (
-                        <Badge variant="secondary" className="text-xs">Hoje</Badge>
+                      {day.title && (
+                        <span className="text-xs text-muted-foreground ml-2">- {day.title}</span>
                       )}
                     </div>
-                    {day.title && (
-                      <p className="text-sm text-muted-foreground mb-2">{day.title}</p>
+                    {isCurrent && (
+                      <Badge variant="secondary" className="text-xs">Hoje</Badge>
                     )}
-                    <div className="flex flex-wrap gap-2">
-                      {day.readings.map((reading, idx) => {
-                        const readingText = typeof reading === 'string' 
-                          ? reading 
-                          : `${reading.book} ${reading.chapter}`;
-                        return (
-                          <Button
-                            key={idx}
-                            variant="outline"
-                            size="sm"
-                            className="text-xs h-7"
-                            onClick={onNavigateToBible}
-                            data-testid={`button-reading-${day.dayNumber}-${idx}`}
-                          >
-                            <BookOpen className="w-3 h-3 mr-1" />
-                            {readingText}
-                          </Button>
-                        );
-                      })}
-                    </div>
                   </div>
-                  {isCurrent && !isCompleted && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onAIAnalysis(day.dayNumber)}
-                      disabled={isAnalyzing}
-                      data-testid={`button-ai-analysis-${day.dayNumber}`}
-                    >
-                      {isAnalyzing ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Sparkles className="w-4 h-4 text-primary" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
       {days.length > 30 && (

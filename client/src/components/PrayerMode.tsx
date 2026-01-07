@@ -6,6 +6,7 @@ import { UserButton } from "@/components/UserButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +35,9 @@ import {
   Trash2,
   Check,
   X,
-  Share2
+  Share2,
+  Music,
+  BookOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -43,8 +46,25 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } fro
 
 interface PrayerModeProps {
   onBack: () => void;
-  onNavigateToHymns?: () => void;
 }
+
+const CLASSIC_HYMNS = [
+  { id: "1", title: "Mais Perto Quero Estar", number: "387", author: "Fanny Crosby" },
+  { id: "2", title: "Se Paz a Mais Doce", number: "336", author: "Horatio Spafford" },
+  { id: "3", title: "Divino Companheiro", number: "212", author: "Desconhecido" },
+  { id: "4", title: "Quando Jesus Estendeu a Sua Mão", number: "431", author: "Desconhecido" },
+  { id: "5", title: "Santo, Santo, Santo", number: "1", author: "Reginald Heber" },
+  { id: "6", title: "Castelo Forte", number: "18", author: "Martinho Lutero" },
+  { id: "7", title: "Vem, Jesus, Tão Desejado", number: "97", author: "Charles Wesley" },
+  { id: "8", title: "Sublime Graça", number: "277", author: "John Newton" },
+  { id: "9", title: "Quão Grande És Tu", number: "17", author: "Carl Boberg" },
+  { id: "10", title: "A Deus Demos Glória", number: "22", author: "Fanny Crosby" },
+  { id: "11", title: "Vencendo Vem Jesus", number: "110", author: "Philip Bliss" },
+  { id: "12", title: "Firme nas Promessas", number: "262", author: "Russell Carter" },
+  { id: "13", title: "Perto de Ti, Senhor", number: "389", author: "Sarah Adams" },
+  { id: "14", title: "Graças Dou", number: "152", author: "Johnson Oatman Jr." },
+  { id: "15", title: "Eu Sei Que Meu Senhor Cuida de Mim", number: "345", author: "Civilla Martin" },
+];
 
 const PRESET_CATEGORIES = [
   { 
@@ -84,7 +104,7 @@ const DEFAULT_ALARMS = [
   { time: "21:00", label: "Oração Noturna", enabled: true },
 ];
 
-export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
+export function PrayerMode({ onBack }: PrayerModeProps) {
   const { t } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -382,8 +402,29 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
         </div>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-80px)]">
-        <div className="p-4 space-y-6">
+      <Tabs defaultValue="prayer" className="flex-1">
+        <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 rounded-none h-12">
+          <TabsTrigger 
+            value="prayer" 
+            className="flex items-center gap-2 data-[state=active]:bg-[#357ABD]/10 data-[state=active]:text-[#357ABD] rounded-none h-full"
+            data-testid="tab-prayer"
+          >
+            <Heart className="w-4 h-4" />
+            Modo Oração
+          </TabsTrigger>
+          <TabsTrigger 
+            value="hymns" 
+            className="flex items-center gap-2 data-[state=active]:bg-[#357ABD]/10 data-[state=active]:text-[#357ABD] rounded-none h-full"
+            data-testid="tab-hymns"
+          >
+            <Music className="w-4 h-4" />
+            Hinos para Oração
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="prayer" className="mt-0">
+          <ScrollArea className="h-[calc(100vh-140px)]">
+            <div className="p-4 space-y-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -605,31 +646,89 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
             </div>
           </motion.div>
 
-          {onNavigateToHymns && (
-            <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              onClick={onNavigateToHymns}
-              className="w-full bg-gradient-to-r from-[#357ABD] to-[#4A90D9] rounded-2xl p-4 shadow-lg text-left"
-              data-testid="button-navigate-hymns"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Timer className="w-6 h-6 text-white" />
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="hymns" className="mt-0">
+          <ScrollArea className="h-[calc(100vh-140px)]">
+            <div className="p-4 space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-[#357ABD] to-[#4A90D9] rounded-2xl p-6 text-white"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                    <BookOpen className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">Hinário Cristão</h2>
+                    <p className="text-sm text-white/80">Hinos para sua oração</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-white">Hinos para Oração</h3>
-                  <p className="text-sm text-white/80">
-                    Ouça hinos instrumentais com temporizador
-                  </p>
+                <p className="text-sm text-white/90">
+                  Escolha um hino para meditar durante seu momento de oração.
+                </p>
+              </motion.div>
+
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+                  <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <Music className="w-5 h-5 text-[#357ABD]" />
+                    Hinos Clássicos
+                  </h3>
                 </div>
-                <ChevronRight className="w-6 h-6 text-white/70" />
+                <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                  {CLASSIC_HYMNS.map((hymn, index) => (
+                    <motion.div
+                      key={hymn.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      className="flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                      data-testid={`hymn-${hymn.id}`}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                          {hymn.number}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-slate-800 dark:text-white truncate">
+                          {hymn.title}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {hymn.author}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </motion.button>
-          )}
-        </div>
-      </ScrollArea>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-slate-100 dark:bg-slate-800 rounded-2xl p-4 text-center"
+              >
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Use o temporizador de oração enquanto medita nos hinos
+                </p>
+                <Button
+                  className="mt-3"
+                  onClick={() => setShowTimerDialog(true)}
+                  data-testid="button-hymns-timer"
+                >
+                  <Timer className="w-4 h-4 mr-2" />
+                  Iniciar Temporizador
+                </Button>
+              </motion.div>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
 
       <AnimatePresence>
         {selectedCategory && (

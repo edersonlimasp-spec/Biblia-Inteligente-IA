@@ -566,57 +566,68 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 const answeredCount = requests.filter(r => r.status === 'answered').length;
                 
                 return (
-                  <button
+                  <div
                     key={category.key}
-                    onClick={() => handleCategoryClick(category.key)}
-                    className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
-                    data-testid={`category-${category.key}`}
+                    className={`relative rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white shadow-lg overflow-hidden`}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                        <IconComponent className="w-5 h-5" />
+                    <button
+                      onClick={() => handleCategoryClick(category.key)}
+                      className="w-full p-3 text-left hover:bg-white/10 transition-colors"
+                      data-testid={`category-${category.key}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                            <IconComponent className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-sm">{category.title}</h3>
+                            <p className="text-xs text-white/70">
+                              {requests.length} pedidos {answeredCount > 0 && `• ${answeredCount} ✓`}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-white/70" />
                       </div>
-                      {requests.length > 0 && (
-                        <div className="bg-white/30 px-2 py-0.5 rounded-full text-xs font-bold">
-                          {requests.length}
+                    </button>
+                    
+                    <div className="px-3 pb-3">
+                      {requests.length === 0 ? (
+                        <div className="bg-white/10 rounded-xl p-3 text-center">
+                          <p className="text-xs text-white/70">Toque acima para adicionar pedidos</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1.5 max-h-28 overflow-y-auto">
+                          {requests.slice(0, 4).map((request) => (
+                            <div
+                              key={request.id}
+                              className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1.5"
+                            >
+                              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                request.status === 'answered' ? 'bg-green-400' : 'bg-white/60'
+                              }`} />
+                              <span className={`text-xs truncate flex-1 ${
+                                request.status === 'answered' ? 'text-white/50 line-through' : 'text-white/90'
+                              }`}>
+                                {request.title}
+                              </span>
+                              {request.status === 'answered' && (
+                                <Check className="w-3 h-3 text-green-400 flex-shrink-0" />
+                              )}
+                            </div>
+                          ))}
+                          {requests.length > 4 && (
+                            <button
+                              onClick={() => handleCategoryClick(category.key)}
+                              className="w-full text-center text-xs text-white/70 py-1 hover:text-white"
+                            >
+                              Ver todos ({requests.length})
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
-                    <h3 className="font-bold text-sm mb-1">{category.title}</h3>
-                    
-                    {requests.length === 0 ? (
-                      <p className="text-xs text-white/70">Toque para adicionar</p>
-                    ) : (
-                      <div className="space-y-1 mt-2">
-                        {requests.slice(0, 2).map((request) => (
-                          <div
-                            key={request.id}
-                            className="flex items-center gap-1.5 text-xs"
-                          >
-                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                              request.status === 'answered' ? 'bg-green-300' : 'bg-white/60'
-                            }`} />
-                            <span className={`truncate ${
-                              request.status === 'answered' ? 'text-white/60 line-through' : 'text-white/90'
-                            }`}>
-                              {request.title}
-                            </span>
-                          </div>
-                        ))}
-                        {requests.length > 2 && (
-                          <p className="text-xs text-white/60">
-                            +{requests.length - 2} mais...
-                          </p>
-                        )}
-                        {answeredCount > 0 && (
-                          <p className="text-xs text-green-200 flex items-center gap-1 mt-1">
-                            <Check className="w-3 h-3" />
-                            {answeredCount} respondidos
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </button>
+                  </div>
                 );
               })}
             </div>

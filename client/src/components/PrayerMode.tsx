@@ -33,7 +33,8 @@ import {
   ChevronRight,
   Trash2,
   Check,
-  X
+  X,
+  Share2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -317,6 +318,38 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
   const selectPreset = (seconds: number) => {
     setTimerInitialSeconds(seconds);
     setTimerSeconds(seconds);
+  };
+
+  const shareRequest = async (request: PrayerRequest) => {
+    const categoryName = selectedCategory === 'church' 
+      ? 'Lista de Oração Igreja' 
+      : PRESET_CATEGORIES.find(c => c.key === selectedCategory)?.title || 'Oração';
+    
+    const shareText = `🙏 Pedido de Oração - ${categoryName}\n\n${request.title}${request.description ? `\n\n${request.description}` : ''}\n\nOre conosco! 🙌`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Pedido de Oração',
+          text: shareText,
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          await copyToClipboard(shareText);
+        }
+      }
+    } else {
+      await copyToClipboard(shareText);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copiado!", description: "Pedido copiado para a área de transferência" });
+    } catch {
+      toast({ title: "Erro ao copiar", variant: "destructive" });
+    }
   };
 
   const churchList = prayerLists.find(l => l.listType === 'church');
@@ -688,14 +721,26 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
                             </p>
                           )}
                         </div>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="text-slate-400 hover:text-red-500 flex-shrink-0"
-                          onClick={() => deleteRequestMutation.mutate(request.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="text-slate-400 hover:text-[#357ABD]"
+                            onClick={() => shareRequest(request)}
+                            data-testid={`button-share-request-${request.id}`}
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="text-slate-400 hover:text-red-500"
+                            onClick={() => deleteRequestMutation.mutate(request.id)}
+                            data-testid={`button-delete-request-${request.id}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </motion.div>
                     ))
                   )}

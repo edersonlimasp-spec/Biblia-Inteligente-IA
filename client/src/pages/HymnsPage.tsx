@@ -217,6 +217,7 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
               variant="ghost"
               onClick={stopMusic}
               className="text-white hover:bg-white/20"
+              data-testid="button-stop-music"
             >
               <Square className="w-5 h-5" />
             </Button>
@@ -238,6 +239,7 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
                   variant="ghost"
                   onClick={() => setIsMuted(!isMuted)}
                   className="text-white hover:bg-white/20 h-6 w-6"
+                  data-testid="button-mute-toggle"
                 >
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </Button>
@@ -428,6 +430,7 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
                 variant={timerActive ? "secondary" : "default"}
                 onClick={() => setTimerActive(!timerActive)}
                 className="w-20"
+                data-testid="button-timer-toggle"
               >
                 {timerActive ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
               </Button>
@@ -436,6 +439,7 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
                 variant="destructive"
                 onClick={stopTimer}
                 className="w-20"
+                data-testid="button-timer-stop"
               >
                 <Square className="w-5 h-5" />
               </Button>

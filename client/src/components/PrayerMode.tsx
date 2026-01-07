@@ -770,6 +770,7 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
                 variant={timerActive ? "secondary" : "default"}
                 onClick={() => setTimerActive(!timerActive)}
                 className="w-20"
+                data-testid="button-timer-toggle"
               >
                 {timerActive ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
               </Button>
@@ -778,6 +779,7 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
                 variant="destructive"
                 onClick={stopTimer}
                 className="w-20"
+                data-testid="button-timer-stop"
               >
                 <Square className="w-5 h-5" />
               </Button>

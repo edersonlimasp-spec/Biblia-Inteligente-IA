@@ -1,0 +1,36 @@
+## Contexto
+Estamos aprimorando o módulo “Modo Oração” do app Bíblia Inteligente IA. Atualmente ele contém um cronômetro, um formulário simples de pedidos e playlists instrumentais. Desejamos transformá-lo em uma ferramenta robusta de organização, compartilhamento e acompanhamento de orações, mantendo a identidade visual do app.
+
+## Objetivos
+
+1. **Listas de Oração e Compartilhamento**
+   - Na aba “Pedidos”, criar a seção “Minhas Listas de Oração”. O usuário pode adicionar listas com títulos (ex.: “Ministério”, “Família”, “Missões”), editar nomes e excluí-las.
+   - Dentro de cada lista, permitir adicionar vários pedidos. Cada pedido terá campo de texto, categoria e opção de marcar como respondido. Exibir um pequeno ícone para alternar o status.
+   - Ao lado do título da lista, inserir um ícone de compartilhamento. Ao clicá-lo, gerar um link único (`/lista/<id>`) com um mini‑banner contendo o logotipo genérico do Bíblia Inteligente e a mensagem “Compartilhe suas orações”. Permitir compartilhar via WhatsApp, e-mail ou copiar link.
+   - Salvar dados no banco de dados do usuário e sincronizar offline.
+
+2. **Dashboard de Oração com gráfico de barras**
+   - Adicionar um painel lateral ou inferior chamado “Dashboard de Oração”.
+   - Implementar um **gráfico de barras horizontais** (usando Chart.js) com três barras: “Respondidos”, “Em Oração” e “Outros”. Cada barra tem largura proporcional ao número de pedidos e exibe o total no fim.
+   - Abaixo do gráfico, mostrar uma “Lista de Horários” com linhas no formato `HH:MM – descrição` (por exemplo, “08:00 – Oração Matinal”). Ao lado de cada linha, exibir um ícone de campainha para ativar/desativar notificações. Utilize as APIs de notificação/web push para enviar lembretes.
+   - Permitir ao usuário definir horários recorrentes. Armazenar os alarmes localmente e sincronizar com a conta.
+
+3. **Louvor & Hinos**
+   - Substituir as playlists atuais por duas categorias: “Hinos Clássicos” e “Instrumentais”.
+   - Em “Hinos Clássicos”, listar músicas de domínio público (por exemplo: “Mais Perto Quero Estar”, “Se Paz Há Mais Doce”, “Divino Companheiro no Caminho” e “Quando Jesus Estendeu a Sua Mão”). Cada título deve abrir um player simples com play/pause e barra de progresso.
+   - Em “Instrumentais”, listar faixas instrumentais de hinos tradicionais. Permitir download offline e escolha de tempo de reprodução. 
+   - Ajustar a interface para que o usuário possa recolher ou expandir as listas de hinos.
+
+4. **Agenda de Oração e Histórico**
+   - Na aba “Tempo”, manter o cronômetro com opções de duração (5–60 minutos). Adicionar um botão para salvar tempos de oração como eventos na agenda (“Orar às 21:00”).
+   - Exibir um histórico de quantos dias consecutivos o usuário manteve a rotina de oração. Mostrar gráficos de progresso (linhas ou barras) no dashboard.
+
+## Requisitos técnicos
+- Utilize o framework e linguagem do projeto atual (por exemplo, React/TypeScript).
+- Para armazenamento e sincronização de dados, aproveite o banco existente ou IndexedDB para offline.
+- Utilize Chart.js para o gráfico de barras e Notification API para os lembretes.
+- Garanta responsividade: as seções devem se ajustar bem em smartphones e tablets.
+- Siga a paleta de cores e estilo (cartões com cantos arredondados, tons suaves) para manter a consistência visual.
+
+## Resultado esperado
+Após implementar essas melhorias, o “Modo Oração” permitirá aos usuários organizar suas orações em listas compartilháveis, acompanhar o progresso com um painel gráfico, agendar horários com lembretes e ouvir hinos autênticos. O módulo manterá o padrão visual do app e oferecerá uma experiência rica, inspirada em aplicativos como PrayerMate e outros que utilizam lembretes, grupos e categorização de pedidos [oai_citation:10‡prayermate.net](https://www.prayermate.net/app#:~:text=Build%20a%20daily%20prayer%20habit) [oai_citation:11‡globalchristianrelief.org](https://globalchristianrelief.org/stories/best-prayer-apps/#:~:text=%E2%80%A2%20Our%20favorite%20feature%3A%20Daily,develop%20a%20rhythm%20of%20prayer).

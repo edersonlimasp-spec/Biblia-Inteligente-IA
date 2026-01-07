@@ -22,7 +22,7 @@ import { AnnotationPanel } from "@/components/AnnotationPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
-import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
+import { apiRequest, queryClient, getApiUrl, ApiError } from "@/lib/queryClient";
 import { getDeviceId } from "@/hooks/use-device-id";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
@@ -205,6 +205,19 @@ export function BibleReader({
       return data;
     },
   });
+  
+  // Log query state changes
+  useEffect(() => {
+    const isEnabled = !!searchingWord && searchingVerseNum !== null;
+    console.log('[Strong Debug] Query state:', { 
+      searchingWord, 
+      searchingVerseNum, 
+      isEnabled,
+      isLoading: isWordSearchLoading,
+      hasError: !!wordSearchError,
+      hasData: !!wordSearchResults
+    });
+  }, [searchingWord, searchingVerseNum, isWordSearchLoading, wordSearchError, wordSearchResults]);
   
   // Log query errors
   useEffect(() => {
@@ -429,7 +442,7 @@ export function BibleReader({
     }
   }, [selectedBook, selectedChapter, selectedVersion, isAuthenticated, trackReading]);
 
-  const handleWordClick = (word: string, verseNum: number) => {
+  const handleWordClick = async (word: string, verseNum: number) => {
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
     
     console.log('[Strong Debug] Word clicked:', { word, cleanWord, verseNum, length: cleanWord.length });
@@ -439,9 +452,66 @@ export function BibleReader({
       return;
     }
     
-    console.log('[Strong Debug] Setting searchingWord:', cleanWord);
-    setSearchingWord(cleanWord);
-    setSearchingVerseNum(verseNum);
+    console.log('[Strong Debug] Fetching Strong for word:', cleanWord);
+    
+    try {
+      const deviceId = getDeviceId();
+      const searchParams = new URLSearchParams({
+        book: selectedBook,
+        chapter: selectedChapter.toString(),
+        verse: verseNum.toString(),
+      });
+      if (deviceId) {
+        searchParams.set('deviceId', deviceId);
+      }
+      
+      const response = await apiRequest('GET', `/api/strong/search/${encodeURIComponent(cleanWord)}?${searchParams}`);
+      const data = await response.json() as StrongSearchResponse;
+      
+      console.log('[Strong Debug] API response:', data);
+      
+      if (data.results && data.results.length > 0) {
+        const testament = currentBook?.testament;
+        const expectedLanguage = testament === 'old' ? 'hebrew' : 'greek';
+        
+        let matchingResult = data.results.find(r => r.language === expectedLanguage);
+        if (!matchingResult) {
+          matchingResult = data.results[0];
+        }
+        
+        if (matchingResult?.number) {
+          console.log('[Strong Debug] Opening modal with Strong number:', matchingResult.number);
+          setSelectedStrongNumber(matchingResult.number);
+          setWordsWithStrong(prev => {
+            const newSet = new Set(prev);
+            newSet.add(cleanWord);
+            return newSet;
+          });
+        }
+      } else {
+        console.log('[Strong Debug] No Strong results found for word:', cleanWord);
+        toast({
+          title: "Palavra não encontrada",
+          description: `Não encontramos definição Strong para "${cleanWord}"`,
+          variant: "default",
+        });
+      }
+    } catch (err) {
+      console.error('[Strong Debug] Error fetching Strong:', err);
+      if (err instanceof ApiError && err.status === 429) {
+        toast({
+          title: "Limite atingido",
+          description: err.data?.error || "Limite de consultas Strong atingido",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível buscar a definição Strong",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (

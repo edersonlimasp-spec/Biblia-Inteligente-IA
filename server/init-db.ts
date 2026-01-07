@@ -1,7 +1,124 @@
 import { db } from './db';
-import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons } from '@shared/schema';
+import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons, readingPlanTemplates } from '@shared/schema';
 import { seedAdminUsers } from './seed-admins';
 import { seedBibleVersions } from './seed-versions';
+
+const READING_PLAN_TEMPLATES = [
+  {
+    slug: "bíblia-em-1-ano",
+    titlePt: "Bíblia em 1 Ano",
+    titleEn: "Bible in 1 Year",
+    titleEs: "Biblia en 1 Año",
+    descriptionPt: "Leia toda a Bíblia em 365 dias com 3-4 capítulos por dia",
+    descriptionEn: "Read the entire Bible in 365 days with 3-4 chapters per day",
+    descriptionEs: "Lee toda la Biblia en 365 días con 3-4 capítulos por día",
+    category: "full-bible",
+    durationDays: 365,
+    defaultPace: 3,
+    scheduleMode: "canonical",
+    weekdaysOnly: false,
+    icon: "BookOpen",
+    colorGradient: "from-blue-500 to-blue-700",
+    tags: ["popular", "recommended"],
+    isActive: true,
+    displayOrder: 1,
+  },
+  {
+    slug: "novo-testamento-90-dias",
+    titlePt: "Novo Testamento em 90 Dias",
+    titleEn: "New Testament in 90 Days",
+    titleEs: "Nuevo Testamento en 90 Días",
+    descriptionPt: "Leia o Novo Testamento em 3 meses",
+    descriptionEn: "Read the New Testament in 3 months",
+    descriptionEs: "Lee el Nuevo Testamento en 3 meses",
+    category: "new-testament",
+    durationDays: 90,
+    defaultPace: 3,
+    scheduleMode: "canonical",
+    weekdaysOnly: false,
+    icon: "BookMarked",
+    colorGradient: "from-green-500 to-green-700",
+    tags: ["popular"],
+    isActive: true,
+    displayOrder: 2,
+  },
+  {
+    slug: "evangelhos-30-dias",
+    titlePt: "Evangelhos em 30 Dias",
+    titleEn: "Gospels in 30 Days",
+    titleEs: "Evangelios en 30 Días",
+    descriptionPt: "Leia os 4 Evangelhos em um mês",
+    descriptionEn: "Read all 4 Gospels in one month",
+    descriptionEs: "Lee los 4 Evangelios en un mes",
+    category: "new-testament",
+    durationDays: 30,
+    defaultPace: 3,
+    scheduleMode: "canonical",
+    weekdaysOnly: false,
+    icon: "Heart",
+    colorGradient: "from-purple-500 to-purple-700",
+    tags: ["quick", "new"],
+    isActive: true,
+    displayOrder: 3,
+  },
+  {
+    slug: "salmos-provérbios-31-dias",
+    titlePt: "Salmos e Provérbios em 31 Dias",
+    titleEn: "Psalms and Proverbs in 31 Days",
+    titleEs: "Salmos y Proverbios en 31 Días",
+    descriptionPt: "Leia 5 Salmos e 1 Provérbio por dia",
+    descriptionEn: "Read 5 Psalms and 1 Proverb per day",
+    descriptionEs: "Lee 5 Salmos y 1 Proverbio por día",
+    category: "topical",
+    durationDays: 31,
+    defaultPace: 6,
+    scheduleMode: "alternating",
+    weekdaysOnly: false,
+    icon: "Music",
+    colorGradient: "from-amber-500 to-amber-700",
+    tags: ["popular", "devotional"],
+    isActive: true,
+    displayOrder: 4,
+  },
+  {
+    slug: "cinco-dias-bíblia",
+    titlePt: "Bíblia em 5 Dias por Semana",
+    titleEn: "5-Day Bible Reading",
+    titleEs: "Biblia en 5 Días por Semana",
+    descriptionPt: "Leia a Bíblia só durante a semana, descanse no fim de semana",
+    descriptionEn: "Read the Bible on weekdays only, rest on weekends",
+    descriptionEs: "Lee la Biblia solo de lunes a viernes",
+    category: "full-bible",
+    durationDays: 365,
+    defaultPace: 4,
+    scheduleMode: "canonical",
+    weekdaysOnly: true,
+    icon: "Calendar",
+    colorGradient: "from-teal-500 to-teal-700",
+    tags: ["flexible"],
+    isActive: true,
+    displayOrder: 5,
+  },
+  {
+    slug: "antigo-testamento-180-dias",
+    titlePt: "Antigo Testamento em 180 Dias",
+    titleEn: "Old Testament in 180 Days",
+    titleEs: "Antiguo Testamento en 180 Días",
+    descriptionPt: "Leia todo o Antigo Testamento em 6 meses",
+    descriptionEn: "Read the entire Old Testament in 6 months",
+    descriptionEs: "Lee todo el Antiguo Testamento en 6 meses",
+    category: "old-testament",
+    durationDays: 180,
+    defaultPace: 4,
+    scheduleMode: "canonical",
+    weekdaysOnly: false,
+    icon: "ScrollText",
+    colorGradient: "from-orange-500 to-orange-700",
+    tags: [],
+    isActive: true,
+    displayOrder: 6,
+  },
+];
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -280,6 +397,30 @@ export async function forceSeedStrongEntries(): Promise<{ success: boolean; coun
   }
 }
 
+async function autoSeedReadingPlanTemplates() {
+  try {
+    const countResult = await db.select({ count: sql<number>`count(*)` }).from(readingPlanTemplates);
+    const count = Number(countResult[0]?.count) || 0;
+    
+    console.log(`📊 Reading Plan Templates: ${count}`);
+    
+    if (count > 0) {
+      console.log('✅ Reading Plan Templates já populados');
+      return;
+    }
+    
+    console.log('📥 Populando Reading Plan Templates...');
+    
+    for (const template of READING_PLAN_TEMPLATES) {
+      await db.insert(readingPlanTemplates).values(template).onConflictDoNothing();
+    }
+    
+    console.log(`✅ ${READING_PLAN_TEMPLATES.length} Reading Plan Templates inseridos`);
+  } catch (error) {
+    console.error('❌ Erro ao seed Reading Plan Templates:', error);
+  }
+}
+
 export async function initializeDatabase() {
   try {
     console.log('🔍 Verificando se banco de dados precisa de inicialização...');
@@ -315,6 +456,9 @@ export async function initializeDatabase() {
 
     // Auto-seed Study Modules if table is empty
     await autoSeedStudyModules();
+    
+    // Auto-seed Reading Plan Templates if table is empty
+    await autoSeedReadingPlanTemplates();
 
   } catch (error) {
     console.error('❌ Erro ao inicializar banco de dados:', error);

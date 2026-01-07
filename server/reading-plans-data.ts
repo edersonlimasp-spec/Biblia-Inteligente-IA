@@ -288,54 +288,60 @@ function generateBookByBookPlan(): { dayNumber: number; readings: PlanReading[];
   return days;
 }
 
+// Generate days first, then calculate duration from actual length
+const weeks52Days = generate52WeeksPlan();
+const fiveDaysDays = generate5DaysPlan();
+const chronologicalDays = generateChronologicalPlan();
+const bookByBookDays = generateBookByBookPlan();
+
 export const readingPlanTemplates: ReadingPlanTemplate[] = [
   {
     slug: "52-weeks",
     title: "Plano 52 Semanas",
     description: "Leituras diárias por gênero literário em 52 semanas",
-    duration: 364,
+    duration: weeks52Days.length,
     icon: "Calendar",
     gradientFrom: "#1E3A5F",
     gradientTo: "#3B82F6",
     weekdaysOnly: false,
     order: 1,
-    days: generate52WeeksPlan(),
+    days: weeks52Days,
   },
   {
     slug: "5-days",
     title: "Plano 5 Dias",
     description: "Leitura em 1 ano, 5 dias por semana",
-    duration: 260,
+    duration: fiveDaysDays.length,
     icon: "Clock",
     gradientFrom: "#065F46",
     gradientTo: "#10B981",
     weekdaysOnly: true,
     order: 2,
-    days: generate5DaysPlan(),
+    days: fiveDaysDays,
   },
   {
     slug: "chronological",
     title: "Plano Cronológico",
     description: "Ordem histórica dos eventos bíblicos",
-    duration: 60,
+    duration: chronologicalDays.length,
     icon: "History",
     gradientFrom: "#581C87",
     gradientTo: "#A855F7",
     weekdaysOnly: false,
     order: 3,
-    days: generateChronologicalPlan(),
+    days: chronologicalDays,
   },
   {
     slug: "book-by-book",
     title: "Livro por Livro",
     description: "Um livro da Bíblia por vez, 2 trechos diários",
-    duration: 365,
+    duration: bookByBookDays.length,
     icon: "BookOpen",
     gradientFrom: "#C2410C",
     gradientTo: "#FB923C",
     weekdaysOnly: false,
     order: 4,
-    days: generateBookByBookPlan(),
+    days: bookByBookDays,
   },
 ];
 

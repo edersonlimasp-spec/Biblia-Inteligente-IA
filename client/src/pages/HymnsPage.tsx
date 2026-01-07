@@ -89,12 +89,31 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
   const [showTimerDialog, setShowTimerDialog] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerInitialSeconds, setTimerInitialSeconds] = useState(300);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const COUNTDOWN_PRESETS = [
+    { label: "5 min", seconds: 300 },
+    { label: "10 min", seconds: 600 },
+    { label: "15 min", seconds: 900 },
+    { label: "20 min", seconds: 1200 },
+    { label: "30 min", seconds: 1800 },
+  ];
 
   useEffect(() => {
-    if (timerActive) {
+    if (timerActive && timerSeconds > 0) {
       timerRef.current = setInterval(() => {
-        setTimerSeconds(s => s + 1);
+        setTimerSeconds(s => {
+          if (s <= 1) {
+            setTimerActive(false);
+            toast({ 
+              title: "Tempo de oração concluído!", 
+              description: "Que Deus abençoe seu momento de oração." 
+            });
+            return 0;
+          }
+          return s - 1;
+        });
       }, 1000);
     } else if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -102,7 +121,7 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [timerActive]);
+  }, [timerActive, toast]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -158,10 +177,11 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
   };
 
   const stopTimer = () => {
+    const elapsed = timerInitialSeconds - timerSeconds;
     setTimerActive(false);
-    if (timerSeconds > 0) {
+    if (elapsed > 0) {
       toast({ 
-        title: `Tempo de oração: ${formatTime(timerSeconds)}`, 
+        title: `Tempo de oração: ${formatTime(elapsed)}`, 
         description: "Que Deus abençoe sua vida!" 
       });
     }
@@ -172,6 +192,11 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
       audioRef.current.pause();
       setPlayingTrack(null);
     }
+  };
+  
+  const selectPreset = (seconds: number) => {
+    setTimerInitialSeconds(seconds);
+    setTimerSeconds(seconds);
   };
 
   const stopMusic = () => {
@@ -413,22 +438,48 @@ export default function HymnsPage({ onBack }: HymnsPageProps) {
           <DialogHeader>
             <DialogTitle className="text-center">Temporizador de Oração</DialogTitle>
           </DialogHeader>
-          <div className="py-8 text-center">
+          <div className="py-6 text-center">
             <div className="text-6xl font-mono font-bold text-[#357ABD] mb-4">
               {formatTime(timerSeconds)}
             </div>
             
             {playingTrack && (
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                 Ouvindo: {INSTRUMENTAL_HYMNS.find(h => h.id === playingTrack)?.title}
               </p>
+            )}
+            
+            {!timerActive && (
+              <div className="mb-6">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                  Selecione a duração:
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {COUNTDOWN_PRESETS.map((preset) => (
+                    <Button
+                      key={preset.seconds}
+                      size="sm"
+                      variant={timerInitialSeconds === preset.seconds ? "default" : "outline"}
+                      onClick={() => selectPreset(preset.seconds)}
+                      data-testid={`button-preset-${preset.seconds}`}
+                    >
+                      {preset.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             )}
             
             <div className="flex justify-center gap-4">
               <Button
                 size="lg"
                 variant={timerActive ? "secondary" : "default"}
-                onClick={() => setTimerActive(!timerActive)}
+                onClick={() => {
+                  if (!timerActive && timerSeconds === 0) {
+                    setTimerSeconds(timerInitialSeconds);
+                  }
+                  setTimerActive(!timerActive);
+                }}
                 className="w-20"
                 data-testid="button-timer-toggle"
               >

@@ -103,7 +103,16 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
   
   const [timerActive, setTimerActive] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerInitialSeconds, setTimerInitialSeconds] = useState(300); // 5 min default
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const COUNTDOWN_PRESETS = [
+    { label: "5 min", seconds: 300 },
+    { label: "10 min", seconds: 600 },
+    { label: "15 min", seconds: 900 },
+    { label: "20 min", seconds: 1200 },
+    { label: "30 min", seconds: 1800 },
+  ];
   
   const [localAlarms, setLocalAlarms] = useState(() => {
     try {
@@ -119,9 +128,19 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
   }, [localAlarms]);
 
   useEffect(() => {
-    if (timerActive) {
+    if (timerActive && timerSeconds > 0) {
       timerRef.current = setInterval(() => {
-        setTimerSeconds(s => s + 1);
+        setTimerSeconds(s => {
+          if (s <= 1) {
+            setTimerActive(false);
+            toast({ 
+              title: "Tempo de oração concluído!", 
+              description: "Que Deus abençoe seu momento de oração." 
+            });
+            return 0;
+          }
+          return s - 1;
+        });
       }, 1000);
     } else if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -274,21 +293,30 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const startTimer = () => {
+  const startTimer = (seconds?: number) => {
+    const duration = seconds || timerInitialSeconds;
+    setTimerSeconds(duration);
+    setTimerInitialSeconds(duration);
     setTimerActive(true);
     setShowTimerDialog(true);
   };
 
   const stopTimer = () => {
+    const elapsed = timerInitialSeconds - timerSeconds;
     setTimerActive(false);
-    if (timerSeconds > 0) {
+    if (elapsed > 0) {
       toast({ 
         title: `Oração finalizada!`, 
-        description: `Tempo: ${formatTime(timerSeconds)}` 
+        description: `Tempo orando: ${formatTime(elapsed)}` 
       });
     }
     setTimerSeconds(0);
     setShowTimerDialog(false);
+  };
+  
+  const selectPreset = (seconds: number) => {
+    setTimerInitialSeconds(seconds);
+    setTimerSeconds(seconds);
   };
 
   const churchList = prayerLists.find(l => l.listType === 'church');
@@ -310,7 +338,7 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={startTimer}
+              onClick={() => setShowTimerDialog(true)}
               className="text-[#357ABD]"
               data-testid="button-timer"
             >
@@ -760,15 +788,42 @@ export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
           <DialogHeader>
             <DialogTitle className="text-center">Temporizador de Oração</DialogTitle>
           </DialogHeader>
-          <div className="py-8 text-center">
-            <div className="text-6xl font-mono font-bold text-[#357ABD] mb-8">
+          <div className="py-6 text-center">
+            <div className="text-6xl font-mono font-bold text-[#357ABD] mb-6">
               {formatTime(timerSeconds)}
             </div>
+            
+            {!timerActive && (
+              <div className="mb-6">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                  Selecione a duração:
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {COUNTDOWN_PRESETS.map((preset) => (
+                    <Button
+                      key={preset.seconds}
+                      size="sm"
+                      variant={timerInitialSeconds === preset.seconds ? "default" : "outline"}
+                      onClick={() => selectPreset(preset.seconds)}
+                      data-testid={`button-preset-${preset.seconds}`}
+                    >
+                      {preset.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <div className="flex justify-center gap-4">
               <Button
                 size="lg"
                 variant={timerActive ? "secondary" : "default"}
-                onClick={() => setTimerActive(!timerActive)}
+                onClick={() => {
+                  if (!timerActive && timerSeconds === 0) {
+                    setTimerSeconds(timerInitialSeconds);
+                  }
+                  setTimerActive(!timerActive);
+                }}
                 className="w-20"
                 data-testid="button-timer-toggle"
               >

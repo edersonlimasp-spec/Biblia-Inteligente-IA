@@ -37,7 +37,9 @@ import {
   X,
   Share2,
   Music,
-  BookOpen
+  BookOpen,
+  Clock,
+  ListChecks
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -115,6 +117,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
   const [showAddRequestDialog, setShowAddRequestDialog] = useState(false);
   const [showTimerDialog, setShowTimerDialog] = useState(false);
   const [showAddAlarmDialog, setShowAddAlarmDialog] = useState(false);
+  const [timerContext, setTimerContext] = useState<string | null>(null); // Which category/module started timer
   
   const [newRequestTitle, setNewRequestTitle] = useState("");
   const [newRequestDescription, setNewRequestDescription] = useState("");
@@ -372,11 +375,19 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
     }
     setTimerSeconds(0);
     setShowTimerDialog(false);
+    setTimerContext(null);
   };
   
   const selectPreset = (seconds: number) => {
     setTimerInitialSeconds(seconds);
     setTimerSeconds(seconds);
+  };
+
+  // Open timer dialog for a specific category/module
+  const openTimerForCategory = (categoryKey: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Don't trigger category click
+    setTimerContext(categoryKey);
+    setShowTimerDialog(true);
   };
 
   const shareRequest = async (request: PrayerRequest) => {
@@ -522,7 +533,16 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                       <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                         <IconComponent className="w-5 h-5" />
                       </div>
-                      <ChevronRight className="w-5 h-5 opacity-70" />
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => openTimerForCategory(category.key, e)}
+                          className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                          data-testid={`timer-${category.key}`}
+                        >
+                          <Clock className="w-4 h-4" />
+                        </button>
+                        <ChevronRight className="w-5 h-5 opacity-70" />
+                      </div>
                     </div>
                     <h3 className="font-semibold text-sm leading-tight mb-2">
                       {category.title}
@@ -560,24 +580,35 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   </p>
                 </div>
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={async () => {
-                  if (!churchList) {
-                    await createListMutation.mutateAsync({
-                      title: "Lista de Oração Igreja",
-                      icon: "church",
-                      color: "#10B981",
-                      listType: 'church',
-                    });
-                  }
-                  setSelectedCategory('church');
-                }}
-                data-testid="button-add-church-request"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={(e) => openTimerForCategory('church', e)}
+                  className="h-8 w-8"
+                  data-testid="timer-church"
+                >
+                  <Clock className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={async () => {
+                    if (!churchList) {
+                      await createListMutation.mutateAsync({
+                        title: "Lista de Oração Igreja",
+                        icon: "church",
+                        color: "#10B981",
+                        listType: 'church',
+                      });
+                    }
+                    setSelectedCategory('church');
+                  }}
+                  data-testid="button-add-church-request"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             
             {churchRequests.length === 0 ? (
@@ -613,6 +644,74 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                     Ver todos ({churchRequests.length})
                   </button>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* Lista Geral - All prayer requests aggregated */}
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#357ABD] to-[#4A90D9] rounded-xl flex items-center justify-center">
+                  <ListChecks className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+                    Lista Geral
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Todos os pedidos de oração
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={(e) => openTimerForCategory('general', e)}
+                  className="h-8 w-8"
+                  data-testid="timer-general"
+                >
+                  <Clock className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setSelectedCategory('general')}
+                  data-testid="button-open-general-list"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {prayerRequests.length === 0 ? (
+              <div className="text-center py-6 text-slate-500">
+                <ListChecks className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Nenhum pedido de oração cadastrado</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-[#357ABD]/10 to-[#4A90D9]/10 dark:from-[#357ABD]/20 dark:to-[#4A90D9]/20 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-bold text-[#357ABD]">{prayerRequests.length}</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-300">
+                      pedidos totais
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="flex items-center gap-1 text-green-600">
+                      <Check className="w-3 h-3" />
+                      {prayerRequests.filter(r => r.status === 'answered').length} respondidos
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedCategory('general')}
+                  className="w-full text-center text-sm text-[#357ABD] py-2 font-medium"
+                >
+                  Orar por tudo
+                </button>
               </div>
             )}
           </div>
@@ -758,18 +857,30 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   <h2 className="text-lg font-bold text-slate-800 dark:text-white">
                     {selectedCategory === 'church' 
                       ? 'Lista de Oração Igreja'
-                      : PRESET_CATEGORIES.find(c => c.key === selectedCategory)?.title
+                      : selectedCategory === 'general'
+                        ? 'Lista Geral'
+                        : PRESET_CATEGORIES.find(c => c.key === selectedCategory)?.title
                     }
                   </h2>
                   <div className="flex items-center gap-2">
                     <Button
-                      size="sm"
-                      onClick={() => setShowAddRequestDialog(true)}
-                      data-testid="button-add-request"
+                      size="icon"
+                      variant="ghost"
+                      onClick={(e) => openTimerForCategory(selectedCategory!, e)}
+                      data-testid="button-category-timer"
                     >
-                      <Plus className="w-4 h-4 mr-1" />
-                      Adicionar
+                      <Clock className="w-4 h-4" />
                     </Button>
+                    {selectedCategory !== 'general' && (
+                      <Button
+                        size="sm"
+                        onClick={() => setShowAddRequestDialog(true)}
+                        data-testid="button-add-request"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Adicionar
+                      </Button>
+                    )}
                     <Button
                       size="icon"
                       variant="ghost"
@@ -783,14 +894,26 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
               
               <ScrollArea className="max-h-[60vh]">
                 <div className="p-4 space-y-3">
-                  {(selectedCategory === 'church' ? churchRequests : getCategoryRequests(selectedCategory)).length === 0 ? (
+                  {(selectedCategory === 'church' 
+                    ? churchRequests 
+                    : selectedCategory === 'general'
+                      ? prayerRequests
+                      : getCategoryRequests(selectedCategory)
+                  ).length === 0 ? (
                     <div className="text-center py-8 text-slate-500">
                       <Heart className="w-12 h-12 mx-auto mb-3 opacity-30" />
                       <p>Nenhum pedido de oração</p>
-                      <p className="text-sm">Toque em "Adicionar" para criar</p>
+                      {selectedCategory !== 'general' && (
+                        <p className="text-sm">Toque em "Adicionar" para criar</p>
+                      )}
                     </div>
                   ) : (
-                    (selectedCategory === 'church' ? churchRequests : getCategoryRequests(selectedCategory)).map((request) => (
+                    (selectedCategory === 'church' 
+                      ? churchRequests 
+                      : selectedCategory === 'general'
+                        ? prayerRequests
+                        : getCategoryRequests(selectedCategory)
+                    ).map((request) => (
                       <motion.div
                         key={request.id}
                         initial={{ opacity: 0, y: 10 }}

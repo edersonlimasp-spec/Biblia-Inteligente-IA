@@ -569,26 +569,45 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   <button
                     key={category.key}
                     onClick={() => handleCategoryClick(category.key)}
-                    className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
+                    className={`relative p-3 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
                     data-testid={`category-${category.key}`}
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                        <IconComponent className="w-5 h-5" />
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <IconComponent className="w-4 h-4" />
                       </div>
                       {requests.length > 0 && (
-                        <div className="bg-white/30 px-2 py-0.5 rounded-full text-xs font-bold">
+                        <div className="bg-white/30 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
                           {requests.length}
                         </div>
                       )}
                     </div>
-                    <h3 className="font-bold text-sm mb-1">{category.title}</h3>
-                    <p className="text-xs text-white/70">
-                      {requests.length === 0 
-                        ? 'Toque para adicionar' 
-                        : `${answeredCount > 0 ? `${answeredCount} respondidos` : 'Em oração'}`
-                      }
-                    </p>
+                    <h3 className="font-bold text-xs mb-1">{category.title}</h3>
+                    
+                    {requests.length === 0 ? (
+                      <p className="text-[10px] text-white/70">Toque para adicionar</p>
+                    ) : (
+                      <div className="space-y-1 mt-1">
+                        {requests.slice(0, 3).map((request) => (
+                          <div
+                            key={request.id}
+                            className="flex items-center gap-1 text-[10px]"
+                          >
+                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                              request.status === 'answered' ? 'bg-green-300' : 'bg-white/60'
+                            }`} />
+                            <span className={`truncate ${
+                              request.status === 'answered' ? 'text-white/50 line-through' : 'text-white/90'
+                            }`}>
+                              {request.title}
+                            </span>
+                          </div>
+                        ))}
+                        {requests.length > 3 && (
+                          <p className="text-[10px] text-white/60">+{requests.length - 3} mais</p>
+                        )}
+                      </div>
+                    )}
                   </button>
                 );
               })}

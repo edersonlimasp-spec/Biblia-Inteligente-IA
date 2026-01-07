@@ -68,6 +68,8 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
 
   const { data: activePlanData } = useQuery<ActivePlanResponse>({
     queryKey: ['/api/reading-plans/user/active'],
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const createPlanMutation = useMutation({
@@ -78,9 +80,11 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
       });
       return response.json();
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/reading-plans/user'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/reading-plans/user/active'] });
+    onSuccess: async (data) => {
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['/api/reading-plans/user'] }),
+        queryClient.refetchQueries({ queryKey: ['/api/reading-plans/user/active'] }),
+      ]);
       toast({
         title: lang === 'pt' ? "Plano iniciado!" : lang === 'es' ? "Plan iniciado!" : "Plan started!",
       });

@@ -38,6 +38,8 @@ export function ReadingPlanDayViewWrapper({
       return response.json();
     },
     enabled: !!planId,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   if (isLoading) {

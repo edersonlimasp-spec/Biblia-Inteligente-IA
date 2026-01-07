@@ -148,10 +148,12 @@ export function ReadingPlanDayView({
       });
       return response.json();
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/reading-plans/user/active'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/reading-plans/user'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/reading-plans/user', plan.id] });
+    onSuccess: async (data) => {
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['/api/reading-plans/user/active'] }),
+        queryClient.refetchQueries({ queryKey: ['/api/reading-plans/user'] }),
+        queryClient.refetchQueries({ queryKey: ['/api/reading-plans/user', plan.id] }),
+      ]);
       
       if (data.isCompleted) {
         toast({

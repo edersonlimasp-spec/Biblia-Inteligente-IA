@@ -1262,22 +1262,22 @@ export function BibleReader({
         <button
           onClick={handlePreviousChapter}
           disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
-          className="pointer-events-auto p-2 sm:p-3 text-foreground/15 hover:text-foreground/40 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
+          className="pointer-events-auto p-2 sm:p-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
           data-testid="button-prev-chapter-fixed"
           aria-label="Capítulo anterior"
         >
-          <ChevronLeft className="h-8 w-8 sm:h-10 sm:w-10" strokeWidth={1} />
+          <ChevronLeft className="h-8 w-8 sm:h-10 sm:w-10" strokeWidth={1.5} />
         </button>
       </div>
       <div className="fixed right-0 top-1/2 -translate-y-1/2 z-30 pointer-events-none">
         <button
           onClick={handleNextChapter}
           disabled={selectedBook === books?.[books.length - 1]?.id && selectedChapter === currentBook?.chapters}
-          className="pointer-events-auto p-2 sm:p-3 text-foreground/15 hover:text-foreground/40 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
+          className="pointer-events-auto p-2 sm:p-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
           data-testid="button-next-chapter-fixed"
           aria-label="Próximo capítulo"
         >
-          <ChevronRight className="h-8 w-8 sm:h-10 sm:w-10" strokeWidth={1} />
+          <ChevronRight className="h-8 w-8 sm:h-10 sm:w-10" strokeWidth={1.5} />
         </button>
       </div>
 

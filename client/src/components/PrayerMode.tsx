@@ -422,6 +422,49 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
     }
   };
 
+  const shareAllRequests = async () => {
+    if (prayerRequests.length === 0) {
+      toast({ title: "Nenhum pedido para compartilhar", variant: "destructive" });
+      return;
+    }
+
+    const pendingRequests = prayerRequests.filter(r => r.status !== 'answered');
+    const answeredRequests = prayerRequests.filter(r => r.status === 'answered');
+    
+    let shareText = `🙏 Lista de Pedidos de Oração\n\n`;
+    
+    if (pendingRequests.length > 0) {
+      shareText += `📌 Orando (${pendingRequests.length}):\n`;
+      pendingRequests.forEach((r, i) => {
+        shareText += `${i + 1}. ${r.title}${r.description ? ` - ${r.description}` : ''}\n`;
+      });
+    }
+    
+    if (answeredRequests.length > 0) {
+      shareText += `\n✅ Respondidos (${answeredRequests.length}):\n`;
+      answeredRequests.forEach((r, i) => {
+        shareText += `${i + 1}. ${r.title}\n`;
+      });
+    }
+    
+    shareText += `\n🙌 Ore conosco!`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Lista de Pedidos de Oração',
+          text: shareText,
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          await copyToClipboard(shareText);
+        }
+      }
+    } else {
+      await copyToClipboard(shareText);
+    }
+  };
+
   const churchList = prayerLists.find(l => l.listType === 'church');
   const churchRequests = churchList ? prayerRequests.filter(r => r.listId === churchList.id) : [];
 
@@ -516,50 +559,105 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
               Categorias de Oração
             </h2>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-3">
               {PRESET_CATEGORIES.map((category) => {
                 const IconComponent = category.icon;
                 const requests = getCategoryRequests(category.key);
                 const answeredCount = requests.filter(r => r.status === 'answered').length;
                 
                 return (
-                  <button
+                  <div
                     key={category.key}
-                    onClick={() => handleCategoryClick(category.key)}
-                    className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
-                    data-testid={`category-${category.key}`}
+                    className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm"
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                        <IconComponent className="w-5 h-5" />
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 bg-gradient-to-br ${category.bgGradient} rounded-xl flex items-center justify-center`}>
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-800 dark:text-white">
+                            {category.title}
+                          </h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {requests.length} pedidos {answeredCount > 0 && `• ${answeredCount} respondidos`}
+                          </p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button
+                        <Button
+                          size="icon"
+                          variant="ghost"
                           onClick={(e) => openTimerForCategory(category.key, e)}
-                          className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                          className="h-8 w-8"
                           data-testid={`timer-${category.key}`}
                         >
                           <Clock className="w-4 h-4" />
-                        </button>
-                        <ChevronRight className="w-5 h-5 opacity-70" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleCategoryClick(category.key)}
+                          className="h-8 w-8"
+                          data-testid={`add-${category.key}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleCategoryClick(category.key)}
+                          className="h-8 w-8"
+                          data-testid={`category-${category.key}`}
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
-                    <h3 className="font-semibold text-sm leading-tight mb-2">
-                      {category.title}
-                    </h3>
-                    <div className="flex items-center gap-2 text-xs opacity-80">
-                      <span>{requests.length} pedidos</span>
-                      {answeredCount > 0 && (
-                        <>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Check className="w-3 h-3" />
-                            {answeredCount}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </button>
+                    
+                    {requests.length === 0 ? (
+                      <button 
+                        onClick={() => handleCategoryClick(category.key)}
+                        className="w-full text-center py-4 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl transition-colors"
+                      >
+                        <p className="text-sm">Toque para adicionar pedidos de oração</p>
+                      </button>
+                    ) : (
+                      <div className="space-y-2">
+                        {requests.slice(0, 3).map((request) => (
+                          <button
+                            key={request.id}
+                            onClick={() => handleCategoryClick(category.key)}
+                            className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-2 h-2 rounded-full ${
+                                request.status === 'answered' ? 'bg-green-500' : 'bg-blue-500'
+                              }`} />
+                              <span className={`text-sm ${
+                                request.status === 'answered' 
+                                  ? 'text-slate-400 line-through' 
+                                  : 'text-slate-700 dark:text-slate-200'
+                              }`}>
+                                {request.title}
+                              </span>
+                            </div>
+                            {request.status === 'answered' && (
+                              <Check className="w-4 h-4 text-green-500" />
+                            )}
+                          </button>
+                        ))}
+                        {requests.length > 3 && (
+                          <button
+                            onClick={() => handleCategoryClick(category.key)}
+                            className="w-full text-center text-sm text-[#357ABD] py-2"
+                          >
+                            Ver todos ({requests.length})
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -660,7 +758,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                     Lista Geral
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Todos os pedidos de oração
+                    {prayerRequests.length} pedidos {prayerRequests.filter(r => r.status === 'answered').length > 0 && `• ${prayerRequests.filter(r => r.status === 'answered').length} respondidos`}
                   </p>
                 </div>
               </div>
@@ -673,6 +771,16 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   data-testid="timer-general"
                 >
                   <Clock className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={shareAllRequests}
+                  className="h-8 w-8"
+                  data-testid="button-share-all"
+                  disabled={prayerRequests.length === 0}
+                >
+                  <Share2 className="w-4 h-4" />
                 </Button>
                 <Button
                   size="sm"
@@ -692,26 +800,36 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-[#357ABD]/10 to-[#4A90D9]/10 dark:from-[#357ABD]/20 dark:to-[#4A90D9]/20 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl font-bold text-[#357ABD]">{prayerRequests.length}</span>
-                    <span className="text-sm text-slate-600 dark:text-slate-300">
-                      pedidos totais
-                    </span>
+                {prayerRequests.slice(0, 5).map((request) => (
+                  <div
+                    key={request.id}
+                    className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-xl"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        request.status === 'answered' ? 'bg-green-500' : 'bg-blue-500'
+                      }`} />
+                      <span className={`text-sm ${
+                        request.status === 'answered' 
+                          ? 'text-slate-400 line-through' 
+                          : 'text-slate-700 dark:text-slate-200'
+                      }`}>
+                        {request.title}
+                      </span>
+                    </div>
+                    {request.status === 'answered' && (
+                      <Check className="w-4 h-4 text-green-500" />
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="flex items-center gap-1 text-green-600">
-                      <Check className="w-3 h-3" />
-                      {prayerRequests.filter(r => r.status === 'answered').length} respondidos
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedCategory('general')}
-                  className="w-full text-center text-sm text-[#357ABD] py-2 font-medium"
-                >
-                  Orar por tudo
-                </button>
+                ))}
+                {prayerRequests.length > 5 && (
+                  <button
+                    onClick={() => setSelectedCategory('general')}
+                    className="w-full text-center text-sm text-[#357ABD] py-2"
+                  >
+                    Ver todos ({prayerRequests.length})
+                  </button>
+                )}
               </div>
             )}
           </div>

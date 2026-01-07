@@ -1,13 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRequireAuth } from "@/contexts/AuthGateContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -21,93 +19,91 @@ import {
   ArrowLeft, 
   Plus,
   Heart,
-  Home,
+  Users,
+  Briefcase,
+  Star,
+  Church,
   Globe,
-  Share2,
   Bell,
   BellOff,
-  Music,
-  ChevronDown,
-  ChevronRight,
+  Timer,
   Play,
   Pause,
-  Check,
+  Square,
+  ChevronRight,
   Trash2,
-  Edit2,
-  Copy,
+  Check,
   X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { PrayerList, PrayerRequest, PrayerAlarm } from "@shared/schema";
-import { BarChart, Bar, XAxis, Cell, ResponsiveContainer } from "recharts";
+import type { PrayerList, PrayerRequest } from "@shared/schema";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from "recharts";
 
 interface PrayerModeProps {
   onBack: () => void;
+  onNavigateToHymns?: () => void;
 }
 
-const LIST_ICONS = [
-  { id: "heart", icon: Heart, label: "Coração" },
-  { id: "home", icon: Home, label: "Casa" },
-  { id: "globe", icon: Globe, label: "Missões" },
-];
-
-const LIST_COLORS = [
-  { id: "blue", color: "#3B82F6", bg: "bg-blue-500" },
-  { id: "green", color: "#22C55E", bg: "bg-green-500" },
-  { id: "orange", color: "#F59E0B", bg: "bg-amber-500" },
-  { id: "purple", color: "#8B5CF6", bg: "bg-purple-500" },
-  { id: "pink", color: "#EC4899", bg: "bg-pink-500" },
-];
-
-const CLASSIC_HYMNS = [
-  { id: "1", title: "Mais Perto Quero Estar", audioUrl: "" },
-  { id: "2", title: "Se Paz Há Mais Doce", audioUrl: "" },
-  { id: "3", title: "Divino Companheiro", audioUrl: "" },
-  { id: "4", title: "Quando Jesus Estendeu a Sua Mão", audioUrl: "" },
-];
-
-const INSTRUMENTAL_HYMNS = [
-  { id: "i1", title: "Piano Suave - Hinos", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-  { id: "i2", title: "Cordas Clássicas", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { id: "i3", title: "Ambiente Celestial", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+const PRESET_CATEGORIES = [
+  { 
+    key: "family", 
+    title: "Família e Vida Sentimental", 
+    icon: Heart, 
+    color: "#EC4899",
+    bgGradient: "from-pink-500 to-pink-600"
+  },
+  { 
+    key: "spiritual", 
+    title: "Vida Espiritual e Ministério", 
+    icon: Church, 
+    color: "#8B5CF6",
+    bgGradient: "from-purple-500 to-purple-600"
+  },
+  { 
+    key: "professional", 
+    title: "Vida Profissional e Estudos", 
+    icon: Briefcase, 
+    color: "#3B82F6",
+    bgGradient: "from-blue-500 to-blue-600"
+  },
+  { 
+    key: "dreams", 
+    title: "Meus Sonhos e Conquistas", 
+    icon: Star, 
+    color: "#F59E0B",
+    bgGradient: "from-amber-500 to-amber-600"
+  },
 ];
 
 const DEFAULT_ALARMS = [
-  { time: "08:00", label: "Oração Matinal", enabled: true },
-  { time: "13:00", label: "Intercessão à Tarde", enabled: true },
+  { time: "06:00", label: "Oração Matinal", enabled: true },
+  { time: "12:00", label: "Intercessão", enabled: true },
   { time: "18:00", label: "Oração Vespertina", enabled: true },
-  { time: "21:30", label: "Oração Noturna", enabled: true },
+  { time: "21:00", label: "Oração Noturna", enabled: true },
 ];
 
-export function PrayerMode({ onBack }: PrayerModeProps) {
+export function PrayerMode({ onBack, onNavigateToHymns }: PrayerModeProps) {
   const { t } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
   const { deviceId } = useDeviceId();
-  const { requireAuth } = useRequireAuth();
   const queryClient = useQueryClient();
   
-  const [activeTab, setActiveTab] = useState<"pedidos" | "hinos">("pedidos");
-  const [activeSubTab, setActiveSubTab] = useState<"louvor" | "hinos">("louvor");
-  
-  const [showAddListDialog, setShowAddListDialog] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showAddRequestDialog, setShowAddRequestDialog] = useState(false);
+  const [showTimerDialog, setShowTimerDialog] = useState(false);
   const [showAddAlarmDialog, setShowAddAlarmDialog] = useState(false);
-  const [editingList, setEditingList] = useState<PrayerList | null>(null);
-  const [selectedListId, setSelectedListId] = useState<string | null>(null);
   
-  const [newListTitle, setNewListTitle] = useState("");
-  const [newListIcon, setNewListIcon] = useState("heart");
-  const [newListColor, setNewListColor] = useState("#3B82F6");
+  const [newRequestTitle, setNewRequestTitle] = useState("");
+  const [newRequestDescription, setNewRequestDescription] = useState("");
   
   const [newAlarmTime, setNewAlarmTime] = useState("08:00");
   const [newAlarmLabel, setNewAlarmLabel] = useState("");
   
-  const [hymnsOpen, setHymnsOpen] = useState(true);
-  const [instrumentalOpen, setInstrumentalOpen] = useState(false);
-  
-  const [playingTrack, setPlayingTrack] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [timerActive, setTimerActive] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   
   const [localAlarms, setLocalAlarms] = useState(() => {
     try {
@@ -122,6 +118,19 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
     localStorage.setItem("prayer-alarms", JSON.stringify(localAlarms));
   }, [localAlarms]);
 
+  useEffect(() => {
+    if (timerActive) {
+      timerRef.current = setInterval(() => {
+        setTimerSeconds(s => s + 1);
+      }, 1000);
+    } else if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [timerActive]);
+
   const { data: prayerLists = [], isLoading: listsLoading } = useQuery<PrayerList[]>({
     queryKey: ['/api/prayer/lists'],
     enabled: !!(user || deviceId),
@@ -133,94 +142,107 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
   });
 
   const createListMutation = useMutation({
-    mutationFn: async (data: { title: string; icon: string; color: string }) => {
+    mutationFn: async (data: { title: string; icon: string; color: string; listType?: string; categoryKey?: string }) => {
       const response = await apiRequest('POST', '/api/prayer/lists', data);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/prayer/lists'] });
-      setShowAddListDialog(false);
-      setNewListTitle("");
-      toast({ title: "Lista criada!" });
     },
   });
 
-  const updateListMutation = useMutation({
-    mutationFn: async ({ id, ...data }: { id: string; title: string; icon: string; color: string }) => {
-      const response = await apiRequest('PATCH', `/api/prayer/lists/${id}`, data);
+  const createRequestMutation = useMutation({
+    mutationFn: async (data: { listId: string; title: string; description?: string }) => {
+      const response = await apiRequest('POST', '/api/prayer/requests', data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/prayer/lists'] });
-      setEditingList(null);
-      setNewListTitle("");
-      toast({ title: "Lista atualizada!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/prayer/requests'] });
+      setShowAddRequestDialog(false);
+      setNewRequestTitle("");
+      setNewRequestDescription("");
+      toast({ title: "Pedido adicionado!" });
     },
   });
 
-  const deleteListMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest('DELETE', `/api/prayer/lists/${id}`);
+  const updateRequestMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const response = await apiRequest('PATCH', `/api/prayer/requests/${id}`, { status });
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/prayer/lists'] });
-      toast({ title: "Lista removida!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/prayer/requests'] });
+      toast({ title: "Pedido atualizado!" });
     },
   });
 
-  const stats = {
-    answered: prayerRequests.filter(r => r.status === 'answered').length,
-    praying: prayerRequests.filter(r => r.status === 'praying').length,
-    other: prayerRequests.filter(r => r.status === 'other').length,
-  };
+  const deleteRequestMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/prayer/requests/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/prayer/requests'] });
+      toast({ title: "Pedido removido!" });
+    },
+  });
+
+  const totalRequests = prayerRequests.length;
+  const answeredRequests = prayerRequests.filter(r => r.status === 'answered').length;
+  const prayingRequests = prayerRequests.filter(r => r.status === 'praying').length;
 
   const chartData = [
-    { name: 'Respondidos', value: stats.answered, color: '#3B82F6' },
-    { name: 'Em Oração', value: stats.praying, color: '#22C55E' },
-    { name: 'Outros', value: stats.other, color: '#F59E0B' },
+    { name: 'Total', value: totalRequests, color: '#64748B' },
+    { name: 'Respondidos', value: answeredRequests, color: '#22C55E' },
+    { name: 'Em Oração', value: prayingRequests, color: '#3B82F6' },
   ];
 
-  const handleShare = async (list: PrayerList) => {
-    const shareUrl = `${window.location.origin}/lista/${list.shareId || list.id}`;
+  const getOrCreateCategoryList = async (categoryKey: string) => {
+    const category = PRESET_CATEGORIES.find(c => c.key === categoryKey);
+    if (!category) return null;
     
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Orações: ${list.title}`,
-          text: 'Compartilhe suas orações com a Bíblia Inteligente',
-          url: shareUrl,
-        });
-      } catch {
-      }
-    } else {
-      await navigator.clipboard.writeText(shareUrl);
-      toast({ title: "Link copiado!" });
+    const existingList = prayerLists.find(l => l.categoryKey === categoryKey);
+    if (existingList) return existingList;
+    
+    const newList = await createListMutation.mutateAsync({
+      title: category.title,
+      icon: category.key,
+      color: category.color,
+      listType: 'preset',
+      categoryKey: category.key,
+    });
+    
+    return newList;
+  };
+
+  const handleCategoryClick = async (categoryKey: string) => {
+    const list = await getOrCreateCategoryList(categoryKey);
+    if (list) {
+      setSelectedCategory(categoryKey);
     }
   };
 
-  const handlePlayTrack = (trackId: string, audioUrl: string) => {
-    if (!audioUrl) {
-      toast({ title: "Áudio não disponível", variant: "destructive" });
+  const getCategoryRequests = (categoryKey: string) => {
+    const list = prayerLists.find(l => l.categoryKey === categoryKey);
+    if (!list) return [];
+    return prayerRequests.filter(r => r.listId === list.id);
+  };
+
+  const handleAddRequest = async () => {
+    if (!newRequestTitle.trim()) {
+      toast({ title: "Informe um título", variant: "destructive" });
       return;
     }
-
-    if (playingTrack === trackId) {
-      audioRef.current?.pause();
-      setPlayingTrack(null);
+    
+    const list = prayerLists.find(l => l.categoryKey === selectedCategory);
+    if (!list) {
+      toast({ title: "Categoria não encontrada", variant: "destructive" });
       return;
     }
-
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
-    const audio = new Audio(audioUrl);
-    audio.onended = () => setPlayingTrack(null);
-    audio.play().then(() => {
-      audioRef.current = audio;
-      setPlayingTrack(trackId);
-    }).catch(() => {
-      toast({ title: "Erro ao reproduzir", variant: "destructive" });
+    
+    createRequestMutation.mutate({
+      listId: list.id,
+      title: newRequestTitle,
+      description: newRequestDescription || undefined,
     });
   };
 
@@ -246,19 +268,31 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
     toast({ title: "Horário adicionado!" });
   };
 
-  const getListIcon = (iconId: string) => {
-    const item = LIST_ICONS.find(i => i.id === iconId);
-    return item?.icon || Heart;
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
+  const startTimer = () => {
+    setTimerActive(true);
+    setShowTimerDialog(true);
+  };
+
+  const stopTimer = () => {
+    setTimerActive(false);
+    if (timerSeconds > 0) {
+      toast({ 
+        title: `Oração finalizada!`, 
+        description: `Tempo: ${formatTime(timerSeconds)}` 
+      });
+    }
+    setTimerSeconds(0);
+    setShowTimerDialog(false);
+  };
+
+  const churchList = prayerLists.find(l => l.listType === 'church');
+  const churchRequests = churchList ? prayerRequests.filter(r => r.listId === churchList.id) : [];
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
@@ -268,389 +302,408 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
             <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-slate-300" />
           </Button>
           
-          <div className="flex bg-slate-100 dark:bg-slate-700 rounded-full p-1">
-            <button
-              onClick={() => setActiveTab("pedidos")}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                activeTab === "pedidos"
-                  ? "bg-[#357ABD] text-white shadow-sm"
-                  : "text-slate-600 dark:text-slate-300"
-              }`}
-              data-testid="tab-pedidos"
-            >
-              Pedidos
-            </button>
-            <button
-              onClick={() => setActiveTab("hinos")}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                activeTab === "hinos"
-                  ? "bg-[#357ABD] text-white shadow-sm"
-                  : "text-slate-600 dark:text-slate-300"
-              }`}
-              data-testid="tab-hinos"
-            >
-              Hinos
-            </button>
-          </div>
+          <h1 className="text-lg font-bold text-slate-800 dark:text-white">
+            Modo Oração
+          </h1>
           
-          <UserButton />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={startTimer}
+              className="text-[#357ABD]"
+              data-testid="button-timer"
+            >
+              <Timer className="w-5 h-5" />
+            </Button>
+            <UserButton />
+          </div>
         </div>
       </header>
 
       <ScrollArea className="h-[calc(100vh-80px)]">
-        <div className="p-4 space-y-4">
-          <AnimatePresence mode="wait">
-            {activeTab === "pedidos" ? (
-              <motion.div
-                key="pedidos"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="space-y-4"
-              >
-                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-slate-800 dark:text-white">
-                      Minhas Listas de Oração
-                    </h2>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setShowAddListDialog(true)}
-                      data-testid="button-add-list"
+        <div className="p-4 space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm"
+          >
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
+              Dashboard de Oração
+            </h2>
+            
+            <div className="space-y-3">
+              {chartData.map((item, index) => (
+                <div key={item.name} className="flex items-center gap-3">
+                  <span className="text-sm text-slate-600 dark:text-slate-400 w-24">
+                    {item.name}
+                  </span>
+                  <div className="flex-1 h-8 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.max((item.value / Math.max(totalRequests, 1)) * 100, item.value > 0 ? 10 : 0)}%` }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="h-full rounded-full flex items-center justify-end pr-2"
+                      style={{ backgroundColor: item.color }}
                     >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {prayerLists.length === 0 && !listsLoading && (
-                      <div className="text-center py-6 text-slate-500">
-                        <Heart className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                        <p>Crie sua primeira lista de oração</p>
-                      </div>
-                    )}
-                    
-                    {prayerLists.map((list) => {
-                      const IconComponent = getListIcon(list.icon);
-                      return (
-                        <motion.div
-                          key={list.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="flex items-center justify-between p-3 rounded-xl"
-                          style={{ backgroundColor: `${list.color}15` }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-10 h-10 rounded-xl flex items-center justify-center"
-                              style={{ backgroundColor: list.color }}
-                            >
-                              <IconComponent className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="font-medium text-slate-800 dark:text-white">
-                              {list.title}
-                            </span>
-                          </div>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-slate-400 hover:text-slate-600"
-                            onClick={() => handleShare(list)}
-                            data-testid={`button-share-${list.id}`}
-                          >
-                            <Share2 className="w-5 h-5" />
-                          </Button>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-                  <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
-                    Louvor & Hinos
-                  </h2>
-                  
-                  <Collapsible open={hymnsOpen} onOpenChange={setHymnsOpen}>
-                    <CollapsibleTrigger className="flex items-center gap-2 w-full p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                      <Music className="w-5 h-5 text-[#357ABD]" />
-                      <span className="font-medium text-[#357ABD]">Hinos Clássicos</span>
-                      {hymnsOpen ? (
-                        <ChevronDown className="w-4 h-4 ml-auto text-slate-400" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 ml-auto text-slate-400" />
-                      )}
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pl-4 mt-2 space-y-1">
-                      {CLASSIC_HYMNS.map((hymn) => (
-                        <div
-                          key={hymn.id}
-                          className="flex items-center gap-2 py-2 text-slate-600 dark:text-slate-300"
-                        >
-                          <span className="text-slate-400">•</span>
-                          <span>{hymn.title}</span>
-                        </div>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-
-                  <Collapsible open={instrumentalOpen} onOpenChange={setInstrumentalOpen} className="mt-2">
-                    <CollapsibleTrigger className="flex items-center gap-2 w-full p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                      <Music className="w-5 h-5 text-slate-500" />
-                      <span className="font-medium text-slate-700 dark:text-slate-300">Instrumentais</span>
-                      {instrumentalOpen ? (
-                        <ChevronDown className="w-4 h-4 ml-auto text-slate-400" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 ml-auto text-slate-400" />
-                      )}
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pl-4 mt-2 space-y-1">
-                      {INSTRUMENTAL_HYMNS.map((hymn) => (
-                        <button
-                          key={hymn.id}
-                          onClick={() => handlePlayTrack(hymn.id, hymn.audioUrl)}
-                          className="flex items-center gap-2 py-2 w-full text-left text-slate-600 dark:text-slate-300 hover:text-[#357ABD]"
-                        >
-                          {playingTrack === hymn.id ? (
-                            <Pause className="w-4 h-4" />
-                          ) : (
-                            <Play className="w-4 h-4" />
-                          )}
-                          <span>{hymn.title}</span>
-                        </button>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="hinos"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-4"
-              >
-                <div className="flex bg-slate-200 dark:bg-slate-700 rounded-full p-1 mb-4">
-                  <button
-                    onClick={() => setActiveSubTab("louvor")}
-                    className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      activeSubTab === "louvor"
-                        ? "bg-[#357ABD] text-white"
-                        : "text-slate-600 dark:text-slate-300"
-                    }`}
-                  >
-                    Louvor
-                  </button>
-                  <button
-                    onClick={() => setActiveSubTab("hinos")}
-                    className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      activeSubTab === "hinos"
-                        ? "bg-[#357ABD] text-white"
-                        : "text-slate-600 dark:text-slate-300"
-                    }`}
-                  >
-                    Hinos
-                  </button>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-                  <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
-                    Dashboard de Oração
-                  </h2>
-                  
-                  <div className="space-y-3">
-                    {chartData.map((item, index) => (
-                      <div key={item.name} className="flex items-center gap-3">
-                        <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.max((item.value / Math.max(stats.answered + stats.praying + stats.other, 1)) * 100, 5)}%` }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: item.color }}
-                          />
-                        </div>
-                        <span className="text-lg font-bold text-slate-700 dark:text-slate-300 w-8 text-right">
+                      {item.value > 0 && (
+                        <span className="text-xs font-bold text-white">
                           {item.value}
                         </span>
-                      </div>
-                    ))}
+                      )}
+                    </motion.div>
                   </div>
+                  {item.value === 0 && (
+                    <span className="text-lg font-bold text-slate-400 w-8 text-right">
+                      0
+                    </span>
+                  )}
                 </div>
+              ))}
+            </div>
+          </motion.div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-slate-800 dark:text-white">
-                      Lista de Pedidos
-                    </h2>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-3">
+              Categorias de Oração
+            </h2>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {PRESET_CATEGORIES.map((category, index) => {
+                const IconComponent = category.icon;
+                const requests = getCategoryRequests(category.key);
+                const answeredCount = requests.filter(r => r.status === 'answered').length;
+                
+                return (
+                  <motion.button
+                    key={category.key}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 + index * 0.05 }}
+                    onClick={() => handleCategoryClick(category.key)}
+                    className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
+                    data-testid={`category-${category.key}`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                        <IconComponent className="w-5 h-5" />
+                      </div>
+                      <ChevronRight className="w-5 h-5 opacity-70" />
+                    </div>
+                    <h3 className="font-semibold text-sm leading-tight mb-2">
+                      {category.title}
+                    </h3>
+                    <div className="flex items-center gap-2 text-xs opacity-80">
+                      <span>{requests.length} pedidos</span>
+                      {answeredCount > 0 && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            {answeredCount}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                  <Church className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+                    Lista de Oração Igreja
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Motivos da igreja, missões e membros
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={async () => {
+                  if (!churchList) {
+                    await createListMutation.mutateAsync({
+                      title: "Lista de Oração Igreja",
+                      icon: "church",
+                      color: "#10B981",
+                      listType: 'church',
+                    });
+                  }
+                  setSelectedCategory('church');
+                }}
+                data-testid="button-add-church-request"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            {churchRequests.length === 0 ? (
+              <div className="text-center py-6 text-slate-500">
+                <Globe className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Adicione pedidos de oração da igreja</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {churchRequests.slice(0, 3).map((request) => (
+                  <div
+                    key={request.id}
+                    className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-xl"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        request.status === 'answered' ? 'bg-green-500' : 'bg-blue-500'
+                      }`} />
+                      <span className="text-sm text-slate-700 dark:text-slate-200">
+                        {request.title}
+                      </span>
+                    </div>
+                    {request.status === 'answered' && (
+                      <Check className="w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                ))}
+                {churchRequests.length > 3 && (
+                  <button
+                    onClick={() => setSelectedCategory('church')}
+                    className="w-full text-center text-sm text-[#357ABD] py-2"
+                  >
+                    Ver todos ({churchRequests.length})
+                  </button>
+                )}
+              </div>
+            )}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+                Horários de Oração
+              </h2>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowAddAlarmDialog(true)}
+                data-testid="button-add-alarm"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <div className="space-y-2">
+              {localAlarms.map((alarm: typeof DEFAULT_ALARMS[0], index: number) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-700 last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-mono font-bold text-[#357ABD]">
+                      {alarm.time}
+                    </span>
+                    <span className="text-slate-600 dark:text-slate-300 text-sm">
+                      {alarm.label}
+                    </span>
+                  </div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => toggleAlarm(index)}
+                    className={alarm.enabled ? "text-[#357ABD]" : "text-slate-300"}
+                    data-testid={`button-alarm-${index}`}
+                  >
+                    {alarm.enabled ? (
+                      <Bell className="w-5 h-5" />
+                    ) : (
+                      <BellOff className="w-5 h-5" />
+                    )}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {onNavigateToHymns && (
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              onClick={onNavigateToHymns}
+              className="w-full bg-gradient-to-r from-[#357ABD] to-[#4A90D9] rounded-2xl p-4 shadow-lg text-left"
+              data-testid="button-navigate-hymns"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Timer className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-white">Hinos para Oração</h3>
+                  <p className="text-sm text-white/80">
+                    Ouça hinos instrumentais com temporizador
+                  </p>
+                </div>
+                <ChevronRight className="w-6 h-6 text-white/70" />
+              </div>
+            </motion.button>
+          )}
+        </div>
+      </ScrollArea>
+
+      <AnimatePresence>
+        {selectedCategory && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50"
+            onClick={() => setSelectedCategory(null)}
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-800 rounded-t-3xl max-h-[80vh] overflow-hidden"
+            >
+              <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+                    {selectedCategory === 'church' 
+                      ? 'Lista de Oração Igreja'
+                      : PRESET_CATEGORIES.find(c => c.key === selectedCategory)?.title
+                    }
+                  </h2>
+                  <div className="flex items-center gap-2">
                     <Button
                       size="sm"
-                      variant="ghost"
-                      onClick={() => setShowAddAlarmDialog(true)}
-                      data-testid="button-add-alarm"
+                      onClick={() => setShowAddRequestDialog(true)}
+                      data-testid="button-add-request"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-4 h-4 mr-1" />
+                      Adicionar
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setSelectedCategory(null)}
+                    >
+                      <X className="w-5 h-5" />
                     </Button>
                   </div>
-                  
-                  <div className="space-y-2">
-                    {localAlarms.map((alarm: typeof DEFAULT_ALARMS[0], index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-700 last:border-0"
+                </div>
+              </div>
+              
+              <ScrollArea className="max-h-[60vh]">
+                <div className="p-4 space-y-3">
+                  {(selectedCategory === 'church' ? churchRequests : getCategoryRequests(selectedCategory)).length === 0 ? (
+                    <div className="text-center py-8 text-slate-500">
+                      <Heart className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                      <p>Nenhum pedido de oração</p>
+                      <p className="text-sm">Toque em "Adicionar" para criar</p>
+                    </div>
+                  ) : (
+                    (selectedCategory === 'church' ? churchRequests : getCategoryRequests(selectedCategory)).map((request) => (
+                      <motion.div
+                        key={request.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-700 rounded-xl"
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-lg font-mono font-bold text-[#357ABD]">
-                            {alarm.time}
-                          </span>
-                          <span className="text-slate-600 dark:text-slate-300">
-                            {alarm.label}
-                          </span>
+                        <button
+                          onClick={() => updateRequestMutation.mutate({
+                            id: request.id,
+                            status: request.status === 'answered' ? 'praying' : 'answered'
+                          })}
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                            request.status === 'answered'
+                              ? 'bg-green-500 border-green-500'
+                              : 'border-slate-300 dark:border-slate-500'
+                          }`}
+                        >
+                          {request.status === 'answered' && (
+                            <Check className="w-4 h-4 text-white" />
+                          )}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-medium ${
+                            request.status === 'answered'
+                              ? 'text-slate-400 line-through'
+                              : 'text-slate-800 dark:text-white'
+                          }`}>
+                            {request.title}
+                          </p>
+                          {request.description && (
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                              {request.description}
+                            </p>
+                          )}
                         </div>
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => toggleAlarm(index)}
-                          className={alarm.enabled ? "text-[#357ABD]" : "text-slate-300"}
-                          data-testid={`button-alarm-${index}`}
+                          className="text-slate-400 hover:text-red-500 flex-shrink-0"
+                          onClick={() => deleteRequestMutation.mutate(request.id)}
                         >
-                          {alarm.enabled ? (
-                            <Bell className="w-5 h-5" />
-                          ) : (
-                            <BellOff className="w-5 h-5" />
-                          )}
+                          <Trash2 className="w-4 h-4" />
                         </Button>
-                      </div>
-                    ))}
-                  </div>
+                      </motion.div>
+                    ))
+                  )}
                 </div>
+              </ScrollArea>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-                <div className="bg-gradient-to-r from-[#357ABD] to-[#4A90D9] rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <Plus className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="font-medium text-white">
-                        Compartilhe suas Orações!
-                      </span>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-white hover:bg-white/20"
-                      onClick={() => {
-                        if (navigator.share) {
-                          navigator.share({
-                            title: 'Minhas Orações',
-                            text: 'Compartilhe suas orações com a Bíblia Inteligente',
-                            url: window.location.origin,
-                          });
-                        }
-                      }}
-                    >
-                      <Share2 className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </ScrollArea>
-
-      <Dialog open={showAddListDialog || !!editingList} onOpenChange={(open) => {
-        if (!open) {
-          setShowAddListDialog(false);
-          setEditingList(null);
-          setNewListTitle("");
-        }
-      }}>
+      <Dialog open={showAddRequestDialog} onOpenChange={setShowAddRequestDialog}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>
-              {editingList ? "Editar Lista" : "Nova Lista de Oração"}
-            </DialogTitle>
+            <DialogTitle>Novo Pedido de Oração</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <Input
-              placeholder="Nome da lista"
-              value={newListTitle}
-              onChange={(e) => setNewListTitle(e.target.value)}
-              data-testid="input-list-title"
+              placeholder="Título do pedido"
+              value={newRequestTitle}
+              onChange={(e) => setNewRequestTitle(e.target.value)}
+              data-testid="input-request-title"
             />
-            
-            <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
-                Ícone
-              </label>
-              <div className="flex gap-2">
-                {LIST_ICONS.map((item) => {
-                  const IconComp = item.icon;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setNewListIcon(item.id)}
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center border-2 transition-all ${
-                        newListIcon === item.id
-                          ? "border-[#357ABD] bg-[#357ABD]/10"
-                          : "border-slate-200 dark:border-slate-600"
-                      }`}
-                    >
-                      <IconComp className="w-5 h-5" />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
-                Cor
-              </label>
-              <div className="flex gap-2">
-                {LIST_COLORS.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setNewListColor(item.color)}
-                    className={`w-8 h-8 rounded-full transition-all ${item.bg} ${
-                      newListColor === item.color
-                        ? "ring-2 ring-offset-2 ring-slate-400"
-                        : ""
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+            <Input
+              placeholder="Descrição (opcional)"
+              value={newRequestDescription}
+              onChange={(e) => setNewRequestDescription(e.target.value)}
+              data-testid="input-request-description"
+            />
           </div>
           <DialogFooter>
             <Button
-              onClick={() => {
-                if (!newListTitle.trim()) {
-                  toast({ title: "Informe um nome", variant: "destructive" });
-                  return;
-                }
-                if (editingList) {
-                  updateListMutation.mutate({
-                    id: editingList.id,
-                    title: newListTitle,
-                    icon: newListIcon,
-                    color: newListColor,
-                  });
-                } else {
-                  createListMutation.mutate({
-                    title: newListTitle,
-                    icon: newListIcon,
-                    color: newListColor,
-                  });
-                }
-              }}
-              disabled={createListMutation.isPending || updateListMutation.isPending}
-              data-testid="button-save-list"
+              onClick={handleAddRequest}
+              disabled={createRequestMutation.isPending}
+              data-testid="button-save-request"
             >
-              {editingList ? "Salvar" : "Criar Lista"}
+              Adicionar Pedido
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -693,6 +746,43 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
               Adicionar
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showTimerDialog} onOpenChange={(open) => {
+        if (!open && timerActive) {
+          stopTimer();
+        } else {
+          setShowTimerDialog(open);
+        }
+      }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-center">Temporizador de Oração</DialogTitle>
+          </DialogHeader>
+          <div className="py-8 text-center">
+            <div className="text-6xl font-mono font-bold text-[#357ABD] mb-8">
+              {formatTime(timerSeconds)}
+            </div>
+            <div className="flex justify-center gap-4">
+              <Button
+                size="lg"
+                variant={timerActive ? "secondary" : "default"}
+                onClick={() => setTimerActive(!timerActive)}
+                className="w-20"
+              >
+                {timerActive ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
+              </Button>
+              <Button
+                size="lg"
+                variant="destructive"
+                onClick={stopTimer}
+                className="w-20"
+              >
+                <Square className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

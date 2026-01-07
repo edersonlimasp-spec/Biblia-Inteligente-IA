@@ -1040,6 +1040,8 @@ export const prayerLists = pgTable("prayer_lists", {
   shareId: varchar("share_id").unique(), // For public sharing
   isPublic: boolean("is_public").notNull().default(false),
   displayOrder: integer("display_order").notNull().default(0),
+  listType: text("list_type").notNull().default("personal"), // personal, church, preset
+  categoryKey: text("category_key"), // family, spiritual, professional, dreams (for preset categories)
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => ({

@@ -32,6 +32,7 @@ import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
 import { RequireAuthScreen } from "./RequireAuthScreen";
 import { PaymentSuccess, PaymentError, PaymentPending } from "@/pages/PaymentResult";
 import { InstallPage } from "@/pages/InstallPage";
+import HymnsPage from "@/pages/HymnsPage";
 
 function NavigationContent() {
   const { 
@@ -238,7 +239,13 @@ function NavigationContent() {
       )}
       {currentScreen === "prayer" && (
         <RequireAuthScreen featureName="Modo Oração" onAuthCancel={() => goBack()}>
-          <PrayerMode onBack={() => goBack()} />
+          <PrayerMode onBack={() => goBack()} onNavigateToHymns={() => navigate("hymns")} />
+        </RequireAuthScreen>
+      )}
+
+      {currentScreen === "hymns" && (
+        <RequireAuthScreen featureName="Hinos" onAuthCancel={() => goBack()}>
+          <HymnsPage onBack={() => goBack()} />
         </RequireAuthScreen>
       )}
       {currentScreen === "achievements" && (

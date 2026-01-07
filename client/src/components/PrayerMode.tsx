@@ -273,9 +273,48 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
       return;
     }
     
-    const list = prayerLists.find(l => l.categoryKey === selectedCategory);
+    if (!selectedCategory) {
+      toast({ title: "Selecione uma categoria", variant: "destructive" });
+      return;
+    }
+    
+    let list: PrayerList | null | undefined = null;
+    
+    // Handle church list separately (uses listType instead of categoryKey)
+    if (selectedCategory === 'church') {
+      list = prayerLists.find(l => l.listType === 'church');
+      
+      // Create church list if it doesn't exist
+      if (!list) {
+        try {
+          list = await createListMutation.mutateAsync({
+            title: "Lista de Oração Igreja",
+            icon: "church",
+            color: "#10B981",
+            listType: 'church',
+          });
+        } catch (error) {
+          toast({ title: "Erro ao criar lista da igreja", variant: "destructive" });
+          return;
+        }
+      }
+    } else {
+      // Handle preset categories (uses categoryKey)
+      list = prayerLists.find(l => l.categoryKey === selectedCategory);
+      
+      // If not found, create the list for this category
+      if (!list) {
+        try {
+          list = await getOrCreateCategoryList(selectedCategory);
+        } catch (error) {
+          toast({ title: "Erro ao criar categoria", variant: "destructive" });
+          return;
+        }
+      }
+    }
+    
     if (!list) {
-      toast({ title: "Categoria não encontrada", variant: "destructive" });
+      toast({ title: "Erro ao criar categoria", variant: "destructive" });
       return;
     }
     

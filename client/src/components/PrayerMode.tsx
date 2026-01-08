@@ -73,8 +73,8 @@ const PRESET_CATEGORIES = [
     key: "family", 
     title: "Família e Vida Sentimental", 
     icon: Heart, 
-    color: "#EC4899",
-    bgGradient: "from-pink-500 to-pink-600"
+    color: "#8B5CF6",
+    bgGradient: "from-violet-500 to-violet-600"
   },
   { 
     key: "spiritual", 
@@ -723,18 +723,18 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                           </div>
                         )}
                       </div>
-                      <h3 className="font-bold text-xs mb-1">{category.title}</h3>
+                      <h3 className="font-bold text-sm mb-1">{category.title}</h3>
                       
                       {requests.length === 0 ? (
-                        <p className="text-[10px] text-white/70">Toque para adicionar</p>
+                        <p className="text-xs text-white/70">Toque para adicionar</p>
                       ) : (
-                        <div className="space-y-1 mt-1">
+                        <div className="space-y-1.5 mt-2">
                           {requests.slice(0, 3).map((request) => (
                             <div
                               key={request.id}
-                              className="flex items-center gap-1 text-[10px]"
+                              className="flex items-center gap-1.5 text-xs"
                             >
-                              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                                 request.status === 'answered' ? 'bg-green-300' : 'bg-white/60'
                               }`} />
                               <span className={`truncate ${
@@ -745,7 +745,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                             </div>
                           ))}
                           {requests.length > 3 && (
-                            <p className="text-[10px] text-white/60">+{requests.length - 3} mais</p>
+                            <p className="text-xs text-white/60">+{requests.length - 3} mais</p>
                           )}
                         </div>
                       )}

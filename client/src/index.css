@@ -457,3 +457,9 @@
     padding-top: max(0.5rem, env(safe-area-inset-top));
   }
 }
+
+/* Custom utility for word wrapping */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

@@ -524,8 +524,8 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
           </Button>
         </DialogClose>
         
-        <ScrollArea className="flex-1 w-full">
-          <div className="p-4 sm:p-6 space-y-4">
+        <ScrollArea className="flex-1 w-full overflow-x-hidden">
+          <div className="p-4 sm:p-6 space-y-4 overflow-x-hidden">
             
             {/* Header: Original Word - LARGE AND PROMINENT */}
             <div className="text-center pb-2 border-b-2 border-primary/30">
@@ -632,7 +632,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                         </Badge>
                       )}
                     </div>
-                    <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground">
+                    <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                       {strongData.word} {strongData.transliteration && `(${strongData.transliteration})`} — {text}
                     </p>
                   </div>
@@ -645,7 +645,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                   <p className="text-sm font-semibold text-foreground">
                     {language === "pt" ? "Explicação Teológica Completa" : language === "es" ? "Explicación Teológica Completa" : "Complete Theological Explanation"}
                   </p>
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground space-y-2">
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground space-y-2 break-words overflow-wrap-anywhere">
                     {strongData.extendedDefinition}
                   </div>
                 </div>
@@ -657,7 +657,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                   <p className="text-sm font-semibold text-muted-foreground mb-2">
                     {language === "pt" ? "Definição do Dicionário Strong" : language === "es" ? "Definición del Diccionario Strong" : "Strong's Dictionary Definition"}
                   </p>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.strongsDefinition}
                   </p>
                 </div>
@@ -667,7 +667,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
               {strongData.kjvDefinition && strongData.kjvDefinition !== strongData.strongsDefinition && (
                 <div className="bg-card border border-border rounded p-4">
                   <p className="text-sm font-semibold text-muted-foreground mb-2">King James Definition</p>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.kjvDefinition}
                   </p>
                 </div>
@@ -679,7 +679,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                   <p className="text-sm font-semibold text-muted-foreground mb-2">
                     {language === "pt" ? "Derivação" : language === "es" ? "Derivación" : "Derivation"}
                   </p>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.derivation}
                   </p>
                 </div>
@@ -698,7 +698,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.morphologicalInfo}
                   </p>
                 </div>
@@ -717,7 +717,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.synonymsRelated}
                   </p>
                 </div>
@@ -736,7 +736,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.verseReferences}
                   </p>
                 </div>
@@ -756,7 +756,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.etymology}
                   </p>
                 </div>
@@ -776,7 +776,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.historicalContext}
                   </p>
                 </div>
@@ -796,7 +796,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.theologicalSignificance}
                   </p>
                 </div>
@@ -816,7 +816,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.semanticRange}
                   </p>
                 </div>
@@ -836,7 +836,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground break-words overflow-wrap-anywhere">
                     {strongData.culturalBackground}
                   </p>
                 </div>

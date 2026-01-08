@@ -911,7 +911,7 @@ END:VCALENDAR`;
       <Dialog open={showAddDialog || !!editingEvent} onOpenChange={(open) => {
         if (!open) closeDialog();
       }}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-md mx-auto px-4">
           <DialogHeader>
             <DialogTitle>
               {editingEvent ? t("agenda.editEventTitle") : t("agenda.newEvent")}

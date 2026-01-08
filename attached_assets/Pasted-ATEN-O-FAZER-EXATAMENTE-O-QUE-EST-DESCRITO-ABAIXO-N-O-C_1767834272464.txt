@@ -1,0 +1,61 @@
+ATENÇÃO: FAZER EXATAMENTE O QUE ESTÁ DESCRITO ABAIXO.
+NÃO CRIAR VARIAÇÕES, NÃO INTERPRETAR, NÃO MANTER ELEMENTOS ANTIGOS.
+
+OBJETIVO:
+Manter APENAS UM MÓDULO de pedidos de oração, com comportamento simples, minimalista e funcional.
+
+REGRAS OBRIGATÓRIAS:
+
+1) REMOVER COMPLETAMENTE o primeiro layout/cartão (escuro) de cadastro.
+   - Ele NÃO deve existir no código, nem visualmente, nem funcionalmente.
+   - NÃO manter campos duplicados, NÃO manter lógica antiga.
+
+2) MANTER APENAS o segundo layout (colorido / roxo).
+   - Esse será o ÚNICO módulo de pedidos de oração.
+   - Tudo deve acontecer DENTRO desse módulo.
+
+3) COMPORTAMENTO DO MÓDULO:
+   - Estado fechado:
+     • Mostrar apenas o título "Vida Espiritual e Ministério"
+     • Mostrar um contador discreto e minimalista de pedidos (ex: "3 pedidos")
+     • NÃO mostrar lista
+     • NÃO mostrar campo de cadastro
+
+   - Ao clicar para EXPANDIR:
+     • Abrir o módulo
+     • Mostrar o campo "Novo pedido de oração"
+     • Mostrar o botão "+"
+     • Mostrar a lista de pedidos logo ABAIXO do campo
+
+4) CADASTRO DE PEDIDOS:
+   - Ao adicionar um pedido:
+     • Ele deve aparecer IMEDIATAMENTE abaixo do texto "Nenhum pedido cadastrado"
+     • O texto "Nenhum pedido cadastrado" deve desaparecer quando houver pedidos
+     • Cada pedido deve ser exibido em lista vertical, simples e legível
+
+5) FECHAMENTO DO MÓDULO:
+   - Ao fechar o módulo:
+     • Os pedidos DEVEM permanecer salvos
+     • O contador no estado fechado deve atualizar corretamente
+     • Nenhuma informação deve ser perdida
+
+6) VISUAL:
+   - Design minimalista
+   - Sem duplicações
+   - Sem animações excessivas
+   - Interface clara e direta
+
+7) VALIDAÇÃO OBRIGATÓRIA ANTES DE ENTREGAR:
+   - Testar no PREVIEW:
+     • Adicionar pedido
+     • Ver lista
+     • Fechar módulo
+     • Conferir contador
+     • Reabrir módulo e verificar persistência
+   - SOMENTE entregar se tudo estiver funcionando conforme descrito.
+
+NÃO ENTREGAR SE:
+- Existirem dois módulos
+- O cadastro estiver fora do módulo colorido
+- A lista não aparecer abaixo do campo
+- O contador não atualizar corretamente

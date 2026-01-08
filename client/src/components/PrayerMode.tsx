@@ -114,6 +114,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
   const queryClient = useQueryClient();
   
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [showAddRequestDialog, setShowAddRequestDialog] = useState(false);
   const [showTimerDialog, setShowTimerDialog] = useState(false);
   const [showAddAlarmDialog, setShowAddAlarmDialog] = useState(false);
@@ -261,6 +262,40 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
     const list = await getOrCreateCategoryList(categoryKey);
     if (list) {
       setSelectedCategory(categoryKey);
+    }
+  };
+
+  const toggleExpandCategory = async (categoryKey: string) => {
+    if (expandedCategory === categoryKey) {
+      setExpandedCategory(null);
+      setNewRequestTitle("");
+      setNewRequestDescription("");
+    } else {
+      await getOrCreateCategoryList(categoryKey);
+      setExpandedCategory(categoryKey);
+      setSelectedCategory(categoryKey);
+      setNewRequestTitle("");
+      setNewRequestDescription("");
+    }
+  };
+
+  const handleAddRequestToExpanded = async () => {
+    if (!newRequestTitle.trim() || !expandedCategory) return;
+    
+    let list = prayerLists.find(l => l.categoryKey === expandedCategory);
+    if (!list) {
+      list = await getOrCreateCategoryList(expandedCategory);
+    }
+    
+    if (list) {
+      await createRequestMutation.mutateAsync({
+        listId: list.id,
+        title: newRequestTitle.trim(),
+        description: newRequestDescription.trim() || undefined,
+      });
+      setNewRequestTitle("");
+      setNewRequestDescription("");
+      toast({ title: "Pedido adicionado!" });
     }
   };
 
@@ -559,58 +594,165 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
               Categorias de Oração
             </h2>
             
-            <div className="grid grid-cols-2 gap-3">
-              {PRESET_CATEGORIES.map((category) => {
+            <div className="space-y-3">
+              {expandedCategory && (() => {
+                const category = PRESET_CATEGORIES.find(c => c.key === expandedCategory);
+                if (!category) return null;
                 const IconComponent = category.icon;
                 const requests = getCategoryRequests(category.key);
                 const answeredCount = requests.filter(r => r.status === 'answered').length;
                 
                 return (
-                  <button
-                    key={category.key}
-                    onClick={() => handleCategoryClick(category.key)}
-                    className={`relative p-3 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
-                    data-testid={`category-${category.key}`}
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className={`rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white shadow-lg overflow-hidden`}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                        <IconComponent className="w-4 h-4" />
+                    <button
+                      onClick={() => toggleExpandCategory(category.key)}
+                      className="w-full p-4 text-left flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                          <IconComponent className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-sm">{category.title}</h3>
+                          <p className="text-xs text-white/70">
+                            {requests.length} pedidos {answeredCount > 0 && `• ${answeredCount} respondidos`}
+                          </p>
+                        </div>
                       </div>
-                      {requests.length > 0 && (
-                        <div className="bg-white/30 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
-                          {requests.length}
+                      <X className="w-5 h-5 text-white/70" />
+                    </button>
+                    
+                    <div className="px-4 pb-4 space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Novo pedido de oração..."
+                          value={newRequestTitle}
+                          onChange={(e) => setNewRequestTitle(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleAddRequestToExpanded()}
+                          className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                          data-testid={`input-request-${category.key}`}
+                        />
+                        <Button
+                          size="icon"
+                          onClick={handleAddRequestToExpanded}
+                          className="bg-white/20 hover:bg-white/30"
+                          disabled={!newRequestTitle.trim()}
+                          data-testid={`add-request-${category.key}`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      {requests.length === 0 ? (
+                        <div className="bg-white/10 rounded-xl p-4 text-center">
+                          <p className="text-sm text-white/70">Nenhum pedido cadastrado</p>
+                          <p className="text-xs text-white/50 mt-1">Digite acima para adicionar</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {requests.map((request) => (
+                            <div
+                              key={request.id}
+                              className="flex items-center justify-between bg-white/10 rounded-xl p-3"
+                            >
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                  request.status === 'answered' ? 'bg-green-400' : 'bg-white/60'
+                                }`} />
+                                <span className={`text-sm truncate ${
+                                  request.status === 'answered' ? 'text-white/50 line-through' : 'text-white'
+                                }`}>
+                                  {request.title}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                {request.status !== 'answered' && (
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => updateRequestMutation.mutate({ id: request.id, status: 'answered' })}
+                                    className="h-8 w-8 text-white/70 hover:text-green-300 hover:bg-white/10"
+                                    data-testid={`mark-answered-${request.id}`}
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                )}
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => deleteRequestMutation.mutate(request.id)}
+                                  className="h-8 w-8 text-white/70 hover:text-red-300 hover:bg-white/10"
+                                  data-testid={`delete-request-${request.id}`}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
-                    <h3 className="font-bold text-xs mb-1">{category.title}</h3>
-                    
-                    {requests.length === 0 ? (
-                      <p className="text-[10px] text-white/70">Toque para adicionar</p>
-                    ) : (
-                      <div className="space-y-1 mt-1">
-                        {requests.slice(0, 3).map((request) => (
-                          <div
-                            key={request.id}
-                            className="flex items-center gap-1 text-[10px]"
-                          >
-                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                              request.status === 'answered' ? 'bg-green-300' : 'bg-white/60'
-                            }`} />
-                            <span className={`truncate ${
-                              request.status === 'answered' ? 'text-white/50 line-through' : 'text-white/90'
-                            }`}>
-                              {request.title}
-                            </span>
+                  </motion.div>
+                );
+              })()}
+              
+              <div className="grid grid-cols-2 gap-3">
+                {PRESET_CATEGORIES.filter(c => c.key !== expandedCategory).map((category) => {
+                  const IconComponent = category.icon;
+                  const requests = getCategoryRequests(category.key);
+                  
+                  return (
+                    <button
+                      key={category.key}
+                      onClick={() => toggleExpandCategory(category.key)}
+                      className={`relative p-3 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
+                      data-testid={`category-${category.key}`}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                          <IconComponent className="w-4 h-4" />
+                        </div>
+                        {requests.length > 0 && (
+                          <div className="bg-white/30 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
+                            {requests.length}
                           </div>
-                        ))}
-                        {requests.length > 3 && (
-                          <p className="text-[10px] text-white/60">+{requests.length - 3} mais</p>
                         )}
                       </div>
-                    )}
-                  </button>
-                );
-              })}
+                      <h3 className="font-bold text-xs mb-1">{category.title}</h3>
+                      
+                      {requests.length === 0 ? (
+                        <p className="text-[10px] text-white/70">Toque para adicionar</p>
+                      ) : (
+                        <div className="space-y-1 mt-1">
+                          {requests.slice(0, 3).map((request) => (
+                            <div
+                              key={request.id}
+                              className="flex items-center gap-1 text-[10px]"
+                            >
+                              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                                request.status === 'answered' ? 'bg-green-300' : 'bg-white/60'
+                              }`} />
+                              <span className={`truncate ${
+                                request.status === 'answered' ? 'text-white/50 line-through' : 'text-white/90'
+                              }`}>
+                                {request.title}
+                              </span>
+                            </div>
+                          ))}
+                          {requests.length > 3 && (
+                            <p className="text-[10px] text-white/60">+{requests.length - 3} mais</p>
+                          )}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

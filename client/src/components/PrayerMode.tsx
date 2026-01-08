@@ -614,17 +614,17 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                       className="w-full p-4 text-left flex items-center justify-between"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                          <IconComponent className="w-5 h-5" />
+                        <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                          <IconComponent className="w-6 h-6" />
                         </div>
                         <div>
-                          <h3 className="font-bold text-sm">{category.title}</h3>
-                          <p className="text-xs text-white/70">
-                            {requests.length} pedidos {answeredCount > 0 && `• ${answeredCount} respondidos`}
+                          <h3 className="font-bold text-base">{category.title}</h3>
+                          <p className="text-sm text-white/70">
+                            {requests.length} pedido{requests.length !== 1 ? 's' : ''}
                           </p>
                         </div>
                       </div>
-                      <X className="w-5 h-5 text-white/70" />
+                      <X className="w-6 h-6 text-white" />
                     </button>
                     
                     <div className="px-4 pb-4 space-y-3">
@@ -710,45 +710,20 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                     <button
                       key={category.key}
                       onClick={() => toggleExpandCategory(category.key)}
-                      className={`relative p-3 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
+                      className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
                       data-testid={`category-${category.key}`}
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                          <IconComponent className="w-4 h-4" />
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <IconComponent className="w-5 h-5" />
                         </div>
-                        {requests.length > 0 && (
-                          <div className="bg-white/30 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
-                            {requests.length}
-                          </div>
-                        )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-sm leading-tight">{category.title}</h3>
+                          <p className="text-xs text-white/70 mt-0.5">
+                            {requests.length === 0 ? 'Toque para adicionar' : `${requests.length} pedido${requests.length !== 1 ? 's' : ''}`}
+                          </p>
+                        </div>
                       </div>
-                      <h3 className="font-bold text-sm mb-1">{category.title}</h3>
-                      
-                      {requests.length === 0 ? (
-                        <p className="text-xs text-white/70">Toque para adicionar</p>
-                      ) : (
-                        <div className="space-y-1.5 mt-2">
-                          {requests.slice(0, 3).map((request) => (
-                            <div
-                              key={request.id}
-                              className="flex items-center gap-1.5 text-xs"
-                            >
-                              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                                request.status === 'answered' ? 'bg-green-300' : 'bg-white/60'
-                              }`} />
-                              <span className={`truncate ${
-                                request.status === 'answered' ? 'text-white/50 line-through' : 'text-white/90'
-                              }`}>
-                                {request.title}
-                              </span>
-                            </div>
-                          ))}
-                          {requests.length > 3 && (
-                            <p className="text-xs text-white/60">+{requests.length - 3} mais</p>
-                          )}
-                        </div>
-                      )}
                     </button>
                   );
                 })}

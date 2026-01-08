@@ -238,13 +238,13 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
       </header>
 
       <ScrollArea className="flex-1 overflow-auto">
-        <div className="px-3 py-4 pb-24">
+        <div className="px-4 py-4 pb-24 overflow-x-hidden">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="prose prose-sm dark:prose-invert max-w-none mb-4 overflow-hidden"
+            className="prose prose-sm dark:prose-invert max-w-none mb-4"
           >
-            <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">{lesson?.content}</p>
+            <p className="text-sm leading-relaxed break-words whitespace-pre-wrap overflow-wrap-anywhere">{lesson?.content}</p>
           </motion.div>
 
           <Section
@@ -253,9 +253,9 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             expanded={expandedSections.references}
             onToggle={() => toggleSection('references')}
           >
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 overflow-x-hidden">
               {referencesList.map((ref, i) => (
-                <Badge key={i} variant="outline" className="text-sm">
+                <Badge key={i} variant="outline" className="text-sm whitespace-nowrap">
                   {ref}
                 </Badge>
               ))}

@@ -1,0 +1,81 @@
+FAZER EXATAMENTE COMO PEDIDO. NÃO INTERPRETAR, NÃO CRIAR OUTRO LAYOUT.
+MANTER O RESTO DA TELA IGUAL À IMAGEM (Lista Geral de Oração e Horários de Oração permanecem iguais e funcionando).
+
+OBJETIVO:
+Na tela de oração, dividir as categorias em DOIS QUADROS (2 seções):
+
+SEÇÃO 1: "Minhas Orações"
+SEÇÃO 2: "Diversos Motivos"
+
+Ambas as seções devem ter o MESMO LAYOUT de cards (grid 2x2) como na imagem: cards grandes, arredondados, com ícone, título e subtítulo "Toque para adicionar".
+Cada card abre o MESMO tipo de modal de cadastro/lista já existente (Nome + Motivo + Data + Lista persistente por categoria).
+
+==================================================
+1) SEÇÃO 1 — "Minhas Orações"
+==================================================
+- Criar um título acima: "Minhas Orações"
+- Abaixo, mostrar exatamente os 4 cards (grid 2x2) já existentes:
+  1. "Família e Vida Sentimental" (mantém cor roxa)
+  2. "Vida Espiritual e Ministério" (MUDAR COR PARA VERDE, manter layout idêntico)
+  3. "Vida Profissional e Estudos" (mantém cor azul)
+  4. "Meus Sonhos e Conquistas" (mantém cor laranja)
+
+IMPORTANTE:
+- Apenas mudar a cor do card "Vida Espiritual e Ministério" para verde.
+- O texto, ícone e comportamento continuam iguais.
+- O contador de pedidos por card (se já existe/foi criado) deve continuar funcionando.
+
+==================================================
+2) SEÇÃO 2 — "Diversos Motivos"
+==================================================
+- Criar um título abaixo da primeira seção: "Diversos Motivos"
+- Abaixo desse título, criar OUTRO grid 2x2 com 4 cards NOVOS
+- Layout e funcionamento devem ser exatamente iguais aos cards da seção 1 (mesma dimensão, bordas, tipografia, subtítulo "Toque para adicionar", ícone no canto esquerdo, etc).
+
+Os 4 cards da seção 2 devem ter estes títulos (exatamente):
+  1. "Motivos Igreja"
+  2. "Motivo Irmãos"
+  3. "Missões e Trabalhos"
+  4. "Motivos Gerais"
+
+IMPORTANTE:
+- Cada card novo deve ter um categoryId único e fixo:
+  • motivos_igreja
+  • motivo_irmaos
+  • missoes_trabalhos
+  • motivos_gerais
+- Ao abrir e salvar pedidos nesses cards, os itens devem ficar associados e persistentes apenas naquela categoria.
+- Os contadores desses cards também devem funcionar por categoria.
+
+==================================================
+3) ABAIXO DOS DOIS QUADROS
+==================================================
+- Manter exatamente como está na imagem (sem mudanças visuais):
+  - Linha/Item: "Lista Geral de Oração" (permanece e funciona)
+  - Bloco: "Horários de Oração" (permanece e funciona)
+  - Lista de horários (08:00, 13:00, 18:00, 21:30 etc) permanece com as funções e ícones.
+
+NÃO MEXER NESSAS PARTES, apenas reposicionar para ficarem abaixo das duas seções.
+
+==================================================
+4) REGRAS IMPORTANTES (NÃO QUEBRAR)
+==================================================
+- Não duplicar componentes antigos de forma errada.
+- Não criar telas novas desnecessárias.
+- Reutilizar o mesmo componente de card e o mesmo componente de modal.
+- Garantir que categoryId é sempre passado corretamente ao modal.
+- Persistência deve continuar funcionando (banco para logado / localStorage para visitante).
+- A lista exibida no modal deve ser filtrada por categoryId.
+
+==================================================
+5) TESTES OBRIGATÓRIOS NO PREVIEW (ANTES DE RESPONDER)
+==================================================
+1) Abrir um card da seção 1 -> salvar pedido -> fechar -> reabrir -> pedido continua.
+2) Abrir um card da seção 2 -> salvar pedido -> confirmar que NÃO aparece nos cards da seção 1.
+3) Conferir contadores nos cards após salvar/apagar.
+4) Conferir que "Lista Geral de Oração" e "Horários de Oração" continuam iguais e funcionando.
+
+ENTREGAR:
+- Implementação pronta
+- Informar quais arquivos alterou e onde estão os categoryId de cada card.
+NÃO ENTREGAR se algum teste acima falhar.

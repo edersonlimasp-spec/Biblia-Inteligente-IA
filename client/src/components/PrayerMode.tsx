@@ -71,14 +71,8 @@ const CLASSIC_HYMNS = [
   { id: "15", title: "Eu Sei Que Meu Senhor Cuida de Mim", number: "345", author: "Civilla Martin" },
 ];
 
-const PRESET_CATEGORIES = [
-  { 
-    key: "general", 
-    title: "Geral", 
-    icon: Globe, 
-    color: "#64748B",
-    bgGradient: "from-slate-500 to-slate-600"
-  },
+// Seção 1: Minhas Orações (4 cards existentes)
+const MINHAS_ORACOES = [
   { 
     key: "family", 
     title: "Família e Vida Sentimental", 
@@ -90,8 +84,8 @@ const PRESET_CATEGORIES = [
     key: "spiritual", 
     title: "Vida Espiritual e Ministério", 
     icon: Church, 
-    color: "#8B5CF6",
-    bgGradient: "from-purple-500 to-purple-600"
+    color: "#22C55E",
+    bgGradient: "from-green-500 to-green-600"
   },
   { 
     key: "professional", 
@@ -108,6 +102,50 @@ const PRESET_CATEGORIES = [
     bgGradient: "from-amber-500 to-amber-600"
   },
 ];
+
+// Seção 2: Diversos Motivos (4 novos cards)
+const DIVERSOS_MOTIVOS = [
+  { 
+    key: "motivos_igreja", 
+    title: "Motivos Igreja", 
+    icon: Church, 
+    color: "#EC4899",
+    bgGradient: "from-pink-500 to-pink-600"
+  },
+  { 
+    key: "motivo_irmaos", 
+    title: "Motivo Irmãos", 
+    icon: Users, 
+    color: "#6366F1",
+    bgGradient: "from-indigo-500 to-indigo-600"
+  },
+  { 
+    key: "missoes_trabalhos", 
+    title: "Missões e Trabalhos", 
+    icon: Globe, 
+    color: "#14B8A6",
+    bgGradient: "from-teal-500 to-teal-600"
+  },
+  { 
+    key: "motivos_gerais", 
+    title: "Motivos Gerais", 
+    icon: Heart, 
+    color: "#EF4444",
+    bgGradient: "from-red-500 to-red-600"
+  },
+];
+
+// Categoria Geral (para Lista Geral)
+const CATEGORIA_GERAL = { 
+  key: "general", 
+  title: "Geral", 
+  icon: Globe, 
+  color: "#64748B",
+  bgGradient: "from-slate-500 to-slate-600"
+};
+
+// Todas as categorias combinadas (para Lista Geral e filtros)
+const PRESET_CATEGORIES = [CATEGORIA_GERAL, ...MINHAS_ORACOES, ...DIVERSOS_MOTIVOS];
 
 const formatDate = (dateString: string | Date) => {
   const date = new Date(dateString);
@@ -643,166 +681,200 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
             </div>
           </div>
 
+          {/* Componente de card expandido - renderiza quando uma categoria está expandida */}
+          {expandedCategory && (() => {
+            const category = PRESET_CATEGORIES.find(c => c.key === expandedCategory);
+            if (!category) return null;
+            const IconComponent = category.icon;
+            const requests = getCategoryRequests(category.key);
+            
+            return (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className={`rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white shadow-lg overflow-hidden`}
+              >
+                <button
+                  onClick={() => toggleExpandCategory(category.key)}
+                  className="w-full p-4 text-left flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <IconComponent className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base">{category.title}</h3>
+                      <p className="text-sm text-white/70">
+                        {requests.length} pedido{requests.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <X className="w-6 h-6 text-white" />
+                </button>
+                
+                <div className="px-4 pb-4 space-y-3">
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Nome (ex: João)"
+                      value={newRequestTitle}
+                      onChange={(e) => setNewRequestTitle(e.target.value)}
+                      className="bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                      data-testid={`input-name-${category.key}`}
+                    />
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Motivo (ex: Saúde, Trabalho...)"
+                        value={newRequestDescription}
+                        onChange={(e) => setNewRequestDescription(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddRequestToExpanded()}
+                        className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                        data-testid={`input-reason-${category.key}`}
+                      />
+                      <Button
+                        size="icon"
+                        onClick={handleAddRequestToExpanded}
+                        className="bg-white/20 hover:bg-white/30"
+                        disabled={!newRequestTitle.trim()}
+                        data-testid={`add-request-${category.key}`}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {requests.length === 0 ? (
+                    <div className="bg-white/10 rounded-xl p-4 text-center">
+                      <p className="text-sm text-white/70">Nenhum pedido cadastrado</p>
+                      <p className="text-xs text-white/50 mt-1">Digite acima para adicionar</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {requests.map((request) => (
+                        <div
+                          key={request.id}
+                          className="bg-white/10 rounded-xl p-3"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                  request.status === 'answered' ? 'bg-green-400' : 'bg-white/60'
+                                }`} />
+                                <span className={`font-medium ${
+                                  request.status === 'answered' ? 'text-white/50 line-through' : 'text-white'
+                                }`}>
+                                  {request.title}
+                                </span>
+                              </div>
+                              {request.description && (
+                                <p className="text-sm text-white/70 mt-1 ml-4">
+                                  {request.description}
+                                </p>
+                              )}
+                              <p className="text-xs text-white/50 mt-1 ml-4">
+                                {formatDate(request.createdAt)}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {request.status !== 'answered' && (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => updateRequestMutation.mutate({ id: request.id, status: 'answered' })}
+                                  className="h-8 w-8 text-white/70 hover:text-green-300 hover:bg-white/10"
+                                  data-testid={`mark-answered-${request.id}`}
+                                >
+                                  <Check className="w-4 h-4" />
+                                </Button>
+                              )}
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => deleteRequestMutation.mutate(request.id)}
+                                className="h-8 w-8 text-white/70 hover:text-red-300 hover:bg-white/10"
+                                data-testid={`delete-request-${request.id}`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })()}
+
+          {/* SEÇÃO 1: Minhas Orações */}
           <div>
             <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-3">
-              Categorias de Oração
+              Minhas Orações
             </h2>
             
-            <div className="space-y-3">
-              {expandedCategory && (() => {
-                const category = PRESET_CATEGORIES.find(c => c.key === expandedCategory);
-                if (!category) return null;
+            <div className="grid grid-cols-2 gap-3">
+              {MINHAS_ORACOES.filter(c => c.key !== expandedCategory).map((category) => {
                 const IconComponent = category.icon;
                 const requests = getCategoryRequests(category.key);
-                const answeredCount = requests.filter(r => r.status === 'answered').length;
                 
                 return (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className={`rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white shadow-lg overflow-hidden`}
+                  <button
+                    key={category.key}
+                    onClick={() => toggleExpandCategory(category.key)}
+                    className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
+                    data-testid={`category-${category.key}`}
                   >
-                    <button
-                      onClick={() => toggleExpandCategory(category.key)}
-                      className="w-full p-4 text-left flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                          <IconComponent className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-base">{category.title}</h3>
-                          <p className="text-sm text-white/70">
-                            {requests.length} pedido{requests.length !== 1 ? 's' : ''}
-                          </p>
-                        </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="w-5 h-5" />
                       </div>
-                      <X className="w-6 h-6 text-white" />
-                    </button>
-                    
-                    <div className="px-4 pb-4 space-y-3">
-                      <div className="space-y-2">
-                        <Input
-                          placeholder="Nome (ex: João)"
-                          value={newRequestTitle}
-                          onChange={(e) => setNewRequestTitle(e.target.value)}
-                          className="bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                          data-testid={`input-name-${category.key}`}
-                        />
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Motivo (ex: Saúde, Trabalho...)"
-                            value={newRequestDescription}
-                            onChange={(e) => setNewRequestDescription(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleAddRequestToExpanded()}
-                            className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                            data-testid={`input-reason-${category.key}`}
-                          />
-                          <Button
-                            size="icon"
-                            onClick={handleAddRequestToExpanded}
-                            className="bg-white/20 hover:bg-white/30"
-                            disabled={!newRequestTitle.trim()}
-                            data-testid={`add-request-${category.key}`}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-sm leading-tight">{category.title}</h3>
+                        <p className="text-xs text-white/70 mt-0.5">
+                          {requests.length === 0 ? 'Toque para adicionar' : `${requests.length} pedido${requests.length !== 1 ? 's' : ''}`}
+                        </p>
                       </div>
-                      
-                      {requests.length === 0 ? (
-                        <div className="bg-white/10 rounded-xl p-4 text-center">
-                          <p className="text-sm text-white/70">Nenhum pedido cadastrado</p>
-                          <p className="text-xs text-white/50 mt-1">Digite acima para adicionar</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-2 max-h-60 overflow-y-auto">
-                          {requests.map((request) => (
-                            <div
-                              key={request.id}
-                              className="bg-white/10 rounded-xl p-3"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                                      request.status === 'answered' ? 'bg-green-400' : 'bg-white/60'
-                                    }`} />
-                                    <span className={`font-medium ${
-                                      request.status === 'answered' ? 'text-white/50 line-through' : 'text-white'
-                                    }`}>
-                                      {request.title}
-                                    </span>
-                                  </div>
-                                  {request.description && (
-                                    <p className="text-sm text-white/70 mt-1 ml-4">
-                                      {request.description}
-                                    </p>
-                                  )}
-                                  <p className="text-xs text-white/50 mt-1 ml-4">
-                                    {formatDate(request.createdAt)}
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                  {request.status !== 'answered' && (
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      onClick={() => updateRequestMutation.mutate({ id: request.id, status: 'answered' })}
-                                      className="h-8 w-8 text-white/70 hover:text-green-300 hover:bg-white/10"
-                                      data-testid={`mark-answered-${request.id}`}
-                                    >
-                                      <Check className="w-4 h-4" />
-                                    </Button>
-                                  )}
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => deleteRequestMutation.mutate(request.id)}
-                                    className="h-8 w-8 text-white/70 hover:text-red-300 hover:bg-white/10"
-                                    data-testid={`delete-request-${request.id}`}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  </motion.div>
+                  </button>
                 );
-              })()}
-              
-              <div className="grid grid-cols-2 gap-3">
-                {PRESET_CATEGORIES.filter(c => c.key !== expandedCategory).map((category) => {
-                  const IconComponent = category.icon;
-                  const requests = getCategoryRequests(category.key);
-                  
-                  return (
-                    <button
-                      key={category.key}
-                      onClick={() => toggleExpandCategory(category.key)}
-                      className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
-                      data-testid={`category-${category.key}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <IconComponent className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-sm leading-tight">{category.title}</h3>
-                          <p className="text-xs text-white/70 mt-0.5">
-                            {requests.length === 0 ? 'Toque para adicionar' : `${requests.length} pedido${requests.length !== 1 ? 's' : ''}`}
-                          </p>
-                        </div>
+              })}
+            </div>
+          </div>
+
+          {/* SEÇÃO 2: Diversos Motivos */}
+          <div>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-3">
+              Diversos Motivos
+            </h2>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {DIVERSOS_MOTIVOS.filter(c => c.key !== expandedCategory).map((category) => {
+                const IconComponent = category.icon;
+                const requests = getCategoryRequests(category.key);
+                
+                return (
+                  <button
+                    key={category.key}
+                    onClick={() => toggleExpandCategory(category.key)}
+                    className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
+                    data-testid={`category-${category.key}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="w-5 h-5" />
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-sm leading-tight">{category.title}</h3>
+                        <p className="text-xs text-white/70 mt-0.5">
+                          {requests.length === 0 ? 'Toque para adicionar' : `${requests.length} pedido${requests.length !== 1 ? 's' : ''}`}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

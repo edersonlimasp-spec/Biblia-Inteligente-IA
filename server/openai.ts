@@ -285,3 +285,83 @@ High quality, detailed, dramatic lighting.`;
     throw new Error(errorMessages[language] || errorMessages.pt);
   }
 }
+
+// ===================================
+// IMAGE ANALYSIS - GPT-4o Vision
+// ===================================
+
+interface ImageAnalysisParams {
+  imageBase64: string;
+  mimeType: string;
+  question: string;
+  language?: AILanguage;
+}
+
+interface ImageAnalysisResult {
+  analysis: string;
+}
+
+// Analyze images using GPT-4o Vision
+export async function analyzeImageWithVision(params: ImageAnalysisParams): Promise<ImageAnalysisResult> {
+  const { imageBase64, mimeType, question, language = 'pt' } = params;
+  
+  const systemPrompt = `Você é um Professor Bíblico especializado em análise visual de documentos, artefatos, mapas e ilustrações relacionados à Bíblia e história antiga.
+
+Ao analisar imagens, você deve:
+1. Identificar elementos visuais relevantes (pessoas, objetos, símbolos, locais)
+2. Fornecer contexto bíblico e histórico
+3. Explicar significados simbólicos quando aplicável
+4. Conectar com passagens bíblicas relevantes
+5. Responder de forma clara e educativa
+
+${LANGUAGE_INSTRUCTIONS[language] || LANGUAGE_INSTRUCTIONS.pt}`;
+
+  try {
+    const response = await openaiStandard.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { 
+          role: "user", 
+          content: [
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${imageBase64}`,
+                detail: "high"
+              }
+            },
+            {
+              type: "text",
+              text: question || "Analise esta imagem no contexto bíblico e histórico. O que você pode me dizer sobre ela?"
+            }
+          ]
+        }
+      ],
+      max_tokens: 2048,
+    });
+
+    const defaultResponses: Record<AILanguage, string> = {
+      pt: "Desculpe, não consegui analisar a imagem.",
+      en: "Sorry, I couldn't analyze the image.",
+      es: "Lo siento, no pude analizar la imagen.",
+    };
+
+    return {
+      analysis: response.choices[0]?.message?.content || defaultResponses[language],
+    };
+  } catch (error: any) {
+    console.error('GPT-4o Vision Analysis Error:', {
+      message: error.message,
+      status: error.status,
+      type: error.type
+    });
+    
+    const errorMessages: Record<AILanguage, string> = {
+      pt: 'Erro ao analisar imagem. Tente novamente.',
+      en: 'Error analyzing image. Please try again.',
+      es: 'Error al analizar imagen. Inténtelo de nuevo.',
+    };
+    throw new Error(errorMessages[language] || errorMessages.pt);
+  }
+}

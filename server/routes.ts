@@ -6,7 +6,7 @@ import { sendPasswordResetEmail, sendReengagementEmail } from "./email";
 import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { askTheologicalQuestion, generateBiblicalImage } from "./openai";
+import { askTheologicalQuestion, generateBiblicalImage, analyzeImageWithVision } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
@@ -1007,6 +1007,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("AI image generation error:", error);
       res.status(500).json({ error: error.message || "Erro ao gerar imagem" });
+    }
+  });
+
+  // AI Image Analysis - GPT-4o Vision (Premium only)
+  app.post("/api/ai/analyze-image", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { imageBase64, mimeType, question, language = 'pt' } = req.body;
+
+      // Validate input
+      if (!imageBase64 || typeof imageBase64 !== 'string') {
+        return res.status(400).json({ error: "Imagem é obrigatória" });
+      }
+
+      if (!mimeType || !mimeType.startsWith('image/')) {
+        return res.status(400).json({ error: "Tipo de arquivo inválido" });
+      }
+
+      // Check base64 size (max ~10MB encoded)
+      if (imageBase64.length > 14_000_000) {
+        return res.status(400).json({ error: "Imagem muito grande (máximo 10MB)" });
+      }
+
+      // Get user and check subscription
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Admin bypass
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      
+      // Only Premium/Lifetime users can analyze images with Vision
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
+
+      if (!hasPremium && !hasLifetime && !isAdmin) {
+        return res.status(403).json({ 
+          error: "Análise de imagens é exclusiva para assinantes Premium.",
+          requiresSubscription: true,
+          subscriptionType: 'premium'
+        });
+      }
+
+      // Analyze image via GPT-4o Vision
+      const result = await analyzeImageWithVision({
+        imageBase64,
+        mimeType,
+        question: question || "Analise esta imagem no contexto bíblico.",
+        language: language as 'pt' | 'en' | 'es',
+      });
+
+      // Track image analysis event
+      await storage.trackPageEvent(req.userId!, 'AI_IMAGE_ANALYZED', {
+        mimeType,
+        hasQuestion: !!question,
+      });
+
+      res.json({ 
+        analysis: result.analysis,
+      });
+    } catch (error: any) {
+      console.error("AI image analysis error:", error);
+      res.status(500).json({ error: error.message || "Erro ao analisar imagem" });
     }
   });
 

@@ -1,13 +1,13 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { LoginPromptModal } from "@/components/LoginPromptModal";
 import { UserButton } from "@/components/UserButton";
@@ -17,13 +17,16 @@ import {
   Loader2,
   GraduationCap,
   User,
-  Trash2,
   Plus,
-  LogIn,
   Share2,
   Copy,
   Mail,
-  MessageCircle
+  MessageCircle,
+  Image as ImageIcon,
+  X,
+  Sparkles,
+  Download,
+  Crown
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,16 +34,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProfessorScreenProps {
   onBack: () => void;
+}
+
+interface MessageAttachment {
+  type: 'image';
+  url: string;
+  mimeType: string;
+  base64?: string;
 }
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  attachment?: MessageAttachment;
+  imageUrl?: string;
 }
 
 export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
@@ -50,13 +62,28 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
   const deviceId = getDeviceId();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [pendingImage, setPendingImage] = useState<{
+    url: string;
+    base64: string;
+    mimeType: string;
+  } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState("");
 
+  const { data: subscriptionData } = useQuery<{ hasPremium?: boolean; hasLifetime?: boolean; hasGold?: boolean }>({
+    queryKey: ['/api/user/subscription-status'],
+    enabled: !!user,
+  });
+
+  const hasPremium = subscriptionData?.hasPremium || subscriptionData?.hasLifetime || 
+    user?.role === 'admin' || user?.role === 'super_admin';
+
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('professor_chat_history');
+      const saved = localStorage.getItem('professor_chat_history_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         setMessages(parsed.map((m: any) => ({
@@ -71,7 +98,11 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
 
   useEffect(() => {
     try {
-      localStorage.setItem('professor_chat_history', JSON.stringify(messages));
+      const toSave = messages.map(m => ({
+        ...m,
+        attachment: m.attachment ? { type: m.attachment.type, url: m.attachment.url, mimeType: m.attachment.mimeType } : undefined
+      }));
+      localStorage.setItem('professor_chat_history_v2', JSON.stringify(toSave));
     } catch (e) {
       console.warn('Failed to save chat history');
     }
@@ -111,24 +142,191 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
     },
   });
 
+  const analyzeImageMutation = useMutation({
+    mutationFn: async ({ imageBase64, mimeType, question }: { imageBase64: string; mimeType: string; question: string }) => {
+      const res = await apiRequest("POST", "/api/ai/analyze-image", {
+        imageBase64,
+        mimeType,
+        question,
+        language,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: data.analysis,
+        timestamp: new Date()
+      }]);
+    },
+    onError: (error: any) => {
+      toast({
+        title: t("common.error"),
+        description: error.message || "Erro ao analisar imagem",
+        variant: "destructive",
+      });
+      setMessages(prev => prev.slice(0, -1));
+    },
+  });
+
+  const generateImageMutation = useMutation({
+    mutationFn: async (prompt: string) => {
+      const res = await apiRequest("POST", "/api/ai/generate-image", {
+        prompt,
+        language,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "Imagem gerada com sucesso!",
+        timestamp: new Date(),
+        imageUrl: data.imageUrl,
+      }]);
+    },
+    onError: (error: any) => {
+      toast({
+        title: t("common.error"),
+        description: error.message || "Erro ao gerar imagem",
+        variant: "destructive",
+      });
+      setMessages(prev => prev.slice(0, -1));
+    },
+  });
+
+  const isImageCommand = (text: string): boolean => {
+    const patterns = [
+      /gerar?\s+imagem/i,
+      /criar?\s+imagem/i,
+      /fazer?\s+imagem/i,
+      /crie?\s+uma?\s+imagem/i,
+      /gere?\s+uma?\s+imagem/i,
+      /desenhar?/i,
+      /ilustrar?/i,
+      /mapa\s+d[aeo]/i,
+      /generate\s+image/i,
+      /create\s+image/i,
+      /draw\s+/i,
+    ];
+    return patterns.some(p => p.test(text));
+  };
+
+  const extractImagePrompt = (text: string): string => {
+    return text
+      .replace(/gerar?\s+imagem\s*(de|do|da|dos|das)?/gi, '')
+      .replace(/criar?\s+imagem\s*(de|do|da|dos|das)?/gi, '')
+      .replace(/fazer?\s+imagem\s*(de|do|da|dos|das)?/gi, '')
+      .replace(/crie?\s+uma?\s+imagem\s*(de|do|da|dos|das)?/gi, '')
+      .replace(/gere?\s+uma?\s+imagem\s*(de|do|da|dos|das)?/gi, '')
+      .replace(/desenhar?\s*/gi, '')
+      .replace(/ilustrar?\s*/gi, '')
+      .replace(/mapa\s*/gi, 'mapa ')
+      .replace(/generate\s+image\s*(of)?/gi, '')
+      .replace(/create\s+image\s*(of)?/gi, '')
+      .replace(/draw\s*/gi, '')
+      .trim();
+  };
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Arquivo inválido",
+        description: "Por favor, selecione uma imagem.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "A imagem deve ter no máximo 10MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64Full = event.target?.result as string;
+      const base64 = base64Full.split(',')[1];
+      setPendingImage({
+        url: URL.createObjectURL(file),
+        base64,
+        mimeType: file.type,
+      });
+    };
+    reader.readAsDataURL(file);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [toast]);
+
   const handleSubmit = () => {
-    if (!input.trim() || askMutation.isPending) return;
+    const hasImage = !!pendingImage;
+    const hasText = input.trim().length > 0;
+
+    if (!hasImage && !hasText) return;
+    if (askMutation.isPending || analyzeImageMutation.isPending || generateImageMutation.isPending) return;
     
     if (!user) {
       setPendingQuestion(input.trim());
       setShowLoginPrompt(true);
       return;
     }
-    
+
     const userMessage: Message = {
       role: "user",
-      content: input.trim(),
-      timestamp: new Date()
+      content: input.trim() || (hasImage ? "Analise esta imagem" : ""),
+      timestamp: new Date(),
+      attachment: pendingImage ? {
+        type: 'image',
+        url: pendingImage.url,
+        mimeType: pendingImage.mimeType,
+        base64: pendingImage.base64,
+      } : undefined,
     };
     
     setMessages(prev => [...prev, userMessage]);
+    const question = input.trim();
     setInput("");
-    askMutation.mutate(input.trim());
+    
+    if (hasImage && pendingImage) {
+      if (!hasPremium) {
+        toast({
+          title: "Recurso Premium",
+          description: "Análise de imagens é exclusiva para assinantes Premium.",
+          variant: "destructive",
+        });
+        setMessages(prev => prev.slice(0, -1));
+        return;
+      }
+      analyzeImageMutation.mutate({
+        imageBase64: pendingImage.base64,
+        mimeType: pendingImage.mimeType,
+        question: question || "Analise esta imagem no contexto bíblico.",
+      });
+      setPendingImage(null);
+    } else if (isImageCommand(question)) {
+      if (!hasPremium) {
+        toast({
+          title: "Recurso Premium",
+          description: "Geração de imagens é exclusiva para assinantes Premium.",
+          variant: "destructive",
+        });
+        setMessages(prev => prev.slice(0, -1));
+        return;
+      }
+      const prompt = extractImagePrompt(question);
+      generateImageMutation.mutate(prompt);
+    } else {
+      askMutation.mutate(question);
+    }
   };
   
   const handleAuthSuccess = () => {
@@ -149,8 +347,10 @@ export function ProfessorScreen({ onBack }: ProfessorScreenProps) {
 
   const handleNewConversation = () => {
     setMessages([]);
+    setPendingImage(null);
+    setInput("");
     try {
-      localStorage.removeItem('professor_chat_history');
+      localStorage.removeItem('professor_chat_history_v2');
     } catch (e) {}
     toast({
       title: t("professor.newConversation"),
@@ -223,10 +423,12 @@ https://bibliainteligente.replit.app`;
     }
   };
 
+  const isPending = askMutation.isPending || analyzeImageMutation.isPending || generateImageMutation.isPending;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -235,7 +437,15 @@ https://bibliainteligente.replit.app`;
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold">{t("professor.title")}</h1>
+              <h1 className="text-lg font-bold flex items-center gap-2">
+                {t("professor.title")}
+                {hasPremium && (
+                  <Badge variant="default" className="bg-amber-600 text-xs">
+                    <Crown className="w-3 h-3 mr-1" />
+                    Premium
+                  </Badge>
+                )}
+              </h1>
               <p className="text-xs text-muted-foreground">{t("professor.subtitle")}</p>
             </div>
           </div>
@@ -253,7 +463,7 @@ https://bibliainteligente.replit.app`;
       </header>
 
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="max-w-3xl mx-auto space-y-4 pb-4">
+        <div className="max-w-4xl mx-auto space-y-4 pb-4">
           {messages.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -264,10 +474,11 @@ https://bibliainteligente.replit.app`;
                 <GraduationCap className="w-10 h-10 text-white" />
               </div>
               <h2 className="text-xl font-semibold mb-2">{t("professor.greeting")}</h2>
-              <p className="text-muted-foreground max-w-sm mx-auto">
+              <p className="text-muted-foreground max-w-sm mx-auto mb-6">
                 {t("professor.greetingDesc")}
               </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
+              
+              <div className="flex flex-wrap justify-center gap-2 mb-4">
                 {[
                   t("professor.suggestedQuestions.1"),
                   t("professor.suggestedQuestions.2"),
@@ -279,11 +490,43 @@ https://bibliainteligente.replit.app`;
                     size="sm"
                     onClick={() => setInput(suggestion)}
                     className="text-xs"
+                    data-testid={`suggestion-${i}`}
                   >
+                    <Sparkles className="w-3 h-3 mr-1.5 text-primary" />
                     {suggestion}
                   </Button>
                 ))}
               </div>
+
+              {hasPremium && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Recursos Premium disponíveis
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setInput("Gerar imagem de Jerusalém antiga")}
+                      className="text-xs"
+                      data-testid="premium-suggestion-image"
+                    >
+                      <ImageIcon className="w-3 h-3 mr-1.5 text-amber-500" />
+                      Gerar imagem bíblica
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-xs"
+                      data-testid="premium-suggestion-analyze"
+                    >
+                      <ImageIcon className="w-3 h-3 mr-1.5 text-green-500" />
+                      Analisar imagem
+                    </Button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -300,12 +543,39 @@ https://bibliainteligente.replit.app`;
                 </div>
               )}
               <div 
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                   message.role === 'user' 
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-muted'
                 }`}
               >
+                {message.attachment?.type === 'image' && (
+                  <div className="mb-2">
+                    <img 
+                      src={message.attachment.url} 
+                      alt="Uploaded" 
+                      className="max-w-full max-h-64 rounded-lg object-contain"
+                    />
+                  </div>
+                )}
+                {message.imageUrl && (
+                  <div className="mb-2 relative group">
+                    <img 
+                      src={message.imageUrl} 
+                      alt="Generated"
+                      className="w-full max-w-md rounded-lg shadow-lg"
+                    />
+                    <a
+                      href={message.imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Download className="w-4 h-4 text-white" />
+                    </a>
+                  </div>
+                )}
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 <div className="flex items-center justify-between mt-1 gap-2">
                   <span className="text-[10px] opacity-60">
@@ -355,7 +625,7 @@ https://bibliainteligente.replit.app`;
             </motion.div>
           ))}
 
-          {askMutation.isPending && (
+          {isPending && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -367,7 +637,9 @@ https://bibliainteligente.replit.app`;
               <div className="bg-muted rounded-2xl px-4 py-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  {t("professor.thinking")}
+                  {generateImageMutation.isPending ? "Gerando imagem..." : 
+                   analyzeImageMutation.isPending ? "Analisando imagem..." : 
+                   t("professor.thinking")}
                 </div>
               </div>
             </motion.div>
@@ -376,29 +648,89 @@ https://bibliainteligente.replit.app`;
       </ScrollArea>
 
       <div className="border-t bg-background p-4">
-        <div className="max-w-3xl mx-auto flex gap-3">
-          <Textarea
-            placeholder={t("professor.placeholder")}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyPress}
-            rows={1}
-            className="resize-none min-h-[44px] max-h-[120px]"
-            data-testid="input-message"
-          />
-          <Button 
-            onClick={handleSubmit}
-            disabled={!input.trim() || askMutation.isPending}
-            size="icon"
-            className="h-[44px] w-[44px]"
-            data-testid="button-send"
-          >
-            {askMutation.isPending ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Send className="w-5 h-5" />
+        <div className="max-w-4xl mx-auto">
+          <AnimatePresence>
+            {pendingImage && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-3"
+              >
+                <div className="relative inline-block">
+                  <img 
+                    src={pendingImage.url} 
+                    alt="Preview" 
+                    className="h-20 rounded-lg object-cover border"
+                  />
+                  <button
+                    onClick={() => setPendingImage(null)}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+                    data-testid="button-remove-image"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </motion.div>
             )}
-          </Button>
+          </AnimatePresence>
+
+          <div className="flex gap-2 items-end">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+              data-testid="input-file"
+            />
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isPending}
+              className="h-[44px] w-[44px] shrink-0"
+              data-testid="button-attach-image"
+              title={hasPremium ? "Anexar imagem para análise" : "Recurso Premium"}
+            >
+              <ImageIcon className={`w-5 h-5 ${hasPremium ? '' : 'opacity-50'}`} />
+            </Button>
+
+            <div className="flex-1 relative">
+              <Textarea
+                ref={textareaRef}
+                placeholder={pendingImage ? "Faça uma pergunta sobre a imagem..." : t("professor.placeholder")}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                rows={1}
+                className="resize-none min-h-[44px] max-h-[200px] pr-12"
+                data-testid="input-message"
+              />
+            </div>
+
+            <Button 
+              onClick={handleSubmit}
+              disabled={(!input.trim() && !pendingImage) || isPending}
+              size="icon"
+              className="h-[44px] w-[44px] shrink-0"
+              data-testid="button-send"
+            >
+              {isPending ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
+            </Button>
+          </div>
+
+          {!hasPremium && (
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              <Crown className="w-3 h-3 inline mr-1 text-amber-500" />
+              Assine Premium para gerar e analisar imagens
+            </p>
+          )}
         </div>
       </div>
       

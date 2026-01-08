@@ -1210,8 +1210,8 @@ export function BibleReader({
                         ) : null}
                       </div>
                       
-                      {/* Verse Text - justified */}
-                      <p className="flex-1 text-justify">
+                      {/* Verse Text */}
+                      <p className="flex-1">
                         {tokenizeVerse(verse.text, wordsWithStrong).map((token, idx) => (
                           <span key={idx}>
                             <StrongWord

@@ -249,12 +249,12 @@ export interface IStorage {
   updateUserSyncMeta(userId: string, deviceId?: string): Promise<UserSyncMeta>;
 
   // Prayer Module
-  getPrayerLists(userId: string | null, deviceId: string): Promise<PrayerList[]>;
-  createPrayerList(data: { userId: string | null; deviceId: string; title: string; icon: string; color: string }): Promise<PrayerList>;
+  getPrayerLists(userId: string | null, deviceId: string | null): Promise<PrayerList[]>;
+  createPrayerList(data: { userId: string | null; deviceId: string | null; title: string; icon: string; color: string; listType?: string; categoryKey?: string }): Promise<PrayerList>;
   updatePrayerList(id: string, data: Partial<{ title: string; icon: string; color: string; isPublic: boolean }>): Promise<PrayerList | undefined>;
   deletePrayerList(id: string): Promise<void>;
-  getPrayerRequests(userId: string | null, deviceId: string, listId?: string): Promise<PrayerRequest[]>;
-  createPrayerRequest(data: { listId: string; userId: string | null; deviceId: string; title: string; description?: string; category?: string }): Promise<PrayerRequest>;
+  getPrayerRequests(userId: string | null, deviceId: string | null, listId?: string): Promise<PrayerRequest[]>;
+  createPrayerRequest(data: { listId: string; userId: string | null; deviceId: string | null; title: string; description?: string; category?: string }): Promise<PrayerRequest>;
   updatePrayerRequest(id: string, data: Partial<{ title: string; description: string; category: string; status: string; answeredAt: Date }>): Promise<PrayerRequest | undefined>;
   deletePrayerRequest(id: string): Promise<void>;
 }
@@ -2079,7 +2079,7 @@ class PostgresStorage implements IStorage {
   }
 
   // Prayer Module Implementation
-  async getPrayerLists(userId: string | null, deviceId: string): Promise<PrayerList[]> {
+  async getPrayerLists(userId: string | null, deviceId: string | null): Promise<PrayerList[]> {
     if (!userId && !deviceId) {
       return [];
     }
@@ -2098,7 +2098,7 @@ class PostgresStorage implements IStorage {
       .orderBy(prayerLists.displayOrder);
   }
 
-  async createPrayerList(data: { userId: string | null; deviceId: string; title: string; icon: string; color: string }): Promise<PrayerList> {
+  async createPrayerList(data: { userId: string | null; deviceId: string | null; title: string; icon: string; color: string; listType?: string; categoryKey?: string }): Promise<PrayerList> {
     const [result] = await db.insert(prayerLists)
       .values({
         userId: data.userId,
@@ -2106,6 +2106,8 @@ class PostgresStorage implements IStorage {
         title: data.title,
         icon: data.icon,
         color: data.color,
+        listType: data.listType || 'personal',
+        categoryKey: data.categoryKey,
         shareId: crypto.randomUUID().substring(0, 8),
       })
       .returning();
@@ -2130,7 +2132,7 @@ class PostgresStorage implements IStorage {
     await db.delete(prayerLists).where(eq(prayerLists.id, id));
   }
 
-  async getPrayerRequests(userId: string | null, deviceId: string, listId?: string): Promise<PrayerRequest[]> {
+  async getPrayerRequests(userId: string | null, deviceId: string | null, listId?: string): Promise<PrayerRequest[]> {
     if (!userId && !deviceId) {
       return [];
     }
@@ -2153,7 +2155,7 @@ class PostgresStorage implements IStorage {
       .orderBy(prayerRequests.displayOrder);
   }
 
-  async createPrayerRequest(data: { listId: string; userId: string | null; deviceId: string; title: string; description?: string; category?: string }): Promise<PrayerRequest> {
+  async createPrayerRequest(data: { listId: string; userId: string | null; deviceId: string | null; title: string; description?: string; category?: string }): Promise<PrayerRequest> {
     const [result] = await db.insert(prayerRequests)
       .values({
         listId: data.listId,

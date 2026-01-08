@@ -1,0 +1,57 @@
+URGENTE: O LAYOUT ESTÁ OK, MAS O CADASTRO NÃO ESTÁ SENDO SALVO NEM RELACIONADO AOS CARDS INDIVIDUAIS.
+
+PROBLEMA ATUAL:
+- Eu digito Nome + Motivo em uma categoria (ex: Vida Espiritual)
+- Clico salvar/+
+- NÃO fica cadastrado corretamente e/ou some ao fechar/atualizar
+- NÃO fica relacionado ao card/categoria individual (cada card precisa ter sua própria lista e contador)
+
+OBJETIVO:
+Implementar persistência e relacionamento por categoria (card) de forma correta.
+
+REQUISITOS OBRIGATÓRIOS:
+
+1) CADA PEDIDO PRECISA TER categoryId OBRIGATÓRIO
+   - Cada card deve ter um id fixo:
+     • familia_sentimental
+     • vida_espiritual_ministerio
+     • vida_profissional_estudos
+     • sonhos_conquistas
+   - Ao salvar dentro de um modal de categoria, gravar SEMPRE com o categoryId daquela categoria.
+
+2) PERSISTÊNCIA REAL (NÃO SOMENTE ESTADO LOCAL DA TELA):
+   - Se o usuário estiver logado: salvar no banco com userId.
+   - Se não estiver logado (visitante): salvar no localStorage.
+   - Ao abrir o modal, carregar os pedidos daquela categoria (filtrar por categoryId).
+   - Ao fechar e reabrir: os pedidos continuam.
+   - Ao atualizar a página: os pedidos continuam.
+
+3) ESTRUTURA DOS DADOS (PADRÃO ÚNICO PARA TUDO):
+   prayer_requests:
+     id
+     userId (ou null se visitante)
+     categoryId (obrigatório)
+     name
+     reason
+     createdAt
+
+4) LISTA E CONTADOR POR CATEGORIA:
+   - Dentro do modal: listar SOMENTE pedidos daquele categoryId.
+   - No card fechado (na tela de categorias): mostrar contador correto (ex: "3 pedidos") daquele categoryId.
+   - Atualizar contador imediatamente após salvar/apagar.
+
+5) CORRIGIR FUNÇÃO DE SALVAR:
+   - Verificar se o botão salvar/ícone + está chamando a função certa.
+   - Garantir validação: não salvar vazio.
+   - Limpar campos após salvar.
+
+6) TESTES OBRIGATÓRIOS NO PREVIEW (ANTES DE RESPONDER):
+   - Abrir Vida Espiritual -> salvar 2 pedidos -> fechar -> reabrir -> continuam lá.
+   - Abrir Família -> salvar 1 pedido -> confirmar que NÃO aparece em Vida Espiritual.
+   - Atualizar a página -> todos continuam nas categorias corretas.
+   - Conferir contadores nos 4 cards.
+
+ENTREGÁVEL:
+- Implementar e garantir funcionamento
+- Informar quais arquivos foram alterados e onde está a lógica de persistência/filtro por categoryId.
+NÃO ENTREGAR SE NÃO PASSAR NOS TESTES.

@@ -6265,7 +6265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "Authentication required" });
       }
 
-      const { title, icon, color } = req.body;
+      const { title, icon, color, listType, categoryKey } = req.body;
       
       if (!title?.trim()) {
         return res.status(400).json({ error: "Title is required" });
@@ -6277,6 +6277,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         title: title.trim(),
         icon: icon || "heart",
         color: color || "#3B82F6",
+        listType,
+        categoryKey,
       });
       
       res.json(list);

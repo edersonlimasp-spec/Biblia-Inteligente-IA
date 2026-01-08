@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
-import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Send, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock } from "lucide-react";
+import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, X, Send, Share2, Copy, Mail, MessageCircle, LogIn, Crown, Lock, Image, MapPin, Download } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -46,6 +46,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   text: string;
   createdAt: Date;
+  imageUrl?: string; // For AI-generated images
 }
 
 interface ChatSession {
@@ -585,6 +586,98 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   });
 
   // ===================================
+  // IMAGE GENERATION MUTATION - DALL-E 3
+  // ===================================
+  
+  const generateImageMutation = useMutation({
+    mutationFn: async (request: { prompt: string; sessionId: string }) => {
+      const res = await apiRequest('POST', '/api/ai/generate-image', {
+        prompt: request.prompt,
+        language,
+      });
+      const data = await res.json();
+      return { ...data, sessionId: request.sessionId };
+    },
+    onSuccess: (data) => {
+      const assistantMessage: ChatMessage = {
+        role: "assistant",
+        text: data.revisedPrompt || "Imagem gerada com sucesso!",
+        imageUrl: data.imageUrl,
+        createdAt: new Date(),
+      };
+
+      if (data.sessionId !== currentSessionId) {
+        setChatSessions(prev => {
+          const targetSession = prev.find(s => s.id === data.sessionId);
+          if (!targetSession) {
+            const recreatedSession: ChatSession = {
+              id: data.sessionId,
+              title: "Imagem Gerada",
+              messages: [assistantMessage],
+              createdAt: new Date(parseInt(data.sessionId.split('-')[1])),
+              updatedAt: new Date(),
+            };
+            const updated = [...prev, recreatedSession];
+            saveSessions(updated);
+            return updated;
+          }
+          const updated = prev.map(s => 
+            s.id === data.sessionId
+              ? { ...s, messages: [...s.messages, assistantMessage], updatedAt: new Date() }
+              : s
+          );
+          saveSessions(updated);
+          return updated;
+        });
+      } else {
+        setMessages(prev => [...prev, assistantMessage]);
+      }
+
+      setIsExpanded(true);
+      setQuestion("");
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.data?.error || error?.message || "Erro ao gerar imagem";
+      const needsSubscription = error?.status === 403 || error?.data?.requiresSubscription;
+      
+      toast({
+        title: needsSubscription ? "Recurso Premium" : "Erro",
+        description: needsSubscription 
+          ? "Geração de imagens é exclusiva para assinantes Premium."
+          : errorMessage,
+        variant: "destructive",
+        duration: 5000,
+      });
+    },
+  });
+
+  // Helper to detect image generation commands
+  const isImageCommand = (text: string): boolean => {
+    const lowerText = text.toLowerCase();
+    const imagePatterns = [
+      /^gerar?\s+imagem/i,
+      /^criar?\s+imagem/i,
+      /^mostrar?\s+(imagem|foto|mapa)/i,
+      /^desenhar?\s/i,
+      /^ilustrar?\s/i,
+      /^visualizar?\s/i,
+      /imagem\s+d[aoe]/i,
+      /foto\s+d[aoe]/i,
+      /mapa\s+d[aoe]/i,
+    ];
+    return imagePatterns.some(pattern => pattern.test(lowerText));
+  };
+
+  // Extract image prompt from command
+  const extractImagePrompt = (text: string): string => {
+    // Remove common prefixes
+    return text
+      .replace(/^(gerar?|criar?|mostrar?|desenhar?|ilustrar?|visualizar?)\s+(imagem|foto|mapa)?\s*(de|do|da|dos|das)?\s*/i, '')
+      .replace(/^(imagem|foto|mapa)\s*(de|do|da|dos|das)?\s*/i, '')
+      .trim() || text;
+  };
+
+  // ===================================
   // ACTIONS - Compartilhar Resposta
   // ===================================
 
@@ -705,6 +798,40 @@ Conheça: https://bibliainteligente.replit.app`;
       consumeQuestion();
     }
     
+    // Check if this is an image generation request
+    if (isImageCommand(currentQuestion)) {
+      // Image generation requires login first
+      if (!isAuthenticated) {
+        setQuestion(currentQuestion); // Restore question
+        setShowLoginPrompt(true);
+        toast({
+          title: "Login Necessário",
+          description: "Faça login para gerar imagens com IA.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Image generation requires Premium subscription
+      const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
+      if (!userSub.hasPremium && !isAdminUser) {
+        toast({
+          title: "Recurso Premium",
+          description: "Geração de imagens é exclusiva para assinantes Premium.",
+          variant: "destructive",
+        });
+        setShowUpgradePrompt(true);
+        return;
+      }
+      
+      const imagePrompt = extractImagePrompt(currentQuestion);
+      generateImageMutation.mutate({
+        prompt: imagePrompt,
+        sessionId: currentSessionId,
+      });
+      return;
+    }
+    
     // Determine mode based on access
     const isAdminUser = user?.role === 'admin' || user?.role === 'super_admin';
     const mode = isAdminUser || userSub.hasPremium ? 'premium' : 'essential';
@@ -794,12 +921,41 @@ Conheça: https://bibliainteligente.replit.app`;
                       <span>{formatDistanceToNow(msg.createdAt, { addSuffix: true, locale: ptBR })}</span>
                     </div>
                     <div
-                      className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                      className={`max-w-[85%] rounded-lg px-4 py-3 ${
                         msg.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
                       }`}
                     >
+                      {/* Image display if present */}
+                      {msg.imageUrl && (
+                        <div className="mb-3">
+                          <div className="relative group">
+                            <img 
+                              src={msg.imageUrl} 
+                              alt="Imagem bíblica gerada por IA"
+                              className="rounded-lg w-full max-w-md shadow-lg"
+                              loading="lazy"
+                            />
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <a 
+                                href={msg.imageUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                download="imagem-biblica.png"
+                              >
+                                <Button size="icon" variant="secondary" className="h-8 w-8">
+                                  <Download className="w-4 h-4" />
+                                </Button>
+                              </a>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                            <Image className="w-3 h-3" />
+                            <span>Imagem gerada por IA</span>
+                          </div>
+                        </div>
+                      )}
                       <p className="text-base sm:text-lg leading-relaxed whitespace-pre-line">
                         {msg.text}
                       </p>
@@ -844,10 +1000,15 @@ Conheça: https://bibliainteligente.replit.app`;
                 ))}
                 
                 {/* Loading indicator */}
-                {askAIMutation.isPending && (
+                {(askAIMutation.isPending || generateImageMutation.isPending) && (
                   <div className="flex items-start gap-2">
                     <div className="bg-muted rounded-lg px-4 py-3">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {generateImageMutation.isPending && (
+                          <span className="text-sm text-muted-foreground">Gerando imagem...</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -856,6 +1017,46 @@ Conheça: https://bibliainteligente.replit.app`;
                 <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
+          </div>
+        </div>
+      )}
+
+      {/* Command Suggestions for Premium users */}
+      {(userSub.hasPremium || user?.role === 'admin' || user?.role === 'super_admin') && messages.length === 0 && !isExpanded && (
+        <div className="max-w-3xl mx-auto px-3 pb-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setQuestion("Explique João 3:16")}
+              className="text-xs px-3 py-1.5 rounded-full bg-muted hover-elevate active-elevate-2 transition-colors flex items-center gap-1.5"
+              data-testid="suggestion-explain"
+            >
+              <Sparkles className="w-3 h-3 text-primary" />
+              <span>Explique João 3:16</span>
+            </button>
+            <button
+              onClick={() => setQuestion("Gerar imagem de Jerusalém antiga")}
+              className="text-xs px-3 py-1.5 rounded-full bg-muted hover-elevate active-elevate-2 transition-colors flex items-center gap-1.5"
+              data-testid="suggestion-image-jerusalem"
+            >
+              <Image className="w-3 h-3 text-amber-500" />
+              <span>Imagem de Jerusalém</span>
+            </button>
+            <button
+              onClick={() => setQuestion("Mapa do Mar Vermelho")}
+              className="text-xs px-3 py-1.5 rounded-full bg-muted hover-elevate active-elevate-2 transition-colors flex items-center gap-1.5"
+              data-testid="suggestion-map"
+            >
+              <MapPin className="w-3 h-3 text-green-500" />
+              <span>Mapa bíblico</span>
+            </button>
+            <button
+              onClick={() => setQuestion("Imagem da última ceia")}
+              className="text-xs px-3 py-1.5 rounded-full bg-muted hover-elevate active-elevate-2 transition-colors flex items-center gap-1.5"
+              data-testid="suggestion-image-supper"
+            >
+              <Image className="w-3 h-3 text-purple-500" />
+              <span>Última Ceia</span>
+            </button>
           </div>
         </div>
       )}
@@ -979,12 +1180,12 @@ Conheça: https://bibliainteligente.replit.app`;
           {/* Send Button - Compact */}
           <Button
             onClick={handleAsk}
-            disabled={askAIMutation.isPending || subscriptionLoading || !question.trim()}
+            disabled={askAIMutation.isPending || generateImageMutation.isPending || subscriptionLoading || !question.trim()}
             data-testid="button-ask-ai"
             size="icon"
             className="h-10 w-10 rounded-lg shrink-0"
           >
-            {askAIMutation.isPending || subscriptionLoading ? (
+            {askAIMutation.isPending || generateImageMutation.isPending || subscriptionLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />

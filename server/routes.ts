@@ -6,7 +6,7 @@ import { sendPasswordResetEmail, sendReengagementEmail } from "./email";
 import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { askTheologicalQuestion } from "./openai";
+import { askTheologicalQuestion, generateBiblicalImage } from "./openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
@@ -951,6 +951,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("AI ask error:", error);
       res.status(500).json({ error: error.message || "Erro ao processar pergunta" });
+    }
+  });
+
+  // AI Image Generation - DALL-E 3 (Premium only)
+  app.post("/api/ai/generate-image", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { prompt, language = 'pt' } = req.body;
+
+      // Validate input
+      if (!prompt || typeof prompt !== 'string') {
+        return res.status(400).json({ error: "Descrição da imagem é obrigatória" });
+      }
+
+      if (prompt.length > 500) {
+        return res.status(400).json({ error: "Descrição muito longa (máximo 500 caracteres)" });
+      }
+
+      // Get user and check subscription
+      const user = await storage.getUser(req.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      // Admin bypass
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      
+      // Only Premium/Lifetime users can generate images
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
+
+      if (!hasPremium && !hasLifetime && !isAdmin) {
+        return res.status(403).json({ 
+          error: "Geração de imagens é exclusiva para assinantes Premium.",
+          requiresSubscription: true,
+          subscriptionType: 'premium'
+        });
+      }
+
+      // Generate image via DALL-E
+      const result = await generateBiblicalImage({
+        prompt,
+        language: language as 'pt' | 'en' | 'es',
+      });
+
+      // Track image generation event
+      await storage.trackPageEvent(req.userId!, 'AI_IMAGE_GENERATED', {
+        prompt,
+      });
+
+      res.json({ 
+        imageUrl: result.imageUrl,
+        revisedPrompt: result.revisedPrompt,
+      });
+    } catch (error: any) {
+      console.error("AI image generation error:", error);
+      res.status(500).json({ error: error.message || "Erro ao gerar imagem" });
     }
   });
 

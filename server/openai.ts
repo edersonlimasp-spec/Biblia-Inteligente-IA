@@ -1,9 +1,14 @@
 import OpenAI from "openai";
 
-// Initialize OpenAI with Replit AI Integrations
+// Initialize OpenAI with Replit AI Integrations (for chat)
 const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+});
+
+// Initialize OpenAI with standard API for DALL-E (image generation)
+const openaiStandard = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 // Get Assistant ID from environment
@@ -215,3 +220,68 @@ async function askViaChat(userMessage: string, mode: AIMode, language: AILanguag
 
 // Keep legacy export for backward compatibility
 export const askTheologicalQuestion = askProfessor;
+
+// ===================================
+// IMAGE GENERATION - DALL-E 3
+// ===================================
+
+interface ImageGenerationParams {
+  prompt: string;
+  language?: AILanguage;
+}
+
+interface ImageGenerationResult {
+  imageUrl: string;
+  revisedPrompt: string;
+}
+
+// Generate biblical images using DALL-E 3
+export async function generateBiblicalImage(params: ImageGenerationParams): Promise<ImageGenerationResult> {
+  const { prompt, language = 'pt' } = params;
+  
+  // Enhance the prompt for biblical/historical accuracy
+  const enhancedPrompt = `Biblical illustration in classical oil painting style: ${prompt}. 
+Historical accuracy for ancient Middle East, no modern elements. 
+Artistic, reverent, suitable for Bible study. 
+High quality, detailed, dramatic lighting.`;
+
+  try {
+    const response = await openaiStandard.images.generate({
+      model: "dall-e-3",
+      prompt: enhancedPrompt,
+      n: 1,
+      size: "1024x1024",
+      quality: "standard",
+      style: "vivid",
+    });
+
+    if (!response.data || response.data.length === 0) {
+      throw new Error('No image data returned from DALL-E');
+    }
+
+    const imageUrl = response.data[0]?.url;
+    const revisedPrompt = response.data[0]?.revised_prompt || prompt;
+
+    if (!imageUrl) {
+      throw new Error('No image URL returned from DALL-E');
+    }
+
+    return {
+      imageUrl,
+      revisedPrompt,
+    };
+  } catch (error: any) {
+    console.error('DALL-E Image Generation Error:', {
+      message: error.message,
+      status: error.status,
+      type: error.type
+    });
+    
+    const errorMessages: Record<AILanguage, string> = {
+      pt: 'Erro ao gerar imagem. Tente novamente.',
+      en: 'Error generating image. Please try again.',
+      es: 'Error al generar imagen. Inténtelo de nuevo.',
+    };
+    throw new Error(errorMessages[language] || errorMessages.pt);
+  }
+}

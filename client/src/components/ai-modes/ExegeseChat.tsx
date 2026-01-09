@@ -284,9 +284,9 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
   }
 
   return (
-    <div className="h-screen bg-gradient-to-b from-emerald-950/20 to-background flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-950/20 to-background flex flex-col">
       {/* Premium Header */}
-      <header className="flex-shrink-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-lg z-50">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />

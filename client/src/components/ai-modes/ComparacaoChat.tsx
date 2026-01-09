@@ -294,9 +294,9 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
   }
 
   return (
-    <div className="h-screen bg-gradient-to-b from-amber-950/20 to-background flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-amber-950/20 to-background flex flex-col">
       {/* Premium Header with gradient */}
-      <header className="flex-shrink-0 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 text-white shadow-lg z-50">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />

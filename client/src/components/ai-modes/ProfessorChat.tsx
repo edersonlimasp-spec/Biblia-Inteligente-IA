@@ -202,7 +202,7 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
   const isPending = askMutation.isPending || analyzeImageMutation.isPending;
 
   return (
-    <div className="h-screen bg-gradient-to-b from-blue-950/20 to-background flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-blue-950/20 to-background flex flex-col">
       {/* Header - Classroom style */}
       <header className="sticky top-0 z-50 bg-blue-600/95 backdrop-blur text-white">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
@@ -220,48 +220,50 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
         </div>
       </header>
 
-      {/* Chat area with suggestions */}
-      <ScrollArea className="flex-1" ref={scrollRef}>
-        <div className="max-w-4xl mx-auto p-4 space-y-4 pb-4">
-          {/* Study suggestions when no messages */}
-          {messages.length === 0 && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {STUDY_SUGGESTIONS.map((item, i) => (
-                  <Card 
-                    key={i} 
-                    className="cursor-pointer hover-elevate bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
-                    onClick={() => setInput(item.text)}
-                  >
-                    <CardContent className="p-3 flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0">
-                        <item.icon className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">{item.category}</p>
-                        <p className="text-xs font-medium truncate">{item.text}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50">
-                <CardContent className="p-4 text-center">
-                  <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-3">
-                    <GraduationCap className="w-7 h-7 text-white" />
+      {/* Study suggestions sidebar-style */}
+      {messages.length === 0 && (
+        <div className="max-w-4xl mx-auto px-4 py-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {STUDY_SUGGESTIONS.map((item, i) => (
+              <Card 
+                key={i} 
+                className="cursor-pointer hover-elevate bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+                onClick={() => setInput(item.text)}
+              >
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
+                    <item.icon className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-lg font-semibold mb-1">Bem-vindo à Sala de Aula</h2>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    Sou seu professor de teologia. Faça perguntas sobre passagens bíblicas, 
-                    contexto histórico ou dúvidas teológicas.
-                  </p>
+                  <div>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{item.category}</p>
+                    <p className="text-sm font-medium">{item.text}</p>
+                  </div>
                 </CardContent>
               </Card>
-            </>
-          )}
+            ))}
+          </div>
+          
+          <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50">
+            <CardContent className="p-6 text-center">
+              <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
+                <GraduationCap className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">Bem-vindo à Sala de Aula</h2>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Sou seu professor de teologia. Faça perguntas sobre passagens bíblicas, 
+                contexto histórico, interpretação ou qualquer dúvida teológica.
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-4">
+                📚 Todas as respostas incluem referências de comentaristas renomados
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-          {/* Chat messages */}
+      {/* Chat messages */}
+      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+        <div className="max-w-4xl mx-auto space-y-4 pb-4">
           {messages.map((message, index) => (
             <motion.div
               key={index}
@@ -317,8 +319,8 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
         </div>
       </ScrollArea>
 
-      {/* Input area - fixed at bottom */}
-      <div className="border-t bg-background p-4 flex-shrink-0">
+      {/* Input area */}
+      <div className="border-t bg-background p-4">
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (

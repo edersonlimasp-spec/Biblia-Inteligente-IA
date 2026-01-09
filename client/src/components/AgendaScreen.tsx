@@ -530,100 +530,75 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
     );
   };
 
-  // Elegant Share Card - Poster Style
+  // Compact Elegant Share Card
   const InviteCard = ({ event }: { event: AgendaEvent }) => {
     const eventType = getEventType(event.type);
     const IconComponent = eventType.icon;
     const eventDate = new Date(event.date + "T00:00:00");
     const dayNum = eventDate.getDate();
-    const monthFull = eventDate.toLocaleDateString(getLocale(language), { month: 'long' }).toUpperCase();
-    const yearNum = eventDate.getFullYear();
-    const weekdayFull = eventDate.toLocaleDateString(getLocale(language), { weekday: 'long' });
+    const monthShort = eventDate.toLocaleDateString(getLocale(language), { month: 'short' }).toUpperCase();
+    const weekdayShort = eventDate.toLocaleDateString(getLocale(language), { weekday: 'short' });
 
     return (
       <div 
         ref={cardRef}
-        className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-2xl max-w-sm mx-auto overflow-hidden"
+        className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl shadow-xl w-72 mx-auto overflow-hidden"
         data-testid="share-event-card"
       >
-        {/* Top Decorative Bar */}
-        <div className="h-2 bg-gradient-to-r from-primary via-primary/80 to-primary" />
+        {/* Top Bar */}
+        <div className="h-1 bg-gradient-to-r from-primary to-primary/70" />
         
         {/* Header */}
-        <div className="px-6 pt-5 pb-4 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-4">
-            <IconComponent className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold text-white/90 uppercase tracking-wider">
+        <div className="px-4 pt-3 pb-2 text-center">
+          <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 mb-2">
+            <IconComponent className="w-3 h-3 text-primary" />
+            <span className="text-[10px] font-semibold text-white/90 uppercase tracking-wide">
               {eventType.name}
             </span>
           </div>
-          <h2 className="text-2xl font-bold text-white leading-tight">{event.title}</h2>
+          <h2 className="text-lg font-bold text-white leading-tight line-clamp-2">{event.title}</h2>
         </div>
         
-        {/* Large Date Display */}
-        <div className="mx-6 bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-center shadow-lg">
-          <p className="text-primary-foreground/80 text-sm font-medium uppercase tracking-widest mb-1">
-            {monthFull} {yearNum}
-          </p>
-          <p className="text-7xl font-black text-white leading-none drop-shadow-lg">
-            {dayNum}
-          </p>
-          <p className="text-white/90 text-lg font-medium capitalize mt-2">
-            {weekdayFull}
-          </p>
-        </div>
-        
-        {/* Time Block */}
-        <div className="mx-6 mt-4 bg-white/5 backdrop-blur rounded-xl p-4">
-          <div className="flex items-center justify-center gap-3">
-            <Clock className="w-6 h-6 text-primary" />
-            <span className="text-3xl font-bold text-white">
-              {event.time}
-            </span>
+        {/* Date & Time Row */}
+        <div className="mx-3 bg-gradient-to-br from-primary to-primary/80 rounded-xl p-3 flex items-center justify-between">
+          <div className="text-center flex-1">
+            <p className="text-[10px] text-white/70 uppercase tracking-wider">{monthShort}</p>
+            <p className="text-4xl font-black text-white leading-none">{dayNum}</p>
+            <p className="text-xs text-white/80 capitalize">{weekdayShort}</p>
+          </div>
+          <div className="w-px h-12 bg-white/20" />
+          <div className="text-center flex-1">
+            <Clock className="w-4 h-4 text-white/70 mx-auto mb-0.5" />
+            <p className="text-xl font-bold text-white">{event.time}</p>
             {event.endTime && (
-              <>
-                <span className="text-white/50 text-xl">—</span>
-                <span className="text-2xl font-semibold text-white/80">
-                  {event.endTime}
-                </span>
-              </>
+              <p className="text-xs text-white/70">{t("agenda.until")} {event.endTime}</p>
             )}
           </div>
         </div>
         
-        {/* Location */}
-        {event.location && (
-          <div className="mx-6 mt-3 flex items-center justify-center gap-2 text-white/70">
-            <MapPin className="w-4 h-4" />
-            <span className="text-sm">{event.location}</span>
-          </div>
-        )}
-        
-        {/* Theme */}
-        {event.theme && (
-          <div className="mx-6 mt-3 flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span className="text-sm text-amber-300 font-medium">{getThemeName(event.theme)}</span>
-          </div>
-        )}
-        
-        {/* Description */}
-        {event.description && (
-          <div className="mx-6 mt-4 p-4 bg-white/5 rounded-xl border-l-4 border-primary/50">
-            <p className="text-sm text-white/80 italic leading-relaxed">
-              "{event.description}"
-            </p>
-          </div>
-        )}
+        {/* Location & Theme */}
+        <div className="px-4 py-2 space-y-1">
+          {event.location && (
+            <div className="flex items-center justify-center gap-1.5 text-white/70">
+              <MapPin className="w-3 h-3" />
+              <span className="text-xs truncate">{event.location}</span>
+            </div>
+          )}
+          {event.theme && (
+            <div className="flex items-center justify-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span className="text-xs text-amber-300">{getThemeName(event.theme)}</span>
+            </div>
+          )}
+        </div>
         
         {/* Footer */}
-        <div className="mt-6 bg-white/5 backdrop-blur px-6 py-4 text-center border-t border-white/10">
-          <p className="text-[11px] text-white/50 mb-1">{t("agenda.sentBy")}</p>
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-5 h-5 bg-primary rounded flex items-center justify-center">
-              <BookOpen className="w-3 h-3 text-white" />
+        <div className="bg-white/5 px-4 py-2 text-center border-t border-white/10">
+          <div className="flex items-center justify-center gap-1.5">
+            <div className="w-4 h-4 bg-primary rounded flex items-center justify-center">
+              <BookOpen className="w-2.5 h-2.5 text-white" />
             </div>
-            <span className="text-sm font-semibold text-white/80">{t("app.name")}</span>
+            <span className="text-xs font-medium text-white/70">{t("app.name")}</span>
           </div>
         </div>
       </div>

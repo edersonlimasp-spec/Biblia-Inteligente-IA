@@ -25,8 +25,20 @@ import {
   Image as ImageIcon,
   X,
   Download,
-  Sparkles
+  Sparkles,
+  Plus,
+  History,
+  MessageSquare,
+  Trash2
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ExegeseChatProps {
@@ -41,6 +53,13 @@ interface Message {
   attachment?: { type: 'image'; url: string; mimeType: string; base64?: string };
   imageUrl?: string;
   references?: string[];
+}
+
+interface SavedConversation {
+  id: string;
+  title: string;
+  messages: Message[];
+  savedAt: Date;
 }
 
 const EXEGESIS_TOPICS = [
@@ -97,6 +116,7 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
     url: string; base64: string; mimeType: string;
   } | null>(null);
   const [activeTab, setActiveTab] = useState("chat");
+  const [savedConversations, setSavedConversations] = useState<SavedConversation[]>([]);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,11 +135,68 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
         setMessages(JSON.parse(saved).map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })));
       } catch {}
     }
+    const savedHistory = localStorage.getItem('exegese_chat_history');
+    if (savedHistory) {
+      try {
+        setSavedConversations(JSON.parse(savedHistory).map((c: any) => ({
+          ...c,
+          savedAt: new Date(c.savedAt),
+          messages: c.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }))
+        })));
+      } catch {}
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem('exegese_chat_v3', JSON.stringify(messages));
   }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('exegese_chat_history', JSON.stringify(savedConversations));
+  }, [savedConversations]);
+
+  const handleNewConversation = useCallback(() => {
+    if (messages.length > 0) {
+      const firstUserMsg = messages.find(m => m.role === 'user');
+      const title = firstUserMsg ? firstUserMsg.content.slice(0, 50) + (firstUserMsg.content.length > 50 ? '...' : '') : 'Conversa sem título';
+      const newConversation: SavedConversation = {
+        id: Date.now().toString(),
+        title,
+        messages: [...messages],
+        savedAt: new Date()
+      };
+      setSavedConversations(prev => [newConversation, ...prev].slice(0, 10));
+      toast({ title: "Conversa salva", description: "A conversa foi salva no histórico" });
+    }
+    setMessages([]);
+    setInput("");
+    setPendingImage(null);
+  }, [messages, toast]);
+
+  const handleLoadConversation = useCallback((conversation: SavedConversation) => {
+    if (messages.length > 0) {
+      const firstUserMsg = messages.find(m => m.role === 'user');
+      const title = firstUserMsg ? firstUserMsg.content.slice(0, 50) + (firstUserMsg.content.length > 50 ? '...' : '') : 'Conversa sem título';
+      const newConversation: SavedConversation = {
+        id: Date.now().toString(),
+        title,
+        messages: [...messages],
+        savedAt: new Date()
+      };
+      setSavedConversations(prev => {
+        const filtered = prev.filter(c => c.id !== conversation.id);
+        return [newConversation, ...filtered].slice(0, 10);
+      });
+    }
+    setMessages(conversation.messages);
+    setSavedConversations(prev => prev.filter(c => c.id !== conversation.id));
+  }, [messages]);
+
+  const handleDeleteConversation = useCallback((id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSavedConversations(prev => prev.filter(c => c.id !== id));
+    toast({ title: "Conversa excluída" });
+  }, [toast]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -301,9 +378,69 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
             </h1>
             <p className="text-sm text-emerald-100">Análise textual do original hebraico/grego</p>
           </div>
-          <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
-            <Crown className="w-3 h-3 mr-1" /> Premium
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleNewConversation}
+              className="text-white hover:bg-white/20"
+              title="Nova conversa"
+              data-testid="button-new-conversation"
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative" data-testid="button-history">
+                  <History className="w-5 h-5" />
+                  {savedConversations.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full text-[10px] flex items-center justify-center">
+                      {savedConversations.length}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72">
+                <DropdownMenuLabel className="flex items-center gap-2">
+                  <History className="w-4 h-4" />
+                  Histórico de Conversas
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {savedConversations.length === 0 ? (
+                  <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                    Nenhuma conversa salva
+                  </div>
+                ) : (
+                  savedConversations.map((conv) => (
+                    <DropdownMenuItem 
+                      key={conv.id} 
+                      onClick={() => handleLoadConversation(conv)}
+                      className="flex items-start gap-2 cursor-pointer"
+                    >
+                      <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-500" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{conv.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {conv.messages.length} msgs • {new Date(conv.savedAt).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 flex-shrink-0"
+                        onClick={(e) => handleDeleteConversation(conv.id, e)}
+                      >
+                        <Trash2 className="w-3 h-3 text-destructive" />
+                      </Button>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+              <Crown className="w-3 h-3 mr-1" /> Premium
+            </Badge>
+          </div>
         </div>
       </header>
 

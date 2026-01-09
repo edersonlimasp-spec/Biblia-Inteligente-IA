@@ -770,7 +770,7 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
 
       {/* Add/Edit Dialog */}
       <Dialog open={showAddDialog || !!editingEvent} onOpenChange={(open) => !open && closeDialog()}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-md mx-auto px-4">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-md px-4 fixed left-1/2 -translate-x-1/2">
           <DialogHeader>
             <DialogTitle>{editingEvent ? t("agenda.editEventTitle") : t("agenda.newEvent")}</DialogTitle>
           </DialogHeader>

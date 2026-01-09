@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, 
@@ -371,9 +370,9 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-950/20 to-background flex flex-col">
-      {/* Premium Header with gradient */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 text-white shadow-lg">
+    <div className="h-screen bg-gradient-to-b from-amber-950/20 to-background flex flex-col overflow-hidden">
+      {/* Premium Header with gradient (fixed) */}
+      <header className="flex-shrink-0 z-50 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
@@ -454,8 +453,8 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
         </div>
       </header>
 
-      {/* Tradition filter bar */}
-      <div className="border-b bg-amber-50/50 dark:bg-amber-950/20 py-2 overflow-x-auto">
+      {/* Tradition filter bar (fixed) */}
+      <div className="flex-shrink-0 border-b bg-amber-50/50 dark:bg-amber-950/20 py-2 overflow-x-auto">
         <div className="max-w-6xl mx-auto px-4 flex gap-2">
           {["Todas", "Católica", "Ortodoxa", "Luterana", "Reformada", "Batista", "Pentecostal"].map((tradition) => (
             <Badge 
@@ -469,67 +468,69 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
         </div>
       </div>
 
-      {/* Main content */}
-      {messages.length === 0 && (
-        <div className="max-w-4xl mx-auto px-4 py-6 w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {COMPARISON_TOPICS.map((item, i) => (
-              <Card 
-                key={i} 
-                className="cursor-pointer hover-elevate bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border-amber-200 dark:border-amber-800"
-                onClick={() => setInput(item.text)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
-                      <item.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium mb-2">{item.text}</p>
-                      <div className="flex flex-wrap gap-1">
-                        {item.traditions.map((t, j) => (
-                          <Badge key={j} variant="secondary" className="text-[10px] bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
-                            {t}
-                          </Badge>
-                        ))}
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+        {/* Main content */}
+        {messages.length === 0 && (
+          <div className="max-w-4xl mx-auto px-4 py-6 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {COMPARISON_TOPICS.map((item, i) => (
+                <Card 
+                  key={i} 
+                  className="cursor-pointer hover-elevate bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border-amber-200 dark:border-amber-800"
+                  onClick={() => setInput(item.text)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
+                        <item.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium mb-2">{item.text}</p>
+                        <div className="flex flex-wrap gap-1">
+                          {item.traditions.map((t, j) => (
+                            <Badge key={j} variant="secondary" className="text-[10px] bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+                              {t}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <Card className="bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border-amber-200/50 shadow-lg">
+              <CardContent className="p-8 text-center">
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-amber-500/30 ring-4 ring-amber-200/50 dark:ring-amber-800/50">
+                  <Scale className="w-12 h-12 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold mb-2">Conversas Bíblicas</h2>
+                <p className="text-muted-foreground max-w-lg mx-auto mb-4">
+                  Compare posições teológicas de diferentes tradições cristãs com imparcialidade acadêmica.
+                  Cada resposta apresenta perspectivas múltiplas com referências a documentos oficiais,
+                  catecismos, confissões de fé e teólogos representativos.
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
+                    <ChurchIcon className="w-3 h-3 mr-1" /> 6+ Tradições
+                  </Badge>
+                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
+                    <GitCompare className="w-3 h-3 mr-1" /> Análise Comparativa
+                  </Badge>
+                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
+                    <Users className="w-3 h-3 mr-1" /> Imparcialidade
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          
-          <Card className="bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border-amber-200/50 shadow-lg">
-            <CardContent className="p-8 text-center">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-amber-500/30 ring-4 ring-amber-200/50 dark:ring-amber-800/50">
-                <Scale className="w-12 h-12 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Conversas Bíblicas</h2>
-              <p className="text-muted-foreground max-w-lg mx-auto mb-4">
-                Compare posições teológicas de diferentes tradições cristãs com imparcialidade acadêmica.
-                Cada resposta apresenta perspectivas múltiplas com referências a documentos oficiais,
-                catecismos, confissões de fé e teólogos representativos.
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
-                  <ChurchIcon className="w-3 h-3 mr-1" /> 6+ Tradições
-                </Badge>
-                <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
-                  <GitCompare className="w-3 h-3 mr-1" /> Análise Comparativa
-                </Badge>
-                <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
-                  <Users className="w-3 h-3 mr-1" /> Imparcialidade
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+        )}
 
-      {/* Chat messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="max-w-4xl mx-auto space-y-4 pb-4">
+        {/* Chat messages */}
+        <div className="p-4">
+          <div className="max-w-4xl mx-auto space-y-4 pb-4">
           {messages.map((message, index) => (
             <motion.div
               key={index}
@@ -585,10 +586,11 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+        </div>
+      </div>
 
-      {/* Premium Input area */}
-      <div className="border-t bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20 p-4">
+      {/* Premium Input area (fixed at bottom) */}
+      <div className="flex-shrink-0 border-t bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20 p-4">
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (

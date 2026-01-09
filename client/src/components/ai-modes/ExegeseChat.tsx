@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -361,9 +360,9 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-950/20 to-background flex flex-col">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-lg">
+    <div className="h-screen bg-gradient-to-b from-emerald-950/20 to-background flex flex-col overflow-hidden">
+      {/* Premium Header (fixed) */}
+      <header className="flex-shrink-0 z-50 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
@@ -444,8 +443,8 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
         </div>
       </header>
 
-      {/* Premium Tabs */}
-      <div className="border-b bg-emerald-50/50 dark:bg-emerald-950/20">
+      {/* Premium Tabs (fixed) */}
+      <div className="flex-shrink-0 border-b bg-emerald-50/50 dark:bg-emerald-950/20">
         <div className="max-w-6xl mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="bg-transparent gap-4 h-12">
@@ -461,61 +460,63 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex">
-        <div className="flex-1 flex flex-col">
-          {/* Topic suggestions */}
-          {messages.length === 0 && (
-            <div className="max-w-4xl mx-auto px-4 py-6 w-full">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                {EXEGESIS_TOPICS.map((item, i) => (
-                  <Card 
-                    key={i} 
-                    className="cursor-pointer hover-elevate bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800"
-                    onClick={() => setInput(item.text)}
-                  >
-                    <CardContent className="p-3 flex flex-col items-center text-center gap-2">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                        <item.icon className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-wide">{item.category}</p>
-                        <p className="text-xs font-medium">{item.text}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+      <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+            {/* Topic suggestions */}
+            {messages.length === 0 && (
+              <div className="max-w-4xl mx-auto px-4 py-6 w-full">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                  {EXEGESIS_TOPICS.map((item, i) => (
+                    <Card 
+                      key={i} 
+                      className="cursor-pointer hover-elevate bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800"
+                      onClick={() => setInput(item.text)}
+                    >
+                      <CardContent className="p-3 flex flex-col items-center text-center gap-2">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                          <item.icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-wide">{item.category}</p>
+                          <p className="text-xs font-medium">{item.text}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                <Card className="bg-gradient-to-br from-emerald-50 to-teal-50/50 dark:from-emerald-950/30 dark:to-teal-950/20 border-emerald-200/50 shadow-lg">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-emerald-500/30 ring-4 ring-emerald-200/50 dark:ring-emerald-800/50">
+                      <Microscope className="w-12 h-12 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold mb-2">Laboratório Exegético</h2>
+                    <p className="text-muted-foreground max-w-lg mx-auto mb-4">
+                      Análise profunda de textos bíblicos nos idiomas originais. 
+                      Cada resposta inclui parsing gramatical, referências de léxicos 
+                      acadêmicos (BDAG, BDB, HALOT) e citações de comentários exegéticos.
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                        <Languages className="w-3 h-3 mr-1" /> Hebraico & Grego
+                      </Badge>
+                      <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                        <BookOpenCheck className="w-3 h-3 mr-1" /> Léxicos Acadêmicos
+                      </Badge>
+                      <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                        <FileSearch className="w-3 h-3 mr-1" /> Parsing Gramatical
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              
-              <Card className="bg-gradient-to-br from-emerald-50 to-teal-50/50 dark:from-emerald-950/30 dark:to-teal-950/20 border-emerald-200/50 shadow-lg">
-                <CardContent className="p-8 text-center">
-                  <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-emerald-500/30 ring-4 ring-emerald-200/50 dark:ring-emerald-800/50">
-                    <Microscope className="w-12 h-12 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold mb-2">Laboratório Exegético</h2>
-                  <p className="text-muted-foreground max-w-lg mx-auto mb-4">
-                    Análise profunda de textos bíblicos nos idiomas originais. 
-                    Cada resposta inclui parsing gramatical, referências de léxicos 
-                    acadêmicos (BDAG, BDB, HALOT) e citações de comentários exegéticos.
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
-                      <Languages className="w-3 h-3 mr-1" /> Hebraico & Grego
-                    </Badge>
-                    <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
-                      <BookOpenCheck className="w-3 h-3 mr-1" /> Léxicos Acadêmicos
-                    </Badge>
-                    <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
-                      <FileSearch className="w-3 h-3 mr-1" /> Parsing Gramatical
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+            )}
 
-          {/* Chat messages */}
-          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-            <div className="max-w-4xl mx-auto space-y-4 pb-4">
+            {/* Chat messages */}
+            <div className="p-4">
+              <div className="max-w-4xl mx-auto space-y-4 pb-4">
               {messages.map((message, index) => (
                 <motion.div
                   key={index}
@@ -571,10 +572,11 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
                 </motion.div>
               )}
             </div>
-          </ScrollArea>
+            </div>
+          </div>
 
-          {/* Premium Input area */}
-          <div className="border-t bg-gradient-to-r from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/20 p-4">
+          {/* Premium Input area (fixed at bottom) */}
+          <div className="flex-shrink-0 border-t bg-gradient-to-r from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/20 p-4">
             <div className="max-w-4xl mx-auto">
               <AnimatePresence>
                 {pendingImage && (

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, 
@@ -279,9 +278,9 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
   const isPending = askMutation.isPending || analyzeImageMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-950/20 to-background flex flex-col">
-      {/* Header - Classroom style */}
-      <header className="sticky top-0 z-50 bg-blue-600/95 backdrop-blur text-white">
+    <div className="h-screen bg-gradient-to-b from-blue-950/20 to-background flex flex-col overflow-hidden">
+      {/* Header - Classroom style (fixed) */}
+      <header className="flex-shrink-0 z-50 bg-blue-600/95 backdrop-blur text-white">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
@@ -357,50 +356,52 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
         </div>
       </header>
 
-      {/* Study suggestions sidebar-style */}
-      {messages.length === 0 && (
-        <div className="max-w-4xl mx-auto px-4 py-6 w-full">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {STUDY_SUGGESTIONS.map((item, i) => (
-              <Card 
-                key={i} 
-                className="cursor-pointer hover-elevate bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
-                onClick={() => setInput(item.text)}
-              >
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
-                    <item.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{item.category}</p>
-                    <p className="text-sm font-medium">{item.text}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+        {/* Study suggestions sidebar-style */}
+        {messages.length === 0 && (
+          <div className="max-w-4xl mx-auto px-4 py-6 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {STUDY_SUGGESTIONS.map((item, i) => (
+                <Card 
+                  key={i} 
+                  className="cursor-pointer hover-elevate bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+                  onClick={() => setInput(item.text)}
+                >
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
+                      <item.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{item.category}</p>
+                      <p className="text-sm font-medium">{item.text}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50">
+              <CardContent className="p-6 text-center">
+                <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
+                  <GraduationCap className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold mb-2">Bem-vindo à Sala de Aula</h2>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Sou seu professor de teologia. Faça perguntas sobre passagens bíblicas, 
+                  contexto histórico, interpretação ou qualquer dúvida teológica.
+                </p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-4">
+                  Todas as respostas incluem referências de comentaristas renomados
+                </p>
+              </CardContent>
+            </Card>
           </div>
-          
-          <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50">
-            <CardContent className="p-6 text-center">
-              <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
-                <GraduationCap className="w-10 h-10 text-white" />
-              </div>
-              <h2 className="text-xl font-semibold mb-2">Bem-vindo à Sala de Aula</h2>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Sou seu professor de teologia. Faça perguntas sobre passagens bíblicas, 
-                contexto histórico, interpretação ou qualquer dúvida teológica.
-              </p>
-              <p className="text-xs text-blue-600 dark:text-blue-400 mt-4">
-                Todas as respostas incluem referências de comentaristas renomados
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+        )}
 
-      {/* Chat messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="max-w-4xl mx-auto space-y-4 pb-4">
+        {/* Chat messages */}
+        <div className="p-4">
+          <div className="max-w-4xl mx-auto space-y-4 pb-4">
           {messages.map((message, index) => (
             <motion.div
               key={index}
@@ -454,10 +455,11 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+        </div>
+      </div>
 
-      {/* Input area */}
-      <div className="border-t bg-background p-4">
+      {/* Input area (fixed at bottom) */}
+      <div className="flex-shrink-0 border-t bg-background p-4">
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (

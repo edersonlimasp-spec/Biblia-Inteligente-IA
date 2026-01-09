@@ -436,7 +436,7 @@ export function PregadorChat({ onBack }: PregadorChatProps) {
                     </a>
                   </div>
                 )}
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <p className="text-base whitespace-pre-wrap leading-relaxed">{message.content}</p>
                 <span className="text-[10px] opacity-60 mt-1 block">
                   {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                 </span>

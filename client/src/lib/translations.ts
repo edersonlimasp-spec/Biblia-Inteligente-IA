@@ -244,6 +244,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "agenda.myAgendaSubject": "Minha Agenda - Próximos Eventos",
     "agenda.until": "até",
     "agenda.location": "Local:",
+    "agenda.withEvents": "Com eventos",
+    "agenda.showAll": "Ver todos",
+    "agenda.eventsOnDate": "Eventos nesta data",
     
     // Courses/Lessons
     "courses.title": "Cursos Premium",
@@ -903,6 +906,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "agenda.myAgendaSubject": "My Agenda - Upcoming Events",
     "agenda.until": "until",
     "agenda.location": "Location:",
+    "agenda.withEvents": "With events",
+    "agenda.showAll": "Show all",
+    "agenda.eventsOnDate": "Events on this date",
     
     // Courses/Lessons
     "courses.title": "Premium Courses",
@@ -1562,6 +1568,9 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "agenda.myAgendaSubject": "Mi Agenda - Próximos Eventos",
     "agenda.until": "hasta",
     "agenda.location": "Ubicación:",
+    "agenda.withEvents": "Con eventos",
+    "agenda.showAll": "Ver todos",
+    "agenda.eventsOnDate": "Eventos en esta fecha",
     
     // Courses/Lessons
     "courses.title": "Cursos Premium",

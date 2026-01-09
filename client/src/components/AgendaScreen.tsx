@@ -661,60 +661,58 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
       <ScrollArea className="h-[calc(100vh-65px)]">
         <main className="max-w-2xl mx-auto p-4 space-y-6">
           
-          {/* Elegant Calendar */}
-          <Card className="overflow-hidden">
-            <div className="bg-gradient-to-r from-primary to-primary/80 px-4 py-3">
-              <div className="flex items-center justify-between">
-                <Button variant="ghost" size="icon" onClick={prevMonth} className="text-white hover:bg-white/20">
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-                <h2 className="text-lg font-bold text-white capitalize">{monthYearLabel}</h2>
-                <Button variant="ghost" size="icon" onClick={nextMonth} className="text-white hover:bg-white/20">
-                  <ChevronRight className="w-5 h-5" />
-                </Button>
-              </div>
+          {/* Elegant Compact Calendar */}
+          <Card className="overflow-hidden border-0 shadow-sm">
+            <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+              <Button variant="ghost" size="sm" onClick={prevMonth} className="h-7 w-7 p-0">
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <h2 className="text-sm font-semibold capitalize tracking-wide">{monthYearLabel}</h2>
+              <Button variant="ghost" size="sm" onClick={nextMonth} className="h-7 w-7 p-0">
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
             
-            <CardContent className="p-4">
+            <CardContent className="p-2">
               {/* Week days header */}
-              <div className="grid grid-cols-7 gap-1 mb-2">
+              <div className="grid grid-cols-7 mb-1">
                 {weekDays.map((day, i) => (
-                  <div key={i} className="text-center text-xs font-medium text-muted-foreground py-2">
+                  <div key={i} className="text-center text-[10px] font-medium text-muted-foreground py-1 uppercase">
                     {day}
                   </div>
                 ))}
               </div>
               
-              {/* Calendar grid */}
-              <div className="grid grid-cols-7 gap-1">
+              {/* Calendar grid - compact */}
+              <div className="grid grid-cols-7 gap-px">
                 {calendarDays.map((day, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedDate(day.date === selectedDate ? null : day.date)}
-                    className={`relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium transition-all
-                      ${day.isCurrentMonth ? "text-foreground" : "text-muted-foreground/40"}
-                      ${day.isToday ? "bg-primary text-primary-foreground font-bold" : ""}
-                      ${day.date === selectedDate && !day.isToday ? "bg-primary/20 ring-2 ring-primary" : ""}
-                      ${day.isCurrentMonth && !day.isToday && day.date !== selectedDate ? "hover:bg-muted" : ""}
+                    className={`relative h-8 flex flex-col items-center justify-center text-xs transition-colors
+                      ${day.isCurrentMonth ? "text-foreground" : "text-muted-foreground/30"}
+                      ${day.isToday ? "bg-primary text-primary-foreground font-bold rounded-full" : ""}
+                      ${day.date === selectedDate && !day.isToday ? "bg-primary/15 text-primary font-semibold rounded-full" : ""}
+                      ${day.isCurrentMonth && !day.isToday && day.date !== selectedDate ? "hover:bg-muted/60 rounded" : ""}
                     `}
                     data-testid={`calendar-day-${day.date}`}
                   >
                     <span>{day.day}</span>
                     {day.hasEvent && (
-                      <span className={`absolute bottom-1 w-1.5 h-1.5 rounded-full ${day.isToday ? "bg-white" : "bg-primary"}`} />
+                      <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${day.isToday ? "bg-white" : "bg-primary"}`} />
                     )}
                   </button>
                 ))}
               </div>
               
-              {/* Legend */}
-              <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t text-xs text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-primary" />
+              {/* Minimal Legend */}
+              <div className="flex items-center justify-center gap-3 mt-2 pt-2 border-t border-dashed text-[10px] text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                   <span>{t("agenda.withEvents")}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-bold">
+                <div className="flex items-center gap-1">
+                  <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[8px] font-bold">
                     {new Date().getDate()}
                   </span>
                   <span>{t("agenda.today")}</span>
@@ -770,7 +768,7 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
 
       {/* Add/Edit Dialog */}
       <Dialog open={showAddDialog || !!editingEvent} onOpenChange={(open) => !open && closeDialog()}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-md px-4 fixed left-1/2 -translate-x-1/2">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-md px-4">
           <DialogHeader>
             <DialogTitle>{editingEvent ? t("agenda.editEventTitle") : t("agenda.newEvent")}</DialogTitle>
           </DialogHeader>

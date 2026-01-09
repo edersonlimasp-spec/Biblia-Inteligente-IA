@@ -279,36 +279,35 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
 
   return (
     <div className="h-screen bg-gradient-to-b from-blue-950/20 to-background flex flex-col overflow-hidden">
-      {/* Header - Classroom style (fixed) */}
+      {/* Header - Compact Classroom style (fixed) */}
       <header className="flex-shrink-0 z-50 bg-blue-600/95 backdrop-blur text-white">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
-            <ArrowLeft className="w-5 h-5" />
+        <div className="max-w-4xl mx-auto px-3 py-2 flex items-center gap-2">
+          <Button variant="ghost" onClick={onBack} className="text-white hover:bg-white/20 h-8 w-8 p-0" data-testid="button-back">
+            <ArrowLeft className="w-4 h-4" />
           </Button>
-          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-            <GraduationCap className="w-6 h-6" />
+          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+            <GraduationCap className="w-4 h-4" />
           </div>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">Modo Professor</h1>
-            <p className="text-sm text-blue-100">Explicações didáticas e claras</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-base font-bold truncate">Modo Professor</h1>
+            <p className="text-xs text-blue-100 truncate">Explicações didáticas</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Button 
               variant="ghost" 
-              size="icon" 
               onClick={handleNewConversation}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-white/20 h-8 w-8 p-0"
               title="Nova conversa"
               data-testid="button-new-conversation"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-4 h-4" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative" data-testid="button-history">
-                  <History className="w-5 h-5" />
+                <Button variant="ghost" className="text-white hover:bg-white/20 relative h-8 w-8 p-0" data-testid="button-history">
+                  <History className="w-4 h-4" />
                   {savedConversations.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full text-[10px] flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full text-[8px] flex items-center justify-center">
                       {savedConversations.length}
                     </span>
                   )}
@@ -351,7 +350,7 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Badge className="bg-amber-500 text-white border-0">Gold+</Badge>
+            <Badge className="bg-amber-500 text-white border-0 text-xs px-2 py-0.5">Gold+</Badge>
           </div>
         </div>
       </header>
@@ -458,26 +457,26 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
         </div>
       </div>
 
-      {/* Input area (fixed at bottom) */}
-      <div className="flex-shrink-0 border-t bg-background p-4">
+      {/* Compact Input area (fixed at bottom) */}
+      <div className="flex-shrink-0 border-t bg-background p-2">
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-3">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-2">
                 <div className="relative inline-block">
-                  <img src={pendingImage.url} alt="Preview" className="h-20 rounded-lg border" />
-                  <button onClick={() => setPendingImage(null)} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center">
-                    <X className="w-3 h-3" />
+                  <img src={pendingImage.url} alt="Preview" className="h-12 rounded-lg border" />
+                  <button onClick={() => setPendingImage(null)} className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center">
+                    <X className="w-2.5 h-2.5" />
                   </button>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="flex gap-2 items-end">
+          <div className="flex gap-1.5 items-end">
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
-            <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isPending} className="h-[44px] w-[44px]" data-testid="button-attach">
-              <ImageIcon className="w-5 h-5" />
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isPending} className="h-8 w-8 p-0 flex-shrink-0" data-testid="button-attach">
+              <ImageIcon className="w-4 h-4" />
             </Button>
             <Textarea
               placeholder="Pergunte ao Professor..."
@@ -485,11 +484,11 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
               rows={1}
-              className="resize-none min-h-[44px] max-h-[200px] flex-1"
+              className="resize-none min-h-[32px] max-h-24 flex-1 text-sm py-1.5 px-2"
               data-testid="input-message"
             />
-            <Button onClick={handleSubmit} disabled={(!input.trim() && !pendingImage) || isPending} size="icon" className="h-[44px] w-[44px] bg-blue-600 hover:bg-blue-700" data-testid="button-send">
-              {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            <Button onClick={handleSubmit} disabled={(!input.trim() && !pendingImage) || isPending} className="h-8 w-8 p-0 flex-shrink-0 bg-blue-600 hover:bg-blue-700" data-testid="button-send">
+              {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
           </div>
         </div>

@@ -368,7 +368,7 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
               <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-amber-500/30 ring-4 ring-amber-200/50 dark:ring-amber-800/50">
                 <Scale className="w-12 h-12 text-white" />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Mesa de Diálogo Ecumênico</h2>
+              <h2 className="text-2xl font-bold mb-2">Conversas Bíblicas</h2>
               <p className="text-muted-foreground max-w-lg mx-auto mb-4">
                 Compare posições teológicas de diferentes tradições cristãs com imparcialidade acadêmica.
                 Cada resposta apresenta perspectivas múltiplas com referências a documentos oficiais,

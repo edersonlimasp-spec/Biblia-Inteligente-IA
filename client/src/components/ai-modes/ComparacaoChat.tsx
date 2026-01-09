@@ -294,9 +294,9 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-950/20 to-background flex flex-col">
+    <div className="h-screen bg-gradient-to-b from-amber-950/20 to-background flex flex-col overflow-hidden">
       {/* Premium Header with gradient */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 text-white shadow-lg">
+      <header className="flex-shrink-0 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 text-white shadow-lg z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
@@ -368,7 +368,7 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
               <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-amber-500/30 ring-4 ring-amber-200/50 dark:ring-amber-800/50">
                 <Scale className="w-12 h-12 text-white" />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Mesa de Diálogo Ecumênico</h2>
+              <h2 className="text-2xl font-bold mb-2">Conversas Bíblicas</h2>
               <p className="text-muted-foreground max-w-lg mx-auto mb-4">
                 Compare posições teológicas de diferentes tradições cristãs com imparcialidade acadêmica.
                 Cada resposta apresenta perspectivas múltiplas com referências a documentos oficiais,

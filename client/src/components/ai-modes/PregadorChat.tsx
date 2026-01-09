@@ -205,9 +205,9 @@ export function PregadorChat({ onBack }: PregadorChatProps) {
   const isPending = askMutation.isPending || analyzeImageMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-950/20 to-background flex flex-col">
+    <div className="h-screen bg-gradient-to-b from-purple-950/20 to-background flex flex-col overflow-hidden">
       {/* Header - Church/Sermon style */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-purple-600 to-purple-800 backdrop-blur text-white">
+      <header className="flex-shrink-0 bg-gradient-to-r from-purple-600 to-purple-800 backdrop-blur text-white z-50">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
@@ -223,53 +223,54 @@ export function PregadorChat({ onBack }: PregadorChatProps) {
         </div>
       </header>
 
-      {/* Sermon inspirations */}
-      {messages.length === 0 && (
-        <div className="max-w-4xl mx-auto px-4 py-6 w-full">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {SERMON_INSPIRATIONS.map((item, i) => (
-              <Card 
-                key={i} 
-                className="cursor-pointer hover-elevate bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800"
-                onClick={() => setInput(item.text)}
-              >
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
-                    <item.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">{item.category}</p>
-                    <p className="text-sm font-medium">{item.text}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 border-purple-200/50">
-            <CardContent className="p-6 text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30">
-                <Church className="w-10 h-10 text-white" />
-              </div>
-              <h2 className="text-xl font-semibold mb-2">Seu Assistente de Pregação</h2>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Crie sermões inspiradores, esboços de mensagens e ilustrações impactantes.
-                Cada resposta inclui referências bíblicas e citações de grandes pregadores.
-              </p>
-              <div className="flex items-center justify-center gap-2 mt-4">
-                <Mic className="w-4 h-4 text-purple-500" />
-                <p className="text-xs text-purple-600 dark:text-purple-400">
-                  Baseado em Spurgeon, Billy Graham, e outros mestres do púlpito
+      {/* Scrollable chat area */}
+      <ScrollArea className="flex-1 overflow-y-auto" ref={scrollRef}>
+        {/* Sermon inspirations */}
+        {messages.length === 0 && (
+          <div className="max-w-4xl mx-auto px-4 py-6 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {SERMON_INSPIRATIONS.map((item, i) => (
+                <Card 
+                  key={i} 
+                  className="cursor-pointer hover-elevate bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800"
+                  onClick={() => setInput(item.text)}
+                >
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
+                      <item.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">{item.category}</p>
+                      <p className="text-sm font-medium">{item.text}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <Card className="bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 border-purple-200/50">
+              <CardContent className="p-6 text-center">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30">
+                  <Church className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold mb-2">Seu Assistente de Pregação</h2>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Crie sermões inspiradores, esboços de mensagens e ilustrações impactantes.
+                  Cada resposta inclui referências bíblicas e citações de grandes pregadores.
                 </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <Mic className="w-4 h-4 text-purple-500" />
+                  <p className="text-xs text-purple-600 dark:text-purple-400">
+                    Baseado em Spurgeon, Billy Graham, e outros mestres do púlpito
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-      {/* Chat messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="max-w-4xl mx-auto space-y-4 pb-4">
+        {/* Chat messages */}
+        <div className="max-w-4xl mx-auto p-4 space-y-4 pb-4">
           {messages.map((message, index) => (
             <motion.div
               key={index}

@@ -202,7 +202,7 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
   const isPending = askMutation.isPending || analyzeImageMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-950/20 to-background flex flex-col">
+    <div className="h-screen bg-gradient-to-b from-blue-950/20 to-background flex flex-col overflow-hidden">
       {/* Header - Classroom style */}
       <header className="sticky top-0 z-50 bg-blue-600/95 backdrop-blur text-white">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
@@ -319,8 +319,8 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
         </div>
       </ScrollArea>
 
-      {/* Input area */}
-      <div className="border-t bg-background p-4">
+      {/* Input area - fixed at bottom */}
+      <div className="border-t bg-background p-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (

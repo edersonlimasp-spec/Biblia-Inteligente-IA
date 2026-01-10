@@ -4282,7 +4282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const targetUser = await storage.getUserByEmail(userEmail);
       if (!targetUser) {
-        return res.status(404).json({ error: "Usuário não encontrado" });
+        return res.status(404).json({ error: "Usuário não encontrado. O usuário precisa estar cadastrado no app antes de receber um bônus." });
       }
 
       const endAt = duration ? new Date(Date.now() + duration * 24 * 60 * 60 * 1000) : null;

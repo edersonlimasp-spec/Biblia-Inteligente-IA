@@ -60,6 +60,82 @@ export const ALMEIDA_STRONG_MAPPINGS: Record<string, Record<string, Record<strin
     'brilha': 'G5316',
     'trevas': 'G4655',
   },
+
+  // ============================================
+  // HEBREUS 11 - Capítulo da Fé (Novo Testamento)
+  // Texto base: ACF (Almeida Corrigida Fiel)
+  // ============================================
+  
+  // Hebreus 11:1 - "Ora, a fé é o firme fundamento das coisas que se esperam, e a prova das coisas que se não vêem."
+  // Grego: Ἔστιν δὲ πίστις ἐλπιζομένων ὑπόστασις, πραγμάτων ἔλεγχος οὐ βλεπομένων
+  'heb:11:1': {
+    'ora': 'G1161',           // δέ (de) = now, moreover
+    'fé': 'G4102',            // πίστις (pistis) = faith, belief
+    'é': 'G2076',             // ἔστιν (estin) = is
+    'firme': 'G5287',         // ὑπόστασις (hypostasis) parte 1
+    'fundamento': 'G5287',    // ὑπόστασις (hypostasis) = substance, assurance
+    'coisas': 'G4229',        // πραγμάτων (pragmaton) = things, matters
+    'esperam': 'G1679',       // ἐλπιζομένων (elpizomenon) = being hoped for
+    'prova': 'G1650',         // ἔλεγχος (elenchos) = evidence, proof
+    'não': 'G3756',           // οὐ (ou) = not
+    'vêem': 'G991',           // βλεπομένων (blepomenon) = being seen
+    'veem': 'G991',           // variant
+  },
+
+  // Hebreus 11:6 - "Ora, sem fé é impossível agradar-lhe; porque é necessário que aquele que se aproxima de Deus creia que ele existe, e que é galardoador dos que o buscam."
+  'heb:11:6': {
+    'sem': 'G5565',           // χωρίς (choris) = without
+    'fé': 'G4102',            // πίστις (pistis) = faith
+    'impossível': 'G102',     // ἀδύνατον (adunaton) = impossible
+    'agradar': 'G2100',       // εὐαρεστῆσαι (euarestesai) = to please
+    'necessário': 'G1163',    // δεῖ (dei) = it is necessary
+    'aproxima': 'G4334',      // προσερχόμενον (proserchomenon) = approaching
+    'deus': 'G2316',          // θεός (theos) = God
+    'creia': 'G4100',         // πιστεῦσαι (pisteusai) = to believe
+    'crer': 'G4100',          // variant
+    'existe': 'G2076',        // ἔστιν (estin) = exists
+    'galardoador': 'G3406',   // μισθαποδότης (misthapodotes) = rewarder
+    'buscam': 'G1567',        // ἐκζητοῦσιν (ekzetousin) = seek out
+  },
+
+  // ============================================
+  // GÊNESIS 1 - Criação (Antigo Testamento)
+  // Hebraico: בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ
+  // ============================================
+  
+  // Gênesis 1:1 - "No princípio criou Deus o céu e a terra."
+  'gen:1:1': {
+    'princípio': 'H7225',     // רֵאשִׁית (reshit) = beginning
+    'criou': 'H1254',         // בָּרָא (bara) = to create
+    'deus': 'H430',           // אֱלֹהִים (elohim) = God
+    'céu': 'H8064',           // שָׁמַיִם (shamayim) = heavens
+    'terra': 'H776',          // אֶרֶץ (erets) = earth
+  },
+
+  // ============================================
+  // SALMO 23 - O Bom Pastor (Antigo Testamento)
+  // ============================================
+  
+  // Salmo 23:1 - "O SENHOR é o meu pastor, nada me faltará."
+  'psa:23:1': {
+    'senhor': 'H3068',        // יְהוָה (YHWH) = LORD
+    'pastor': 'H7462',        // רֹעִי (ro'i) = shepherd
+    'nada': 'H3808',          // לֹא (lo) = not
+    'faltará': 'H2637',       // אֶחְסָר (echsar) = lack
+  },
+
+  // Salmo 23:4 - "Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum..."
+  'psa:23:4': {
+    'ande': 'H1980',          // אֵלֵךְ (elech) = I walk
+    'vale': 'H1516',          // גֵּיא (gey) = valley
+    'sombra': 'H6757',        // צַלְמָוֶת (tsalmaveth) = shadow of death
+    'morte': 'H6757',         // צַלְמָוֶת (part of tsalmaveth)
+    'temerei': 'H3372',       // אִירָא (ira) = fear
+    'mal': 'H7451',           // רָע (ra) = evil
+    'vara': 'H7626',          // שֵׁבֶט (shebet) = rod
+    'cajado': 'H4938',        // מִשְׁעֶנֶת (mish'eneth) = staff
+    'consolam': 'H5162',      // נָחַם (nacham) = comfort
+  },
 };
 
 /**

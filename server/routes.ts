@@ -583,12 +583,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
       const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
 
+      // Check for active bonuses that grant Gold or Premium access
+      const hasGoldBonus = await storage.hasActiveBonus(req.userId!, 'gold_free');
+      const hasPremiumBonus = await storage.hasActiveBonus(req.userId!, 'premium_free');
+      const hasTrialExtendBonus = await storage.hasActiveBonus(req.userId!, 'trial_extend');
+      
+      // Combine subscription and bonus access
+      const effectiveHasGold = hasGold || hasGoldBonus || hasTrialExtendBonus;
+      const effectiveHasPremium = hasPremium || hasPremiumBonus;
+
       // Debug log for subscription status
-      console.log(`[Subscription Status] userId=${req.userId}, hasGold=${hasGold}, hasPremium=${hasPremium}, hasLifetime=${hasLifetime}`);
+      console.log(`[Subscription Status] userId=${req.userId}, hasGold=${hasGold}, hasPremium=${hasPremium}, hasLifetime=${hasLifetime}, bonuses: gold=${hasGoldBonus}, premium=${hasPremiumBonus}, trial=${hasTrialExtendBonus}`);
 
       res.json({
-        hasPremium,
-        hasGold,
+        hasPremium: effectiveHasPremium,
+        hasGold: effectiveHasGold,
         hasLifetime,
         trialActive,
         userId: req.userId,

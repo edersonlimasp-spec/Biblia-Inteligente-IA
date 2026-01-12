@@ -35,6 +35,7 @@ import {
   FolderDown,
   CheckCircle,
   Info,
+  X,
 } from "lucide-react";
 import type { RecordingMetadata } from "@/hooks/use-recordings";
 
@@ -98,6 +99,8 @@ export function SermonDetailModal({
   const [isSharing, setIsSharing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [audioReady, setAudioReady] = useState(false);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
   const [editTitle, setEditTitle] = useState(recording.title);
   const [editCategory, setEditCategory] = useState("culto");
@@ -679,32 +682,112 @@ export function SermonDetailModal({
   const handleExportPDF = () => {
     try {
       const doc = generatePDF();
-      const pdfBlob = doc.output("blob");
-      const filename = `Relatorio_${editTitle.replace(/[^a-zA-Z0-9áàâãéèêíìîóòôõúùûç\s]/gi, "_").substring(0, 30)}.pdf`;
-      
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const link = document.createElement("a");
-      link.href = pdfUrl;
-      link.download = filename;
-      link.style.display = "none";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      setTimeout(() => {
-        URL.revokeObjectURL(pdfUrl);
-      }, 5000);
-
-      toast({
-        title: "PDF Exportado",
-        description: "O relatório foi salvo no seu dispositivo!",
-      });
+      const blob = doc.output("blob");
+      const url = URL.createObjectURL(blob);
+      setPdfBlob(blob);
+      setPdfPreviewUrl(url);
     } catch (error) {
       console.error("PDF export error:", error);
       toast({
         title: "Erro",
         description: "Não foi possível gerar o PDF",
         variant: "destructive",
+      });
+    }
+  };
+
+  const closePdfPreview = () => {
+    if (pdfPreviewUrl) {
+      URL.revokeObjectURL(pdfPreviewUrl);
+    }
+    setPdfPreviewUrl(null);
+    setPdfBlob(null);
+  };
+
+  const savePdfToDevice = async () => {
+    if (!pdfBlob) return;
+    
+    const filename = `${editTitle.replace(/[^a-zA-Z0-9áàâãéèêíìîóòôõúùûç\s]/gi, "_")}.pdf`;
+
+    if ("showSaveFilePicker" in window) {
+      try {
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: filename,
+          types: [
+            {
+              description: "Documento PDF",
+              accept: { "application/pdf": [".pdf"] },
+            },
+          ],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(pdfBlob);
+        await writable.close();
+
+        toast({
+          title: "Documento Salvo",
+          description: "O PDF foi salvo no local escolhido!",
+        });
+        closePdfPreview();
+        return;
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+      }
+    }
+
+    const url = URL.createObjectURL(pdfBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "PDF Baixado",
+      description: "O relatório foi salvo no seu dispositivo!",
+    });
+    closePdfPreview();
+  };
+
+  const sharePdfFromPreview = async () => {
+    if (!pdfBlob) return;
+    
+    const shareText = `${editTitle}\n\n${editSummary ? `Resumo:\n${editSummary}\n\n` : ""}---\nBíblia Inteligente IA`;
+
+    if (navigator.share) {
+      const shareData: ShareData = {
+        title: editTitle,
+        text: shareText,
+      };
+
+      try {
+        const file = new File(
+          [pdfBlob],
+          `${editTitle.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`,
+          { type: "application/pdf" }
+        );
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          shareData.files = [file];
+        }
+      } catch (e) {
+        console.log("PDF sharing not supported");
+      }
+
+      await navigator.share(shareData);
+      toast({
+        title: "Compartilhado",
+        description: "Conteúdo compartilhado com sucesso!",
+      });
+      closePdfPreview();
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast({
+        title: "Copiado",
+        description: "Conteúdo copiado para a área de transferência!",
       });
     }
   };
@@ -1328,6 +1411,48 @@ Sugestões:
           </Button>
         </div>
       </DialogContent>
+
+      {pdfPreviewUrl && (
+        <Dialog open={!!pdfPreviewUrl} onOpenChange={(open) => !open && closePdfPreview()}>
+          <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-0 gap-0">
+            <DialogHeader className="p-4 pb-2 shrink-0 border-b flex flex-row items-center justify-between">
+              <div>
+                <DialogTitle className="text-lg font-bold">Visualizar PDF</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
+                  Visualize o relatório antes de compartilhar ou salvar
+                </DialogDescription>
+              </div>
+              <Button variant="ghost" size="icon" onClick={closePdfPreview} data-testid="button-close-pdf-preview">
+                <X className="h-5 w-5" />
+              </Button>
+            </DialogHeader>
+
+            <div className="flex-1 overflow-hidden bg-muted/50">
+              <iframe
+                src={pdfPreviewUrl}
+                className="w-full h-full border-0"
+                title="PDF Preview"
+              />
+            </div>
+
+            <div className="p-4 border-t shrink-0 bg-background">
+              <div className="flex gap-3 justify-center">
+                <Button variant="outline" onClick={sharePdfFromPreview} className="flex items-center gap-2" data-testid="button-share-pdf-preview">
+                  <Share2 className="h-4 w-4" />
+                  Compartilhar
+                </Button>
+                <Button onClick={savePdfToDevice} className="flex items-center gap-2" data-testid="button-save-pdf-preview">
+                  <FolderDown className="h-4 w-4" />
+                  Salvar nos Documentos
+                </Button>
+              </div>
+              <p className="text-xs text-center text-muted-foreground mt-3">
+                Feche esta janela para descartar o PDF sem salvar
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 }

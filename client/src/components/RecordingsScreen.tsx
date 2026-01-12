@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UserButton } from "@/components/UserButton";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,7 @@ import {
 } from "@/hooks/use-recordings";
 import { useUsageLimits, getRecordingsLimitMessage } from "@/hooks/useUsageLimits";
 import { SubscriptionLimitModal } from "@/components/SubscriptionLimitModal";
+import { SermonDetailModal } from "@/components/SermonDetailModal";
 import { useNavigation } from "@/contexts/NavigationContext";
 import {
   Mic,
@@ -44,6 +46,9 @@ import {
   Download,
   Mail,
   MessageCircle,
+  Edit,
+  Search,
+  Filter,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -86,8 +91,22 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [shareRecordingId, setShareRecordingId] = useState<string | null>(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [selectedRecording, setSelectedRecording] = useState<RecordingMetadata | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const filteredRecordings = useMemo(() => {
+    let result = recordings;
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((r) => r.title.toLowerCase().includes(query));
+    }
+    
+    return result;
+  }, [recordings, searchQuery]);
 
   const isAtLimit = recordings.length >= recordingsLimit;
 
@@ -474,6 +493,19 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
               </Badge>
             </div>
 
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar gravações..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                  data-testid="input-search-recordings"
+                />
+              </div>
+            </div>
+
             {isLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
@@ -485,7 +517,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                   </Card>
                 ))}
               </div>
-            ) : recordings.length === 0 ? (
+            ) : filteredRecordings.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
                   <Mic className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
@@ -498,7 +530,7 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
               </Card>
             ) : (
               <div className="space-y-3">
-                {recordings.map((recording) => (
+                {filteredRecordings.map((recording) => (
                   <motion.div
                     key={recording.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -535,6 +567,14 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                               ) : (
                                 <Play className="h-4 w-4" />
                               )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setSelectedRecording(recording)}
+                              data-testid={`button-edit-${recording.id}`}
+                            >
+                              <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -725,6 +765,15 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
         onSubscribe={handleGoToSubscription}
         subscriptionType={subscriptionType}
       />
+
+      {selectedRecording && (
+        <SermonDetailModal
+          recording={selectedRecording}
+          isOpen={!!selectedRecording}
+          onClose={() => setSelectedRecording(null)}
+          getRecordingBlob={getRecordingBlob}
+        />
+      )}
     </div>
   );
 }

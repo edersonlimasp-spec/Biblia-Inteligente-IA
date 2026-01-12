@@ -6546,7 +6546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // GET /api/sermons - List user's sermon recordings
   app.get("/api/sermons", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.userId!;
       const { search, category, fromDate, toDate } = req.query;
       
       let query = db.select().from(sermonRecordings).where(eq(sermonRecordings.userId, userId));
@@ -6591,7 +6591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/sermons/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user!.id;
+      const userId = req.userId!;
       
       const results = await db.select().from(sermonRecordings)
         .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
@@ -6610,7 +6610,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // POST /api/sermons - Create or sync sermon recording
   app.post("/api/sermons", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.userId!;
       const { id, title, duration, category, speaker, tags } = req.body;
       
       if (!id || !title || duration === undefined) {
@@ -6648,7 +6648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/sermons/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user!.id;
+      const userId = req.userId!;
       const { title, category, speaker, tags, transcriptText, summaryText, notesText } = req.body;
       
       const existing = await db.select().from(sermonRecordings)
@@ -6681,7 +6681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/sermons/:id/transcribe", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user!.id;
+      const userId = req.userId!;
       const { audioBase64, mimeType } = req.body;
       
       if (!audioBase64) {
@@ -6723,7 +6723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/sermons/:id/summarize", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user!.id;
+      const userId = req.userId!;
       
       const existing = await db.select().from(sermonRecordings)
         .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
@@ -6754,7 +6754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/sermons/:id/share", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user!.id;
+      const userId = req.userId!;
       
       const existing = await db.select().from(sermonRecordings)
         .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
@@ -6821,7 +6821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/sermons/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user!.id;
+      const userId = req.userId!;
       
       const existing = await db.select().from(sermonRecordings)
         .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));

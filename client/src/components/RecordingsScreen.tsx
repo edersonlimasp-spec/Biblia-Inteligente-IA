@@ -49,6 +49,9 @@ import {
   Edit,
   Search,
   Filter,
+  FileText,
+  Sparkles,
+  StickyNote,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -571,14 +574,6 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => setSelectedRecording(recording)}
-                              data-testid={`button-edit-${recording.id}`}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
                               onClick={() => handleShare(recording)}
                               data-testid={`button-share-${recording.id}`}
                             >
@@ -594,6 +589,38 @@ export function RecordingsScreen({ onBack }: RecordingsScreenProps) {
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
+                        </div>
+
+                        <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedRecording(recording)}
+                            className="flex-1"
+                            data-testid={`button-transcribe-${recording.id}`}
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Transcrever
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedRecording(recording)}
+                            className="flex-1"
+                            data-testid={`button-summarize-${recording.id}`}
+                          >
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Resumo IA
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedRecording(recording)}
+                            data-testid={`button-notes-${recording.id}`}
+                          >
+                            <StickyNote className="h-4 w-4 mr-2" />
+                            Notas
+                          </Button>
                         </div>
 
                         {playingId === recording.id && (

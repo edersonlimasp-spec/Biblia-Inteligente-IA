@@ -13,6 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { jsPDF } from "jspdf";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import {
   Play,
   Pause,
@@ -38,6 +41,8 @@ import {
   X,
 } from "lucide-react";
 import type { RecordingMetadata } from "@/hooks/use-recordings";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface SermonData {
   id: string;
@@ -101,6 +106,9 @@ export function SermonDetailModal({
   const [audioReady, setAudioReady] = useState(false);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+  const [numPages, setNumPages] = useState<number>(0);
+  const [pdfContainerWidth, setPdfContainerWidth] = useState<number>(350);
+  const pdfContainerRef = useRef<HTMLDivElement>(null);
 
   const [editTitle, setEditTitle] = useState(recording.title);
   const [editCategory, setEditCategory] = useState("culto");
@@ -1427,67 +1435,50 @@ Sugestões:
               </Button>
             </DialogHeader>
 
-            <div className="flex-1 overflow-auto bg-muted/30 p-4">
-              <div className="max-w-md mx-auto space-y-4">
-                <div className="bg-primary text-primary-foreground rounded-lg p-4">
-                  <p className="text-xs opacity-80 uppercase tracking-wide">Relatório de Reunião</p>
-                  <p className="text-lg font-bold mt-1">{editTitle}</p>
-                  <p className="text-sm opacity-80 mt-1">
-                    {new Date(recording.createdAt).toLocaleDateString("pt-BR", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-
-                <Card>
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Categoria</span>
-                      <span className="font-medium capitalize">{editCategory}</span>
+            <div 
+              ref={pdfContainerRef}
+              className="flex-1 overflow-auto bg-muted/50 p-2"
+              onLoad={() => {
+                if (pdfContainerRef.current) {
+                  setPdfContainerWidth(pdfContainerRef.current.offsetWidth - 16);
+                }
+              }}
+            >
+              {pdfBlob && (
+                <Document
+                  file={pdfBlob}
+                  onLoadSuccess={({ numPages }) => {
+                    setNumPages(numPages);
+                    if (pdfContainerRef.current) {
+                      setPdfContainerWidth(pdfContainerRef.current.offsetWidth - 16);
+                    }
+                  }}
+                  loading={
+                    <div className="flex items-center justify-center h-64">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
-                    <Separator />
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Duração</span>
-                      <span className="font-medium">{formatTime(recording.duration)}</span>
+                  }
+                  error={
+                    <div className="flex flex-col items-center justify-center h-64 text-center">
+                      <FileDown className="h-12 w-12 text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">Não foi possível carregar o PDF</p>
                     </div>
-                    {editTranscript && (
-                      <>
-                        <Separator />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Transcrição</span>
-                          <Badge variant="secondary" className="text-xs">Incluída</Badge>
-                        </div>
-                      </>
-                    )}
-                    {editSummary && (
-                      <>
-                        <Separator />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Resumo IA</span>
-                          <Badge variant="secondary" className="text-xs">Incluído</Badge>
-                        </div>
-                      </>
-                    )}
-                    {editNotes && (
-                      <>
-                        <Separator />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Anotações</span>
-                          <Badge variant="secondary" className="text-xs">Incluídas</Badge>
-                        </div>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <div className="flex items-center justify-center gap-2 text-green-600 bg-green-50 dark:bg-green-950/30 rounded-lg p-3">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="text-sm font-medium">PDF gerado com sucesso!</span>
-                </div>
-              </div>
+                  }
+                >
+                  <div className="space-y-2">
+                    {Array.from(new Array(numPages), (_, index) => (
+                      <Page
+                        key={`page_${index + 1}`}
+                        pageNumber={index + 1}
+                        width={pdfContainerWidth}
+                        className="shadow-md rounded-sm overflow-hidden mx-auto"
+                        renderTextLayer={false}
+                        renderAnnotationLayer={false}
+                      />
+                    ))}
+                  </div>
+                </Document>
+              )}
             </div>
 
             <div className="p-4 border-t shrink-0 bg-background">

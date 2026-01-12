@@ -505,111 +505,163 @@ export function SermonDetailModal({
     const margin = 20;
     let y = margin;
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const maxWidth = pageWidth - 2 * margin;
+    const primaryColor: [number, number, number] = [26, 82, 153];
+    const accentColor: [number, number, number] = [59, 130, 246];
+    const textDark: [number, number, number] = [30, 30, 30];
+    const textMuted: [number, number, number] = [100, 100, 100];
 
-    doc.setFillColor(26, 82, 153);
-    doc.rect(0, 0, pageWidth, 40, "F");
+    const addNewPageIfNeeded = (requiredSpace: number) => {
+      if (y + requiredSpace > pageHeight - 30) {
+        doc.addPage();
+        y = margin;
+      }
+    };
 
-    doc.setFontSize(20);
+    const drawSectionHeader = (title: string, iconSymbol: string, color: [number, number, number]) => {
+      addNewPageIfNeeded(25);
+      doc.setFillColor(...color);
+      doc.roundedRect(margin, y - 4, 6, 18, 2, 2, "F");
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...color);
+      doc.text(title, margin + 12, y + 8);
+      y += 20;
+    };
+
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, pageWidth, 50, "F");
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(255, 255, 255, 0.7);
+    doc.text("RELATÓRIO DE REUNIÃO", margin, 15);
+    
+    doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 255, 255);
     const titleLines = doc.splitTextToSize(editTitle, maxWidth - 10);
-    doc.text(titleLines, margin, 25);
-
-    y = 50;
-
+    doc.text(titleLines, margin, 32);
+    
     doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255, 0.8);
+    const dateStr = new Date(recording.createdAt).toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    doc.text(dateStr, margin, 45);
+
+    y = 60;
+
+    doc.setFillColor(245, 247, 250);
+    doc.roundedRect(margin, y, maxWidth, 30, 3, 3, "F");
+    
+    doc.setFontSize(9);
+    doc.setTextColor(...textMuted);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(100);
-    doc.text(`Data: ${new Date(recording.createdAt).toLocaleDateString("pt-BR")}`, margin, y);
-    doc.text(`Categoria: ${editCategory}`, margin + 60, y);
+    
+    let infoX = margin + 8;
+    doc.text("Categoria", infoX, y + 10);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...textDark);
+    doc.text(editCategory.charAt(0).toUpperCase() + editCategory.slice(1), infoX, y + 20);
+    
     if (editSpeaker) {
-      doc.text(`Orador: ${editSpeaker}`, margin + 120, y);
+      infoX += 50;
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...textMuted);
+      doc.text("Orador", infoX, y + 10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...textDark);
+      doc.text(editSpeaker, infoX, y + 20);
     }
-    y += 10;
+    
+    infoX = maxWidth - 30;
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...textMuted);
+    doc.text("Duração", infoX, y + 10);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...textDark);
+    doc.text(formatTime(recording.duration), infoX, y + 20);
+
+    y += 40;
 
     if (editTags) {
-      doc.text(`Tags: ${editTags}`, margin, y);
-      y += 8;
+      doc.setFontSize(9);
+      doc.setTextColor(...textMuted);
+      const tagsArray = editTags.split(",").map(t => t.trim()).filter(Boolean);
+      let tagX = margin;
+      tagsArray.forEach((tag) => {
+        const tagWidth = doc.getTextWidth(tag) + 10;
+        if (tagX + tagWidth > pageWidth - margin) {
+          tagX = margin;
+          y += 12;
+        }
+        doc.setFillColor(230, 235, 245);
+        doc.roundedRect(tagX, y - 5, tagWidth, 12, 3, 3, "F");
+        doc.setTextColor(...primaryColor);
+        doc.text(tag, tagX + 5, y + 3);
+        tagX += tagWidth + 5;
+      });
+      y += 20;
     }
 
-    doc.setDrawColor(200);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 15;
-
-    doc.setTextColor(0);
-
     if (editSummary) {
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(26, 82, 153);
-      doc.text("Resumo IA", margin, y);
-      y += 10;
-
-      doc.setFontSize(11);
+      drawSectionHeader("Resumo", "✨", accentColor);
+      
+      doc.setFillColor(248, 250, 252);
+      const summaryLines = doc.splitTextToSize(editSummary, maxWidth - 20);
+      const summaryHeight = summaryLines.length * 6 + 15;
+      addNewPageIfNeeded(summaryHeight);
+      doc.roundedRect(margin, y - 5, maxWidth, summaryHeight, 4, 4, "F");
+      
+      doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(0);
-      const summaryLines = doc.splitTextToSize(editSummary, maxWidth);
-      for (const line of summaryLines) {
-        if (y > 270) {
-          doc.addPage();
-          y = margin;
-        }
-        doc.text(line, margin, y);
+      doc.setTextColor(...textDark);
+      summaryLines.forEach((line: string) => {
+        addNewPageIfNeeded(8);
+        doc.text(line, margin + 10, y + 5);
         y += 6;
-      }
+      });
       y += 15;
     }
 
     if (editTranscript) {
-      if (y > 200) {
-        doc.addPage();
-        y = margin;
-      }
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(26, 82, 153);
-      doc.text("Transcrição", margin, y);
-      y += 10;
-
-      doc.setFontSize(10);
+      drawSectionHeader("Transcrição", "📝", [76, 175, 80]);
+      
+      doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(60);
+      doc.setTextColor(...textMuted);
       const transcriptLines = doc.splitTextToSize(editTranscript, maxWidth);
-      for (const line of transcriptLines) {
-        if (y > 270) {
-          doc.addPage();
-          y = margin;
-        }
+      transcriptLines.forEach((line: string) => {
+        addNewPageIfNeeded(7);
         doc.text(line, margin, y);
         y += 5;
-      }
+      });
       y += 15;
     }
 
     if (editNotes) {
-      if (y > 200) {
-        doc.addPage();
-        y = margin;
-      }
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(26, 82, 153);
-      doc.text("Minhas Anotações", margin, y);
-      y += 10;
-
-      doc.setFontSize(11);
+      drawSectionHeader("Minhas Anotações", "📌", [255, 152, 0]);
+      
+      doc.setFillColor(255, 251, 235);
+      const notesLines = doc.splitTextToSize(editNotes, maxWidth - 20);
+      const notesHeight = notesLines.length * 6 + 15;
+      addNewPageIfNeeded(notesHeight);
+      doc.roundedRect(margin, y - 5, maxWidth, notesHeight, 4, 4, "F");
+      
+      doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(0);
-      const notesLines = doc.splitTextToSize(editNotes, maxWidth);
-      for (const line of notesLines) {
-        if (y > 270) {
-          doc.addPage();
-          y = margin;
-        }
-        doc.text(line, margin, y);
+      doc.setTextColor(...textDark);
+      notesLines.forEach((line: string) => {
+        addNewPageIfNeeded(8);
+        doc.text(line, margin + 10, y + 5);
         y += 6;
-      }
+      });
+      y += 10;
     }
 
     const pageCount = doc.getNumberOfPages();
@@ -617,7 +669,8 @@ export function SermonDetailModal({
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(150);
-      doc.text(`Bíblia Inteligente IA - Página ${i} de ${pageCount}`, pageWidth / 2, 290, { align: "center" });
+      doc.text(`Bíblia Inteligente IA`, margin, pageHeight - 10);
+      doc.text(`Página ${i} de ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: "right" });
     }
 
     return doc;
@@ -625,12 +678,17 @@ export function SermonDetailModal({
 
   const handleExportPDF = () => {
     const doc = generatePDF();
-    const filename = `${editTitle.replace(/[^a-zA-Z0-9áàâãéèêíìîóòôõúùûç\s]/gi, "_")}.pdf`;
-    doc.save(filename);
+    const pdfBlob = doc.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl, "_blank");
+    
+    setTimeout(() => {
+      URL.revokeObjectURL(pdfUrl);
+    }, 10000);
 
     toast({
-      title: "PDF Exportado",
-      description: "O arquivo foi salvo na pasta de downloads!",
+      title: "PDF Aberto",
+      description: "O relatório foi aberto em uma nova aba!",
     });
   };
 

@@ -502,11 +502,11 @@ export function SermonDetailModal({
 
   const generatePDF = (): jsPDF => {
     const doc = new jsPDF();
-    const margin = 20;
+    const margin = 25;
     let y = margin;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const maxWidth = pageWidth - 2 * margin;
+    const maxWidth = pageWidth - 2 * margin - 10;
     const primaryColor: [number, number, number] = [26, 82, 153];
     const accentColor: [number, number, number] = [59, 130, 246];
     const textDark: [number, number, number] = [30, 30, 30];
@@ -677,19 +677,36 @@ export function SermonDetailModal({
   };
 
   const handleExportPDF = () => {
-    const doc = generatePDF();
-    const pdfBlob = doc.output("blob");
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    window.open(pdfUrl, "_blank");
-    
-    setTimeout(() => {
-      URL.revokeObjectURL(pdfUrl);
-    }, 10000);
+    try {
+      const doc = generatePDF();
+      const pdfBlob = doc.output("blob");
+      const filename = `Relatorio_${editTitle.replace(/[^a-zA-Z0-9áàâãéèêíìîóòôõúùûç\s]/gi, "_").substring(0, 30)}.pdf`;
+      
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = pdfUrl;
+      link.download = filename;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setTimeout(() => {
+        URL.revokeObjectURL(pdfUrl);
+      }, 5000);
 
-    toast({
-      title: "PDF Aberto",
-      description: "O relatório foi aberto em uma nova aba!",
-    });
+      toast({
+        title: "PDF Exportado",
+        description: "O relatório foi salvo no seu dispositivo!",
+      });
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSaveToDevice = async () => {

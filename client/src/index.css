@@ -253,6 +253,13 @@
  */
 @layer utilities {
 
+  /* Text wrapping utility for long content */
+  .text-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+
   /* Hide ugly search cancel button in Chrome until we can style it properly */
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;

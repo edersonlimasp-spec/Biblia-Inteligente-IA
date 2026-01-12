@@ -1427,22 +1427,67 @@ Sugestões:
               </Button>
             </DialogHeader>
 
-            <div className="flex-1 overflow-hidden bg-muted/50 flex flex-col items-center justify-center p-4">
-              <object
-                data={pdfPreviewUrl}
-                type="application/pdf"
-                className="w-full h-full"
-              >
-                <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-                  <FileDown className="h-16 w-16 text-muted-foreground" />
-                  <div>
-                    <p className="text-lg font-medium">PDF Gerado com Sucesso!</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      O relatório está pronto. Use os botões abaixo para compartilhar ou salvar.
-                    </p>
-                  </div>
+            <div className="flex-1 overflow-auto bg-muted/30 p-4">
+              <div className="max-w-md mx-auto space-y-4">
+                <div className="bg-primary text-primary-foreground rounded-lg p-4">
+                  <p className="text-xs opacity-80 uppercase tracking-wide">Relatório de Reunião</p>
+                  <p className="text-lg font-bold mt-1">{editTitle}</p>
+                  <p className="text-sm opacity-80 mt-1">
+                    {new Date(recording.createdAt).toLocaleDateString("pt-BR", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
                 </div>
-              </object>
+
+                <Card>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Categoria</span>
+                      <span className="font-medium capitalize">{editCategory}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Duração</span>
+                      <span className="font-medium">{formatTime(recording.duration)}</span>
+                    </div>
+                    {editTranscript && (
+                      <>
+                        <Separator />
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Transcrição</span>
+                          <Badge variant="secondary" className="text-xs">Incluída</Badge>
+                        </div>
+                      </>
+                    )}
+                    {editSummary && (
+                      <>
+                        <Separator />
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Resumo IA</span>
+                          <Badge variant="secondary" className="text-xs">Incluído</Badge>
+                        </div>
+                      </>
+                    )}
+                    {editNotes && (
+                      <>
+                        <Separator />
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Anotações</span>
+                          <Badge variant="secondary" className="text-xs">Incluídas</Badge>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <div className="flex items-center justify-center gap-2 text-green-600 bg-green-50 dark:bg-green-950/30 rounded-lg p-3">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="text-sm font-medium">PDF gerado com sucesso!</span>
+                </div>
+              </div>
             </div>
 
             <div className="p-4 border-t shrink-0 bg-background">

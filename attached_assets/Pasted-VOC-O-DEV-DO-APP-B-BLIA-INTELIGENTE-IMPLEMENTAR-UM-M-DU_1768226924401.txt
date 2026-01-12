@@ -1,0 +1,211 @@
+VOCÊ É O DEV DO APP BÍBLIA INTELIGENTE. IMPLEMENTAR UM MÓDULO NOVO: “SERMÕES E NOTAS” (ou integrar ao módulo de gravações existente) COM TRANSCRIÇÃO, RESUMO COM IA, ANOTAÇÕES, ORGANIZAÇÃO EM CARDS, FILTROS E EXPORTAÇÃO PDF.
+MANTER IDENTIDADE VISUAL: CARDS/MODAIS ARREDONDADOS, CORES SUAVES, PADRÃO DO APP, RESPONSIVO MOBILE.
+NÃO QUEBRAR NADA EXISTENTE.
+
+========================
+1) FLUXO DO USUÁRIO
+========================
+A) Usuário grava um sermão/reunião (usar API de gravação já existente).
+B) Após salvar a gravação:
+   - Mostrar card da gravação com status: “Áudio salvo”.
+   - Botão “Transcrever”.
+C) Ao clicar “Transcrever”:
+   - Enviar áudio para Whisper (OpenAI) via backend.
+   - Receber texto e salvar no banco.
+   - Abrir modal com:
+       • Aba “Transcrição” (texto editável em textarea)
+       • Botão “Salvar edição”
+       • Botão “Gerar resumo com IA”
+D) Ao clicar “Gerar resumo com IA”:
+   - Chamar ChatGPT com prompt estruturado (abaixo).
+   - Salvar resumo estruturado no banco.
+   - Exibir em Aba “Resumo” (editável também).
+E) Usuário pode editar transcrição e resumo e salvar (persistência).
+F) Exportação:
+   - Botão “Exportar PDF” no card e dentro do modal.
+G) Compartilhar:
+   - Botão “Compartilhar link” gera um link seguro (token) para leitura (com permissões).
+
+========================
+2) UI / COMPONENTES (REACT)
+========================
+Criar tela/lista: “Minhas gravações e notas”
+- Topo com busca + filtros (chips/selects):
+   • data (intervalo)
+   • categoria: Culto / Reunião / Estudo
+   • tema/título
+   • orador
+   • tags
+- Lista em cards (padrão do app) com:
+   • Título (ou “Sem título”)
+   • Data e hora
+   • Categoria
+   • Tags (chips)
+   • Status: “Sem transcrição / Transcrito / Com resumo”
+   • Ícones (actions):
+       ▶ Reproduzir áudio
+       📝 Ver/Editar (abre modal)
+       📄 Exportar PDF
+       🔗 Compartilhar link
+       🗑 Excluir
+
+Modal “Detalhes da gravação”:
+- Header com título editável + categoria + tags
+- Tabs:
+   1) Áudio (player)
+   2) Transcrição (textarea editável + botão salvar)
+   3) Resumo IA (editor editável + botão salvar)
+   4) Anotações (campo livre do usuário, separado do resumo, editável + salvar)
+- Botões:
+   - “Transcrever” (se não tiver transcrição)
+   - “Gerar resumo com IA” (habilitado quando existir transcrição)
+   - “Exportar PDF”
+
+Layout: manter cantos arredondados, sombras leves, cores suaves, padrão atual.
+
+========================
+3) BANCO DE DADOS / STORAGE
+========================
+Adicionar/estender entidade para gravações:
+Tabela: sermon_recordings (ou estender tabela existente de gravações)
+Campos mínimos:
+- id (uuid)
+- userId
+- createdAt
+- updatedAt
+- category (culto|reuniao|estudo)
+- title (string)
+- speaker (string)
+- tags (string[] ou texto separado por vírgula)
+- audioUrl (string) ou audioBlobRef
+- transcriptText (text)  // transcrição editável
+- transcriptStatus (none|processing|done|error)
+- summaryJson (json/text) // resumo estruturado
+- summaryText (text)      // versão formatada editável
+- notesText (text)        // anotações manuais do usuário
+- shareToken (string|null) // para link compartilhável
+- shareEnabled (boolean)
+
+Indexar por userId e createdAt para buscas rápidas.
+Garantir que tudo é filtrado por userId (segurança).
+
+========================
+4) BACKEND ENDPOINTS
+========================
+Criar endpoints (Express/Node ou backend atual do projeto):
+
+POST /api/sermons/:id/transcribe
+- Recebe recordingId
+- Busca audioUrl ou arquivo
+- Envia para OpenAI Whisper (transcriptions)
+- Salva transcriptText, transcriptStatus=done
+- Retorna transcriptText
+
+POST /api/sermons/:id/summarize
+- Requer transcriptText existente
+- Chama ChatGPT (Responses API) com prompt estruturado
+- Salva summaryJson + summaryText
+- Retorna summary
+
+PATCH /api/sermons/:id
+- Atualiza title/category/tags/speaker/transcriptText/summaryText/notesText
+
+POST /api/sermons/:id/export/pdf
+- Gera PDF server-side ou client-side (preferir client com jsPDF)
+- Retorna arquivo ou dispara download
+
+POST /api/sermons/:id/share
+- Gera shareToken seguro (random 32+ chars) e shareEnabled=true
+- Retorna URL do link
+
+GET /share/sermon/:token
+- Página read-only do resumo/notes (sem edição)
+- Sem expor dados de outros usuários.
+
+DELETE /api/sermons/:id
+- Excluir gravação + dados associados (confirm modal)
+
+========================
+5) INTEGRAÇÃO OPENAI (SEGURA)
+========================
+Usar ENV/Secrets:
+- OPENAI_API_KEY
+
+Transcrição (Whisper):
+- Modelo: gpt-4o-mini-transcribe (ou whisper-1, conforme SDK disponível no projeto)
+- Input: arquivo de áudio
+- Retornar texto limpo
+
+Resumo (ChatGPT):
+- Modelo: gpt-4.1-mini (ou equivalente já usado no projeto)
+- Temperatura baixa (0.2)
+- Sempre gerar JSON + versão humana.
+
+PROMPT DE RESUMO (usar exatamente):
+“Você é um assistente de anotações cristãs. A partir da transcrição abaixo, gere um resumo estruturado e conciso.
+Retorne em JSON com os campos:
+- titulo_tema
+- versiculo_base (se houver)
+- contexto (2-4 linhas)
+- pontos_principais (lista)
+- ilustracoes_exemplos (lista)
+- aplicacoes_praticas (lista)
+- decisoes_e_desafios (lista)
+- citacoes_marcantes (lista curta)
+- oracao_sugerida (curta)
+Depois do JSON, gere uma versão formatada em texto com títulos e bullet points.
+Transcrição:
+<<< {transcriptText} >>>”
+
+========================
+6) EXPORTAÇÃO PDF (CLIENT)
+========================
+Implementar com jsPDF (ou lib já existente).
+PDF deve conter:
+- Título
+- Data
+- Categoria
+- Orador
+- Tags
+- Resumo formatado
+- Anotações
+Opcional: transcrição completa em anexo (se ficar grande, permitir “incluir transcrição: sim/não”).
+
+========================
+7) BUSCA E FILTROS
+========================
+Implementar:
+- Campo busca que pesquisa em title, speaker, tags, transcriptText, summaryText
+- Filtro por data (from/to)
+- Filtro categoria
+- Filtro tags (múltiplas)
+- Ordenação: mais recentes primeiro
+
+========================
+8) REGRAS DE UX / PERFORMANCE
+========================
+- Mostrar loading “Transcrevendo…” e “Gerando resumo…”
+- Evitar reprocessar: se transcriptText já existe, não chamar transcribe de novo sem confirmação.
+- Se summary já existe, permitir “Regenerar resumo” (com confirmação) ou “Atualizar resumo” (usa transcrição atual).
+- Salvar edições com debounce opcional ou botão “Salvar”.
+- Garantir responsividade mobile.
+
+========================
+9) TESTES OBRIGATÓRIOS NO PREVIEW
+========================
+1) Gravar áudio -> card aparece
+2) Transcrever -> texto aparece e persiste ao fechar/abrir
+3) Editar transcrição -> salvar -> persiste
+4) Gerar resumo -> aparece estruturado -> persiste
+5) Editar resumo/anotações -> salvar -> persiste
+6) Filtros funcionam
+7) Exportar PDF gera arquivo correto
+8) Compartilhar link abre read-only e só dados daquele sermão
+9) Não quebra módulos existentes
+
+ENTREGAR:
+- Código implementado
+- Lista de arquivos alterados
+- Onde configurar OPENAI_API_KEY
+- Como testar cada etapa no preview
+NÃO ENTREGAR SE QUALQUER TESTE FALHAR.

@@ -26,6 +26,8 @@ import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTran
 import iapRoutes from "./payments/iap-routes";
 import { generateStrongDefinition, isEntryIncomplete } from "./services/strong-ai-generator";
 import { readingPlanService } from "./reading-plans";
+import { transcribeAudio, generateSermonSummary, generateShareToken } from "./services/sermon-ai";
+import { sermonRecordings } from "@shared/schema";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -6535,6 +6537,306 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: new Date().toISOString() });
+  });
+
+  // ========================================
+  // SERMON RECORDINGS ENDPOINTS
+  // ========================================
+
+  // GET /api/sermons - List user's sermon recordings
+  app.get("/api/sermons", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const { search, category, fromDate, toDate } = req.query;
+      
+      let query = db.select().from(sermonRecordings).where(eq(sermonRecordings.userId, userId));
+      
+      const results = await query.orderBy(desc(sermonRecordings.createdAt));
+      
+      let filtered = results;
+      
+      if (search && typeof search === 'string') {
+        const searchLower = search.toLowerCase();
+        filtered = filtered.filter(r => 
+          r.title.toLowerCase().includes(searchLower) ||
+          r.speaker?.toLowerCase().includes(searchLower) ||
+          r.transcriptText?.toLowerCase().includes(searchLower) ||
+          r.summaryText?.toLowerCase().includes(searchLower) ||
+          r.tags?.some(t => t.toLowerCase().includes(searchLower))
+        );
+      }
+      
+      if (category && typeof category === 'string') {
+        filtered = filtered.filter(r => r.category === category);
+      }
+      
+      if (fromDate && typeof fromDate === 'string') {
+        const from = new Date(fromDate);
+        filtered = filtered.filter(r => new Date(r.createdAt) >= from);
+      }
+      
+      if (toDate && typeof toDate === 'string') {
+        const to = new Date(toDate);
+        filtered = filtered.filter(r => new Date(r.createdAt) <= to);
+      }
+      
+      res.json(filtered);
+    } catch (error) {
+      console.error("[Sermons] Error listing:", error);
+      res.status(500).json({ error: "Failed to list sermons" });
+    }
+  });
+
+  // GET /api/sermons/:id - Get single sermon
+  app.get("/api/sermons/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      
+      const results = await db.select().from(sermonRecordings)
+        .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
+      
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Sermon not found" });
+      }
+      
+      res.json(results[0]);
+    } catch (error) {
+      console.error("[Sermons] Error fetching:", error);
+      res.status(500).json({ error: "Failed to fetch sermon" });
+    }
+  });
+
+  // POST /api/sermons - Create or sync sermon recording
+  app.post("/api/sermons", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const { id, title, duration, category, speaker, tags } = req.body;
+      
+      if (!id || !title || duration === undefined) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      const existing = await db.select().from(sermonRecordings)
+        .where(eq(sermonRecordings.id, id));
+      
+      if (existing.length > 0) {
+        await db.update(sermonRecordings)
+          .set({ title, category, speaker, tags, updatedAt: new Date() })
+          .where(eq(sermonRecordings.id, id));
+      } else {
+        await db.insert(sermonRecordings).values({
+          id,
+          userId,
+          title,
+          duration,
+          category: category || "culto",
+          speaker,
+          tags,
+        });
+      }
+      
+      const result = await db.select().from(sermonRecordings).where(eq(sermonRecordings.id, id));
+      res.json(result[0]);
+    } catch (error) {
+      console.error("[Sermons] Error creating:", error);
+      res.status(500).json({ error: "Failed to create sermon" });
+    }
+  });
+
+  // PATCH /api/sermons/:id - Update sermon
+  app.patch("/api/sermons/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      const { title, category, speaker, tags, transcriptText, summaryText, notesText } = req.body;
+      
+      const existing = await db.select().from(sermonRecordings)
+        .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
+      
+      if (existing.length === 0) {
+        return res.status(404).json({ error: "Sermon not found" });
+      }
+      
+      const updates: any = { updatedAt: new Date() };
+      if (title !== undefined) updates.title = title;
+      if (category !== undefined) updates.category = category;
+      if (speaker !== undefined) updates.speaker = speaker;
+      if (tags !== undefined) updates.tags = tags;
+      if (transcriptText !== undefined) updates.transcriptText = transcriptText;
+      if (summaryText !== undefined) updates.summaryText = summaryText;
+      if (notesText !== undefined) updates.notesText = notesText;
+      
+      await db.update(sermonRecordings).set(updates).where(eq(sermonRecordings.id, id));
+      
+      const result = await db.select().from(sermonRecordings).where(eq(sermonRecordings.id, id));
+      res.json(result[0]);
+    } catch (error) {
+      console.error("[Sermons] Error updating:", error);
+      res.status(500).json({ error: "Failed to update sermon" });
+    }
+  });
+
+  // POST /api/sermons/:id/transcribe - Transcribe audio
+  app.post("/api/sermons/:id/transcribe", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      const { audioBase64, mimeType } = req.body;
+      
+      if (!audioBase64) {
+        return res.status(400).json({ error: "Audio data required" });
+      }
+      
+      const existing = await db.select().from(sermonRecordings)
+        .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
+      
+      if (existing.length === 0) {
+        return res.status(404).json({ error: "Sermon not found" });
+      }
+      
+      await db.update(sermonRecordings)
+        .set({ transcriptStatus: "processing", updatedAt: new Date() })
+        .where(eq(sermonRecordings.id, id));
+      
+      const audioBuffer = Buffer.from(audioBase64, "base64");
+      const transcriptText = await transcribeAudio(audioBuffer, mimeType || "audio/webm");
+      
+      await db.update(sermonRecordings)
+        .set({ transcriptText, transcriptStatus: "done", updatedAt: new Date() })
+        .where(eq(sermonRecordings.id, id));
+      
+      res.json({ success: true, transcriptText });
+    } catch (error) {
+      console.error("[Sermons] Transcription error:", error);
+      
+      const { id } = req.params;
+      await db.update(sermonRecordings)
+        .set({ transcriptStatus: "error", updatedAt: new Date() })
+        .where(eq(sermonRecordings.id, id));
+      
+      res.status(500).json({ error: "Transcription failed" });
+    }
+  });
+
+  // POST /api/sermons/:id/summarize - Generate AI summary
+  app.post("/api/sermons/:id/summarize", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      
+      const existing = await db.select().from(sermonRecordings)
+        .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
+      
+      if (existing.length === 0) {
+        return res.status(404).json({ error: "Sermon not found" });
+      }
+      
+      const sermon = existing[0];
+      if (!sermon.transcriptText) {
+        return res.status(400).json({ error: "Transcription required before summary" });
+      }
+      
+      const { summaryJson, summaryText } = await generateSermonSummary(sermon.transcriptText);
+      
+      await db.update(sermonRecordings)
+        .set({ summaryJson, summaryText, updatedAt: new Date() })
+        .where(eq(sermonRecordings.id, id));
+      
+      res.json({ success: true, summaryJson, summaryText });
+    } catch (error) {
+      console.error("[Sermons] Summary error:", error);
+      res.status(500).json({ error: "Summary generation failed" });
+    }
+  });
+
+  // POST /api/sermons/:id/share - Generate share link
+  app.post("/api/sermons/:id/share", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      
+      const existing = await db.select().from(sermonRecordings)
+        .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
+      
+      if (existing.length === 0) {
+        return res.status(404).json({ error: "Sermon not found" });
+      }
+      
+      let shareToken = existing[0].shareToken;
+      if (!shareToken) {
+        shareToken = generateShareToken();
+        await db.update(sermonRecordings)
+          .set({ shareToken, shareEnabled: true, updatedAt: new Date() })
+          .where(eq(sermonRecordings.id, id));
+      } else {
+        await db.update(sermonRecordings)
+          .set({ shareEnabled: true, updatedAt: new Date() })
+          .where(eq(sermonRecordings.id, id));
+      }
+      
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+        : process.env.REPLIT_DOMAINS?.split(",")[0] 
+          ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}`
+          : "http://localhost:5000";
+      
+      res.json({ success: true, shareUrl: `${baseUrl}/share/sermon/${shareToken}` });
+    } catch (error) {
+      console.error("[Sermons] Share error:", error);
+      res.status(500).json({ error: "Share link generation failed" });
+    }
+  });
+
+  // GET /api/share/sermon/:token - Public view of shared sermon
+  app.get("/api/share/sermon/:token", async (req, res) => {
+    try {
+      const { token } = req.params;
+      
+      const results = await db.select().from(sermonRecordings)
+        .where(and(eq(sermonRecordings.shareToken, token), eq(sermonRecordings.shareEnabled, true)));
+      
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Shared sermon not found" });
+      }
+      
+      const sermon = results[0];
+      res.json({
+        title: sermon.title,
+        category: sermon.category,
+        speaker: sermon.speaker,
+        tags: sermon.tags,
+        summaryJson: sermon.summaryJson,
+        summaryText: sermon.summaryText,
+        notesText: sermon.notesText,
+        createdAt: sermon.createdAt,
+      });
+    } catch (error) {
+      console.error("[Sermons] Share view error:", error);
+      res.status(500).json({ error: "Failed to load shared sermon" });
+    }
+  });
+
+  // DELETE /api/sermons/:id - Delete sermon
+  app.delete("/api/sermons/:id", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      
+      const existing = await db.select().from(sermonRecordings)
+        .where(and(eq(sermonRecordings.id, id), eq(sermonRecordings.userId, userId)));
+      
+      if (existing.length === 0) {
+        return res.status(404).json({ error: "Sermon not found" });
+      }
+      
+      await db.delete(sermonRecordings).where(eq(sermonRecordings.id, id));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Sermons] Delete error:", error);
+      res.status(500).json({ error: "Failed to delete sermon" });
+    }
   });
 
   const httpServer = createServer(app);

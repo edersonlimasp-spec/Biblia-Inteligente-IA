@@ -1135,3 +1135,57 @@ export const insertPrayerSessionSchema = createInsertSchema(prayerSessions).omit
 
 export type InsertPrayerSession = z.infer<typeof insertPrayerSessionSchema>;
 export type PrayerSession = typeof prayerSessions.$inferSelect;
+
+// Sermon Recordings - Audio recordings with transcription and AI summary
+export const sermonRecordings = pgTable("sermon_recordings", {
+  id: varchar("id").primaryKey(), // Client-generated ID to match IndexedDB
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  duration: integer("duration").notNull(), // Duration in seconds
+  category: text("category").notNull().default("culto"), // culto, reuniao, estudo
+  speaker: text("speaker"),
+  tags: text("tags").array(), // Array of tags
+  
+  // Transcription fields
+  transcriptText: text("transcript_text"),
+  transcriptStatus: text("transcript_status").notNull().default("none"), // none, processing, done, error
+  
+  // AI Summary fields
+  summaryJson: jsonb("summary_json"), // Structured JSON from AI
+  summaryText: text("summary_text"), // Formatted text version
+  
+  // User notes
+  notesText: text("notes_text"),
+  
+  // Sharing
+  shareToken: text("share_token"),
+  shareEnabled: boolean("share_enabled").notNull().default(false),
+  
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("sermon_recordings_user_id_idx").on(table.userId),
+  createdAtIdx: index("sermon_recordings_created_at_idx").on(table.createdAt),
+  categoryIdx: index("sermon_recordings_category_idx").on(table.category),
+  shareTokenIdx: index("sermon_recordings_share_token_idx").on(table.shareToken),
+}));
+
+export interface SermonSummary {
+  titulo_tema?: string;
+  versiculo_base?: string;
+  contexto?: string;
+  pontos_principais?: string[];
+  ilustracoes_exemplos?: string[];
+  aplicacoes_praticas?: string[];
+  decisoes_e_desafios?: string[];
+  citacoes_marcantes?: string[];
+  oracao_sugerida?: string;
+}
+
+export const insertSermonRecordingSchema = createInsertSchema(sermonRecordings).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSermonRecording = z.infer<typeof insertSermonRecordingSchema>;
+export type SermonRecording = typeof sermonRecordings.$inferSelect;

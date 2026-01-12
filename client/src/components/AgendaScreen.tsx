@@ -476,10 +476,10 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
                   </div>
                 </div>
                 
-                {/* Time - Large and Prominent */}
-                <div className="mt-4 flex items-center gap-4">
-                  <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
-                    <Clock className="w-5 h-5 text-primary" />
+                {/* Time and Location */}
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2 w-fit">
+                    <Clock className="w-5 h-5 text-primary flex-shrink-0" />
                     <span className="text-xl font-bold text-foreground">
                       {event.time}
                     </span>
@@ -490,9 +490,9 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
                     )}
                   </div>
                   {event.location && (
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground truncate">
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{event.location}</span>
+                      <span>{event.location}</span>
                     </div>
                   )}
                 </div>

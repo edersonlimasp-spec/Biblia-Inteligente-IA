@@ -2,6 +2,11 @@ import OpenAI from "openai";
 import { toFile } from "openai";
 
 const openai = new OpenAI({
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+});
+
+const openaiWhisper = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
@@ -28,7 +33,7 @@ export async function transcribeAudio(audioBuffer: Buffer, mimeType: string): Pr
     
     const file = await toFile(audioBuffer, `audio.${extension}`, { type: mimeType });
     
-    const transcription = await openai.audio.transcriptions.create({
+    const transcription = await openaiWhisper.audio.transcriptions.create({
       file: file,
       model: "whisper-1",
       language: "pt",
@@ -63,13 +68,16 @@ export async function generateSermonSummary(transcriptText: string): Promise<Ser
   try {
     const prompt = SUMMARY_PROMPT.replace("{transcriptText}", transcriptText);
     
-    const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: prompt,
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "Você é um assistente especializado em resumir sermões e estudos bíblicos." },
+        { role: "user", content: prompt }
+      ],
       temperature: 0.2
     });
     
-    const outputText = response.output_text;
+    const outputText = response.choices[0]?.message?.content || "";
     
     const parts = outputText.split("---TEXTO---");
     const jsonPart = parts[0].trim();

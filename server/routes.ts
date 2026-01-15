@@ -2668,12 +2668,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       defWordsToStrong.set(word, strongNum);
     }
     
-    // DISABLED: Extracting words from definitions causes incorrect mappings
-    // Example: "cima" was incorrectly mapped to G1042 (gabbatha = "elevated place")
-    // Now we only use:
-    // 1. Priority mappings (curated, verified)
-    // 2. bible_words table (from OSHB interlinear data)
-    // This ensures all Strong's references are academically accurate
+    // Extract FIRST WORD ONLY from each Portuguese definition (primary meaning)
+    // This avoids incorrect mappings from descriptive phrases
+    // Excluded words that cause incorrect mappings (too generic or from descriptions)
+    const excludedWords = new Set([
+      'cima', 'baixo', 'alto', 'lugar', 'local', 'parte', 'lado', 'meio', 'centro',
+      'tipo', 'forma', 'modo', 'maneira', 'espécie', 'gênero', 'classe',
+      'nome', 'palavra', 'termo', 'expressão', 'frase',
+      'pessoa', 'coisa', 'objeto', 'elemento', 'aspecto',
+      'tempo', 'momento', 'período', 'época', 'fase',
+      'ação', 'ato', 'estado', 'condição', 'situação',
+      'origem', 'fonte', 'raiz', 'base', 'fundamento',
+      'uso', 'emprego', 'aplicação', 'sentido', 'significado',
+      'exemplo', 'caso', 'instância', 'ocorrência',
+      'relação', 'conexão', 'ligação', 'vínculo',
+      'para', 'como', 'qual', 'onde', 'quando', 'porque',
+      'mais', 'menos', 'muito', 'pouco', 'bem', 'mal',
+      'ser', 'estar', 'ter', 'haver', 'fazer', 'dar',
+      'que', 'quem', 'qual', 'cujo', 'onde',
+    ]);
+    
+    for (const entry of allStrongEntries) {
+      if (entry.portugueseDef) {
+        // Get first significant word from definition (primary meaning)
+        const firstWords = entry.portugueseDef.toLowerCase()
+          .split(/[,;.:\-—()'"\/\n]/)[0] // Get first segment before punctuation
+          .split(/\s+/)
+          .map((w: string) => w.replace(/[.,;:!?"'()0-9\*\#]/g, '').trim())
+          .filter((w: string) => w.length >= 3 && !excludedWords.has(w));
+        
+        // Only use the FIRST meaningful word to avoid context pollution
+        if (firstWords.length > 0) {
+          const primaryWord = firstWords[0];
+          if (!defWordsToStrong.has(primaryWord)) {
+            defWordsToStrong.set(primaryWord, entry.strongNumber);
+          }
+        }
+      }
+    }
 
     // Cache by language
     if (forGreek) {
@@ -2734,16 +2766,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // STRATEGY 2: DISABLED - Heuristic matching was causing incorrect mappings
-      // Now we use ONLY verified bible_words data or curated priority mappings
-      // This ensures all Strong's references are academically accurate
-      
-      // Add priority mapping words for this chapter (curated, verified mappings)
+      // STRATEGY 2: Use expanded word mappings (priority + first-word definitions)
+      // This provides more coverage while avoiding incorrect mappings
       try {
         const isNT = isNewTestament(bookId);
-        const priorityMappings = isNT ? GREEK_WORD_MAPPINGS : HEBREW_WORD_MAPPINGS;
+        const wordMappings = await getStrongWordMapping(isNT);
         
-        // Get the chapter text to check for priority-mapped words
+        // Get the chapter text to check for mapped words
         const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
         if (chapter && chapter.verses) {
           for (const verse of chapter.verses) {
@@ -2753,8 +2782,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .filter((w: string) => w.length >= 2);
 
             for (const word of verseWords) {
-              // Only add if this word has a VERIFIED priority mapping
-              if (priorityMappings[word] && !verseWordsMap[verse.verse]?.includes(word)) {
+              // Add if this word has a verified mapping
+              if (wordMappings.has(word) && !verseWordsMap[verse.verse]?.includes(word)) {
                 if (!verseWordsMap[verse.verse]) {
                   verseWordsMap[verse.verse] = [];
                 }
@@ -2763,8 +2792,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         }
-      } catch (priorityError) {
-        console.warn("Priority mapping check failed:", priorityError);
+      } catch (mappingError) {
+        console.warn("Word mapping check failed:", mappingError);
       }
 
       res.json({

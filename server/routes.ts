@@ -2668,21 +2668,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       defWordsToStrong.set(word, strongNum);
     }
     
-    // Then extract words from Portuguese definitions
-    for (const entry of allStrongEntries) {
-      if (entry.portugueseDef) {
-        const words = entry.portugueseDef.toLowerCase()
-          .split(/[,;.:\s\-—()'"\/]/g)
-          .filter((w: string) => w.length >= 3);
-        for (const word of words) {
-          const cleanWord = word.replace(/[.,;:!?"'()0-9]/g, '').trim();
-          // Only add if not already mapped (priority mappings take precedence)
-          if (cleanWord.length >= 3 && !defWordsToStrong.has(cleanWord)) {
-            defWordsToStrong.set(cleanWord, entry.strongNumber);
-          }
-        }
-      }
-    }
+    // DISABLED: Extracting words from definitions causes incorrect mappings
+    // Example: "cima" was incorrectly mapped to G1042 (gabbatha = "elevated place")
+    // Now we only use:
+    // 1. Priority mappings (curated, verified)
+    // 2. bible_words table (from OSHB interlinear data)
+    // This ensures all Strong's references are academically accurate
 
     // Cache by language
     if (forGreek) {

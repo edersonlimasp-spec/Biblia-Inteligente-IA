@@ -30,7 +30,7 @@ const AIResponseSchema = z.object({
   transliteration: z.string().default(""),
   pronunciation: z.string().optional().default(""),
   definition: z.string().min(5, "Definition must be at least 5 characters"),
-  portugueseDefinition: z.string().min(50, "Portuguese definition must be at least 50 characters for depth"),
+  portugueseDefinition: z.string().min(100, "Portuguese definition must be at least 100 characters for 7-layer depth"),
   morphologicalInfo: z.string().default(""),
   synonymsRelated: z.string().default(""),
   verseReferences: z.string().default(""),
@@ -43,33 +43,58 @@ const AIResponseSchema = z.object({
 
 const STRONG_GENERATION_PROMPT = `Você é um especialista acadêmico em línguas bíblicas (hebraico, aramaico e grego) com profundo conhecimento em lexicografia, teologia bíblica e história do Antigo Oriente Médio e mundo greco-romano.
 
-Forneça uma análise COMPLETA, PROFUNDA e ACADÊMICA para o número de Strong {{NUMERO}}.
+Forneça uma análise COMPLETA seguindo as 7 CAMADAS DE SIGNIFICADO estilo Bíblia Almeida Strong para o número {{NUMERO}}.
 
 IMPORTANTE: Retorne APENAS um objeto JSON válido, sem texto adicional. Use este formato exato:
 
 {
-  "word": "palavra original em hebraico/grego com caracteres originais (ex: אָב para hebraico, λόγος para grego)",
-  "transliteration": "transliteração precisa em caracteres latinos seguindo padrões acadêmicos",
-  "pronunciation": "pronúncia aproximada com acentuação",
-  "definition": "definição concisa em inglês (1-2 frases)",
-  "portugueseDefinition": "Definição DETALHADA em português brasileiro (mínimo 100 palavras). Inclua: 1) Significado primário e nuances; 2) Como a palavra era entendida no contexto bíblico original; 3) Diferenças de uso no AT vs NT se aplicável; 4) Implicações práticas para compreensão do texto.",
-  "morphologicalInfo": "Análise morfológica COMPLETA: raiz trilítera/verbal, padrão binyan (hebraico) ou tempo-voz-modo (grego), gênero, número, derivações, formas cognatas.",
-  "synonymsRelated": "Liste 5-8 termos relacionados com seus números Strong, explicando as diferenças semânticas sutis entre cada um. Ex: 'H2617 chesed (amor leal) vs H160 ahavah (amor) - chesed enfatiza fidelidade pactual'",
-  "verseReferences": "10-15 versículos-chave organizados por tema ou livro, mostrando a amplitude de uso. Inclua passagens do Pentateuco, Profetas, Salmos, Evangelhos e Epístolas conforme relevante.",
-  "etymology": "Etimologia DETALHADA: raiz proto-semítica ou indo-europeia, cognatos em línguas irmãs (ugarítico, acadiano, aramaico, fenício para hebraico; grego clássico, koiné para NT), evolução histórica do significado.",
-  "historicalContext": "Contexto histórico-cultural: como a palavra era usada no Antigo Oriente Médio ou mundo greco-romano contemporâneo aos escritores bíblicos. Inclua evidências de textos extra-bíblicos como Ugarit, Mari, Nuzi, papiros egípcios, literatura rabínica ou pais apostólicos.",
-  "theologicalSignificance": "Significado teológico PROFUNDO: papel do conceito na teologia bíblica, desenvolvimento da doutrina, conexões tipológicas AT-NT, como os rabinos judeus e pais da igreja interpretaram este termo, relevância para doutrinas cristãs fundamentais.",
-  "semanticRange": "Amplitude semântica: todos os significados possíveis organizados do mais literal ao mais figurativo. Indique em quais contextos cada significado é preferido (poético, narrativo, profético, legal, apocalíptico).",
-  "culturalBackground": "Contexto cultural: práticas, costumes, rituais ou conceitos do mundo antigo que iluminam o significado. Ex: para termos de sacrifício, explique o sistema sacrificial; para termos de família, explique a estrutura familiar patriarcal."
+  "word": "palavra original em hebraico/grego com caracteres originais e nikkud/acentos (ex: אָב para hebraico, λόγος para grego)",
+  "transliteration": "transliteração acadêmica precisa seguindo convenções SBL (Society of Biblical Literature)",
+  "pronunciation": "pronúncia com acentuação tônica, divisão silábica e guia fonético aproximado em português",
+  "definition": "definição concisa em inglês seguindo BDAG/HALOT (1-2 frases)",
+  "portugueseDefinition": "AS 7 CAMADAS DE SIGNIFICADO em português brasileiro (mínimo 200 palavras), estruturadas assim:
+
+**CAMADA 1 - SIGNIFICADO LITERAL/PRIMÁRIO:** O sentido mais básico e concreto da palavra, sua raiz etimológica e significado original.
+
+**CAMADA 2 - SIGNIFICADO AMPLIADO:** Extensões de significado que a palavra adquiriu, usos metafóricos e figurativos comuns.
+
+**CAMADA 3 - USO NO ANTIGO TESTAMENTO:** Como a palavra é usada especificamente no AT, frequência, contextos principais (Torá, Profetas, Escritos).
+
+**CAMADA 4 - USO NO NOVO TESTAMENTO:** Como a palavra ou seu equivalente grego é usado no NT, evolução semântica entre Testamentos.
+
+**CAMADA 5 - DIMENSÃO TEOLÓGICA:** O significado teológico profundo, como a palavra comunica verdades sobre Deus, salvação, aliança, etc.
+
+**CAMADA 6 - APLICAÇÃO DEVOCIONAL:** Como entender esta palavra enriquece a vida espiritual, oração, adoração e relacionamento com Deus.
+
+**CAMADA 7 - CONEXÃO CRISTOLÓGICA:** Como a palavra se conecta com Cristo, tipologias messiânicas, cumprimento em Jesus.",
+
+  "morphologicalInfo": "Análise morfológica COMPLETA: Para hebraico: raiz trilítera, padrão verbal (binyan: Qal, Nifal, Piel, Pual, Hifil, Hofal, Hitpael), gênero, número, estado (absoluto/construto). Para grego: raiz, tempo verbal, voz, modo, caso, número, declinação. Inclua formas derivadas e cognatas.",
+  
+  "synonymsRelated": "FAMÍLIA SEMÂNTICA COMPLETA: Liste 8-12 termos relacionados com números Strong, organizados em: a) Sinônimos próximos com nuances distintas; b) Antônimos; c) Termos do mesmo campo semântico. Explique as diferenças sutis. Ex: 'H2617 חֶסֶד (chesed) amor leal pactual vs H160 אַהֲבָה (ahavah) amor afetivo - chesed enfatiza compromisso de aliança, ahavah enfatiza afeição emocional'",
+  
+  "verseReferences": "15-20 VERSÍCULOS-CHAVE organizados por categoria: a) Primeira ocorrência bíblica; b) Passagens paradigmáticas; c) Uso nos Salmos/Sabedoria; d) Uso profético; e) Citações no NT; f) Passagens teologicamente significativas. Formato: 'Gênesis 1:1 - contexto; João 1:1 - paralelo'",
+  
+  "etymology": "ETIMOLOGIA PROFUNDA: 1) Raiz proto-semítica ou indo-europeia; 2) Cognatos em línguas irmãs (ugarítico, acadiano, aramaico, fenício, árabe para hebraico; grego clássico, latim para NT); 3) Evolução histórica do significado através dos séculos; 4) Como a palavra chegou às traduções modernas; 5) Empréstimos e influências linguísticas.",
+  
+  "historicalContext": "CONTEXTO HISTÓRICO-CULTURAL EXPANDIDO: 1) Uso da palavra no Antigo Oriente Médio (textos de Ugarit, Mari, Nuzi, El-Amarna, papiros egípcios); 2) Parallelos em literatura do Segundo Templo (Qumran, Pseudoepígrafos, LXX); 3) Uso na literatura rabínica (Mishná, Talmud, Midrash); 4) Interpretação dos Pais da Igreja; 5) Evidências arqueológicas relevantes; 6) Inscrições e documentos antigos que iluminam o termo.",
+  
+  "theologicalSignificance": "SIGNIFICADO TEOLÓGICO PROFUNDO: 1) Papel do conceito na teologia bíblica sistemática; 2) Desenvolvimento da doutrina através da história da redenção; 3) Conexões tipológicas AT-NT; 4) Como os rabinos e pais da igreja interpretaram; 5) Relevância para doutrinas fundamentais (Trindade, Cristologia, Soteriologia, Eclesiologia, Escatologia); 6) Implicações para a cosmovisão bíblica; 7) Contrastes com conceitos pagãos contemporâneos.",
+  
+  "semanticRange": "AMPLITUDE SEMÂNTICA COMPLETA: Organize todos os significados do mais literal ao mais abstrato: 1) Sentido físico/concreto; 2) Sentido social/relacional; 3) Sentido emocional/psicológico; 4) Sentido ético/moral; 5) Sentido religioso/cultual; 6) Sentido escatológico/profético. Indique em quais gêneros literários cada sentido predomina (narrativa, poesia, profecia, apocalipse, sabedoria, lei).",
+  
+  "culturalBackground": "CONTEXTO CULTURAL ABRANGENTE: 1) Práticas, costumes e rituais do mundo antigo que iluminam o significado; 2) Estruturas sociais (família patriarcal, clã, tribo, nação); 3) Sistema econômico (agricultura, pastoreio, comércio); 4) Práticas religiosas e cultuais; 5) Cosmovisão do mundo antigo; 6) Comparação com práticas de povos vizinhos; 7) Como o conhecimento cultural enriquece a compreensão do texto."
 }
 
-DIRETRIZES DE QUALIDADE:
+DIRETRIZES DE QUALIDADE PREMIUM:
 - Se o número começar com H, é hebraico/aramaico do Antigo Testamento.
 - Se começar com G, é grego koiné do Novo Testamento.
-- Seja academicamente rigoroso mas acessível ao leitor brasileiro interessado em estudos bíblicos.
-- Cite fontes quando relevante (HALOT, BDAG, TDNT, TWOT, NIDOTTE, Gesenius, Thayer).
-- A qualidade deve SUPERAR a Bíblia Almeida Strong e ser comparável a léxicos acadêmicos.
-- Priorize profundidade sobre brevidade - o usuário quer entender a riqueza da palavra original.`;
+- Seja academicamente rigoroso mas acessível ao leitor brasileiro.
+- Cite fontes: HALOT, BDAG, TDNT, TWOT, NIDOTTE, TLOT, Gesenius, Thayer, Louw-Nida, Vine's.
+- A qualidade deve SUPERAR significativamente a Bíblia Almeida Strong impressa.
+- Priorize profundidade e riqueza - o usuário paga por conteúdo acadêmico premium.
+- Cada campo deve ser EXTENSO e INFORMATIVO - evite respostas curtas.
+- Inclua referências cruzadas entre Antigo e Novo Testamento sempre que possível.
+- Destaque conexões messiânicas e cristológicas para leitores cristãos.`;
 
 export async function generateStrongDefinition(
   strongNumber: string,
@@ -90,15 +115,15 @@ export async function generateStrongDefinition(
       messages: [
         {
           role: "system",
-          content: "Você é um lexicógrafo bíblico de nível doutorado, especializado em hebraico bíblico e grego koiné. Responda APENAS com JSON válido, sem markdown ou texto adicional. Sua expertise inclui semitística comparada, estudos do NT, arqueologia bíblica e história das religiões."
+          content: "Você é um lexicógrafo bíblico de nível doutorado, especializado em hebraico bíblico e grego koiné. Responda APENAS com JSON válido, sem markdown ou texto adicional. Sua expertise inclui semitística comparada, estudos do NT, arqueologia bíblica, história das religiões e teologia sistemática. Seu objetivo é fornecer as 7 CAMADAS DE SIGNIFICADO estilo Bíblia Almeida Strong, com conteúdo RICO, PROFUNDO e EXTENSO que supere qualquer dicionário impresso."
         },
         {
           role: "user",
           content: prompt + contextHint
         }
       ],
-      max_tokens: 3500,
-      temperature: 0.25,
+      max_tokens: 6000,
+      temperature: 0.3,
     });
 
     const content = response.choices[0]?.message?.content;
@@ -128,8 +153,8 @@ export async function generateStrongDefinition(
 
     const validated = parseResult.data;
 
-    if (validated.portugueseDefinition.length < 50) {
-      console.error("[Strong AI] Portuguese definition too short for academic quality standards");
+    if (validated.portugueseDefinition.length < 100) {
+      console.error("[Strong AI] Portuguese definition too short for 7-layer academic quality standards");
       return null;
     }
 

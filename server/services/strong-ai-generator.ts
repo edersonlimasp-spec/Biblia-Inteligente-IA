@@ -190,10 +190,11 @@ export function isEntryIncomplete(entry: {
   kjvDef?: string | null;
   extendedDefinition?: string | null;
 }): boolean {
-  const hasPortuguese = entry.portugueseDef && entry.portugueseDef.length > 20;
-  const hasStrongs = entry.strongsDef && entry.strongsDef.length > 20;
-  const hasKjv = entry.kjvDef && entry.kjvDef.length > 20;
-  const hasExtended = entry.extendedDefinition && entry.extendedDefinition.length > 50;
+  // Entry is incomplete if it doesn't have a Portuguese definition with 7-layer content
+  // We ALWAYS want Portuguese content for Brazilian users
+  const hasRichPortuguese = entry.portugueseDef && entry.portugueseDef.length > 100;
+  const hasExtended = entry.extendedDefinition && entry.extendedDefinition.length > 100;
   
-  return !hasPortuguese && !hasStrongs && !hasKjv && !hasExtended;
+  // Need AI generation if no rich Portuguese definition exists
+  return !hasRichPortuguese && !hasExtended;
 }

@@ -3261,10 +3261,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               word: entry.lemma,
               transliteration: entry.translit || entry.xlit || aiResult.transliteration,
               pronunciation: entry.pron || aiResult.pronunciation || '',
-              definition: entry.kjvDef || entry.strongsDef || aiResult.definition,
+              definition: aiResult.definition,
               portugueseDefinition: aiResult.portugueseDefinition,
-              strongsDefinition: entry.strongsDef || aiResult.definition,
-              kjvDefinition: entry.kjvDef || null,
+              strongsDefinition: aiResult.definition,
+              kjvDefinition: null,
               derivation: entry.derivation || null,
               extendedDefinition: aiResult.portugueseDefinition,
               morphologicalInfo: aiResult.morphologicalInfo,
@@ -3535,6 +3535,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .limit(1);
         
         if (strongEntry) {
+          // Prefer Portuguese definition, or create brief Portuguese summary
+          const portugueseDef = strongEntry.portugueseDef || strongEntry.extendedDefinition;
+          const briefDef = portugueseDef 
+            ? (portugueseDef.length > 100 ? portugueseDef.substring(0, 100) + '...' : portugueseDef)
+            : null;
           return res.json({
             results: [{
               number: strongEntry.strongNumber,
@@ -3542,7 +3547,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               word: strongEntry.lemma,
               transliteration: strongEntry.translit || strongEntry.xlit || '',
               pronunciation: strongEntry.pron || '',
-              definition: strongEntry.kjvDef || strongEntry.strongsDef || '',
+              definition: briefDef || 'Clique para ver definição completa',
               language: strongEntry.language,
             }],
             total: 1,

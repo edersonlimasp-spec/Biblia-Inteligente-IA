@@ -3514,7 +3514,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.incrementGuestStrongLookups(deviceId);
       }
       
-      // STRATEGY 1: Try exact match from bible_words table (most accurate)
+      // STRATEGY 0: PRIORITY - Check curated word mappings FIRST (most reliable for common words)
+      // This prevents incorrect matches from bible_words or heuristic search
+      const otBooksForPriority = ['gen', 'exo', 'lev', 'num', 'deu', 'jos', 'jdg', 'rut', '1sa', '2sa', '1ki', '2ki', '1ch', '2ch', 'ezr', 'neh', 'est', 'job', 'psa', 'pro', 'ecc', 'sng', 'isa', 'jer', 'lam', 'eze', 'dan', 'hos', 'joe', 'amo', 'oba', 'jon', 'mic', 'nah', 'hab', 'zep', 'hag', 'zec', 'mal'];
+      const isOT = otBooksForPriority.includes(book?.toLowerCase() || '');
+      const priorityMappings = isOT ? HEBREW_WORD_MAPPINGS : GREEK_WORD_MAPPINGS;
+      
+      // Normalize the query word
+      const normalizedQuery = lowerQuery.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, '');
+      
+      // Check if this common word has a priority mapping
+      if (priorityMappings[lowerQuery] || priorityMappings[normalizedQuery]) {
+        const strongNum = priorityMappings[lowerQuery] || priorityMappings[normalizedQuery];
+        console.log(`[Strong Search] PRIORITY MATCH: "${lowerQuery}" -> ${strongNum}`);
+        
+        const [strongEntry] = await db
+          .select()
+          .from(strongEntries)
+          .where(eq(strongEntries.strongNumber, strongNum))
+          .limit(1);
+        
+        if (strongEntry) {
+          return res.json({
+            results: [{
+              number: strongEntry.strongNumber,
+              portugueseDefinition: strongEntry.portugueseDef || null,
+              word: strongEntry.lemma,
+              transliteration: strongEntry.translit || strongEntry.xlit || '',
+              pronunciation: strongEntry.pron || '',
+              definition: strongEntry.kjvDef || strongEntry.strongsDef || '',
+              language: strongEntry.language,
+            }],
+            total: 1,
+            source: 'priority_mapping',
+            exactMatch: true
+          });
+        }
+      }
+      
+      // STRATEGY 1: Try exact match from bible_words table
       if (book && chapter && verse) {
         const bibleWordMappings = await db
           .select()

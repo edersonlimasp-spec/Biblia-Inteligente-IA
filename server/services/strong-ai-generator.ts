@@ -85,18 +85,32 @@ IMPORTANTE: Retorne APENAS um objeto JSON válido, sem texto adicional. Use este
   "culturalBackground": "CONTEXTO CULTURAL ABRANGENTE: 1) Práticas, costumes e rituais do mundo antigo que iluminam o significado; 2) Estruturas sociais (família patriarcal, clã, tribo, nação); 3) Sistema econômico (agricultura, pastoreio, comércio); 4) Práticas religiosas e cultuais; 5) Cosmovisão do mundo antigo; 6) Comparação com práticas de povos vizinhos; 7) Como o conhecimento cultural enriquece a compreensão do texto."
 }
 
-DIRETRIZES DE QUALIDADE PREMIUM:
-- OBRIGATÓRIO: TODO O CONTEÚDO DEVE SER EM PORTUGUÊS BRASILEIRO. NENHUMA palavra em inglês é permitida (exceto termos técnicos transliterados como "logos", "agape" etc).
-- Se o número começar com H, é hebraico/aramaico do Antigo Testamento.
-- Se começar com G, é grego koiné do Novo Testamento.
-- Seja academicamente rigoroso mas acessível ao leitor brasileiro.
-- Cite fontes (nomes podem ficar em formato original): HALOT, BDAG, TDNT, TWOT, NIDOTTE, TLOT, Gesenius, Thayer, Louw-Nida, Vine's.
-- A qualidade deve SUPERAR significativamente a Bíblia Almeida Strong impressa.
-- Priorize profundidade e riqueza - o usuário paga por conteúdo acadêmico premium.
-- Cada campo deve ser EXTENSO e INFORMATIVO - evite respostas curtas.
-- Inclua referências cruzadas entre Antigo e Novo Testamento sempre que possível.
-- Destaque conexões messiânicas e cristológicas para leitores cristãos.
-- JAMAIS use palavras como "faith", "hope", "love", "God" - use SEMPRE os equivalentes portugueses: "fé", "esperança", "amor", "Deus".`;
+DIRETRIZES DE QUALIDADE E PRECISÃO:
+
+REGRA FUNDAMENTAL - NÃO INVENTAR:
+- USE APENAS informações documentadas em léxicos acadêmicos reconhecidos (HALOT, BDAG, TDNT, TWOT, Gesenius, Thayer)
+- NÃO invente etimologias, contextos históricos ou significados que não existam nestas fontes
+- Se não tiver certeza sobre uma informação, OMITA ao invés de inventar
+- Cada afirmação deve ser baseada em evidência lexicográfica real
+
+REGRA DE IDIOMA - PORTUGUÊS OBRIGATÓRIO:
+- TODO O CONTEÚDO DEVE SER EM PORTUGUÊS BRASILEIRO
+- NENHUMA palavra em inglês é permitida (exceto transliterações: logos, agape, hesed)
+- JAMAIS use: "faith", "hope", "love", "God", "meaning" - use: "fé", "esperança", "amor", "Deus", "significado"
+
+REGRAS DE CONTEÚDO:
+- Se o número começar com H, é hebraico/aramaico do Antigo Testamento
+- Se começar com G, é grego koiné do Novo Testamento
+- Cite sempre as fontes lexicográficas usadas
+- Priorize informações verificáveis sobre especulações
+- Contextos históricos devem vir de fontes arqueológicas e históricas documentadas
+- Referências bíblicas devem ser versículos reais onde a palavra aparece
+
+QUALIDADE:
+- Conteúdo rico e profundo baseado em pesquisa real
+- Cada campo deve ser informativo mas preciso
+- Referências cruzadas AT-NT quando documentadas
+- Conexões cristológicas baseadas em tipologia bíblica reconhecida`;
 
 export async function generateStrongDefinition(
   strongNumber: string,
@@ -117,7 +131,7 @@ export async function generateStrongDefinition(
       messages: [
         {
           role: "system",
-          content: "Você é um lexicógrafo bíblico de nível doutorado, especializado em hebraico bíblico e grego koiné. Responda APENAS com JSON válido, sem markdown ou texto adicional. REGRA CRÍTICA: TODO O CONTEÚDO DEVE SER EM PORTUGUÊS BRASILEIRO - nenhuma palavra em inglês é permitida. Seu objetivo é fornecer as 7 CAMADAS DE SIGNIFICADO estilo Bíblia Almeida Strong, com conteúdo RICO, PROFUNDO e EXTENSO que supere qualquer dicionário impresso."
+          content: "Você é um lexicógrafo bíblico especializado em hebraico e grego. REGRAS CRÍTICAS: 1) Responda APENAS com JSON válido, sem markdown. 2) TODO conteúdo em PORTUGUÊS BRASILEIRO - ZERO palavras em inglês. 3) NÃO INVENTE informações - use APENAS dados de léxicos acadêmicos (HALOT, BDAG, TDNT, Gesenius, Thayer). 4) Se não souber algo com certeza, OMITA ao invés de inventar. 5) Forneça as 7 CAMADAS DE SIGNIFICADO com contextos históricos e culturais VERIFICADOS."
         },
         {
           role: "user",

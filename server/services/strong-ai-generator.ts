@@ -51,7 +51,7 @@ IMPORTANTE: Retorne APENAS um objeto JSON válido, sem texto adicional. Use este
   "word": "palavra original em hebraico/grego com caracteres originais e nikkud/acentos (ex: אָב para hebraico, λόγος para grego)",
   "transliteration": "transliteração acadêmica precisa seguindo convenções SBL (Society of Biblical Literature)",
   "pronunciation": "pronúncia com acentuação tônica, divisão silábica e guia fonético aproximado em português",
-  "definition": "definição concisa em inglês seguindo BDAG/HALOT (1-2 frases)",
+  "definition": "definição concisa EM PORTUGUÊS (1-2 frases) - NUNCA em inglês",
   "portugueseDefinition": "AS 7 CAMADAS DE SIGNIFICADO em português brasileiro (mínimo 200 palavras), estruturadas assim:
 
 **CAMADA 1 - SIGNIFICADO LITERAL/PRIMÁRIO:** O sentido mais básico e concreto da palavra, sua raiz etimológica e significado original.
@@ -86,15 +86,17 @@ IMPORTANTE: Retorne APENAS um objeto JSON válido, sem texto adicional. Use este
 }
 
 DIRETRIZES DE QUALIDADE PREMIUM:
+- OBRIGATÓRIO: TODO O CONTEÚDO DEVE SER EM PORTUGUÊS BRASILEIRO. NENHUMA palavra em inglês é permitida (exceto termos técnicos transliterados como "logos", "agape" etc).
 - Se o número começar com H, é hebraico/aramaico do Antigo Testamento.
 - Se começar com G, é grego koiné do Novo Testamento.
 - Seja academicamente rigoroso mas acessível ao leitor brasileiro.
-- Cite fontes: HALOT, BDAG, TDNT, TWOT, NIDOTTE, TLOT, Gesenius, Thayer, Louw-Nida, Vine's.
+- Cite fontes (nomes podem ficar em formato original): HALOT, BDAG, TDNT, TWOT, NIDOTTE, TLOT, Gesenius, Thayer, Louw-Nida, Vine's.
 - A qualidade deve SUPERAR significativamente a Bíblia Almeida Strong impressa.
 - Priorize profundidade e riqueza - o usuário paga por conteúdo acadêmico premium.
 - Cada campo deve ser EXTENSO e INFORMATIVO - evite respostas curtas.
 - Inclua referências cruzadas entre Antigo e Novo Testamento sempre que possível.
-- Destaque conexões messiânicas e cristológicas para leitores cristãos.`;
+- Destaque conexões messiânicas e cristológicas para leitores cristãos.
+- JAMAIS use palavras como "faith", "hope", "love", "God" - use SEMPRE os equivalentes portugueses: "fé", "esperança", "amor", "Deus".`;
 
 export async function generateStrongDefinition(
   strongNumber: string,
@@ -115,7 +117,7 @@ export async function generateStrongDefinition(
       messages: [
         {
           role: "system",
-          content: "Você é um lexicógrafo bíblico de nível doutorado, especializado em hebraico bíblico e grego koiné. Responda APENAS com JSON válido, sem markdown ou texto adicional. Sua expertise inclui semitística comparada, estudos do NT, arqueologia bíblica, história das religiões e teologia sistemática. Seu objetivo é fornecer as 7 CAMADAS DE SIGNIFICADO estilo Bíblia Almeida Strong, com conteúdo RICO, PROFUNDO e EXTENSO que supere qualquer dicionário impresso."
+          content: "Você é um lexicógrafo bíblico de nível doutorado, especializado em hebraico bíblico e grego koiné. Responda APENAS com JSON válido, sem markdown ou texto adicional. REGRA CRÍTICA: TODO O CONTEÚDO DEVE SER EM PORTUGUÊS BRASILEIRO - nenhuma palavra em inglês é permitida. Seu objetivo é fornecer as 7 CAMADAS DE SIGNIFICADO estilo Bíblia Almeida Strong, com conteúdo RICO, PROFUNDO e EXTENSO que supere qualquer dicionário impresso."
         },
         {
           role: "user",

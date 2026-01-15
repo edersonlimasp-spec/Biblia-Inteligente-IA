@@ -2743,26 +2743,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // STRATEGY 2: ALWAYS apply heuristic matching to SUPPLEMENT bible_words data
-      // Uses testament-aware mapping (Greek for NT, Hebrew for OT)
+      // STRATEGY 2: DISABLED - Heuristic matching was causing incorrect mappings
+      // Now we use ONLY verified bible_words data or curated priority mappings
+      // This ensures all Strong's references are academically accurate
+      
+      // Add priority mapping words for this chapter (curated, verified mappings)
       try {
-        // Determine testament for correct language mapping
         const isNT = isNewTestament(bookId);
-        const defWordsToStrong = await getStrongWordMapping(isNT);
-
-        // Get the chapter text to extract words
+        const priorityMappings = isNT ? GREEK_WORD_MAPPINGS : HEBREW_WORD_MAPPINGS;
+        
+        // Get the chapter text to check for priority-mapped words
         const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
         if (chapter && chapter.verses) {
-          // Now match verse words against Strong definitions
           for (const verse of chapter.verses) {
             const verseWords = verse.text.toLowerCase()
               .split(/\s+/)
               .map((w: string) => w.replace(/[.,;:!?"'()]/g, '').trim())
-              .filter((w: string) => w.length >= 3);
+              .filter((w: string) => w.length >= 2);
 
             for (const word of verseWords) {
-              // Add word if it matches Strong definition AND not already in list
-              if (defWordsToStrong.has(word) && !verseWordsMap[verse.verse]?.includes(word)) {
+              // Only add if this word has a VERIFIED priority mapping
+              if (priorityMappings[word] && !verseWordsMap[verse.verse]?.includes(word)) {
                 if (!verseWordsMap[verse.verse]) {
                   verseWordsMap[verse.verse] = [];
                 }
@@ -2771,9 +2772,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         }
-      } catch (fallbackError) {
-        console.warn("Heuristic Strong matching failed:", fallbackError);
-        // Continue with bible_words result only - don't crash
+      } catch (priorityError) {
+        console.warn("Priority mapping check failed:", priorityError);
       }
 
       res.json({
@@ -3630,55 +3630,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // STRATEGY 2: Fallback to heuristic search in strong_entries
-      const oldTestamentBooks = ['gen', 'exo', 'lev', 'num', 'deu', 'jos', 'jdg', 'rut', '1sa', '2sa', '1ki', '2ki', '1ch', '2ch', 'ezr', 'neh', 'est', 'job', 'psa', 'pro', 'ecc', 'sng', 'isa', 'jer', 'lam', 'eze', 'dan', 'hos', 'joe', 'amo', 'oba', 'jon', 'mic', 'nah', 'hab', 'zep', 'hag', 'zec', 'mal'];
-      const isOldTestament = oldTestamentBooks.includes(book?.toLowerCase() || '');
-      const strongPrefix = isOldTestament ? 'H' : 'G';
+      // STRATEGY 2: DISABLED - Heuristic search was causing incorrect mappings
+      // Instead of guessing, we now inform the user that no verified mapping exists
+      // This ensures data integrity and prevents incorrect Strong's references
       
-      const allEntries = await db
-        .select()
-        .from(strongEntries)
-        .limit(10000);
-      
-      const scored = allEntries
-        .filter(e => e.strongNumber?.startsWith(strongPrefix))
-        .map(e => {
-          const ptDef = (e.portugueseDef || '').toLowerCase();
-          const enDef = (e.kjvDef || '').toLowerCase();
-          
-          let score = 0;
-          const wordRegex = new RegExp(`\\b${lowerQuery}\\b`);
-          
-          if (ptDef.startsWith(lowerQuery)) {
-            score = 500;
-          } else if (wordRegex.test(ptDef)) {
-            score = 300;
-          } else if (ptDef.includes(lowerQuery)) {
-            const isProperNoun = /de um lugar|localidade|toponym|city|place|nome de/.test(ptDef);
-            score = isProperNoun ? 10 : 100;
-          } else if (wordRegex.test(enDef)) {
-            score = 20;
-          }
-          
-          return {
-            number: e.strongNumber,
-            portugueseDefinition: e.portugueseDef || null,
-            word: e.lemma,
-            transliteration: e.translit || e.xlit || '',
-            pronunciation: e.pron || '',
-            definition: e.kjvDef || e.strongsDef || '',
-            language: e.language,
-            _score: score,
-          };
-        })
-        .filter(r => r._score > 0)
-        .sort((a, b) => b._score - a._score)
-        .slice(0, 5);
+      console.log(`[Strong Search] No verified mapping found for "${lowerQuery}" in ${book || 'unknown'}:${chapter || '?'}:${verse || '?'}`);
       
       res.json({ 
-        results: scored.map(({ _score, ...rest }) => rest),
-        total: scored.length,
-        source: 'heuristic',
+        results: [],
+        total: 0,
+        source: 'no_verified_mapping',
+        message: 'Mapeamento Strong não disponível para esta palavra neste versículo. Apenas palavras com mapeamento verificado são exibidas.',
         contextUsed: true
       });
     } catch (error) {

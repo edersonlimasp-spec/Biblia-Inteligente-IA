@@ -701,8 +701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check access permissions - PLANO GRATUITO com limites
-  // Strong: Visitante = 2 consultas, Logado = 4 consultas
+  // Check access permissions - NOVA REGRA: Strong requer login, sem assinatura = 2 palavras
   app.get("/api/access/strong", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const user = await storage.getUser(req.userId!);
@@ -722,12 +721,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Assinantes têm acesso ilimitado
+      // Assinantes têm acesso ilimitado ou diário
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
       const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
       
-      if (hasGold || hasPremium || hasLifetime) {
+      if (hasPremium || hasLifetime) {
         return res.json({ 
           hasAccess: true,
           reason: 'subscription',
@@ -737,9 +736,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // PLANO GRATUITO: 4 consultas Strong no total
-      const STRONG_FREE_LIMIT = 4;
-      const strongUsed = await storage.getTotalStrongLookups(req.userId!);
+      if (hasGold) {
+        const todayLookups = await storage.getTodayStrongLookups(req.userId!);
+        const remaining = Math.max(0, 20 - todayLookups);
+        return res.json({ 
+          hasAccess: remaining > 0,
+          reason: remaining > 0 ? 'gold' : 'limit_reached',
+          used: todayLookups,
+          limit: 20,
+          remaining,
+          requiresSubscription: remaining === 0,
+        });
+      }
+      
+      // NOVA REGRA: 2 consultas Strong no total para não-assinantes
+      const STRONG_FREE_LIMIT = 2;
+      const freeQuota = await storage.getFreeStrongQuota(req.userId!);
+      const strongUsed = freeQuota?.lookupsUsed || 0;
       const remaining = Math.max(0, STRONG_FREE_LIMIT - strongUsed);
       
       res.json({ 
@@ -1159,88 +1172,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Strong Dictionary Quota endpoints
-  const FREE_STRONG_LIMIT = 4; // Free users get 4 total
-  const GUEST_STRONG_LIMIT = 2; // Guests get 2 total
+  // NOVA REGRA: Strong requer login, sem assinatura = 2 palavras
+  const FREE_STRONG_LIMIT = 2; // Free users (logados sem assinatura) get 2 total
   const GOLD_STRONG_DAILY_LIMIT = 20; // Gold users get 20/day
   
   app.get("/api/strong/quota", async (req, res) => {
     try {
-      const { deviceId } = req.query as { deviceId?: string };
-      
-      // Check if authenticated user
+      // NOVA REGRA: Strong REQUER LOGIN
       const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        try {
-          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
-          const user = await storage.getUser(decoded.userId);
-          
-          if (user) {
-            const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-            const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
-            const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
-            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
-            const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
-            
-            // Premium, Lifetime, Bonus and Admin have unlimited access
-            if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
-              return res.json({
-                used: 0,
-                limit: -1,
-                remaining: -1,
-                type: 'unlimited',
-                hasUnlimitedAccess: true,
-              });
-            }
-            
-            if (hasGold) {
-              const todayLookups = await storage.getTodayStrongLookups(decoded.userId);
-              return res.json({
-                used: todayLookups,
-                limit: GOLD_STRONG_DAILY_LIMIT,
-                remaining: Math.max(0, GOLD_STRONG_DAILY_LIMIT - todayLookups),
-                type: 'gold',
-                hasUnlimitedAccess: false,
-              });
-            }
-            
-            // Free user
-            const quota = await storage.getFreeStrongQuota(decoded.userId);
-            const used = quota?.lookupsUsed || 0;
-            
-            return res.json({
-              used,
-              limit: FREE_STRONG_LIMIT,
-              remaining: Math.max(0, FREE_STRONG_LIMIT - used),
-              type: 'free',
-              hasUnlimitedAccess: false,
-            });
-          }
-        } catch (tokenError) {
-          // Invalid token, treat as guest
-        }
-      }
-      
-      // Guest user
-      if (deviceId) {
-        const used = await storage.getGuestStrongQuota(deviceId);
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.json({
-          used,
-          limit: GUEST_STRONG_LIMIT,
-          remaining: Math.max(0, GUEST_STRONG_LIMIT - used),
-          type: 'guest',
+          used: 0,
+          limit: FREE_STRONG_LIMIT,
+          remaining: 0,
+          type: 'not_logged_in',
           hasUnlimitedAccess: false,
+          requiresLogin: true,
         });
       }
       
-      // No auth, no deviceId - return guest default
-      res.json({
-        used: 0,
-        limit: GUEST_STRONG_LIMIT,
-        remaining: GUEST_STRONG_LIMIT,
-        type: 'guest',
-        hasUnlimitedAccess: false,
-      });
+      const token = authHeader.substring(7);
+      try {
+        const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+        const user = await storage.getUser(decoded.userId);
+        
+        if (!user) {
+          return res.json({
+            used: 0,
+            limit: FREE_STRONG_LIMIT,
+            remaining: 0,
+            type: 'not_logged_in',
+            hasUnlimitedAccess: false,
+            requiresLogin: true,
+          });
+        }
+        
+        const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+        const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
+        const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
+        const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
+        const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
+        
+        // Premium, Lifetime, Bonus and Admin have unlimited access
+        if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
+          return res.json({
+            used: 0,
+            limit: -1,
+            remaining: -1,
+            type: 'unlimited',
+            hasUnlimitedAccess: true,
+          });
+        }
+        
+        if (hasGold) {
+          const todayLookups = await storage.getTodayStrongLookups(decoded.userId);
+          return res.json({
+            used: todayLookups,
+            limit: GOLD_STRONG_DAILY_LIMIT,
+            remaining: Math.max(0, GOLD_STRONG_DAILY_LIMIT - todayLookups),
+            type: 'gold',
+            hasUnlimitedAccess: false,
+          });
+        }
+        
+        // Free user (logado sem assinatura): 2 palavras total
+        const quota = await storage.getFreeStrongQuota(decoded.userId);
+        const used = quota?.lookupsUsed || 0;
+        
+        return res.json({
+          used,
+          limit: FREE_STRONG_LIMIT,
+          remaining: Math.max(0, FREE_STRONG_LIMIT - used),
+          type: 'free',
+          hasUnlimitedAccess: false,
+        });
+      } catch (tokenError) {
+        return res.json({
+          used: 0,
+          limit: FREE_STRONG_LIMIT,
+          remaining: 0,
+          type: 'not_logged_in',
+          hasUnlimitedAccess: false,
+          requiresLogin: true,
+        });
+      }
     } catch (error) {
       console.error("Get Strong quota error:", error);
       res.status(500).json({ error: "Erro ao buscar quota Strong" });
@@ -3405,110 +3420,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Strong's Dictionary routes (Database-driven with in-memory cache)
-  // Quota limits: Guest=2 total, Free=4 total (incl. guest), Gold=20/day, Premium=unlimited
+  // NOVA REGRA: Strong REQUER LOGIN. Sem assinatura: 2 palavras gratuitas, na 3ª mostra planos
+  // Gold=20/day, Premium/Lifetime=unlimited
   app.get("/api/strong/:number", async (req, res) => {
     const startTime = Date.now();
     try {
       const { number } = req.params;
-      // Check both query param and header for deviceId (frontend may send via either)
-      const deviceId = (req.query.deviceId as string) || (req.headers['x-device-id'] as string) || undefined;
       const upperNumber = number.toUpperCase();
       
-      // Strong quota limits (permanent for free tiers)
-      const STRONG_GUEST_LIMIT = 2;      // 2 words total for guests
-      const STRONG_FREE_LIMIT = 4;       // 4 words total for free users (incl. migrated guest)
+      // Strong quota limits
+      const STRONG_FREE_LIMIT = 2;       // 2 words total for free users (sem assinatura)
       const STRONG_GOLD_DAILY_LIMIT = 20; // 20/day for Gold
       // Premium/Lifetime = unlimited
       
-      let shouldIncrementQuota = true;
-      let quotaInfo: { used: number; limit: number; type: 'guest' | 'free' | 'gold' | 'unlimited' } | null = null;
+      let quotaInfo: { used: number; limit: number; type: 'free' | 'gold' | 'unlimited' } | null = null;
       
-      // Check if authenticated user
+      // NOVA REGRA: Strong SEMPRE requer login
       const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        try {
-          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
-          const user = await storage.getUser(decoded.userId);
-          
-          if (user) {
-            const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-            const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
-            const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
-            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
-            const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
-            
-            // Premium, Lifetime, Bonus and Admin have unlimited access
-            if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
-              shouldIncrementQuota = false;
-              quotaInfo = { used: 0, limit: -1, type: 'unlimited' };
-            } else if (hasGold) {
-              // Gold users: 20 lookups per day
-              const todayLookups = await storage.getTodayStrongLookups(decoded.userId);
-              if (todayLookups >= STRONG_GOLD_DAILY_LIMIT) {
-                return res.status(429).json({
-                  error: "Limite diário de 20 palavras Strong atingido. Aguarde até amanhã ou assine Premium para acesso ilimitado.",
-                  requiresSubscription: true,
-                  subscriptionType: 'premium',
-                  requiresLogin: false,
-                  used: todayLookups,
-                  limit: STRONG_GOLD_DAILY_LIMIT,
-                });
-              }
-              quotaInfo = { used: todayLookups, limit: STRONG_GOLD_DAILY_LIMIT, type: 'gold' };
-              await storage.incrementStrongLookups(decoded.userId);
-              shouldIncrementQuota = false;
-            } else {
-              // Free user: 4 total (permanent)
-              const freeQuota = await storage.getFreeStrongQuota(decoded.userId);
-              const used = freeQuota?.lookupsUsed || 0;
-              
-              if (used >= STRONG_FREE_LIMIT) {
-                return res.status(429).json({
-                  error: "Você usou suas 4 palavras Strong gratuitas. Assine Gold para 20 palavras/dia ou Premium para ilimitado.",
-                  requiresSubscription: true,
-                  subscriptionType: 'gold',
-                  requiresLogin: false,
-                  used: used,
-                  limit: STRONG_FREE_LIMIT,
-                });
-              }
-              quotaInfo = { used, limit: STRONG_FREE_LIMIT, type: 'free' };
-              await storage.incrementFreeStrongQuota(decoded.userId);
-              shouldIncrementQuota = false;
-            }
-          }
-        } catch (tokenError) {
-          // Invalid token, treat as guest
-        }
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+          error: "Faça login para acessar o Dicionário Strong",
+          requiresLogin: true,
+          requiresSubscription: false,
+          used: 0,
+          limit: STRONG_FREE_LIMIT,
+        });
       }
       
-      // Guest user quota check
-      if (shouldIncrementQuota) {
-        if (deviceId) {
-          const guestUsed = await storage.getGuestStrongQuota(deviceId);
-          
-          if (guestUsed >= STRONG_GUEST_LIMIT) {
-            return res.status(429).json({
-              error: "Você usou suas 2 palavras Strong gratuitas. Faça login para continuar (mais 2 palavras) ou assine para acesso completo.",
-              requiresLogin: true,
-              requiresSubscription: false,
-              used: guestUsed,
-              limit: STRONG_GUEST_LIMIT,
-            });
-          }
-          quotaInfo = { used: guestUsed, limit: STRONG_GUEST_LIMIT, type: 'guest' };
-          await storage.incrementGuestStrongQuota(deviceId);
-        } else {
-          // No deviceId provided - require login to proceed (prevents quota bypass)
-          return res.status(400).json({
-            error: "DeviceId necessário para acessar Strong. Recarregue a página ou faça login.",
-            requiresLogin: true,
-            requiresSubscription: false,
-            used: 0,
-            limit: STRONG_GUEST_LIMIT,
+      const token = authHeader.substring(7);
+      let userId: string;
+      
+      try {
+        const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
+        userId = decoded.userId;
+      } catch (tokenError) {
+        return res.status(401).json({
+          error: "Sessão expirada. Faça login novamente para acessar o Dicionário Strong",
+          requiresLogin: true,
+          requiresSubscription: false,
+          used: 0,
+          limit: STRONG_FREE_LIMIT,
+        });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(401).json({
+          error: "Usuário não encontrado. Faça login novamente.",
+          requiresLogin: true,
+          requiresSubscription: false,
+          used: 0,
+          limit: STRONG_FREE_LIMIT,
+        });
+      }
+      
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      const hasGold = await storage.hasActiveSubscription(userId, 'gold');
+      const hasPremium = await storage.hasActiveSubscription(userId, 'premium');
+      const hasLifetime = await storage.hasActiveSubscription(userId, 'strong_lifetime');
+      const hasActiveBonus = await storage.hasActiveBonus(userId);
+      
+      // Premium, Lifetime, Bonus and Admin have unlimited access
+      if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
+        quotaInfo = { used: 0, limit: -1, type: 'unlimited' };
+      } else if (hasGold) {
+        // Gold users: 20 lookups per day
+        const todayLookups = await storage.getTodayStrongLookups(userId);
+        if (todayLookups >= STRONG_GOLD_DAILY_LIMIT) {
+          return res.status(429).json({
+            error: "Limite diário de 20 palavras Strong atingido. Aguarde até amanhã ou assine Premium para acesso ilimitado.",
+            requiresSubscription: true,
+            subscriptionType: 'premium',
+            requiresLogin: false,
+            used: todayLookups,
+            limit: STRONG_GOLD_DAILY_LIMIT,
           });
         }
+        quotaInfo = { used: todayLookups, limit: STRONG_GOLD_DAILY_LIMIT, type: 'gold' };
+        await storage.incrementStrongLookups(userId);
+      } else {
+        // NOVA REGRA: Free user sem assinatura: 2 palavras gratuitas, na 3ª mostra planos
+        const freeQuota = await storage.getFreeStrongQuota(userId);
+        const used = freeQuota?.lookupsUsed || 0;
+        
+        if (used >= STRONG_FREE_LIMIT) {
+          return res.status(429).json({
+            error: "Você usou suas 2 palavras Strong gratuitas. Assine um plano para continuar estudando.",
+            requiresSubscription: true,
+            subscriptionType: 'gold',
+            requiresLogin: false,
+            used: used,
+            limit: STRONG_FREE_LIMIT,
+          });
+        }
+        quotaInfo = { used, limit: STRONG_FREE_LIMIT, type: 'free' };
+        await storage.incrementFreeStrongQuota(userId);
       }
       
       // Check cache first (instant response)
@@ -3726,90 +3732,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // NOTA: Strong Search não cobra quota - apenas retorna o Strong number para uma palavra
+  // A quota é cobrada no /api/strong/:number (quando o usuário abre a definição)
+  // Isso permite que palavras em azul apareçam para todos, mas login é necessário para ver a definição
   app.get("/api/strong/search/:query", async (req, res) => {
     try {
       const query = req.params.query;
-      const { book, chapter, verse, deviceId } = req.query as Record<string, string>;
+      const { book, chapter, verse } = req.query as Record<string, string>;
       const lowerQuery = query.toLowerCase();
       
-      // Strong lookup limit enforcement - tiered by plan
-      const STRONG_FREE_DAILY_LIMIT = 3;
-      const STRONG_GOLD_DAILY_LIMIT = 20;
-      // Premium/Lifetime = unlimited
-      
-      let lookupInfo: { isLimited: boolean; remaining: number; total: number } | null = null;
-      
-      // Check if authenticated user
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        try {
-          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
-          const user = await storage.getUser(decoded.userId);
-          
-          if (user) {
-            const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-            const trialActive = isTrialActive(user.trialStartDate);
-            const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
-            const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
-            const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
-            const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
-            
-            // Premium, Lifetime and Admin have unlimited access
-            const hasUnlimitedAccess = hasPremium || hasLifetime || hasActiveBonus || isAdmin;
-            // Gold and Trial have 20/day limit
-            const hasGoldAccess = hasGold || trialActive;
-            
-            if (!hasUnlimitedAccess) {
-              const todayStrongLookups = await storage.getTodayStrongLookups(decoded.userId);
-              const dailyLimit = hasGoldAccess ? STRONG_GOLD_DAILY_LIMIT : STRONG_FREE_DAILY_LIMIT;
-              
-              if (todayStrongLookups >= dailyLimit) {
-                const upgradeMsg = hasGoldAccess 
-                  ? "Limite diário de 20 consultas Strong atingido. Assine Premium para acesso ilimitado, ou aguarde até amanhã."
-                  : "Limite diário de 3 consultas Strong atingido. Assine Gold para 20 consultas/dia ou Premium para ilimitado.";
-                return res.status(429).json({
-                  error: upgradeMsg,
-                  requiresSubscription: true,
-                  subscriptionType: hasGoldAccess ? 'premium' : 'gold',
-                  dailyLimit: dailyLimit,
-                  usedToday: todayStrongLookups,
-                  upgradeRequired: true
-                });
-              }
-              
-              lookupInfo = { isLimited: true, remaining: dailyLimit - todayStrongLookups - 1, total: dailyLimit };
-              await storage.incrementStrongLookups(decoded.userId);
-            }
-          }
-        } catch (tokenError) {
-          // Invalid token, treat as guest
-        }
-      } else if (deviceId) {
-        // Guest user - check guest trial and limits
-        const guestTrialInfo = await storage.getGuestTrialInfo(deviceId);
-        const guestTrialActive = guestTrialInfo?.active ?? true;
-        
-        // Guests with active trial get Gold-level access (20/day)
-        const dailyLimit = guestTrialActive ? STRONG_GOLD_DAILY_LIMIT : STRONG_FREE_DAILY_LIMIT;
-        const todayStrongLookups = await storage.getGuestTodayStrongLookups(deviceId);
-        
-        if (todayStrongLookups >= dailyLimit) {
-          const upgradeMsg = guestTrialActive
-            ? "Limite diário de 20 consultas Strong atingido. Aguarde até amanhã ou assine para acesso ilimitado."
-            : "Limite diário de 3 consultas Strong atingido. Cadastre-se para continuar usando, ou aguarde até amanhã.";
-          return res.status(429).json({
-            error: upgradeMsg,
-            requiresSubscription: true,
-            dailyLimit: dailyLimit,
-            usedToday: todayStrongLookups,
-            upgradeRequired: true
-          });
-        }
-        
-        lookupInfo = { isLimited: true, remaining: dailyLimit - todayStrongLookups - 1, total: dailyLimit };
-        await storage.incrementGuestStrongLookups(deviceId);
-      }
+      // Este endpoint apenas retorna mapeamentos, não cobra quota
+      // A quota é cobrada quando o usuário clica e abre /api/strong/:number
       
       // STRATEGY 0: PRIORITY - Check curated word mappings FIRST (most reliable for common words)
       // This prevents incorrect matches from bible_words or heuristic search
@@ -3832,20 +3765,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .limit(1);
         
         if (strongEntry) {
-          // Prefer Portuguese definition, or create brief Portuguese summary
-          const portugueseDef = strongEntry.portugueseDef || strongEntry.extendedDefinition;
-          const briefDef = portugueseDef 
-            ? (portugueseDef.length > 100 ? portugueseDef.substring(0, 100) + '...' : portugueseDef)
-            : null;
+          // NOVA REGRA: Search retorna apenas info básica. Definição completa requer login via /api/strong/:number
           return res.json({
             results: [{
               number: strongEntry.strongNumber,
-              portugueseDefinition: strongEntry.portugueseDef || null,
               word: strongEntry.lemma,
               transliteration: strongEntry.translit || strongEntry.xlit || '',
-              pronunciation: strongEntry.pron || '',
-              definition: briefDef || 'Clique para ver definição completa',
               language: strongEntry.language,
+              // Sem definição - requer login para ver
             }],
             total: 1,
             source: 'priority_mapping',
@@ -3908,15 +3835,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             if (strongEntry.length > 0) {
               const e = strongEntry[0];
+              // NOVA REGRA: Search retorna apenas info básica. Definição completa requer login via /api/strong/:number
               return res.json({
                 results: [{
                   number: e.strongNumber,
-                  portugueseDefinition: e.portugueseDef || null,
                   word: e.lemma,
                   transliteration: e.translit || e.xlit || '',
-                  pronunciation: e.pron || '',
-                  definition: e.kjvDef || e.strongsDef || '',
                   language: e.language,
+                  // Sem definição - requer login para ver
                 }],
                 total: 1,
                 source: 'bible_words',

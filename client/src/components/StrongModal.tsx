@@ -309,28 +309,26 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
     );
   }
 
-  // Guest needs to login first
+  // NOVA REGRA: Strong requer login
   if (error && requiresLogin) {
-    const errorMessage = apiError?.data?.error || "Faça login para continuar";
-    const used = apiError?.data?.used || 0;
-    const limit = apiError?.data?.limit || 2;
+    const errorMessage = apiError?.data?.error || "Faça login para acessar o Dicionário Strong";
     
     return (
       <>
         <Dialog open={true} onOpenChange={onClose}>
           <DialogContent className="w-[95vw] max-w-md bg-background" data-testid="modal-strong-login">
             <DialogTitle className="sr-only">Login Necessário</DialogTitle>
-            <DialogDescription className="sr-only">Faça login ou assine um plano para continuar usando o dicionário Strong</DialogDescription>
+            <DialogDescription className="sr-only">Faça login para acessar o dicionário Strong</DialogDescription>
             <div className="flex flex-col items-center p-4 text-center gap-4">
               <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 <LogIn className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               
               <div>
-                <h3 className="text-xl font-bold text-foreground">Limite Atingido</h3>
+                <h3 className="text-xl font-bold text-foreground">Login Necessário</h3>
                 <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Você usou {used}/{limit} palavras gratuitas
+                  Crie uma conta gratuita e ganhe 2 palavras Strong para experimentar
                 </p>
               </div>
               
@@ -340,7 +338,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
                     <LogIn className="w-6 h-6 text-primary flex-shrink-0" />
                     <div className="text-left flex-1">
                       <div className="font-semibold text-foreground">Faça Login</div>
-                      <div className="text-xs text-muted-foreground">Ganhe mais 2 palavras gratuitas</div>
+                      <div className="text-xs text-muted-foreground">2 palavras gratuitas para experimentar</div>
                     </div>
                   </div>
                   <Button 
@@ -394,7 +392,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
           onOpenChange={setShowAuthModal}
           onAuthSuccess={handleAuthSuccess}
           title="Acessar Dicionário Strong"
-          description="Faça login para desbloquear mais 2 palavras gratuitas do Dicionário Strong."
+          description="Faça login para desbloquear 2 palavras gratuitas do Dicionário Strong."
         />
       </>
     );

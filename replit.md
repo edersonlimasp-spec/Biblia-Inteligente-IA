@@ -21,7 +21,10 @@ The application is a fullstack PWA consisting of a React frontend and an Express
 - **Theme:** Metallic Blue (`#1A5299`) as the primary color, with comprehensive dark mode support.
 - **Typography:** Serif fonts for biblical texts, sans-serif for UI elements.
 - **PWA Features:** Full PWA implementation including manifest, service worker for intelligent caching and offline support, optimized icons, and meta tags for native-like installation.
-- **Guest-First Architecture:** Direct access to the Bible reader without login; a 30-day guest trial for Strong's and essential AI features is tracked via `deviceId`. Login is required for subscription.
+- **Access Rules (Updated Jan 2026):** 
+  - **Bible:** Accessible to everyone without login
+  - **Strong's Dictionary:** Requires login. Free users (without subscription) get 2 words total. Gold: 20/day. Premium/Lifetime: unlimited.
+  - **AI Professor:** Requires login. Free users: 5 questions total. Gold: 30/day. Premium: 100/day.
 
 **Technical Implementations & Feature Specifications:**
 - **Authentication:** JWT with bcrypt for secure password hashing.

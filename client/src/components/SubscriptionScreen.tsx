@@ -301,7 +301,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature, idx) => (
+                    {plan.features.filter(f => f && f.trim() !== '').map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm">
                         <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>

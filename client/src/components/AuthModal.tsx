@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,9 +35,11 @@ export function AuthModal({
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [registerName, setRegisterName] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const { login, register } = useAuth();
   const { toast } = useToast();
   
@@ -132,16 +135,27 @@ export function AuthModal({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="register-password">{t("auth.password")}</Label>
-                <Input
-                  id="register-password"
-                  type="password"
-                  placeholder={t("auth.enterPassword")}
-                  value={registerPassword}
-                  onChange={(e) => setRegisterPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  data-testid="input-register-password"
-                />
+                <div className="relative">
+                  <Input
+                    id="register-password"
+                    type={showRegisterPassword ? "text" : "password"}
+                    placeholder={t("auth.enterPassword")}
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="pr-10"
+                    data-testid="input-register-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid="button-toggle-register-password"
+                  >
+                    {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <Button
                 type="submit"
@@ -170,15 +184,26 @@ export function AuthModal({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="login-password">{t("auth.password")}</Label>
-                <Input
-                  id="login-password"
-                  type="password"
-                  placeholder={t("auth.enterPassword")}
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  required
-                  data-testid="input-login-password"
-                />
+                <div className="relative">
+                  <Input
+                    id="login-password"
+                    type={showLoginPassword ? "text" : "password"}
+                    placeholder={t("auth.enterPassword")}
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    required
+                    className="pr-10"
+                    data-testid="input-login-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid="button-toggle-login-password"
+                  >
+                    {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <Button
                 type="submit"

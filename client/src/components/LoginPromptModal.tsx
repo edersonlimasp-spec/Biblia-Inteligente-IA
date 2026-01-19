@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
-import { LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus, Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,9 +32,11 @@ export function LoginPromptModal({
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [registerName, setRegisterName] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const { login, register } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -129,15 +131,26 @@ export function LoginPromptModal({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="prompt-login-password">{t("auth.password")}</Label>
-                <Input
-                  id="prompt-login-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  required
-                  data-testid="input-prompt-login-password"
-                />
+                <div className="relative">
+                  <Input
+                    id="prompt-login-password"
+                    type={showLoginPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    required
+                    className="pr-10"
+                    data-testid="input-prompt-login-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid="button-toggle-prompt-login-password"
+                  >
+                    {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <Button
                 type="submit"
@@ -178,16 +191,27 @@ export function LoginPromptModal({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="prompt-register-password">{t("auth.password")}</Label>
-                <Input
-                  id="prompt-register-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={registerPassword}
-                  onChange={(e) => setRegisterPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  data-testid="input-prompt-register-password"
-                />
+                <div className="relative">
+                  <Input
+                    id="prompt-register-password"
+                    type={showRegisterPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="pr-10"
+                    data-testid="input-prompt-register-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid="button-toggle-prompt-register-password"
+                  >
+                    {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <Button
                 type="submit"

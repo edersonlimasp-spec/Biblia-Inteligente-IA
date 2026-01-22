@@ -514,7 +514,7 @@ class PostgresStorage implements IStorage {
     const [sub] = await db
       .select()
       .from(subscriptions)
-      .where(eq(subscriptions.externalSubscriptionId, externalId))
+      .where(eq(subscriptions.storeTransactionId, externalId))
       .limit(1);
     return sub || null;
   }

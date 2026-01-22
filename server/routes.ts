@@ -5271,15 +5271,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
               
               const endDate = lifetime ? null : new Date(Date.now() + (days || 30) * 24 * 60 * 60 * 1000);
               
+              // Get plan price
+              const planPrices: Record<string, string> = {
+                'gold': '19.90',
+                'premium': '29.90',
+                'vitalicio': '189.90',
+              };
+              
               await storage.createSubscription({
                 userId,
                 planType,
                 status: 'active',
                 startDate: new Date(),
                 endDate,
-                autoRenew: false,
-                paymentProvider: 'mercadopago_pix',
-                externalSubscriptionId: paymentIdStr,
+                amount: planPrices[planType] || '0',
+                source: 'web',
+                storeTransactionId: paymentIdStr,
               });
               
               console.log(`[MP Pix Status] ✅ Plano ${planType} ativado com sucesso!`);

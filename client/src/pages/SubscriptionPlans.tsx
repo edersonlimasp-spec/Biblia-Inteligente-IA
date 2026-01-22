@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, ArrowLeft } from 'lucide-react';
+import { Check, ArrowLeft, CreditCard, QrCode } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { trackSubscriptionPageVisit } from '@/lib/tracking';
+import { PixPaymentModal } from '@/components/PixPaymentModal';
 
 interface SubscriptionPlansProps {
   onSubscriptionChange?: () => void;
@@ -13,6 +14,8 @@ interface SubscriptionPlansProps {
 
 export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansProps) {
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
+  const [pixModalOpen, setPixModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{ id: string; name: string; price: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -65,6 +68,11 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
       });
       setIsPurchasing(null);
     }
+  };
+
+  const handlePixPayment = (planId: string, planName: string, planPrice: string) => {
+    setSelectedPlan({ id: planId, name: planName, price: planPrice });
+    setPixModalOpen(true);
   };
 
   const handleRestorePurchases = async () => {
@@ -123,6 +131,17 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
 
   return (
     <div className="min-h-screen bg-background p-4">
+      {selectedPlan && (
+        <PixPaymentModal
+          open={pixModalOpen}
+          onOpenChange={setPixModalOpen}
+          plan={selectedPlan.id}
+          planName={selectedPlan.name}
+          price={selectedPlan.price}
+          onSuccess={onSubscriptionChange}
+        />
+      )}
+      
       <div className="max-w-6xl mx-auto">
         {/* Back Button */}
         <div className="mb-6">
@@ -183,15 +202,27 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
                 ))}
               </ul>
 
-              <Button
-                onClick={() => handlePurchase(plan.id)}
-                disabled={isPurchasing === plan.id}
-                variant={plan.highlighted ? 'default' : 'outline'}
-                className="w-full"
-                data-testid={`button-purchase-${plan.id}`}
-              >
-                {isPurchasing === plan.id ? 'Processando...' : 'Selecionar'}
-              </Button>
+              <div className="space-y-2">
+                <Button
+                  onClick={() => handlePurchase(plan.id)}
+                  disabled={isPurchasing === plan.id}
+                  variant={plan.highlighted ? 'default' : 'outline'}
+                  className="w-full"
+                  data-testid={`button-purchase-${plan.id}`}
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  {isPurchasing === plan.id ? 'Processando...' : 'Cartão de Crédito'}
+                </Button>
+                <Button
+                  onClick={() => handlePixPayment(plan.id, plan.name, plan.price)}
+                  variant="outline"
+                  className="w-full"
+                  data-testid={`button-pix-${plan.id}`}
+                >
+                  <QrCode className="h-4 w-4 mr-2" />
+                  Pagar com Pix
+                </Button>
+              </div>
             </Card>
           ))}
         </div>

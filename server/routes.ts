@@ -5085,6 +5085,164 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // ===================================
+  // MERCADO PAGO PIX - Create Pix payment with QR Code
+  // ===================================
+  app.post("/api/mp/create-pix", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+      }
+      
+      const { plan } = req.body;
+      if (!plan || !MP_PLAN_CONFIG[plan]) {
+        return res.status(400).json({ error: "Plano inválido. Escolha: gold, premium ou vitalicio" });
+      }
+      
+      const mpAccessToken = process.env.MP_ACCESS_TOKEN;
+      if (!mpAccessToken) {
+        console.error("[MP Pix] MP_ACCESS_TOKEN não configurado");
+        return res.status(500).json({ error: "Configuração de pagamento não disponível" });
+      }
+      
+      const planConfig = MP_PLAN_CONFIG[plan];
+      const planType = plan === 'strong_lifetime' ? 'vitalicio' : plan;
+      
+      // Fetch user for payer info
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(400).json({ error: "Usuário não encontrado" });
+      }
+      
+      // External reference for webhook
+      const externalReference = JSON.stringify({
+        userId,
+        plan: planType,
+        days: planConfig.days,
+        lifetime: planConfig.days === null,
+      });
+      
+      console.log(`[MP Pix] ════════════════════════════════════════════════════`);
+      console.log(`[MP Pix] CRIANDO PAGAMENTO PIX`);
+      console.log(`[MP Pix] userId: ${userId}, plan: ${plan}, price: R$${planConfig.price}`);
+      console.log(`[MP Pix] ════════════════════════════════════════════════════`);
+      
+      // Create Pix payment via Mercado Pago API
+      const pixPayment = {
+        transaction_amount: planConfig.price,
+        description: planConfig.title,
+        payment_method_id: "pix",
+        payer: {
+          email: user.email || `user_${userId}@bibliaintegente.app`,
+          first_name: user.name?.split(' ')[0] || "Usuario",
+          last_name: user.name?.split(' ').slice(1).join(' ') || "App",
+        },
+        external_reference: externalReference,
+        metadata: {
+          userId: userId,
+          plan: planType,
+        },
+        notification_url: `${PRODUCTION_APP_URL}/api/mp/webhook`,
+      };
+      
+      const response = await fetch("https://api.mercadopago.com/v1/payments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${mpAccessToken}`,
+          "X-Idempotency-Key": `pix_${userId}_${plan}_${Date.now()}`,
+        },
+        body: JSON.stringify(pixPayment),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[MP Pix] Erro ao criar pagamento: ${response.status} - ${errorText}`);
+        return res.status(500).json({ error: "Erro ao gerar Pix" });
+      }
+      
+      const data = await response.json();
+      console.log(`[MP Pix] Pagamento criado: id=${data.id}, status=${data.status}`);
+      
+      // Extract Pix data
+      const pixData = data.point_of_interaction?.transaction_data;
+      
+      if (!pixData?.qr_code || !pixData?.qr_code_base64) {
+        console.error("[MP Pix] QR Code não retornado pela API");
+        return res.status(500).json({ error: "Erro ao gerar QR Code Pix" });
+      }
+      
+      res.json({
+        paymentId: data.id,
+        status: data.status,
+        qrCode: pixData.qr_code, // Código copia-e-cola
+        qrCodeBase64: pixData.qr_code_base64, // Imagem em base64
+        expirationDate: pixData.expiration_date,
+        ticketUrl: pixData.ticket_url,
+        amount: planConfig.price,
+        planName: planConfig.title,
+      });
+    } catch (error) {
+      console.error("[MP Pix] Erro ao criar pagamento:", error);
+      res.status(500).json({ error: "Erro interno ao processar Pix" });
+    }
+  });
+  
+  // Check Pix payment status (with ownership verification)
+  app.get("/api/mp/pix-status/:paymentId", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { paymentId } = req.params;
+      const userId = req.userId;
+      
+      const mpAccessToken = process.env.MP_ACCESS_TOKEN;
+      if (!mpAccessToken) {
+        return res.status(500).json({ error: "Configuração não disponível" });
+      }
+      
+      const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+        headers: {
+          "Authorization": `Bearer ${mpAccessToken}`,
+        },
+      });
+      
+      if (!response.ok) {
+        return res.status(404).json({ error: "Pagamento não encontrado" });
+      }
+      
+      const data = await response.json();
+      
+      // Security: Verify payment belongs to requesting user
+      let paymentUserId: string | null = null;
+      try {
+        if (data.external_reference) {
+          const refData = JSON.parse(data.external_reference);
+          paymentUserId = refData.userId;
+        }
+      } catch (e) {
+        // external_reference might not be JSON
+      }
+      
+      if (!paymentUserId) {
+        paymentUserId = data.metadata?.userId || data.metadata?.user_id;
+      }
+      
+      if (paymentUserId && paymentUserId !== userId) {
+        console.warn(`[MP Pix Status] Unauthorized: user ${userId} tried to check payment of user ${paymentUserId}`);
+        return res.status(403).json({ error: "Acesso não autorizado" });
+      }
+      
+      res.json({
+        status: data.status,
+        statusDetail: data.status_detail,
+        approved: data.status === 'approved',
+      });
+    } catch (error) {
+      console.error("[MP Pix Status] Erro:", error);
+      res.status(500).json({ error: "Erro ao verificar status" });
+    }
+  });
+  
+  // ===================================
   // MERCADO PAGO RETURN ROUTE - Redirect after payment
   // ===================================
   

@@ -5238,10 +5238,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Acesso não autorizado" });
       }
       
+      const isApproved = data.status === 'approved';
+      
+      // If payment is approved, activate subscription immediately (fallback for webhook delay)
+      if (isApproved && userId) {
+        try {
+          const paymentIdStr = String(data.id);
+          
+          // IDEMPOTENCY CHECK: Check if this payment was already processed
+          const existingByPaymentId = await storage.getSubscriptionByExternalId(paymentIdStr);
+          if (existingByPaymentId) {
+            console.log(`[MP Pix Status] Pagamento ${paymentIdStr} já processado, ignorando ativação duplicada`);
+          } else {
+            // Parse plan info from external_reference (required, no fallback to amount)
+            let planType: string | null = null;
+            let days: number | null = null;
+            let lifetime = false;
+            
+            if (data.external_reference) {
+              try {
+                const refData = JSON.parse(data.external_reference);
+                planType = refData.plan || refData.planType;
+                days = refData.days;
+                lifetime = refData.lifetime || false;
+              } catch (e) {
+                console.error("[MP Pix Status] Erro ao parsear external_reference:", e);
+              }
+            }
+            
+            if (planType) {
+              console.log(`[MP Pix Status] ✅ Ativando plano via polling: userId=${userId}, plan=${planType}, paymentId=${paymentIdStr}`);
+              
+              const endDate = lifetime ? null : new Date(Date.now() + (days || 30) * 24 * 60 * 60 * 1000);
+              
+              await storage.createSubscription({
+                userId,
+                planType,
+                status: 'active',
+                startDate: new Date(),
+                endDate,
+                autoRenew: false,
+                paymentProvider: 'mercadopago_pix',
+                externalSubscriptionId: paymentIdStr,
+              });
+              
+              console.log(`[MP Pix Status] ✅ Plano ${planType} ativado com sucesso!`);
+            } else {
+              console.error(`[MP Pix Status] ❌ Não foi possível determinar planType para paymentId=${paymentIdStr}`);
+            }
+          }
+        } catch (activationError) {
+          console.error("[MP Pix Status] Erro ao ativar plano:", activationError);
+          // Don't fail the response, just log the error
+        }
+      }
+      
+      console.log(`[MP Pix Status] paymentId=${paymentId}, status=${data.status}, approved=${isApproved}`);
+      
       res.json({
         status: data.status,
         statusDetail: data.status_detail,
-        approved: data.status === 'approved',
+        approved: isApproved,
       });
     } catch (error) {
       console.error("[MP Pix Status] Erro:", error);

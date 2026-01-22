@@ -66,6 +66,7 @@ export interface IStorage {
   upsertSubscription(subscription: InsertSubscription): Promise<Subscription>;
   hasActiveSubscription(userId: string, planType: string): Promise<boolean>;
   getActiveSubscription(userId: string): Promise<Subscription | null>;
+  getSubscriptionByExternalId(externalId: string): Promise<Subscription | null>;
 
   // Bookmarks
   getUserBookmarks(userId: string): Promise<Bookmark[]>;
@@ -507,6 +508,15 @@ class PostgresStorage implements IStorage {
     }
     
     return null;
+  }
+
+  async getSubscriptionByExternalId(externalId: string): Promise<Subscription | null> {
+    const [sub] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.externalSubscriptionId, externalId))
+      .limit(1);
+    return sub || null;
   }
 
   // Bookmarks

@@ -5267,29 +5267,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             
             if (planType) {
-              console.log(`[MP Pix Status] ✅ Ativando plano via polling: userId=${userId}, plan=${planType}, paymentId=${paymentIdStr}`);
+              // Normalizar planType: 'vitalicio' -> 'strong_lifetime' para consistência
+              const normalizedPlanType = planType === 'vitalicio' ? 'strong_lifetime' : planType;
               
-              const endDate = lifetime ? null : new Date(Date.now() + (days || 30) * 24 * 60 * 60 * 1000);
+              console.log(`[MP Pix Status] ✅ Ativando plano via polling: userId=${userId}, plan=${normalizedPlanType}, paymentId=${paymentIdStr}`);
+              
+              const endDate = lifetime || normalizedPlanType === 'strong_lifetime' ? null : new Date(Date.now() + (days || 30) * 24 * 60 * 60 * 1000);
               
               // Get plan price
               const planPrices: Record<string, string> = {
                 'gold': '19.90',
                 'premium': '29.90',
-                'vitalicio': '189.90',
+                'vitalicio': '49.90',
+                'strong_lifetime': '49.90',
               };
               
-              await storage.createSubscription({
+              // Usar upsertSubscription para evitar duplicatas (consistência com webhook)
+              await storage.upsertSubscription({
                 userId,
-                planType,
+                planType: normalizedPlanType,
                 status: 'active',
                 startDate: new Date(),
                 endDate,
-                amount: planPrices[planType] || '0',
+                amount: planPrices[normalizedPlanType] || planPrices[planType] || '0',
                 source: 'web',
                 storeTransactionId: paymentIdStr,
               });
               
-              console.log(`[MP Pix Status] ✅ Plano ${planType} ativado com sucesso!`);
+              console.log(`[MP Pix Status] ✅ Plano ${normalizedPlanType} ativado com sucesso!`);
             } else {
               console.error(`[MP Pix Status] ❌ Não foi possível determinar planType para paymentId=${paymentIdStr}`);
             }

@@ -476,6 +476,21 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
               </Button>
             </motion.div>
           )}
+
+          <div className="pt-6 pb-4 text-center">
+            <p className="text-xs text-muted-foreground">
+              Contato:{" "}
+              <a 
+                href="https://instagram.com/bibliainteligenteia" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+                data-testid="link-instagram-modules"
+              >
+                @bibliainteligenteia
+              </a>
+            </p>
+          </div>
         </div>
       </ScrollArea>
     </div>

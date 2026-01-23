@@ -348,7 +348,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.freeFeatures.1": "Leitura bíblica completa",
     "subscription.freeFeatures.2": "2 consultas Strong (visitante)",
     "subscription.freeFeatures.3": "4 consultas Strong (com login)",
-    "subscription.freeFeatures.4": "5 perguntas à IA Professor",
+    "subscription.freeFeatures.4": "3 perguntas à IA Professor",
     "subscription.freeFeatures.5": "3 primeiros estudos do curso Iniciantes",
     "subscription.freeFeatures.6": "3 gravações de sermão",
     "subscription.freeFeatures.7": "3 eventos na agenda",
@@ -580,7 +580,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.choosePlanButton": "Escolher Plano",
     "subscription.trialBadge": "Plano Gratuito",
     "subscription.trialInfoTitle": "Plano Gratuito",
-    "subscription.trialInfoDesc": "Plano Gratuito: Bíblia sem login, Strong requer login (2 palavras), 5 perguntas IA. Assine para mais.",
+    "subscription.trialInfoDesc": "Plano Gratuito: Bíblia sem login, Strong requer login (2 palavras), 3 perguntas IA. Assine para mais.",
     "subscription.authModalTitle": "Criar conta para assinar",
     "subscription.authModalDesc": "Para assinar o {plan}, você precisa criar uma conta ou fazer login.",
     
@@ -590,11 +590,10 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.free.period": "para sempre",
     "subscription.plans.free.feature1": "Leitura bíblica completa (sem login)",
     "subscription.plans.free.feature2": "2 palavras Strong (requer login)",
-    "subscription.plans.free.feature3": "5 perguntas à IA Professor",
+    "subscription.plans.free.feature3": "3 perguntas à IA Professor (1 sem login + 2 com login)",
     "subscription.plans.free.feature4": "3 primeiros estudos do curso Iniciantes",
     "subscription.plans.free.feature5": "3 gravações de sermão",
     "subscription.plans.free.feature6": "3 eventos na agenda",
-    "subscription.plans.free.feature7": "",
     
     // Plan: Lifetime Strong
     "subscription.plans.lifetime.name": "Strong Vitalício",
@@ -1010,7 +1009,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.freeFeatures.1": "Complete Bible reading",
     "subscription.freeFeatures.2": "2 Strong's queries (visitor)",
     "subscription.freeFeatures.3": "4 Strong's queries (logged in)",
-    "subscription.freeFeatures.4": "5 AI Professor questions",
+    "subscription.freeFeatures.4": "3 AI Professor questions",
     "subscription.freeFeatures.5": "First 3 Beginner course studies",
     "subscription.freeFeatures.6": "3 sermon recordings",
     "subscription.freeFeatures.7": "3 agenda events",
@@ -1242,7 +1241,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.choosePlanButton": "Choose Plan",
     "subscription.trialBadge": "Free Plan",
     "subscription.trialInfoTitle": "Free Plan",
-    "subscription.trialInfoDesc": "Free Plan: Bible without login, Strong requires login (2 words), 5 AI questions. Subscribe for more.",
+    "subscription.trialInfoDesc": "Free Plan: Bible without login, Strong requires login (2 words), 3 AI questions. Subscribe for more.",
     "subscription.authModalTitle": "Create account to subscribe",
     "subscription.authModalDesc": "To subscribe to {plan}, you need to create an account or log in.",
     
@@ -1252,11 +1251,10 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.free.period": "forever",
     "subscription.plans.free.feature1": "Complete Bible reading (no login)",
     "subscription.plans.free.feature2": "2 Strong's words (login required)",
-    "subscription.plans.free.feature3": "5 AI Professor questions",
+    "subscription.plans.free.feature3": "3 AI Professor questions (1 without login + 2 with login)",
     "subscription.plans.free.feature4": "First 3 Beginner course lessons",
     "subscription.plans.free.feature5": "3 sermon recordings",
     "subscription.plans.free.feature6": "3 agenda events",
-    "subscription.plans.free.feature7": "",
     
     // Plan: Lifetime Strong
     "subscription.plans.lifetime.name": "Strong Lifetime",
@@ -1672,7 +1670,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.freeFeatures.1": "Lectura bíblica completa",
     "subscription.freeFeatures.2": "2 consultas Strong (visitante)",
     "subscription.freeFeatures.3": "4 consultas Strong (con login)",
-    "subscription.freeFeatures.4": "5 preguntas al Profesor IA",
+    "subscription.freeFeatures.4": "3 preguntas al Profesor IA",
     "subscription.freeFeatures.5": "3 primeros estudios del curso Principiantes",
     "subscription.freeFeatures.6": "3 grabaciones de sermón",
     "subscription.freeFeatures.7": "3 eventos en la agenda",
@@ -1904,7 +1902,7 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.choosePlanButton": "Elegir Plan",
     "subscription.trialBadge": "Plan Gratuito",
     "subscription.trialInfoTitle": "Plan Gratuito",
-    "subscription.trialInfoDesc": "Plan Gratuito: Biblia sin login, Strong requiere login (2 palabras), 5 preguntas IA. Suscríbete para más.",
+    "subscription.trialInfoDesc": "Plan Gratuito: Biblia sin login, Strong requiere login (2 palabras), 3 preguntas IA. Suscríbete para más.",
     "subscription.authModalTitle": "Crear cuenta para suscribirse",
     "subscription.authModalDesc": "Para suscribirte a {plan}, necesitas crear una cuenta o iniciar sesión.",
     
@@ -1914,11 +1912,10 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.free.period": "para siempre",
     "subscription.plans.free.feature1": "Lectura bíblica completa (sin login)",
     "subscription.plans.free.feature2": "2 palabras Strong (requiere login)",
-    "subscription.plans.free.feature3": "5 preguntas al Profesor IA",
+    "subscription.plans.free.feature3": "3 preguntas al Profesor IA (1 sin login + 2 con login)",
     "subscription.plans.free.feature4": "3 primeras lecciones del curso Principiantes",
     "subscription.plans.free.feature5": "3 grabaciones de sermón",
     "subscription.plans.free.feature6": "3 eventos en la agenda",
-    "subscription.plans.free.feature7": "",
     
     // Plan: Lifetime Strong
     "subscription.plans.lifetime.name": "Strong Vitalicio",

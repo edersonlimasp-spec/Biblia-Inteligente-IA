@@ -5,9 +5,9 @@ const GUEST_STRONG_KEY = "strong_guest_lookups";
 // ========================================
 // PLANO GRATUITO - LIMITES ESTRITOS
 // ========================================
-// IA Professor: 5 perguntas NO TOTAL (não renovável)
-export const GUEST_AI_LIMIT = 5;  // Visitante: 5 perguntas totais
-export const USER_AI_LIMIT = 5;   // Logado gratuito: 5 perguntas totais
+// IA Professor: 3 perguntas NO TOTAL (1 sem login + 2 com login)
+export const GUEST_AI_LIMIT = 1;  // Visitante: 1 pergunta sem login
+export const USER_AI_LIMIT = 2;   // Logado gratuito: 2 perguntas com login
 
 // Strong: 2 visitante / 4 logado (não renovável)
 export const GUEST_STRONG_LIMIT = 2;  // Visitante: 2 consultas
@@ -185,7 +185,7 @@ export function calculateQuotaInfo(params: {
     };
   }
   
-  // PLANO GRATUITO: 5 perguntas NO TOTAL (não renovável)
+  // PLANO GRATUITO: 3 perguntas NO TOTAL (1 sem login + 2 com login)
   const limit = isLoggedIn ? USER_AI_LIMIT : GUEST_AI_LIMIT;
   const used = isLoggedIn ? userUsed : guestUsed;
   const remaining = Math.max(0, limit - used);

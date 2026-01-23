@@ -160,7 +160,6 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         t("subscription.plans.free.feature4"),
         t("subscription.plans.free.feature5"),
         t("subscription.plans.free.feature6"),
-        t("subscription.plans.free.feature7"),
       ],
       highlight: false,
       isFree: true,

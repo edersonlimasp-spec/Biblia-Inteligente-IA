@@ -1238,7 +1238,7 @@ Conheça: https://bibliainteligente.replit.app`;
             </DialogTitle>
             <DialogDescription className="pt-2 space-y-3">
               <p>
-                Você utilizou suas <strong>5 perguntas gratuitas</strong> para o Professor IA.
+                Você utilizou suas <strong>3 perguntas gratuitas</strong> para o Professor IA.
               </p>
               <p>
                 Para continuar usando a IA ilimitadamente, faça upgrade para um plano <strong>Gold</strong> ou <strong>Premium</strong>.

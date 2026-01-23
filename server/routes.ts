@@ -769,7 +769,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // IA Professor: PLANO GRATUITO = 5 perguntas NO TOTAL (não renovável)
+  // IA Professor: PLANO GRATUITO = 3 perguntas NO TOTAL (1 sem login + 2 com login)
   app.get("/api/access/ai/:mode", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const mode = req.params.mode; // 'essential' or 'premium'
@@ -805,8 +805,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // PLANO GRATUITO: 5 perguntas NO TOTAL
-      const AI_FREE_LIMIT = 5;
+      // PLANO GRATUITO: 2 perguntas com login (além de 1 sem login = 3 total)
+      const AI_FREE_LIMIT = 2;
       const totalUsed = await storage.getTotalUsageCount(req.userId!);
       const remaining = Math.max(0, AI_FREE_LIMIT - totalUsed);
       
@@ -890,9 +890,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hasFullAccess = hasGold || hasPremium || hasLifetime;
 
       // ========================================
-      // PLANO GRATUITO: 5 perguntas NO TOTAL (não renovável)
+      // PLANO GRATUITO: 2 perguntas com login (+ 1 sem login = 3 total)
       // ========================================
-      const AI_FREE_LIMIT = 5;  // 5 perguntas totais para usuários gratuitos
+      const AI_FREE_LIMIT = 2;  // 2 perguntas para usuários logados sem assinatura
       const totalUsed = await storage.getTotalUsageCount(req.userId!);
       
       // Para assinantes, usar limite diário mais alto
@@ -1109,8 +1109,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Free Questions Quota (permanent count, not daily reset)
-  // PLANO GRATUITO: 5 perguntas NO TOTAL (não renovável)
-  const FREE_QUESTIONS_LIMIT = 5;
+  // PLANO GRATUITO: 2 perguntas com login (+ 1 sem login = 3 total)
+  const FREE_QUESTIONS_LIMIT = 2;
   
   app.get("/api/ai/quota", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
@@ -1138,7 +1138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // PLANO GRATUITO: 5 perguntas no total
+      // PLANO GRATUITO: 2 perguntas com login
       const totalUsed = await storage.getTotalUsageCount(req.userId!);
       const remaining = Math.max(0, FREE_QUESTIONS_LIMIT - totalUsed);
       
@@ -1715,8 +1715,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guest AI access check (for AI without login)
-  // PLANO GRATUITO: Visitante tem 5 perguntas NO TOTAL (não renovável)
-  const GUEST_AI_LIMIT = 5;
+  // PLANO GRATUITO: Visitante tem 1 pergunta sem login (+ 2 com login = 3 total)
+  const GUEST_AI_LIMIT = 1;
   
   app.post("/api/guest/ai/check", async (req, res) => {
     try {
@@ -1754,7 +1754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guest AI ask (AI without login)
-  // PLANO GRATUITO: Visitante tem 5 perguntas NO TOTAL (não renovável)
+  // PLANO GRATUITO: Visitante tem 1 pergunta sem login (+ 2 com login = 3 total)
   app.post("/api/guest/ai/ask", async (req, res) => {
     try {
       const { deviceId, question, book, chapter, verse, language } = req.body;
@@ -1769,7 +1769,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.createOrUpdateGuest(deviceId, 'web');
       }
       
-      // Check TOTAL limit (not daily) - 5 perguntas no total para visitantes
+      // Check TOTAL limit (not daily) - 1 pergunta sem login
       const totalUsed = await storage.getGuestTotalUsageCount(deviceId);
       if (totalUsed >= GUEST_AI_LIMIT) {
         return res.status(429).json({

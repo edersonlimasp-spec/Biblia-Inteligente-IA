@@ -396,14 +396,21 @@ class PostgresStorage implements IStorage {
     
     if (existing.length > 0) {
       // Update existing subscription
+      const updateData: Record<string, any> = {
+        status: subscription.status || 'active',
+        startDate: subscription.startDate || new Date(),
+        endDate: subscription.endDate,
+        amount: subscription.amount,
+      };
+      
+      // Preservar storeTransactionId se fornecido e não existir
+      if (subscription.storeTransactionId && !existing[0].storeTransactionId) {
+        updateData.storeTransactionId = subscription.storeTransactionId;
+      }
+      
       const updated = await db
         .update(subscriptions)
-        .set({
-          status: subscription.status || 'active',
-          startDate: subscription.startDate || new Date(),
-          endDate: subscription.endDate,
-          amount: subscription.amount,
-        })
+        .set(updateData)
         .where(eq(subscriptions.id, existing[0].id))
         .returning();
       console.log(`[Storage] Updated existing subscription: ${updated[0].id}`);

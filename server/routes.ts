@@ -5806,7 +5806,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[MP Webhook] ║ Origem:        ${isPreapproval ? 'Assinatura Recorrente' : 'Pagamento Único'}`);
       console.log(`[MP Webhook] ╚════════════════════════════════════════════════════════════╝`);
       
-      // Verificar se já existe recibo para este pagamento (evitar duplicidade)
+      // ========================================
+      // VERIFICAÇÃO DE IDEMPOTÊNCIA FORTE
+      // ========================================
+      
+      // Verificar se já existe subscription para este paymentId (evitar duplicidade absoluta)
+      const existingSubscriptionByPayment = await storage.getSubscriptionByExternalId(dataId);
+      if (existingSubscriptionByPayment) {
+        console.log(`[MP Webhook] ⚠️ Subscription já existe para paymentId=${dataId}, ignorando duplicata`);
+        console.log(`[MP Webhook] ⚠️ subscriptionId existente: ${existingSubscriptionByPayment.id}`);
+        
+        // Apenas atualizar recibo se existir
+        const existingReceipt = await storage.getPaymentReceiptByExternalId(dataId);
+        if (existingReceipt) {
+          await storage.updatePaymentReceipt(existingReceipt.id, {
+            status: status,
+            statusDetail: mpData.status_detail || null,
+            processedAt: new Date(),
+          });
+        }
+        return; // PARAR AQUI - não criar nada novo
+      }
+      
+      // Verificar se já existe recibo para este pagamento
       const existingReceipt = await storage.getPaymentReceiptByExternalId(dataId);
       if (existingReceipt) {
         console.log(`[MP Webhook] ⚠️ Recibo já existe para paymentId=${dataId}, atualizando...`);
@@ -5825,6 +5847,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         startDate: new Date(),
         endDate,
         amount,
+        storeTransactionId: dataId, // Salvar paymentId para idempotência futura
       });
       
       console.log(`[MP Webhook] ✅ ASSINATURA ATIVADA!`);

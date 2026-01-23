@@ -4136,7 +4136,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - daysAgo);
 
-      // Get all subscriptions with active-like status
+      // Get all subscriptions with active-like status (not cancelled/pending)
+      // Only count actual paid subscriptions with valid status
       const allSubscriptions = await db
         .select({
           id: subscriptions.id,
@@ -4147,13 +4148,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
           createdAt: subscriptions.createdAt,
           startDate: subscriptions.startDate,
           endDate: subscriptions.endDate,
+          storeTransactionId: subscriptions.storeTransactionId,
         })
         .from(subscriptions)
-        .where(gte(subscriptions.createdAt, startDate))
+        .where(and(
+          gte(subscriptions.createdAt, startDate),
+          or(
+            eq(subscriptions.status, 'active'),
+            eq(subscriptions.status, 'Active'),
+            eq(subscriptions.status, 'ACTIVE'),
+            eq(subscriptions.status, 'approved'),
+            eq(subscriptions.status, 'Approved'),
+            eq(subscriptions.status, 'APPROVED')
+          )
+        ))
         .orderBy(desc(subscriptions.createdAt));
 
+      // Deduplicate by storeTransactionId to avoid counting duplicate Pix payments
+      const seenTransactionIds = new Set<string>();
+      const uniqueSubscriptions = allSubscriptions.filter(s => {
+        if (s.storeTransactionId) {
+          if (seenTransactionIds.has(s.storeTransactionId)) {
+            return false; // Skip duplicate
+          }
+          seenTransactionIds.add(s.storeTransactionId);
+        }
+        return true;
+      });
+
       // Get users for these subscriptions
-      const userIds = Array.from(new Set(allSubscriptions.map(s => s.userId)));
+      const userIds = Array.from(new Set(uniqueSubscriptions.map(s => s.userId)));
       const usersData = await db
         .select({ id: users.id, email: users.email, name: users.name })
         .from(users)
@@ -4161,34 +4185,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const usersMap = new Map(usersData.map(u => [u.id, u]));
 
-      // Categorize by plan type
-      const goldPurchases = allSubscriptions
-        .filter(s => s.planType?.toLowerCase() === 'gold')
+      // Categorize by plan type (include annual plans)
+      const goldPurchases = uniqueSubscriptions
+        .filter(s => s.planType?.toLowerCase() === 'gold' || s.planType?.toLowerCase() === 'gold_anual')
         .map(s => ({
           ...s,
           user: usersMap.get(s.userId),
         }));
 
-      const premiumPurchases = allSubscriptions
-        .filter(s => s.planType?.toLowerCase() === 'premium')
+      const premiumPurchases = uniqueSubscriptions
+        .filter(s => s.planType?.toLowerCase() === 'premium' || s.planType?.toLowerCase() === 'premium_anual')
         .map(s => ({
           ...s,
           user: usersMap.get(s.userId),
         }));
 
-      const lifetimePurchases = allSubscriptions
+      const lifetimePurchases = uniqueSubscriptions
         .filter(s => s.planType?.toLowerCase() === 'strong_lifetime')
         .map(s => ({
           ...s,
           user: usersMap.get(s.userId),
         }));
 
-      // Calculate totals
+      // Calculate totals from actual amounts stored
       const goldTotal = goldPurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
       const premiumTotal = premiumPurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
       const lifetimeTotal = lifetimePurchases.reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0);
 
-      // Daily breakdown for charts
+      // Daily breakdown for charts (using unique subscriptions)
       const dailyData: Record<string, { gold: number; premium: number; lifetime: number }> = {};
       for (let i = 0; i < daysAgo; i++) {
         const date = new Date();
@@ -4197,12 +4221,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dailyData[dateStr] = { gold: 0, premium: 0, lifetime: 0 };
       }
 
-      allSubscriptions.forEach(s => {
+      uniqueSubscriptions.forEach(s => {
         const dateStr = new Date(s.createdAt).toISOString().split('T')[0];
         if (dailyData[dateStr]) {
           const planType = s.planType?.toLowerCase();
-          if (planType === 'gold') dailyData[dateStr].gold++;
-          else if (planType === 'premium') dailyData[dateStr].premium++;
+          if (planType === 'gold' || planType === 'gold_anual') dailyData[dateStr].gold++;
+          else if (planType === 'premium' || planType === 'premium_anual') dailyData[dateStr].premium++;
           else if (planType === 'strong_lifetime') dailyData[dateStr].lifetime++;
         }
       });

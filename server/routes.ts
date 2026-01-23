@@ -4164,15 +4164,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ))
         .orderBy(desc(subscriptions.createdAt));
 
-      // Deduplicate by storeTransactionId to avoid counting duplicate Pix payments
+      // Deduplicate by storeTransactionId AND by user+planType (keep only the most recent per user/plan)
       const seenTransactionIds = new Set<string>();
+      const seenUserPlans = new Set<string>();
       const uniqueSubscriptions = allSubscriptions.filter(s => {
+        // First, filter by storeTransactionId
         if (s.storeTransactionId) {
           if (seenTransactionIds.has(s.storeTransactionId)) {
-            return false; // Skip duplicate
+            return false; // Skip duplicate transaction
           }
           seenTransactionIds.add(s.storeTransactionId);
         }
+        
+        // Then, deduplicate by user+planType (keep only first/most recent per user/plan)
+        const userPlanKey = `${s.userId}:${s.planType?.toLowerCase()}`;
+        if (seenUserPlans.has(userPlanKey)) {
+          return false; // Skip duplicate user+plan combination
+        }
+        seenUserPlans.add(userPlanKey);
+        
         return true;
       });
 

@@ -4933,7 +4933,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Plan configuration with fixed prices (BRL)
   const MP_PLAN_CONFIG: Record<string, { title: string; price: number; days: number | null }> = {
     gold: { title: "Bíblia Inteligente - Plano Gold", price: 9.90, days: 30 },
+    gold_anual: { title: "Bíblia Inteligente - Plano Gold Anual", price: 79.90, days: 365 },
     premium: { title: "Bíblia Inteligente - Plano Premium", price: 19.90, days: 30 },
+    premium_anual: { title: "Bíblia Inteligente - Plano Premium Anual", price: 129.90, days: 365 },
     vitalicio: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
     strong_lifetime: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
   };
@@ -5276,8 +5278,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               
               // Get plan price
               const planPrices: Record<string, string> = {
-                'gold': '19.90',
-                'premium': '29.90',
+                'gold': '9.90',
+                'gold_anual': '79.90',
+                'premium': '19.90',
+                'premium_anual': '129.90',
                 'vitalicio': '49.90',
                 'strong_lifetime': '49.90',
               };

@@ -618,6 +618,19 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.gold.feature6": "30 eventos na agenda",
     "subscription.plans.gold.feature7": "Histórico de conversas com IA",
     
+    // Plan: Gold Anual
+    "subscription.plans.gold_anual.name": "Plano Gold Anual",
+    "subscription.plans.gold_anual.price": "R$ 79,90",
+    "subscription.plans.gold_anual.period": "por ano",
+    "subscription.plans.gold_anual.savings": "Economize 33%",
+    "subscription.plans.gold_anual.feature1": "20 consultas Strong por dia",
+    "subscription.plans.gold_anual.feature2": "30 perguntas à IA Professor",
+    "subscription.plans.gold_anual.feature3": "Curso Iniciantes completo",
+    "subscription.plans.gold_anual.feature4": "7 módulos do Intermediário",
+    "subscription.plans.gold_anual.feature5": "30 gravações de sermão",
+    "subscription.plans.gold_anual.feature6": "30 eventos na agenda",
+    "subscription.plans.gold_anual.feature7": "12 meses de acesso",
+    
     // Plan: Premium
     "subscription.plans.premium.name": "Plano Premium",
     "subscription.plans.premium.price": "R$ 19,90",
@@ -630,6 +643,20 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.premium.feature6": "100 gravações de sermão",
     "subscription.plans.premium.feature7": "100 eventos na agenda",
     "subscription.plans.premium.feature8": "Suporte prioritário",
+    
+    // Plan: Premium Anual
+    "subscription.plans.premium_anual.name": "Plano Premium Anual",
+    "subscription.plans.premium_anual.price": "R$ 129,90",
+    "subscription.plans.premium_anual.period": "por ano",
+    "subscription.plans.premium_anual.savings": "Economize 46%",
+    "subscription.plans.premium_anual.feature1": "Strong ilimitado",
+    "subscription.plans.premium_anual.feature2": "100 perguntas à IA Professor",
+    "subscription.plans.premium_anual.feature3": "Todos os cursos liberados",
+    "subscription.plans.premium_anual.feature4": "Exegese profunda com IA",
+    "subscription.plans.premium_anual.feature5": "Modo pregador e professor",
+    "subscription.plans.premium_anual.feature6": "100 gravações de sermão",
+    "subscription.plans.premium_anual.feature7": "12 meses de acesso",
+    "subscription.plans.premium_anual.feature8": "Suporte prioritário",
     
     // AI Modes Screen
     "aiModes.title": "Modos IA Premium",
@@ -1279,6 +1306,19 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.gold.feature6": "30 agenda events",
     "subscription.plans.gold.feature7": "AI conversation history",
     
+    // Plan: Gold Annual
+    "subscription.plans.gold_anual.name": "Gold Annual Plan",
+    "subscription.plans.gold_anual.price": "$15.90",
+    "subscription.plans.gold_anual.period": "per year",
+    "subscription.plans.gold_anual.savings": "Save 33%",
+    "subscription.plans.gold_anual.feature1": "20 Strong's lookups per day",
+    "subscription.plans.gold_anual.feature2": "30 AI Professor questions",
+    "subscription.plans.gold_anual.feature3": "Complete Beginner course",
+    "subscription.plans.gold_anual.feature4": "7 Intermediate modules",
+    "subscription.plans.gold_anual.feature5": "30 sermon recordings",
+    "subscription.plans.gold_anual.feature6": "30 agenda events",
+    "subscription.plans.gold_anual.feature7": "12 months access",
+    
     // Plan: Premium
     "subscription.plans.premium.name": "Premium Plan",
     "subscription.plans.premium.price": "$3.90",
@@ -1291,6 +1331,20 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.premium.feature6": "100 sermon recordings",
     "subscription.plans.premium.feature7": "100 agenda events",
     "subscription.plans.premium.feature8": "Priority support",
+    
+    // Plan: Premium Annual
+    "subscription.plans.premium_anual.name": "Premium Annual Plan",
+    "subscription.plans.premium_anual.price": "$25.90",
+    "subscription.plans.premium_anual.period": "per year",
+    "subscription.plans.premium_anual.savings": "Save 46%",
+    "subscription.plans.premium_anual.feature1": "Unlimited Strong's",
+    "subscription.plans.premium_anual.feature2": "100 AI Professor questions",
+    "subscription.plans.premium_anual.feature3": "All courses unlocked",
+    "subscription.plans.premium_anual.feature4": "Deep AI exegesis",
+    "subscription.plans.premium_anual.feature5": "Preacher and teacher mode",
+    "subscription.plans.premium_anual.feature6": "100 sermon recordings",
+    "subscription.plans.premium_anual.feature7": "12 months access",
+    "subscription.plans.premium_anual.feature8": "Priority support",
     
     // AI Modes Screen
     "aiModes.title": "Premium AI Modes",
@@ -1940,6 +1994,19 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.gold.feature6": "30 eventos en la agenda",
     "subscription.plans.gold.feature7": "Historial de conversaciones con IA",
     
+    // Plan: Gold Anual
+    "subscription.plans.gold_anual.name": "Plan Gold Anual",
+    "subscription.plans.gold_anual.price": "$15.90",
+    "subscription.plans.gold_anual.period": "por año",
+    "subscription.plans.gold_anual.savings": "Ahorra 33%",
+    "subscription.plans.gold_anual.feature1": "20 consultas Strong por día",
+    "subscription.plans.gold_anual.feature2": "30 preguntas al Profesor IA",
+    "subscription.plans.gold_anual.feature3": "Curso Principiantes completo",
+    "subscription.plans.gold_anual.feature4": "7 módulos del Intermedio",
+    "subscription.plans.gold_anual.feature5": "30 grabaciones de sermón",
+    "subscription.plans.gold_anual.feature6": "30 eventos en la agenda",
+    "subscription.plans.gold_anual.feature7": "12 meses de acceso",
+    
     // Plan: Premium
     "subscription.plans.premium.name": "Plan Premium",
     "subscription.plans.premium.price": "$3.90",
@@ -1952,6 +2019,20 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.plans.premium.feature6": "100 grabaciones de sermón",
     "subscription.plans.premium.feature7": "100 eventos en la agenda",
     "subscription.plans.premium.feature8": "Soporte prioritario",
+    
+    // Plan: Premium Anual
+    "subscription.plans.premium_anual.name": "Plan Premium Anual",
+    "subscription.plans.premium_anual.price": "$25.90",
+    "subscription.plans.premium_anual.period": "por año",
+    "subscription.plans.premium_anual.savings": "Ahorra 46%",
+    "subscription.plans.premium_anual.feature1": "Strong ilimitado",
+    "subscription.plans.premium_anual.feature2": "100 preguntas al Profesor IA",
+    "subscription.plans.premium_anual.feature3": "Todos los cursos liberados",
+    "subscription.plans.premium_anual.feature4": "Exégesis profunda con IA",
+    "subscription.plans.premium_anual.feature5": "Modo predicador y profesor",
+    "subscription.plans.premium_anual.feature6": "100 grabaciones de sermón",
+    "subscription.plans.premium_anual.feature7": "12 meses de acceso",
+    "subscription.plans.premium_anual.feature8": "Soporte prioritario",
     
     // AI Modes Screen
     "aiModes.title": "Modos IA Premium",

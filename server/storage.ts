@@ -426,6 +426,15 @@ class PostgresStorage implements IStorage {
   async hasActiveSubscription(userId: string, planType: string): Promise<boolean> {
     const now = new Date();
     
+    // Map annual plans to base plans for access checking
+    // gold_anual gives access to 'gold', premium_anual gives access to 'premium'
+    const planTypesToCheck = [planType];
+    if (planType === 'gold') {
+      planTypesToCheck.push('gold_anual');
+    } else if (planType === 'premium') {
+      planTypesToCheck.push('premium_anual');
+    }
+    
     // Check regular subscriptions - accept all valid active statuses from Mercado Pago
     // Status can be: active, approved, authorized, ACTIVE, APPROVED, AUTHORIZED
     const subResult = await db
@@ -434,7 +443,7 @@ class PostgresStorage implements IStorage {
       .where(
         and(
           eq(subscriptions.userId, userId),
-          eq(subscriptions.planType, planType),
+          or(...planTypesToCheck.map(pt => eq(subscriptions.planType, pt))),
           or(
             eq(subscriptions.status, 'active'),
             eq(subscriptions.status, 'Active'),

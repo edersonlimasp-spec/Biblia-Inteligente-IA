@@ -286,6 +286,21 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
           {t("settings.logout")}
         </Button>
 
+        <div className="pt-6 pb-4 text-center">
+          <p className="text-xs text-muted-foreground">
+            Contato:{" "}
+            <a 
+              href="https://instagram.com/bibliainteligenteia" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+              data-testid="link-instagram"
+            >
+              @bibliainteligenteia
+            </a>
+          </p>
+        </div>
+
         <ChangePasswordModal 
           isOpen={isChangePasswordOpen}
           onClose={() => setIsChangePasswordOpen(false)}

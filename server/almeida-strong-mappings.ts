@@ -4,7 +4,7 @@
  * Funciona para todas as 4 versões: ACF, ARC, AA, ALMEIDA_1911
  */
 
-export const ALMEIDA_STRONG_MAPPINGS: Record<string, Record<string, Record<string, string>>> = {
+export const ALMEIDA_STRONG_MAPPINGS: Record<string, Record<string, string>> = {
   // João 3:16 - talvez o verso mais importante
   'jhn:3:16': {
     'porque': 'G1360',       // γάρ (gar) = for
@@ -31,11 +31,20 @@ export const ALMEIDA_STRONG_MAPPINGS: Record<string, Record<string, Record<strin
   // João 1:1-5 (já mapeado)
   'jhn:1:1': {
     'princípio': 'G746',
+    'Princípio': 'G746',
+    'principio': 'G746',
+    'no': 'G1722',           // ἐν (en) = in
     'era': 'G1510',
     'palavra': 'G3056',
+    'Palavra': 'G3056',
+    'verbo': 'G3056',        // λόγος (logos) = Verbo/Palavra
+    'Verbo': 'G3056',
     'deus': 'G2316',
+    'Deus': 'G2316',
     'estava': 'G1510',
     'com': 'G4314',
+    'e': 'G2532',            // καί (kai) = and
+    'a': 'G3588',            // ὁ (ho) = the (article)
   },
   'jhn:1:2': {
     'este': 'G3778',

@@ -9,13 +9,22 @@
 export const JOHN_CHAPTER_1_MAPPING: Record<string, Record<number, Record<string, string>>> = {
   jhn: {
     1: {
-      // Verso 1: "No princípio era a Palavra, e a Palavra estava com Deus, e a Palavra era Deus."
+      // Verso 1: "No princípio era a Palavra/Verbo, e a Palavra/Verbo estava com Deus, e a Palavra/Verbo era Deus."
+      'no': 'G1722',            // ἐν (en) = in
       'princípio': 'G746',      // ἀρχή = arche
+      'Princípio': 'G746',
+      'principio': 'G746',
       'era': 'G1510',           // ἦν = en (imperfect of eimi)
       'palavra': 'G3056',       // λόγος = logos
+      'Palavra': 'G3056',
+      'verbo': 'G3056',         // λόγος = logos (Verbo)
+      'Verbo': 'G3056',
       'deus': 'G2316',          // θεός = theos
+      'Deus': 'G2316',
       'estava': 'G1510',        // ἦν
       'com': 'G4314',           // πρός = pros (facing, toward)
+      'e': 'G2532',             // καί (kai) = and
+      'a': 'G3588',             // ὁ (ho) = the (article)
     },
     2: {
       // Verso 2: "Este estava no princípio com Deus."

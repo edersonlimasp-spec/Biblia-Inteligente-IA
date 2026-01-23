@@ -2132,7 +2132,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Core theological terms
     'deus': 'G2316', 'senhor': 'G2962', 'jesus': 'G2424', 'cristo': 'G5547',
     'espírito': 'G4151', 'santo': 'G40', 'pai': 'G3962',
-    'palavra': 'G3056', 'vida': 'G2222', 'amor': 'G26', 'amou': 'G25', 'ama': 'G25', 'amar': 'G25',
+    'palavra': 'G3056', 'verbo': 'G3056', 'princípio': 'G746', 'principio': 'G746',
+    'vida': 'G2222', 'amor': 'G26', 'amou': 'G25', 'ama': 'G25', 'amar': 'G25',
     'graça': 'G5485', 'verdade': 'G225', 'luz': 'G5457', 'trevas': 'G4655',
     'salvação': 'G4991', 'salvador': 'G4990', 'pecado': 'G266', 'pecados': 'G266',
     'justiça': 'G1343', 'justo': 'G1342', 'fé': 'G4102', 'crê': 'G4100', 'crer': 'G4100',

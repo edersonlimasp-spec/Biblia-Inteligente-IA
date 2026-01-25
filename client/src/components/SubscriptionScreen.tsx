@@ -96,7 +96,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         toast({
           title: t("subscription.coupon.applied") || "Cupom aplicado!",
           description: data.discountDisplay || `Desconto de R$${((data.discountAmount || 0) / 100).toFixed(2)}`,
-          duration: 2500,
+          duration: 1500,
         });
       } else {
         setAppliedCoupon(null);
@@ -104,6 +104,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           title: t("subscription.coupon.invalid") || "Cupom inválido",
           description: data.reason || "Cupom não encontrado",
           variant: 'destructive',
+          duration: 1500,
         });
       }
     } catch (error: any) {
@@ -113,6 +114,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         title: t("common.error"),
         description: error.message || "Erro ao validar cupom",
         variant: 'destructive',
+        duration: 1500,
       });
     } finally {
       setIsValidatingCoupon(false);
@@ -372,36 +374,36 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       </header>
 
       <div className="max-w-6xl mx-auto p-4 md:p-8">
-        {/* Header */}
-        <div className="text-center mb-12">
+        {/* Header - Compacto */}
+        <div className="text-center mb-6">
           {/* Logo */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-3">
             <img 
               src={appLogo} 
               alt="Bíblia Inteligente" 
-              className="h-20 w-20 md:h-24 md:w-24"
+              className="h-14 w-14 md:h-16 md:w-16"
               data-testid="img-subscription-logo"
             />
           </div>
           
           {trialDaysRemaining !== null && trialDaysRemaining > 0 && (
-            <Badge variant="secondary" className="mb-4">
+            <Badge variant="secondary" className="mb-2">
               <Lock className="h-3 w-3 mr-1" />
               {t("subscription.trialBadge").replace("{days}", String(trialDaysRemaining))}
             </Badge>
           )}
-          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-primary mb-1">
             {t("subscription.choosePlan")}
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-sm">
             {t("subscription.unlockPotential")}
           </p>
         </div>
 
-        {/* Coupon Input */}
+        {/* Coupon Input - Compacto */}
         {user && (
-          <Card className="mb-8 bg-accent/10 border-dashed">
-            <CardContent className="p-4">
+          <Card className="mb-4 bg-accent/10 border-dashed">
+            <CardContent className="p-3">
               <div className="flex items-center gap-2 w-full">
                 <Tag className="h-4 w-4 text-primary shrink-0" />
                 <Input
@@ -431,6 +433,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                           title: t("subscription.coupon.selectPlan") || "Selecione um plano",
                           description: t("subscription.coupon.selectPlanDesc") || "Clique em um plano abaixo para aplicar o cupom",
                           variant: 'destructive',
+                          duration: 1500,
                         });
                       }
                     }}
@@ -496,25 +499,25 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     </Badge>
                   </div>
                 )}
-                <CardHeader className="text-center pb-2 pt-4 px-3">
+                <CardHeader className="text-center pb-2 pt-5 px-4">
                   <div className="flex justify-center mb-2">
-                    <div className="p-2 bg-primary/10 rounded-full">
-                      <Icon className="h-5 w-5 text-primary" />
+                    <div className="p-2.5 bg-primary/10 rounded-full">
+                      <Icon className="h-6 w-6 text-primary" />
                     </div>
                   </div>
-                  <CardTitle className="text-base">{plan.name}</CardTitle>
+                  <CardTitle className="text-lg">{plan.name}</CardTitle>
                   <CardDescription className="mt-1">
                     {discountedPrice ? (
                       <>
                         <span className="text-sm line-through text-muted-foreground">
                           {plan.price}
                         </span>
-                        <span className="text-xl font-bold text-green-600 dark:text-green-400 ml-2">
+                        <span className="text-2xl font-bold text-green-600 dark:text-green-400 ml-2">
                           {discountedPrice}
                         </span>
                       </>
                     ) : (
-                      <span className="text-xl font-bold text-primary">
+                      <span className="text-2xl font-bold text-primary">
                         {plan.price}
                       </span>
                     )}
@@ -523,11 +526,11 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     </span>
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  <ul className="space-y-1.5 mb-4 text-xs">
+                <CardContent className="px-4 pb-4">
+                  <ul className="space-y-2 mb-4 text-sm">
                     {plan.features.filter(f => f && f.trim() !== '').map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-1.5">
-                        <Check className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
+                      <li key={idx} className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}

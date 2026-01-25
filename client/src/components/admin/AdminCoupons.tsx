@@ -14,19 +14,19 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface Coupon {
-  id: number;
+  id: string;
   code: string;
-  discountType: 'PERCENT' | 'FIXED';
-  discountValue: number;
-  maxUsesTotal: number | null;
-  maxUsesPerUser: number | null;
-  validFrom: string | null;
-  validUntil: string | null;
+  type: 'PERCENT' | 'FIXED';
+  value: number;
+  maxRedemptions: number | null;
+  maxRedemptionsPerUser: number | null;
+  startsAt: string | null;
+  endsAt: string | null;
   applicablePlans: string[] | null;
   firstPurchaseOnly: boolean;
   active: boolean;
   createdAt: string;
-  usageCount?: number;
+  redemptionCount?: number;
 }
 
 interface Redemption {
@@ -45,15 +45,15 @@ export function AdminCoupons() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
-  const [formData, setFormData] = useState<Partial<Coupon>>({
+  const [formData, setFormData] = useState({
     code: "",
-    discountType: "PERCENT",
-    discountValue: 10,
-    maxUsesTotal: null,
-    maxUsesPerUser: null,
-    validFrom: null,
-    validUntil: null,
-    applicablePlans: null,
+    type: "PERCENT" as 'PERCENT' | 'FIXED',
+    value: 10,
+    maxRedemptions: null as number | null,
+    maxRedemptionsPerUser: null as number | null,
+    startsAt: null as string | null,
+    endsAt: null as string | null,
+    applicablePlans: null as string[] | null,
     firstPurchaseOnly: false,
     active: true,
   });
@@ -84,7 +84,7 @@ export function AdminCoupons() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<Coupon> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Coupon> }) => {
       const res = await apiRequest('PUT', `/api/admin/coupons/${id}`, data);
       return res.json();
     },
@@ -101,7 +101,7 @@ export function AdminCoupons() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const res = await apiRequest('DELETE', `/api/admin/coupons/${id}`);
       return res.json();
     },
@@ -117,12 +117,12 @@ export function AdminCoupons() {
   const resetForm = () => {
     setFormData({
       code: "",
-      discountType: "PERCENT",
-      discountValue: 10,
-      maxUsesTotal: null,
-      maxUsesPerUser: null,
-      validFrom: null,
-      validUntil: null,
+      type: "PERCENT",
+      value: 10,
+      maxRedemptions: null,
+      maxRedemptionsPerUser: null,
+      startsAt: null,
+      endsAt: null,
       applicablePlans: null,
       firstPurchaseOnly: false,
       active: true,
@@ -132,18 +132,18 @@ export function AdminCoupons() {
   const openEdit = (coupon: Coupon) => {
     setSelectedCoupon(coupon);
     // Para FIXED, converter de centavos para reais ao exibir
-    const displayValue = coupon.discountType === 'FIXED' 
-      ? coupon.discountValue / 100 
-      : coupon.discountValue;
+    const displayValue = coupon.type === 'FIXED' 
+      ? coupon.value / 100 
+      : coupon.value;
     
     setFormData({
       code: coupon.code,
-      discountType: coupon.discountType,
-      discountValue: displayValue,
-      maxUsesTotal: coupon.maxUsesTotal,
-      maxUsesPerUser: coupon.maxUsesPerUser,
-      validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().split('T')[0] : null,
-      validUntil: coupon.validUntil ? new Date(coupon.validUntil).toISOString().split('T')[0] : null,
+      type: coupon.type,
+      value: displayValue,
+      maxRedemptions: coupon.maxRedemptions,
+      maxRedemptionsPerUser: coupon.maxRedemptionsPerUser,
+      startsAt: coupon.startsAt ? new Date(coupon.startsAt).toISOString().split('T')[0] : null,
+      endsAt: coupon.endsAt ? new Date(coupon.endsAt).toISOString().split('T')[0] : null,
       applicablePlans: coupon.applicablePlans,
       firstPurchaseOnly: coupon.firstPurchaseOnly,
       active: coupon.active,
@@ -157,26 +157,25 @@ export function AdminCoupons() {
   };
 
   const handleSubmit = (isEdit: boolean) => {
-    if (!formData.code || !formData.discountValue) {
+    if (!formData.code || !formData.value) {
       toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
       return;
     }
 
     // Para FIXED, converter de reais para centavos ao salvar
-    const discountValueInCents = formData.discountType === 'FIXED' 
-      ? Math.round(Number(formData.discountValue) * 100) 
-      : Number(formData.discountValue);
+    const valueInCents = formData.type === 'FIXED' 
+      ? Math.round(Number(formData.value) * 100) 
+      : Number(formData.value);
 
-    // Mapear nomes do frontend para o backend
     const payload = {
       code: formData.code,
-      type: formData.discountType,
-      value: discountValueInCents,
+      type: formData.type,
+      value: valueInCents,
       active: formData.active,
-      startsAt: formData.validFrom || null,
-      endsAt: formData.validUntil || null,
-      maxRedemptions: formData.maxUsesTotal ? Number(formData.maxUsesTotal) : null,
-      maxRedemptionsPerUser: formData.maxUsesPerUser ? Number(formData.maxUsesPerUser) : null,
+      startsAt: formData.startsAt || null,
+      endsAt: formData.endsAt || null,
+      maxRedemptions: formData.maxRedemptions ? Number(formData.maxRedemptions) : null,
+      maxRedemptionsPerUser: formData.maxRedemptionsPerUser ? Number(formData.maxRedemptionsPerUser) : null,
       applicablePlans: formData.applicablePlans,
       firstPurchaseOnly: formData.firstPurchaseOnly,
     };
@@ -213,8 +212,8 @@ export function AdminCoupons() {
         <div className="space-y-2">
           <Label>Tipo de Desconto *</Label>
           <Select
-            value={formData.discountType}
-            onValueChange={(v) => setFormData({ ...formData, discountType: v as 'PERCENT' | 'FIXED' })}
+            value={formData.type}
+            onValueChange={(v) => setFormData({ ...formData, type: v as 'PERCENT' | 'FIXED' })}
           >
             <SelectTrigger data-testid="select-discount-type">
               <SelectValue />
@@ -229,23 +228,23 @@ export function AdminCoupons() {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Valor do Desconto * {formData.discountType === 'FIXED' ? '(em R$)' : '(em %)'}</Label>
+          <Label>Valor do Desconto * {formData.type === 'FIXED' ? '(em R$)' : '(em %)'}</Label>
           <div className="relative">
             <Input
               type="number"
-              step={formData.discountType === 'FIXED' ? "0.01" : "1"}
-              value={formData.discountValue || ""}
-              onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
-              placeholder={formData.discountType === 'PERCENT' ? "10" : "5.00"}
+              step={formData.type === 'FIXED' ? "0.01" : "1"}
+              value={formData.value || ""}
+              onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
+              placeholder={formData.type === 'PERCENT' ? "10" : "5.00"}
               data-testid="input-discount-value"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {formData.discountType === 'PERCENT' ? '%' : 'R$'}
+              {formData.type === 'PERCENT' ? '%' : 'R$'}
             </span>
           </div>
-          {formData.discountType === 'FIXED' && formData.discountValue && (
+          {formData.type === 'FIXED' && formData.value && (
             <p className="text-xs text-muted-foreground">
-              Será salvo como: {formatCurrency(Math.round(formData.discountValue * 100))}
+              Será salvo como: {formatCurrency(Math.round(formData.value * 100))}
             </p>
           )}
         </div>
@@ -275,8 +274,8 @@ export function AdminCoupons() {
           <Label>Máximo de Usos (Total)</Label>
           <Input
             type="number"
-            value={formData.maxUsesTotal || ""}
-            onChange={(e) => setFormData({ ...formData, maxUsesTotal: e.target.value ? Number(e.target.value) : null })}
+            value={formData.maxRedemptions || ""}
+            onChange={(e) => setFormData({ ...formData, maxRedemptions: e.target.value ? Number(e.target.value) : null })}
             placeholder="Ilimitado"
             data-testid="input-max-uses-total"
           />
@@ -285,8 +284,8 @@ export function AdminCoupons() {
           <Label>Máximo por Usuário</Label>
           <Input
             type="number"
-            value={formData.maxUsesPerUser || ""}
-            onChange={(e) => setFormData({ ...formData, maxUsesPerUser: e.target.value ? Number(e.target.value) : null })}
+            value={formData.maxRedemptionsPerUser || ""}
+            onChange={(e) => setFormData({ ...formData, maxRedemptionsPerUser: e.target.value ? Number(e.target.value) : null })}
             placeholder="Ilimitado"
             data-testid="input-max-uses-per-user"
           />
@@ -298,8 +297,8 @@ export function AdminCoupons() {
           <Label>Válido a partir de</Label>
           <Input
             type="date"
-            value={formData.validFrom || ""}
-            onChange={(e) => setFormData({ ...formData, validFrom: e.target.value || null })}
+            value={formData.startsAt || ""}
+            onChange={(e) => setFormData({ ...formData, startsAt: e.target.value || null })}
             data-testid="input-valid-from"
           />
         </div>
@@ -307,8 +306,8 @@ export function AdminCoupons() {
           <Label>Válido até</Label>
           <Input
             type="date"
-            value={formData.validUntil || ""}
-            onChange={(e) => setFormData({ ...formData, validUntil: e.target.value || null })}
+            value={formData.endsAt || ""}
+            onChange={(e) => setFormData({ ...formData, endsAt: e.target.value || null })}
             data-testid="input-valid-until"
           />
         </div>
@@ -392,7 +391,7 @@ export function AdminCoupons() {
                 <Users className="h-5 w-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{coupons.reduce((acc, c) => acc + (c.usageCount || 0), 0)}</p>
+                <p className="text-2xl font-bold">{coupons.reduce((acc, c) => acc + (c.redemptionCount || 0), 0)}</p>
                 <p className="text-sm text-muted-foreground">Total de Resgates</p>
               </div>
             </div>
@@ -405,7 +404,7 @@ export function AdminCoupons() {
                 <Percent className="h-5 w-5 text-orange-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{coupons.filter(c => c.discountType === 'PERCENT').length}</p>
+                <p className="text-2xl font-bold">{coupons.filter(c => c.type === 'PERCENT').length}</p>
                 <p className="text-sm text-muted-foreground">Cupons Percentuais</p>
               </div>
             </div>
@@ -446,21 +445,21 @@ export function AdminCoupons() {
                     <TableCell className="font-mono font-bold">{coupon.code}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">
-                        {coupon.discountType === 'PERCENT' ? (
-                          <><Percent className="h-3 w-3 mr-1" />{coupon.discountValue}%</>
+                        {coupon.type === 'PERCENT' ? (
+                          <><Percent className="h-3 w-3 mr-1" />{coupon.value}%</>
                         ) : (
-                          <><DollarSign className="h-3 w-3 mr-1" />{formatCurrency(coupon.discountValue)}</>
+                          <><DollarSign className="h-3 w-3 mr-1" />{formatCurrency(coupon.value)}</>
                         )}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
                         <Calendar className="h-3 w-3" />
-                        {formatDate(coupon.validFrom)} - {formatDate(coupon.validUntil)}
+                        {formatDate(coupon.startsAt)} - {formatDate(coupon.endsAt)}
                       </div>
                     </TableCell>
                     <TableCell>
-                      {coupon.usageCount || 0} / {coupon.maxUsesTotal || '∞'}
+                      {coupon.redemptionCount || 0} / {coupon.maxRedemptions || '∞'}
                     </TableCell>
                     <TableCell>
                       <Badge variant={coupon.active ? "default" : "secondary"}>

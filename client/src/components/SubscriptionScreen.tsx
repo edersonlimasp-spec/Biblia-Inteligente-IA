@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2 } from "lucide-react";
+import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import appLogo from "@assets/logo/logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,6 +13,18 @@ import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 import { apiRequest } from "@/lib/queryClient";
 import { trackSubscriptionPageVisit } from "@/lib/tracking";
+
+interface CouponData {
+  valid: boolean;
+  reason?: string;
+  couponId?: string;
+  discountType?: string;
+  discountValue?: number;
+  discountAmount?: number;
+  amountBefore?: number;
+  finalAmount?: number;
+  discountDisplay?: string;
+}
 
 interface SubscriptionScreenProps {
   onBack?: () => void;
@@ -25,6 +38,12 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState<number | null>(null);
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
+  
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null);
+  const [couponPlanId, setCouponPlanId] = useState<string | null>(null);
 
   useEffect(() => {
     trackSubscriptionPageVisit();
@@ -58,6 +77,54 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     fetchTrialInfo();
   }, [user]);
 
+  // Validate coupon function
+  const validateCoupon = async (planId: string) => {
+    if (!couponCode.trim() || !user) return;
+    
+    setIsValidatingCoupon(true);
+    try {
+      const response = await apiRequest('POST', '/api/coupons/validate', {
+        code: couponCode.trim(),
+        planId: getPlanIdForBackend(planId),
+      });
+      const data: CouponData = await response.json();
+      
+      if (data.valid) {
+        setAppliedCoupon(data);
+        setCouponPlanId(planId);
+        toast({
+          title: t("subscription.coupon.applied") || "Cupom aplicado!",
+          description: data.discountDisplay || `Desconto de R$${((data.discountAmount || 0) / 100).toFixed(2)}`,
+        });
+      } else {
+        setAppliedCoupon(null);
+        setCouponPlanId(null);
+        toast({
+          title: t("subscription.coupon.invalid") || "Cupom inválido",
+          description: data.reason || "Cupom não encontrado",
+          variant: 'destructive',
+        });
+      }
+    } catch (error: any) {
+      console.error('Erro ao validar cupom:', error);
+      setAppliedCoupon(null);
+      setCouponPlanId(null);
+      toast({
+        title: t("common.error"),
+        description: error.message || "Erro ao validar cupom",
+        variant: 'destructive',
+      });
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+  
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponPlanId(null);
+    setCouponCode("");
+  };
+
   // Plan ID mapping is now handled via plan.id in the plans array
 
   const handlePlanSelect = async (planId: string, planName: string) => {
@@ -79,7 +146,16 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     setIsPurchasing(planId);
     
     try {
-      const response = await apiRequest('POST', '/api/mp/create-checkout', { plan: getPlanIdForBackend(planId) });
+      // Include coupon code if applied for this plan
+      const payload: { plan: string; couponCode?: string } = { 
+        plan: getPlanIdForBackend(planId) 
+      };
+      
+      if (appliedCoupon && appliedCoupon.valid && couponPlanId === planId) {
+        payload.couponCode = couponCode.trim();
+      }
+      
+      const response = await apiRequest('POST', '/api/mp/create-checkout', payload);
       const data = await response.json();
       
       if (data.init_point) {
@@ -297,10 +373,75 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           </p>
         </div>
 
+        {/* Coupon Input */}
+        {user && (
+          <Card className="mb-8 bg-accent/20 border-dashed">
+            <CardContent className="p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Tag className="h-4 w-4 text-primary" />
+                  <span>{t("subscription.coupon.label") || "Cupom de desconto"}</span>
+                </div>
+                <div className="flex flex-1 gap-2 w-full sm:w-auto">
+                  <Input
+                    placeholder={t("subscription.coupon.placeholder") || "Digite seu cupom"}
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    className="flex-1 uppercase"
+                    disabled={appliedCoupon?.valid}
+                    data-testid="input-coupon-code"
+                  />
+                  {appliedCoupon?.valid ? (
+                    <Button 
+                      variant="outline" 
+                      onClick={removeCoupon}
+                      data-testid="button-remove-coupon"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => couponPlanId ? validateCoupon(couponPlanId) : toast({
+                        title: t("subscription.coupon.selectPlan") || "Selecione um plano",
+                        description: t("subscription.coupon.selectPlanDesc") || "Primeiro escolha um plano para aplicar o cupom",
+                        variant: 'destructive',
+                      })}
+                      disabled={!couponCode.trim() || isValidatingCoupon}
+                      data-testid="button-apply-coupon"
+                    >
+                      {isValidatingCoupon ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        t("subscription.coupon.apply") || "Aplicar"
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              {appliedCoupon?.valid && (
+                <div className="mt-3 p-2 bg-green-500/10 border border-green-500/30 rounded-md">
+                  <p className="text-sm text-green-600 dark:text-green-400 font-medium flex items-center gap-2">
+                    <Check className="h-4 w-4" />
+                    {appliedCoupon.discountDisplay} - {t("subscription.coupon.appliedTo") || "Aplicado ao plano selecionado"}
+                  </p>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-2">
+                {t("subscription.coupon.info") || "Clique em um plano e depois aplique o cupom para ver o desconto"}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Plans Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {plans.map((plan) => {
             const Icon = plan.icon;
+            const hasCouponForThisPlan = appliedCoupon?.valid && couponPlanId === plan.id;
+            const discountedPrice = hasCouponForThisPlan && appliedCoupon?.finalAmount 
+              ? `R$${(appliedCoupon.finalAmount / 100).toFixed(2).replace('.', ',')}`
+              : null;
+            
             return (
               <Card
                 key={plan.id}
@@ -308,13 +449,27 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                   plan.highlight
                     ? "border-primary shadow-lg ring-2 ring-primary/20"
                     : ""
-                }`}
+                } ${hasCouponForThisPlan ? "ring-2 ring-green-500/50" : ""}`}
                 data-testid={`card-plan-${plan.id}`}
+                onClick={() => {
+                  if (!plan.isFree && couponCode.trim() && !appliedCoupon?.valid) {
+                    setCouponPlanId(plan.id);
+                    validateCoupon(plan.id);
+                  }
+                }}
               >
                 {plan.badge && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <Badge variant="default" className="shadow-md">
                       {plan.badge}
+                    </Badge>
+                  </div>
+                )}
+                {hasCouponForThisPlan && (
+                  <div className="absolute -top-3 right-2">
+                    <Badge variant="secondary" className="bg-green-500 text-white shadow-md">
+                      <Tag className="h-3 w-3 mr-1" />
+                      {appliedCoupon.discountDisplay}
                     </Badge>
                   </div>
                 )}
@@ -326,9 +481,20 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                   </div>
                   <CardTitle className="text-xl">{plan.name}</CardTitle>
                   <CardDescription className="mt-2">
-                    <span className="text-3xl font-bold text-primary">
-                      {plan.price}
-                    </span>
+                    {discountedPrice ? (
+                      <>
+                        <span className="text-lg line-through text-muted-foreground">
+                          {plan.price}
+                        </span>
+                        <span className="text-3xl font-bold text-green-600 dark:text-green-400 ml-2">
+                          {discountedPrice}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-3xl font-bold text-primary">
+                        {plan.price}
+                      </span>
+                    )}
                     <span className="text-sm text-muted-foreground block mt-1">
                       {plan.period}
                     </span>
@@ -351,7 +517,10 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     <Button
                       className="w-full"
                       variant={plan.highlight ? "default" : "outline"}
-                      onClick={() => handlePlanSelect(plan.id, plan.name)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlanSelect(plan.id, plan.name);
+                      }}
                       disabled={isPurchasing === plan.id}
                       data-testid={`button-subscribe-${plan.id}`}
                     >

@@ -151,7 +151,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         plan: getPlanIdForBackend(planId) 
       };
       
-      if (appliedCoupon && appliedCoupon.valid && couponPlanId === planId) {
+      // Apply coupon only if it was validated for this specific plan
+      if (appliedCoupon?.valid && couponPlanId === planId && couponCode.trim()) {
         payload.couponCode = couponCode.trim();
       }
       
@@ -401,11 +402,17 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => couponPlanId ? validateCoupon(couponPlanId) : toast({
-                        title: t("subscription.coupon.selectPlan") || "Selecione um plano",
-                        description: t("subscription.coupon.selectPlanDesc") || "Primeiro escolha um plano para aplicar o cupom",
-                        variant: 'destructive',
-                      })}
+                      onClick={() => {
+                        if (couponPlanId) {
+                          validateCoupon(couponPlanId);
+                        } else {
+                          toast({
+                            title: t("subscription.coupon.selectPlan") || "Selecione um plano",
+                            description: t("subscription.coupon.selectPlanDesc") || "Clique em um plano abaixo para aplicar o cupom",
+                            variant: 'destructive',
+                          });
+                        }
+                      }}
                       disabled={!couponCode.trim() || isValidatingCoupon}
                       data-testid="button-apply-coupon"
                     >
@@ -452,9 +459,15 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                 } ${hasCouponForThisPlan ? "ring-2 ring-green-500/50" : ""}`}
                 data-testid={`card-plan-${plan.id}`}
                 onClick={() => {
-                  if (!plan.isFree && couponCode.trim() && !appliedCoupon?.valid) {
+                  if (!plan.isFree) {
+                    // Always set the selected plan for coupon validation
                     setCouponPlanId(plan.id);
-                    validateCoupon(plan.id);
+                    
+                    // Auto-validate coupon if there's a code entered
+                    // Always revalidate when clicking a different plan to get accurate pricing
+                    if (couponCode.trim()) {
+                      validateCoupon(plan.id);
+                    }
                   }
                 }}
               >
@@ -521,7 +534,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                         e.stopPropagation();
                         handlePlanSelect(plan.id, plan.name);
                       }}
-                      disabled={isPurchasing === plan.id}
+                      disabled={isPurchasing === plan.id || (isValidatingCoupon && couponPlanId === plan.id)}
                       data-testid={`button-subscribe-${plan.id}`}
                     >
                       {isPurchasing === plan.id ? (

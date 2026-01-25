@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail } from "lucide-react";
+import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import { AdminMonetization } from "./admin/AdminMonetization";
 import { AdminBonuses } from "./admin/AdminBonuses";
 import { AdminSystemHealth } from "./admin/AdminSystemHealth";
 import { AdminCampaigns } from "./admin/AdminCampaigns";
+import { AdminCoupons } from "./admin/AdminCoupons";
 
 interface AdminPanelProps {
   onBack?: () => void;
@@ -57,7 +58,7 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
       {/* Admin Tabs */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="dashboard" data-testid="tab-dashboard">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
@@ -69,6 +70,10 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
             <TabsTrigger value="monetization" data-testid="tab-monetization">
               <CreditCard className="h-4 w-4 mr-2" />
               Monetização
+            </TabsTrigger>
+            <TabsTrigger value="coupons" data-testid="tab-coupons">
+              <Tag className="h-4 w-4 mr-2" />
+              Cupons
             </TabsTrigger>
             <TabsTrigger value="campaigns" data-testid="tab-campaigns">
               <Mail className="h-4 w-4 mr-2" />
@@ -94,6 +99,10 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
 
           <TabsContent value="monetization" className="mt-6">
             <AdminMonetization />
+          </TabsContent>
+
+          <TabsContent value="coupons" className="mt-6">
+            <AdminCoupons />
           </TabsContent>
 
           <TabsContent value="campaigns" className="mt-6">

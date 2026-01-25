@@ -28,6 +28,7 @@ import { generateStrongDefinition, isEntryIncomplete } from "./services/strong-a
 import { readingPlanService } from "./reading-plans";
 import { transcribeAudio, generateSermonSummary, generateShareToken } from "./services/sermon-ai";
 import { sermonRecordings } from "@shared/schema";
+import { GENESIS_WORD_STRONG } from "./genesis-strong-mappings";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -2959,6 +2960,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const priorityMappings = forGreek ? GREEK_WORD_MAPPINGS : HEBREW_WORD_MAPPINGS;
     for (const [word, strongNum] of Object.entries(priorityMappings)) {
       defWordsToStrong.set(word, strongNum);
+    }
+    
+    // Add Genesis-specific word mappings for Old Testament (3465+ unique words)
+    if (!forGreek) {
+      for (const [word, strongNum] of Object.entries(GENESIS_WORD_STRONG)) {
+        // Only add if not already in priority mappings (avoid overwriting)
+        if (!defWordsToStrong.has(word)) {
+          defWordsToStrong.set(word, strongNum);
+        }
+      }
     }
     
     // Extract FIRST WORD ONLY from each Portuguese definition (primary meaning)

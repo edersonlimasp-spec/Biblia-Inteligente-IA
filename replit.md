@@ -31,6 +31,7 @@ The application is a fullstack PWA consisting of a React frontend and an Express
 - **State Management:** TanStack Query v5 for frontend server state.
 - **Bible Data:** Multiple versions (Portuguese: ACF, ARC, NVI; Spanish: RVR1960; English: KJV) with automated import.
 - **Strong's Dictionary:** 14,197 entries (Greek/Hebrew) with Brazilian Portuguese translations; word-to-Strong lookup prioritizes Portuguese definitions and filters by testament.
+- **Genesis Strong Mappings (Jan 2026):** 3,465 unique Portuguese words from Genesis mapped to Hebrew Strong numbers, extracted from Almeida Revista e Atualizada with Strong's.
 - **Interlinear Bible Data:** 300,852 word-to-Strong mappings from OSHB (Open Scriptures Hebrew Bible) via `morphhb` package.
 - **AI Professor:** OpenAI GPT-4o-mini via Replit AI Integrations, offering "Essential" (basic explanations) and "Premium" (deep exegesis) modes. Includes mode validation, rate limiting, and persistent multi-session chat history.
 - **User Features:** Subscription management (Gold, Premium), 30-day free trial, bookmarks, annotations, and audio recording with IndexedDB storage and sharing capabilities.

@@ -1431,8 +1431,18 @@ class PostgresStorage implements IStorage {
     activeGuestsToday: number;
   }> {
     const now = new Date();
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    
+    // Calculate today's start at 00:00 in Brasilia time (UTC-3)
+    // Get current time in Brasilia
+    const brasiliaOffset = -3 * 60; // -3 hours in minutes
+    const utcNow = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const brasiliaTime = new Date(utcNow + (brasiliaOffset * 60000));
+    
+    // Set to midnight in Brasilia
+    brasiliaTime.setHours(0, 0, 0, 0);
+    
+    // Convert back to UTC for database comparison
+    const todayStart = new Date(brasiliaTime.getTime() - (brasiliaOffset * 60000));
     
     const [total, inTrial, expired, linked, newToday, activeToday] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(guests),

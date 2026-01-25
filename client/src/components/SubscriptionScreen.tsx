@@ -96,6 +96,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         toast({
           title: t("subscription.coupon.applied") || "Cupom aplicado!",
           description: data.discountDisplay || `Desconto de R$${((data.discountAmount || 0) / 100).toFixed(2)}`,
+          duration: 2500,
         });
       } else {
         setAppliedCoupon(null);
@@ -263,7 +264,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "vitalicio",
       name: t("subscription.plans.lifetime.name"),
       price: t("subscription.plans.lifetime.price"),
-      priceValue: 19700, // R$ 197,00
+      priceValue: 4990, // R$ 49,90
       period: t("subscription.plans.lifetime.period"),
       icon: Crown,
       features: [
@@ -280,7 +281,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "gold",
       name: t("subscription.plans.gold.name"),
       price: t("subscription.plans.gold.price"),
-      priceValue: 1490, // R$ 14,90
+      priceValue: 990, // R$ 9,90
       period: t("subscription.plans.gold.period"),
       icon: Sparkles,
       features: [
@@ -298,7 +299,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "gold_anual",
       name: t("subscription.plans.gold_anual.name"),
       price: t("subscription.plans.gold_anual.price"),
-      priceValue: 14900, // R$ 149,00
+      priceValue: 7990, // R$ 79,90
       period: t("subscription.plans.gold_anual.period"),
       icon: Sparkles,
       features: [
@@ -317,7 +318,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "premium",
       name: t("subscription.plans.premium.name"),
       price: t("subscription.plans.premium.price"),
-      priceValue: 2990, // R$ 29,90
+      priceValue: 1990, // R$ 19,90
       period: t("subscription.plans.premium.period"),
       icon: Sparkles,
       features: [
@@ -336,7 +337,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "premium_anual",
       name: t("subscription.plans.premium_anual.name"),
       price: t("subscription.plans.premium_anual.price"),
-      priceValue: 29900, // R$ 299,00
+      priceValue: 12990, // R$ 129,90
       period: t("subscription.plans.premium_anual.period"),
       icon: Sparkles,
       features: [
@@ -457,7 +458,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         )}
 
         {/* Plans Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {plans.map((plan) => {
             const Icon = plan.icon;
             const hasCouponForThisPlan = appliedCoupon?.valid && selectedPlanForPurchase === plan.id;
@@ -481,52 +482,52 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                 }}
               >
                 {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge variant="default" className="shadow-md">
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2">
+                    <Badge variant="default" className="shadow-md text-xs">
                       {plan.badge}
                     </Badge>
                   </div>
                 )}
                 {hasCouponForThisPlan && (
-                  <div className="absolute -top-3 right-2">
-                    <Badge variant="secondary" className="bg-green-500 text-white shadow-md">
+                  <div className="absolute -top-2 right-2">
+                    <Badge variant="secondary" className="bg-green-500 text-white shadow-md text-xs">
                       <Tag className="h-3 w-3 mr-1" />
                       {appliedCoupon.discountDisplay}
                     </Badge>
                   </div>
                 )}
-                <CardHeader className="text-center pb-4">
-                  <div className="flex justify-center mb-3">
-                    <div className="p-3 bg-primary/10 rounded-full">
-                      <Icon className="h-8 w-8 text-primary" />
+                <CardHeader className="text-center pb-2 pt-4 px-3">
+                  <div className="flex justify-center mb-2">
+                    <div className="p-2 bg-primary/10 rounded-full">
+                      <Icon className="h-5 w-5 text-primary" />
                     </div>
                   </div>
-                  <CardTitle className="text-xl">{plan.name}</CardTitle>
-                  <CardDescription className="mt-2">
+                  <CardTitle className="text-base">{plan.name}</CardTitle>
+                  <CardDescription className="mt-1">
                     {discountedPrice ? (
                       <>
-                        <span className="text-lg line-through text-muted-foreground">
+                        <span className="text-sm line-through text-muted-foreground">
                           {plan.price}
                         </span>
-                        <span className="text-3xl font-bold text-green-600 dark:text-green-400 ml-2">
+                        <span className="text-xl font-bold text-green-600 dark:text-green-400 ml-2">
                           {discountedPrice}
                         </span>
                       </>
                     ) : (
-                      <span className="text-3xl font-bold text-primary">
+                      <span className="text-xl font-bold text-primary">
                         {plan.price}
                       </span>
                     )}
-                    <span className="text-sm text-muted-foreground block mt-1">
+                    <span className="text-xs text-muted-foreground block mt-1">
                       {plan.period}
                     </span>
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 mb-6">
+                <CardContent className="px-3 pb-3">
+                  <ul className="space-y-1.5 mb-4 text-xs">
                     {plan.features.filter(f => f && f.trim() !== '').map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm">
-                        <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <Check className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}

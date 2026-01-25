@@ -376,66 +376,59 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
 
         {/* Coupon Input */}
         {user && (
-          <Card className="mb-8 bg-accent/20 border-dashed">
+          <Card className="mb-8 bg-accent/10 border-dashed">
             <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <Tag className="h-4 w-4 text-primary" />
-                  <span>{t("subscription.coupon.label") || "Cupom de desconto"}</span>
-                </div>
-                <div className="flex flex-1 gap-2 w-full sm:w-auto">
-                  <Input
-                    placeholder={t("subscription.coupon.placeholder") || "Digite seu cupom"}
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    className="flex-1 uppercase"
-                    disabled={appliedCoupon?.valid}
-                    data-testid="input-coupon-code"
-                  />
-                  {appliedCoupon?.valid ? (
-                    <Button 
-                      variant="outline" 
-                      onClick={removeCoupon}
-                      data-testid="button-remove-coupon"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        if (couponPlanId) {
-                          validateCoupon(couponPlanId);
-                        } else {
-                          toast({
-                            title: t("subscription.coupon.selectPlan") || "Selecione um plano",
-                            description: t("subscription.coupon.selectPlanDesc") || "Clique em um plano abaixo para aplicar o cupom",
-                            variant: 'destructive',
-                          });
-                        }
-                      }}
-                      disabled={!couponCode.trim() || isValidatingCoupon}
-                      data-testid="button-apply-coupon"
-                    >
-                      {isValidatingCoupon ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        t("subscription.coupon.apply") || "Aplicar"
-                      )}
-                    </Button>
-                  )}
-                </div>
+              <div className="flex items-center gap-2 w-full">
+                <Tag className="h-4 w-4 text-primary shrink-0" />
+                <Input
+                  placeholder="Insira o Cupom"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  className="flex-1 uppercase"
+                  disabled={appliedCoupon?.valid}
+                  data-testid="input-coupon-code"
+                />
+                {appliedCoupon?.valid ? (
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={removeCoupon}
+                    data-testid="button-remove-coupon"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      if (couponPlanId) {
+                        validateCoupon(couponPlanId);
+                      } else {
+                        toast({
+                          title: t("subscription.coupon.selectPlan") || "Selecione um plano",
+                          description: t("subscription.coupon.selectPlanDesc") || "Clique em um plano abaixo para aplicar o cupom",
+                          variant: 'destructive',
+                        });
+                      }
+                    }}
+                    disabled={!couponCode.trim() || isValidatingCoupon}
+                    data-testid="button-apply-coupon"
+                  >
+                    {isValidatingCoupon ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      t("subscription.coupon.apply") || "Aplicar"
+                    )}
+                  </Button>
+                )}
               </div>
               {appliedCoupon?.valid && (
                 <div className="mt-3 p-2 bg-green-500/10 border border-green-500/30 rounded-md">
                   <p className="text-sm text-green-600 dark:text-green-400 font-medium flex items-center gap-2">
                     <Check className="h-4 w-4" />
-                    {appliedCoupon.discountDisplay} - {t("subscription.coupon.appliedTo") || "Aplicado ao plano selecionado"}
+                    {appliedCoupon.discountDisplay}
                   </p>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground mt-2">
-                {t("subscription.coupon.info") || "Clique em um plano e depois aplique o cupom para ver o desconto"}
-              </p>
             </CardContent>
           </Card>
         )}

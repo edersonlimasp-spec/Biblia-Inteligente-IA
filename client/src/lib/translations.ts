@@ -353,6 +353,17 @@ export const translations: Record<AppLanguage, Record<string, string>> = {
     "subscription.freeFeatures.6": "3 gravações de sermão",
     "subscription.freeFeatures.7": "3 eventos na agenda",
     
+    // Coupon
+    "subscription.coupon.label": "Cupom de desconto",
+    "subscription.coupon.placeholder": "Insira o Cupom",
+    "subscription.coupon.apply": "Aplicar",
+    "subscription.coupon.applied": "Cupom aplicado!",
+    "subscription.coupon.invalid": "Cupom inválido",
+    "subscription.coupon.appliedTo": "Aplicado ao plano selecionado",
+    "subscription.coupon.info": "Clique em um plano e depois aplique o cupom",
+    "subscription.coupon.selectPlan": "Selecione um plano",
+    "subscription.coupon.selectPlanDesc": "Clique em um plano abaixo para aplicar o cupom",
+    
     // Recordings
     "recordings.title": "Gravações de Sermões",
     "recordings.newRecording": "Nova gravação",

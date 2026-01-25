@@ -1,0 +1,89 @@
+Você é um desenvolvedor full-stack sênior. No meu app “Bíblia Inteligente” eu preciso implementar CUPOM DE DESCONTO no fluxo de assinatura (tela/campo de Plano) e um módulo no PAINEL ADMINISTRATIVO para criar e gerenciar cupons.
+
+OBJETIVO
+1) No checkout/Plano: adicionar um campo “Cupom de desconto” + botão “Aplicar”.
+2) Validar cupom no backend e recalcular o preço (exibir: subtotal, desconto, total).
+3) Na finalização do pagamento: registrar no pedido/assinatura o cupom usado, valor de desconto e o código.
+4) No admin: criar/editar/desativar cupons e ver uso (quantas vezes foi usado, por quem, quando).
+
+REQUISITOS FUNCIONAIS (CUPOM)
+- Cupom com: code (string, único), type (PERCENT ou FIXED), value (percentual ou valor fixo), active (bool),
+  startsAt, endsAt, maxRedemptions (limite total), maxRedemptionsPerUser (limite por usuário),
+  minAmount (valor mínimo do plano/carrinho), applicablePlans (lista de IDs/nomes de planos, opcional),
+  firstPurchaseOnly (bool, opcional), createdAt, updatedAt.
+- Validação:
+  - Deve existir e estar ativo
+  - Dentro do período (startsAt/endsAt)
+  - Não exceder maxRedemptions total
+  - Não exceder maxRedemptionsPerUser para o usuário logado
+  - Respeitar minAmount
+  - Se applicablePlans estiver definido, só vale para aqueles planos
+  - Se firstPurchaseOnly=true, só para usuários sem assinatura/pedido anterior
+- Cálculo:
+  - PERCENT: desconto = total * (value/100) com arredondamento correto (2 casas)
+  - FIXED: desconto = min(value, total)
+  - Total nunca pode ficar negativo
+- Segurança:
+  - Nunca confiar no valor calculado no front
+  - O backend deve recalcular tudo antes de criar o pagamento/assinatura
+  - Rate-limit simples no endpoint de validar cupom
+
+TELA DE PLANO / CHECKOUT (FRONT-END)
+- Adicionar input “Cupom” e botão “Aplicar”
+- Ao aplicar, chamar endpoint backend /api/coupons/validate com { code, planId }
+- Mostrar mensagens claras (cupom inválido/expirado/limite atingido)
+- Mostrar desconto e total atualizado
+- Persistir cupom aplicado no estado até concluir o pagamento
+- Se o usuário trocar de plano, revalidar automaticamente
+
+BACK-END / API
+Criar endpoints:
+1) POST /api/coupons/validate
+   - Auth obrigatória
+   - Body: { code: string, planId: string }
+   - Response: { valid: boolean, reason?, discountAmount, discountType, discountValue, finalAmount, couponId }
+2) POST /api/coupons/redeem (ou integrar no fluxo de criação de pagamento)
+   - Quando o pagamento for confirmado (ou assinatura criada), registrar o uso do cupom
+   - Deve ser transacional: não pode exceder limites por condição de corrida
+
+BANCO DE DADOS
+- Criar tabela/coleção “coupons”
+- Criar tabela/coleção “coupon_redemptions” para log:
+  { id, couponId, userId, planId, orderId/subscriptionId, amountBefore, discountAmount, amountAfter, redeemedAt }
+- Indexar: code unique, couponId, userId, redeemedAt
+- Incluir no registro da assinatura/pedido os campos:
+  couponCode, couponId, discountAmount, amountBefore, amountAfter
+
+PAINEL ADMINISTRATIVO
+- Nova seção “Cupons”
+- Listagem com filtros: ativo/inativo, expirando, por código
+- Formulário de criação/edição:
+  code (auto uppercase), type, value, active, startsAt/endsAt, maxRedemptions, maxPerUser, minAmount,
+  applicablePlans (multi-select), firstPurchaseOnly
+- Botões: salvar, desativar/ativar, excluir (somente se não teve uso; se teve, só desativar)
+- Tela de detalhes do cupom mostrando:
+  - total de usos
+  - últimos 20 resgates (userId/email se existir), data, plano, desconto
+
+INTEGRAÇÃO COM PAGAMENTO
+- Encontre no código onde é calculado o preço e onde cria o pagamento/assinatura.
+- Garanta que o “amount” final enviado ao provedor (Mercado Pago/Stripe/outro) já esteja com desconto aplicado.
+- Garanta que cupom não seja “consumido” antes do pagamento ser confirmado.
+- Se pagamento falhar/cancelar, não registrar redemption.
+
+TESTES / VERIFICAÇÃO
+- Criar testes (ou pelo menos casos manuais) para:
+  cupom inválido, expirado, inativo, sem período, limite total, limite por usuário, minAmount, applicablePlans,
+  percent e fixed, troca de plano revalida, corrida de duas requisições simultâneas
+- Logar erros no backend com mensagens claras.
+
+ENTREGA
+- Faça as alterações diretamente no projeto atual.
+- Me diga quais arquivos foram criados/alterados.
+- Se houver migrações, crie e explique como rodar.
+- Se houver variáveis de ambiente necessárias, adicionar no README.
+
+IMPORTANTE
+- Não quebrar o fluxo atual de assinatura.
+- Seguir o padrão do projeto (framework, ORM, estrutura de pastas, autenticação).
+- Se você encontrar o modelo de “planos” existente, use-o para applicablePlans e planId.

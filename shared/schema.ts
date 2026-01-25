@@ -1189,3 +1189,58 @@ export const insertSermonRecordingSchema = createInsertSchema(sermonRecordings).
 
 export type InsertSermonRecording = z.infer<typeof insertSermonRecordingSchema>;
 export type SermonRecording = typeof sermonRecordings.$inferSelect;
+
+// Coupons table for discount codes
+export const coupons = pgTable("coupons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  type: text("type").notNull(), // 'PERCENT' or 'FIXED'
+  value: integer("value").notNull(), // Percentage (0-100) or fixed amount in cents
+  active: boolean("active").notNull().default(true),
+  startsAt: timestamp("starts_at"),
+  endsAt: timestamp("ends_at"),
+  maxRedemptions: integer("max_redemptions"), // Total limit (null = unlimited)
+  maxRedemptionsPerUser: integer("max_redemptions_per_user").default(1), // Per user limit
+  minAmount: integer("min_amount"), // Minimum plan amount in cents (null = no minimum)
+  applicablePlans: text("applicable_plans").array(), // List of plan IDs (null = all plans)
+  firstPurchaseOnly: boolean("first_purchase_only").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  codeIdx: index("coupons_code_idx").on(table.code),
+  activeIdx: index("coupons_active_idx").on(table.active),
+}));
+
+export const insertCouponSchema = createInsertSchema(coupons).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCoupon = z.infer<typeof insertCouponSchema>;
+export type Coupon = typeof coupons.$inferSelect;
+
+// Coupon Redemptions table for tracking usage
+export const couponRedemptions = pgTable("coupon_redemptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  couponId: varchar("coupon_id").notNull().references(() => coupons.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  planId: text("plan_id").notNull(), // gold, premium, gold_anual, etc.
+  subscriptionId: varchar("subscription_id").references(() => subscriptions.id, { onDelete: "set null" }),
+  amountBefore: integer("amount_before").notNull(), // Original amount in cents
+  discountAmount: integer("discount_amount").notNull(), // Discount applied in cents
+  amountAfter: integer("amount_after").notNull(), // Final amount in cents
+  redeemedAt: timestamp("redeemed_at").notNull().defaultNow(),
+}, (table) => ({
+  couponIdIdx: index("coupon_redemptions_coupon_id_idx").on(table.couponId),
+  userIdIdx: index("coupon_redemptions_user_id_idx").on(table.userId),
+  redeemedAtIdx: index("coupon_redemptions_redeemed_at_idx").on(table.redeemedAt),
+}));
+
+export const insertCouponRedemptionSchema = createInsertSchema(couponRedemptions).omit({
+  id: true,
+  redeemedAt: true,
+});
+
+export type InsertCouponRedemption = z.infer<typeof insertCouponRedemptionSchema>;
+export type CouponRedemption = typeof couponRedemptions.$inferSelect;

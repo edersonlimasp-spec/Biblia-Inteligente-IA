@@ -212,20 +212,28 @@ export function AdminCoupons() {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Valor do Desconto *</Label>
+          <Label>Valor do Desconto * {formData.discountType === 'FIXED' ? '(em R$)' : '(em %)'}</Label>
           <div className="relative">
             <Input
               type="number"
-              value={formData.discountValue || ""}
-              onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
-              placeholder={formData.discountType === 'PERCENT' ? "10" : "500"}
+              step={formData.discountType === 'FIXED' ? "0.01" : "1"}
+              value={formData.discountType === 'FIXED' 
+                ? (formData.discountValue ? (formData.discountValue / 100).toFixed(2) : "") 
+                : (formData.discountValue || "")}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                // Para FIXED, converter de reais para centavos
+                const valueInCents = formData.discountType === 'FIXED' ? Math.round(val * 100) : val;
+                setFormData({ ...formData, discountValue: valueInCents });
+              }}
+              placeholder={formData.discountType === 'PERCENT' ? "10" : "5.00"}
               data-testid="input-discount-value"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {formData.discountType === 'PERCENT' ? '%' : 'centavos'}
+              {formData.discountType === 'PERCENT' ? '%' : 'R$'}
             </span>
           </div>
-          {formData.discountType === 'FIXED' && (
+          {formData.discountType === 'FIXED' && formData.discountValue && (
             <p className="text-xs text-muted-foreground">
               {formData.discountValue ? formatCurrency(formData.discountValue) : 'R$ 0,00'}
             </p>

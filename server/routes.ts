@@ -7,7 +7,7 @@ import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { askTheologicalQuestion, generateBiblicalImage, analyzeImageWithVision } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests, coupons, couponRedemptions, type Coupon, type CouponRedemption, insertCouponSchema } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -4973,6 +4973,322 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/iap', iapRoutes);
 
   // ============================================
+  // COUPON DISCOUNT SYSTEM
+  // ============================================
+  
+  // Plan prices in cents for coupon calculations
+  const PLAN_PRICES_CENTS: Record<string, number> = {
+    gold: 990,
+    gold_anual: 7990,
+    premium: 1990,
+    premium_anual: 12990,
+    vitalicio: 4990,
+    strong_lifetime: 4990,
+  };
+  
+  // Validate coupon endpoint
+  app.post("/api/coupons/validate", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Usuário não autenticado" });
+      }
+      
+      const { code, planId } = req.body;
+      if (!code || typeof code !== 'string') {
+        return res.status(400).json({ valid: false, reason: "Código do cupom é obrigatório" });
+      }
+      
+      if (!planId || !PLAN_PRICES_CENTS[planId]) {
+        return res.status(400).json({ valid: false, reason: "Plano inválido" });
+      }
+      
+      const normalizedCode = code.trim().toUpperCase();
+      
+      // Find coupon
+      const [coupon] = await db
+        .select()
+        .from(coupons)
+        .where(eq(coupons.code, normalizedCode))
+        .limit(1);
+      
+      if (!coupon) {
+        return res.json({ valid: false, reason: "Cupom não encontrado" });
+      }
+      
+      // Check if active
+      if (!coupon.active) {
+        return res.json({ valid: false, reason: "Cupom inativo" });
+      }
+      
+      // Check date validity
+      const now = new Date();
+      if (coupon.startsAt && now < coupon.startsAt) {
+        return res.json({ valid: false, reason: "Cupom ainda não está ativo" });
+      }
+      if (coupon.endsAt && now > coupon.endsAt) {
+        return res.json({ valid: false, reason: "Cupom expirado" });
+      }
+      
+      // Check applicable plans
+      if (coupon.applicablePlans && coupon.applicablePlans.length > 0) {
+        if (!coupon.applicablePlans.includes(planId)) {
+          return res.json({ valid: false, reason: "Cupom não válido para este plano" });
+        }
+      }
+      
+      // Check minimum amount
+      const planAmount = PLAN_PRICES_CENTS[planId];
+      if (coupon.minAmount && planAmount < coupon.minAmount) {
+        return res.json({ valid: false, reason: `Valor mínimo: R$${(coupon.minAmount / 100).toFixed(2)}` });
+      }
+      
+      // Check total redemptions
+      if (coupon.maxRedemptions) {
+        const [{ count: totalRedemptions }] = await db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(couponRedemptions)
+          .where(eq(couponRedemptions.couponId, coupon.id));
+        
+        if (totalRedemptions >= coupon.maxRedemptions) {
+          return res.json({ valid: false, reason: "Limite de uso do cupom atingido" });
+        }
+      }
+      
+      // Check per-user redemptions
+      if (coupon.maxRedemptionsPerUser) {
+        const [{ count: userRedemptions }] = await db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(couponRedemptions)
+          .where(and(
+            eq(couponRedemptions.couponId, coupon.id),
+            eq(couponRedemptions.userId, userId)
+          ));
+        
+        if (userRedemptions >= coupon.maxRedemptionsPerUser) {
+          return res.json({ valid: false, reason: "Você já usou este cupom" });
+        }
+      }
+      
+      // Check first purchase only
+      if (coupon.firstPurchaseOnly) {
+        const existingSubscriptions = await db
+          .select()
+          .from(subscriptions)
+          .where(eq(subscriptions.userId, userId))
+          .limit(1);
+        
+        if (existingSubscriptions.length > 0) {
+          return res.json({ valid: false, reason: "Cupom válido apenas para primeira compra" });
+        }
+      }
+      
+      // Calculate discount
+      let discountAmount: number;
+      if (coupon.type === 'PERCENT') {
+        discountAmount = Math.round(planAmount * (coupon.value / 100));
+      } else {
+        discountAmount = Math.min(coupon.value, planAmount);
+      }
+      
+      const finalAmount = Math.max(0, planAmount - discountAmount);
+      
+      res.json({
+        valid: true,
+        couponId: coupon.id,
+        discountType: coupon.type,
+        discountValue: coupon.value,
+        discountAmount,
+        amountBefore: planAmount,
+        finalAmount,
+        discountDisplay: coupon.type === 'PERCENT' 
+          ? `${coupon.value}% OFF` 
+          : `R$${(coupon.value / 100).toFixed(2)} OFF`,
+      });
+      
+    } catch (error) {
+      console.error("[Coupon] Erro ao validar cupom:", error);
+      res.status(500).json({ valid: false, reason: "Erro interno ao validar cupom" });
+    }
+  });
+  
+  // Admin: List all coupons
+  app.get("/api/admin/coupons", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const allCoupons = await db
+        .select()
+        .from(coupons)
+        .orderBy(desc(coupons.createdAt));
+      
+      // Get redemption counts
+      const redemptionCounts = await db
+        .select({
+          couponId: couponRedemptions.couponId,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(couponRedemptions)
+        .groupBy(couponRedemptions.couponId);
+      
+      const countMap = new Map(redemptionCounts.map(r => [r.couponId, r.count]));
+      
+      const couponsWithCounts = allCoupons.map(c => ({
+        ...c,
+        redemptionCount: countMap.get(c.id) || 0,
+      }));
+      
+      res.json(couponsWithCounts);
+    } catch (error) {
+      console.error("[Admin Coupon] Erro ao listar cupons:", error);
+      res.status(500).json({ error: "Erro ao listar cupons" });
+    }
+  });
+  
+  // Admin: Create coupon
+  app.post("/api/admin/coupons", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { code, type, value, active, startsAt, endsAt, maxRedemptions, maxRedemptionsPerUser, minAmount, applicablePlans, firstPurchaseOnly } = req.body;
+      
+      if (!code || !type || value === undefined) {
+        return res.status(400).json({ error: "code, type e value são obrigatórios" });
+      }
+      
+      if (!['PERCENT', 'FIXED'].includes(type)) {
+        return res.status(400).json({ error: "type deve ser PERCENT ou FIXED" });
+      }
+      
+      if (type === 'PERCENT' && (value < 0 || value > 100)) {
+        return res.status(400).json({ error: "Valor de porcentagem deve estar entre 0 e 100" });
+      }
+      
+      const normalizedCode = code.trim().toUpperCase();
+      
+      // Check if code exists
+      const existing = await db
+        .select()
+        .from(coupons)
+        .where(eq(coupons.code, normalizedCode))
+        .limit(1);
+      
+      if (existing.length > 0) {
+        return res.status(400).json({ error: "Código de cupom já existe" });
+      }
+      
+      const [newCoupon] = await db.insert(coupons).values({
+        code: normalizedCode,
+        type,
+        value: parseInt(value),
+        active: active !== false,
+        startsAt: startsAt ? new Date(startsAt) : null,
+        endsAt: endsAt ? new Date(endsAt) : null,
+        maxRedemptions: maxRedemptions || null,
+        maxRedemptionsPerUser: maxRedemptionsPerUser || 1,
+        minAmount: minAmount || null,
+        applicablePlans: applicablePlans || null,
+        firstPurchaseOnly: firstPurchaseOnly || false,
+      }).returning();
+      
+      console.log(`[Admin Coupon] Cupom criado: ${normalizedCode} (${type} ${value})`);
+      res.json(newCoupon);
+    } catch (error) {
+      console.error("[Admin Coupon] Erro ao criar cupom:", error);
+      res.status(500).json({ error: "Erro ao criar cupom" });
+    }
+  });
+  
+  // Admin: Update coupon
+  app.put("/api/admin/coupons/:id", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const { code, type, value, active, startsAt, endsAt, maxRedemptions, maxRedemptionsPerUser, minAmount, applicablePlans, firstPurchaseOnly } = req.body;
+      
+      const updateData: any = { updatedAt: new Date() };
+      
+      if (code !== undefined) updateData.code = code.trim().toUpperCase();
+      if (type !== undefined) updateData.type = type;
+      if (value !== undefined) updateData.value = parseInt(value);
+      if (active !== undefined) updateData.active = active;
+      if (startsAt !== undefined) updateData.startsAt = startsAt ? new Date(startsAt) : null;
+      if (endsAt !== undefined) updateData.endsAt = endsAt ? new Date(endsAt) : null;
+      if (maxRedemptions !== undefined) updateData.maxRedemptions = maxRedemptions || null;
+      if (maxRedemptionsPerUser !== undefined) updateData.maxRedemptionsPerUser = maxRedemptionsPerUser;
+      if (minAmount !== undefined) updateData.minAmount = minAmount || null;
+      if (applicablePlans !== undefined) updateData.applicablePlans = applicablePlans;
+      if (firstPurchaseOnly !== undefined) updateData.firstPurchaseOnly = firstPurchaseOnly;
+      
+      const [updated] = await db
+        .update(coupons)
+        .set(updateData)
+        .where(eq(coupons.id, id))
+        .returning();
+      
+      if (!updated) {
+        return res.status(404).json({ error: "Cupom não encontrado" });
+      }
+      
+      console.log(`[Admin Coupon] Cupom atualizado: ${updated.code}`);
+      res.json(updated);
+    } catch (error) {
+      console.error("[Admin Coupon] Erro ao atualizar cupom:", error);
+      res.status(500).json({ error: "Erro ao atualizar cupom" });
+    }
+  });
+  
+  // Admin: Delete coupon (only if no redemptions)
+  app.delete("/api/admin/coupons/:id", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if has redemptions
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(couponRedemptions)
+        .where(eq(couponRedemptions.couponId, id));
+      
+      if (count > 0) {
+        return res.status(400).json({ error: "Cupom tem resgates e não pode ser excluído. Desative-o." });
+      }
+      
+      await db.delete(coupons).where(eq(coupons.id, id));
+      
+      console.log(`[Admin Coupon] Cupom excluído: ${id}`);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Admin Coupon] Erro ao excluir cupom:", error);
+      res.status(500).json({ error: "Erro ao excluir cupom" });
+    }
+  });
+  
+  // Admin: Get coupon details with redemptions
+  app.get("/api/admin/coupons/:id/redemptions", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      
+      const redemptions = await db
+        .select({
+          id: couponRedemptions.id,
+          userId: couponRedemptions.userId,
+          userEmail: users.email,
+          userName: users.name,
+          planId: couponRedemptions.planId,
+          amountBefore: couponRedemptions.amountBefore,
+          discountAmount: couponRedemptions.discountAmount,
+          amountAfter: couponRedemptions.amountAfter,
+          redeemedAt: couponRedemptions.redeemedAt,
+        })
+        .from(couponRedemptions)
+        .leftJoin(users, eq(couponRedemptions.userId, users.id))
+        .where(eq(couponRedemptions.couponId, id))
+        .orderBy(desc(couponRedemptions.redeemedAt))
+        .limit(50);
+      
+      res.json(redemptions);
+    } catch (error) {
+      console.error("[Admin Coupon] Erro ao buscar resgates:", error);
+      res.status(500).json({ error: "Erro ao buscar resgates" });
+    }
+  });
+
+  // ============================================
   // MERCADO PAGO CHECKOUT PRO INTEGRATION
   // ============================================
   
@@ -5022,7 +5338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "Usuário não autenticado" });
       }
       
-      const { plan } = req.body;
+      const { plan, couponCode } = req.body;
       if (!plan || !MP_PLAN_CONFIG[plan]) {
         return res.status(400).json({ error: "Plano inválido. Escolha: gold, premium ou vitalicio" });
       }
@@ -5048,12 +5364,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.warn(`[MP] ⚠️ Usuário ${userId} não tem email cadastrado`);
       }
       
-      // Create external reference with user and plan info (CRITICAL for webhook)
+      // Apply coupon discount if provided
+      let finalPrice = planConfig.price;
+      let appliedCoupon: { id: string; code: string; discountAmount: number } | null = null;
+      
+      if (couponCode && typeof couponCode === 'string') {
+        const normalizedCode = couponCode.trim().toUpperCase();
+        
+        // Validate coupon server-side (never trust frontend calculations)
+        const [coupon] = await db
+          .select()
+          .from(coupons)
+          .where(eq(coupons.code, normalizedCode))
+          .limit(1);
+        
+        if (coupon && coupon.active) {
+          const now = new Date();
+          const isValidDate = (!coupon.startsAt || now >= coupon.startsAt) && (!coupon.endsAt || now <= coupon.endsAt);
+          const isValidPlan = !coupon.applicablePlans || coupon.applicablePlans.length === 0 || coupon.applicablePlans.includes(plan);
+          const planAmountCents = Math.round(planConfig.price * 100);
+          const isMinAmountMet = !coupon.minAmount || planAmountCents >= coupon.minAmount;
+          
+          // Check redemption limits
+          let isWithinLimits = true;
+          
+          if (coupon.maxRedemptions) {
+            const [{ count: totalRedemptions }] = await db
+              .select({ count: sql<number>`count(*)::int` })
+              .from(couponRedemptions)
+              .where(eq(couponRedemptions.couponId, coupon.id));
+            if (totalRedemptions >= coupon.maxRedemptions) isWithinLimits = false;
+          }
+          
+          if (isWithinLimits && coupon.maxRedemptionsPerUser) {
+            const [{ count: userRedemptions }] = await db
+              .select({ count: sql<number>`count(*)::int` })
+              .from(couponRedemptions)
+              .where(and(
+                eq(couponRedemptions.couponId, coupon.id),
+                eq(couponRedemptions.userId, userId)
+              ));
+            if (userRedemptions >= coupon.maxRedemptionsPerUser) isWithinLimits = false;
+          }
+          
+          // Check first purchase only
+          let isFirstPurchaseValid = true;
+          if (coupon.firstPurchaseOnly) {
+            const existingSubs = await db
+              .select()
+              .from(subscriptions)
+              .where(eq(subscriptions.userId, userId))
+              .limit(1);
+            if (existingSubs.length > 0) isFirstPurchaseValid = false;
+          }
+          
+          if (isValidDate && isValidPlan && isMinAmountMet && isWithinLimits && isFirstPurchaseValid) {
+            let discountAmount: number;
+            if (coupon.type === 'PERCENT') {
+              discountAmount = planConfig.price * (coupon.value / 100);
+            } else {
+              discountAmount = Math.min(coupon.value / 100, planConfig.price);
+            }
+            
+            finalPrice = Math.max(0.01, planConfig.price - discountAmount); // Minimum R$0.01
+            finalPrice = Math.round(finalPrice * 100) / 100; // Round to 2 decimals
+            
+            appliedCoupon = {
+              id: coupon.id,
+              code: coupon.code,
+              discountAmount: Math.round(discountAmount * 100), // In cents
+            };
+            
+            console.log(`[MP] 🎫 Cupom ${coupon.code} aplicado: -R$${discountAmount.toFixed(2)} (${coupon.type} ${coupon.value})`);
+          } else {
+            console.log(`[MP] ⚠️ Cupom ${normalizedCode} inválido ou expirado, ignorando`);
+          }
+        }
+      }
+      
+      // Create external reference with user, plan and coupon info (CRITICAL for webhook)
       const externalReference = JSON.stringify({
         userId,
         plan: planType,
         days: planConfig.days,
         lifetime: planConfig.days === null,
+        ...(appliedCoupon && {
+          couponId: appliedCoupon.id,
+          couponCode: appliedCoupon.code,
+          couponDiscount: appliedCoupon.discountAmount,
+          originalAmount: Math.round(planConfig.price * 100),
+        }),
       });
       
       console.log(`[MP] ════════════════════════════════════════════════════`);
@@ -5061,7 +5461,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[MP] userId: ${userId}`);
       console.log(`[MP] email: ${userEmail}`);
       console.log(`[MP] plan: ${plan}`);
-      console.log(`[MP] price: R$${planConfig.price}`);
+      console.log(`[MP] originalPrice: R$${planConfig.price}`);
+      console.log(`[MP] finalPrice: R$${finalPrice}${appliedCoupon ? ` (cupom: ${appliedCoupon.code})` : ''}`);
       console.log(`[MP] external_reference: ${externalReference}`);
       console.log(`[MP] ════════════════════════════════════════════════════`);
       
@@ -5070,11 +5471,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const preference = {
         items: [{
           id: `plan_${planType}`,
-          title: planConfig.title,
+          title: appliedCoupon 
+            ? `${planConfig.title} (Cupom: ${appliedCoupon.code})`
+            : planConfig.title,
           description: `Plano ${planType.charAt(0).toUpperCase() + planType.slice(1)} - Bíblia Inteligente IA`,
           quantity: 1,
           currency_id: "BRL",
-          unit_price: planConfig.price,
+          unit_price: finalPrice,
         }],
         // ETAPA C: external_reference com userId (CRÍTICO)
         external_reference: externalReference,
@@ -5085,6 +5488,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           plan: planType,
           planType: planType,
           userEmail: userEmail || '',
+          ...(appliedCoupon && {
+            couponId: appliedCoupon.id,
+            couponCode: appliedCoupon.code,
+            couponDiscount: appliedCoupon.discountAmount,
+          }),
         },
         // Payer info (only if email exists)
         ...(userEmail ? { payer: { email: userEmail } } : {}),
@@ -5665,6 +6073,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let plan: string | null = null;
       let days: number | null = null;
       let lifetime: boolean = false;
+      let couponId: string | null = null;
+      let couponCode: string | null = null;
+      let couponDiscount: number | null = null;
+      let originalAmount: number | null = null;
       
       // Primeiro: tentar external_reference (prioridade)
       const externalRef = mpData.external_reference || mpData.reason || '';
@@ -5677,7 +6089,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           plan = refData.plan || refData.planType || null;
           days = refData.days || null;
           lifetime = refData.lifetime || false;
-          console.log(`[MP Webhook] Parsed external_reference: userId=${userId}, plan=${plan}, days=${days}, lifetime=${lifetime}`);
+          // Extract coupon data if present
+          couponId = refData.couponId || null;
+          couponCode = refData.couponCode || null;
+          couponDiscount = refData.couponDiscount || null;
+          originalAmount = refData.originalAmount || null;
+          console.log(`[MP Webhook] Parsed external_reference: userId=${userId}, plan=${plan}, days=${days}, lifetime=${lifetime}, couponCode=${couponCode}`);
         } catch (e) {
           // external_reference não é JSON, pode ser string simples (email ou ID)
           console.log(`[MP Webhook] external_reference não é JSON: "${externalRef}"`);
@@ -5905,6 +6322,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[MP Webhook] ✅ userId=${userId}`);
       console.log(`[MP Webhook] ✅ planType=${planType}`);
       console.log(`[MP Webhook] ✅ endDate=${subscription.endDate}`);
+      
+      // ========================================
+      // REGISTRAR RESGATE DE CUPOM (SE APLICÁVEL)
+      // ========================================
+      
+      if (couponId && couponCode && couponDiscount && originalAmount && userId) {
+        try {
+          // Check if already redeemed (idempotency)
+          const existingRedemption = await db
+            .select()
+            .from(couponRedemptions)
+            .where(and(
+              eq(couponRedemptions.couponId, couponId),
+              eq(couponRedemptions.userId, userId),
+              eq(couponRedemptions.subscriptionId, subscription.id)
+            ))
+            .limit(1);
+          
+          if (existingRedemption.length === 0) {
+            await db.insert(couponRedemptions).values({
+              couponId,
+              userId,
+              planId: planType,
+              subscriptionId: subscription.id,
+              amountBefore: originalAmount,
+              discountAmount: couponDiscount,
+              amountAfter: originalAmount - couponDiscount,
+            });
+            
+            console.log(`[MP Webhook] 🎫 Cupom ${couponCode} registrado: -R$${(couponDiscount / 100).toFixed(2)}`);
+          } else {
+            console.log(`[MP Webhook] 🎫 Cupom ${couponCode} já foi registrado para esta subscription`);
+          }
+        } catch (couponError) {
+          console.error(`[MP Webhook] ⚠️ Erro ao registrar cupom ${couponCode}:`, couponError);
+          // Don't fail the webhook, just log the error
+        }
+      }
       
       // ========================================
       // CRIAR RECIBO DE PAGAMENTO DETALHADO

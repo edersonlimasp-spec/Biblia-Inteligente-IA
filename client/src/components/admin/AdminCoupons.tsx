@@ -167,11 +167,18 @@ export function AdminCoupons() {
       ? Math.round(Number(formData.discountValue) * 100) 
       : Number(formData.discountValue);
 
+    // Mapear nomes do frontend para o backend
     const payload = {
-      ...formData,
-      discountValue: discountValueInCents,
-      maxUsesTotal: formData.maxUsesTotal ? Number(formData.maxUsesTotal) : null,
-      maxUsesPerUser: formData.maxUsesPerUser ? Number(formData.maxUsesPerUser) : null,
+      code: formData.code,
+      type: formData.discountType,
+      value: discountValueInCents,
+      active: formData.active,
+      startsAt: formData.validFrom || null,
+      endsAt: formData.validUntil || null,
+      maxRedemptions: formData.maxUsesTotal ? Number(formData.maxUsesTotal) : null,
+      maxRedemptionsPerUser: formData.maxUsesPerUser ? Number(formData.maxUsesPerUser) : null,
+      applicablePlans: formData.applicablePlans,
+      firstPurchaseOnly: formData.firstPurchaseOnly,
     };
 
     if (isEdit && selectedCoupon) {

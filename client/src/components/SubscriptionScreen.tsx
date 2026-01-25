@@ -39,11 +39,13 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const [trialDaysRemaining, setTrialDaysRemaining] = useState<number | null>(null);
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   
+  // Selected plan for purchase (separado da seleção para auth modal)
+  const [selectedPlanForPurchase, setSelectedPlanForPurchase] = useState<string | null>(null);
+  
   // Coupon state
   const [couponCode, setCouponCode] = useState("");
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null);
-  const [couponPlanId, setCouponPlanId] = useState<string | null>(null);
 
   useEffect(() => {
     trackSubscriptionPageVisit();
@@ -77,28 +79,26 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     fetchTrialInfo();
   }, [user]);
 
-  // Validate coupon function
-  const validateCoupon = async (planId: string) => {
-    if (!couponCode.trim() || !user) return;
+  // Validate coupon function - usa selectedPlanForPurchase
+  const validateCoupon = async () => {
+    if (!couponCode.trim() || !user || !selectedPlanForPurchase) return;
     
     setIsValidatingCoupon(true);
     try {
       const response = await apiRequest('POST', '/api/coupons/validate', {
         code: couponCode.trim(),
-        planId: getPlanIdForBackend(planId),
+        planId: getPlanIdForBackend(selectedPlanForPurchase),
       });
       const data: CouponData = await response.json();
       
       if (data.valid) {
         setAppliedCoupon(data);
-        setCouponPlanId(planId);
         toast({
           title: t("subscription.coupon.applied") || "Cupom aplicado!",
           description: data.discountDisplay || `Desconto de R$${((data.discountAmount || 0) / 100).toFixed(2)}`,
         });
       } else {
         setAppliedCoupon(null);
-        setCouponPlanId(null);
         toast({
           title: t("subscription.coupon.invalid") || "Cupom inválido",
           description: data.reason || "Cupom não encontrado",
@@ -108,7 +108,6 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     } catch (error: any) {
       console.error('Erro ao validar cupom:', error);
       setAppliedCoupon(null);
-      setCouponPlanId(null);
       toast({
         title: t("common.error"),
         description: error.message || "Erro ao validar cupom",
@@ -121,8 +120,25 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   
   const removeCoupon = () => {
     setAppliedCoupon(null);
-    setCouponPlanId(null);
     setCouponCode("");
+  };
+  
+  // Selecionar plano para compra (NÃO vai para pagamento ainda)
+  const handleSelectPlanForPurchase = (planId: string, planName: string) => {
+    if (!user) {
+      setSelectedPlan(planName);
+      setShowAuthModal(true);
+      return;
+    }
+    
+    if (planId === "free") return;
+    
+    // Se já tinha um plano selecionado diferente, limpa o cupom
+    if (selectedPlanForPurchase && selectedPlanForPurchase !== planId) {
+      setAppliedCoupon(null);
+    }
+    
+    setSelectedPlanForPurchase(planId);
   };
 
   // Plan ID mapping is now handled via plan.id in the plans array
@@ -152,7 +168,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       };
       
       // Apply coupon only if it was validated for this specific plan
-      if (appliedCoupon?.valid && couponPlanId === planId && couponCode.trim()) {
+      if (appliedCoupon?.valid && selectedPlanForPurchase === planId && couponCode.trim()) {
         payload.couponCode = couponCode.trim();
       }
       
@@ -215,6 +231,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     id: string;
     name: string;
     price: string;
+    priceValue: number; // valor em centavos
     period: string;
     icon: typeof Lock | typeof Crown | typeof Sparkles;
     features: string[];
@@ -228,6 +245,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "free",
       name: t("subscription.plans.free.name"),
       price: t("subscription.plans.free.price"),
+      priceValue: 0,
       period: t("subscription.plans.free.period"),
       icon: Lock,
       features: [
@@ -245,6 +263,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "vitalicio",
       name: t("subscription.plans.lifetime.name"),
       price: t("subscription.plans.lifetime.price"),
+      priceValue: 19700, // R$ 197,00
       period: t("subscription.plans.lifetime.period"),
       icon: Crown,
       features: [
@@ -261,6 +280,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "gold",
       name: t("subscription.plans.gold.name"),
       price: t("subscription.plans.gold.price"),
+      priceValue: 1490, // R$ 14,90
       period: t("subscription.plans.gold.period"),
       icon: Sparkles,
       features: [
@@ -278,6 +298,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "gold_anual",
       name: t("subscription.plans.gold_anual.name"),
       price: t("subscription.plans.gold_anual.price"),
+      priceValue: 14900, // R$ 149,00
       period: t("subscription.plans.gold_anual.period"),
       icon: Sparkles,
       features: [
@@ -296,6 +317,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "premium",
       name: t("subscription.plans.premium.name"),
       price: t("subscription.plans.premium.price"),
+      priceValue: 2990, // R$ 29,90
       period: t("subscription.plans.premium.period"),
       icon: Sparkles,
       features: [
@@ -314,6 +336,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       id: "premium_anual",
       name: t("subscription.plans.premium_anual.name"),
       price: t("subscription.plans.premium_anual.price"),
+      priceValue: 29900, // R$ 299,00
       period: t("subscription.plans.premium_anual.period"),
       icon: Sparkles,
       features: [
@@ -400,8 +423,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                 ) : (
                   <Button
                     onClick={() => {
-                      if (couponPlanId) {
-                        validateCoupon(couponPlanId);
+                      if (selectedPlanForPurchase) {
+                        validateCoupon();
                       } else {
                         toast({
                           title: t("subscription.coupon.selectPlan") || "Selecione um plano",
@@ -410,7 +433,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                         });
                       }
                     }}
-                    disabled={!couponCode.trim() || isValidatingCoupon}
+                    disabled={!couponCode.trim() || isValidatingCoupon || !selectedPlanForPurchase}
                     data-testid="button-apply-coupon"
                   >
                     {isValidatingCoupon ? (
@@ -437,7 +460,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {plans.map((plan) => {
             const Icon = plan.icon;
-            const hasCouponForThisPlan = appliedCoupon?.valid && couponPlanId === plan.id;
+            const hasCouponForThisPlan = appliedCoupon?.valid && selectedPlanForPurchase === plan.id;
             const discountedPrice = hasCouponForThisPlan && appliedCoupon?.finalAmount 
               ? `R$${(appliedCoupon.finalAmount / 100).toFixed(2).replace('.', ',')}`
               : null;
@@ -449,18 +472,11 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                   plan.highlight
                     ? "border-primary shadow-lg ring-2 ring-primary/20"
                     : ""
-                } ${hasCouponForThisPlan ? "ring-2 ring-green-500/50" : ""}`}
+                } ${hasCouponForThisPlan ? "ring-2 ring-green-500/50" : ""} ${selectedPlanForPurchase === plan.id ? "ring-2 ring-primary" : ""} cursor-pointer hover-elevate`}
                 data-testid={`card-plan-${plan.id}`}
                 onClick={() => {
                   if (!plan.isFree) {
-                    // Always set the selected plan for coupon validation
-                    setCouponPlanId(plan.id);
-                    
-                    // Auto-validate coupon if there's a code entered
-                    // Always revalidate when clicking a different plan to get accurate pricing
-                    if (couponCode.trim()) {
-                      validateCoupon(plan.id);
-                    }
+                    handleSelectPlanForPurchase(plan.id, plan.name);
                   }
                 }}
               >
@@ -522,20 +538,21 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                   ) : (
                     <Button
                       className="w-full"
-                      variant={plan.highlight ? "default" : "outline"}
+                      variant={selectedPlanForPurchase === plan.id ? "default" : "outline"}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handlePlanSelect(plan.id, plan.name);
+                        handleSelectPlanForPurchase(plan.id, plan.name);
                       }}
-                      disabled={isPurchasing === plan.id || (isValidatingCoupon && couponPlanId === plan.id)}
-                      data-testid={`button-subscribe-${plan.id}`}
+                      data-testid={`button-select-${plan.id}`}
                     >
-                      {isPurchasing === plan.id ? (
+                      {selectedPlanForPurchase === plan.id ? (
                         <>
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          {t("subscription.processing")}
+                          <Check className="h-4 w-4 mr-2" />
+                          Selecionado
                         </>
-                      ) : plan.highlight ? t("subscription.subscribeNow") : t("subscription.choosePlanButton")}
+                      ) : (
+                        t("subscription.choosePlanButton") || "Escolher"
+                      )}
                     </Button>
                   )}
                 </CardContent>
@@ -543,6 +560,107 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
             );
           })}
         </div>
+
+        {/* Order Summary - Aparece quando um plano é selecionado */}
+        {user && selectedPlanForPurchase && (
+          <Card className="mb-8 border-primary shadow-lg">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Crown className="h-5 w-5 text-primary" />
+                Resumo do Pedido
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(() => {
+                const selectedPlanData = plans.find(p => p.id === selectedPlanForPurchase);
+                if (!selectedPlanData) return null;
+                
+                const originalPrice = selectedPlanData.priceValue || 0;
+                const hasCoupon = appliedCoupon?.valid;
+                const finalPrice = hasCoupon && appliedCoupon?.finalAmount 
+                  ? appliedCoupon.finalAmount 
+                  : originalPrice;
+                const discountAmount = hasCoupon && appliedCoupon?.discountAmount 
+                  ? appliedCoupon.discountAmount 
+                  : 0;
+                
+                return (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Plano:</span>
+                      <span className="font-semibold">{selectedPlanData.name}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Valor original:</span>
+                      <span className={hasCoupon ? "line-through text-muted-foreground" : "font-semibold"}>
+                        R$ {(originalPrice / 100).toFixed(2).replace('.', ',')}
+                      </span>
+                    </div>
+                    
+                    {hasCoupon && (
+                      <>
+                        <div className="flex justify-between items-center text-green-600 dark:text-green-400">
+                          <span className="flex items-center gap-1">
+                            <Tag className="h-4 w-4" />
+                            Desconto ({appliedCoupon.discountDisplay}):
+                          </span>
+                          <span>- R$ {(discountAmount / 100).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <hr className="border-dashed" />
+                        <div className="flex justify-between items-center text-lg font-bold">
+                          <span>Total:</span>
+                          <span className="text-green-600 dark:text-green-400">
+                            R$ {(finalPrice / 100).toFixed(2).replace('.', ',')}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {!hasCoupon && (
+                      <div className="flex justify-between items-center text-lg font-bold">
+                        <span>Total:</span>
+                        <span className="text-primary">
+                          R$ {(finalPrice / 100).toFixed(2).replace('.', ',')}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <Button
+                      className="w-full mt-4"
+                      size="lg"
+                      onClick={() => handlePlanSelect(selectedPlanForPurchase, selectedPlanData.name)}
+                      disabled={isPurchasing === selectedPlanForPurchase || isValidatingCoupon || (couponCode.trim() !== '' && !appliedCoupon?.valid)}
+                      data-testid="button-finalize-purchase"
+                    >
+                      {isPurchasing === selectedPlanForPurchase ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Processando...
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="h-4 w-4 mr-2" />
+                          Finalizar Compra
+                        </>
+                      )}
+                    </Button>
+                    
+                    {couponCode.trim() !== '' && !appliedCoupon?.valid && (
+                      <p className="text-xs text-center text-orange-500">
+                        Clique em "Aplicar" no campo de cupom acima para usar o desconto
+                      </p>
+                    )}
+                    
+                    <p className="text-xs text-center text-muted-foreground">
+                      Você será redirecionado para o Mercado Pago para concluir o pagamento
+                    </p>
+                  </>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Trial Info */}
         <Card className="bg-accent/30">

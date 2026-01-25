@@ -131,10 +131,15 @@ export function AdminCoupons() {
 
   const openEdit = (coupon: Coupon) => {
     setSelectedCoupon(coupon);
+    // Para FIXED, converter de centavos para reais ao exibir
+    const displayValue = coupon.discountType === 'FIXED' 
+      ? coupon.discountValue / 100 
+      : coupon.discountValue;
+    
     setFormData({
       code: coupon.code,
       discountType: coupon.discountType,
-      discountValue: coupon.discountValue,
+      discountValue: displayValue,
       maxUsesTotal: coupon.maxUsesTotal,
       maxUsesPerUser: coupon.maxUsesPerUser,
       validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().split('T')[0] : null,
@@ -157,9 +162,14 @@ export function AdminCoupons() {
       return;
     }
 
+    // Para FIXED, converter de reais para centavos ao salvar
+    const discountValueInCents = formData.discountType === 'FIXED' 
+      ? Math.round(Number(formData.discountValue) * 100) 
+      : Number(formData.discountValue);
+
     const payload = {
       ...formData,
-      discountValue: Number(formData.discountValue),
+      discountValue: discountValueInCents,
       maxUsesTotal: formData.maxUsesTotal ? Number(formData.maxUsesTotal) : null,
       maxUsesPerUser: formData.maxUsesPerUser ? Number(formData.maxUsesPerUser) : null,
     };
@@ -217,15 +227,8 @@ export function AdminCoupons() {
             <Input
               type="number"
               step={formData.discountType === 'FIXED' ? "0.01" : "1"}
-              value={formData.discountType === 'FIXED' 
-                ? (formData.discountValue ? (formData.discountValue / 100).toFixed(2) : "") 
-                : (formData.discountValue || "")}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                // Para FIXED, converter de reais para centavos
-                const valueInCents = formData.discountType === 'FIXED' ? Math.round(val * 100) : val;
-                setFormData({ ...formData, discountValue: valueInCents });
-              }}
+              value={formData.discountValue || ""}
+              onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
               placeholder={formData.discountType === 'PERCENT' ? "10" : "5.00"}
               data-testid="input-discount-value"
             />
@@ -235,7 +238,7 @@ export function AdminCoupons() {
           </div>
           {formData.discountType === 'FIXED' && formData.discountValue && (
             <p className="text-xs text-muted-foreground">
-              {formData.discountValue ? formatCurrency(formData.discountValue) : 'R$ 0,00'}
+              Será salvo como: {formatCurrency(Math.round(formData.discountValue * 100))}
             </p>
           )}
         </div>

@@ -190,8 +190,8 @@ export function AdminCoupons() {
     return `R$ ${(cents / 100).toFixed(2).replace('.', ',')}`;
   };
 
-  const CouponForm = ({ isEdit = false }: { isEdit?: boolean }) => (
-    <div className="space-y-4">
+  const renderFormFields = () => (
+    <>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Código do Cupom *</Label>
@@ -325,23 +325,7 @@ export function AdminCoupons() {
           <Label>Ativo</Label>
         </div>
       </div>
-
-      <div className="flex justify-end gap-2 pt-4">
-        <Button variant="outline" onClick={() => isEdit ? setIsEditOpen(false) : setIsCreateOpen(false)}>
-          Cancelar
-        </Button>
-        <Button
-          onClick={() => handleSubmit(isEdit)}
-          disabled={createMutation.isPending || updateMutation.isPending}
-          data-testid="button-save-coupon"
-        >
-          {(createMutation.isPending || updateMutation.isPending) && (
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          )}
-          {isEdit ? "Salvar Alterações" : "Criar Cupom"}
-        </Button>
-      </div>
-    </div>
+    </>
   );
 
   if (isLoading) {
@@ -525,7 +509,22 @@ export function AdminCoupons() {
               Configure os detalhes do cupom de desconto
             </DialogDescription>
           </DialogHeader>
-          <CouponForm />
+          <div className="space-y-4">
+            {renderFormFields()}
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => handleSubmit(false)}
+                disabled={createMutation.isPending}
+                data-testid="button-save-coupon"
+              >
+                {createMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Criar Cupom
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -538,7 +537,22 @@ export function AdminCoupons() {
               Atualize as configurações do cupom {selectedCoupon?.code}
             </DialogDescription>
           </DialogHeader>
-          <CouponForm isEdit />
+          <div className="space-y-4">
+            {renderFormFields()}
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => handleSubmit(true)}
+                disabled={updateMutation.isPending}
+                data-testid="button-save-coupon-edit"
+              >
+                {updateMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                Salvar Alterações
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 

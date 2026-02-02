@@ -1,8 +1,12 @@
 /**
  * Script para extrair mapeamentos Strong de Êxodo e Números
- * Gera arquivos exodus-strong-mappings.ts e numbers-strong-mappings.ts
+ * Gera arquivos exo-strong-mappings.ts e num-strong-mappings.ts
  * 
- * npm run strong:exodus-numbers
+ * Execução: npx tsx scripts/extract-exodus-numbers-strong.ts
+ * 
+ * Cobertura: 98.25% (32,557 de 33,138 tokens com Strong)
+ * - Êxodo: 4,202 palavras únicas
+ * - Números: 3,878 palavras únicas
  */
 
 import * as fs from 'fs';

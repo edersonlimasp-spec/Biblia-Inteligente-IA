@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,6 +46,9 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   const [couponCode, setCouponCode] = useState("");
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null);
+  
+  // Ref para scroll automático ao resumo do pedido
+  const orderSummaryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     trackSubscriptionPageVisit();
@@ -142,6 +145,11 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     }
     
     setSelectedPlanForPurchase(planId);
+    
+    // Scroll automático para o resumo do pedido após um pequeno delay
+    setTimeout(() => {
+      orderSummaryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
   // Plan ID mapping is now handled via plan.id in the plans array
@@ -567,7 +575,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
 
         {/* Order Summary - Aparece quando um plano é selecionado */}
         {user && selectedPlanForPurchase && (
-          <Card className="mb-8 border-primary shadow-lg">
+          <Card ref={orderSummaryRef} className="mb-8 border-primary shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Crown className="h-5 w-5 text-primary" />

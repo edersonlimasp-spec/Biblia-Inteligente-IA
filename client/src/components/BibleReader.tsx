@@ -756,8 +756,13 @@ export function BibleReader({
     }
   };
 
-  // Process search results
+  // Process search results - only when query is complete and matches current search
   useEffect(() => {
+    // Don't process if we're still loading or if there's no active search
+    if (isWordSearchLoading || !searchingWord) {
+      return;
+    }
+    
     console.log('[Strong Debug] wordSearchResults changed:', wordSearchResults);
     
     if (wordSearchResults?.results && wordSearchResults.results.length > 0) {
@@ -777,23 +782,27 @@ export function BibleReader({
         // Close searching modal and open real modal
         setShowSearchingModal(false);
         setSelectedStrongNumber(matchingResult.number);
-        if (searchingWord) {
-          setWordsWithStrong(prev => {
-            const newSet = new Set(prev);
-            newSet.add(searchingWord);
-            return newSet;
-          });
-        }
+        const currentWord = searchingWord;
+        setWordsWithStrong(prev => {
+          const newSet = new Set(prev);
+          newSet.add(currentWord);
+          return newSet;
+        });
         setSearchingWord(null);
         setSearchingVerseNum(null);
       }
-    } else if (wordSearchResults?.results?.length === 0) {
-      console.log('[Strong Debug] No results found');
+    } else if (wordSearchResults?.results?.length === 0 && searchingWord) {
+      console.log('[Strong Debug] No results found for:', searchingWord);
       setShowSearchingModal(false);
       setSearchingWord(null);
       setSearchingVerseNum(null);
+      toast({
+        title: "Palavra não encontrada",
+        description: "Esta palavra não possui referência Strong cadastrada.",
+        duration: 1500,
+      });
     }
-  }, [wordSearchResults, currentBook, searchingWord]);
+  }, [wordSearchResults, currentBook, searchingWord, isWordSearchLoading, toast]);
 
   // Populate wordsWithStrong from pre-fetched data when chapter changes
   useEffect(() => {

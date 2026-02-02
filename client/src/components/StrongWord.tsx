@@ -23,8 +23,10 @@ export const StrongWord = memo(function StrongWord({
 }: StrongWordProps) {
   return (
     <span
-      onClick={() => {
+      onClick={(e) => {
         if (hasStrong && onWordClick) {
+          e.stopPropagation();
+          e.preventDefault();
           onWordClick(text);
         }
       }}

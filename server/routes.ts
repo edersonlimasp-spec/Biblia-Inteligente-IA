@@ -29,6 +29,8 @@ import { readingPlanService } from "./reading-plans";
 import { transcribeAudio, generateSermonSummary, generateShareToken } from "./services/sermon-ai";
 import { sermonRecordings } from "@shared/schema";
 import { GENESIS_WORD_STRONG } from "./genesis-strong-mappings";
+import { EXO_WORD_STRONG } from "./exo-strong-mappings";
+import { NUM_WORD_STRONG } from "./num-strong-mappings";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -2962,10 +2964,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       defWordsToStrong.set(word, strongNum);
     }
     
-    // Add Genesis-specific word mappings for Old Testament (3465+ unique words)
+    // Add Pentateuch word mappings for Old Testament (Genesis, Exodus, Numbers - 11,500+ unique words)
     if (!forGreek) {
+      // Genesis mappings (3465+ words)
       for (const [word, strongNum] of Object.entries(GENESIS_WORD_STRONG)) {
-        // Only add if not already in priority mappings (avoid overwriting)
+        if (!defWordsToStrong.has(word)) {
+          defWordsToStrong.set(word, strongNum);
+        }
+      }
+      // Exodus mappings (4202+ words)
+      for (const [word, strongNum] of Object.entries(EXO_WORD_STRONG)) {
+        if (!defWordsToStrong.has(word)) {
+          defWordsToStrong.set(word, strongNum);
+        }
+      }
+      // Numbers mappings (3878+ words)
+      for (const [word, strongNum] of Object.entries(NUM_WORD_STRONG)) {
         if (!defWordsToStrong.has(word)) {
           defWordsToStrong.set(word, strongNum);
         }

@@ -1,0 +1,92 @@
+Tarefa: Completar/normalizar a marcação Strong em todo o texto bíblico de Êxodo e Números, garantindo que toda palavra elegível esteja com Strong corretamente preenchido, usando como fonte de verdade o PDF de referência do Strong já presente no projeto. Manter rigorosamente o padrão atual de “7 camadas” (não alterar o contrato/estrutura do payload, apenas completar o que estiver faltando).
+
+1) Regras obrigatórias (não negociar)
+	1.	Não mudar o formato das 7 camadas já usado no app.
+	•	Preserve nomes de chaves, ordem lógica, e estrutura de cada camada.
+	•	Pode apenas preencher campos vazios/ausentes relacionados a Strong.
+	2.	Cobertura 100%: Em Êxodo e Números, nenhuma palavra que hoje aparece sem Strong pode ficar sem Strong, exceto:
+	•	pontuação pura (, . ; : ? ! — …),
+	•	espaços/quebras,
+	•	tokens totalmente não-lexicais definidos pelo padrão atual (ex.: marcadores internos).
+	3.	Consistência: Se uma palavra aparece repetidas vezes no mesmo contexto/forma (mesma normalização), o Strong deve ser consistente (salvo quando o PDF indicar ambiguidade — aí aplicar a regra de desambiguação).
+	4.	Não quebrar performance: Processamento deve ser feito via script/worker e salvar resultado cacheado/otimizado (não recalcular tudo a cada request).
+	5.	Zero regressão: Não pode remover Strong já existente; só corrigir quando houver erro evidente e comprovado pelo PDF (e registrar no relatório).
+
+2) Onde procurar no projeto
+	•	Localize onde o app:
+	•	carrega os textos bíblicos (provável JSON/DB),
+	•	aplica Strong (pipeline de tokenização/alinhamento),
+	•	monta as 7 camadas (render/DTO).
+	•	Identifique a fonte dos dados de Strong (dicionário/lexicon/arquivo).
+
+3) PDF de referência (Strong)
+	•	O projeto tem um PDF (ex.: /data/strong.pdf ou /assets/strong.pdf).
+	•	Implementar um módulo strongPdfIndex para extrair/consultar o Strong do PDF sem depender de OCR pesado em runtime:
+	•	Preferir: extração única (build step) → gerar strong_index.json.
+	•	Se o PDF for texto selecionável: usar biblioteca de extração de texto (pdf-parse/pdfjs).
+	•	Se não for selecionável: usar OCR apenas no build step e salvar index.
+	•	O índice deve permitir consulta por:
+	•	forma normalizada (lowercase + remoção de diacríticos quando aplicável),
+	•	língua original se houver (Hebraico/Aramaico/Greco) conforme seu padrão,
+	•	e retornar strongNumber, lemma, gloss (se existir no seu padrão).
+
+4) Estratégia para preencher Strong faltante
+
+Para cada versículo de Êxodo e Números:
+	1.	Tokenizar o texto exatamente como seu padrão atual (para não quebrar UI).
+	2.	Para cada token “palavra”:
+	•	Se já tem Strong: manter.
+	•	Se não tem Strong:
+	•	Normalizar token (lowercase, remover pontuação ao redor, preservar hífen conforme regra atual).
+	•	Consultar strong_index.json.
+	•	Se encontrar 1 match: aplicar Strong.
+	•	Se encontrar múltiplos:
+	•	usar desambiguação por:
+	•	contexto (palavras vizinhas),
+	•	lemma mais frequente no livro (estatística),
+	•	ou regra do próprio PDF (se ele tiver seção de ocorrências).
+	•	Se ainda empatar: escolher o mais frequente no mesmo capítulo e registrar no relatório como “ambíguo”.
+	•	Se não encontrar:
+	•	aplicar fallback por “forma raiz” (stemming simples/remoção de sufixos comuns se seu projeto já faz isso),
+	•	tentar mapear por equivalência (ex.: plural/singular),
+	•	se ainda não achar: registrar como “não encontrado no índice” e criar uma entrada manual_review_candidates.json — MAS mesmo assim precisa preencher Strong: usar o Strong mais provável por frequência global do token no Pentateuco (Êxodo+Números) e marcar internamente (sem quebrar as 7 camadas) como inferred=true se existir um campo de metadados; se não existir, apenas logar em relatório (não alterar schema).
+	3.	Atualizar as 7 camadas:
+	•	A camada que contém Strong deve receber o strongNumber (ex.: H#### / G#### conforme padrão).
+	•	Se houver camada de lemma/gloss, preencher quando disponível no índice.
+	•	Garantir que as demais camadas permaneçam idênticas.
+
+5) Garantia de “todas as palavras Strong” em Êxodo e Números
+	•	Criar um script executável:
+	•	npm run strong:exodus-numbers (ou equivalente)
+	•	Esse script deve:
+	1.	carregar todos os capítulos de Êxodo e Números,
+	2.	rodar o preenchimento,
+	3.	salvar versão final dos dados (JSON/DB) em local padrão do projeto,
+	4.	gerar relatório em /reports/strong_fill_report.md contendo:
+	•	total de tokens analisados,
+	•	quantos já tinham Strong,
+	•	quantos foram preenchidos,
+	•	quantos foram corrigidos,
+	•	lista de ambíguos,
+	•	lista de inferidos,
+	•	top 50 tokens mais problemáticos.
+
+6) Testes automáticos (obrigatório)
+
+Criar testes que garantam:
+	1.	Em Êxodo e Números: % de tokens lexicais sem Strong = 0.
+	2.	Schema das 7 camadas não mudou (snapshot/contract test).
+	3.	Renderização não quebra (test de montagem do DTO/camadas).
+	4.	Performance: índice carregado uma vez, consulta O(1) ou próximo (map/hash).
+
+7) Checklist final antes do commit
+	•	Rodar script, revisar relatório, garantir que o app continua exibindo:
+	•	Strong clicável,
+	•	e as camadas intactas.
+	•	Commit com mensagem: feat: fill missing strong for exodus and numbers (7-layer safe)
+
+Agora execute, implemente e entregue:
+	•	arquivos alterados,
+	•	novo script,
+	•	relatório gerado,
+	•	e resumo do que foi preenchido/corrigido.

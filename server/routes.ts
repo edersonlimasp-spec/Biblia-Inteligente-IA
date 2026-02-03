@@ -32,6 +32,7 @@ import { GENESIS_WORD_STRONG } from "./genesis-strong-mappings";
 import { EXO_WORD_STRONG } from "./exo-strong-mappings";
 import { NUM_WORD_STRONG } from "./num-strong-mappings";
 import { LEV_WORD_STRONG } from "./lev-strong-mappings";
+import { DEU_WORD_STRONG } from "./deu-strong-mappings";
 
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
@@ -2965,7 +2966,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       defWordsToStrong.set(word, strongNum);
     }
     
-    // Add Pentateuch word mappings for Old Testament (Genesis, Exodus, Leviticus, Numbers - 14,200+ unique words)
+    // Add Pentateuch word mappings for Old Testament (Genesis-Deuteronomy - 18,300+ unique words)
     if (!forGreek) {
       // Genesis mappings (3465+ words)
       for (const [word, strongNum] of Object.entries(GENESIS_WORD_STRONG)) {
@@ -2987,6 +2988,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       // Numbers mappings (3878+ words)
       for (const [word, strongNum] of Object.entries(NUM_WORD_STRONG)) {
+        if (!defWordsToStrong.has(word)) {
+          defWordsToStrong.set(word, strongNum);
+        }
+      }
+      // Deuteronomy mappings (4106+ words)
+      for (const [word, strongNum] of Object.entries(DEU_WORD_STRONG)) {
         if (!defWordsToStrong.has(word)) {
           defWordsToStrong.set(word, strongNum);
         }

@@ -4,9 +4,9 @@
  * ISOLATED from the core 7-layer system - only adds UI elements
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, ChevronUp, ExternalLink, BookOpen, Link2, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink, BookOpen, Link2, Loader2, X, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CrossReference {
   ref: string;
@@ -34,6 +41,7 @@ interface VerseExtrasProps {
   chapter: number;
   verse: number;
   onNavigate?: (bookId: string, chapter: number, verse: number) => void;
+  onClose?: () => void;
 }
 
 const BOOK_NAMES: Record<string, string> = {
@@ -54,6 +62,13 @@ const BOOK_NAMES: Record<string, string> = {
   "3jn": "3 João", jud: "Judas", rev: "Apocalipse"
 };
 
+const OLD_TESTAMENT_BOOKS = new Set([
+  "gen", "exo", "lev", "num", "deu", "jos", "jdg", "rut", "1sa", "2sa",
+  "1ki", "2ki", "1ch", "2ch", "ezr", "neh", "est", "job", "psa", "pro",
+  "ecc", "sng", "isa", "jer", "lam", "ezk", "dan", "hos", "jol", "amo",
+  "oba", "jon", "mic", "nam", "hab", "zep", "hag", "zec", "mal"
+]);
+
 function parseRef(refString: string): { bookId: string; chapter: number; verse: number } | null {
   const parts = refString.split('.');
   if (parts.length !== 3) return null;
@@ -69,6 +84,10 @@ function formatRef(refString: string): string {
   if (!parsed) return refString;
   const bookName = BOOK_NAMES[parsed.bookId] || parsed.bookId;
   return `${bookName} ${parsed.chapter}:${parsed.verse}`;
+}
+
+function getTestament(bookId: string): 'AT' | 'NT' {
+  return OLD_TESTAMENT_BOOKS.has(bookId) ? 'AT' : 'NT';
 }
 
 function getTypeLabel(type: CommentaryBlock['type']): string {
@@ -90,8 +109,9 @@ function getTypeBadgeVariant(type: CommentaryBlock['type']): "default" | "second
   }
 }
 
-export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasProps) {
+export function VerseExtras({ bookId, chapter, verse, onNavigate, onClose }: VerseExtrasProps) {
   const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set());
+  const [testamentFilter, setTestamentFilter] = useState<'all' | 'AT' | 'NT'>('all');
 
   const { data: refsData, isLoading: loadingRefs } = useQuery<{ refs: CrossReference[] }>({
     queryKey: [`/api/bible/cross-references?bookId=${bookId}&chapter=${chapter}&verse=${verse}`],
@@ -107,6 +127,28 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
 
   const refs = refsData?.refs || [];
   const commentary = commentaryData?.commentary_blocks || [];
+
+  const filteredRefs = useMemo(() => {
+    if (testamentFilter === 'all') return refs;
+    return refs.filter(ref => {
+      const parsed = parseRef(ref.ref);
+      if (!parsed) return false;
+      return getTestament(parsed.bookId) === testamentFilter;
+    });
+  }, [refs, testamentFilter]);
+
+  const groupedRefs = useMemo(() => {
+    const groups: Record<string, CrossReference[]> = {};
+    filteredRefs.forEach(ref => {
+      const parsed = parseRef(ref.ref);
+      if (parsed) {
+        const bookName = BOOK_NAMES[parsed.bookId] || parsed.bookId;
+        if (!groups[bookName]) groups[bookName] = [];
+        groups[bookName].push(ref);
+      }
+    });
+    return groups;
+  }, [filteredRefs]);
 
   const handleRefClick = (refString: string) => {
     const parsed = parseRef(refString);
@@ -130,10 +172,12 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
 
   if (isLoading) {
     return (
-      <div className="mt-4 flex items-center justify-center py-4 text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        <span className="text-sm">Carregando recursos...</span>
-      </div>
+      <Card className="mt-4">
+        <CardContent className="flex items-center justify-center py-6">
+          <Loader2 className="h-5 w-5 animate-spin mr-2 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Carregando recursos...</span>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -141,65 +185,120 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
     return null;
   }
 
-  return (
-    <div className="mt-4 space-y-2">
-      <Accordion type="multiple" className="w-full">
-        {refs.length > 0 && (
-          <AccordionItem value="refs" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-3 hover:no-underline" data-testid="accordion-cross-refs">
-              <div className="flex items-center gap-2">
-                <Link2 className="h-4 w-4" />
-                <span className="font-medium">Referências Cruzadas</span>
-                <Badge variant="secondary" className="ml-2">{refs.length}</Badge>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4">
-              <div className="flex flex-wrap gap-2">
-                {refs.map((ref, idx) => (
-                  <Button
-                    key={idx}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleRefClick(ref.ref)}
-                    data-testid={`ref-link-${idx}`}
-                  >
-                    <ExternalLink className="h-3 w-3 mr-1.5" />
-                    <span>{formatRef(ref.ref)}</span>
-                  </Button>
-                ))}
-              </div>
-              {refs.some(r => r.reason) && (
-                <div className="mt-3 space-y-2">
-                  {refs.filter(r => r.reason).map((ref, idx) => (
-                    <div key={idx} className="text-sm text-muted-foreground">
-                      <span className="font-medium">{formatRef(ref.ref)}:</span>{" "}
-                      <span>{ref.reason}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        )}
+  const currentBookName = BOOK_NAMES[bookId] || bookId;
 
-        {commentary.length > 0 && (
-          <AccordionItem value="commentary" className="border rounded-lg">
-            <AccordionTrigger className="px-4 py-3 hover:no-underline" data-testid="accordion-commentary">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                <span className="font-medium">Comentários</span>
-                <Badge variant="secondary" className="ml-2">{commentary.length}</Badge>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4">
-              <div className="space-y-4">
-                {commentary.map((block, idx) => (
-                  <Card key={idx} className="bg-muted/30">
-                    <CardHeader className="py-3 px-4">
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <CardTitle className="text-sm font-medium">
+  return (
+    <Card className="mt-4">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-base font-semibold">
+            Recursos para {currentBookName} {chapter}:{verse}
+          </CardTitle>
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              data-testid="button-close-extras"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <Accordion type="multiple" className="w-full space-y-2">
+          {refs.length > 0 && (
+            <AccordionItem value="refs" className="border rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline" data-testid="accordion-cross-refs">
+                <div className="flex items-center gap-2">
+                  <Link2 className="h-4 w-4" />
+                  <span className="font-medium">Referências Cruzadas</span>
+                  <Badge variant="secondary">{filteredRefs.length}</Badge>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Filtrar:</span>
+                  <Select value={testamentFilter} onValueChange={(v) => setTestamentFilter(v as 'all' | 'AT' | 'NT')}>
+                    <SelectTrigger className="w-[180px]" data-testid="select-testament-filter">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os livros</SelectItem>
+                      <SelectItem value="AT">Antigo Testamento</SelectItem>
+                      <SelectItem value="NT">Novo Testamento</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {Object.keys(groupedRefs).length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Nenhuma referência encontrada com este filtro.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {Object.entries(groupedRefs).map(([bookName, bookRefs]) => (
+                      <div key={bookName}>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-2">
+                          {bookName}
+                        </h4>
+                        <div className="space-y-2">
+                          {bookRefs.map((ref, idx) => {
+                            const parsed = parseRef(ref.ref);
+                            return (
+                              <div
+                                key={idx}
+                                className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 hover-elevate cursor-pointer"
+                                onClick={() => handleRefClick(ref.ref)}
+                                data-testid={`ref-item-${bookName}-${idx}`}
+                              >
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-sm">
+                                      {parsed ? `${parsed.chapter}:${parsed.verse}` : ref.ref}
+                                    </span>
+                                    <Badge variant="outline" className="text-xs">
+                                      {getTestament(parsed?.bookId || '')}
+                                    </Badge>
+                                  </div>
+                                  {ref.reason && (
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      {ref.reason}
+                                    </p>
+                                  )}
+                                </div>
+                                <ExternalLink className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {commentary.length > 0 && (
+            <AccordionItem value="commentary" className="border rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline" data-testid="accordion-commentary">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  <span className="font-medium">Comentários Bíblicos</span>
+                  <Badge variant="secondary">{commentary.length}</Badge>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <div className="space-y-4">
+                  {commentary.map((block, idx) => (
+                    <div key={idx} className="p-4 rounded-lg bg-muted/40">
+                      <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
+                        <h4 className="font-medium text-sm">
                           {block.title || block.source}
-                        </CardTitle>
+                        </h4>
                         <div className="flex items-center gap-2">
                           <Badge variant={getTypeBadgeVariant(block.type)}>
                             {getTypeLabel(block.type)}
@@ -211,8 +310,6 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
                           )}
                         </div>
                       </div>
-                    </CardHeader>
-                    <CardContent className="py-2 px-4">
                       <p className={`text-sm leading-relaxed ${
                         !expandedComments.has(idx) && block.text.length > 200 ? 'line-clamp-3' : ''
                       }`}>
@@ -239,15 +336,15 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
                           )}
                         </Button>
                       )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        )}
-      </Accordion>
-    </div>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+        </Accordion>
+      </CardContent>
+    </Card>
   );
 }
 

@@ -1274,6 +1274,7 @@ export function BibleReader({
                     setSelectedChapter(chapter);
                     setSelectedVerse(verse);
                   }}
+                  onClose={() => setSelectedVerse(null)}
                 />
               )}
             </>

@@ -30,9 +30,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       if (stored && ["pt", "en", "es"].includes(stored)) {
         return stored as AppLanguage;
       }
-      const browserLang = navigator.language.substring(0, 2).toLowerCase();
-      if (browserLang === "es") return "es";
-      if (browserLang === "en") return "en";
     }
     return "pt";
   });

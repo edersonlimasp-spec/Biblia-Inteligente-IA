@@ -94,23 +94,13 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
   const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set());
 
   const { data: refsData, isLoading: loadingRefs } = useQuery<{ refs: CrossReference[] }>({
-    queryKey: ['/api/bible/cross-references', bookId, chapter, verse],
-    queryFn: async () => {
-      const res = await fetch(`/api/bible/cross-references?bookId=${bookId}&chapter=${chapter}&verse=${verse}`);
-      if (!res.ok) return { refs: [] };
-      return res.json();
-    },
+    queryKey: [`/api/bible/cross-references?bookId=${bookId}&chapter=${chapter}&verse=${verse}`],
     enabled: !!bookId && !!chapter && !!verse,
     staleTime: 60000,
   });
 
   const { data: commentaryData, isLoading: loadingCommentary } = useQuery<{ commentary_blocks: CommentaryBlock[] }>({
-    queryKey: ['/api/bible/commentary', bookId, chapter, verse],
-    queryFn: async () => {
-      const res = await fetch(`/api/bible/commentary?bookId=${bookId}&chapter=${chapter}&verse=${verse}`);
-      if (!res.ok) return { commentary_blocks: [] };
-      return res.json();
-    },
+    queryKey: [`/api/bible/commentary?bookId=${bookId}&chapter=${chapter}&verse=${verse}`],
     enabled: !!bookId && !!chapter && !!verse,
     staleTime: 60000,
   });
@@ -158,7 +148,7 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
           <AccordionItem value="refs" className="border rounded-lg">
             <AccordionTrigger className="px-4 py-3 hover:no-underline" data-testid="accordion-cross-refs">
               <div className="flex items-center gap-2">
-                <Link2 className="h-4 w-4 text-primary" />
+                <Link2 className="h-4 w-4" />
                 <span className="font-medium">Referências Cruzadas</span>
                 <Badge variant="secondary" className="ml-2">{refs.length}</Badge>
               </div>
@@ -170,7 +160,6 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
                     key={idx}
                     variant="outline"
                     size="sm"
-                    className="h-auto py-1.5 px-3"
                     onClick={() => handleRefClick(ref.ref)}
                     data-testid={`ref-link-${idx}`}
                   >
@@ -197,7 +186,7 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
           <AccordionItem value="commentary" className="border rounded-lg">
             <AccordionTrigger className="px-4 py-3 hover:no-underline" data-testid="accordion-commentary">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-primary" />
+                <BookOpen className="h-4 w-4" />
                 <span className="font-medium">Comentários</span>
                 <Badge variant="secondary" className="ml-2">{commentary.length}</Badge>
               </div>
@@ -207,12 +196,12 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
                 {commentary.map((block, idx) => (
                   <Card key={idx} className="bg-muted/30">
                     <CardHeader className="py-3 px-4">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
                         <CardTitle className="text-sm font-medium">
                           {block.title || block.source}
                         </CardTitle>
                         <div className="flex items-center gap-2">
-                          <Badge variant={getTypeBadgeVariant(block.type)} className="text-xs">
+                          <Badge variant={getTypeBadgeVariant(block.type)}>
                             {getTypeLabel(block.type)}
                           </Badge>
                           {block.title && (
@@ -233,7 +222,7 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate }: VerseExtrasP
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="mt-2 h-auto py-1 px-2 text-xs"
+                          className="mt-2"
                           onClick={() => toggleComment(idx)}
                           data-testid={`toggle-comment-${idx}`}
                         >

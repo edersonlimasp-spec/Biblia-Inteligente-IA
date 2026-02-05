@@ -62,12 +62,17 @@ const BOOK_NAMES: Record<string, string> = {
   "3jn": "3 João", jud: "Judas", rev: "Apocalipse"
 };
 
-const OLD_TESTAMENT_BOOKS = new Set([
+const CANONICAL_BOOK_ORDER = [
   "gen", "exo", "lev", "num", "deu", "jos", "jdg", "rut", "1sa", "2sa",
   "1ki", "2ki", "1ch", "2ch", "ezr", "neh", "est", "job", "psa", "pro",
   "ecc", "sng", "isa", "jer", "lam", "ezk", "dan", "hos", "jol", "amo",
-  "oba", "jon", "mic", "nam", "hab", "zep", "hag", "zec", "mal"
-]);
+  "oba", "jon", "mic", "nam", "hab", "zep", "hag", "zec", "mal",
+  "mat", "mrk", "luk", "jhn", "act", "rom", "1co", "2co", "gal", "eph",
+  "php", "col", "1th", "2th", "1ti", "2ti", "tit", "phm", "heb", "jas",
+  "1pe", "2pe", "1jn", "2jn", "3jn", "jud", "rev"
+];
+
+const OLD_TESTAMENT_BOOKS = new Set(CANONICAL_BOOK_ORDER.slice(0, 39));
 
 function parseRef(refString: string): { bookId: string; chapter: number; verse: number } | null {
   const parts = refString.split('.');
@@ -138,16 +143,23 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate, onClose }: Ver
   }, [refs, testamentFilter]);
 
   const groupedRefs = useMemo(() => {
-    const groups: Record<string, CrossReference[]> = {};
+    const groups: Record<string, { bookId: string; refs: CrossReference[] }> = {};
     filteredRefs.forEach(ref => {
       const parsed = parseRef(ref.ref);
       if (parsed) {
         const bookName = BOOK_NAMES[parsed.bookId] || parsed.bookId;
-        if (!groups[bookName]) groups[bookName] = [];
-        groups[bookName].push(ref);
+        if (!groups[bookName]) groups[bookName] = { bookId: parsed.bookId, refs: [] };
+        groups[bookName].refs.push(ref);
       }
     });
-    return groups;
+    
+    const sortedEntries = Object.entries(groups).sort((a, b) => {
+      const orderA = CANONICAL_BOOK_ORDER.indexOf(a[1].bookId);
+      const orderB = CANONICAL_BOOK_ORDER.indexOf(b[1].bookId);
+      return (orderA === -1 ? 999 : orderA) - (orderB === -1 ? 999 : orderB);
+    });
+    
+    return sortedEntries;
   }, [filteredRefs]);
 
   const handleRefClick = (refString: string) => {
@@ -233,17 +245,22 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate, onClose }: Ver
                   </Select>
                 </div>
 
-                {Object.keys(groupedRefs).length === 0 ? (
+                {groupedRefs.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     Nenhuma referência encontrada com este filtro.
                   </p>
                 ) : (
                   <div className="space-y-4">
-                    {Object.entries(groupedRefs).map(([bookName, bookRefs]) => (
+                    {groupedRefs.map(([bookName, { bookId, refs: bookRefs }]) => (
                       <div key={bookName}>
-                        <h4 className="text-sm font-medium text-muted-foreground mb-2">
-                          {bookName}
-                        </h4>
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="text-sm font-medium">
+                            {bookName}
+                          </h4>
+                          <Badge variant="outline">
+                            {getTestament(bookId)}
+                          </Badge>
+                        </div>
                         <div className="space-y-2">
                           {bookRefs.map((ref, idx) => {
                             const parsed = parseRef(ref.ref);
@@ -255,17 +272,12 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate, onClose }: Ver
                                 data-testid={`ref-item-${bookName}-${idx}`}
                               >
                                 <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium text-sm">
-                                      {parsed ? `${parsed.chapter}:${parsed.verse}` : ref.ref}
-                                    </span>
-                                    <Badge variant="outline" className="text-xs">
-                                      {getTestament(parsed?.bookId || '')}
-                                    </Badge>
-                                  </div>
+                                  <span className="font-medium text-sm">
+                                    Capítulo {parsed?.chapter}, versículo {parsed?.verse}
+                                  </span>
                                   {ref.reason && (
                                     <p className="text-sm text-muted-foreground mt-1">
-                                      {ref.reason}
+                                      "{ref.reason}"
                                     </p>
                                   )}
                                 </div>

@@ -1,0 +1,61 @@
+{
+  "bookId": "rom",
+  "chapters": {
+    "1": {},
+    "2": {},
+    "3": {
+      "23": [
+        {
+          "ref": "1jn.1.8",
+          "reason": "Se dizemos que não temos pecado"
+        },
+        {
+          "ref": "gal.3.22",
+          "reason": "A Escritura encerrou tudo debaixo do pecado"
+        }
+      ]
+    },
+    "4": {},
+    "5": {
+      "8": [
+        {
+          "ref": "jhn.3.16",
+          "reason": "Deus amou o mundo"
+        },
+        {
+          "ref": "1jn.4.10",
+          "reason": "Nisto está o amor"
+        }
+      ]
+    },
+    "6": {
+      "23": [
+        {
+          "ref": "gen.2.17",
+          "reason": "No dia que comeres, morrerás"
+        },
+        {
+          "ref": "jas.1.15",
+          "reason": "O pecado gera a morte"
+        }
+      ]
+    },
+    "7": {},
+    "8": {
+      "28": [
+        {
+          "ref": "eph.1.11",
+          "reason": "Predestinados conforme o propósito"
+        }
+      ]
+    },
+    "9": {},
+    "10": {},
+    "11": {},
+    "12": {},
+    "13": {},
+    "14": {},
+    "15": {},
+    "16": {}
+  }
+}

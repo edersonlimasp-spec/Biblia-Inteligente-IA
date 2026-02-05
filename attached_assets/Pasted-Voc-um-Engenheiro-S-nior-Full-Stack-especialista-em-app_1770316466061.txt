@@ -1,0 +1,203 @@
+Você é um Engenheiro Sênior Full-Stack especialista em apps bíblicos (Strong, RAG, comentários, cross-references) e precisa implementar no projeto atual do app “Bíblia Inteligente” um módulo COMPLETO de:
+
+✅ Referências cruzadas (Cross References) para TODA A BÍBLIA
+✅ Comentários bíblicos (Bible Commentary) para TODA A BÍBLIA
+
+⚠️ REGRA MÁXIMA: NÃO QUEBRAR NADA.
+- Não alterar o “padrão das 7 camadas” já existente.
+- Não mudar o schema atual de versículos/Strong/renderização.
+- Não remover rotas, componentes ou lógica existente.
+- Somente ADICIONAR módulos e rotas novas, totalmente compatíveis.
+- Se não houver dados para algum verso, deve retornar vazio e o front deve renderizar “Sem dados” sem crash.
+
+========================
+1) DESCOBERTA DO PROJETO
+========================
+1.1. Localize e documente rapidamente:
+- Onde ficam os textos bíblicos (JSON/DB/API).
+- Onde é montada a estrutura das “7 camadas”.
+- Onde o app renderiza o versículo e o Strong.
+- Como são formados book/chapter/verse (chaves/código).
+
+1.2. Não faça refactors grandes. Se precisar, crie wrappers/adapters SEM mudar o core.
+
+=========================================
+2) ARQUITETURA SEGURA (SEM MEXER NO CORE)
+=========================================
+Crie dois módulos paralelos e opcionais, desacoplados do core:
+
+(A) Cross References
+(B) Bible Commentary
+
+Eles devem ser consumidos por novas rotas API e exibidos no UI como seções extras (accordion/tabs), SEM alterar a renderização principal das 7 camadas.
+
+=====================================
+3) ESTRUTURA DE DADOS (NOVA E ISOLADA)
+=====================================
+3.1. Escolha “JSON local” como primeira implementação (menor risco).
+Crie pasta:
+- /data/refs/
+- /data/commentary/
+
+Formato de chaves deve ser consistente:
+- bookId (padrão do projeto, ex: “exodus”, “genesis”, “john”)
+- chapter (number)
+- verse (number)
+
+3.2. Cross References (por versículo)
+Salvar em:
+- /data/refs/<bookId>.json
+
+Estrutura:
+{
+  "bookId": "genesis",
+  "chapters": {
+    "1": {
+      "1": [
+        { "ref": "john.1.1", "reason": "Criação e Logos" },
+        { "ref": "psalm.33.6", "reason": "Criado pela palavra" }
+      ],
+      "2": [ ... ]
+    }
+  }
+}
+
+3.3. Bible Commentary (por versículo)
+Salvar em:
+- /data/commentary/<bookId>.json
+
+Estrutura:
+{
+  "bookId": "genesis",
+  "chapters": {
+    "1": {
+      "1": [
+        {
+          "source": "Matthew Henry",
+          "type": "doctrinal",
+          "title": "Deus cria do nada",
+          "text": "Comentário em parágrafos curtos..."
+        }
+      ]
+    }
+  }
+}
+
+✅ OBS: Se o projeto preferir DB (Postgres/SQLite), você pode criar tabelas novas, mas SOMENTE se já existir migração estruturada. Se não tiver, use JSON.
+
+========================================================
+4) FONTES DE DADOS E LICENÇAS (NÃO FAZER SCRAPING EM RUNTIME)
+========================================================
+4.1. Não fazer scraping durante o uso do app.
+4.2. O conteúdo deve ser gerado por scripts de build/import e salvo em JSON.
+
+4.3. Cross references:
+- Usar dataset público de “cross references” (ex.: TSK ou equivalente em dataset aberto).
+- Se não houver dataset pronto no repositório, criar um importador que aceite arquivos (CSV/JSON) colocados em /imports.
+
+4.4. Comentários:
+- Implementar suporte MULTI-FONTES e “plugável”.
+- Permitir importar 1 ou mais comentários (ex.: Matthew Henry, JFB, Gill, Wesley) se forem de domínio público/permitidos.
+- Cada bloco deve exibir a “source” no UI.
+- Se não houver dataset disponível, criar pipeline que aceite importação via arquivos prontos em /imports.
+
+⚠️ IMPORTANTE: Se houver qualquer risco de copyright, não embutir textos protegidos.
+Se não for possível obter textos completos legalmente, implemente:
+- Comentário “resumido” gerado pelo próprio sistema (RAG) com base em fontes permitidas, OU
+- Apenas “Notas explicativas” próprias, OU
+- Deixar a estrutura pronta para importar depois.
+
+=================================================
+5) SCRIPTS DE BUILD/IMPORT (GERAR PARA TODA A BÍBLIA)
+=================================================
+Criar scripts:
+- npm run refs:build
+- npm run commentary:build
+
+Eles devem:
+1) Ler uma lista padrão de livros do projeto.
+2) Para cada livro:
+   - Importar referências / comentários do diretório /imports
+   - Normalizar para bookId/chapter/verse do projeto
+   - Gerar JSON final em /data/refs e /data/commentary
+3) Gerar relatórios:
+- /reports/refs_report.md
+- /reports/commentary_report.md
+com:
+- cobertura por livro (% de versos com ao menos 1 ref)
+- top livros com menor cobertura
+- erros de parsing
+- itens não mapeados
+
+========================================================
+6) BACKEND: ROTAS NOVAS (SEM ALTERAR ROTAS EXISTENTES)
+========================================================
+Criar endpoints:
+
+6.1 Cross references:
+GET /api/bible/cross-references?bookId=genesis&chapter=1&verse=1
+Resposta:
+{ "refs": [ { "ref":"john.1.1", "reason":"..." }, ... ] }
+
+6.2 Commentary:
+GET /api/bible/commentary?bookId=genesis&chapter=1&verse=1
+Resposta:
+{ "commentary_blocks": [ { "source":"...", "type":"...", "title":"...", "text":"..." }, ... ] }
+
+6.3 Regras:
+- Se não achar: retornar { "refs": [] } e { "commentary_blocks": [] } com HTTP 200.
+- Implementar cache em memória (carregar JSON do livro 1 vez).
+- Validar parâmetros (bookId/chapter/verse) e responder vazio se inválido.
+
+=====================================================
+7) FRONTEND: UI SEM QUEBRAR (SEÇÕES NOVAS OPCIONAIS)
+=====================================================
+7.1 No componente onde exibe o versículo (sem mexer no render principal):
+Adicionar um Accordion (ou Tabs) abaixo:
+- “📌 Referências Cruzadas”
+- “📖 Comentários”
+
+7.2 Cross references UI:
+- Lista clicável: “João 1:1”
+- Ao clicar: navegar para o versículo referenciado usando o roteamento já existente (criar helper parseRef -> {bookId,chapter,verse}).
+
+7.3 Commentary UI:
+- Cards por fonte:
+  - Fonte + Tipo + Título
+  - Texto em parágrafos
+- Botão “Ver mais” se texto grande.
+
+7.4 Loading states:
+- Skeleton/“Carregando...”
+- Se vazio: “Sem referências disponíveis” / “Sem comentários disponíveis”
+- Nunca travar a tela.
+
+========================================================
+8) NÃO TOCAR NAS 7 CAMADAS (INTEGRAR SEM ALTERAR SCHEMA)
+========================================================
+- Não incluir refs/comentários dentro do objeto das 7 camadas.
+- O core continua igual.
+- O UI apenas chama as novas rotas e mostra em uma seção separada.
+
+========================================================
+9) TESTES (OBRIGATÓRIOS)
+========================================================
+Criar testes:
+- unit: parser de ref "john.1.1" -> {bookId:"john",chapter:1,verse:1}
+- api: retorna [] quando não existe
+- snapshot/contract: garantir que “7 camadas” não mudou
+- performance: carregar JSON uma vez por livro (cache)
+
+========================================================
+10) ENTREGA
+========================================================
+Ao final:
+1) Liste todos os arquivos criados/alterados
+2) Mostre exemplo funcionando em:
+- genesis 1:1
+- exodus 3:14
+- numbers 6:24
+3) Gere e inclua os relatórios em /reports
+4) Garanta que o app roda e não houve regressão
+
+EXECUTE AGORA com cuidado extremo e sem quebrar nada.

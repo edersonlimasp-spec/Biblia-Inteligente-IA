@@ -3140,6 +3140,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cross References API (NEW MODULE - does not affect 7-layer system)
+  app.get("/api/bible/cross-references", async (req, res) => {
+    try {
+      const { bookId, chapter, verse } = req.query;
+      
+      if (!bookId || !chapter || !verse) {
+        return res.json({ refs: [] });
+      }
+      
+      const chapterNum = parseInt(chapter as string);
+      const verseNum = parseInt(verse as string);
+      
+      if (isNaN(chapterNum) || isNaN(verseNum)) {
+        return res.json({ refs: [] });
+      }
+      
+      const { getCrossReferences } = await import("./cross-references");
+      const refs = getCrossReferences(bookId as string, chapterNum, verseNum);
+      
+      res.json({ refs });
+    } catch (error) {
+      console.error("Cross references error:", error);
+      res.json({ refs: [] });
+    }
+  });
+
+  // Bible Commentary API (NEW MODULE - does not affect 7-layer system)
+  app.get("/api/bible/commentary", async (req, res) => {
+    try {
+      const { bookId, chapter, verse } = req.query;
+      
+      if (!bookId || !chapter || !verse) {
+        return res.json({ commentary_blocks: [] });
+      }
+      
+      const chapterNum = parseInt(chapter as string);
+      const verseNum = parseInt(verse as string);
+      
+      if (isNaN(chapterNum) || isNaN(verseNum)) {
+        return res.json({ commentary_blocks: [] });
+      }
+      
+      const { getCommentary } = await import("./bible-commentary");
+      const commentary_blocks = getCommentary(bookId as string, chapterNum, verseNum);
+      
+      res.json({ commentary_blocks });
+    } catch (error) {
+      console.error("Commentary error:", error);
+      res.json({ commentary_blocks: [] });
+    }
+  });
+
   // Reading Progress routes
   app.get("/api/reading-progress", async (req, res) => {
     try {

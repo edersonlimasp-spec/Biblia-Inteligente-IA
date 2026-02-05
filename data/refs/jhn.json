@@ -1,0 +1,93 @@
+{
+  "bookId": "jhn",
+  "chapters": {
+    "1": {
+      "1": [
+        {
+          "ref": "gen.1.1",
+          "reason": "No princípio"
+        },
+        {
+          "ref": "1jn.1.1",
+          "reason": "O que era desde o princípio"
+        },
+        {
+          "ref": "rev.19.13",
+          "reason": "O Verbo de Deus"
+        },
+        {
+          "ref": "col.1.17",
+          "reason": "Antes de todas as coisas"
+        }
+      ],
+      "14": [
+        {
+          "ref": "1ti.3.16",
+          "reason": "Deus se manifestou em carne"
+        },
+        {
+          "ref": "php.2.7",
+          "reason": "Tomou forma de servo"
+        }
+      ],
+      "29": [
+        {
+          "ref": "1pe.1.19",
+          "reason": "Cordeiro sem defeito"
+        },
+        {
+          "ref": "rev.5.6",
+          "reason": "Cordeiro que foi morto"
+        }
+      ]
+    },
+    "2": {},
+    "3": {
+      "14": [
+        {
+          "ref": "num.21.9",
+          "reason": "Serpente no deserto"
+        }
+      ],
+      "16": [
+        {
+          "ref": "rom.5.8",
+          "reason": "Deus prova seu amor"
+        },
+        {
+          "ref": "1jn.4.9",
+          "reason": "O amor de Deus se manifestou"
+        }
+      ]
+    },
+    "4": {},
+    "5": {},
+    "6": {},
+    "7": {},
+    "8": {},
+    "9": {},
+    "10": {},
+    "11": {},
+    "12": {},
+    "13": {},
+    "14": {
+      "6": [
+        {
+          "ref": "act.4.12",
+          "reason": "Nenhum outro nome"
+        },
+        {
+          "ref": "heb.10.20",
+          "reason": "Caminho novo e vivo"
+        }
+      ]
+    },
+    "15": {},
+    "16": {},
+    "17": {},
+    "18": {},
+    "19": {},
+    "20": {},
+    "21": {}
+  }
+}

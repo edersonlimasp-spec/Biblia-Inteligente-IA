@@ -1,0 +1,39 @@
+{
+  "bookId": "rom",
+  "chapters": {
+    "1": {},
+    "2": {},
+    "3": {
+      "23": [
+        {
+          "source": "Nota Explicativa",
+          "type": "doctrinal",
+          "title": "Universalidade do Pecado",
+          "text": "Paulo estabelece a doutrina do pecado universal. 'Todos pecaram' não é hipérbole, mas uma afirmação teológica fundamental. A expressão 'destituídos da glória de Deus' indica que o pecado nos separou do propósito original para o qual fomos criados."
+        }
+      ]
+    },
+    "4": {},
+    "5": {},
+    "6": {},
+    "7": {},
+    "8": {
+      "28": [
+        {
+          "source": "Nota Explicativa",
+          "type": "devotional",
+          "title": "A Providência Divina",
+          "text": "Este versículo oferece grande conforto aos crentes. Paulo não diz que todas as coisas são boas, mas que Deus trabalha através de todas as circunstâncias para cumprir seus propósitos redentores na vida daqueles que o amam."
+        }
+      ]
+    },
+    "9": {},
+    "10": {},
+    "11": {},
+    "12": {},
+    "13": {},
+    "14": {},
+    "15": {},
+    "16": {}
+  }
+}

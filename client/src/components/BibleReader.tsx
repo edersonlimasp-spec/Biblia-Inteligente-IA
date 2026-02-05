@@ -22,6 +22,7 @@ import { AlmeidaVersionSelector } from "@/components/AlmeidaVersionSelector";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { VerseActions, HIGHLIGHT_COLORS } from "@/components/VerseActions";
 import { AnnotationPanel } from "@/components/AnnotationPanel";
+import { VerseExtras } from "@/components/VerseExtras";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -1261,6 +1262,20 @@ export function BibleReader({
                   );
                 })}
               </div>
+
+              {/* Cross References & Commentary - shown when verse is selected */}
+              {selectedVerse && selectedBook && (
+                <VerseExtras
+                  bookId={selectedBook}
+                  chapter={selectedChapter}
+                  verse={selectedVerse}
+                  onNavigate={(bookId, chapter, verse) => {
+                    setSelectedBook(bookId);
+                    setSelectedChapter(chapter);
+                    setSelectedVerse(verse);
+                  }}
+                />
+              )}
             </>
           ) : null}
         </div>

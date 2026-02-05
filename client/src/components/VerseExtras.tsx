@@ -206,16 +206,19 @@ export function VerseExtras({ bookId, chapter, verse, onNavigate, onClose }: Ver
           <CardTitle className="text-base font-semibold">
             Recursos para {currentBookName} {chapter}:{verse}
           </CardTitle>
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              data-testid="button-close-extras"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (onClose) onClose();
+            }}
+            data-testid="button-close-extras"
+            className="flex-shrink-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="pt-0">

@@ -82,6 +82,12 @@ interface GlobalSearchResponse {
   version: string;
   total: number;
   results: GlobalSearchResult[];
+  strongMatch?: {
+    strongNumber: string;
+    translit: string | null;
+    lemma: string;
+    language: string;
+  } | null;
 }
 
 interface StrongSearchResult {
@@ -1127,6 +1133,30 @@ export function BibleReader({
               <p className="text-muted-foreground text-center py-4">
                 Nenhum resultado encontrado para "{globalSearchTerm}"
               </p>
+            )}
+
+            {!isGlobalSearching && globalSearchResults?.strongMatch && (
+              <div className="mb-3 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="default" className="font-mono">
+                    {globalSearchResults.strongMatch.strongNumber}
+                  </Badge>
+                  <span className="text-sm font-semibold">
+                    {globalSearchResults.strongMatch.lemma}
+                  </span>
+                  {globalSearchResults.strongMatch.translit && (
+                    <span className="text-sm text-muted-foreground">
+                      ({globalSearchResults.strongMatch.translit})
+                    </span>
+                  )}
+                  <Badge variant="outline">
+                    {globalSearchResults.strongMatch.language === 'hebrew' ? 'Hebraico' : 'Grego'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Busca por palavra original no léxico Strong
+                </p>
+              </div>
             )}
             
             {!isGlobalSearching && globalSearchResults?.results && globalSearchResults.results.length > 0 && (

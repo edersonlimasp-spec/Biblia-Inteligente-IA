@@ -1923,6 +1923,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Global Bible search - search entire Bible for a word/phrase
+  // Enhanced: Also searches Strong's transliterations (Hebrew/Greek)
   app.get("/api/bible/search-all", async (req, res) => {
     try {
       const query = (req.query.q as string || '').trim();
@@ -1933,26 +1934,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Termo de busca deve ter pelo menos 2 caracteres" });
       }
 
-      // Search in bibleVerses table
-      const results = await db
-        .select({
-          book: bibleVerses.book,
-          chapter: bibleVerses.chapter,
-          verse: bibleVerses.verse,
-          text: bibleVerses.text,
-        })
-        .from(bibleVerses)
-        .where(
-          and(
-            eq(bibleVerses.versionCode, version),
-            sql`LOWER(${bibleVerses.text}) LIKE ${'%' + query.toLowerCase() + '%'}`
-          )
-        )
-        .orderBy(bibleVerses.book, bibleVerses.chapter, bibleVerses.verse)
-        .limit(limit);
+      // Detect transliteration patterns (Hebrew/Greek)
+      // Patterns: contains apostrophe ('), hyphen with specific patterns, or Hebrew/Greek characters
+      const isTransliterationPattern = /['-]/.test(query) || 
+        /[\u0590-\u05FF]/.test(query) ||  // Hebrew Unicode range
+        /[\u0370-\u03FF]/.test(query);     // Greek Unicode range
 
-      // Map book IDs to names
-      const resultsWithNames = results.map(r => {
+      let strongMatch: { strongNumber: string; translit: string | null; lemma: string; language: string } | null = null;
+      let strongResults: any[] = [];
+      let textResults: any[] = [];
+
+      // If query looks like transliteration, try Strong search FIRST
+      if (isTransliterationPattern) {
+        // Search Strong's by transliteration or lemma
+        const strongEntry = await db
+          .select({
+            strongNumber: strongEntries.strongNumber,
+            translit: strongEntries.translit,
+            lemma: strongEntries.lemma,
+            language: strongEntries.language,
+          })
+          .from(strongEntries)
+          .where(
+            or(
+              sql`LOWER(${strongEntries.translit}) = ${query.toLowerCase()}`,
+              sql`LOWER(${strongEntries.xlit}) = ${query.toLowerCase()}`,
+              sql`${strongEntries.lemma} = ${query}`
+            )
+          )
+          .limit(1);
+
+        if (strongEntry.length > 0) {
+          strongMatch = strongEntry[0];
+          const matchedStrongNumber = strongMatch.strongNumber;
+          
+          // Optimized: Use subquery to get unique verses with their text in a single query
+          const versesWithText = await db
+            .selectDistinctOn([bibleWords.book, bibleWords.chapter, bibleWords.verse], {
+              book: bibleWords.book,
+              chapter: bibleWords.chapter,
+              verse: bibleWords.verse,
+              originalWord: bibleWords.originalWord,
+              text: bibleVerses.text,
+            })
+            .from(bibleWords)
+            .leftJoin(
+              bibleVerses,
+              and(
+                eq(bibleWords.book, bibleVerses.book),
+                eq(bibleWords.chapter, bibleVerses.chapter),
+                eq(bibleWords.verse, bibleVerses.verse),
+                eq(bibleVerses.versionCode, version)
+              )
+            )
+            .where(eq(bibleWords.strongNumber, matchedStrongNumber))
+            .orderBy(bibleWords.book, bibleWords.chapter, bibleWords.verse)
+            .limit(limit);
+
+          for (const row of versesWithText) {
+            if (row.text) {
+              const bookData = getBookById(row.book);
+              strongResults.push({
+                book: row.book,
+                chapter: row.chapter,
+                verse: row.verse,
+                text: row.text,
+                bookName: bookData?.name || row.book,
+                reference: `${bookData?.name || row.book} ${row.chapter}:${row.verse}`,
+                originalWord: row.originalWord,
+              });
+            }
+          }
+        }
+      }
+
+      // If no Strong results found OR query is not a transliteration, search text
+      if (strongResults.length === 0) {
+        textResults = await db
+          .select({
+            book: bibleVerses.book,
+            chapter: bibleVerses.chapter,
+            verse: bibleVerses.verse,
+            text: bibleVerses.text,
+          })
+          .from(bibleVerses)
+          .where(
+            and(
+              eq(bibleVerses.versionCode, version),
+              sql`LOWER(${bibleVerses.text}) LIKE ${'%' + query.toLowerCase() + '%'}`
+            )
+          )
+          .orderBy(bibleVerses.book, bibleVerses.chapter, bibleVerses.verse)
+          .limit(limit);
+      }
+
+      // Map book IDs to names for text results
+      const resultsWithNames = textResults.map(r => {
         const bookData = getBookById(r.book);
         return {
           ...r,
@@ -1961,11 +2038,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       });
 
+      // Return Strong results if found, otherwise text results
+      const finalResults = strongResults.length > 0 ? strongResults : resultsWithNames;
+
+      // Note: Strong lookup is public (returns Bible verses which are public)
+      // strongMatch metadata is only shown to indicate which Strong was searched
+      // Full Strong definitions require authentication via /api/strong/:number endpoint
       res.json({
         query,
         version,
-        total: resultsWithNames.length,
-        results: resultsWithNames,
+        total: finalResults.length,
+        results: finalResults,
+        strongMatch: strongMatch ? {
+          strongNumber: strongMatch.strongNumber,
+          translit: strongMatch.translit,
+          lemma: strongMatch.lemma,
+          language: strongMatch.language,
+        } : null,
+        isStrongSearch: strongResults.length > 0,
       });
     } catch (error) {
       console.error("Global search error:", error);

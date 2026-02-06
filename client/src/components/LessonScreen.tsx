@@ -237,14 +237,14 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
         </div>
       </header>
 
-      <ScrollArea className="flex-1 overflow-auto">
-        <div className="px-4 py-4 pb-24 overflow-x-hidden">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="px-4 py-4 pb-24 max-w-full box-border" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="prose prose-sm dark:prose-invert max-w-none mb-4 overflow-hidden"
+            className="mb-4"
           >
-            <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{lesson?.content}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">{lesson?.content}</p>
           </motion.div>
 
           <Section
@@ -253,13 +253,9 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             expanded={expandedSections.references}
             onToggle={() => toggleSection('references')}
           >
-            <div className="flex flex-wrap gap-2 overflow-hidden">
-              {referencesList.map((ref, i) => (
-                <Badge key={i} variant="outline" className="text-sm" style={{ wordBreak: 'break-word' }}>
-                  {ref}
-                </Badge>
-              ))}
-            </div>
+            <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+              {lesson?.references}
+            </p>
           </Section>
 
           <Section
@@ -268,14 +264,14 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             expanded={expandedSections.questions}
             onToggle={() => toggleSection('questions')}
           >
-            <ul className="space-y-2 overflow-hidden">
+            <ol className="space-y-2 list-none pl-0">
               {questionsList.map((q, i) => (
                 <li key={i} className="flex gap-2 text-sm">
                   <span className="text-primary font-medium flex-shrink-0">{i + 1}.</span>
-                  <span style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{q}</span>
+                  <span>{q.replace(/^\d+\.\s*/, '')}</span>
                 </li>
               ))}
-            </ul>
+            </ol>
           </Section>
 
           <Section
@@ -284,7 +280,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             expanded={expandedSections.application}
             onToggle={() => toggleSection('application')}
           >
-            <p className="text-sm bg-muted/50 p-3 rounded-lg" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{lesson?.application}</p>
+            <p className="text-sm bg-muted/50 p-3 rounded-lg">{lesson?.application}</p>
           </Section>
 
           <Section
@@ -293,7 +289,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             expanded={expandedSections.summary}
             onToggle={() => toggleSection('summary')}
           >
-            <p className="text-sm italic text-muted-foreground" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{lesson?.summary}</p>
+            <p className="text-sm italic text-muted-foreground">{lesson?.summary}</p>
           </Section>
 
           {!isCompleted && (
@@ -316,7 +312,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+      </div>
 
       {showAskProfessor && (
         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">

@@ -151,6 +151,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   const [guestTrialInfo, setGuestTrialInfo] = useState<{ active: boolean; daysRemaining: number } | null>(null);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -1021,8 +1022,8 @@ Conheça: https://bibliainteligente.replit.app`;
         </div>
       )}
 
-      {/* Command Suggestions for Premium users */}
-      {(userSub.hasPremium || user?.role === 'admin' || user?.role === 'super_admin') && messages.length === 0 && !isExpanded && (
+      {/* Command Suggestions for Premium users - shown only when input is focused */}
+      {showSuggestions && (userSub.hasPremium || user?.role === 'admin' || user?.role === 'super_admin') && messages.length === 0 && !isExpanded && (
         <div className="max-w-3xl mx-auto px-3 pb-2">
           <div className="flex flex-wrap gap-2">
             <button
@@ -1169,6 +1170,8 @@ Conheça: https://bibliainteligente.replit.app`;
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onSearch={handleAsk}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               showIcon={false}
               minHeight="36px"
               maxHeight="80px"

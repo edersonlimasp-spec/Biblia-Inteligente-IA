@@ -1199,8 +1199,8 @@ export function BibleReader({
             </div>
           ) : chapterData ? (
             <>
-              <div className="sticky top-0 z-20 bg-background py-3 -mx-6 px-6 sm:-mx-10 sm:px-10 lg:-mx-14 lg:px-14">
-                <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center" data-testid="chapter-title">
+              <div className="sticky top-0 z-20 bg-background border-b border-border/50 -mx-6 px-6 sm:-mx-10 sm:px-10 lg:-mx-14 lg:px-14">
+                <h2 className="text-lg sm:text-xl font-bold text-foreground text-center py-1.5" data-testid="chapter-title">
                   {chapterData.book.name} {selectedChapter}
                 </h2>
               </div>

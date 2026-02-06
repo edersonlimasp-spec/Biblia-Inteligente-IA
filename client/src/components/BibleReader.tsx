@@ -1186,6 +1186,14 @@ export function BibleReader({
 
       {/* Bible Text */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden pb-40 sm:pb-36 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
+        {/* Sticky Chapter Title - outside content wrapper for proper sticky behavior */}
+        {chapterData && (
+          <div className="sticky top-0 z-20 bg-background dark:bg-background border-b border-border/50" style={{ zIndex: 9999 }}>
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center py-3 px-4" data-testid="chapter-title">
+              {chapterData.book.name} {selectedChapter}
+            </h2>
+          </div>
+        )}
         <div className="w-full max-w-3xl mx-auto px-6 sm:px-10 lg:px-14 py-4 sm:py-6">
           {isLoading ? (
             <div className="space-y-4">
@@ -1199,11 +1207,6 @@ export function BibleReader({
             </div>
           ) : chapterData ? (
             <>
-              <div className="sticky top-0 z-20 bg-background border-b border-border/50 -mx-6 px-6 sm:-mx-10 sm:px-10 lg:-mx-14 lg:px-14">
-                <h2 className="text-lg sm:text-xl font-bold text-foreground text-center py-1.5" data-testid="chapter-title">
-                  {chapterData.book.name} {selectedChapter}
-                </h2>
-              </div>
               {/* Verses with number on left and actions on right */}
               <div className="space-y-3 sm:space-y-4 text-xl sm:text-2xl font-serif leading-relaxed">
                 {filteredVerses.map((verse) => {

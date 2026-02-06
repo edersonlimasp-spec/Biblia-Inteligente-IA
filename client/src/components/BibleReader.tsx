@@ -1199,9 +1199,11 @@ export function BibleReader({
             </div>
           ) : chapterData ? (
             <>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground text-center" data-testid="chapter-title">
-                {chapterData.book.name} {selectedChapter}
-              </h2>
+              <div className="sticky top-0 z-20 bg-background py-3 -mx-6 px-6 sm:-mx-10 sm:px-10 lg:-mx-14 lg:px-14">
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center" data-testid="chapter-title">
+                  {chapterData.book.name} {selectedChapter}
+                </h2>
+              </div>
               {/* Verses with number on left and actions on right */}
               <div className="space-y-3 sm:space-y-4 text-xl sm:text-2xl font-serif leading-relaxed">
                 {filteredVerses.map((verse) => {

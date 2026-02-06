@@ -860,7 +860,7 @@ Conheça: https://bibliainteligente.replit.app`;
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg pb-3">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg pb-1">
       {/* Expanded Chat Area */}
       {isExpanded && messages.length > 0 && (
         <div className="border-b bg-background">
@@ -1063,7 +1063,7 @@ Conheça: https://bibliainteligente.replit.app`;
       )}
 
       {/* Input Area */}
-      <div className="max-w-3xl mx-auto px-3 py-2">
+      <div className="max-w-3xl mx-auto px-3 py-1">
         <div className="flex items-end gap-1.5">
           {/* History Button - Compact */}
           <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
@@ -1071,7 +1071,7 @@ Conheça: https://bibliainteligente.replit.app`;
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 shrink-0 rounded-lg"
+                className="h-9 w-9 shrink-0 rounded-lg"
                 data-testid="button-open-history"
               >
                 <History className="h-4 w-4" />

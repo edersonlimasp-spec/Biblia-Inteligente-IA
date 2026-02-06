@@ -1185,7 +1185,7 @@ export function BibleReader({
       )}
 
       {/* Bible Text */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 sm:pb-32 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-40 sm:pb-36 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
         <div className="w-full max-w-3xl mx-auto px-6 sm:px-10 lg:px-14 py-4 sm:py-6">
           {isLoading ? (
             <div className="space-y-4">

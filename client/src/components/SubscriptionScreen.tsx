@@ -408,66 +408,6 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           </p>
         </div>
 
-        {/* Coupon Input - Compacto */}
-        {user && (
-          <Card className="mb-4 bg-accent/10 border-dashed">
-            <CardContent className="p-3">
-              <div className="flex items-center gap-2 w-full">
-                <Tag className="h-4 w-4 text-primary shrink-0" />
-                <Input
-                  placeholder="Insira o Cupom"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  className="flex-1 uppercase"
-                  disabled={appliedCoupon?.valid}
-                  data-testid="input-coupon-code"
-                />
-                {appliedCoupon?.valid ? (
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={removeCoupon}
-                    data-testid="button-remove-coupon"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => {
-                      if (selectedPlanForPurchase) {
-                        validateCoupon();
-                      } else {
-                        toast({
-                          title: t("subscription.coupon.selectPlan") || "Selecione um plano",
-                          description: t("subscription.coupon.selectPlanDesc") || "Clique em um plano abaixo para aplicar o cupom",
-                          variant: 'destructive',
-                          duration: 1500,
-                        });
-                      }
-                    }}
-                    disabled={!couponCode.trim() || isValidatingCoupon || !selectedPlanForPurchase}
-                    data-testid="button-apply-coupon"
-                  >
-                    {isValidatingCoupon ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      t("subscription.coupon.apply") || "Aplicar"
-                    )}
-                  </Button>
-                )}
-              </div>
-              {appliedCoupon?.valid && (
-                <div className="mt-3 p-2 bg-green-500/10 border border-green-500/30 rounded-md">
-                  <p className="text-sm text-green-600 dark:text-green-400 font-medium flex items-center gap-2">
-                    <Check className="h-4 w-4" />
-                    {appliedCoupon.discountDisplay}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
         {/* Plans Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {plans.map((plan) => {
@@ -573,9 +513,54 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           })}
         </div>
 
-        {/* Order Summary - Aparece quando um plano é selecionado */}
+        {/* Coupon + Order Summary - Aparece quando um plano é selecionado */}
         {user && selectedPlanForPurchase && (
-          <Card ref={orderSummaryRef} className="mb-8 border-primary shadow-lg">
+          <div ref={orderSummaryRef} className="mb-8 space-y-2">
+            <div className="border border-dashed border-muted-foreground/30 rounded-md p-2.5 flex items-center gap-2">
+              <Tag className="h-4 w-4 text-muted-foreground shrink-0" />
+              <Input
+                placeholder="INSIRA O CUPOM"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                className="flex-1 uppercase h-8 text-sm"
+                disabled={appliedCoupon?.valid}
+                data-testid="input-coupon-code"
+              />
+              {appliedCoupon?.valid ? (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={removeCoupon}
+                  data-testid="button-remove-coupon"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => validateCoupon()}
+                  disabled={!couponCode.trim() || isValidatingCoupon}
+                  data-testid="button-apply-coupon"
+                >
+                  {isValidatingCoupon ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    t("subscription.coupon.apply") || "Aplicar"
+                  )}
+                </Button>
+              )}
+            </div>
+            {appliedCoupon?.valid && (
+              <div className="px-2 py-1.5 bg-green-500/10 border border-green-500/30 rounded-md">
+                <p className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1.5">
+                  <Check className="h-3 w-3" />
+                  {appliedCoupon.discountDisplay}
+                </p>
+              </div>
+            )}
+
+          <Card className="border-primary shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Crown className="h-5 w-5 text-primary" />
@@ -658,12 +643,6 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                       )}
                     </Button>
                     
-                    {couponCode.trim() !== '' && !appliedCoupon?.valid && (
-                      <p className="text-xs text-center text-orange-500">
-                        Clique em "Aplicar" no campo de cupom acima para usar o desconto
-                      </p>
-                    )}
-                    
                     <p className="text-xs text-center text-muted-foreground">
                       Você será redirecionado para o Mercado Pago para concluir o pagamento
                     </p>
@@ -672,6 +651,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
               })()}
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* Trial Info */}

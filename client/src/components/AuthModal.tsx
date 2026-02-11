@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,10 @@ export function AuthModal({
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSubmitted, setForgotSubmitted] = useState(false);
   const { login, register } = useAuth();
   const { toast } = useToast();
   
@@ -69,6 +73,35 @@ export function AuthModal({
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || t("auth.processingError"));
+      setForgotSubmitted(true);
+      toast({
+        title: data.emailSent ? t("auth.emailSent") : t("auth.linkGenerated"),
+        description: data.emailSent
+          ? t("auth.checkInbox")
+          : t("auth.checkEmailReset"),
+      });
+    } catch (error: any) {
+      toast({
+        title: t("auth.loginError"),
+        description: error.message || t("auth.processingError"),
+        variant: "destructive",
+      });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -94,13 +127,71 @@ export function AuthModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(val) => { onOpenChange(val); if (!val) { setShowForgotPassword(false); setForgotSubmitted(false); setForgotEmail(""); setForgotLoading(false); } }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{modalTitle}</DialogTitle>
-          <DialogDescription>{modalDescription}</DialogDescription>
+          <DialogTitle>{showForgotPassword ? t("auth.recoverPassword") : modalTitle}</DialogTitle>
+          <DialogDescription>{showForgotPassword ? t("auth.recoverPasswordDesc") : modalDescription}</DialogDescription>
         </DialogHeader>
         
+        {showForgotPassword ? (
+          <div className="space-y-4">
+            {forgotSubmitted ? (
+              <div className="space-y-4">
+                <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-md p-4 text-center">
+                  <p className="text-sm text-green-900 dark:text-green-100">
+                    {t("auth.emailIfRegistered")}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {t("auth.checkSpamToo")}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => { setShowForgotPassword(false); setForgotSubmitted(false); setForgotEmail(""); }}
+                  data-testid="button-back-to-login-modal"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t("auth.backToLogin")}
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="forgot-email-modal">{t("auth.email")}</Label>
+                  <Input
+                    id="forgot-email-modal"
+                    type="email"
+                    placeholder={t("auth.enterEmail")}
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                    data-testid="input-forgot-email-modal"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={forgotLoading}
+                  data-testid="button-send-reset-modal"
+                >
+                  {forgotLoading ? t("auth.sending") : t("auth.sendRecoveryEmail")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => { setShowForgotPassword(false); setForgotEmail(""); }}
+                  data-testid="button-cancel-forgot-modal"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t("auth.backToLogin")}
+                </Button>
+              </form>
+            )}
+          </div>
+        ) : (
         <Tabs defaultValue="register" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="register" data-testid="tab-register">{t("auth.createAccount")}</TabsTrigger>
@@ -213,9 +304,21 @@ export function AuthModal({
               >
                 {isLoading ? t("auth.loggingIn") : t("authModal.loginAndContinue")}
               </Button>
+              <div className="text-center">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-sm text-muted-foreground"
+                  onClick={() => { setShowForgotPassword(true); setForgotEmail(loginEmail); }}
+                  data-testid="link-forgot-password-auth-modal"
+                >
+                  {t("auth.forgotPassword")}?
+                </Button>
+              </div>
             </form>
           </TabsContent>
         </Tabs>
+        )}
       </DialogContent>
     </Dialog>
   );

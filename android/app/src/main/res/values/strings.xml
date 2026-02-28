@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Bíblia Inteligente</string>
+    <string name="title_activity_main">Bíblia Inteligente</string>
+    <string name="package_name">com.bibliainteligente.app</string>
+    <string name="custom_url_scheme">com.bibliainteligente.app</string>
+</resources>

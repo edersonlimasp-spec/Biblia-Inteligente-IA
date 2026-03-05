@@ -13,6 +13,8 @@ import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 import { apiRequest } from "@/lib/queryClient";
 import { trackSubscriptionPageVisit } from "@/lib/tracking";
+import { isAndroid } from "@/lib/capacitor";
+import { purchaseProduct } from "@/lib/inAppPurchases";
 
 interface CouponData {
   valid: boolean;
@@ -171,14 +173,38 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     }
     
     setIsPurchasing(planId);
-    
+
+    // ── Google Play Billing (Android nativo) ──────────────────────────
+    if (isAndroid) {
+      try {
+        const planTypeMap: Record<string, 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime'> = {
+          gold:          'gold',
+          gold_anual:    'gold_anual',
+          premium:       'premium',
+          premium_anual: 'premium_anual',
+          vitalicio:     'strong_lifetime',
+        };
+        const mappedPlan = planTypeMap[planId] || (planId as any);
+        const result = await purchaseProduct(mappedPlan);
+        if (result.success) {
+          toast({ title: 'Assinatura ativada!', description: `Plano ${planName} ativo com sucesso.` });
+        } else if (result.error && result.error !== 'Compra cancelada') {
+          toast({ title: t("common.error"), description: result.error, variant: 'destructive' });
+        }
+      } catch (error: any) {
+        toast({ title: t("common.error"), description: error.message || t("subscription.processingError"), variant: 'destructive' });
+      } finally {
+        setIsPurchasing(null);
+      }
+      return;
+    }
+
+    // ── Mercado Pago (Web / fora do Google Play) ──────────────────────
     try {
-      // Include coupon code if applied for this plan
       const payload: { plan: string; couponCode?: string } = { 
         plan: getPlanIdForBackend(planId) 
       };
       
-      // Apply coupon only if it was validated for this specific plan
       if (appliedCoupon?.valid && selectedPlanForPurchase === planId && couponCode.trim()) {
         payload.couponCode = couponCode.trim();
       }
@@ -189,22 +215,18 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       if (data.init_point) {
         console.log('[MP] Redirecionando para checkout:', data.init_point);
         
-        // Detecta se está em iframe (preview do Replit ou webview)
         const isInIframe = window.self !== window.top;
         
         if (isInIframe) {
-          // Se em iframe, abre em nova aba para evitar problemas de CORS/CSP
           const newWindow = window.open(data.init_point, '_blank');
           if (!newWindow) {
             toast({
               title: t("subscription.openPayment"),
               description: t("subscription.openPaymentDesc"),
             });
-            // Fallback: tenta top-level
             window.top?.location.assign(data.init_point);
           }
         } else {
-          // Navegação top-level normal
           window.location.assign(data.init_point);
         }
       } else {
@@ -516,48 +538,53 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         {/* Coupon + Order Summary - Aparece quando um plano é selecionado */}
         {user && selectedPlanForPurchase && (
           <div ref={orderSummaryRef} className="mb-8 space-y-2">
-            <div className="border border-dashed border-muted-foreground/30 rounded-md p-2.5 flex items-center gap-2">
-              <Tag className="h-4 w-4 text-muted-foreground shrink-0" />
-              <Input
-                placeholder="INSIRA O CUPOM"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                className="flex-1 uppercase h-8 text-sm"
-                disabled={appliedCoupon?.valid}
-                data-testid="input-coupon-code"
-              />
-              {appliedCoupon?.valid ? (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={removeCoupon}
-                  data-testid="button-remove-coupon"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => validateCoupon()}
-                  disabled={!couponCode.trim() || isValidatingCoupon}
-                  data-testid="button-apply-coupon"
-                >
-                  {isValidatingCoupon ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
+            {/* Cupom — visível apenas na web (fora do Google Play) */}
+            {!isAndroid && (
+              <>
+                <div className="border border-dashed border-muted-foreground/30 rounded-md p-2.5 flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <Input
+                    placeholder="INSIRA O CUPOM"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    className="flex-1 uppercase h-8 text-sm"
+                    disabled={appliedCoupon?.valid}
+                    data-testid="input-coupon-code"
+                  />
+                  {appliedCoupon?.valid ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={removeCoupon}
+                      data-testid="button-remove-coupon"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
                   ) : (
-                    t("subscription.coupon.apply") || "Aplicar"
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => validateCoupon()}
+                      disabled={!couponCode.trim() || isValidatingCoupon}
+                      data-testid="button-apply-coupon"
+                    >
+                      {isValidatingCoupon ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        t("subscription.coupon.apply") || "Aplicar"
+                      )}
+                    </Button>
                   )}
-                </Button>
-              )}
-            </div>
-            {appliedCoupon?.valid && (
-              <div className="px-2 py-1.5 bg-green-500/10 border border-green-500/30 rounded-md">
-                <p className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1.5">
-                  <Check className="h-3 w-3" />
-                  {appliedCoupon.discountDisplay}
-                </p>
-              </div>
+                </div>
+                {appliedCoupon?.valid && (
+                  <div className="px-2 py-1.5 bg-green-500/10 border border-green-500/30 rounded-md">
+                    <p className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1.5">
+                      <Check className="h-3 w-3" />
+                      {appliedCoupon.discountDisplay}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
 
           <Card className="border-primary shadow-lg">
@@ -627,13 +654,18 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                       className="w-full mt-4"
                       size="lg"
                       onClick={() => handlePlanSelect(selectedPlanForPurchase, selectedPlanData.name)}
-                      disabled={isPurchasing === selectedPlanForPurchase || isValidatingCoupon || (couponCode.trim() !== '' && !appliedCoupon?.valid)}
+                      disabled={isPurchasing === selectedPlanForPurchase || isValidatingCoupon || (!isAndroid && couponCode.trim() !== '' && !appliedCoupon?.valid)}
                       data-testid="button-finalize-purchase"
                     >
                       {isPurchasing === selectedPlanForPurchase ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
                           Processando...
+                        </>
+                      ) : isAndroid ? (
+                        <>
+                          <Crown className="h-4 w-4 mr-2" />
+                          Comprar no Google Play
                         </>
                       ) : (
                         <>
@@ -644,7 +676,10 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     </Button>
                     
                     <p className="text-xs text-center text-muted-foreground">
-                      Você será redirecionado para o Mercado Pago para concluir o pagamento
+                      {isAndroid
+                        ? "Compra processada com segurança pelo Google Play"
+                        : "Você será redirecionado para o Mercado Pago para concluir o pagamento"
+                      }
                     </p>
                   </>
                 );

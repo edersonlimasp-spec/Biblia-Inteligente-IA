@@ -82,31 +82,12 @@ interface PurchaseResult {
   };
 }
 
-// Cache for IAP plugin instance
-let iapPluginPromise: Promise<any> | null = null;
-
 /**
- * Dynamically import the Capacitor IAP plugin
- * Only loads on native platforms
+ * Returns null — purchases are handled via our custom backend API (no RevenueCat dependency).
+ * The purchase flow calls /api/iap/verify/google or /api/iap/verify/apple directly.
  */
-async function getIAPPlugin(): Promise<any> {
-  if (!isNative) return null;
-  
-  if (!iapPluginPromise) {
-    iapPluginPromise = (async () => {
-      try {
-        // Try to import capacitor-purchases plugin (RevenueCat)
-        // @ts-ignore - may not be installed
-        const module = await import('@revenuecat/purchases-capacitor');
-        return module.Purchases;
-      } catch {
-        console.log('[IAP] RevenueCat plugin not available');
-        return null;
-      }
-    })();
-  }
-  
-  return iapPluginPromise;
+async function getIAPPlugin(): Promise<null> {
+  return null;
 }
 
 /**

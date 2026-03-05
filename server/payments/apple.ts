@@ -13,9 +13,11 @@ const APPLE_SANDBOX_URL = 'https://sandbox.itunes.apple.com/verifyReceipt';
 
 // Product ID to plan mapping
 export const APPLE_PRODUCT_MAP: Record<string, { planType: string; durationDays: number | null; amount: string }> = {
-  'com.bibliainteligente.gold_monthly': { planType: 'gold', durationDays: 30, amount: '9.90' },
-  'com.bibliainteligente.premium_monthly': { planType: 'premium', durationDays: 30, amount: '19.90' },
-  'com.bibliainteligente.strong_lifetime': { planType: 'strong_lifetime', durationDays: null, amount: '49.90' },
+  'com.bibliainteligente.gold_monthly':   { planType: 'gold',          durationDays: 30,   amount: '9.90'   },
+  'com.bibliainteligente.gold_annual':    { planType: 'gold_anual',    durationDays: 365,  amount: '79.90'  },
+  'com.bibliainteligente.premium_monthly':{ planType: 'premium',       durationDays: 30,   amount: '19.90'  },
+  'com.bibliainteligente.premium_annual': { planType: 'premium_anual', durationDays: 365,  amount: '129.90' },
+  'com.bibliainteligente.strong_lifetime':{ planType: 'strong_lifetime',durationDays: null, amount: '49.90'  },
 };
 
 interface AppleReceiptResponse {

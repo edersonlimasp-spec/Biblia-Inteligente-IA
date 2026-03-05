@@ -10,18 +10,24 @@ import { apiRequest } from './queryClient';
 // Product IDs by platform
 export const PRODUCT_IDS = {
   ios: {
-    gold_monthly: 'com.bibliainteligente.gold_monthly',
+    gold_monthly:    'com.bibliainteligente.gold_monthly',
+    gold_annual:     'com.bibliainteligente.gold_annual',
     premium_monthly: 'com.bibliainteligente.premium_monthly',
+    premium_annual:  'com.bibliainteligente.premium_annual',
     strong_lifetime: 'com.bibliainteligente.strong_lifetime',
   },
   android: {
-    gold_monthly: 'gold_monthly',
+    gold_monthly:    'gold_monthly',
+    gold_annual:     'gold_annual',
     premium_monthly: 'premium_monthly',
+    premium_annual:  'premium_annual',
     strong_lifetime: 'strong_lifetime',
   },
   web: {
-    gold_monthly: 'gold',
+    gold_monthly:    'gold',
+    gold_annual:     'gold_anual',
     premium_monthly: 'premium',
+    premium_annual:  'premium_anual',
     strong_lifetime: 'vitalicio',
   },
 };
@@ -29,14 +35,24 @@ export const PRODUCT_IDS = {
 // Plan display info
 export const PLAN_INFO = {
   gold: {
-    name: 'Gold',
+    name: 'Gold Mensal',
     price: 'R$ 9,90/mês',
     features: ['Acesso ao Dicionário Strong', 'IA Essencial (30 perguntas/dia)'],
   },
+  gold_anual: {
+    name: 'Gold Anual',
+    price: 'R$ 79,90/ano',
+    features: ['Acesso ao Dicionário Strong', 'IA Essencial (30 perguntas/dia)', 'Economize 33%'],
+  },
   premium: {
-    name: 'Premium',
+    name: 'Premium Mensal',
     price: 'R$ 19,90/mês',
     features: ['Tudo do Gold', 'IA Premium (100 perguntas/dia)', 'Exegese avançada'],
+  },
+  premium_anual: {
+    name: 'Premium Anual',
+    price: 'R$ 129,90/ano',
+    features: ['Tudo do Gold', 'IA Premium (100 perguntas/dia)', 'Exegese avançada', 'Economize 46%'],
   },
   strong_lifetime: {
     name: 'Strong Vitalício',
@@ -112,14 +128,16 @@ export function getPaymentMethod(): 'apple' | 'google' | 'mercadopago' {
 /**
  * Get product ID for current platform
  */
-export function getProductId(planType: 'gold' | 'premium' | 'strong_lifetime'): string {
+export function getProductId(planType: 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime'): string {
   const platformKey = platform === 'ios' ? 'ios' :
                       platform === 'android' ? 'android' : 'web';
   const ids = PRODUCT_IDS[platformKey];
   
-  const mapping: Record<string, keyof typeof PRODUCT_IDS.ios> = {
-    gold: 'gold_monthly',
-    premium: 'premium_monthly',
+  const mapping: Record<string, keyof typeof PRODUCT_IDS.android> = {
+    gold:            'gold_monthly',
+    gold_anual:      'gold_annual',
+    premium:         'premium_monthly',
+    premium_anual:   'premium_annual',
     strong_lifetime: 'strong_lifetime',
   };
   

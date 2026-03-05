@@ -9,9 +9,11 @@ import { eq, and } from 'drizzle-orm';
 
 // Product ID to plan mapping
 export const GOOGLE_PRODUCT_MAP: Record<string, { planType: string; durationDays: number | null; amount: string; isSubscription: boolean }> = {
-  'gold_monthly': { planType: 'gold', durationDays: 30, amount: '9.90', isSubscription: true },
-  'premium_monthly': { planType: 'premium', durationDays: 30, amount: '19.90', isSubscription: true },
-  'strong_lifetime': { planType: 'strong_lifetime', durationDays: null, amount: '49.90', isSubscription: false },
+  'gold_monthly':   { planType: 'gold',          durationDays: 30,   amount: '9.90',   isSubscription: true  },
+  'gold_annual':    { planType: 'gold_anual',     durationDays: 365,  amount: '79.90',  isSubscription: true  },
+  'premium_monthly':{ planType: 'premium',        durationDays: 30,   amount: '19.90',  isSubscription: true  },
+  'premium_annual': { planType: 'premium_anual',  durationDays: 365,  amount: '129.90', isSubscription: true  },
+  'strong_lifetime':{ planType: 'strong_lifetime',durationDays: null, amount: '49.90',  isSubscription: false },
 };
 
 interface GooglePurchaseVerification {

@@ -49,9 +49,11 @@ router.get('/products', (req: Request, res: Response) => {
   return res.json({
     platform: 'web',
     products: [
-      { planType: 'gold', price: '9.90', currency: 'BRL', durationDays: 30 },
-      { planType: 'premium', price: '19.90', currency: 'BRL', durationDays: 30 },
-      { planType: 'strong_lifetime', price: '49.90', currency: 'BRL', durationDays: null, isLifetime: true },
+      { planType: 'gold',            price: '9.90',   currency: 'BRL', durationDays: 30,  isSubscription: true  },
+      { planType: 'gold_anual',      price: '79.90',  currency: 'BRL', durationDays: 365, isSubscription: true  },
+      { planType: 'premium',         price: '19.90',  currency: 'BRL', durationDays: 30,  isSubscription: true  },
+      { planType: 'premium_anual',   price: '129.90', currency: 'BRL', durationDays: 365, isSubscription: true  },
+      { planType: 'strong_lifetime', price: '49.90',  currency: 'BRL', durationDays: null, isLifetime: true, isSubscription: false },
     ],
   });
 });

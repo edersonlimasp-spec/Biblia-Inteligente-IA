@@ -8,9 +8,11 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Ativa Edge-to-Edge para Android 15 (API 35).
-        // O conteúdo web trata os recuos via CSS env(safe-area-inset-*).
+        // IMPORTANTE: EdgeToEdge.enable() deve ser chamado ANTES de super.onCreate()
+        // para que esteja ativo quando os plugins do Capacitor (StatusBar etc.) inicializam.
+        // Isso garante que shouldSetStatusBarColor() retorne false no Android 15,
+        // evitando chamadas às APIs descontinuadas setStatusBarColor/getStatusBarColor.
         EdgeToEdge.enable(this);
+        super.onCreate(savedInstanceState);
     }
 }

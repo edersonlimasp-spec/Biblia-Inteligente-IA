@@ -25,8 +25,13 @@ const config: CapacitorConfig = {
       splashImmersive: true,
     },
     StatusBar: {
+      // DARK = ícones brancos — necessário sobre o cabeçalho azul (#1A5299)
+      // Implementado via WindowInsetsControllerCompat (API moderna, não depreciada).
+      // backgroundColor removido: em modo Edge-to-Edge, a barra de status é transparente
+      // e a cor azul do cabeçalho preenche a área visualmente via CSS env(safe-area-inset-top).
       style: 'DARK',
-      backgroundColor: '#1A5299',
+      // overlaysWebView não definido aqui: o EdgeToEdge.enable() em MainActivity.java
+      // já configura o modo correto antes dos plugins inicializarem.
     },
     Keyboard: {
       resize: 'body',

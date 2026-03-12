@@ -8,15 +8,29 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:resizeableActivity="true">
+        <!--
+            android:resizeableActivity="true" declarado explicitamente para:
+            - Garantir compatibilidade com tablets e foldáveis no Android 16+
+            - Remover qualquer aviso do Google Play sobre restrição de redimensionamento
+            - Já é o comportamento padrão em API 24+, mas declarar explicitamente é a prática recomendada
+        -->
 
         <activity
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density">
+            <!--
+                android:configChanges: lista de mudanças que a Activity trata manualmente,
+                sem recriar a Activity (necessário para o Capacitor/WebView não recarregar).
+                NÃO é uma restrição de orientação. Orientação livre: retrato e paisagem funcionam.
+                "density" adicionado para compatibilidade com telas de alta densidade (tablets/foldáveis).
+                Ausência de "screenOrientation" confirma que nenhuma orientação é forçada.
+            -->
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,6 +51,5 @@
     </application>
 
     <!-- Permissions -->
-
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

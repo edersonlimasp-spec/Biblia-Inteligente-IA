@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2, Tag, X } from "lucide-react";
+import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2, Tag, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 import { apiRequest } from "@/lib/queryClient";
 import { trackSubscriptionPageVisit } from "@/lib/tracking";
-import { isAndroid } from "@/lib/capacitor";
+import { isAndroid, platform } from "@/lib/capacitor";
 import { purchaseProduct } from "@/lib/inAppPurchases";
 
 interface CouponData {
@@ -51,6 +51,10 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   
   // Ref para scroll automático ao resumo do pedido
   const orderSummaryRef = useRef<HTMLDivElement>(null);
+  
+  // Detected when the user has an active Mercado Pago (web) subscription but is
+  // using the Play Store app — we show them an informational banner.
+  const [hasWebOnlySubscription, setHasWebOnlySubscription] = useState(false);
 
   useEffect(() => {
     trackSubscriptionPageVisit();
@@ -60,11 +64,20 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     async function fetchTrialInfo() {
       try {
         if (user) {
-          const res = await fetch('/api/user/subscription-status');
+          const subHeaders: Record<string, string> = {};
+          if (platform === 'android' || platform === 'ios') {
+            subHeaders['x-client-platform'] = platform;
+          }
+          const authToken = localStorage.getItem('authToken');
+          if (authToken) subHeaders['Authorization'] = `Bearer ${authToken}`;
+          const res = await fetch('/api/user/subscription-status', { headers: subHeaders });
           if (res.ok) {
             const data = await res.json();
             if (data.trialActive && data.trialDaysRemaining) {
               setTrialDaysRemaining(data.trialDaysRemaining);
+            }
+            if (data.hasWebOnlySubscription) {
+              setHasWebOnlySubscription(true);
             }
           }
         } else {
@@ -429,6 +442,30 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
             {t("subscription.unlockPotential")}
           </p>
         </div>
+
+        {/* Web-only subscription warning — shown when user has a Mercado Pago subscription
+            but is accessing the app via Google Play / App Store. Google Play Policy requires
+            separate billing: web purchases do not unlock content inside the store app. */}
+        {isAndroid && hasWebOnlySubscription && (
+          <Card className="mb-6 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/30">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex gap-3 items-start">
+                <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                    Assinatura Web detectada
+                  </p>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-0.5">
+                    Você tem uma assinatura ativa pelo site (Mercado Pago). Para usar os recursos premium neste aplicativo, é necessário assinar pelo Google Play Billing abaixo.
+                  </p>
+                  <p className="text-xs text-yellow-600 dark:text-yellow-500 mt-1">
+                    Isso é exigido pela política do Google Play para compras de conteúdo digital em aplicativos.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Plans Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

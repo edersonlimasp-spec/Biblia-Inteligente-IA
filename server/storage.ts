@@ -64,7 +64,7 @@ export interface IStorage {
   getUserSubscriptions(userId: string): Promise<Subscription[]>;
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   upsertSubscription(subscription: InsertSubscription): Promise<Subscription>;
-  hasActiveSubscription(userId: string, planType: string): Promise<boolean>;
+  hasActiveSubscription(userId: string, planType: string, allowedSources?: string[]): Promise<boolean>;
   getActiveSubscription(userId: string): Promise<Subscription | null>;
   getSubscriptionByExternalId(externalId: string): Promise<Subscription | null>;
 
@@ -423,7 +423,7 @@ class PostgresStorage implements IStorage {
     return result[0];
   }
 
-  async hasActiveSubscription(userId: string, planType: string): Promise<boolean> {
+  async hasActiveSubscription(userId: string, planType: string, allowedSources?: string[]): Promise<boolean> {
     const now = new Date();
     
     // Map annual plans to base plans for access checking
@@ -459,14 +459,22 @@ class PostgresStorage implements IStorage {
       );
     
     // Only return true if subscription hasn't expired
+    // Platform-aware source filtering: when allowedSources is provided, only accept subscriptions
+    // whose source is in the allowed list OR whose source is null (legacy/admin records without source).
+    // This prevents Mercado Pago (web) subscriptions from unlocking content in the Google Play app.
     for (const sub of subResult) {
+      if (allowedSources) {
+        const src = sub.source ?? null;
+        const isAllowed = src === null || allowedSources.includes(src);
+        if (!isAllowed) continue;
+      }
       // If no endDate (lifetime), always active
       if (!sub.endDate) return true;
       // If endDate exists and is in the future, it's active
       if (new Date(sub.endDate) > now) return true;
     }
 
-    // Check active bonuses
+    // Check active bonuses (always platform-agnostic — bonuses are admin-granted)
     const bonusType = planType === 'gold' ? 'gold_free' : planType === 'premium' ? 'premium_free' : null;
     if (bonusType) {
       const bonusResult = await db

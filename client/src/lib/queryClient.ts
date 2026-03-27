@@ -1,5 +1,6 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { Capacitor } from "@capacitor/core";
 
 // API Base URL - uses environment variable in production, empty string for development (same origin)
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -49,6 +50,15 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Sends X-Client-Platform header so the server can enforce platform-specific
+// subscription source rules (Google Play Policy compliance).
+function addPlatformHeader(headers: Record<string, string>) {
+  const platform = Capacitor.getPlatform();
+  if (platform === 'android' || platform === 'ios') {
+    headers['x-client-platform'] = platform;
+  }
+}
+
 export async function apiRequest(
   method: string,
   url: string,
@@ -56,7 +66,7 @@ export async function apiRequest(
 ): Promise<Response> {
   const token = getAuthToken();
   const deviceId = getDeviceId();
-  const headers: HeadersInit = data ? { "Content-Type": "application/json" } : {};
+  const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
   
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -65,6 +75,8 @@ export async function apiRequest(
   if (deviceId) {
     headers['x-device-id'] = deviceId;
   }
+
+  addPlatformHeader(headers);
 
   const fullUrl = getApiUrl(url);
   const res = await fetch(fullUrl, {
@@ -86,7 +98,7 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const token = getAuthToken();
     const deviceId = getDeviceId();
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
     
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -95,6 +107,8 @@ export const getQueryFn: <T>(options: {
     if (deviceId) {
       headers['x-device-id'] = deviceId;
     }
+
+    addPlatformHeader(headers);
 
     const path = queryKey.join("/") as string;
     const fullUrl = getApiUrl(path);

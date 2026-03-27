@@ -34,6 +34,34 @@ import { NUM_WORD_STRONG } from "./num-strong-mappings";
 import { LEV_WORD_STRONG } from "./lev-strong-mappings";
 import { DEU_WORD_STRONG } from "./deu-strong-mappings";
 
+// ─── Platform-aware subscription helpers ────────────────────────────────────
+// Google Play Policy: an app distributed via Google Play MUST use Google Play
+// Billing for digital content. A Mercado Pago (web) subscription MUST NOT unlock
+// features inside the Play Store app. We enforce this by reading the
+// X-Client-Platform header sent by the Capacitor native app and filtering
+// hasActiveSubscription calls to only honour sources valid for that platform.
+
+type ClientPlatform = 'android' | 'ios' | 'web';
+
+function getClientPlatform(req: { headers: Record<string, string | string[] | undefined> }): ClientPlatform {
+  const header = req.headers['x-client-platform'];
+  const val = Array.isArray(header) ? header[0] : header;
+  if (val === 'android') return 'android';
+  if (val === 'ios') return 'ios';
+  return 'web';
+}
+
+// Sources allowed per platform.
+// null/undefined source (legacy records or admin-granted) is always honoured by
+// the storage layer (it treats null as "works everywhere").
+function getPlatformAllowedSources(platform: ClientPlatform): string[] {
+  if (platform === 'android') return ['google', 'admin'];
+  if (platform === 'ios')     return ['apple', 'admin'];
+  // Web: Mercado Pago payments. 'admin' included for admin-activated records.
+  return ['web', 'mp_webhook', 'mercadopago', 'admin'];
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 // In-memory cache for Strong entries (true LRU with TTL)
 interface StrongCacheEntry {
   data: any;
@@ -586,11 +614,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const trialActive = isTrialActive(user.trialStartDate);
-      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
-      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
 
-      // Check for active bonuses that grant Gold or Premium access
+      // Platform-aware: only honour subscriptions from the correct payment source
+      const clientPlatform = getClientPlatform(req);
+      const allowedSources = getPlatformAllowedSources(clientPlatform);
+
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold', allowedSources);
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium', allowedSources);
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime', allowedSources);
+
+      // Check for active bonuses that grant Gold or Premium access (always platform-agnostic)
       const hasGoldBonus = await storage.hasActiveBonus(req.userId!, 'gold_free');
       const hasPremiumBonus = await storage.hasActiveBonus(req.userId!, 'premium_free');
       const hasTrialExtendBonus = await storage.hasActiveBonus(req.userId!, 'trial_extend');
@@ -599,8 +632,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const effectiveHasGold = hasGold || hasGoldBonus || hasTrialExtendBonus;
       const effectiveHasPremium = hasPremium || hasPremiumBonus;
 
-      // Debug log for subscription status
-      console.log(`[Subscription Status] userId=${req.userId}, hasGold=${hasGold}, hasPremium=${hasPremium}, hasLifetime=${hasLifetime}, bonuses: gold=${hasGoldBonus}, premium=${hasPremiumBonus}, trial=${hasTrialExtendBonus}`);
+      // For native apps: detect if user has a web-only subscription they cannot use here.
+      // This allows the UI to show an informative message ("You have a web subscription —
+      // to use the Play Store app, please subscribe via Google Play Billing").
+      let hasWebOnlySubscription = false;
+      if (clientPlatform !== 'web' && !hasGold && !hasPremium && !hasLifetime) {
+        const webSources = ['web', 'mp_webhook', 'mercadopago'];
+        const hasWebGold    = await storage.hasActiveSubscription(req.userId!, 'gold', webSources);
+        const hasWebPremium = await storage.hasActiveSubscription(req.userId!, 'premium', webSources);
+        const hasWebLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime', webSources);
+        hasWebOnlySubscription = hasWebGold || hasWebPremium || hasWebLifetime;
+      }
+
+      console.log(`[Subscription Status] userId=${req.userId} platform=${clientPlatform}, hasGold=${hasGold}, hasPremium=${hasPremium}, hasLifetime=${hasLifetime}, webOnly=${hasWebOnlySubscription}`);
 
       res.json({
         hasPremium: effectiveHasPremium,
@@ -608,6 +652,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hasLifetime,
         trialActive,
         userId: req.userId,
+        hasWebOnlySubscription,
       });
     } catch (error) {
       console.error("Get subscription status error:", error);
@@ -726,10 +771,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Assinantes têm acesso ilimitado ou diário
-      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
-      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime');
+      // Assinantes têm acesso ilimitado ou diário (platform-aware)
+      const clientPlatform1 = getClientPlatform(req);
+      const allowedSources1 = getPlatformAllowedSources(clientPlatform1);
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold', allowedSources1);
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium', allowedSources1);
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'strong_lifetime', allowedSources1);
       
       if (hasPremium || hasLifetime) {
         return res.json({ 
@@ -796,8 +843,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
+      // Platform-aware Strong's access check
+      const strongPlatform = getClientPlatform(req);
+      const strongAllowedSources = getPlatformAllowedSources(strongPlatform);
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold', strongAllowedSources);
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium', strongAllowedSources);
 
       // Assinantes têm acesso ilimitado
       if (hasGold || hasPremium) {
@@ -871,10 +921,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Admin bypass - admins have full access to all features
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
       
-      // PLANO GRATUITO ESTRITO: Check subscription status (sem trial, sem bonus)
-      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
-      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
+      // PLANO GRATUITO ESTRITO: Check subscription status (platform-aware, sem trial, sem bonus)
+      const aiPlatform = getClientPlatform(req);
+      const aiAllowedSources = getPlatformAllowedSources(aiPlatform);
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold', aiAllowedSources);
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium', aiAllowedSources);
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime', aiAllowedSources);
 
       // Enforce plan permissions BEFORE making OpenAI call (admins bypass all restrictions)
       if (premiumModes.includes(mode) && !hasPremium && !hasLifetime && !isAdmin) {
@@ -1006,9 +1058,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Admin bypass
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
       
-      // Only Premium/Lifetime users can generate images
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
-      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
+      // Only Premium/Lifetime users can generate images (platform-aware)
+      const imgPlatform = getClientPlatform(req);
+      const imgAllowedSources = getPlatformAllowedSources(imgPlatform);
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium', imgAllowedSources);
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime', imgAllowedSources);
 
       if (!hasPremium && !hasLifetime && !isAdmin) {
         return res.status(403).json({ 
@@ -1067,9 +1121,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Admin bypass
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
       
-      // Only Premium/Lifetime users can analyze images with Vision
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
-      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
+      // Only Premium/Lifetime users can analyze images with Vision (platform-aware)
+      const visionPlatform = getClientPlatform(req);
+      const visionAllowedSources = getPlatformAllowedSources(visionPlatform);
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium', visionAllowedSources);
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime', visionAllowedSources);
 
       if (!hasPremium && !hasLifetime && !isAdmin) {
         return res.status(403).json({ 
@@ -1124,13 +1180,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
       
-      // Check if user has unlimited access (admin, subscription)
+      // Check if user has unlimited access (admin, subscription — platform-aware)
       // PLANO GRATUITO ESTRITO: apenas assinantes (Gold/Premium/Lifetime) têm acesso ilimitado
       // Sem trial, sem bonus - apenas assinaturas pagas
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold');
-      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium');
-      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime');
+      const recPlatform = getClientPlatform(req);
+      const recAllowedSources = getPlatformAllowedSources(recPlatform);
+      const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold', recAllowedSources);
+      const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium', recAllowedSources);
+      const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime', recAllowedSources);
       
       const hasUnlimitedAccess = isAdmin || hasGold || hasPremium || hasLifetime;
       
@@ -1213,9 +1271,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-        const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold');
-        const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium');
-        const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime');
+        const sharePlatform = getClientPlatform(req);
+        const shareAllowedSources = getPlatformAllowedSources(sharePlatform);
+        const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold', shareAllowedSources);
+        const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium', shareAllowedSources);
+        const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime', shareAllowedSources);
         const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
         
         // Premium, Lifetime, Bonus and Admin have unlimited access
@@ -4649,6 +4709,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount: amounts[planType],
         startDate: now,
         endDate,
+        source: 'admin',
       }).returning();
 
       await storage.logAdminAction({

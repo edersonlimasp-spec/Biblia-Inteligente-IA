@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web", "postgresql-16"]
+modules = ["nodejs-20", "python-3.11", "web", "postgresql-16"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
@@ -10,6 +10,10 @@ packages = ["poppler_utils", "imagemagick", "jq", "zip"]
 deploymentTarget = "autoscale"
 build = ["sh", "-c", "sh build-production.sh"]
 run = ["npm", "run", "start"]
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
 
 [[ports]]
 localPort = 5000

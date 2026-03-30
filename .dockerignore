@@ -1,0 +1,89 @@
+# ============================================================
+# .dockerignore — Bíblia Inteligente IA
+# Exclui tudo que não é necessário na imagem de produção
+# ============================================================
+
+# Git — histórico não é necessário em produção
+.git
+.gitignore
+.gitattributes
+.github
+
+# Node modules — reinstalados durante o build via npm install
+node_modules
+
+# Android — não faz parte do servidor web
+android
+android-keys
+.gradle
+gradle
+gradlew
+gradlew.bat
+
+# Binários e artefatos móveis
+*.aab
+*.apk
+*.jks
+*.keystore
+*.p12
+*.pem
+*.cer
+*.der
+
+# Build artifacts intermediários — recriados no build
+dist
+build
+server/public
+.cache
+tmp
+temp
+
+# Arquivos de desenvolvimento e cache
+.local
+.upm
+.config
+.replit.build
+.nvmrc
+
+# Uploads de chat e assets não utilizados pelo servidor
+# NOTA: attached_assets/logo/ é NECESSÁRIO (referenciado pelo Vite @assets alias)
+# Apenas excluímos os uploads pesados, não os logos
+attached_assets/*.pdf
+attached_assets/*.zip
+attached_assets/*.aab
+attached_assets/*.apk
+attached_assets/*.txt
+imports
+
+# Arquivos pesados desnecessários (backups, dumps, downloads)
+*.zip
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+*.backup
+*.dump
+*.sql.gz
+download.txt
+projeto.zip
+
+# CI/CD e scripts de desenvolvimento
+.github
+patches
+reports
+VALIDATION_CHECKLIST.sh
+diagnose-production.sh
+copy-strong-data.sh
+build.sh
+
+# Logs
+*.log
+logs/
+
+# Cobertura de testes
+coverage
+.nyc_output
+
+# Configuração do Replit (não necessária em produção)
+.replitignore

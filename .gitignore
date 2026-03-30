@@ -4,3 +4,26 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Arquivos grandes que não devem entrar no repositório
+*.zip
+*.rar
+*.bak
+*.backup
+download.txt
+projeto.zip
+
+# Uploads de chat (exceto logos que são necessários)
+attached_assets/*.pdf
+attached_assets/*.aab
+attached_assets/*.apk
+attached_assets/*.txt
+
+# Binários Android
+*.jks
+*.keystore
+*.pem
+
+# Logs
+*.log
+logs/

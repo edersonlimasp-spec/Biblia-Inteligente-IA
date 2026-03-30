@@ -1,0 +1,29 @@
+# Git history - largest contributor (18GB+ of pack files)
+.git/
+
+# Node modules - reinstalled during build via npm ci
+node_modules/
+
+# Android build artifacts and SDK (not needed for web server)
+android/
+android-keys/
+
+# User-uploaded assets via chat (PDFs, APKs, AABs - not served by web server)
+attached_assets/
+
+# AAB/APK files in root
+*.aab
+*.apk
+
+# Cache directories
+.cache/
+.local/
+tmp/
+temp/
+
+# GitHub CI config (not needed in production)
+.github/
+
+# Reports and scripts not needed in production
+reports/
+patches/

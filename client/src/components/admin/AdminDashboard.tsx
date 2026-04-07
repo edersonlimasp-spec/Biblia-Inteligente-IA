@@ -3,13 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent, Infinity, ShoppingCart, DollarSign, Gem } from "lucide-react";
+import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent, Infinity, ShoppingCart, DollarSign, Gem, Gift } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ComposedChart } from "recharts";
 
 interface DashboardStats {
   totalUsers: number;
   newUsersThisMonth: number;
   activeTrials: number;
+  freeUsers: number;
   activeGoldSubscriptions: number;
   activePremiumSubscriptions: number;
   lifetimeStrong: number;
@@ -169,12 +170,12 @@ export function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Principal Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <StatCard 
           icon={Users} 
           label="Total de Usuários" 
           value={stats?.totalUsers || 0}
-          subtext={`${stats?.newUsersThisMonth || 0} novos`}
+          subtext={`${stats?.newUsersThisMonth || 0} novos este mês`}
         />
         <StatCard 
           icon={Activity} 
@@ -183,22 +184,38 @@ export function AdminDashboard() {
           subtext="Últimos 5 min"
         />
         <StatCard 
+          icon={TrendingUp} 
+          label="Faturamento (mês)" 
+          value={`R$ ${stats?.estimatedMonthlyRevenue || '0'}`}
+          subtext="Estimado"
+        />
+      </div>
+
+      {/* Detalhamento por Plano */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard 
+          icon={Gift} 
+          label="Degustação Premium" 
+          value={stats?.activeTrials || 0}
+          subtext="7 dias gratuitos (não são assinaturas)"
+        />
+        <StatCard 
           icon={Zap} 
           label="Plano Gratuito" 
-          value={stats?.activeTrials || 0}
-          subtext="Usuários ativos"
+          value={stats?.freeUsers || 0}
+          subtext="Sem assinatura ativa"
         />
         <StatCard 
           icon={CreditCard} 
           label="Gold + Premium" 
           value={(stats?.activeGoldSubscriptions || 0) + (stats?.activePremiumSubscriptions || 0)}
-          subtext="Ativas"
+          subtext="Assinaturas ativas"
         />
         <StatCard 
-          icon={TrendingUp} 
-          label="Faturamento (mês)" 
-          value={`R$ ${stats?.estimatedMonthlyRevenue || '0'}`}
-          subtext="Estimado"
+          icon={Crown} 
+          label="Strong's Vitalício" 
+          value={stats?.lifetimeStrong || 0}
+          subtext="Acesso permanente"
         />
       </div>
 

@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken';
 import { type Request, type Response, type NextFunction } from 'express';
 
 const JWT_SECRET = process.env.SESSION_SECRET || 'fallback-secret-change-in-production';
-const TRIAL_DURATION_DAYS = 30;
+// Trial de degustação Premium: 7 dias para novos cadastros
+const TRIAL_DURATION_DAYS = 7;
 
 export interface AuthRequest extends Request {
   userId?: string;
@@ -140,7 +141,7 @@ export function ensureSuperAdmin(
   next();
 }
 
-// Check if trial is still active (within 30 days)
+// Check if trial is still active (within 7 days - degustação Premium)
 export function isTrialActive(trialStartDate: Date | null | undefined): boolean {
   if (!trialStartDate) return false;
   const now = new Date();

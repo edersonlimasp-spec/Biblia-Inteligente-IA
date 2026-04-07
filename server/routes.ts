@@ -629,8 +629,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hasTrialExtendBonus = await storage.hasActiveBonus(req.userId!, 'trial_extend');
       
       // Combine subscription and bonus access
+      // trialActive = degustação Premium de 7 dias (novos usuários)
       const effectiveHasGold = hasGold || hasGoldBonus || hasTrialExtendBonus;
-      const effectiveHasPremium = hasPremium || hasPremiumBonus;
+      const effectiveHasPremium = hasPremium || hasPremiumBonus || trialActive;
 
       // For native apps: detect if user has a web-only subscription they cannot use here.
       // This allows the UI to show an informative message ("You have a web subscription —
@@ -771,6 +772,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Degustação Premium de 7 dias: acesso ilimitado ao Strong's
+      const trialActiveStrong = isTrialActive(user.trialStartDate);
+      if (trialActiveStrong) {
+        return res.json({
+          hasAccess: true,
+          reason: 'trial',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
+
       // Assinantes têm acesso ilimitado ou diário (platform-aware)
       const clientPlatform1 = getClientPlatform(req);
       const allowedSources1 = getPlatformAllowedSources(clientPlatform1);
@@ -843,6 +856,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Degustação Premium de 7 dias: acesso ilimitado ao Strong's
+      const trialActiveLookup = isTrialActive(user.trialStartDate);
+      if (trialActiveLookup) {
+        return res.json({
+          hasAccess: true,
+          reason: 'trial',
+          used: 0,
+          limit: 999999,
+          remaining: 999999,
+        });
+      }
+
       // Platform-aware Strong's access check
       const strongPlatform = getClientPlatform(req);
       const strongAllowedSources = getPlatformAllowedSources(strongPlatform);
@@ -921,15 +946,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Admin bypass - admins have full access to all features
       const isAdmin = user.role === 'admin' || user.role === 'super_admin';
       
-      // PLANO GRATUITO ESTRITO: Check subscription status (platform-aware, sem trial, sem bonus)
+      // Degustação Premium de 7 dias: conta como Premium
+      const trialActiveAI = isTrialActive(user.trialStartDate);
+
+      // Check subscription status (platform-aware)
       const aiPlatform = getClientPlatform(req);
       const aiAllowedSources = getPlatformAllowedSources(aiPlatform);
       const hasGold = await storage.hasActiveSubscription(req.userId!, 'gold', aiAllowedSources);
       const hasPremium = await storage.hasActiveSubscription(req.userId!, 'premium', aiAllowedSources);
       const hasLifetime = await storage.hasActiveSubscription(req.userId!, 'lifetime', aiAllowedSources);
 
+      // Trial = Premium durante a degustação de 7 dias
+      const effectivePremiumAI = hasPremium || hasLifetime || trialActiveAI;
+
       // Enforce plan permissions BEFORE making OpenAI call (admins bypass all restrictions)
-      if (premiumModes.includes(mode) && !hasPremium && !hasLifetime && !isAdmin) {
+      if (premiumModes.includes(mode) && !effectivePremiumAI && !isAdmin) {
         const modeNames: Record<string, string> = {
           premium: 'Premium',
           pregador: 'Pregador',
@@ -944,7 +975,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Apenas assinantes têm acesso ilimitado (Gold/Premium/Lifetime)
-      const hasFullAccess = hasGold || hasPremium || hasLifetime;
+      // Trial inclui acesso completo (como Premium)
+      const hasFullAccess = hasGold || hasPremium || hasLifetime || trialActiveAI;
 
       // ========================================
       // PLANO GRATUITO: 2 perguntas com login (+ 1 sem login = 3 total)
@@ -966,12 +998,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       } else if (!isAdmin) {
-        // Assinantes: verificar limite diário (100 para Premium, 30 para Gold)
-        const dailyLimit = hasPremium ? 100 : 30;
+        // Assinantes/trial: verificar limite diário (100 para Premium/Trial, 30 para Gold)
+        const dailyLimit = effectivePremiumAI ? 100 : 30;
         if (todayCount >= dailyLimit) {
           return res.status(429).json({ 
             error: `Você atingiu o limite diário de ${dailyLimit} perguntas. ${
-              hasPremium ? 'Aguarde até amanhã para continuar.' :
+              effectivePremiumAI ? 'Aguarde até amanhã para continuar.' :
               'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.'
             }`,
             dailyLimit,
@@ -4233,7 +4265,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const recentUsers = allUsers.filter(u => new Date(u.createdAt) >= monthStart);
 
+      // Degustação Premium de 7 dias (novos usuários em trial)
       const activeTrials = allUsers.filter(u => isTrialActive(u.trialStartDate)).length;
+      // Usuários no plano gratuito real (sem trial ativo e sem assinatura)
+      const subscribedUserIds = new Set(activeSubscriptions.map(s => s.userId));
+      const freeUsers = allUsers.filter(u => !isTrialActive(u.trialStartDate) && !subscribedUserIds.has(u.id)).length;
       // Case-insensitive plan type matching
       const activeGold = activeSubscriptions.filter(s => s.planType?.toLowerCase() === 'gold').length;
       const activePremium = activeSubscriptions.filter(s => s.planType?.toLowerCase() === 'premium').length;
@@ -4282,6 +4318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalUsers: Number(totalCount) || 0,
         newUsersThisMonth: recentUsers.length,
         activeTrials,
+        freeUsers,
         activeGoldSubscriptions: activeGold,
         activePremiumSubscriptions: activePremium,
         lifetimeStrong,

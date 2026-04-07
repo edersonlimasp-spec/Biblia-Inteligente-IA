@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Sparkles, Check } from "lucide-react";
 import appLogo from "@assets/logo/logo.png";
 
 interface RegisterScreenProps {
@@ -68,7 +68,28 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
           <CardTitle className="text-2xl font-bold text-primary">{t("auth.createAccount")}</CardTitle>
           <CardDescription>{t("auth.createAccountDesc")}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Banner de degustação Premium 7 dias */}
+          <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-2" data-testid="banner-trial-info">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              <p className="text-sm font-semibold text-primary">7 dias grátis de acesso Premium</p>
+            </div>
+            <ul className="space-y-1">
+              {[
+                "Strong's ilimitado (Grego e Hebraico)",
+                "Professor IA — todos os modos avançados",
+                "100 perguntas por dia ao Professor IA",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Check className="h-3 w-3 text-primary shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">Após 7 dias, volta automaticamente ao plano gratuito. Sem cartão de crédito.</p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">{t("auth.name")}</Label>

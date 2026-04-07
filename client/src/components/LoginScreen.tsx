@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { SiGoogle } from "react-icons/si";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Sparkles } from "lucide-react";
 import appLogo from "@assets/logo/logo.png";
 
 interface LoginScreenProps {
@@ -149,7 +149,7 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
               </>
             )}
             
-            <div className="text-center">
+            <div className="text-center space-y-1">
               <Button
                 type="button"
                 variant="ghost"
@@ -158,6 +158,10 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
               >
                 {t("auth.noAccount")} {t("auth.register")}
               </Button>
+              <div className="flex items-center justify-center gap-1" data-testid="text-trial-hint">
+                <Sparkles className="h-3 w-3 text-primary" />
+                <p className="text-xs text-primary font-medium">Cadastre-se e ganhe 7 dias Premium grátis</p>
+              </div>
             </div>
             <div className="text-center">
               <Button

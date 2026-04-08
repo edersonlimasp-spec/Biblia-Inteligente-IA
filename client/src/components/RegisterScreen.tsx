@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Sparkles, Check } from "lucide-react";
+import { Eye, EyeOff, Sparkles, Check, BookOpen, Brain, Infinity } from "lucide-react";
 import appLogo from "@assets/logo/logo.png";
 
 interface RegisterScreenProps {
@@ -70,24 +70,42 @@ export function RegisterScreen({ onRegister, onNavigateToLogin }: RegisterScreen
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Banner de degustação Premium 7 dias */}
-          <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-2" data-testid="banner-trial-info">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary shrink-0" />
-              <p className="text-sm font-semibold text-primary">7 dias grátis de acesso Premium</p>
+          <div className="rounded-md overflow-hidden" data-testid="banner-trial-info">
+            {/* Cabeçalho gradiente */}
+            <div className="bg-gradient-to-r from-primary to-blue-700 dark:from-primary dark:to-blue-800 px-4 pt-4 pb-3 text-white">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Sparkles className="h-3.5 w-3.5 opacity-90" />
+                    <span className="text-xs font-semibold uppercase tracking-widest opacity-90">Oferta de Boas-vindas</span>
+                  </div>
+                  <p className="text-xl font-bold leading-tight">7 dias Premium</p>
+                  <p className="text-sm opacity-85 mt-0.5">completamente grátis ao se cadastrar</p>
+                </div>
+                <div className="bg-white/15 border border-white/25 rounded-md px-3 py-2 text-center shrink-0">
+                  <p className="text-3xl font-bold leading-none">7</p>
+                  <p className="text-xs leading-none opacity-80 mt-0.5">dias</p>
+                </div>
+              </div>
             </div>
-            <ul className="space-y-1">
-              {[
-                "Strong's ilimitado (Grego e Hebraico)",
-                "Professor IA — todos os modos avançados",
-                "100 perguntas por dia ao Professor IA",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Check className="h-3 w-3 text-primary shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-muted-foreground">Após 7 dias, volta automaticamente ao plano gratuito. Sem cartão de crédito.</p>
+            {/* Recursos inclusos */}
+            <div className="border border-t-0 border-primary/20 bg-primary/5 dark:bg-primary/10 px-4 py-3 rounded-b-md">
+              <ul className="space-y-2">
+                {[
+                  { icon: BookOpen, text: "Strong's ilimitado — Grego e Hebraico" },
+                  { icon: Brain,    text: "Professor IA com todos os modos avançados" },
+                  { icon: Infinity, text: "100 perguntas por dia ao Professor IA" },
+                ].map(({ icon: Icon, text }) => (
+                  <li key={text} className="flex items-center gap-2.5 text-sm text-foreground">
+                    <div className="h-5 w-5 rounded-full bg-primary/12 flex items-center justify-center shrink-0">
+                      <Icon className="h-3 w-3 text-primary" />
+                    </div>
+                    {text}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted-foreground mt-3 text-center">Sem cartão de crédito · Após 7 dias volta ao plano gratuito</p>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { SiGoogle } from "react-icons/si";
-import { Eye, EyeOff, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Sparkles, ChevronRight } from "lucide-react";
 import appLogo from "@assets/logo/logo.png";
 
 interface LoginScreenProps {
@@ -149,20 +149,24 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
               </>
             )}
             
-            <div className="text-center space-y-1">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={onNavigateToRegister}
-                data-testid="link-register"
-              >
-                {t("auth.noAccount")} {t("auth.register")}
-              </Button>
-              <div className="flex items-center justify-center gap-1" data-testid="text-trial-hint">
-                <Sparkles className="h-3 w-3 text-primary" />
-                <p className="text-xs text-primary font-medium">Cadastre-se e ganhe 7 dias Premium grátis</p>
+            {/* Banner de trial - clicável, vai para cadastro */}
+            <button
+              type="button"
+              onClick={onNavigateToRegister}
+              className="w-full rounded-md overflow-hidden text-left"
+              data-testid="banner-trial-login"
+            >
+              <div className="bg-gradient-to-r from-primary to-blue-700 dark:from-primary dark:to-blue-800 px-4 py-3 text-white flex items-center gap-3">
+                <div className="bg-white/15 border border-white/25 rounded-md p-2 shrink-0">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold leading-tight">Novo por aqui? Ganhe 7 dias Premium grátis</p>
+                  <p className="text-xs opacity-80 mt-0.5">IA avançada · Strong's ilimitado · Sem cartão</p>
+                </div>
+                <ChevronRight className="h-4 w-4 opacity-70 shrink-0" />
               </div>
-            </div>
+            </button>
             <div className="text-center">
               <Button
                 type="button"

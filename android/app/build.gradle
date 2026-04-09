@@ -11,7 +11,7 @@ android {
     namespace "com.bibliainteligente.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.bibliainteligente.app"
+        applicationId "app.replit.bibliainteligente.twa"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 12

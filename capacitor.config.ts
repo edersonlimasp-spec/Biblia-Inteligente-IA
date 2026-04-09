@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.bibliainteligente.app',
+  appId: 'app.replit.bibliainteligente.twa',
   appName: 'Bíblia Inteligente',
   webDir: 'dist/public',
   

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Bíblia Inteligente</string>
-    <string name="title_activity_main">Bíblia Inteligente</string>
-    <string name="package_name">com.bibliainteligente.app</string>
-    <string name="custom_url_scheme">com.bibliainteligente.app</string>
+    <string name="app_name">Bíblia Inteligente IA</string>
+    <string name="title_activity_main">Bíblia Inteligente IA</string>
+    <string name="package_name">app.replit.bibliainteligente.twa</string>
+    <string name="custom_url_scheme">app.replit.bibliainteligente.twa</string>
 </resources>

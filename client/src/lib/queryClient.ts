@@ -2,8 +2,18 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { Capacitor } from "@capacitor/core";
 
-// API Base URL - uses environment variable in production, empty string for development (same origin)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+// API Base URL
+// - Web: empty string (same origin as the page)
+// - Capacitor native (Android/iOS): production URL, since the WebView serves
+//   bundled HTML from a local origin that has no API server.
+// - Override via VITE_API_BASE_URL if needed (e.g. staging).
+const PRODUCTION_API_URL = 'https://bibliainteligente.replit.app';
+const isNative =
+  typeof Capacitor !== 'undefined' &&
+  typeof Capacitor.getPlatform === 'function' &&
+  (Capacitor.getPlatform() === 'android' || Capacitor.getPlatform() === 'ios');
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || (isNative ? PRODUCTION_API_URL : '');
 
 // Get full API URL
 export function getApiUrl(path: string): string {

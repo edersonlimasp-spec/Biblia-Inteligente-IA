@@ -180,6 +180,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Authentication routes
+  // Bootstrap endpoint to ensure the Google Play / App Store reviewer account
+  // exists with active Premium on whichever environment this is deployed to.
+  // Protected by the SESSION_SECRET to prevent abuse. Idempotent.
+  app.post("/api/internal/ensure-reviewer-premium", async (req, res) => {
+    try {
+      const token = req.header("x-bootstrap-token");
+      if (!token || token !== process.env.SESSION_SECRET) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const REVIEWER_EMAIL = "reviewer@bibliainteligente.com";
+      const REVIEWER_PASSWORD = "GooglePlay@2025!";
+      const REVIEWER_NAME = "Google Play Reviewer";
+
+      let user = await storage.getUserByEmail(REVIEWER_EMAIL);
+      if (!user) {
+        const hashed = await hashPassword(REVIEWER_PASSWORD);
+        user = await storage.createUser({
+          email: REVIEWER_EMAIL,
+          password: hashed,
+          name: REVIEWER_NAME,
+          preferredLanguage: "pt",
+        } as any);
+      }
+
+      const existing = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.userId, user.id));
+      const hasActivePremium = existing.some(
+        (s) => s.status === "active" && (s.planType === "premium" || s.planType === "strong_lifetime"),
+      );
+
+      if (!hasActivePremium) {
+        const now = new Date();
+        const endDate = new Date("2099-12-31T23:59:59Z");
+        await db.insert(subscriptions).values({
+          userId: user.id,
+          planType: "premium",
+          status: "active",
+          amount: "0.00",
+          startDate: now,
+          endDate,
+          source: "admin",
+        });
+      }
+
+      return res.json({
+        success: true,
+        userId: user.id,
+        email: user.email,
+        premiumGranted: !hasActivePremium,
+        message: "Reviewer account ready with active Premium.",
+      });
+    } catch (error: any) {
+      console.error("Bootstrap reviewer error:", error);
+      return res.status(500).json({ error: error?.message || "Internal error" });
+    }
+  });
+
   app.post("/api/auth/register", async (req, res) => {
     try {
       const { deviceId, ...userData } = req.body;

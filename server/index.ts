@@ -119,6 +119,37 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
+// CORS for Capacitor mobile apps (Android WebView origin = https://localhost,
+// iOS = capacitor://localhost). Required so the native app can call this API
+// cross-origin without "Failed to fetch" errors.
+const ALLOWED_MOBILE_ORIGINS = new Set([
+  'https://localhost',
+  'http://localhost',
+  'capacitor://localhost',
+  'ionic://localhost',
+]);
+app.use((req, res, next) => {
+  const origin = req.headers.origin as string | undefined;
+  if (origin && ALLOWED_MOBILE_ORIGINS.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+    );
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, x-device-id, x-client-platform, x-bootstrap-token'
+    );
+    res.setHeader('Access-Control-Max-Age', '86400');
+    res.setHeader('Vary', 'Origin');
+    if (req.method === 'OPTIONS') {
+      return res.status(204).end();
+    }
+  }
+  next();
+});
+
 // CRITICAL: Set no-cache headers for index.html to prevent mobile caching issues
 app.use((req, res, next) => {
   if (req.path === '/' || req.path === '/index.html' || req.path.endsWith('.html')) {

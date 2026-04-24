@@ -524,6 +524,13 @@ async function autoSeedStudyModules() {
 // 'cancelled' so it never runs again on those same rows.
 async function dedupDuplicateSubscriptions() {
   try {
+    // SAFETY GUARDRAIL: never cancel any subscription created on or after
+    // 2026-04-20. Even if it's flagged as a duplicate by ROW_NUMBER, we leave
+    // recent rows untouched to avoid accidentally killing a real paying user's
+    // access. This means dedup only acts on stale duplicates from before that
+    // cutoff. Adjust DEDUP_PROTECT_FROM if a future cutoff is needed.
+    const DEDUP_PROTECT_FROM = '2026-04-20';
+
     const dupes = await db.execute(sql`
       WITH ranked AS (
         SELECT id, user_id, plan_type, store_transaction_id, status, created_at,
@@ -539,6 +546,7 @@ async function dedupDuplicateSubscriptions() {
       SELECT id, user_id, plan_type, store_transaction_id, created_at
       FROM ranked
       WHERE rn > 1
+        AND created_at < ${DEDUP_PROTECT_FROM}::timestamp
     `);
 
     const dupRows = (dupes as any).rows || (dupes as any) || [];

@@ -520,8 +520,8 @@ async function autoSeedStudyModules() {
 // One-shot cleanup: cancel duplicate active subscriptions created by the
 // Mercado Pago webhook race condition. Two simultaneous webhook calls for the
 // same payment created two rows in <10ms with the same store_transaction_id.
-// We keep the OLDEST row (active) and mark the newer duplicates as 'cancelled'
-// with a marker tag so it never runs again on those same rows.
+// We keep the MOST RECENT row (active) and mark the older duplicates as
+// 'cancelled' so it never runs again on those same rows.
 async function dedupDuplicateSubscriptions() {
   try {
     const dupes = await db.execute(sql`
@@ -529,7 +529,7 @@ async function dedupDuplicateSubscriptions() {
         SELECT id, user_id, plan_type, store_transaction_id, status, created_at,
                ROW_NUMBER() OVER (
                  PARTITION BY store_transaction_id
-                 ORDER BY created_at ASC
+                 ORDER BY created_at DESC
                ) AS rn
         FROM subscriptions
         WHERE store_transaction_id IS NOT NULL

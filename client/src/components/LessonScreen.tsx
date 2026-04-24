@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
@@ -73,7 +73,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      const res = await fetch(`/api/study/lessons/${lessonId}?lang=${language}`, {
+      const res = await fetch(getApiUrl(`/api/study/lessons/${lessonId}?lang=${language}`), {
         credentials: 'include',
         headers
       });

@@ -350,7 +350,7 @@ export function BibleReader({
       // === FETCH DIAGNOSTICS (PASSO 1-B) ===
       const [, book, chapter, version] = queryKey as [string, string, number, string];
       const timestamp = Date.now();
-      const url = `/api/bible/${book}/${chapter}?version=${encodeURIComponent(version)}&_t=${timestamp}`;
+      const url = getApiUrl(`/api/bible/${book}/${chapter}?version=${encodeURIComponent(version)}&_t=${timestamp}`);
       
       console.log(`[BIBLE] FETCH_START -> {
         url: "${url}",

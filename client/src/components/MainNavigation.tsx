@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
+import { getApiUrl } from "@/lib/queryClient";
 import { SplashScreen } from "./SplashScreen";
 import { LoginScreen } from "./LoginScreen";
 import { RegisterScreen } from "./RegisterScreen";
@@ -347,7 +348,7 @@ export function MainNavigation() {
         const platform = getPlatform();
         const locale = getLocale();
         
-        await fetch('/api/guest/register', {
+        await fetch(getApiUrl('/api/guest/register'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ deviceId, platform, locale })

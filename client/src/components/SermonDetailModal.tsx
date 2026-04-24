@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
 import { jsPDF } from "jspdf";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -223,7 +223,7 @@ export function SermonDetailModal({
   const loadSermonData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/sermons/${recording.id}`, {
+      const res = await fetch(getApiUrl(`/api/sermons/${recording.id}`), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },

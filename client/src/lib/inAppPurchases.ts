@@ -5,7 +5,7 @@
  */
 
 import { isNative, platform, isIOS, isAndroid } from './capacitor';
-import { apiRequest } from './queryClient';
+import { apiRequest, getApiUrl } from './queryClient';
 
 // Product IDs by platform
 export const PRODUCT_IDS = {
@@ -130,7 +130,7 @@ export function getProductId(planType: 'gold' | 'gold_anual' | 'premium' | 'prem
  */
 export async function getProducts(): Promise<IAPProduct[]> {
   try {
-    const response = await fetch(`/api/iap/products?platform=${platform}`);
+    const response = await fetch(getApiUrl(`/api/iap/products?platform=${platform}`));
     const data = await response.json();
     return data.products || [];
   } catch (error) {
@@ -336,7 +336,7 @@ export async function restorePurchases(): Promise<{ success: boolean; restored: 
   if (paymentMethod === 'mercadopago') {
     // Web users - purchases are linked to account, just refresh status
     try {
-      const response = await fetch('/api/iap/status');
+      const response = await fetch(getApiUrl('/api/iap/status'));
       const data = await response.json();
       return { 
         success: true, 
@@ -393,7 +393,7 @@ export async function getSubscriptionStatus(): Promise<{
   allSubscriptions: any[];
 }> {
   try {
-    const response = await fetch('/api/iap/status');
+    const response = await fetch(getApiUrl('/api/iap/status'));
     if (!response.ok) {
       throw new Error('Failed to get status');
     }

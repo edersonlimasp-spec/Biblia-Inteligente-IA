@@ -13,6 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { LoginPromptModal } from "@/components/LoginPromptModal";
 import { canOpenLesson, type UserPlan, type CourseLevel } from "@shared/courseAccess";
+import { getApiUrl } from "@/lib/queryClient";
 
 interface ModuleDetailScreenProps {
   moduleId: string;
@@ -118,7 +119,7 @@ function TrackCard({
   const { data: lessonsData, isLoading, error } = useQuery<{ lessons: Lesson[] }>({
     queryKey: ['/api/study/tracks', track.id, language],
     queryFn: async () => {
-      const res = await fetch(`/api/study/tracks/${track.id}?lang=${language}`);
+      const res = await fetch(getApiUrl(`/api/study/tracks/${track.id}?lang=${language}`));
       if (!res.ok) throw new Error('Failed to fetch lessons');
       return res.json();
     }
@@ -312,7 +313,7 @@ export function ModuleDetailScreen({
   const { data: moduleDetail, isLoading: moduleLoading } = useQuery<ModuleDetail>({
     queryKey: ['/api/study/modules', moduleId, language],
     queryFn: async () => {
-      const res = await fetch(`/api/study/modules/${moduleId}?lang=${language}`, {
+      const res = await fetch(getApiUrl(`/api/study/modules/${moduleId}?lang=${language}`), {
         headers: { 'x-device-id': deviceId || '' }
       });
       if (!res.ok) throw new Error('Failed to fetch module');

@@ -1,4 +1,5 @@
 import { getDeviceId } from '@/hooks/use-device-id';
+import { getApiUrl } from '@/lib/queryClient';
 
 // Get auth token to include in tracking requests for user identification
 function getAuthToken(): string | null {
@@ -25,7 +26,7 @@ export async function trackEvent(eventType: string, eventData?: any) {
     }
     
     // Use public endpoint that works for both guests and authenticated users
-    await fetch('/api/events/track', {
+    await fetch(getApiUrl('/api/events/track'), {
       method: 'POST',
       headers,
       body: JSON.stringify({ 

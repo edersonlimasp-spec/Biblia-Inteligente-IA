@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
+import { getApiUrl } from "@/lib/queryClient";
 
 interface StudyModulesScreenProps {
   onBack: () => void;
@@ -309,7 +310,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
   const { data: modules, isLoading } = useQuery<StudyModule[]>({
     queryKey: ['/api/study/modules', language],
     queryFn: async () => {
-      const res = await fetch(`/api/study/modules?lang=${language}`, {
+      const res = await fetch(getApiUrl(`/api/study/modules?lang=${language}`), {
         headers: { 'x-device-id': deviceId || '' }
       });
       if (!res.ok) throw new Error('Failed to fetch modules');

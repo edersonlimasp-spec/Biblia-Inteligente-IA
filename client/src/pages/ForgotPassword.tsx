@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
 import appLogo from "@assets/logo/logo.png";
+import { getApiUrl } from "@/lib/queryClient";
 
 interface ForgotPasswordProps {
   onBackToLogin?: () => void;
@@ -27,7 +28,7 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
         throw new Error("Por favor, insira seu email");
       }
 
-      const response = await fetch("/api/auth/forgot-password", {
+      const response = await fetch(getApiUrl("/api/auth/forgot-password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

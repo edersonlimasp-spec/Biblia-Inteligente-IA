@@ -3,6 +3,7 @@ import App from "./App";
 import "./index.css";
 import { registerServiceWorker } from "./registerSW";
 import { initializeCapacitor, isNative } from "./lib/capacitor";
+import { getApiUrl } from "./lib/queryClient";
 
 // ========== CLIENT ENVIRONMENT DIAGNOSTICS ==========
 console.log('');
@@ -19,7 +20,7 @@ console.log('╚═════════════════════�
 console.log('');
 
 // Fetch and log build info from server
-fetch('/api/debug/build-info')
+fetch(getApiUrl('/api/debug/build-info'))
   .then(res => res.json())
   .then(info => {
     console.log('📌 SERVER BUILD_ID:', info.buildId || 'unknown');

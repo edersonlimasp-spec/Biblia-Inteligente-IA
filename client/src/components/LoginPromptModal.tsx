@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { getApiUrl } from "@/lib/queryClient";
 import { LogIn, UserPlus, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import {
   Dialog,
@@ -74,7 +75,7 @@ export function LoginPromptModal({
     e.preventDefault();
     setForgotLoading(true);
     try {
-      const response = await fetch("/api/auth/forgot-password", {
+      const response = await fetch(getApiUrl("/api/auth/forgot-password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: forgotEmail }),

@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin, Database, History, BookMarked, ScrollText, Layers, Globe, Share2, Copy, Check } from "lucide-react";
-import { ApiError } from "@/lib/queryClient";
+import { ApiError, getApiUrl } from "@/lib/queryClient";
 import { AuthModal } from "./AuthModal";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,7 +35,7 @@ async function fetchStrongEntry(strongNumber: string, deviceId: string): Promise
     headers['x-device-id'] = deviceId;
   }
   
-  const res = await fetch(`/api/strong/${encodeURIComponent(strongNumber)}`, {
+  const res = await fetch(getApiUrl(`/api/strong/${encodeURIComponent(strongNumber)}`), {
     credentials: 'include',
     headers,
   });
@@ -253,7 +253,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
     queryKey: ['/api/strong', strongNumber, 'occurrences'],
     queryFn: async () => {
       try {
-        const res = await fetch(`/api/strong/${strongNumber}/occurrences`);
+        const res = await fetch(getApiUrl(`/api/strong/${strongNumber}/occurrences`));
         if (!res.ok) {
           throw new Error(`Failed to fetch occurrences: ${res.status}`);
         }

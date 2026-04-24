@@ -5,7 +5,7 @@ import { Sparkles, ChevronUp, ChevronDown, MessageSquarePlus, History, Loader2, 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, getApiUrl } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { trackAIQuestion } from "@/lib/tracking";
 import { useAuth } from "@/contexts/AuthContext";
@@ -240,7 +240,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
         setSubscriptionLoading(true);
         try {
           // Usuário logado: buscar status de assinatura
-          const res = await fetch('/api/user/subscription-status');
+          const res = await fetch(getApiUrl('/api/user/subscription-status'));
           if (res.ok) {
             const data = await res.json();
             setUserSub({
@@ -260,7 +260,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
         // Guest: buscar trial info por deviceId
         try {
           const deviceId = getDeviceId();
-          const res = await fetch(`/api/guest/trial/${deviceId}`);
+          const res = await fetch(getApiUrl(`/api/guest/trial/${deviceId}`));
           if (res.ok) {
             const data = await res.json();
             setGuestTrialInfo(data);
@@ -500,7 +500,7 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       
       if (isGuest) {
         // Guest: usar rota de guest (sem autenticação)
-        const res = await fetch('/api/guest/ai/ask', {
+        const res = await fetch(getApiUrl('/api/guest/ai/ask'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

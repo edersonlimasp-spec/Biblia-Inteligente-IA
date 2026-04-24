@@ -382,6 +382,21 @@ class PostgresStorage implements IStorage {
   }
 
   async upsertSubscription(subscription: InsertSubscription): Promise<Subscription> {
+    // FIRST: dedup by storeTransactionId (paymentId) to prevent webhook race
+    // condition where two simultaneous webhook calls for the same payment both
+    // pass the user+plan check and INSERT twice in <10ms.
+    if (subscription.storeTransactionId) {
+      const byTxn = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.storeTransactionId, subscription.storeTransactionId))
+        .limit(1);
+      if (byTxn.length > 0) {
+        console.log(`[Storage] Subscription already exists for storeTransactionId=${subscription.storeTransactionId}, returning existing id=${byTxn[0].id}`);
+        return byTxn[0];
+      }
+    }
+
     // Check if user already has a subscription for this plan type
     const existing = await db
       .select()
@@ -1017,13 +1032,23 @@ class PostgresStorage implements IStorage {
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const redirectEvents = ['SUBSCRIPTION_PAGE_VISIT', 'subscribe_cta_click', 'subscription_redirect'];
-    const conversionEvents = ['subscription_activated', 'SUBSCRIPTION_ACTIVATED', 'payment_success'];
 
     const allPageEvents = await db.select().from(pageEvents)
       .where(gte(pageEvents.createdAt, lastMonthStart));
     
     const allAppEvents = await db.select().from(appEvents)
       .where(gte(appEvents.createdAt, lastMonthStart));
+
+    // Source of truth for CONVERSIONS = approved payment_receipts deduplicated
+    // by external_payment_id. This counts each real paid purchase exactly once,
+    // regardless of duplicated webhook calls or duplicated subscription rows.
+    const allReceipts = await db.select({
+      id: paymentReceipts.id,
+      externalPaymentId: paymentReceipts.externalPaymentId,
+      status: paymentReceipts.status,
+      createdAt: paymentReceipts.createdAt,
+    }).from(paymentReceipts)
+      .where(gte(paymentReceipts.createdAt, lastMonthStart));
 
     const countEvents = (events: any[], types: string[], start: Date, end: Date) => {
       return events.filter(e => 
@@ -1039,10 +1064,20 @@ class PostgresStorage implements IStorage {
       return pageCount + appCount;
     };
 
-    const countConversions = (pageEvts: any[], appEvts: any[], start: Date, end: Date) => {
-      const pageCount = countEvents(pageEvts, conversionEvents, start, end);
-      const appCount = countEvents(appEvts, conversionEvents, start, end);
-      return pageCount + appCount;
+    // Count UNIQUE approved payments in window. Dedup by externalPaymentId so
+    // duplicate webhooks/receipts for the same MP transaction count as 1.
+    const APPROVED_STATUSES = new Set(['approved', 'Approved', 'APPROVED', 'active', 'Active', 'ACTIVE']);
+    const countConversions = (start: Date, end: Date) => {
+      const seen = new Set<string>();
+      for (const r of allReceipts) {
+        const ts = new Date(r.createdAt as any);
+        if (ts < start || ts > end) continue;
+        if (!APPROVED_STATUSES.has(r.status)) continue;
+        const key = r.externalPaymentId || `id:${r.id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+      }
+      return seen.size;
     };
 
     const calcRate = (redirects: number, conversions: number) => {
@@ -1050,20 +1085,20 @@ class PostgresStorage implements IStorage {
     };
 
     const todayRedirects = countUniqueRedirects(allPageEvents, allAppEvents, todayStart, now);
-    const todayConversions = countConversions(allPageEvents, allAppEvents, todayStart, now);
+    const todayConversions = countConversions(todayStart, now);
 
     const monthRedirects = countUniqueRedirects(allPageEvents, allAppEvents, monthStart, now);
-    const monthConversions = countConversions(allPageEvents, allAppEvents, monthStart, now);
+    const monthConversions = countConversions(monthStart, now);
 
     const lastMonthRedirects = countUniqueRedirects(allPageEvents, allAppEvents, lastMonthStart, lastMonthEnd);
-    const lastMonthConversions = countConversions(allPageEvents, allAppEvents, lastMonthStart, lastMonthEnd);
+    const lastMonthConversions = countConversions(lastMonthStart, lastMonthEnd);
 
     const dailyTrend: Array<{ date: string; redirects: number; conversions: number }> = [];
     for (let i = 29; i >= 0; i--) {
       const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
       const redirects = countUniqueRedirects(allPageEvents, allAppEvents, dayStart, dayEnd);
-      const conversions = countConversions(allPageEvents, allAppEvents, dayStart, dayEnd);
+      const conversions = countConversions(dayStart, dayEnd);
       dailyTrend.push({
         date: dayStart.toISOString().split('T')[0],
         redirects,

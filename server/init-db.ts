@@ -1,5 +1,5 @@
 import { db } from './db';
-import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons, readingPlanTemplates } from '@shared/schema';
+import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons, readingPlanTemplates, subscriptions, paymentReceipts } from '@shared/schema';
 import { seedAdminUsers } from './seed-admins';
 import { seedBibleVersions } from './seed-versions';
 
@@ -460,6 +460,9 @@ export async function initializeDatabase() {
     // Auto-seed Reading Plan Templates if table is empty
     await autoSeedReadingPlanTemplates();
 
+    // One-shot cleanup: cancel duplicate subscriptions caused by webhook race
+    await dedupDuplicateSubscriptions();
+
   } catch (error) {
     console.error('❌ Erro ao inicializar banco de dados:', error);
     // Don't throw - app should still run even if data import fails
@@ -511,5 +514,51 @@ async function autoSeedStudyModules() {
     }
   } catch (error) {
     console.error('❌ Erro ao auto-seed study modules:', error);
+  }
+}
+
+// One-shot cleanup: cancel duplicate active subscriptions created by the
+// Mercado Pago webhook race condition. Two simultaneous webhook calls for the
+// same payment created two rows in <10ms with the same store_transaction_id.
+// We keep the OLDEST row (active) and mark the newer duplicates as 'cancelled'
+// with a marker tag so it never runs again on those same rows.
+async function dedupDuplicateSubscriptions() {
+  try {
+    const dupes = await db.execute(sql`
+      WITH ranked AS (
+        SELECT id, user_id, plan_type, store_transaction_id, status, created_at,
+               ROW_NUMBER() OVER (
+                 PARTITION BY store_transaction_id
+                 ORDER BY created_at ASC
+               ) AS rn
+        FROM subscriptions
+        WHERE store_transaction_id IS NOT NULL
+          AND store_transaction_id <> ''
+          AND status IN ('active','Active','ACTIVE','approved','Approved','APPROVED')
+      )
+      SELECT id, user_id, plan_type, store_transaction_id, created_at
+      FROM ranked
+      WHERE rn > 1
+    `);
+
+    const dupRows = (dupes as any).rows || (dupes as any) || [];
+    if (!Array.isArray(dupRows) || dupRows.length === 0) {
+      console.log('🧹 Subscriptions: nenhuma duplicata por storeTransactionId encontrada');
+      return;
+    }
+
+    const ids = dupRows.map((r: any) => r.id);
+    console.log(`🧹 Subscriptions: cancelando ${ids.length} duplicata(s) por storeTransactionId race`);
+
+    await db.execute(sql`
+      UPDATE subscriptions
+      SET status = 'cancelled',
+          cancellation_at = COALESCE(cancellation_at, NOW())
+      WHERE id = ANY(${ids}::varchar[])
+    `);
+
+    console.log(`🧹 Subscriptions: ${ids.length} duplicata(s) marcadas como 'cancelled'`);
+  } catch (err) {
+    console.error('⚠️ dedupDuplicateSubscriptions falhou:', err);
   }
 }

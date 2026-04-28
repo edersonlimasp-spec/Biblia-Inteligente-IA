@@ -153,6 +153,9 @@ export function BibleReader({
   const [searchingVerseNum, setSearchingVerseNum] = useState<number | null>(null);
   const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
   const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
+  // Mapeamento palavra→número Strong pré-calculado pelo servidor.
+  // Quando presente, evita o round-trip /api/strong/search ao clicar em uma palavra.
+  const [strongMap, setStrongMap] = useState<Map<string, string>>(new Map());
   
   // AI prompt from Strong's dictionary
   const [aiPromptFromStrong, setAiPromptFromStrong] = useState<string | null>(null);
@@ -491,6 +494,8 @@ export function BibleReader({
     book: string;
     chapter: number;
     strongWords: Record<number, string[]>;
+    // NEW: pre-mapped word→strongNumber per verse (lets click open modal in 1 round-trip)
+    strongMap?: Record<number, Record<string, string>>;
     totalWords: number;
   }
   
@@ -580,6 +585,16 @@ export function BibleReader({
       verse.text.toLowerCase().includes(query)
     );
   }, [chapterData?.chapter?.verses, textSearchQuery, selectedVersion]);
+
+  // Pre-tokenize all visible verses once per chapter (perf: avoid retokenizing
+  // on every re-render caused by selectedVerse, highlights, share-mode, etc.)
+  const tokenizedVerses = useMemo(() => {
+    const out: Record<number, ReturnType<typeof tokenizeVerse>> = {};
+    for (const verse of filteredVerses) {
+      out[verse.verse] = tokenizeVerse(verse.text, wordsWithStrong, strongMap);
+    }
+    return out;
+  }, [filteredVerses, wordsWithStrong, strongMap]);
 
   // Toggle bookmark mutation
   const bookmarkMutation = useMutation({
@@ -811,7 +826,7 @@ export function BibleReader({
     }
   }, [wordSearchResults, currentBook, searchingWord, isWordSearchLoading, toast]);
 
-  // Populate wordsWithStrong from pre-fetched data when chapter changes
+  // Populate wordsWithStrong + strongMap from pre-fetched data when chapter changes
   useEffect(() => {
     console.log('[Strong Words] useEffect triggered, chapterStrongWords:', chapterStrongWords);
     if (chapterStrongWords?.strongWords) {
@@ -822,11 +837,26 @@ export function BibleReader({
           allStrongWords.add(word.toLowerCase());
         }
       }
-      console.log('[Strong Words] Setting wordsWithStrong, count:', allStrongWords.size, 'sample:', Array.from(allStrongWords).slice(0, 5));
+
+      // Build flat word→Strong map for fast click resolution
+      const flatMap = new Map<string, string>();
+      if (chapterStrongWords.strongMap) {
+        for (const verseEntry of Object.values(chapterStrongWords.strongMap)) {
+          for (const [word, sn] of Object.entries(verseEntry)) {
+            // First mapping wins (preserves canonical Strong for repeated words)
+            const key = word.toLowerCase();
+            if (!flatMap.has(key)) flatMap.set(key, sn);
+          }
+        }
+      }
+
+      console.log('[Strong Words] Setting wordsWithStrong, count:', allStrongWords.size, 'mapped:', flatMap.size, 'sample:', Array.from(allStrongWords).slice(0, 5));
       setWordsWithStrong(allStrongWords);
+      setStrongMap(flatMap);
     } else {
       console.log('[Strong Words] No strongWords data, clearing set');
       setWordsWithStrong(new Set());
+      setStrongMap(new Map());
     }
   }, [chapterStrongWords, selectedBook, selectedChapter]);
 
@@ -853,25 +883,34 @@ export function BibleReader({
   // Safety timeout ref to prevent infinite loading
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  const handleWordClick = (word: string, verseNum: number) => {
+  const handleWordClick = (word: string, verseNum: number, knownStrongNumber?: string) => {
     const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
-    
-    console.log('[Strong Debug] Word clicked:', { word, cleanWord, verseNum, length: cleanWord.length });
-    
+
+    console.log('[Strong Debug] Word clicked:', { word, cleanWord, verseNum, length: cleanWord.length, knownStrongNumber });
+
     if (cleanWord.length < 3) {
       console.log('[Strong Debug] Word too short, skipping');
       return;
     }
-    
+
     // Clear any existing timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
-    
-    // Open modal IMMEDIATELY with loading state
+
+    // FAST PATH: if we already know the Strong number (pre-mapped from chapter load),
+    // open the modal directly — no /api/strong/search round-trip
+    if (knownStrongNumber) {
+      console.log('[Strong Debug] FAST PATH: opening modal directly with', knownStrongNumber);
+      setSelectedStrongNumber(knownStrongNumber);
+      return;
+    }
+
+    // FALLBACK: word is marked clickable but we don't know its number yet
+    // (came from curated mappings). Use the search endpoint.
     setSearchingWordDisplay(word);
     setShowSearchingModal(true);
-    
+
     console.log('[Strong Debug] Setting searchingWord:', cleanWord);
     setSearchingWord(cleanWord);
     setSearchingVerseNum(verseNum);
@@ -1257,14 +1296,14 @@ export function BibleReader({
                       
                       {/* Verse Text */}
                       <p className="flex-1">
-                        {tokenizeVerse(verse.text, wordsWithStrong).map((token, idx) => (
+                        {(tokenizedVerses[verse.verse] || []).map((token, idx) => (
                           <span key={idx}>
                             <StrongWord
                               text={token.text}
                               hasStrong={token.hasStrong}
                               onWordClick={(word) => {
                                 const cleanWord = normalizeWordForLookup(word);
-                                handleWordClick(cleanWord, verse.verse);
+                                handleWordClick(cleanWord, verse.verse, token.strongNumber);
                               }}
                             />
                             {" "}

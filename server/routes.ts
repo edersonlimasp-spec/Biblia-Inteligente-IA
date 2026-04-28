@@ -3294,8 +3294,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Get words with Strong numbers for a chapter (for pre-highlighting)
-  // STRATEGY 1: Use bible_words table (for Genesis and other mapped chapters)
-  // STRATEGY 2: Fallback to heuristic matching against strong_entries.portugueseDef (for all books)
+  // STRATEGY 1: Use bible_words table - matches gloss against verse text using
+  //             Portuguese inflection variants (singular/plural, common verb forms)
+  // STRATEGY 2: Fallback to curated word mappings for words not in bible_words
+  // RESPONSE: { strongWords: Record<verse, string[]>, strongMap: Record<verse, Record<word, strongNumber>> }
+  //   - strongWords: backwards-compat list of clickable words per verse
+  //   - strongMap: NEW shape with the actual Strong number per matched word — lets
+  //               the client open the modal in one round-trip
   app.get("/api/bible/:bookId/:chapter/strong-words", async (req, res) => {
     try {
       const { bookId, chapter: chapterNum } = req.params;
@@ -3305,7 +3310,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Capítulo inválido" });
       }
 
-      // STRATEGY 1: Try exact match from bible_words table (most accurate)
+      // Helpers — strip accents and punctuation for robust matching
+      const stripAccents = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const cleanWord = (s: string) => stripAccents(s.toLowerCase())
+        .replace(/[.,;:!?—\-'"()\[\]«»“”‘’]/g, '')
+        .trim();
+
+      // Generate Portuguese inflection variants of a normalized (lowercase, no-accent) gloss.
+      // Used to match verse forms like "céus" against gloss "céu", "homens" against "homem", etc.
+      // Conservative: only common, mostly-unambiguous patterns to avoid false positives.
+      const expandPortugueseVariants = (normalized: string): Set<string> => {
+        const out = new Set<string>();
+        if (!normalized || normalized.length < 3) return out;
+        out.add(normalized);
+
+        // Plural variants
+        if (/[aeiou]$/.test(normalized)) {
+          out.add(normalized + 's');
+        }
+        if (normalized.endsWith('l')) {
+          out.add(normalized.slice(0, -1) + 'is');         // papel → papeis
+        }
+        if (normalized.endsWith('m')) {
+          out.add(normalized.slice(0, -1) + 'ns');         // homem → homens
+        }
+        if (normalized.endsWith('ao')) {
+          out.add(normalized.slice(0, -2) + 'oes');        // ração → rações (sem acento)
+          out.add(normalized.slice(0, -2) + 'aos');        // mão → mãos
+          out.add(normalized.slice(0, -2) + 'aes');        // pão → pães
+        }
+        if (normalized.endsWith('r') || normalized.endsWith('s') || normalized.endsWith('z')) {
+          out.add(normalized + 'es');                      // mar → mares
+        }
+
+        // Singular variants (when gloss is plural)
+        if (normalized.endsWith('s') && normalized.length > 4) {
+          out.add(normalized.slice(0, -1));                // dias → dia
+          if (normalized.endsWith('oes')) {
+            out.add(normalized.slice(0, -3) + 'ao');       // rações → ração
+          }
+          if (normalized.endsWith('aes') || normalized.endsWith('aos')) {
+            out.add(normalized.slice(0, -3) + 'ao');       // pães/mãos → pão/mão
+          }
+          if (normalized.endsWith('ns')) {
+            out.add(normalized.slice(0, -2) + 'm');        // homens → homem
+          }
+          if (normalized.endsWith('is') && normalized.length > 4) {
+            out.add(normalized.slice(0, -2) + 'l');        // papeis → papel
+          }
+        }
+
+        // Safety: never produce variants shorter than 3 chars to avoid
+        // false-positive matches on common particles (os, as, es, mar...)
+        for (const v of Array.from(out)) {
+          if (v.length < 3) out.delete(v);
+        }
+
+        return out;
+      };
+
+      // STRATEGY 1: Pull all (verse, gloss, strongNumber) tuples for this chapter
       const wordsWithStrong = await db
         .select({
           verse: bibleWords.verse,
@@ -3323,45 +3387,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )
         .orderBy(bibleWords.verse, bibleWords.wordPosition);
 
-      // Create a map of verse -> list of individual words with Strong
-      const verseWordsMap: Record<number, string[]> = {};
+      // verse -> { variant -> strongNumber } (variant is normalized, accent-stripped)
+      const verseVariantToStrong: Record<number, Map<string, string>> = {};
       for (const w of wordsWithStrong) {
-        if (w.gloss) {
-          if (!verseWordsMap[w.verse]) {
-            verseWordsMap[w.verse] = [];
-          }
-          const glossWords = w.gloss.toLowerCase().trim().split(/\s+/);
-          for (const word of glossWords) {
-            const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim();
-            if (cleanWord.length >= 3 && !verseWordsMap[w.verse].includes(cleanWord)) {
-              verseWordsMap[w.verse].push(cleanWord);
+        if (!w.gloss || !w.strongNumber) continue;
+        if (!verseVariantToStrong[w.verse]) {
+          verseVariantToStrong[w.verse] = new Map();
+        }
+        // Gloss may itself be a multi-word phrase ("muito grande") — split it
+        for (const piece of w.gloss.toLowerCase().trim().split(/\s+/)) {
+          const norm = cleanWord(piece);
+          if (norm.length < 3) continue;
+          const variants = Array.from(expandPortugueseVariants(norm));
+          for (const v of variants) {
+            // First mapping wins (preserves canonical Strong for ambiguous words)
+            if (!verseVariantToStrong[w.verse].has(v)) {
+              verseVariantToStrong[w.verse].set(v, w.strongNumber);
             }
           }
         }
       }
 
-      // STRATEGY 2: Use expanded word mappings (priority + first-word definitions)
-      // This provides more coverage while avoiding incorrect mappings
+      // Now walk the actual verse text and check which Portuguese words match a variant
+      // Output the EXACT word as it appears (so the client tokenizer matches by lowercase)
+      const verseWordsMap: Record<number, string[]> = {};
+      const strongMap: Record<number, Record<string, string>> = {};
+
+      const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
+      if (chapter?.verses) {
+        for (const verse of chapter.verses) {
+          const variantMap = verseVariantToStrong[verse.verse];
+          if (!variantMap || variantMap.size === 0) continue;
+
+          const words = verse.text.split(/\s+/);
+          for (const raw of words) {
+            const normLower = raw.toLowerCase().replace(/[.,;:!?—\-'"()\[\]«»“”‘’]/g, '').trim();
+            if (normLower.length < 3) continue;
+            const normNoAccent = cleanWord(raw);
+
+            const sn = variantMap.get(normNoAccent);
+            if (sn) {
+              if (!verseWordsMap[verse.verse]) verseWordsMap[verse.verse] = [];
+              if (!strongMap[verse.verse]) strongMap[verse.verse] = {};
+              if (!verseWordsMap[verse.verse].includes(normLower)) {
+                verseWordsMap[verse.verse].push(normLower);
+              }
+              if (!strongMap[verse.verse][normLower]) {
+                strongMap[verse.verse][normLower] = sn;
+              }
+            }
+          }
+        }
+      }
+
+      // STRATEGY 2: Curated word mappings (Map<word, strongNumber>) — covers
+      // common words in NT (Greek) and OT (Hebrew) that may not be in bible_words.
+      // We populate BOTH verseWordsMap AND strongMap so the click is also fast.
       try {
         const isNT = isNewTestament(bookId);
         const wordMappings = await getStrongWordMapping(isNT);
-        
-        // Get the chapter text to check for mapped words
-        const chapter = await getBookChapter(bookId.toLowerCase(), chapterInt);
-        if (chapter && chapter.verses) {
+
+        if (chapter?.verses) {
           for (const verse of chapter.verses) {
             const verseWords = verse.text.toLowerCase()
               .split(/\s+/)
-              .map((w: string) => w.replace(/[.,;:!?"'()]/g, '').trim())
-              .filter((w: string) => w.length >= 2);
+              .map((w: string) => w.replace(/[.,;:!?—\-'"()\[\]«»“”‘’]/g, '').trim())
+              .filter((w: string) => w.length >= 3);
 
             for (const word of verseWords) {
-              // Add if this word has a verified mapping
-              if (wordMappings.has(word) && !verseWordsMap[verse.verse]?.includes(word)) {
-                if (!verseWordsMap[verse.verse]) {
-                  verseWordsMap[verse.verse] = [];
+              const sn = wordMappings.get(word);
+              if (sn) {
+                if (!verseWordsMap[verse.verse]) verseWordsMap[verse.verse] = [];
+                if (!strongMap[verse.verse]) strongMap[verse.verse] = {};
+                if (!verseWordsMap[verse.verse].includes(word)) {
+                  verseWordsMap[verse.verse].push(word);
                 }
-                verseWordsMap[verse.verse].push(word);
+                // bible_words mapping (Strategy 1) wins over curated if both exist
+                if (!strongMap[verse.verse][word]) {
+                  strongMap[verse.verse][word] = sn;
+                }
               }
             }
           }
@@ -3373,7 +3477,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         book: bookId,
         chapter: chapterInt,
-        strongWords: verseWordsMap,
+        strongWords: verseWordsMap,        // backwards compat (string[])
+        strongMap,                          // NEW: word -> strongNumber per verse
         totalWords: Object.values(verseWordsMap).flat().length,
       });
     } catch (error) {

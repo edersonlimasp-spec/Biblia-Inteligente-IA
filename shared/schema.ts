@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -253,6 +253,21 @@ export const insertBibleWordSchema = createInsertSchema(bibleWords).omit({
 
 export type InsertBibleWord = z.infer<typeof insertBibleWordSchema>;
 export type BibleWord = typeof bibleWords.$inferSelect;
+
+// PDF SBB Almeida-Strong word index
+// Para cada livro, mapeia palavra portuguesa normalizada → Strong mais frequente
+// no PDF de referência. Usado como fallback no endpoint de Strong-words quando
+// bible_words não cobre a palavra. Tabela criada via SQL direto (não via db:push).
+export const pdfWordIndex = pgTable("pdf_word_index", {
+  bookId: varchar("book_id", { length: 8 }).notNull(),
+  wordNorm: varchar("word_norm", { length: 64 }).notNull(),
+  strongNumber: varchar("strong_number", { length: 8 }).notNull(),
+  occurrences: integer("occurrences").notNull().default(1),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.bookId, table.wordNorm] }),
+}));
+
+export type PdfWordIndex = typeof pdfWordIndex.$inferSelect;
 
 // Admin Actions (Audit Log) table
 export const adminActions = pgTable("admin_actions", {

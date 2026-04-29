@@ -7,7 +7,7 @@ import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { askTheologicalQuestion, generateBiblicalImage, analyzeImageWithVision } from "./openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests, coupons, couponRedemptions, type Coupon, type CouponRedemption, insertCouponSchema } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, pdfWordIndex, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests, coupons, couponRedemptions, type Coupon, type CouponRedemption, insertCouponSchema } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "./bible-data/books";
 import { getBookChapter } from "./bible-data/bible-index";
@@ -3492,6 +3492,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } catch (mappingError) {
         console.warn("Word mapping check failed:", mappingError);
+      }
+
+      // STRATEGY 3: PDF SBB Almeida-Strong word index (per-book lookup)
+      // Catches everything the printed reference Bible attributes a Strong to,
+      // for words not yet in bible_words nor curated mappings. Uses normalized
+      // (accent-stripped, lowercase) word as key. Strategies 1 e 2 win on conflict.
+      try {
+        const pdfIdx = await db
+          .select({
+            wordNorm: pdfWordIndex.wordNorm,
+            strongNumber: pdfWordIndex.strongNumber,
+          })
+          .from(pdfWordIndex)
+          .where(eq(pdfWordIndex.bookId, bookId.toLowerCase()));
+
+        if (pdfIdx.length > 0 && chapter?.verses) {
+          // Build O(1) lookup map (normalized word → Strong)
+          const pdfLookup = new Map<string, string>();
+          for (const row of pdfIdx) pdfLookup.set(row.wordNorm, row.strongNumber);
+
+          for (const verse of chapter.verses) {
+            const tokens = verse.text.split(/\s+/);
+            for (const raw of tokens) {
+              const lower = raw.toLowerCase().replace(/[.,;:!?—\-'"()\[\]«»“”‘’]/g, '').trim();
+              if (lower.length < 3) continue;
+              const normNoAccent = cleanWord(raw);
+              const sn = pdfLookup.get(normNoAccent);
+              if (!sn) continue;
+
+              if (!verseWordsMap[verse.verse]) verseWordsMap[verse.verse] = [];
+              if (!strongMap[verse.verse]) strongMap[verse.verse] = {};
+              if (!verseWordsMap[verse.verse].includes(lower)) {
+                verseWordsMap[verse.verse].push(lower);
+              }
+              // Strategies 1 (bible_words) e 2 (curated) já preencheram — só completa lacunas
+              if (!strongMap[verse.verse][lower]) {
+                strongMap[verse.verse][lower] = sn;
+              }
+            }
+          }
+        }
+      } catch (pdfErr) {
+        console.warn("PDF word index lookup failed:", pdfErr);
       }
 
       res.json({

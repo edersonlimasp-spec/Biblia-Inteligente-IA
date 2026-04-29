@@ -239,7 +239,8 @@ export const bibleWords = pgTable("bible_words", {
   verse: integer("verse").notNull(),
   wordPosition: integer("word_position").notNull(), // Order of word in verse
   originalWord: text("original_word"), // Greek/Hebrew word
-  strongNumber: text("strong_number"), // e.g., "G2316", "H7225"
+  strongNumber: text("strong_number"), // e.g., "G2316", "H7225" — lema (UGNT/OSHB)
+  pdfStrong: text("pdf_strong"), // Strong's Exhaustive (forma flexionada) usado pelo PDF SBB Almeida-Strong; populado apenas para NT quando difere do lema
   morphology: text("morphology"), // Grammatical parsing
   gloss: text("gloss"), // English gloss/translation
   createdAt: timestamp("created_at").notNull().defaultNow(),

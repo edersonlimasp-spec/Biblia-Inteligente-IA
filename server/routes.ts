@@ -3369,13 +3369,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return out;
       };
 
-      // STRATEGY 1: Pull all (verse, gloss, strongNumber) tuples for this chapter
+      // STRATEGY 1: Pull all (verse, gloss, strongNumber, pdfStrong) tuples for this chapter.
+      // pdf_strong (when set) is the SBB-specific exhaustive Strong for the inflected form
+      // (e.g. ἦν → G2258, although the lemma εἰμί is G1510). We PREFER it because that's
+      // what the printed Bible's interlinear shows.
       const wordsWithStrong = await db
         .select({
           verse: bibleWords.verse,
           wordPosition: bibleWords.wordPosition,
           gloss: bibleWords.gloss,
           strongNumber: bibleWords.strongNumber,
+          pdfStrong: bibleWords.pdfStrong,
         })
         .from(bibleWords)
         .where(
@@ -3388,21 +3392,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .orderBy(bibleWords.verse, bibleWords.wordPosition);
 
       // verse -> { variant -> strongNumber } (variant is normalized, accent-stripped)
+      // TWO-PASS so EXACT gloss matches always beat expanded plural/singular variants.
+      // Without this, "deu" (gloss of G1325 dar) would expand to "deus" and shadow the
+      // exact noun gloss "Deus" (G2316) when "deu" is processed first.
       const verseVariantToStrong: Record<number, Map<string, string>> = {};
+
+      // PASS A — exact glosses only (these are authoritative)
       for (const w of wordsWithStrong) {
         if (!w.gloss || !w.strongNumber) continue;
-        if (!verseVariantToStrong[w.verse]) {
-          verseVariantToStrong[w.verse] = new Map();
-        }
-        // Gloss may itself be a multi-word phrase ("muito grande") — split it
+        if (!verseVariantToStrong[w.verse]) verseVariantToStrong[w.verse] = new Map();
+        const effectiveStrong = w.pdfStrong || w.strongNumber;
         for (const piece of w.gloss.toLowerCase().trim().split(/\s+/)) {
           const norm = cleanWord(piece);
           if (norm.length < 3) continue;
-          const variants = Array.from(expandPortugueseVariants(norm));
+          if (!verseVariantToStrong[w.verse].has(norm)) {
+            verseVariantToStrong[w.verse].set(norm, effectiveStrong);
+          }
+        }
+      }
+      // PASS B — expanded plural/singular variants (only fill empty slots)
+      for (const w of wordsWithStrong) {
+        if (!w.gloss || !w.strongNumber) continue;
+        if (!verseVariantToStrong[w.verse]) verseVariantToStrong[w.verse] = new Map();
+        const effectiveStrong = w.pdfStrong || w.strongNumber;
+        for (const piece of w.gloss.toLowerCase().trim().split(/\s+/)) {
+          const norm = cleanWord(piece);
+          if (norm.length < 3) continue;
+          const variants = expandPortugueseVariants(norm);
           for (const v of variants) {
-            // First mapping wins (preserves canonical Strong for ambiguous words)
+            if (v === norm) continue; // exact already handled in pass A
             if (!verseVariantToStrong[w.verse].has(v)) {
-              verseVariantToStrong[w.verse].set(v, w.strongNumber);
+              verseVariantToStrong[w.verse].set(v, effectiveStrong);
             }
           }
         }

@@ -1,55 +1,97 @@
-# Relatório de Cobertura — App vs PDF SBB Almeida-Strong
+# Relatório de Cobertura Strong NT — Bíblia Inteligente
 
-## Metodologia
+**Data:** Abril 2026
+**Escopo:** Novo Testamento (27 livros) — alinhamento com Strongs do PDF SBB exaustivo.
 
-- PDF da SBB: 9.9MB, 178.529 linhas, 66 livros detectados (todos)
-- Filtros aplicados: códigos de morfologia hebraica (8675-8829) excluídos; dicionário Strong (lin 72216-122555) excluído
-- Comparação: SET de números Strong únicos (4-5 dígitos zero-padded)
+## Estratégia Adotada (Opção C)
 
-## Resumo Geral
+Construir **aliases lema → Strong flexionado** apenas no NT (OT já está em 99,4%),
+preservando totalmente a base de Strongs original (`bible_words.strong_number`) e
+adicionando uma nova coluna `bible_words.pdf_strong` com o Strong SBB exaustivo
+quando ele difere do lema.
 
-| Testamento | Strongs únicos PDF | Strongs únicos DB | DB ≥ PDF? | Lacunas (PDF não em DB) |
-|---|---:|---:|---|---:|
-| Antigo Testamento (39 livros) | 36.795 | 38.196 | parcial | 228 |
-| Novo Testamento (27 livros) | 17.786 | 20.228 | parcial | 1.344 |
-| **TOTAL** | **54.581** | **58.424** | — | **1.572** |
+### Regras implementadas (`scripts/analysis/build-nt-strong-aliases.mjs`)
 
-## Achados por testamento
+| Lema (UGNT) | Forma flexionada gerada | Critério |
+|-------------|-------------------------|----------|
+| εἰμί (G1510) | G2258 (ἦν), G2076 (ἐστί), G2070 (ἐσμέν), G2071 (ἔσται), G2077 (ἔστω), G2468 (ἴσθι) … | Tempo / pessoa / número da morfologia |
+| λέγω (G3004) | G2036 (εἶπον/εἶπεν aoristo) | Tempo aoristo |
+| ἐγώ (G1473) | μου→G3450, ἐμοῦ→G1700, μοι→G3427, ἐμοί→G1698, με→G3165, ἐμέ→G1691, ἡμεῖς/ἡμῶν/ἡμᾶς/ἡμῖν → G2249/G2257/G2248/G2254 | Caso + pessoa + número + palavra original (enclítica vs tônica) |
+| σύ (G4771) | σου→G4675, σοι→G4671, σε→G4571, ὑμεῖς/ὑμῶν/ὑμᾶς/ὑμῖν → G5210/G5216/G5209/G5213 | Caso + pessoa + número |
+| οὗτος (G3778) | G5124 (τοῦτο NNS), G5023 (ταῦτα NNP), G5026 (ταύτην AFS) | Caso + gênero + número |
+| ἐκεῖνος (G1565) | G1565 | Lema |
+| εἷς (G1520) | G3391 (μία formas femininas) | Morfologia gênero F |
+| Ἱεροσόλυμα (G2414) | G2419 (Ἰερουσαλήμ indeclinável) | Palavra original |
+| ἐσθίω (G2068) | G5315 (φάγω/ἔφαγον raiz aorista) | Palavra original |
+| ὁράω (G3708) | G2400 (ἰδού), G2396 (ἴδε), G3700 (ὤφθη/ὀφθήσομαι/ὄψομαι passivo-futuro) | Palavra original |
+| μιμνῄσκομαι (G3403) | G3415 (μνάομαι, lema clássico SBB) | Sempre |
 
-### Antigo Testamento — 99,4% cobertura média
+Total: **11 869 tokens NT** receberam `pdf_strong` adicional ao lema UGNT.
 
-A maioria dos livros está com **99-100% de cobertura**. As lacunas são pequenas (1-14 Strongs únicos por livro). Casos repetidos:
+## Resultado por livro
 
-- **H582** (enosh = "homem mortal") — aparece em vários livros onde OSHB usa sinônimos H120 (adam) ou H376 (ish). Nossa base TEM H582 (42 entradas), só não nas mesmas posições do SBB.
-- **H3415** (ya'ar = "ser ruim") — variante de tagueamento OSHB
-- **H1928** (Hadar) — nome próprio
-- **H7125** (qiruth = "ao encontro") — preposição composta
+| Livro | PDF únicos | DB únicos (lema+alias) | Faltam | **Antes** | **Depois** |
+|-------|-----------:|-----------------------:|-------:|----------:|-----------:|
+| Mateus           | 1458 | 1724 | 50 | 93,3% | **96,6%** |
+| Marcos           | 1190 | 1379 | 52 | 91,8% | **95,6%** |
+| Lucas            | 1737 | 2079 | 63 | 93,6% | **96,4%** |
+| João             |  936 | 1067 | 34 | 91,6% | **96,4%** |
+| Atos             | 1738 | 2056 | 53 | 94,2% | **97,0%** |
+| Romanos          |  918 | 1102 | 22 | 93,0% | **97,6%** |
+| 1 Coríntios      |  843 | 1002 | 33 | 91,0% | **96,1%** |
+| 2 Coríntios      |  708 |  823 | 30 | 90,5% | **95,8%** |
+| Gálatas          |  473 |  552 | 18 | 89,2% | **96,2%** |
+| Efésios          |  468 |  556 | 16 | 90,2% | **96,6%** |
+| Filipenses       |  405 |  470 | 10 | 90,9% | **97,5%** |
+| Colossenses      |  368 |  450 |  9 | 91,3% | **97,6%** |
+| 1 Tessalonicenses|  323 |  382 | 14 | 89,8% | **95,7%** |
+| 2 Tessalonicenses|  214 |  262 |  8 | 90,2% | **96,3%** |
+| 1 Timóteo        |  457 |  560 | 14 | 92,3% | **96,9%** |
+| 2 Timóteo        |  396 |  481 |  7 | 91,9% | **98,2%** |
+| Tito             |  265 |  320 |  6 | 90,2% | **97,7%** |
+| Filemom          |  127 |  157 |  3 | 87,4% | **97,6%** |
+| Hebreus          |  900 | 1070 | 26 | 92,7% | **97,1%** |
+| Tiago            |  508 |  580 | 13 | 92,3% | **97,4%** |
+| 1 Pedro          |  450 |  561 | 15 | 93,1% | **96,7%** |
+| 2 Pedro          |  357 |  421 | 11 | 90,5% | **96,9%** |
+| 1 João           |  214 |  256 |  7 | 86,0% | **96,7%** |
+| 2 João           |   89 |  107 |  5 | 80,9% | **94,4%** |
+| 3 João           |   99 |  118 |  3 | 86,9% | **97,0%** |
+| Judas            |  182 |  240 |  3 | 91,2% | **98,4%** |
+| Apocalipse       |  837 |  943 | 43 | 90,7% | **94,9%** |
 
-Ester, Ageu, Malaquias: **100% cobertura**.
+**Cobertura média NT: 91,6% → 96,6%** (lacuna média caiu de ~1 344 para 568 Strongs únicos).
+**Mínimo por livro:** 94,4% (2 João), antes era 80,9%.
 
-### Novo Testamento — 91,6% cobertura média
+## Validação dos 4 livros pedidos pelo usuário
 
-Lacuna grande mas **explicável**: SBB usa Strong's Exhaustive (número por **forma flexionada**), enquanto UGNT usa apenas o **lema** (raiz).
+Em todos, `era → G2258` (forma SBB de εἰμί) e `deus → G2316` (não G1325):
 
-Caso real — João 1:1 ("era o Verbo"):
+- **Mateus 1:1** — `livro G976`, `jesus G2424`, `cristo G5547`, `filho G5207`, `geração G1074`
+- **João 1:1** — `princípio G746`, `era G2258`, `com G4314`, `deus G2316`, `verbo G3056`
+- **Romanos 1:1** — `paulo G3972`, `servo G1401`, `apóstolo G652`, `evangelho G2098`, `deus G2316`
+- **Apocalipse 1:1** — `revelação G602`, `jesus G2424`, `deus G2316`, `deu G1325`, `anjo G32`, `enviou G649`
 
-| Token | Nossa base (lema) | SBB PDF (flexionado) |
-|---|---|---|
-| ἦν (era) | **G1510** εἰμί | **G2258** ἦν (impf 3sg) |
-| ἐστιν (é) | **G1510** εἰμί | **G2076** ἐστιν (pres 3sg) |
-| ἔσται (será) | **G1510** εἰμί | **G2071** ἔσται (fut 3sg) |
-| εἶπεν (disse) | **G3004** λέγω | **G2036** εἶπον (aor de λέγω) |
-| σου (teu) | **G4771** σύ | **G4675** σου (gen sg) |
-| μου (meu) | **G1473** ἐγώ | **G3450** μου (gen sg) |
+## O que mudou no fluxo
 
-Os 1.344 Strongs "faltantes" do NT são quase todos formas flexionadas de **εἰμί, λέγω, ἐγώ, σύ, οὗτος** (cerca de 30 lemas geram milhares de tokens). Funcionalmente todo token NT já tem Strong (137.990 = 100% via lema), mas o número exibido difere do PDF SBB.
+1. **Schema**: nova coluna `bible_words.pdf_strong text` (a coluna `strong_number` permanece intacta — base UGNT preservada).
+2. **Endpoint** `GET /api/bible/:bookId/:chapter/strong-words`: agora prefere `pdf_strong` quando definido, mantendo `strongMap` (formato anterior).
+3. **Bug colateral corrigido**: a expansão de variantes em PT (ex.: "deu" → "deus") sombreava glosses exatos. Implementado *two-pass*: glosses exatos vencem expansões plurais/singulares.
+4. **Modal Strong** (`StrongModal.tsx`): inalterado — exibe palavra-cabeça (`strongData.word`), transliteração e número Strong; agora recebe o Strong SBB diretamente.
 
-## Decisão necessária
+## Lacunas residuais (~568)
 
-Para a base atender literalmente "≥ cobertura SBB para todo livro", precisaria:
+Quase todas são **expressões de duas palavras** que o PDF SBB tagueia com um único Strong, mas que ocupam dois tokens distintos no UGNT:
 
-1. **Tabela de aliases lema→flexionado** (NT): mapear (lema_strong, morfologia) → strong_exhaustive. Cobre ~95% do gap NT com ~50 mapeamentos. Solução limpa, baseada em dados que já temos (campo `morphology`).
+| Strong | Forma | Ocorrências |
+|--------|-------|-------------|
+| G3363 | ἵνα μή | 112× |
+| G3364 | οὐ μή | 91× |
+| G1508 | εἰ μή | 91× |
+| G1536 | εἴ τις | 83× |
+| G3362 | ἐὰν μή | 77× |
+| G1499 | εἰ καί | 22× |
+| G1490 | εἰ δὲ μή γε | 14× |
 
-2. **Adicionar tags de sinônimos** (OT): para os ~228 strongs OT, ou aceitar que OSHB e SBB divergem em escolhas sinonímicas, ou adicionar uma camada de "alias" para os mais frequentes (H582, H3415).
-
-3. **Status atual já é ótimo na prática**: 100% dos tokens NT têm Strong (lema); 99%+ dos tokens OT também. O modal Strong abre a entrada do dicionário com a definição correta independente da convenção.
+Mapeá-los exigiria infraestrutura de tagueamento multi-token, fora do escopo desta entrega.
+Todos esses Strongs já existem em `strong_entries`, então uma busca direta pelo código continua funcionando.

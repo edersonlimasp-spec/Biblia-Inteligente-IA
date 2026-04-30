@@ -137,12 +137,30 @@ app.use((req, res, next) => {
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, PATCH, DELETE, OPTIONS'
     );
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, x-device-id, x-client-platform, x-bootstrap-token'
-    );
+    // Allow a known superset of headers the client may send, plus the
+    // intersection of any preflight-requested headers with that superset.
+    // Origin is already in our whitelist; intersecting (rather than pure echo)
+    // keeps the API from advertising arbitrary headers if the allowlist ever
+    // grows. The superset covers Cache-Control / Pragma so chapter loads work.
+    const ALLOWED_REQUEST_HEADERS = new Set([
+      'content-type', 'authorization', 'cache-control', 'pragma',
+      'x-device-id', 'x-client-platform', 'x-bootstrap-token',
+    ]);
+    const requestedHeaders = req.headers['access-control-request-headers'];
+    let allowHeadersValue =
+      'Content-Type, Authorization, Cache-Control, Pragma, x-device-id, x-client-platform, x-bootstrap-token';
+    if (typeof requestedHeaders === 'string' && requestedHeaders.length > 0) {
+      const intersected = requestedHeaders
+        .split(',')
+        .map((h) => h.trim())
+        .filter((h) => h.length > 0 && ALLOWED_REQUEST_HEADERS.has(h.toLowerCase()));
+      if (intersected.length > 0) {
+        allowHeadersValue = intersected.join(', ');
+      }
+    }
+    res.setHeader('Access-Control-Allow-Headers', allowHeadersValue);
     res.setHeader('Access-Control-Max-Age', '86400');
-    res.setHeader('Vary', 'Origin');
+    res.setHeader('Vary', 'Origin, Access-Control-Request-Headers');
     if (req.method === 'OPTIONS') {
       return res.status(204).end();
     }

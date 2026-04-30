@@ -365,13 +365,14 @@ export function BibleReader({
         timestamp: ${timestamp}
       }`);
       
-      // Use fetch directly with cache: 'no-store' to bypass browser cache entirely
+      // Use fetch directly with cache: 'no-store' to bypass browser cache entirely.
+      // We deliberately do NOT send Cache-Control / Pragma request headers because
+      // they trigger an extra CORS preflight whose Access-Control-Request-Headers
+      // list must be allowed by the server. The `cache: 'no-store'` option below
+      // already disables caching at the fetch layer without any custom header.
       const token = localStorage.getItem('authToken');
       const deviceId = getDeviceId();
-      const headers: Record<string, string> = { 
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      };
+      const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
       if (deviceId) headers['x-device-id'] = deviceId;
       

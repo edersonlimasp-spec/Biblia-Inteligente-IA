@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent, Infinity, ShoppingCart, DollarSign, Gem, Gift } from "lucide-react";
+import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent, Infinity, ShoppingCart, DollarSign, Gem, Gift, Download, AlertCircle, Tag } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ComposedChart } from "recharts";
 
 interface DashboardStats {
@@ -77,6 +77,57 @@ interface PurchaseMetrics {
   dailyTrend: Array<{ date: string; gold: number; premium: number; lifetime: number }>;
 }
 
+interface InstallsMetrics {
+  available: boolean;
+  reason?: string;
+  message?: string;
+  status?: number;
+  packageName?: string;
+  windowDays?: number;
+  currentInstalls?: number;
+  startInstalls?: number;
+  netChange?: number;
+  series?: Array<{ date: string; activeDeviceInstalls: number }>;
+}
+
+interface OfferPhase {
+  duration?: string;
+  priceMicros?: string;
+  currency?: string;
+  isFree?: boolean;
+}
+
+interface SubscriptionOffer {
+  offerId: string;
+  state: string;
+  eligibility: string[];
+  phases: OfferPhase[];
+}
+
+interface BasePlan {
+  basePlanId: string;
+  state: string;
+  autoRenewing: boolean;
+  billingPeriodDuration?: string;
+  gracePeriodDuration?: string;
+  regions: Array<{ region: string; priceMicros: string | null; currency: string }>;
+  offers: SubscriptionOffer[];
+}
+
+interface PlayConsoleOffers {
+  available: boolean;
+  reason?: string;
+  message?: string;
+  status?: number;
+  packageName?: string;
+  count?: number;
+  subscriptions?: Array<{
+    productId: string;
+    name: string;
+    basePlans: BasePlan[];
+  }>;
+}
+
 interface UserGrowthMetrics {
   year: number;
   months: Array<{
@@ -136,6 +187,16 @@ export function AdminDashboard() {
     queryKey: ['/api/admin/metrics/user-growth'],
     staleTime: 0,
     refetchOnMount: 'always',
+  });
+
+  const { data: installs, isLoading: installsLoading } = useQuery<InstallsMetrics>({
+    queryKey: ['/api/admin/metrics/google-play-installs'],
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: playOffers, isLoading: offersLoading } = useQuery<PlayConsoleOffers>({
+    queryKey: ['/api/admin/play-console/offers'],
+    staleTime: 5 * 60 * 1000,
   });
 
   const StatCard = ({ 
@@ -218,6 +279,208 @@ export function AdminDashboard() {
           subtext="Acesso permanente"
         />
       </div>
+
+      {/* Google Play: Instalações / Desinstalações */}
+      <Card data-testid="card-google-play-installs">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Download className="h-5 w-5 text-primary" />
+            Google Play — Instalações Ativas
+          </CardTitle>
+          <CardDescription>
+            Dispositivos que têm o app instalado no momento (últimos 28 dias).
+            Dados oficiais da Play Developer Reporting API.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {installsLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : !installs?.available ? (
+            <div className="flex items-start gap-3 p-4 rounded-md border border-border bg-muted/40" data-testid="status-installs-unavailable">
+              <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Dados ainda não disponíveis</p>
+                <p className="text-xs text-muted-foreground">
+                  {installs?.message || 'Não foi possível buscar instalações no Google Play.'}
+                </p>
+                {installs?.reason === 'permission_missing' && (
+                  <p className="text-xs text-muted-foreground">
+                    Reason code: <span className="font-mono">{installs.reason}</span> (HTTP {installs.status})
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Instalações ativas hoje</p>
+                  <p className="text-3xl font-bold" data-testid="text-installs-current">
+                    {installs.currentInstalls?.toLocaleString('pt-BR') || 0}
+                  </p>
+                </div>
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">28 dias atrás</p>
+                  <p className="text-3xl font-bold" data-testid="text-installs-start">
+                    {installs.startInstalls?.toLocaleString('pt-BR') || 0}
+                  </p>
+                </div>
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Variação líquida</p>
+                  <p
+                    className={`text-3xl font-bold ${
+                      (installs.netChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}
+                    data-testid="text-installs-net-change"
+                  >
+                    {(installs.netChange || 0) >= 0 ? '+' : ''}
+                    {installs.netChange?.toLocaleString('pt-BR') || 0}
+                  </p>
+                </div>
+              </div>
+              {installs.series && installs.series.length > 0 && (
+                <ResponsiveContainer width="100%" height={220}>
+                  <AreaChart data={installs.series}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Area
+                      type="monotone"
+                      dataKey="activeDeviceInstalls"
+                      stroke="#1A5299"
+                      fill="#1A5299"
+                      fillOpacity={0.25}
+                      name="Instalações ativas"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Pacote: <span className="font-mono">{installs.packageName}</span> · Janela: {installs.windowDays} dias
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Google Play: Ofertas / Degustações configuradas */}
+      <Card data-testid="card-play-offers">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Tag className="h-5 w-5 text-primary" />
+            Google Play — Ofertas e Degustações Configuradas
+          </CardTitle>
+          <CardDescription>
+            Lista das assinaturas, planos base e ofertas (degustação grátis,
+            promoções) ativas no Play Console. Apenas leitura.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {offersLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : !playOffers?.available ? (
+            <div className="flex items-start gap-3 p-4 rounded-md border border-border bg-muted/40" data-testid="status-offers-unavailable">
+              <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Dados ainda não disponíveis</p>
+                <p className="text-xs text-muted-foreground">
+                  {playOffers?.message || 'Não foi possível buscar ofertas do Play Console.'}
+                </p>
+                {playOffers?.status && (
+                  <p className="text-xs text-muted-foreground">
+                    HTTP {playOffers.status} ({playOffers.reason})
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : !playOffers.subscriptions || playOffers.subscriptions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhuma assinatura cadastrada no Play Console ainda.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {playOffers.subscriptions.map((sub) => (
+                <div
+                  key={sub.productId}
+                  className="p-4 rounded-md border border-border space-y-3"
+                  data-testid={`row-subscription-${sub.productId}`}
+                >
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                      <p className="font-semibold text-sm">{sub.name}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{sub.productId}</p>
+                    </div>
+                    <Badge variant="secondary">
+                      {sub.basePlans.length} {sub.basePlans.length === 1 ? 'plano base' : 'planos base'}
+                    </Badge>
+                  </div>
+                  {sub.basePlans.map((bp) => (
+                    <div
+                      key={bp.basePlanId}
+                      className="pl-3 border-l-2 border-primary/40 space-y-2"
+                      data-testid={`row-baseplan-${bp.basePlanId}`}
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium">{bp.basePlanId}</span>
+                        <Badge variant={bp.state === 'ACTIVE' ? 'default' : 'outline'}>
+                          {bp.state}
+                        </Badge>
+                        {bp.billingPeriodDuration && (
+                          <Badge variant="outline">{bp.billingPeriodDuration}</Badge>
+                        )}
+                        {bp.regions.slice(0, 1).map((r) => (
+                          <Badge key={r.region} variant="outline">
+                            {r.priceMicros && r.currency
+                              ? `${r.currency} ${r.priceMicros}`
+                              : r.region}
+                          </Badge>
+                        ))}
+                      </div>
+                      {bp.offers.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">Sem ofertas/degustação cadastradas</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {bp.offers.map((o) => (
+                            <div
+                              key={o.offerId}
+                              className="p-2 bg-accent/20 rounded-md text-xs space-y-1"
+                              data-testid={`row-offer-${o.offerId}`}
+                            >
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-mono">{o.offerId}</span>
+                                <Badge variant={o.state === 'ACTIVE' ? 'default' : 'outline'}>
+                                  {o.state}
+                                </Badge>
+                                {o.eligibility.map((tag) => (
+                                  <Badge key={tag} variant="secondary">{tag}</Badge>
+                                ))}
+                              </div>
+                              {o.phases.map((ph, i) => (
+                                <div key={i} className="text-muted-foreground">
+                                  Fase {i + 1}: {ph.duration || '—'}{' '}
+                                  {ph.isFree
+                                    ? '· GRÁTIS (degustação)'
+                                    : ph.priceMicros && ph.currency
+                                      ? `· ${ph.currency} ${ph.priceMicros}`
+                                      : ''}
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+              <p className="text-xs text-muted-foreground">
+                Pacote: <span className="font-mono">{playOffers.packageName}</span> · {playOffers.count} produtos
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Guest Stats */}
       <Card>

@@ -59,8 +59,14 @@ const GOOGLE_PURCHASE_STATE = {
 /**
  * Get Google Play Developer API access token
  * Uses service account credentials
+ *
+ * @param scope - OAuth scope. Defaults to androidpublisher (IAP/subscriptions).
+ *                Use 'https://www.googleapis.com/auth/playdeveloperreporting'
+ *                for the Play Developer Reporting API (installs/uninstalls).
  */
-async function getGoogleAccessToken(): Promise<string | null> {
+export async function getGoogleAccessToken(
+  scope: string = 'https://www.googleapis.com/auth/androidpublisher'
+): Promise<string | null> {
   const serviceAccountKey = process.env.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY;
   
   if (!serviceAccountKey) {
@@ -77,7 +83,7 @@ async function getGoogleAccessToken(): Promise<string | null> {
     const header = { alg: 'RS256', typ: 'JWT' };
     const payload = {
       iss: serviceAccount.client_email,
-      scope: 'https://www.googleapis.com/auth/androidpublisher',
+      scope,
       aud: 'https://oauth2.googleapis.com/token',
       iat: now,
       exp: now + 3600,

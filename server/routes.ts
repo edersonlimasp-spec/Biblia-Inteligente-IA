@@ -21,6 +21,7 @@ import fs from "fs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import { forceSeedStrongEntries, forceSeedStudyModules } from "./init-db";
+import { getGoogleAccessToken } from "./payments/google";
 import { STRONG_DATA } from "./strong-data-embedded";
 import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTranslation, getDefaultTranslation } from "./bible/translations";
 import iapRoutes from "./payments/iap-routes";
@@ -8322,6 +8323,223 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[Sermons] Delete error:", error);
       res.status(500).json({ error: "Failed to delete sermon" });
+    }
+  });
+
+  // ============================================================
+  // Google Play Console: Installs / Uninstalls (Reporting API)
+  // ============================================================
+  // Requires the service account to have the "Play Developer Reporting API"
+  // permission AND the playdeveloperreporting OAuth scope. If either is missing
+  // we return a graceful 200 response with `available: false` and a helpful
+  // message so the dashboard can render a fallback card instead of an error.
+  app.get("/api/admin/metrics/google-play-installs", ensureAdmin, async (_req: AuthRequest, res) => {
+    try {
+      const packageName = "app.replit.bibliainteligente.twa";
+      const accessToken = await getGoogleAccessToken(
+        "https://www.googleapis.com/auth/playdeveloperreporting"
+      );
+
+      if (!accessToken) {
+        return res.json({
+          available: false,
+          reason: "credentials_missing",
+          message:
+            "Credenciais do Google Play não configuradas (GOOGLE_PLAY_SERVICE_ACCOUNT_KEY).",
+        });
+      }
+
+      // Time window: last 28 full days (Reporting API works on day-aligned ranges in UTC).
+      const now = new Date();
+      const endUtc = new Date(Date.UTC(
+        now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0
+      ));
+      const startUtc = new Date(endUtc);
+      startUtc.setUTCDate(startUtc.getUTCDate() - 28);
+
+      const buildTimePart = (d: Date) => ({
+        year:  d.getUTCFullYear(),
+        month: d.getUTCMonth() + 1,
+        day:   d.getUTCDate(),
+        timeZone: { id: "UTC" },
+      });
+
+      const queryBody = (metric: string) => ({
+        timelineSpec: {
+          aggregationPeriod: "DAILY",
+          startTime: buildTimePart(startUtc),
+          endTime:   buildTimePart(endUtc),
+        },
+        metrics: [metric],
+      });
+
+      const callReporting = async (metricSet: "installsMetricSet" | "errorReportMetricSet", metric: string) => {
+        const url = `https://playdeveloperreporting.googleapis.com/v1beta1/apps/${packageName}/${metricSet}:query`;
+        const r = await fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(queryBody(metric)),
+        });
+        const text = await r.text();
+        let parsed: any = null;
+        try { parsed = JSON.parse(text); } catch { /* keep null */ }
+        return { ok: r.ok, status: r.status, body: parsed, raw: text };
+      };
+
+      // Active installs (current install base)
+      const installs = await callReporting("installsMetricSet", "activeDeviceInstalls");
+
+      if (!installs.ok) {
+        const reason = installs.status === 403 ? "permission_missing" : "api_error";
+        return res.json({
+          available: false,
+          reason,
+          status: installs.status,
+          message:
+            reason === "permission_missing"
+              ? "A Service Account do Google Play não tem permissão para a Play Developer Reporting API. No Play Console: Setup → Acesso à API → editar a service account → adicionar permissão 'Ver dados financeiros, pedidos e respostas a pesquisas com cancelamento' e 'Ver desempenho do app, comentários e respostas'."
+              : `Erro ${installs.status} ao consultar a Play Developer Reporting API.`,
+        });
+      }
+
+      // Daily series for the chart
+      const installsSeries: Array<{ date: string; activeDeviceInstalls: number }> = [];
+      const rows = installs.body?.rows || [];
+      for (const row of rows) {
+        const d = row.startTime || {};
+        const yr = d.year, mo = String(d.month).padStart(2, "0"), dy = String(d.day).padStart(2, "0");
+        const activeDevices = Number(
+          row.metrics?.find((m: any) => m.metric === "activeDeviceInstalls")?.decimalValue?.value
+            || row.metrics?.[0]?.decimalValue?.value
+            || 0
+        );
+        installsSeries.push({ date: `${yr}-${mo}-${dy}`, activeDeviceInstalls: activeDevices });
+      }
+
+      const last = installsSeries[installsSeries.length - 1];
+      const first = installsSeries[0];
+      const currentInstalls = last?.activeDeviceInstalls || 0;
+      const startInstalls = first?.activeDeviceInstalls || 0;
+      const delta = currentInstalls - startInstalls;
+
+      return res.json({
+        available: true,
+        packageName,
+        windowDays: 28,
+        currentInstalls,
+        startInstalls,
+        netChange: delta,
+        series: installsSeries,
+      });
+    } catch (error) {
+      console.error("[admin/google-play-installs] error:", error);
+      res.json({
+        available: false,
+        reason: "api_error",
+        message: "Erro inesperado ao consultar Google Play Reporting API.",
+      });
+    }
+  });
+
+  // ============================================================
+  // Google Play Console: Subscription offers (base plans + offers)
+  // ============================================================
+  // Lists every subscription product, its base plans and offers (including the
+  // free-trial / introductory phases). Read-only. Same graceful fallback rules.
+  app.get("/api/admin/play-console/offers", ensureAdmin, async (_req: AuthRequest, res) => {
+    try {
+      const packageName = "app.replit.bibliainteligente.twa";
+      const accessToken = await getGoogleAccessToken(); // default androidpublisher scope
+
+      if (!accessToken) {
+        return res.json({
+          available: false,
+          reason: "credentials_missing",
+          message:
+            "Credenciais do Google Play não configuradas (GOOGLE_PLAY_SERVICE_ACCOUNT_KEY).",
+        });
+      }
+
+      const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/subscriptions`;
+      const r = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const text = await r.text();
+      let body: any = null;
+      try { body = JSON.parse(text); } catch { /* keep null */ }
+
+      if (!r.ok) {
+        return res.json({
+          available: false,
+          reason: r.status === 403 ? "permission_missing" : "api_error",
+          status: r.status,
+          message:
+            r.status === 403
+              ? "A Service Account não tem permissão para 'Gerenciar produtos do Google Play'. No Play Console: Setup → Acesso à API → editar service account → marcar a permissão de 'Gerenciar pedidos e assinaturas'."
+              : `Erro ${r.status} ao consultar produtos de assinatura.`,
+        });
+      }
+
+      // Normalise into a compact list the dashboard can render
+      const subscriptions = (body?.subscriptions || []).map((s: any) => {
+        const basePlans = (s.basePlans || []).map((bp: any) => {
+          const phases = (bp?.regionalConfigs || []).map((rc: any) => ({
+            region: rc.regionCode,
+            priceMicros: rc?.price?.units && rc?.price?.nanos
+              ? `${rc.price.units}.${String(rc.price.nanos).padStart(9, "0").slice(0, 2)}`
+              : null,
+            currency: rc?.price?.currencyCode,
+          }));
+          return {
+            basePlanId: bp.basePlanId,
+            state: bp.state,
+            autoRenewing: bp?.autoRenewingBasePlanType ? true : false,
+            billingPeriodDuration: bp?.autoRenewingBasePlanType?.billingPeriodDuration,
+            gracePeriodDuration: bp?.autoRenewingBasePlanType?.gracePeriodDuration,
+            regions: phases,
+            offers: (bp.offers || []).map((o: any) => ({
+              offerId: o.offerId,
+              state: o.state,
+              eligibility: o.offerTags?.map((t: any) => t.tag) || [],
+              phases: (o.phases || []).map((ph: any) => {
+                const rc = ph?.regionalConfigs?.[0] || {};
+                const hasUnits = rc?.price?.units !== undefined;
+                const explicitlyFree = rc?.free === true;
+                return {
+                  duration: ph.duration,
+                  priceMicros: hasUnits
+                    ? `${rc.price.units}.${String(rc.price.nanos || 0).padStart(9, "0").slice(0, 2)}`
+                    : null,
+                  currency: rc?.price?.currencyCode,
+                  isFree: explicitlyFree || (!hasUnits && rc?.free !== false),
+                };
+              }),
+            })),
+          };
+        });
+        return {
+          productId: s.productId,
+          name: s?.listings?.[0]?.title || s.productId,
+          basePlans,
+        };
+      });
+
+      return res.json({
+        available: true,
+        packageName,
+        count: subscriptions.length,
+        subscriptions,
+      });
+    } catch (error) {
+      console.error("[admin/play-console/offers] error:", error);
+      res.json({
+        available: false,
+        reason: "api_error",
+        message: "Erro inesperado ao consultar ofertas do Play Console.",
+      });
     }
   });
 

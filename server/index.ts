@@ -177,6 +177,19 @@ app.use((req, res, next) => {
       'Expires': '0',
     });
   }
+  // Favicons & PWA icons: short cache so embedded/car browsers refresh quickly when we rename
+  if (
+    req.path === '/favicon.ico' ||
+    req.path === '/favicon.png' ||
+    req.path.startsWith('/favicon-') ||
+    req.path.startsWith('/pwa-icons/')
+  ) {
+    res.set({
+      'Cache-Control': 'no-cache, must-revalidate, max-age=0',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
+  }
   next();
 });
 

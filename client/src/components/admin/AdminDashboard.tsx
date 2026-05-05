@@ -5,6 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent, Infinity, ShoppingCart, DollarSign, Gem, Gift, Download, AlertCircle, Tag } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ComposedChart } from "recharts";
+import adminOverviewImage from "@assets/image_1777999020618.png";
+import appEngagementImage from "@assets/image_1777999005340.png";
+import growthImage from "@assets/image_1777999084686.png";
 
 interface DashboardStats {
   totalUsers: number;
@@ -214,6 +217,13 @@ export function AdminDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const totalSubscriptions = (stats?.activeGoldSubscriptions || 0) + (stats?.activePremiumSubscriptions || 0) + (stats?.lifetimeStrong || 0);
+  const activeAccessUsers = (stats?.totalUsers || 0) + (stats?.totalGuests || 0);
+  const conversionRate = stats?.totalGuests ? ((stats.convertedGuests / stats.totalGuests) * 100).toFixed(1) : "0.0";
+  const monthlyChurn = stats?.activeGoldSubscriptions || stats?.activePremiumSubscriptions || stats?.lifetimeStrong
+    ? ((stats.inactiveUsers / Math.max(1, stats.totalUsers)) * 100).toFixed(1)
+    : "0.0";
+
   const StatCard = ({ 
     icon: Icon, 
     label, 
@@ -245,80 +255,29 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Principal Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <StatCard 
-          icon={Users} 
-          label="Total de Usuários" 
-          value={stats?.totalUsers || 0}
-          subtext={`${stats?.newUsersThisMonth || 0} novos este mês`}
-        />
-        <StatCard 
-          icon={Activity} 
-          label="Online Agora" 
-          value={online?.onlineUsers || 0}
-          subtext="Últimos 5 min"
-        />
-        <StatCard 
-          icon={TrendingUp} 
-          label="Faturamento (mês)" 
-          value={`R$ ${stats?.estimatedMonthlyRevenue || '0'}`}
-          subtext="Estimado"
-        />
-      </div>
-
-      {/* App Metrics (independent of store analytics) */}
-      <Card data-testid="card-app-engagement">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-primary" />
-            Métricas do App (independente da loja)
-          </CardTitle>
-          <CardDescription>
-            Acessos, novas contas e atividade coletados diretamente do app.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {engagementLoading ? (
-            <Skeleton className="h-24 w-full" />
-          ) : (
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="p-4 bg-accent/30 rounded-md">
-                  <p className="text-xs text-muted-foreground">Eventos no app</p>
-                  <p className="text-3xl font-bold" data-testid="text-app-events-total">{appEngagement?.totalAppEvents || 0}</p>
-                </div>
-                <div className="p-4 bg-accent/30 rounded-md">
-                  <p className="text-xs text-muted-foreground">Dispositivos únicos</p>
-                  <p className="text-3xl font-bold" data-testid="text-app-devices-unique">{appEngagement?.uniqueDevices || 0}</p>
-                </div>
-                <div className="p-4 bg-accent/30 rounded-md">
-                  <p className="text-xs text-muted-foreground">Novas contas hoje</p>
-                  <p className="text-3xl font-bold" data-testid="text-app-new-accounts">{appEngagement?.newAccounts || 0}</p>
-                </div>
-                <div className="p-4 bg-accent/30 rounded-md">
-                  <p className="text-xs text-muted-foreground">Ativos hoje</p>
-                  <p className="text-3xl font-bold" data-testid="text-app-active-users">{appEngagement?.activeUsersToday || 0}</p>
-                </div>
-              </div>
-              {appEngagement?.dailyTrend?.length ? (
-                <ResponsiveContainer width="100%" height={220}>
-                  <AreaChart data={appEngagement.dailyTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="appEvents" stroke="#1A5299" fill="#1A5299" fillOpacity={0.25} name="Eventos do app" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : null}
+      <Card>
+        <CardContent className="p-0">
+          <div className="grid gap-0 md:grid-cols-3">
+            <div className="p-4">
+              <p className="text-xs text-muted-foreground">Pessoas com acesso ao app</p>
+              <p className="text-3xl font-bold" data-testid="text-access-users">{activeAccessUsers}</p>
+              <p className="text-xs text-muted-foreground">Usuários + visitantes únicos</p>
             </div>
-          )}
+            <div className="p-4 border-t md:border-t-0 md:border-l">
+              <p className="text-xs text-muted-foreground">Dispositivos ativos / acesso</p>
+              <p className="text-3xl font-bold" data-testid="text-active-devices">{appEngagement?.uniqueDevices || stats?.totalGuests || 0}</p>
+              <p className="text-xs text-muted-foreground">Baseado em eventos do app</p>
+            </div>
+            <div className="p-4 border-t md:border-t-0 md:border-l">
+              <p className="text-xs text-muted-foreground">Assinaturas ativas</p>
+              <p className="text-3xl font-bold" data-testid="text-active-subscriptions">{totalSubscriptions}</p>
+              <p className="text-xs text-muted-foreground">{stats?.inactiveUsers || 0} sem uso recente</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Detalhamento por Plano */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <StatCard 
           icon={Gift} 
           label="Degustação Premium" 
@@ -344,6 +303,119 @@ export function AdminDashboard() {
           subtext="Acesso permanente"
         />
       </div>
+
+      <Card data-testid="card-app-engagement">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary" />
+            Uso real do app
+          </CardTitle>
+          <CardDescription>
+            Métricas coletadas no app: abertura, leitura, busca Strong e entrada em assinaturas.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {engagementLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : (
+            <div className="space-y-4">
+              <div className="grid md:grid-cols-4 gap-4">
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Eventos no app</p>
+                  <p className="text-3xl font-bold" data-testid="text-app-events-total">{appEngagement?.totalAppEvents || 0}</p>
+                </div>
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Dispositivos únicos</p>
+                  <p className="text-3xl font-bold" data-testid="text-app-devices-unique">{appEngagement?.uniqueDevices || 0}</p>
+                </div>
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Novas contas hoje</p>
+                  <p className="text-3xl font-bold" data-testid="text-app-new-accounts">{appEngagement?.newAccounts || 0}</p>
+                </div>
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Ativos hoje</p>
+                  <p className="text-3xl font-bold" data-testid="text-app-active-users">{appEngagement?.activeUsersToday || 0}</p>
+                </div>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="p-3 rounded-md bg-background/40">
+                  <p className="text-xs text-muted-foreground">Conversão guest → conta</p>
+                  <p className="text-2xl font-bold">{conversionRate}%</p>
+                </div>
+                <div className="p-3 rounded-md bg-background/40">
+                  <p className="text-xs text-muted-foreground">Churn estimado</p>
+                  <p className="text-2xl font-bold">{monthlyChurn}%</p>
+                </div>
+              </div>
+              {appEngagement?.dailyTrend?.length ? (
+                <ResponsiveContainer width="100%" height={220}>
+                  <AreaChart data={appEngagement.dailyTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Area type="monotone" dataKey="appEvents" stroke="#1A5299" fill="#1A5299" fillOpacity={0.25} name="Eventos do app" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : null}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Crescimento e retenção
+          </CardTitle>
+          <CardDescription>
+            O que entrou, o que converteu e o que ainda precisa de atenção.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-md bg-accent/20">
+              <p className="text-xs text-muted-foreground">Novos usuários no mês</p>
+              <p className="text-2xl font-bold">{stats?.newUsersThisMonth || 0}</p>
+              <p className="text-xs text-muted-foreground">Cadastros concluídos</p>
+            </div>
+            <div className="p-4 rounded-md bg-accent/20">
+              <p className="text-xs text-muted-foreground">Conversões de guest</p>
+              <p className="text-2xl font-bold">{stats?.convertedGuests || 0}</p>
+              <p className="text-xs text-muted-foreground">Visitantes que criaram conta</p>
+            </div>
+            <div className="p-4 rounded-md bg-accent/20">
+              <p className="text-xs text-muted-foreground">Usuários sem atividade recente</p>
+              <p className="text-2xl font-bold">{stats?.inactiveUsers || 0}</p>
+              <p className="text-xs text-muted-foreground">Sem login há 30 dias</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
+            Leitura dos números
+          </CardTitle>
+          <CardDescription>
+            Resumo simples para gestão: acesso, uso e monetização.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div>
+            <img src={adminOverviewImage} alt="Visão geral do painel administrativo" className="w-full rounded-md border" />
+          </div>
+          <div>
+            <img src={appEngagementImage} alt="Métricas de uso do app" className="w-full rounded-md border" />
+          </div>
+          <div>
+            <img src={growthImage} alt="Crescimento mensal de usuários e visitantes" className="w-full rounded-md border" />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Google Play: Instalações / Desinstalações */}
       <Card data-testid="card-google-play-installs">

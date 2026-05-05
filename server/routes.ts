@@ -5493,6 +5493,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/iap', iapRoutes);
 
   // ============================================
+  // NATIVE STORE WEBHOOKS (server-driven renewals/cancellations)
+  // ============================================
+  // Apple App Store Server Notifications V2 — POST signed JWS payloads to
+  // this endpoint. Configured in App Store Connect → App Information →
+  // App Store Server Notifications. No auth: Apple authenticates via JWS.
+  const { handleAppleNotification } = await import('./payments/apple-webhook');
+  app.post('/api/webhooks/apple/notifications', handleAppleNotification);
+
+  // Google Play Real-time Developer Notifications — Pub/Sub push delivers
+  // here. Configured in Play Console → Monetization setup → RTDN, with a
+  // Cloud Pub/Sub topic and an HTTPS push subscription pointing at this URL.
+  const { handleGoogleRTDN } = await import('./payments/google-webhook');
+  app.post('/api/webhooks/google/rtdn', handleGoogleRTDN);
+
+  // ============================================
   // COUPON DISCOUNT SYSTEM
   // ============================================
   

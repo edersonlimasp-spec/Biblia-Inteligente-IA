@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index, uniqueIndex, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -883,7 +883,8 @@ export const paymentReceipts = pgTable("payment_receipts", {
   processedAt: timestamp("processed_at"), // When we finished processing
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
-  externalPaymentIdx: index("payment_receipts_external_payment_idx").on(table.externalPaymentId),
+  // Unique per (provider, externalPaymentId) so concurrent webhooks can't insert duplicates.
+  externalPaymentUnique: uniqueIndex("payment_receipts_provider_external_payment_uniq").on(table.paymentProvider, table.externalPaymentId),
   userIdIdx: index("payment_receipts_user_id_idx").on(table.userId),
   statusIdx: index("payment_receipts_status_idx").on(table.status),
   paymentDateIdx: index("payment_receipts_payment_date_idx").on(table.paymentDate),

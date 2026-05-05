@@ -55,3 +55,19 @@ export async function trackSubscriptionPageVisit() {
 export async function trackSubscriptionAbandonment() {
   await trackEvent('SUBSCRIPTION_ABANDONED');
 }
+
+export async function trackAppOpen() {
+  await trackEvent('APP_OPEN');
+}
+
+export async function trackPageView(page: string, extraData?: Record<string, any>) {
+  await trackEvent('PAGE_VIEW', { page, ...extraData });
+}
+
+export async function trackStrongLookup(strongNumber: string, source?: string) {
+  await trackEvent('STRONG_LOOKUP', { strongNumber, source });
+}
+
+export async function trackSubscriptionActivated(planType: string, source?: string) {
+  await trackEvent('SUBSCRIPTION_ACTIVATED', { planType, source });
+}

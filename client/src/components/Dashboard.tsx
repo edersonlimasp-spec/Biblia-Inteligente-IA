@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { trackAppOpen, trackPageView } from "@/lib/tracking";
 
 interface DashboardProps {
   onNavigateToBible: () => void;
@@ -141,6 +142,11 @@ export function Dashboard({
   };
   
   const showInstallModule = !isInstalled && !isStandalone;
+
+  useEffect(() => {
+    trackAppOpen().catch(() => {});
+    trackPageView("dashboard").catch(() => {});
+  }, []);
 
   const { data: trialInfo } = useQuery<{ active: boolean; daysRemaining: number }>({
     queryKey: ['/api/guest/trial', deviceId],

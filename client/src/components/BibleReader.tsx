@@ -32,6 +32,7 @@ import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { tokenizeVerse, normalizeWordForLookup } from "@/lib/verse-utils";
 import { getBookName } from "@/lib/bible-book-names";
+import { trackPageView, trackStrongLookup } from "@/lib/tracking";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
 
@@ -309,6 +310,10 @@ export function BibleReader({
       }, 500);
     }
   }, [targetVerse, clearTargetVerse, user]);
+
+  useEffect(() => {
+    trackPageView("bible-reader", { book: selectedBook, chapter: selectedChapter, version: selectedVersion }).catch(() => {});
+  }, [selectedBook, selectedChapter, selectedVersion]);
 
   // Save version preference to localStorage AND cookie for robust persistence
   useEffect(() => {
@@ -802,6 +807,7 @@ export function BibleReader({
       
       if (matchingResult?.number) {
         console.log('[Strong Debug] Setting selectedStrongNumber:', matchingResult.number);
+        trackStrongLookup(matchingResult.number, "chapter-strong-map").catch(() => {});
         // Close searching modal and open real modal
         setShowSearchingModal(false);
         setSelectedStrongNumber(matchingResult.number);
@@ -903,6 +909,7 @@ export function BibleReader({
     // open the modal directly — no /api/strong/search round-trip
     if (knownStrongNumber) {
       console.log('[Strong Debug] FAST PATH: opening modal directly with', knownStrongNumber);
+      trackStrongLookup(knownStrongNumber, "verse-click").catch(() => {});
       setSelectedStrongNumber(knownStrongNumber);
       return;
     }

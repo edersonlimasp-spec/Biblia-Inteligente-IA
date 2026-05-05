@@ -128,6 +128,15 @@ interface PlayConsoleOffers {
   }>;
 }
 
+interface AppEngagementMetrics {
+  totalAppEvents: number;
+  uniqueDevices: number;
+  newAccounts: number;
+  activeUsersToday: number;
+  eventTypes: Record<string, number>;
+  dailyTrend: Array<{ date: string; appEvents: number; uniqueDevices: number }>;
+}
+
 interface UserGrowthMetrics {
   year: number;
   months: Array<{
@@ -179,6 +188,12 @@ export function AdminDashboard() {
 
   const { data: purchaseMetrics, isLoading: purchasesLoading } = useQuery<PurchaseMetrics>({
     queryKey: ['/api/admin/metrics/purchases'],
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+
+  const { data: appEngagement, isLoading: engagementLoading } = useQuery<AppEngagementMetrics>({
+    queryKey: ['/api/admin/metrics/app-engagement'],
     staleTime: 0,
     refetchOnMount: 'always',
   });
@@ -251,6 +266,56 @@ export function AdminDashboard() {
           subtext="Estimado"
         />
       </div>
+
+      {/* App Metrics (independent of store analytics) */}
+      <Card data-testid="card-app-engagement">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary" />
+            Métricas do App (independente da loja)
+          </CardTitle>
+          <CardDescription>
+            Acessos, novas contas e atividade coletados diretamente do app.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {engagementLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : (
+            <div className="space-y-4">
+              <div className="grid md:grid-cols-4 gap-4">
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Eventos no app</p>
+                  <p className="text-3xl font-bold" data-testid="text-app-events-total">{appEngagement?.totalAppEvents || 0}</p>
+                </div>
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Dispositivos únicos</p>
+                  <p className="text-3xl font-bold" data-testid="text-app-devices-unique">{appEngagement?.uniqueDevices || 0}</p>
+                </div>
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Novas contas hoje</p>
+                  <p className="text-3xl font-bold" data-testid="text-app-new-accounts">{appEngagement?.newAccounts || 0}</p>
+                </div>
+                <div className="p-4 bg-accent/30 rounded-md">
+                  <p className="text-xs text-muted-foreground">Ativos hoje</p>
+                  <p className="text-3xl font-bold" data-testid="text-app-active-users">{appEngagement?.activeUsersToday || 0}</p>
+                </div>
+              </div>
+              {appEngagement?.dailyTrend?.length ? (
+                <ResponsiveContainer width="100%" height={220}>
+                  <AreaChart data={appEngagement.dailyTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Area type="monotone" dataKey="appEvents" stroke="#1A5299" fill="#1A5299" fillOpacity={0.25} name="Eventos do app" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : null}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Detalhamento por Plano */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

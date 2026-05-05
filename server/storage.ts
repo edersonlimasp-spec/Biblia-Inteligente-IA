@@ -182,6 +182,14 @@ export interface IStorage {
     byType: Record<string, number>;
     uniqueDevices: number;
   }>;
+  getAppEngagementMetrics(days?: number): Promise<{
+    totalAppEvents: number;
+    uniqueDevices: number;
+    newAccounts: number;
+    activeUsersToday: number;
+    eventTypes: Record<string, number>;
+    dailyTrend: Array<{ date: string; appEvents: number; uniqueDevices: number }>;
+  }>;
 
   // Study Modules (Professor Premium)
   getStudyModules(): Promise<StudyModule[]>;
@@ -1534,6 +1542,58 @@ class PostgresStorage implements IStorage {
       totalEvents: Number(total[0]?.count || 0),
       byType: byTypeMap,
       uniqueDevices: Number(unique[0]?.count || 0),
+    };
+  }
+
+  async getAppEngagementMetrics(days: number = 30): Promise<{
+    totalAppEvents: number;
+    uniqueDevices: number;
+    newAccounts: number;
+    activeUsersToday: number;
+    eventTypes: Record<string, number>;
+    dailyTrend: Array<{ date: string; appEvents: number; uniqueDevices: number }>;
+  }> {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [events, todayEvents, todayUsers] = await Promise.all([
+      db.select().from(appEvents).where(gte(appEvents.createdAt, since)),
+      db.select({ count: sql<number>`count(DISTINCT ${appEvents.deviceId})` })
+        .from(appEvents)
+        .where(gte(appEvents.createdAt, today)),
+      db.select({ count: sql<number>`count(DISTINCT ${users.id})` })
+        .from(users)
+        .where(gte(users.createdAt, today)),
+    ]);
+
+    const eventTypes: Record<string, number> = {};
+    const uniqueDeviceSet = new Set<string>();
+    const dailyMap = new Map<string, { appEvents: number; devices: Set<string> }>();
+
+    for (const event of events) {
+      eventTypes[event.eventType] = (eventTypes[event.eventType] || 0) + 1;
+      uniqueDeviceSet.add(event.deviceId);
+      const day = new Date(event.createdAt).toISOString().split('T')[0];
+      const current = dailyMap.get(day) || { appEvents: 0, devices: new Set<string>() };
+      current.appEvents += 1;
+      current.devices.add(event.deviceId);
+      dailyMap.set(day, current);
+    }
+
+    const dailyTrend = Array.from(dailyMap.entries())
+      .map(([date, value]) => ({ date, appEvents: value.appEvents, uniqueDevices: value.devices.size }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      totalAppEvents: events.length,
+      uniqueDevices: uniqueDeviceSet.size,
+      newAccounts: Number(todayUsers[0]?.count || 0),
+      activeUsersToday: Number(todayEvents[0]?.count || 0),
+      eventTypes,
+      dailyTrend,
     };
   }
 

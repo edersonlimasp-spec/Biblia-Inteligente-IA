@@ -368,6 +368,36 @@ export const pageEvents = pgTable("page_events", {
   createdAtIdx: index("page_events_created_at_idx").on(table.createdAt),
 }));
 
+export const insertPageEventSchema = createInsertSchema(pageEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPageEvent = z.infer<typeof insertPageEventSchema>;
+export type PageEvent = typeof pageEvents.$inferSelect;
+
+export const appEvents = pgTable("app_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  deviceId: text("device_id").notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull(),
+  eventData: jsonb("event_data"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  deviceIdIdx: index("app_events_device_id_idx").on(table.deviceId),
+  userIdIdx: index("app_events_user_id_idx").on(table.userId),
+  eventTypeIdx: index("app_events_event_type_idx").on(table.eventType),
+  createdAtIdx: index("app_events_created_at_idx").on(table.createdAt),
+}));
+
+export const insertAppEventSchema = createInsertSchema(appEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAppEvent = z.infer<typeof insertAppEventSchema>;
+export type AppEvent = typeof appEvents.$inferSelect;
+
 // Bible Versions table
 export const bibleVersions = pgTable("bible_versions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -498,29 +528,6 @@ export const insertGuestSchema = createInsertSchema(guests).omit({
 
 export type InsertGuest = z.infer<typeof insertGuestSchema>;
 export type Guest = typeof guests.$inferSelect;
-
-// App Events table (analytics for both guests and users)
-export const appEvents = pgTable("app_events", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  deviceId: text("device_id").notNull(), // Always present (guest or logged user)
-  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }), // Optional: only if logged in
-  eventType: text("event_type").notNull(), // 'app_open', 'bible_read', 'strong_lookup', 'ia_question', 'subscribe_click', 'subscription_activated'
-  eventData: jsonb("event_data"), // { book, chapter, strongId, plan, etc. }
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-}, (table) => ({
-  deviceIdIdx: index("app_events_device_id_idx").on(table.deviceId),
-  userIdIdx: index("app_events_user_id_idx").on(table.userId),
-  eventTypeIdx: index("app_events_event_type_idx").on(table.eventType),
-  createdAtIdx: index("app_events_created_at_idx").on(table.createdAt),
-}));
-
-export const insertAppEventSchema = createInsertSchema(appEvents).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type InsertAppEvent = z.infer<typeof insertAppEventSchema>;
-export type AppEvent = typeof appEvents.$inferSelect;
 
 // Guest AI Usage Limits table (rate limiting for guests)
 export const guestAiUsageLimits = pgTable("guest_ai_usage_limits", {

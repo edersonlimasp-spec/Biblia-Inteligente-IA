@@ -3420,12 +3420,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const norm = cleanWord(piece);
           if (norm.length < 3) continue;
           const variants = expandPortugueseVariants(norm);
-          for (const v of variants) {
-            if (v === norm) continue; // exact already handled in pass A
-            if (!verseVariantToStrong[w.verse].has(v)) {
-              verseVariantToStrong[w.verse].set(v, effectiveStrong);
-            }
+        variants.forEach((v) => {
+          if (v === norm) return;
+          if (!verseVariantToStrong[w.verse].has(v)) {
+            verseVariantToStrong[w.verse].set(v, effectiveStrong);
           }
+        });
         }
       }
 
@@ -4768,6 +4768,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Purchase history error:", error);
       res.status(500).json({ error: "Erro ao buscar histórico de compras" });
+    }
+  });
+
+  // Admin Metrics - App Engagement (independent of store analytics)
+  app.get("/api/admin/metrics/app-engagement", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { days = "30" } = req.query;
+      const metrics = await storage.getAppEngagementMetrics(parseInt(days as string) || 30);
+      res.json(metrics);
+    } catch (error) {
+      console.error("App engagement error:", error);
+      res.status(500).json({ error: "Erro ao buscar métricas do app" });
     }
   });
 

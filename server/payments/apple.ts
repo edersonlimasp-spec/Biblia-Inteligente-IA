@@ -181,6 +181,42 @@ export async function processApplePurchase(
         })
         .where(eq(subscriptions.id, existing.id));
 
+      // Also append a payment receipt row per renewal so analytics
+      // (renewal/churn over time) can see each paid period. Apple issues a
+      // new transactionId per renewal while keeping originalTransactionId
+      // stable — use transactionId as the immutable per-cycle key.
+      const existingReceipt = await db.select()
+        .from(paymentReceipts)
+        .where(eq(paymentReceipts.externalPaymentId, transactionId))
+        .limit(1);
+
+      if (existingReceipt.length === 0) {
+        const renewalUser = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        await db.insert(paymentReceipts).values({
+          externalPaymentId: transactionId,
+          paymentProvider: 'apple',
+          paymentType: productInfo.durationDays ? 'subscription' : 'payment',
+          userId,
+          userEmail: renewalUser[0]?.email || null,
+          planType: productInfo.planType,
+          subscriptionDays: productInfo.durationDays,
+          isLifetime: !productInfo.durationDays,
+          grossAmount: Math.round(parseFloat(productInfo.amount) * 100),
+          feeAmount: 0,
+          taxAmount: 0,
+          netAmount: Math.round(parseFloat(productInfo.amount) * 100),
+          status: 'approved',
+          origin: 'api',
+          providerRawData: verification as any,
+          isValidated: true,
+          validatedAt: now,
+          subscriptionId: existing.id,
+          activatedAt: now,
+          paymentDate: purchaseDate,
+        });
+        console.log('[Apple IAP] Appended renewal receipt for sub:', existing.id);
+      }
+
       console.log('[Apple IAP] Updated existing subscription:', existing.id);
       return { success: true, subscription: { ...existing, endDate, status } };
     }

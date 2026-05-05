@@ -1703,64 +1703,78 @@ class PostgresStorage implements IStorage {
       !isLifetime(s) && s.endDate && new Date(s.endDate) >= now && new Date(s.endDate) <= in30Days
     );
 
-    // Records that ended in the last 30 days. Includes:
-    //   - active-like rows (web subs whose status was kept as approved/authorized
-    //     even though endDate is now in the past)
-    //   - "expired" rows (native Apple/Google subs are explicitly marked expired
-    //     when StoreKit/Play notifies us the subscription ended)
-    // Excludes states that mean the subscription was never truly live (failed,
-    // rejected, cancelled, refunded, pending, etc.).
-    const ENDED_NATURAL_STATUSES = new Set([
-      'expired', 'Expired', 'EXPIRED',
-    ]);
-    const wasPaidEnded = (s: any) =>
-      isPaidActive(s) || ENDED_NATURAL_STATUSES.has(s.status);
-    const expiredLast30 = allSubs.filter(s =>
-      !isLifetime(s) &&
-      wasPaidEnded(s) &&
-      s.endDate &&
-      new Date(s.endDate) >= last30Days &&
-      new Date(s.endDate) < now
-    );
-
-    // Per-record renewal: a record is "renewed" if the same user has another
-    // active record now for the same plan family (gold or premium) created
-    // after the original endDate. This is consistent with how renewals create
-    // new subscription rows.
+    // ---- Renewal / churn based on payment_receipts (append-only source of truth) ----
+    // Subscriptions table is updated in place on renewal, so it cannot reliably
+    // distinguish "renewed in last 30d" from "expired in last 30d". Receipts, on
+    // the other hand, are immutable: each paid period generates one row.
     const planFamily = (p: string) =>
       isGold({ planType: p }) ? 'gold' : isPremium({ planType: p }) ? 'premium' : 'other';
 
-    const renewedRecords: typeof expiredLast30 = [];
-    const notRenewedRecords: typeof expiredLast30 = [];
-    for (const s of expiredLast30) {
-      const family = planFamily(s.planType);
-      const renewed = activeSubs.some(a =>
-        a.userId === s.userId &&
-        planFamily(a.planType) === family &&
-        new Date(a.createdAt) >= new Date(s.endDate as Date)
-      );
-      if (renewed) {
-        renewedRecords.push(s);
-      } else {
-        notRenewedRecords.push(s);
+    const APPROVED_RECEIPT_STATUSES = new Set(['approved', 'Approved', 'APPROVED']);
+    const allReceipts = await db.select().from(paymentReceipts);
+    const recurringReceipts = allReceipts.filter(r =>
+      APPROVED_RECEIPT_STATUSES.has(r.status) &&
+      !r.isLifetime &&
+      r.subscriptionDays && r.subscriptionDays > 0 &&
+      r.userId &&
+      planFamily(r.planType) !== 'other'
+    );
+
+    const periodEndOf = (r: typeof recurringReceipts[number]) =>
+      new Date(new Date(r.paymentDate).getTime() + (r.subscriptionDays as number) * 24 * 60 * 60 * 1000);
+
+    // Cohort: receipts whose paid period ENDED in the last 30 days.
+    const endedInWindow = recurringReceipts.filter(r => {
+      const pe = periodEndOf(r);
+      return pe >= last30Days && pe < now;
+    });
+
+    // Dedup per user: keep only the most recent ended-period receipt per user
+    // so a single user counts once in the renewal/churn cohort.
+    const latestEndedPerUser = new Map<string, typeof recurringReceipts[number]>();
+    for (const r of endedInWindow) {
+      const existing = latestEndedPerUser.get(r.userId as string);
+      if (!existing || periodEndOf(r) > periodEndOf(existing)) {
+        latestEndedPerUser.set(r.userId as string, r);
       }
     }
-    const renewedLast30Days = renewedRecords.length;
-    const notRenewedLast30Days = notRenewedRecords.length;
+
+    // A user is "renewed" if they have ANOTHER approved receipt for the same plan
+    // family with paymentDate at or after the period end (with a small grace window
+    // to absorb provider delays). Otherwise they're "not renewed".
+    const RENEWAL_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
+    const renewedCohort: Array<typeof recurringReceipts[number]> = [];
+    const notRenewedCohort: Array<typeof recurringReceipts[number]> = [];
+    for (const r of latestEndedPerUser.values()) {
+      const pe = periodEndOf(r);
+      const family = planFamily(r.planType);
+      const graceStart = new Date(pe.getTime() - RENEWAL_GRACE_MS);
+      const renewed = recurringReceipts.some(r2 =>
+        r2.id !== r.id &&
+        r2.userId === r.userId &&
+        planFamily(r2.planType) === family &&
+        new Date(r2.paymentDate) >= graceStart
+      );
+      if (renewed) renewedCohort.push(r);
+      else notRenewedCohort.push(r);
+    }
+
+    const renewedLast30Days = renewedCohort.length;
+    const notRenewedLast30Days = notRenewedCohort.length;
     const totalEnded = renewedLast30Days + notRenewedLast30Days;
     const renewalRate = totalEnded > 0 ? Math.round((renewedLast30Days / totalEnded) * 1000) / 10 : 0;
     const churnRate = totalEnded > 0 ? Math.round((notRenewedLast30Days / totalEnded) * 1000) / 10 : 0;
 
-    const notRenewedUsers = notRenewedRecords
-      .map(s => {
-        const u = userById.get(s.userId);
+    const notRenewedUsers = notRenewedCohort
+      .map(r => {
+        const u = userById.get(r.userId as string);
         if (!u || !u.email) return null;
         return {
-          userId: s.userId,
+          userId: r.userId as string,
           email: u.email,
           name: u.name,
-          planType: s.planType,
-          endDate: s.endDate ? new Date(s.endDate).toISOString() : '',
+          planType: r.planType,
+          endDate: periodEndOf(r).toISOString(),
           lastSeenAt: u.lastSeenAt ? new Date(u.lastSeenAt).toISOString() : null,
         };
       })

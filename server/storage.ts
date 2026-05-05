@@ -190,6 +190,32 @@ export interface IStorage {
     eventTypes: Record<string, number>;
     dailyTrend: Array<{ date: string; appEvents: number; uniqueDevices: number }>;
   }>;
+  getSubscriptionHealth(): Promise<{
+    activeByPlan: { gold: number; premium: number; lifetime: number };
+    mrr: number;
+    arpu: number;
+    newLast30Days: number;
+    expiringNext30Days: number;
+    renewedLast30Days: number;
+    notRenewedLast30Days: number;
+    renewalRate: number;
+    churnRate: number;
+    notRenewedUsers: Array<{
+      userId: string;
+      email: string;
+      name: string | null;
+      planType: string;
+      endDate: string;
+      lastSeenAt: string | null;
+    }>;
+    expiringUsers: Array<{
+      userId: string;
+      email: string;
+      name: string | null;
+      planType: string;
+      endDate: string;
+    }>;
+  }>;
 
   // Study Modules (Professor Premium)
   getStudyModules(): Promise<StudyModule[]>;
@@ -1594,6 +1620,182 @@ class PostgresStorage implements IStorage {
       activeUsersToday: Number(todayEvents[0]?.count || 0),
       eventTypes,
       dailyTrend,
+    };
+  }
+
+  async getSubscriptionHealth(): Promise<{
+    activeByPlan: { gold: number; premium: number; lifetime: number };
+    mrr: number;
+    arpu: number;
+    newLast30Days: number;
+    expiringNext30Days: number;
+    renewedLast30Days: number;
+    notRenewedLast30Days: number;
+    renewalRate: number;
+    churnRate: number;
+    notRenewedUsers: Array<{
+      userId: string;
+      email: string;
+      name: string | null;
+      planType: string;
+      endDate: string;
+      lastSeenAt: string | null;
+    }>;
+    expiringUsers: Array<{
+      userId: string;
+      email: string;
+      name: string | null;
+      planType: string;
+      endDate: string;
+    }>;
+  }> {
+    const now = new Date();
+    const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    // Aligned with canonical access checks (server/storage.ts hasActiveSubscription):
+    // accept active/approved/authorized in any case variant
+    const ACTIVE_STATUSES = new Set([
+      'active', 'Active', 'ACTIVE',
+      'approved', 'Approved', 'APPROVED',
+      'authorized', 'Authorized', 'AUTHORIZED',
+    ]);
+    const isPaidActive = (s: any) => ACTIVE_STATUSES.has(s.status);
+
+    const allSubs = await db.select().from(subscriptions);
+    const usersWithEmail = await db
+      .select({ id: users.id, email: users.email, name: users.name, lastSeenAt: users.lastSeenAt })
+      .from(users);
+    const userById = new Map(usersWithEmail.map(u => [u.id, u]));
+
+    const isLifetime = (s: any) => s.planType === 'strong_lifetime';
+    const isPremium = (s: any) => s.planType === 'premium' || s.planType === 'premium_anual';
+    const isGold = (s: any) => s.planType === 'gold' || s.planType === 'gold_anual';
+
+    // Active = active-like status AND (lifetime OR endDate still in the future)
+    const activeSubs = allSubs.filter(s =>
+      isPaidActive(s) && (isLifetime(s) || (s.endDate && new Date(s.endDate) >= now))
+    );
+
+    const activeGold = activeSubs.filter(isGold).length;
+    const activePremium = activeSubs.filter(isPremium).length;
+    const activeLifetime = activeSubs.filter(isLifetime).length;
+    const activeRecurring = activeGold + activePremium;
+
+    let mrr = 0;
+    for (const s of activeSubs) {
+      if (isLifetime(s)) continue;
+      const amount = parseFloat(s.amount || '0');
+      if (s.planType === 'gold_anual' || s.planType === 'premium_anual') {
+        mrr += amount / 12;
+      } else {
+        mrr += amount;
+      }
+    }
+    // ARPU is per recurring subscriber only (lifetime has no monthly contribution)
+    const arpu = activeRecurring > 0 ? Math.round((mrr / activeRecurring) * 100) / 100 : 0;
+
+    const newLast30Days = allSubs.filter(s =>
+      isPaidActive(s) && new Date(s.createdAt) >= last30Days
+    ).length;
+
+    const expiringNext30 = activeSubs.filter(s =>
+      !isLifetime(s) && s.endDate && new Date(s.endDate) >= now && new Date(s.endDate) <= in30Days
+    );
+
+    // Records that ended in the last 30 days. Includes:
+    //   - active-like rows (web subs whose status was kept as approved/authorized
+    //     even though endDate is now in the past)
+    //   - "expired" rows (native Apple/Google subs are explicitly marked expired
+    //     when StoreKit/Play notifies us the subscription ended)
+    // Excludes states that mean the subscription was never truly live (failed,
+    // rejected, cancelled, refunded, pending, etc.).
+    const ENDED_NATURAL_STATUSES = new Set([
+      'expired', 'Expired', 'EXPIRED',
+    ]);
+    const wasPaidEnded = (s: any) =>
+      isPaidActive(s) || ENDED_NATURAL_STATUSES.has(s.status);
+    const expiredLast30 = allSubs.filter(s =>
+      !isLifetime(s) &&
+      wasPaidEnded(s) &&
+      s.endDate &&
+      new Date(s.endDate) >= last30Days &&
+      new Date(s.endDate) < now
+    );
+
+    // Per-record renewal: a record is "renewed" if the same user has another
+    // active record now for the same plan family (gold or premium) created
+    // after the original endDate. This is consistent with how renewals create
+    // new subscription rows.
+    const planFamily = (p: string) =>
+      isGold({ planType: p }) ? 'gold' : isPremium({ planType: p }) ? 'premium' : 'other';
+
+    const renewedRecords: typeof expiredLast30 = [];
+    const notRenewedRecords: typeof expiredLast30 = [];
+    for (const s of expiredLast30) {
+      const family = planFamily(s.planType);
+      const renewed = activeSubs.some(a =>
+        a.userId === s.userId &&
+        planFamily(a.planType) === family &&
+        new Date(a.createdAt) >= new Date(s.endDate as Date)
+      );
+      if (renewed) {
+        renewedRecords.push(s);
+      } else {
+        notRenewedRecords.push(s);
+      }
+    }
+    const renewedLast30Days = renewedRecords.length;
+    const notRenewedLast30Days = notRenewedRecords.length;
+    const totalEnded = renewedLast30Days + notRenewedLast30Days;
+    const renewalRate = totalEnded > 0 ? Math.round((renewedLast30Days / totalEnded) * 1000) / 10 : 0;
+    const churnRate = totalEnded > 0 ? Math.round((notRenewedLast30Days / totalEnded) * 1000) / 10 : 0;
+
+    const notRenewedUsers = notRenewedRecords
+      .map(s => {
+        const u = userById.get(s.userId);
+        if (!u || !u.email) return null;
+        return {
+          userId: s.userId,
+          email: u.email,
+          name: u.name,
+          planType: s.planType,
+          endDate: s.endDate ? new Date(s.endDate).toISOString() : '',
+          lastSeenAt: u.lastSeenAt ? new Date(u.lastSeenAt).toISOString() : null,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
+      .sort((a, b) => b.endDate.localeCompare(a.endDate))
+      .slice(0, 50);
+
+    const expiringUsers = expiringNext30
+      .map(s => {
+        const u = userById.get(s.userId);
+        if (!u || !u.email) return null;
+        return {
+          userId: s.userId,
+          email: u.email,
+          name: u.name,
+          planType: s.planType,
+          endDate: s.endDate ? new Date(s.endDate).toISOString() : '',
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
+      .sort((a, b) => a.endDate.localeCompare(b.endDate))
+      .slice(0, 50);
+
+    return {
+      activeByPlan: { gold: activeGold, premium: activePremium, lifetime: activeLifetime },
+      mrr: Math.round(mrr * 100) / 100,
+      arpu,
+      newLast30Days,
+      expiringNext30Days: expiringNext30.length,
+      renewedLast30Days,
+      notRenewedLast30Days,
+      renewalRate,
+      churnRate,
+      notRenewedUsers,
+      expiringUsers,
     };
   }
 

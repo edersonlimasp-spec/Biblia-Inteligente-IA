@@ -4771,6 +4771,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Metrics - Subscription Health (active, MRR, renewals, non-renewed)
+  app.get("/api/admin/metrics/subscription-health", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const health = await storage.getSubscriptionHealth();
+      res.json(health);
+    } catch (error) {
+      console.error("Subscription health error:", error);
+      res.status(500).json({ error: "Erro ao buscar saúde das assinaturas" });
+    }
+  });
+
   // Admin Metrics - App Engagement (independent of store analytics)
   app.get("/api/admin/metrics/app-engagement", ensureAdmin, async (req: AuthRequest, res) => {
     try {

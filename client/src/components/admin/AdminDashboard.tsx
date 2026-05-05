@@ -3,11 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Percent, Infinity, ShoppingCart, DollarSign, Gem, Gift, Download, AlertCircle, Tag } from "lucide-react";
+import { Users, TrendingUp, CreditCard, Zap, Activity, Mail, Clock, Smartphone, UserCheck, Crown, ArrowUpRight, Target, Infinity, ShoppingCart, DollarSign, Gem, Gift, Download, AlertCircle, Tag, RefreshCw, AlertTriangle, Heart } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ComposedChart } from "recharts";
-import adminOverviewImage from "@assets/image_1777999020618.png";
-import appEngagementImage from "@assets/image_1777999005340.png";
-import growthImage from "@assets/image_1777999084686.png";
 
 interface DashboardStats {
   totalUsers: number;
@@ -158,6 +155,33 @@ interface UserGrowthMetrics {
   };
 }
 
+interface SubscriptionHealth {
+  activeByPlan: { gold: number; premium: number; lifetime: number };
+  mrr: number;
+  arpu: number;
+  newLast30Days: number;
+  expiringNext30Days: number;
+  renewedLast30Days: number;
+  notRenewedLast30Days: number;
+  renewalRate: number;
+  churnRate: number;
+  notRenewedUsers: Array<{
+    userId: string;
+    email: string;
+    name: string | null;
+    planType: string;
+    endDate: string;
+    lastSeenAt: string | null;
+  }>;
+  expiringUsers: Array<{
+    userId: string;
+    email: string;
+    name: string | null;
+    planType: string;
+    endDate: string;
+  }>;
+}
+
 export function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/stats'],
@@ -217,7 +241,26 @@ export function AdminDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const totalSubscriptions = (stats?.activeGoldSubscriptions || 0) + (stats?.activePremiumSubscriptions || 0) + (stats?.lifetimeStrong || 0);
+  const { data: subHealth, isLoading: subHealthLoading } = useQuery<SubscriptionHealth>({
+    queryKey: ['/api/admin/metrics/subscription-health'],
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+
+  const planLabel = (planType: string) => {
+    const t = planType?.toLowerCase();
+    if (t === 'gold') return 'Gold';
+    if (t === 'gold_anual') return 'Gold Anual';
+    if (t === 'premium') return 'Premium';
+    if (t === 'premium_anual') return 'Premium Anual';
+    if (t === 'strong_lifetime') return 'Strong Vitalício';
+    return planType;
+  };
+  const formatDate = (iso: string | null) => iso ? new Date(iso).toLocaleDateString('pt-BR') : '—';
+
+  const totalSubscriptions = subHealth
+    ? subHealth.activeByPlan.gold + subHealth.activeByPlan.premium + subHealth.activeByPlan.lifetime
+    : (stats?.activeGoldSubscriptions || 0) + (stats?.activePremiumSubscriptions || 0) + (stats?.lifetimeStrong || 0);
   const activeAccessUsers = (stats?.totalUsers || 0) + (stats?.totalGuests || 0);
   const conversionRate = stats?.totalGuests ? ((stats.convertedGuests / stats.totalGuests) * 100).toFixed(1) : "0.0";
   const monthlyChurn = stats?.activeGoldSubscriptions || stats?.activePremiumSubscriptions || stats?.lifetimeStrong
@@ -277,30 +320,164 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard 
-          icon={Gift} 
-          label="Degustação Premium" 
+      <Card data-testid="card-subscription-health">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Heart className="h-5 w-5 text-primary" />
+            Saúde das Assinaturas
+          </CardTitle>
+          <CardDescription>
+            Quem está pagando agora, quanto entra por mês, quem renovou e quem não renovou após o vencimento.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {subHealthLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-48 w-full" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="p-4 rounded-md bg-accent/30">
+                  <div className="flex items-center gap-2 text-amber-600">
+                    <CreditCard className="h-4 w-4" />
+                    <p className="text-xs font-medium">Gold ativos</p>
+                  </div>
+                  <p className="text-3xl font-bold mt-1" data-testid="text-sub-gold-active">{subHealth?.activeByPlan.gold || 0}</p>
+                  <p className="text-xs text-muted-foreground">Mensal + anual</p>
+                </div>
+                <div className="p-4 rounded-md bg-accent/30">
+                  <div className="flex items-center gap-2 text-purple-600">
+                    <Crown className="h-4 w-4" />
+                    <p className="text-xs font-medium">Premium ativos</p>
+                  </div>
+                  <p className="text-3xl font-bold mt-1" data-testid="text-sub-premium-active">{subHealth?.activeByPlan.premium || 0}</p>
+                  <p className="text-xs text-muted-foreground">Mensal + anual</p>
+                </div>
+                <div className="p-4 rounded-md bg-accent/30">
+                  <div className="flex items-center gap-2 text-emerald-600">
+                    <Infinity className="h-4 w-4" />
+                    <p className="text-xs font-medium">Strong vitalício</p>
+                  </div>
+                  <p className="text-3xl font-bold mt-1" data-testid="text-sub-lifetime-active">{subHealth?.activeByPlan.lifetime || 0}</p>
+                  <p className="text-xs text-muted-foreground">Pagamento único</p>
+                </div>
+                <div className="p-4 rounded-md bg-primary/10 border border-primary/20">
+                  <div className="flex items-center gap-2 text-primary">
+                    <DollarSign className="h-4 w-4" />
+                    <p className="text-xs font-medium">Receita recorrente / mês</p>
+                  </div>
+                  <p className="text-3xl font-bold mt-1" data-testid="text-sub-mrr">R$ {(subHealth?.mrr || 0).toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground">ARPU R$ {(subHealth?.arpu || 0).toFixed(2)}</p>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="p-3 rounded-md bg-background/40 border border-border">
+                  <p className="text-xs text-muted-foreground">Novas assinaturas (30d)</p>
+                  <p className="text-2xl font-bold" data-testid="text-sub-new-30">{subHealth?.newLast30Days || 0}</p>
+                </div>
+                <div className="p-3 rounded-md bg-background/40 border border-border">
+                  <p className="text-xs text-muted-foreground">Vão vencer em 30d</p>
+                  <p className="text-2xl font-bold" data-testid="text-sub-expiring-30">{subHealth?.expiringNext30Days || 0}</p>
+                </div>
+                <div className="p-3 rounded-md bg-background/40 border border-border">
+                  <p className="text-xs text-muted-foreground">Renovaram (últimos 30d)</p>
+                  <p className="text-2xl font-bold text-green-600" data-testid="text-sub-renewed">{subHealth?.renewedLast30Days || 0}</p>
+                  <p className="text-xs text-muted-foreground">{subHealth?.renewalRate || 0}% de renovação</p>
+                </div>
+                <div className="p-3 rounded-md bg-background/40 border border-border">
+                  <p className="text-xs text-muted-foreground">Não renovaram (30d)</p>
+                  <p className="text-2xl font-bold text-red-600" data-testid="text-sub-not-renewed">{subHealth?.notRenewedLast30Days || 0}</p>
+                  <p className="text-xs text-muted-foreground">{subHealth?.churnRate || 0}% de churn</p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <p className="text-sm font-medium">Quem não renovou após 30 dias</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Assinaturas que venceram nos últimos 30 dias e o usuário não tem outra ativa.
+                  </p>
+                  <div className="rounded-md border border-border max-h-72 overflow-y-auto">
+                    {subHealth?.notRenewedUsers && subHealth.notRenewedUsers.length > 0 ? (
+                      subHealth.notRenewedUsers.map((u) => (
+                        <div
+                          key={`${u.userId}-${u.endDate}`}
+                          className="flex items-center justify-between gap-2 p-2 border-b border-border last:border-b-0"
+                          data-testid={`row-not-renewed-${u.userId}`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm break-all">{u.email}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Último login: {formatDate(u.lastSeenAt)}
+                            </p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <Badge variant="outline" className="text-xs">{planLabel(u.planType)}</Badge>
+                            <p className="text-xs text-muted-foreground mt-1">Venceu {formatDate(u.endDate)}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-6">Ninguém deixou de renovar nos últimos 30 dias.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <RefreshCw className="h-4 w-4 text-amber-600" />
+                    <p className="text-sm font-medium">Vão vencer nos próximos 30 dias</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Use esta lista para acionar campanhas de renovação antes da expiração.
+                  </p>
+                  <div className="rounded-md border border-border max-h-72 overflow-y-auto">
+                    {subHealth?.expiringUsers && subHealth.expiringUsers.length > 0 ? (
+                      subHealth.expiringUsers.map((u) => (
+                        <div
+                          key={`${u.userId}-${u.endDate}`}
+                          className="flex items-center justify-between gap-2 p-2 border-b border-border last:border-b-0"
+                          data-testid={`row-expiring-${u.userId}`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm break-all">{u.email}</p>
+                            {u.name && <p className="text-xs text-muted-foreground">{u.name}</p>}
+                          </div>
+                          <div className="text-right shrink-0">
+                            <Badge variant="outline" className="text-xs">{planLabel(u.planType)}</Badge>
+                            <p className="text-xs text-muted-foreground mt-1">Vence {formatDate(u.endDate)}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-6">Nenhuma assinatura vencendo nos próximos 30 dias.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <StatCard
+          icon={Gift}
+          label="Em degustação Premium"
           value={stats?.activeTrials || 0}
-          subtext="7 dias gratuitos (não são assinaturas)"
+          subtext="7 dias gratuitos (não conta como assinatura)"
         />
-        <StatCard 
-          icon={Zap} 
-          label="Plano Gratuito" 
+        <StatCard
+          icon={Zap}
+          label="Cadastrados sem plano pago"
           value={stats?.freeUsers || 0}
-          subtext="Sem assinatura ativa"
-        />
-        <StatCard 
-          icon={CreditCard} 
-          label="Gold + Premium" 
-          value={(stats?.activeGoldSubscriptions || 0) + (stats?.activePremiumSubscriptions || 0)}
-          subtext="Assinaturas ativas"
-        />
-        <StatCard 
-          icon={Crown} 
-          label="Strong's Vitalício" 
-          value={stats?.lifetimeStrong || 0}
-          subtext="Acesso permanente"
+          subtext="Usam o app gratuitamente"
         />
       </div>
 
@@ -360,60 +537,6 @@ export function AdminDashboard() {
               ) : null}
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            Crescimento e retenção
-          </CardTitle>
-          <CardDescription>
-            O que entrou, o que converteu e o que ainda precisa de atenção.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-md bg-accent/20">
-              <p className="text-xs text-muted-foreground">Novos usuários no mês</p>
-              <p className="text-2xl font-bold">{stats?.newUsersThisMonth || 0}</p>
-              <p className="text-xs text-muted-foreground">Cadastros concluídos</p>
-            </div>
-            <div className="p-4 rounded-md bg-accent/20">
-              <p className="text-xs text-muted-foreground">Conversões de guest</p>
-              <p className="text-2xl font-bold">{stats?.convertedGuests || 0}</p>
-              <p className="text-xs text-muted-foreground">Visitantes que criaram conta</p>
-            </div>
-            <div className="p-4 rounded-md bg-accent/20">
-              <p className="text-xs text-muted-foreground">Usuários sem atividade recente</p>
-              <p className="text-2xl font-bold">{stats?.inactiveUsers || 0}</p>
-              <p className="text-xs text-muted-foreground">Sem login há 30 dias</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
-            Leitura dos números
-          </CardTitle>
-          <CardDescription>
-            Resumo simples para gestão: acesso, uso e monetização.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          <div>
-            <img src={adminOverviewImage} alt="Visão geral do painel administrativo" className="w-full rounded-md border" />
-          </div>
-          <div>
-            <img src={appEngagementImage} alt="Métricas de uso do app" className="w-full rounded-md border" />
-          </div>
-          <div>
-            <img src={growthImage} alt="Crescimento mensal de usuários e visitantes" className="w-full rounded-md border" />
-          </div>
         </CardContent>
       </Card>
 
@@ -619,67 +742,36 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Guest Stats */}
+      {/* Visitantes anônimos */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Smartphone className="h-5 w-5 text-primary" />
-            Estatísticas de Guests (Visitantes Anônimos)
+            Visitantes anônimos (sem login)
           </CardTitle>
-          <CardDescription>Usuários usando o app sem login, rastreados por deviceId</CardDescription>
+          <CardDescription>Usuários que usam o app sem criar conta, rastreados por dispositivo.</CardDescription>
         </CardHeader>
         <CardContent>
           {statsLoading ? (
-            <div className="flex gap-4">
-              <Skeleton className="h-12 w-32" />
-              <Skeleton className="h-12 w-32" />
-              <Skeleton className="h-12 w-32" />
-            </div>
+            <Skeleton className="h-24 w-full" />
           ) : (
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="h-4 w-4 text-green-600" />
-                    <p className="text-sm font-medium text-green-700 dark:text-green-400">Novos Visitantes Hoje</p>
-                  </div>
-                  <p className="text-3xl font-bold text-green-600">{stats?.newGuestsToday || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Primeira vez no app</p>
-                </div>
-                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-blue-600" />
-                    <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Visitantes Ativos Hoje</p>
-                  </div>
-                  <p className="text-3xl font-bold text-blue-600">{stats?.activeGuestsToday || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Uso diário de anônimos</p>
-                </div>
+            <div className="grid md:grid-cols-4 gap-3">
+              <div className="p-3 rounded-md bg-accent/30">
+                <p className="text-xs text-muted-foreground">Total de dispositivos</p>
+                <p className="text-2xl font-bold">{stats?.totalGuests || 0}</p>
               </div>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Smartphone className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Total de Guests</p>
-                  </div>
-                  <p className="text-2xl font-semibold">{stats?.totalGuests || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Dispositivos únicos</p>
-                </div>
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Plano Gratuito</p>
-                  </div>
-                  <p className="text-2xl font-semibold">{stats?.activeGuestTrials || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Visitantes ativos</p>
-                </div>
-                <div className="p-4 bg-accent/30 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Convertidos</p>
-                  </div>
-                  <p className="text-2xl font-semibold">{stats?.convertedGuests || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Criaram conta</p>
-                </div>
+              <div className="p-3 rounded-md bg-accent/30">
+                <p className="text-xs text-muted-foreground">Novos hoje</p>
+                <p className="text-2xl font-bold">{stats?.newGuestsToday || 0}</p>
+              </div>
+              <div className="p-3 rounded-md bg-accent/30">
+                <p className="text-xs text-muted-foreground">Ativos hoje</p>
+                <p className="text-2xl font-bold">{stats?.activeGuestsToday || 0}</p>
+              </div>
+              <div className="p-3 rounded-md bg-accent/30">
+                <p className="text-xs text-muted-foreground">Criaram conta depois</p>
+                <p className="text-2xl font-bold">{stats?.convertedGuests || 0}</p>
+                <p className="text-xs text-muted-foreground">{conversionRate}% de conversão</p>
               </div>
             </div>
           )}
@@ -1240,135 +1332,6 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Resumo Rápido */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Resumo Rápido</CardTitle>
-          <CardDescription>Métricas principais</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {statsLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Vitalício Strong (Lifetime)</p>
-                <p className="text-lg font-semibold">{stats?.lifetimeStrong || 0} usuários</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Premium (Acesso Completo IA)</p>
-                <p className="text-lg font-semibold">{stats?.activePremiumSubscriptions || 0} ativos</p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Acessos e Performance */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Canceladas (mês)</CardTitle>
-            <Activity className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{stats?.cancelledThisMonth || 0}</div>
-                <p className="text-xs text-muted-foreground">Churn rate</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gold Ativos</CardTitle>
-            <CreditCard className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{stats?.activeGoldSubscriptions || 0}</div>
-                <p className="text-xs text-muted-foreground">Plano Gold</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Premium Ativos</CardTitle>
-            <Crown className="h-4 w-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            {statsLoading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{stats?.activePremiumSubscriptions || 0}</div>
-                <p className="text-xs text-muted-foreground">Plano Premium</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Métricas Profissionais Avançadas */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Métricas Profissionais Avançadas</CardTitle>
-          <CardDescription>Análise detalhada de engajamento e retenção</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {statsLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Taxa de Conversão Guest→User</p>
-                <p className="text-lg font-semibold">
-                  {stats?.totalGuests && stats.totalGuests > 0 
-                    ? `${((stats.convertedGuests / stats.totalGuests) * 100).toFixed(1)}%`
-                    : '0%'}
-                </p>
-              </div>
-
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Usuários Novos (mês)</p>
-                <p className="text-lg font-semibold">{stats?.newUsersThisMonth || 0}</p>
-              </div>
-
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Adesão Gold/Premium</p>
-                <p className="text-lg font-semibold">
-                  {stats?.totalUsers && stats.totalUsers > 0
-                    ? `${(((stats.activeGoldSubscriptions + stats.activePremiumSubscriptions) / stats.totalUsers) * 100).toFixed(1)}%`
-                    : '0%'}
-                </p>
-              </div>
-
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Usuários Inativos (30 dias)</p>
-                <p className="text-lg font-semibold">
-                  {stats?.inactiveUsers ?? '—'}
-                </p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

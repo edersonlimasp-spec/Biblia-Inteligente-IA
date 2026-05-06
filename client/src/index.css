@@ -452,14 +452,22 @@
   padding-bottom: 8px !important;
 }
 
-/* iOS notch and safe area support */
+/* iOS notch and safe area support
+ * IMPORTANTE: NÃO aplicamos padding-top no <body>, pois isso fazia o body
+ * crescer além de 100vh e gerava overflow vertical — o indicador de scroll
+ * nativo do iOS aparecia na faixa da notch (bug visível no Dashboard).
+ * Em vez disso, cada header sticky topo absorve a safe-area-inset-top. */
 @supports (padding: max(0px)) {
   body {
-    padding-top: env(safe-area-inset-top);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-  
+
+  /* Todos os cabeçalhos sticky no topo se estendem até a notch */
+  .sticky.top-0 {
+    padding-top: env(safe-area-inset-top);
+  }
+
   .app-header {
     padding-top: max(0.5rem, env(safe-area-inset-top));
   }

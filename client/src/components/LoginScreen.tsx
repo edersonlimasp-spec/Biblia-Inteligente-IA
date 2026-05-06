@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { SiGoogle } from "react-icons/si";
+import { SiGoogle, SiApple } from "react-icons/si";
 import { Eye, EyeOff, Sparkles, ChevronRight } from "lucide-react";
 import appLogo from "@assets/logo/logo.png";
 
@@ -22,7 +22,8 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const { login, loginWithGoogle, isGoogleLoginAvailable } = useAuth();
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
+  const { login, loginWithGoogle, loginWithApple, isGoogleLoginAvailable, isAppleLoginAvailable } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -45,6 +46,26 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    setIsAppleLoading(true);
+    try {
+      await loginWithApple();
+      toast({
+        title: t("auth.loginSuccess"),
+        description: t("auth.registerSuccessDesc"),
+      });
+      onLogin?.();
+    } catch (error: any) {
+      toast({
+        title: t("auth.loginError"),
+        description: error.message || t("error.tryAgain"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsAppleLoading(false);
     }
   };
 
@@ -124,29 +145,44 @@ export function LoginScreen({ onLogin, onNavigateToRegister, onNavigateToForgotP
               {isLoading ? t("auth.loggingIn") : t("auth.login")}
             </Button>
             
-            {isGoogleLoginAvailable && (
-              <>
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">{t("common.or")}</span>
-                  </div>
+            {(isGoogleLoginAvailable || isAppleLoginAvailable) && (
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
                 </div>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full gap-2"
-                  onClick={handleGoogleLogin}
-                  disabled={isGoogleLoading}
-                  data-testid="button-google-login"
-                >
-                  <SiGoogle className="h-4 w-4" />
-                  {isGoogleLoading ? t("auth.loggingIn") : t("auth.loginWithGoogle")}
-                </Button>
-              </>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">{t("common.or")}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Apple Sign-In: somente iOS nativo. Botão preto conforme HIG da Apple. */}
+            {isAppleLoginAvailable && (
+              <Button
+                type="button"
+                variant="default"
+                className="w-full gap-2 bg-black text-white border-black hover:bg-black/90 dark:bg-white dark:text-black dark:border-white dark:hover:bg-white/90"
+                onClick={handleAppleLogin}
+                disabled={isAppleLoading}
+                data-testid="button-apple-login"
+              >
+                <SiApple className="h-4 w-4" />
+                {isAppleLoading ? t("auth.loggingIn") : "Entrar com Apple"}
+              </Button>
+            )}
+
+            {isGoogleLoginAvailable && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                onClick={handleGoogleLogin}
+                disabled={isGoogleLoading}
+                data-testid="button-google-login"
+              >
+                <SiGoogle className="h-4 w-4" />
+                {isGoogleLoading ? t("auth.loggingIn") : t("auth.loginWithGoogle")}
+              </Button>
             )}
             
             {/* Banner de trial - clicável, vai para cadastro */}

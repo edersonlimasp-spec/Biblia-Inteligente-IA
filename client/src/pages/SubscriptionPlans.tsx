@@ -7,6 +7,8 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { trackSubscriptionPageVisit } from '@/lib/tracking';
 import { PixPaymentModal } from '@/components/PixPaymentModal';
+import { isIOS, isAndroid } from '@/lib/capacitor';
+import { purchaseProduct } from '@/lib/inAppPurchases';
 
 interface SubscriptionPlansProps {
   onSubscriptionChange?: () => void;
@@ -24,6 +26,32 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
 
   const handlePurchase = async (planId: string) => {
     setIsPurchasing(planId);
+
+    // ── IAP nativa: iOS = Apple StoreKit | Android = Google Play Billing ─
+    // Em iOS jamais redirecionar para Mercado Pago (exigência App Store).
+    if (isIOS || isAndroid) {
+      try {
+        const planMap: Record<string, 'gold' | 'premium' | 'strong_lifetime'> = {
+          'gold_monthly': 'gold',
+          'premium_monthly': 'premium',
+          'strong_lifetime': 'strong_lifetime',
+        };
+        const mappedPlan = planMap[planId] || (planId as any);
+        const result = await purchaseProduct(mappedPlan);
+        if (result.success) {
+          toast({ title: 'Assinatura ativada!', description: 'Plano ativo com sucesso.' });
+          onSubscriptionChange?.();
+        } else if (result.error && result.error !== 'Compra cancelada') {
+          toast({ title: 'Erro', description: result.error, variant: 'destructive' });
+        }
+      } catch (error: any) {
+        toast({ title: 'Erro', description: error.message || 'Falha ao processar a compra', variant: 'destructive' });
+      } finally {
+        setIsPurchasing(null);
+      }
+      return;
+    }
+
     try {
       // Map plan IDs to backend plan names
       const planMap: Record<string, string> = {
@@ -34,7 +62,7 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
       
       const plan = planMap[planId] || planId;
       
-      // Call Mercado Pago checkout endpoint
+      // Call Mercado Pago checkout endpoint (somente Web)
       const response = await apiRequest('POST', '/api/mp/create-checkout', { plan });
       
       const data = await response.json();
@@ -211,17 +239,26 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
                   data-testid={`button-purchase-${plan.id}`}
                 >
                   <CreditCard className="h-4 w-4 mr-2" />
-                  {isPurchasing === plan.id ? 'Processando...' : 'Cartão de Crédito'}
+                  {isPurchasing === plan.id
+                    ? 'Processando...'
+                    : isIOS
+                    ? 'Comprar via App Store'
+                    : isAndroid
+                    ? 'Comprar no Google Play'
+                    : 'Cartão de Crédito'}
                 </Button>
-                <Button
-                  onClick={() => handlePixPayment(plan.id, plan.name, plan.price)}
-                  variant="outline"
-                  className="w-full"
-                  data-testid={`button-pix-${plan.id}`}
-                >
-                  <QrCode className="h-4 w-4 mr-2" />
-                  Pagar com Pix
-                </Button>
+                {/* Pix é específico do Mercado Pago — ocultar nas lojas (Apple/Google). */}
+                {!isIOS && !isAndroid && (
+                  <Button
+                    onClick={() => handlePixPayment(plan.id, plan.name, plan.price)}
+                    variant="outline"
+                    className="w-full"
+                    data-testid={`button-pix-${plan.id}`}
+                  >
+                    <QrCode className="h-4 w-4 mr-2" />
+                    Pagar com Pix
+                  </Button>
+                )}
               </div>
             </Card>
           ))}

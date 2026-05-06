@@ -48,6 +48,7 @@ import { eq, and, desc, gte, sql, like, or } from 'drizzle-orm';
 export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
+  deleteUser(id: string): Promise<void>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
@@ -296,6 +297,13 @@ export interface IStorage {
 
 class PostgresStorage implements IStorage {
   // Users
+  async deleteUser(id: string): Promise<void> {
+    // Schema possui ON DELETE CASCADE em todas as FKs apontando para users.id,
+    // portanto subscriptions, bookmarks, annotations, aiHistory, etc. são removidos
+    // automaticamente. Esta operação é IRREVERSÍVEL.
+    await db.delete(users).where(eq(users.id, id));
+  }
+
   async getUser(id: string): Promise<User | undefined> {
     const result = await db.select().from(users).where(eq(users.id, id));
     return result[0];

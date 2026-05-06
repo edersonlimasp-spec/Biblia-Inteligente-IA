@@ -13,7 +13,7 @@ import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 import { apiRequest, getApiUrl } from "@/lib/queryClient";
 import { trackSubscriptionPageVisit } from "@/lib/tracking";
-import { isAndroid, platform } from "@/lib/capacitor";
+import { isAndroid, isIOS, isNative, platform } from "@/lib/capacitor";
 import { purchaseProduct } from "@/lib/inAppPurchases";
 
 interface CouponData {
@@ -187,8 +187,9 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     
     setIsPurchasing(planId);
 
-    // ── Google Play Billing (Android nativo) ──────────────────────────
-    if (isAndroid) {
+    // ── IAP nativa (Android = Google Play Billing | iOS = Apple StoreKit) ─
+    // Em iOS NUNCA podemos cair no fluxo Mercado Pago (exigência App Store).
+    if (isAndroid || isIOS) {
       try {
         const planTypeMap: Record<string, 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime'> = {
           gold:          'gold',
@@ -212,7 +213,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       return;
     }
 
-    // ── Mercado Pago (Web / fora do Google Play) ──────────────────────
+    // ── Mercado Pago (somente Web — fora das lojas) ────────────────────
     try {
       const payload: { plan: string; couponCode?: string } = { 
         plan: getPlanIdForBackend(planId) 
@@ -575,8 +576,9 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         {/* Coupon + Order Summary - Aparece quando um plano é selecionado */}
         {user && selectedPlanForPurchase && (
           <div ref={orderSummaryRef} className="mb-8 space-y-2">
-            {/* Cupom — visível apenas na web (fora do Google Play) */}
-            {!isAndroid && (
+            {/* Cupom — visível apenas na web (cupons são exclusivos do Mercado Pago,
+                portanto ocultos no Google Play e na App Store por exigência das lojas). */}
+            {!isNative && (
               <>
                 <div className="border border-dashed border-muted-foreground/30 rounded-md p-2.5 flex items-center gap-2">
                   <Tag className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -691,7 +693,7 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                       className="w-full mt-4"
                       size="lg"
                       onClick={() => handlePlanSelect(selectedPlanForPurchase, selectedPlanData.name)}
-                      disabled={isPurchasing === selectedPlanForPurchase || isValidatingCoupon || (!isAndroid && couponCode.trim() !== '' && !appliedCoupon?.valid)}
+                      disabled={isPurchasing === selectedPlanForPurchase || isValidatingCoupon || (!isNative && couponCode.trim() !== '' && !appliedCoupon?.valid)}
                       data-testid="button-finalize-purchase"
                     >
                       {isPurchasing === selectedPlanForPurchase ? (
@@ -704,6 +706,11 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                           <Crown className="h-4 w-4 mr-2" />
                           Comprar no Google Play
                         </>
+                      ) : isIOS ? (
+                        <>
+                          <Crown className="h-4 w-4 mr-2" />
+                          Comprar via App Store
+                        </>
                       ) : (
                         <>
                           <Lock className="h-4 w-4 mr-2" />
@@ -715,6 +722,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     <p className="text-xs text-center text-muted-foreground">
                       {isAndroid
                         ? "Compra processada com segurança pelo Google Play"
+                        : isIOS
+                        ? "Compra processada com segurança pela App Store"
                         : "Você será redirecionado para o Mercado Pago para concluir o pagamento"
                       }
                     </p>

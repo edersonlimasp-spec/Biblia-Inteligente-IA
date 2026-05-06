@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { setAuthToken, clearAuthToken, apiRequest, queryClient } from '@/lib/queryClient';
 import { signInWithGoogle, isFirebaseConfigured } from '@/lib/firebase';
+import { signInWithApple, isAppleSignInAvailable } from '@/lib/appleSignIn';
+import { isIOS } from '@/lib/capacitor';
 import type { User } from '@shared/schema';
 
 interface AuthContextType {
@@ -9,6 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
+  loginWithApple: () => Promise<void>;
   register: (name: string, email: string, password: string, deviceId?: string) => Promise<void>;
   logout: () => Promise<void>;
   trialActive: boolean;
@@ -16,6 +19,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isSuperAdmin: boolean;
   isGoogleLoginAvailable: boolean;
+  isAppleLoginAvailable: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -107,6 +111,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTrialDaysRemaining(data.trial.daysRemaining);
   };
 
+  const loginWithApple = async () => {
+    // Disponível somente em iOS nativo. Em Android/Web não chamamos.
+    const result = await signInWithApple();
+
+    let deviceId: string | undefined;
+    try {
+      deviceId = localStorage.getItem('deviceId') || undefined;
+    } catch {}
+
+    const res = await apiRequest('POST', '/api/auth/apple', {
+      identityToken: result.identityToken,
+      authorizationCode: result.authorizationCode,
+      user: result.user,
+      email: result.email,
+      fullName: result.fullName,
+      nonce: result.nonce,
+      deviceId,
+    });
+    const data = await res.json();
+
+    setAuthToken(data.token);
+    setToken(data.token);
+    setUser(data.user);
+    setTrialActive(data.trial.active);
+    setTrialDaysRemaining(data.trial.daysRemaining);
+  };
+
   const logout = async () => {
     try {
       // Call backend logout endpoint
@@ -133,13 +164,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading, 
       login,
       loginWithGoogle,
+      loginWithApple,
       register, 
       logout, 
       trialActive, 
       trialDaysRemaining,
       isAdmin: user?.role === 'admin' || user?.role === 'super_admin',
       isSuperAdmin: user?.role === 'super_admin',
-      isGoogleLoginAvailable: isFirebaseConfigured(),
+      // Em iOS escondemos o botão Google enquanto Apple Sign-In não estiver
+      // validado em produção (exigência da App Store quando há login social).
+      isGoogleLoginAvailable: isFirebaseConfigured() && !isIOS,
+      isAppleLoginAvailable: isAppleSignInAvailable(),
     }}>
       {children}
     </AuthContext.Provider>

@@ -490,6 +490,174 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============================================================================
+  // Sign in with Apple (iOS) — verifica identityToken via JWKS da Apple
+  //
+  // PRÉ-REQUISITOS QUE NÃO PODEM SER FEITOS NESTE REPO (manuais):
+  //   1. Apple Developer Console → habilitar "Sign in with Apple" no App ID
+  //      `com.bibliainteligente.app`.
+  //   2. Xcode (App.xcworkspace) → Signing & Capabilities → adicionar
+  //      "Sign in with Apple" (gera App.entitlements automaticamente).
+  //   3. (Opcional, somente se for usar refresh tokens server-to-server)
+  //      criar Service ID + chave privada AuthKey e armazenar como segredo.
+  //      Para o login básico que validamos aqui (verificação de identityToken)
+  //      NÃO precisamos da chave privada — apenas das chaves públicas JWKS.
+  // ============================================================================
+  const APPLE_BUNDLE_ID = "com.bibliainteligente.app";
+  let appleJwksCache: { keys: any[]; fetchedAt: number } | null = null;
+
+  async function getAppleJwks(): Promise<any[]> {
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+    if (appleJwksCache && Date.now() - appleJwksCache.fetchedAt < ONE_DAY) {
+      return appleJwksCache.keys;
+    }
+    const r = await fetch("https://appleid.apple.com/auth/keys");
+    if (!r.ok) throw new Error("Falha ao buscar JWKS da Apple");
+    const data = await r.json();
+    appleJwksCache = { keys: data.keys || [], fetchedAt: Date.now() };
+    return appleJwksCache.keys;
+  }
+
+  app.post("/api/auth/apple", async (req, res) => {
+    try {
+      const { identityToken, user: appleUserId, email: bodyEmail, fullName, nonce, deviceId } = req.body || {};
+      if (!identityToken) {
+        return res.status(400).json({ error: "identityToken é obrigatório" });
+      }
+      if (!nonce || typeof nonce !== "string") {
+        return res.status(400).json({ error: "nonce é obrigatório" });
+      }
+
+      // 1. Decodificar header para identificar a chave (kid)
+      const decodedHeader: any = jwt.decode(identityToken, { complete: true });
+      if (!decodedHeader?.header?.kid) {
+        return res.status(401).json({ error: "Token Apple inválido (header)" });
+      }
+
+      // 2. Buscar JWK correspondente
+      const keys = await getAppleJwks();
+      const jwk = keys.find((k: any) => k.kid === decodedHeader.header.kid);
+      if (!jwk) {
+        return res.status(401).json({ error: "Chave pública da Apple não encontrada" });
+      }
+
+      // 3. Converter JWK → PEM (Node 16+ suporta JWK nativamente)
+      const publicKey = crypto.createPublicKey({ key: jwk, format: "jwk" });
+      const pem = publicKey.export({ type: "spki", format: "pem" }) as string;
+
+      // 4. Verificar assinatura, issuer e audience — alg fixado em RS256 (padrão Apple)
+      let payload: any;
+      try {
+        payload = jwt.verify(identityToken, pem, {
+          algorithms: ["RS256"],
+          issuer: "https://appleid.apple.com",
+          audience: APPLE_BUNDLE_ID,
+        });
+      } catch (verifyErr) {
+        console.error("❌ Apple identityToken inválido:", verifyErr);
+        return res.status(401).json({ error: "Token Apple inválido" });
+      }
+
+      // 4b. Validar nonce — Apple inclui SHA256(nonce) hex no payload em fluxo nativo iOS.
+      // Aceitamos também comparação direta (caso o plugin já entregue hash) por defesa em profundidade.
+      const expectedHashed = crypto.createHash("sha256").update(nonce).digest("hex");
+      const tokenNonce: string | undefined = payload.nonce;
+      if (!tokenNonce || (tokenNonce !== expectedHashed && tokenNonce !== nonce)) {
+        console.error("❌ Nonce Apple não confere", { tokenNonce, expectedHashed });
+        return res.status(401).json({ error: "Nonce Apple inválido" });
+      }
+
+      // Apple só envia email/fullName na PRIMEIRA autorização. Em logins
+      // seguintes precisamos casar pelo `sub` (Apple user id) salvo em googleId.
+      const appleSub: string = payload.sub;
+      const email: string | null = payload.email || bodyEmail || null;
+
+      if (!appleSub) {
+        return res.status(400).json({ error: "Apple não retornou identificador do usuário" });
+      }
+
+      // 5. Localizar usuário existente: primeiro por googleId (reaproveitamos a coluna
+      //    para guardar o sub Apple prefixado), depois por email.
+      const appleIdKey = `apple:${appleSub}`;
+      let user = (await db.select().from(users).where(eq(users.googleId, appleIdKey)).limit(1))[0];
+      if (!user && email) {
+        user = await storage.getUserByEmail(email);
+        if (user && !user.googleId) {
+          await storage.updateUser(user.id, { googleId: appleIdKey });
+        }
+      }
+
+      if (!user) {
+        if (!email) {
+          return res.status(400).json({
+            error: "É necessário compartilhar o e-mail com a Apple para criar a conta",
+          });
+        }
+        const givenName = fullName?.givenName || null;
+        const familyName = fullName?.familyName || null;
+        const displayName =
+          [givenName, familyName].filter(Boolean).join(" ").trim() || email.split("@")[0];
+
+        user = await storage.createUser({
+          email,
+          name: displayName,
+          password: "", // sem senha (login social)
+          firstName: givenName,
+          lastName: familyName,
+          profileImageUrl: null,
+          googleId: appleIdKey,
+        });
+        console.log(`✅ Novo usuário criado via Apple: ${email}`);
+      } else {
+        console.log(`✅ Login Apple existente: ${user.email}`);
+      }
+
+      if (deviceId && typeof storage.linkGuestToUser === "function") {
+        try {
+          await storage.linkGuestToUser(deviceId, user.id);
+        } catch (e) {
+          console.warn("Erro ao vincular deviceId Apple:", e);
+        }
+      }
+
+      await storage.updateUserLastLogin(user.id);
+
+      const token = generateToken(user.id, user.email!, user.role || "user");
+      const { password: _, ...userWithoutPassword } = user;
+      const trialActive = isTrialActive(user.trialStartDate);
+      const daysRemaining = getTrialDaysRemaining(user.trialStartDate);
+
+      res.json({
+        user: userWithoutPassword,
+        token,
+        trial: { active: trialActive, daysRemaining },
+      });
+    } catch (error) {
+      console.error("❌ Erro no login com Apple:", error);
+      res.status(500).json({ error: "Erro ao fazer login com Apple" });
+    }
+  });
+
+  // ============================================================================
+  // Apagar conta — exigência da Apple App Store (Guideline 5.1.1(v)) e Google Play.
+  // Remove o usuário; cascades do schema removem dados associados.
+  // ============================================================================
+  app.delete("/api/user/me", ensureAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.userId!;
+      const existing = await storage.getUser(userId);
+      if (!existing) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      await storage.deleteUser(userId);
+      console.log(`🗑️  Conta apagada: ${existing.email} (${userId})`);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("❌ Erro ao apagar conta:", error);
+      res.status(500).json({ error: "Erro ao apagar conta" });
+    }
+  });
+
   // Get current user info
   app.get("/api/auth/me", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {

@@ -33,6 +33,8 @@ import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
 import { RequireAuthScreen } from "./RequireAuthScreen";
 import { PaymentSuccess, PaymentError, PaymentPending } from "@/pages/PaymentResult";
 import { InstallPage } from "@/pages/InstallPage";
+import { PrivacyPolicy } from "@/pages/PrivacyPolicy";
+import { TermsOfUse } from "@/pages/TermsOfUse";
 
 function NavigationContent() {
   const { 
@@ -95,13 +97,6 @@ function NavigationContent() {
   const isPaymentPage = location.startsWith("/pagamento/");
   const paymentStatus = isPaymentPage ? location.split("/pagamento/")[1]?.split("?")[0] : null;
 
-  // Render payment result pages directly (bypass normal navigation)
-  if (isPaymentPage && paymentStatus) {
-    if (paymentStatus === "sucesso") return <PaymentSuccess />;
-    if (paymentStatus === "erro") return <PaymentError />;
-    if (paymentStatus === "pendente") return <PaymentPending />;
-  }
-
   useEffect(() => {
     if (!isLoading) {
       if (currentScreen === "splash") {
@@ -113,6 +108,22 @@ function NavigationContent() {
       }
     }
   }, [isLoading, user, currentScreen, navigate]);
+
+  // ── Early returns SEMPRE depois de todos os hooks (Rules of Hooks) ──
+  // Render payment result pages directly (bypass normal navigation)
+  if (isPaymentPage && paymentStatus) {
+    if (paymentStatus === "sucesso") return <PaymentSuccess />;
+    if (paymentStatus === "erro") return <PaymentError />;
+    if (paymentStatus === "pendente") return <PaymentPending />;
+  }
+
+  // Páginas legais públicas (acessíveis sem login — exigência App Store/Play Store)
+  if (location === "/privacidade" || location.startsWith("/privacidade?")) {
+    return <PrivacyPolicy onBack={() => setLocation("/")} />;
+  }
+  if (location === "/termos" || location.startsWith("/termos?")) {
+    return <TermsOfUse onBack={() => setLocation("/")} />;
+  }
 
   return (
     <>

@@ -1,15 +1,28 @@
-import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft, Lock, RefreshCw } from "lucide-react";
+import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft, Lock, RefreshCw, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import { UserButton } from "@/components/UserButton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface SettingsScreenProps {
   onBack?: () => void;
@@ -19,9 +32,14 @@ interface SettingsScreenProps {
 export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsScreenProps) {
   const { user, logout, trialDaysRemaining } = useAuth();
   const { t } = useLanguage();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
   const [fontSize, setFontSize] = useState(() => {
     try {
       return localStorage.getItem("bible-font-size") || "medium";
@@ -62,6 +80,31 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
   const handleLogout = async () => {
     await logout();
     onBack?.();
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      await apiRequest("DELETE", "/api/user/me");
+      toast({
+        title: "Conta apagada",
+        description: "Sua conta e seus dados foram removidos permanentemente.",
+      });
+      // Limpa estado local e cache; logout backend pode falhar (token já é inválido)
+      try { await logout(); } catch {}
+      queryClient.clear();
+      setIsDeleteOpen(false);
+      setDeleteConfirm("");
+      onBack?.();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao apagar conta",
+        description: error?.data?.error || error?.message || "Tente novamente em instantes.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -237,16 +280,51 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <p>{t("settings.version")} 1.0.0</p>
-            <Button variant="ghost" className="p-0 h-auto" data-testid="link-terms">
-              {t("settings.terms")}
+            <Button
+              variant="ghost"
+              className="p-0 h-auto"
+              data-testid="link-terms"
+              onClick={() => setLocation("/termos")}
+            >
+              {t("settings.terms") || "Termos de Uso"}
             </Button>
             <br />
-            <Button variant="ghost" className="p-0 h-auto" data-testid="link-privacy">
-              {t("settings.privacy")}
+            <Button
+              variant="ghost"
+              className="p-0 h-auto"
+              data-testid="link-privacy"
+              onClick={() => setLocation("/privacidade")}
+            >
+              {t("settings.privacy") || "Política de Privacidade"}
             </Button>
             <br />
             <Button variant="ghost" className="p-0 h-auto" data-testid="link-help">
               {t("settings.helpCenter")}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Apagar conta — exigência das lojas (Apple App Store / Google Play). */}
+        <Card className="border-destructive/40">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              Apagar conta
+            </CardTitle>
+            <CardDescription>
+              Remove permanentemente seu perfil, marcações, anotações, gravações e histórico do Professor IA.
+              Essa ação não pode ser desfeita.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={() => setIsDeleteOpen(true)}
+              data-testid="button-delete-account"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Apagar minha conta
             </Button>
           </CardContent>
         </Card>
@@ -305,6 +383,50 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
           isOpen={isChangePasswordOpen}
           onClose={() => setIsChangePasswordOpen(false)}
         />
+
+        <AlertDialog open={isDeleteOpen} onOpenChange={(open) => {
+          setIsDeleteOpen(open);
+          if (!open) setDeleteConfirm("");
+        }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Apagar sua conta?</AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2">
+                <span className="block">
+                  Isso vai <strong>excluir permanentemente</strong> todos os seus dados:
+                  perfil, marcações, anotações, gravações e histórico do Professor IA.
+                </span>
+                <span className="block">
+                  Para confirmar, digite <strong>APAGAR</strong> abaixo.
+                </span>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <input
+              type="text"
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              placeholder="APAGAR"
+              className="w-full mt-2 px-3 py-2 rounded-md border bg-background text-foreground"
+              data-testid="input-delete-confirm"
+              autoComplete="off"
+            />
+            <AlertDialogFooter>
+              <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirm.trim().toUpperCase() !== "APAGAR" || isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                data-testid="button-confirm-delete"
+              >
+                {isDeleting ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Apagando...</>
+                ) : (
+                  "Apagar permanentemente"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

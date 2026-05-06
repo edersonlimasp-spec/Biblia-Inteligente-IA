@@ -6,3 +6,9 @@ id = "vUooGEGQlm12V-G7sUbak"
 uri = "file://public/biblia-store-icon-512.png"
 type = "image"
 title = "Ícone Google Play 512x512 (Bíblia Inteligente IA)"
+
+[[outputs]]
+id = "rsCVzzRFuz-9pbWfYIanr"
+uri = "file://public/bibliainteligente-v1.0.22.zip"
+type = "unspecified"
+title = "Bíblia Inteligente v1.0.22 — AAB assinado (versionCode 22)"

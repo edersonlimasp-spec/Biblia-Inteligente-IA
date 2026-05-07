@@ -52,8 +52,9 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     allowsLinkPreview: true,
     scrollEnabled: true,
-    limitsNavigationsToAppBoundDomains: false,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1A5299',
+    webContentsDebuggingEnabled: true,
+    handleApplicationNotifications: false,
   },
 };
 

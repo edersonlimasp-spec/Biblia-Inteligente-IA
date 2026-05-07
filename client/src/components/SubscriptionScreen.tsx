@@ -187,9 +187,10 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     
     setIsPurchasing(planId);
 
-    // ── IAP nativa (Android = Google Play Billing | iOS = Apple StoreKit) ─
-    // Em iOS NUNCA podemos cair no fluxo Mercado Pago (exigência App Store).
-    if (isAndroid || isIOS) {
+    // ── IAP nativa iOS (Apple StoreKit) ────────────────────────────────
+    // iOS NUNCA pode usar Mercado Pago (exigência App Store).
+    // Android usa o fluxo Mercado Pago abaixo até integração nativa do Google Play Billing.
+    if (isIOS) {
       try {
         const planTypeMap: Record<string, 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime'> = {
           gold:          'gold',
@@ -229,19 +230,26 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       if (data.init_point) {
         console.log('[MP] Redirecionando para checkout:', data.init_point);
         
-        const isInIframe = window.self !== window.top;
-        
-        if (isInIframe) {
-          const newWindow = window.open(data.init_point, '_blank');
-          if (!newWindow) {
-            toast({
-              title: t("subscription.openPayment"),
-              description: t("subscription.openPaymentDesc"),
-            });
-            window.top?.location.assign(data.init_point);
-          }
+        if (isNative) {
+          // Capacitor (Android): window.location não abre URLs externas dentro da WebView.
+          // '_system' delega ao browser padrão do dispositivo.
+          window.open(data.init_point, '_system');
+          // Reseta o estado pois o app permanece aberto (não navega para fora)
+          setIsPurchasing(null);
         } else {
-          window.location.assign(data.init_point);
+          const isInIframe = window.self !== window.top;
+          if (isInIframe) {
+            const newWindow = window.open(data.init_point, '_blank');
+            if (!newWindow) {
+              toast({
+                title: t("subscription.openPayment"),
+                description: t("subscription.openPaymentDesc"),
+              });
+              window.top?.location.assign(data.init_point);
+            }
+          } else {
+            window.location.assign(data.init_point);
+          }
         }
       } else {
         throw new Error('Erro ao criar checkout');

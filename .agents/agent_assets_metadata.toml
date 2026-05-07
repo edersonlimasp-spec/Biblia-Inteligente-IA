@@ -12,3 +12,21 @@ id = "rsCVzzRFuz-9pbWfYIanr"
 uri = "file://public/bibliainteligente-v1.0.22.zip"
 type = "unspecified"
 title = "Bíblia Inteligente v1.0.22 — AAB assinado (versionCode 22)"
+
+[[outputs]]
+id = "FGFoEd_u3CrTj6Uhj78Wp"
+uri = "file://screenshots/appstore-1-home.jpg"
+type = "image"
+title = "Screenshot 1 — Tela Inicial (1284×2778px)"
+
+[[outputs]]
+id = "DePXnMWQRfv3AiPR9uTUf"
+uri = "file://screenshots/appstore-2-strongs.jpg"
+type = "image"
+title = "Screenshot 2 — Dicionário Strong's (1284×2778px)"
+
+[[outputs]]
+id = "Ate8uN2WhONqQfx14TL3h"
+uri = "file://screenshots/appstore-3-ia.jpg"
+type = "image"
+title = "Screenshot 3 — Professor IA (1284×2778px)"

@@ -103,6 +103,7 @@ jobs:
 
       - name: Build IPA (xcodebuild archive)
         run: |
+          set -o pipefail
           cd ios/App
           
           xcodebuild archive \
@@ -115,44 +116,61 @@ jobs:
             CODE_SIGN_IDENTITY="Apple Distribution: Ederson Francisco (SQVM7RVJN9)" \
             PROVISIONING_PROFILE_SPECIFIER="BiblaInteligente AppStore" \
             DEVELOPMENT_TEAM=SQVM7RVJN9 \
-            | xcpretty --color || true
+            OTHER_CODE_SIGN_FLAGS="--keychain $RUNNER_TEMP/app-signing.keychain-db" \
+            2>&1 | tee /tmp/xcodebuild.log | grep -E "error:|warning:|Build succeeded|BUILD FAILED|Signing|archive" || true
           
+          if [ ! -d "$RUNNER_TEMP/App.xcarchive" ]; then
+            echo "=== XCODEBUILD FALHOU — log completo ==="
+            tail -100 /tmp/xcodebuild.log
+            exit 1
+          fi
+          
+          echo "Archive criado com sucesso!"
           ls -la $RUNNER_TEMP/App.xcarchive/
 
       - name: Exportar IPA
         run: |
+          set -o pipefail
+          
           cat > $RUNNER_TEMP/ExportOptions.plist << 'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>app-store</string>
-            <key>teamID</key>
-            <string>SQVM7RVJN9</string>
-            <key>uploadSymbols</key>
-            <true/>
-            <key>compileBitcode</key>
-            <false/>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>signingCertificate</key>
-            <string>Apple Distribution: Ederson Francisco (SQVM7RVJN9)</string>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>com.bibliainteligente.ios</key>
-              <string>BiblaInteligente AppStore</string>
-            </dict>
-          </dict>
-          </plist>
-          EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>method</key>
+  <string>app-store</string>
+  <key>teamID</key>
+  <string>SQVM7RVJN9</string>
+  <key>uploadSymbols</key>
+  <true/>
+  <key>compileBitcode</key>
+  <false/>
+  <key>signingStyle</key>
+  <string>manual</string>
+  <key>signingCertificate</key>
+  <string>Apple Distribution: Ederson Francisco (SQVM7RVJN9)</string>
+  <key>provisioningProfiles</key>
+  <dict>
+    <key>com.bibliainteligente.ios</key>
+    <string>BiblaInteligente AppStore</string>
+  </dict>
+</dict>
+</plist>
+EOF
           
           xcodebuild -exportArchive \
             -archivePath $RUNNER_TEMP/App.xcarchive \
             -exportPath $RUNNER_TEMP/IPA \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
-            | xcpretty --color || true
+            2>&1 | tee /tmp/export.log | grep -E "error:|Export Succeeded|IPA|Signing" || true
           
+          if [ ! "$(ls $RUNNER_TEMP/IPA/*.ipa 2>/dev/null)" ]; then
+            echo "=== EXPORT FALHOU — log completo ==="
+            tail -50 /tmp/export.log
+            exit 1
+          fi
+          
+          echo "IPA exportado com sucesso!"
           ls -la $RUNNER_TEMP/IPA/
 
       - name: Upload IPA como artefato

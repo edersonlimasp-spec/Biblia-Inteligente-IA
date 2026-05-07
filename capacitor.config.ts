@@ -53,6 +53,7 @@ const config: CapacitorConfig = {
     allowsLinkPreview: true,
     scrollEnabled: true,
     limitsNavigationsToAppBoundDomains: false,
+    backgroundColor: '#ffffff',
   },
 };
 

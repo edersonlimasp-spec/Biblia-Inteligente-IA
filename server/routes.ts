@@ -8734,6 +8734,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // TEMP: endpoint one-time para ativar assinatura vitalícia (remover após uso)
+  app.post("/api/setup/grant-lifetime", async (req: Request, res: Response) => {
+    const { secret, email } = req.body;
+    if (secret !== "BIBLIA_GRANT_2026_TEMP") {
+      return res.status(403).json({ error: "Não autorizado" });
+    }
+    try {
+      const targetUser = await storage.getUserByEmail(email);
+      if (!targetUser) return res.status(404).json({ error: "Usuário não encontrado" });
+      const endDate = new Date("2099-12-31T23:59:59.000Z");
+      const newSub = await db.insert(subscriptions).values({
+        userId: targetUser.id,
+        planType: "premium_annual",
+        status: "active",
+        amount: "0",
+        startDate: new Date(),
+        endDate,
+        source: "admin",
+      }).returning();
+      return res.json({ success: true, subscription: newSub[0] });
+    } catch (e) {
+      return res.status(500).json({ error: String(e) });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -200,21 +200,13 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     const plugin = await getIAPPlugin();
     
     if (!plugin) {
-      // No IAP plugin - this should only happen in development
-      // In production on iOS, the plugin would be available
-      if (import.meta.env.PROD) {
-        console.error('[IAP] Apple IAP plugin not available');
-        return { success: false, error: 'Compras não disponíveis nesta versão' };
-      }
-      
-      // Development mode - call backend which handles its own test mode
-      console.log('[IAP] Dev mode: sending test purchase to backend');
-      return await verifyApplePurchase({
-        productId,
-        transactionId: `dev_test_${Date.now()}`,
-        originalTransactionId: `dev_test_orig_${Date.now()}`,
-        receiptData: 'dev_test_receipt_data',
-      });
+      // iOS: NUNCA podemos usar Mercado Pago como fallback (compliance Apple).
+      // Falhamos com mensagem clara até StoreKit ser integrado.
+      console.error('[IAP] Apple StoreKit plugin não instalado nesta build');
+      return {
+        success: false,
+        error: 'Compras dentro do app estarão disponíveis em breve. Atualize o aplicativo na App Store quando uma nova versão estiver disponível.',
+      };
     }
     
     // Real purchase flow with plugin
@@ -251,20 +243,10 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
     const plugin = await getIAPPlugin();
     
     if (!plugin) {
-      // No IAP plugin - this should only happen in development
-      // In production on Android, the plugin would be available
-      if (import.meta.env.PROD) {
-        console.error('[IAP] Google IAP plugin not available');
-        return { success: false, error: 'Compras não disponíveis nesta versão' };
-      }
-      
-      // Development mode - call backend which handles its own test mode
-      console.log('[IAP] Dev mode: sending test purchase to backend');
-      return await verifyGooglePurchase({
-        productId,
-        purchaseToken: `dev_test_token_${Date.now()}`,
-        orderId: `dev_test_order_${Date.now()}`,
-      });
+      // No IAP plugin instalado — fallback temporário para Mercado Pago
+      // até que o plugin nativo (Google Play Billing) seja integrado.
+      console.warn('[IAP] Google Play Billing plugin indisponível — fallback para Mercado Pago');
+      return purchaseWithMercadoPago(planType);
     }
     
     // Real purchase flow with plugin

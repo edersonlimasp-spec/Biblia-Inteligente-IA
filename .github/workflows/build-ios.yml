@@ -25,6 +25,16 @@ jobs:
       - name: Checkout codigo
         uses: actions/checkout@v4
 
+      - name: Selecionar Xcode mais recente (iOS 26 SDK)
+        run: |
+          echo "Xcode versions disponiveis:"
+          ls /Applications | grep Xcode
+          XCODE_PATH=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          echo "Usando: $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
+          xcodebuild -version
+          xcrun simctl list runtimes | head -5
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

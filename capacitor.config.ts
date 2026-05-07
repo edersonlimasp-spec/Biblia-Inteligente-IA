@@ -52,7 +52,7 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     allowsLinkPreview: true,
     scrollEnabled: true,
-    limitsNavigationsToAppBoundDomains: true,
+    limitsNavigationsToAppBoundDomains: false,
   },
 };
 

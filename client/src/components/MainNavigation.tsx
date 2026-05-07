@@ -387,20 +387,20 @@ export function MainNavigation() {
     }
   }, []);
 
-  if (showSplash || isLoading) {
-    return <SplashScreen />;
-  }
-
   return (
     <ThemeProvider>
-      <NavigationProvider onExitRequest={handleExitRequest}>
-        <NavigationContent />
-        <ExitConfirmDialog
-          open={showExitDialog}
-          onOpenChange={setShowExitDialog}
-          onConfirm={handleExitConfirm}
-        />
-      </NavigationProvider>
+      {(showSplash || isLoading) ? (
+        <SplashScreen />
+      ) : (
+        <NavigationProvider onExitRequest={handleExitRequest}>
+          <NavigationContent />
+          <ExitConfirmDialog
+            open={showExitDialog}
+            onOpenChange={setShowExitDialog}
+            onConfirm={handleExitConfirm}
+          />
+        </NavigationProvider>
+      )}
     </ThemeProvider>
   );
 }

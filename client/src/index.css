@@ -473,6 +473,21 @@
   }
 }
 
+/* Esconder indicador de scroll nativo do iOS/WebKit no body
+ * Resolve o "tracinho azul" visível na faixa da notch quando a página
+ * é mais alta que 100vh (bug recorrente em Dashboard, Subscription, etc).
+ * O scroll continua funcionando normalmente — só o indicador visual some. */
+html, body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* Custom utility for word wrapping */
 .overflow-wrap-anywhere {
   overflow-wrap: anywhere;

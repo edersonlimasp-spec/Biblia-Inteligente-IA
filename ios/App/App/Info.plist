@@ -32,20 +32,22 @@
         <key>NSCameraUsageDescription</key>
         <string>Bíblia Inteligente IA usa a câmera para tirar sua foto de perfil.</string>
 
-        <key>WKAppBoundDomains</key>
-        <array>
-                <string>localhost</string>
-                <string>bibliainteligente.replit.app</string>
-        </array>
-
         <key>NSAppTransportSecurity</key>
         <dict>
                 <key>NSAllowsArbitraryLoads</key>
                 <false/>
-                <key>NSAllowsArbitraryLoadsInWebContent</key>
-                <true/>
                 <key>NSAllowsLocalNetworking</key>
                 <true/>
+                <key>NSExceptionDomains</key>
+                <dict>
+                        <key>bibliainteligente.replit.app</key>
+                        <dict>
+                                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                                <false/>
+                                <key>NSIncludesSubdomains</key>
+                                <true/>
+                        </dict>
+                </dict>
         </dict>
 
         <key>ITSAppUsesNonExemptEncryption</key>

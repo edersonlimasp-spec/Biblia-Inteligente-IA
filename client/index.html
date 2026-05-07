@@ -30,10 +30,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/pwa-icons/icon-bible-512.png" />
     
-    <!-- Fonts -->
+    <!-- Fonts: loaded async to not block iOS WebView rendering -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Crimson+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Crimson+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Crimson+Pro:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+
+    <!-- Prevent black flash on iOS WebView before CSS loads -->
+    <style>html,body,#root{background:#ffffff;margin:0;padding:0;}</style>
     
     <title>Bíblia Inteligente IA – Hebraico, Grego e Professor Teológico</title>
   </head>

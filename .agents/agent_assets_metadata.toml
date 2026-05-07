@@ -60,3 +60,39 @@ id = "MRt636OPzi3mPVnC_dsMu"
 uri = "file://screenshots/appstore-6-jogos.jpg"
 type = "image"
 title = "Screenshot 6 — Mini-Jogos"
+
+[[outputs]]
+id = "NgWYJ1Kr5queJ0w5CM1-U"
+uri = "file://screenshots/ipad-1.jpg"
+type = "image"
+title = "iPad 1 — Tela Inicial (2048×2732px)"
+
+[[outputs]]
+id = "rfuRC6_kP7QlVR4NZXt3P"
+uri = "file://screenshots/ipad-2.jpg"
+type = "image"
+title = "iPad 2 — Bíblia (2048×2732px)"
+
+[[outputs]]
+id = "py2W_gwSvuz59oXfeTE3k"
+uri = "file://screenshots/ipad-3.jpg"
+type = "image"
+title = "iPad 3 — Professor IA (2048×2732px)"
+
+[[outputs]]
+id = "DFLWnvO2OuqN1nuUksvU-"
+uri = "file://screenshots/ipad-4.jpg"
+type = "image"
+title = "iPad 4 — Modos IA Premium (2048×2732px)"
+
+[[outputs]]
+id = "vSBSOPu5l-_M076KEvQh2"
+uri = "file://screenshots/ipad-5.jpg"
+type = "image"
+title = "iPad 5 — Planos & Progresso (2048×2732px)"
+
+[[outputs]]
+id = "vRl8oD3YHh6bYV9CRKU9z"
+uri = "file://screenshots/ipad-6.jpg"
+type = "image"
+title = "iPad 6 — Mini-Jogos (2048×2732px)"

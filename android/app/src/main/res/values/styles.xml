@@ -20,6 +20,9 @@
     <!-- Tema de splash screen (transição inicial) -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <!-- Após o splash, transitar para o tema sem ActionBar para esconder
+             a faixa "Bíblia Inteligente IA" que vinha do android:label da Activity. -->
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 
 </resources>

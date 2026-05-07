@@ -16,6 +16,12 @@ export const GOOGLE_PRODUCT_MAP: Record<string, { planType: string; durationDays
   'strong_lifetime':{ planType: 'strong_lifetime',durationDays: null, amount: '49.90',  isSubscription: false },
 };
 
+// Google Play applicationId — DEVE bater com `applicationId` em
+// android/app/build.gradle e com o pacote publicado no Google Play Console.
+// Pode ser sobrescrito via env GOOGLE_PLAY_PACKAGE_NAME se algum dia mudar.
+const GOOGLE_PLAY_PACKAGE_NAME =
+  process.env.GOOGLE_PLAY_PACKAGE_NAME || 'app.replit.bibliainteligente.twa';
+
 interface GooglePurchaseVerification {
   purchaseTimeMillis: string;
   purchaseState: number; // 0: Purchased, 1: Canceled, 2: Pending
@@ -135,7 +141,7 @@ export async function verifyGooglePurchase(
   productId: string,
   purchaseToken: string
 ): Promise<GooglePurchaseVerification | null> {
-  const packageName = 'com.bibliainteligente.app';
+  const packageName = GOOGLE_PLAY_PACKAGE_NAME;
   const accessToken = await getGoogleAccessToken();
   
   if (!accessToken) {
@@ -170,7 +176,7 @@ export async function verifyGoogleSubscription(
   subscriptionId: string,
   purchaseToken: string
 ): Promise<GoogleSubscriptionVerification | null> {
-  const packageName = 'com.bibliainteligente.app';
+  const packageName = GOOGLE_PLAY_PACKAGE_NAME;
   const accessToken = await getGoogleAccessToken();
   
   if (!accessToken) {
@@ -206,7 +212,7 @@ export async function acknowledgeGooglePurchase(
   purchaseToken: string,
   isSubscription: boolean
 ): Promise<boolean> {
-  const packageName = 'com.bibliainteligente.app';
+  const packageName = GOOGLE_PLAY_PACKAGE_NAME;
   const accessToken = await getGoogleAccessToken();
   
   if (!accessToken) {

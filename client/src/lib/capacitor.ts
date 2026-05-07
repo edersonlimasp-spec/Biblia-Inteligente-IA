@@ -10,12 +10,19 @@ export const isIOS = platform === 'ios';
 export const isAndroid = platform === 'android';
 export const isWeb = platform === 'web';
 
+export async function hideSplashScreen() {
+  if (!isNative) return;
+  try {
+    await SplashScreen.hide({ fadeOutDuration: 300 });
+  } catch (e) {
+    console.warn('[Capacitor] SplashScreen.hide error:', e);
+  }
+}
+
 export async function initializeCapacitor() {
   if (!isNative) return;
 
   try {
-    await SplashScreen.hide({ fadeOutDuration: 500 });
-    
     await StatusBar.setStyle({ style: Style.Dark });
     
     if (isAndroid) {

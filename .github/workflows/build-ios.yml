@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version_name:
-        description: 'Versão do app (ex: 1.0.1)'
+        description: 'Versao do app (ex: 1.0.1)'
         required: false
         default: '1.0.0'
       version_code:
@@ -12,17 +12,17 @@ on:
         required: false
         default: '1'
       upload_to_store:
-        description: 'Enviar para App Store Connect?'
+        description: 'Enviar para App Store Connect? (true/false)'
         required: false
         default: 'true'
 
 jobs:
   build:
-    name: Build & Upload iOS IPA
+    name: Build and Upload iOS IPA
     runs-on: macos-latest
 
     steps:
-      - name: Checkout código
+      - name: Checkout codigo
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -31,7 +31,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Instalar dependências Node
+      - name: Instalar dependencias Node
         run: npm ci
 
       - name: Build do projeto web
@@ -48,28 +48,20 @@ jobs:
           cd ios/App
           pod install --repo-update
 
-      - name: Importar certificado de distribuição (.p12)
+      - name: Importar certificado p12
         env:
           P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_P12_BASE64 }}
           P12_PASSWORD: ${{ secrets.IOS_P12_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           KEYCHAIN_PASSWORD=$(openssl rand -hex 16)
-          
           echo "$P12_BASE64" | base64 --decode > $RUNNER_TEMP/distribution.p12
-          
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          
-          security import $RUNNER_TEMP/distribution.p12 \
-            -P "$P12_PASSWORD" \
-            -A -t cert -f pkcs12 \
-            -k $KEYCHAIN_PATH
-          
+          security import $RUNNER_TEMP/distribution.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychains -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          
           echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> $GITHUB_ENV
           echo "KEYCHAIN_PASSWORD=$KEYCHAIN_PASSWORD" >> $GITHUB_ENV
 
@@ -79,33 +71,24 @@ jobs:
         run: |
           PROFILE_PATH=$RUNNER_TEMP/distribution.mobileprovision
           echo "$PROFILE_BASE64" | base64 --decode > $PROFILE_PATH
-          
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          
           UUID=$(security cms -D -i $PROFILE_PATH | plutil -extract UUID xml1 -o - - | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
           echo "Profile UUID: $UUID"
-          
           cp $PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
           echo "PROFILE_UUID=$UUID" >> $GITHUB_ENV
 
-      - name: Atualizar versão no projeto Xcode
+      - name: Atualizar versao no Info.plist
         run: |
           VERSION="${{ github.event.inputs.version_name }}"
           BUILD="${{ github.event.inputs.version_code }}"
-          
-          xcrun agvtool new-marketing-version "$VERSION" || true
-          xcrun agvtool new-version -all "$BUILD" || true
-          
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" ios/App/App/Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" ios/App/App/Info.plist
-          
-          echo "Versão: $VERSION ($BUILD)"
+          echo "Versao: $VERSION ($BUILD)"
 
-      - name: Build IPA (xcodebuild archive)
+      - name: Build IPA - xcodebuild archive
         run: |
           set -o pipefail
           cd ios/App
-          
           xcodebuild archive \
             -workspace App.xcworkspace \
             -scheme App \
@@ -117,66 +100,66 @@ jobs:
             PROVISIONING_PROFILE_SPECIFIER="BiblaInteligente AppStore" \
             DEVELOPMENT_TEAM=SQVM7RVJN9 \
             OTHER_CODE_SIGN_FLAGS="--keychain $RUNNER_TEMP/app-signing.keychain-db" \
-            2>&1 | tee /tmp/xcodebuild.log | grep -E "error:|warning:|Build succeeded|BUILD FAILED|Signing|archive" || true
-          
+            2>&1 | tee /tmp/xcodebuild.log
           if [ ! -d "$RUNNER_TEMP/App.xcarchive" ]; then
-            echo "=== XCODEBUILD FALHOU — log completo ==="
-            tail -100 /tmp/xcodebuild.log
+            echo "FALHOU: xcarchive nao foi criado"
             exit 1
           fi
-          
-          echo "Archive criado com sucesso!"
+          echo "Archive criado com sucesso"
           ls -la $RUNNER_TEMP/App.xcarchive/
+
+      - name: Criar ExportOptions.plist
+        run: |
+          python3 -c "
+          content = '''<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+          <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+          <plist version=\"1.0\">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+            <key>teamID</key>
+            <string>SQVM7RVJN9</string>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>compileBitcode</key>
+            <false/>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>signingCertificate</key>
+            <string>Apple Distribution: Ederson Francisco (SQVM7RVJN9)</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.bibliainteligente.ios</key>
+              <string>BiblaInteligente AppStore</string>
+            </dict>
+          </dict>
+          </plist>'''
+          with open('$RUNNER_TEMP/ExportOptions.plist', 'w') as f:
+              f.write(content)
+          print('ExportOptions.plist criado')
+          "
 
       - name: Exportar IPA
         run: |
           set -o pipefail
-          
-          cat > $RUNNER_TEMP/ExportOptions.plist << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>method</key>
-  <string>app-store</string>
-  <key>teamID</key>
-  <string>SQVM7RVJN9</string>
-  <key>uploadSymbols</key>
-  <true/>
-  <key>compileBitcode</key>
-  <false/>
-  <key>signingStyle</key>
-  <string>manual</string>
-  <key>signingCertificate</key>
-  <string>Apple Distribution: Ederson Francisco (SQVM7RVJN9)</string>
-  <key>provisioningProfiles</key>
-  <dict>
-    <key>com.bibliainteligente.ios</key>
-    <string>BiblaInteligente AppStore</string>
-  </dict>
-</dict>
-</plist>
-EOF
-          
           xcodebuild -exportArchive \
             -archivePath $RUNNER_TEMP/App.xcarchive \
             -exportPath $RUNNER_TEMP/IPA \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
-            2>&1 | tee /tmp/export.log | grep -E "error:|Export Succeeded|IPA|Signing" || true
-          
-          if [ ! "$(ls $RUNNER_TEMP/IPA/*.ipa 2>/dev/null)" ]; then
-            echo "=== EXPORT FALHOU — log completo ==="
+            2>&1 | tee /tmp/export.log
+          IPA_COUNT=$(ls $RUNNER_TEMP/IPA/*.ipa 2>/dev/null | wc -l)
+          if [ "$IPA_COUNT" -eq 0 ]; then
+            echo "FALHOU: IPA nao foi gerado"
             tail -50 /tmp/export.log
             exit 1
           fi
-          
-          echo "IPA exportado com sucesso!"
+          echo "IPA exportado com sucesso"
           ls -la $RUNNER_TEMP/IPA/
 
       - name: Upload IPA como artefato
         uses: actions/upload-artifact@v4
         with:
-          name: BiblaInteligente-iOS-${{ github.event.inputs.version_name }}-${{ github.event.inputs.version_code }}
+          name: BiblaInteligente-iOS-${{ github.event.inputs.version_name }}-b${{ github.event.inputs.version_code }}
           path: ${{ runner.temp }}/IPA/*.ipa
           retention-days: 30
 
@@ -188,7 +171,6 @@ EOF
         run: |
           IPA_PATH=$(ls $RUNNER_TEMP/IPA/*.ipa | head -1)
           echo "Enviando: $IPA_PATH"
-          
           xcrun altool --upload-app \
             --type ios \
             --file "$IPA_PATH" \

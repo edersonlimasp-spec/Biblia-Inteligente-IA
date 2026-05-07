@@ -17,7 +17,7 @@ title = "Bíblia Inteligente v1.0.22 — AAB assinado (versionCode 22)"
 id = "FGFoEd_u3CrTj6Uhj78Wp"
 uri = "file://screenshots/appstore-1-home.jpg"
 type = "image"
-title = "Screenshot 1 — Tela Inicial (1284×2778px)"
+title = "Screenshot 1 — Tela Inicial"
 
 [[outputs]]
 id = "DePXnMWQRfv3AiPR9uTUf"
@@ -30,3 +30,33 @@ id = "Ate8uN2WhONqQfx14TL3h"
 uri = "file://screenshots/appstore-3-ia.jpg"
 type = "image"
 title = "Screenshot 3 — Professor IA (1284×2778px)"
+
+[[outputs]]
+id = "W88GPDPkIqLDzYjYfrT4K"
+uri = "file://screenshots/appstore-2-biblia.jpg"
+type = "image"
+title = "Screenshot 2 — Bíblia (Gênesis 1)"
+
+[[outputs]]
+id = "sePACQx6pCZwzuNb3TWKo"
+uri = "file://screenshots/appstore-3-professor.jpg"
+type = "image"
+title = "Screenshot 3 — Professor IA"
+
+[[outputs]]
+id = "9snrshOLpH0JKp0LMT4YL"
+uri = "file://screenshots/appstore-4-modos-ia.jpg"
+type = "image"
+title = "Screenshot 4 — Modos IA Premium"
+
+[[outputs]]
+id = "lpHspSkM6qaJ2gcDQ72tL"
+uri = "file://screenshots/appstore-5-progresso.jpg"
+type = "image"
+title = "Screenshot 5 — Planos & Progresso"
+
+[[outputs]]
+id = "MRt636OPzi3mPVnC_dsMu"
+uri = "file://screenshots/appstore-6-jogos.jpg"
+type = "image"
+title = "Screenshot 6 — Mini-Jogos"

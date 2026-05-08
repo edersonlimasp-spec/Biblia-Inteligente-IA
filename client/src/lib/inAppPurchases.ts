@@ -17,11 +17,12 @@ export const PRODUCT_IDS = {
     strong_lifetime: 'com.bibliainteligente.strong_lifetime',
   },
   android: {
-    gold_monthly:    'gold_monthly',
-    gold_annual:     'gold_annual',
-    premium_monthly: 'premium_monthly',
-    premium_annual:  'premium_annual',
-    strong_lifetime: 'strong_lifetime',
+    // IDs exatos cadastrados no Google Play Console (não podem ser renomeados)
+    gold_monthly:    'biblia_gold_mensal',
+    gold_annual:     'biblia_gold_anual',
+    premium_monthly: 'biblia_premium_mensal',
+    premium_annual:  'premium_anual',
+    strong_lifetime: 'biblia_strong_vitalicio',
   },
   web: {
     gold_monthly:    'gold',
@@ -160,13 +161,14 @@ async function getGooglePlayStore(): Promise<any | null> {
 
   if (!_cdvStoreReady) {
     _cdvStoreReady = (async () => {
-      // Registrar produtos antes de initialize
+      // Registrar produtos antes de initialize.
+      // IDs DEVEM bater exatamente com os cadastrados no Play Console.
       store.register([
-        { id: 'gold_monthly',    type: ProductType.PAID_SUBSCRIPTION,    platform: Platform.GOOGLE_PLAY },
-        { id: 'gold_annual',     type: ProductType.PAID_SUBSCRIPTION,    platform: Platform.GOOGLE_PLAY },
-        { id: 'premium_monthly', type: ProductType.PAID_SUBSCRIPTION,    platform: Platform.GOOGLE_PLAY },
-        { id: 'premium_annual',  type: ProductType.PAID_SUBSCRIPTION,    platform: Platform.GOOGLE_PLAY },
-        { id: 'strong_lifetime', type: ProductType.NON_CONSUMABLE,       platform: Platform.GOOGLE_PLAY },
+        { id: 'biblia_gold_mensal',     type: ProductType.PAID_SUBSCRIPTION, platform: Platform.GOOGLE_PLAY },
+        { id: 'biblia_gold_anual',      type: ProductType.PAID_SUBSCRIPTION, platform: Platform.GOOGLE_PLAY },
+        { id: 'biblia_premium_mensal',  type: ProductType.PAID_SUBSCRIPTION, platform: Platform.GOOGLE_PLAY },
+        { id: 'premium_anual',          type: ProductType.PAID_SUBSCRIPTION, platform: Platform.GOOGLE_PLAY },
+        { id: 'biblia_strong_vitalicio',type: ProductType.NON_CONSUMABLE,    platform: Platform.GOOGLE_PLAY },
       ]);
 
       if (!_listenersRegistered) {

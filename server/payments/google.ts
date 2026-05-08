@@ -7,13 +7,14 @@ import { db } from '../db';
 import { subscriptions, paymentReceipts, users } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 
-// Product ID to plan mapping
+// Product ID to plan mapping.
+// As chaves DEVEM ser exatamente os IDs cadastrados no Google Play Console.
 export const GOOGLE_PRODUCT_MAP: Record<string, { planType: string; durationDays: number | null; amount: string; isSubscription: boolean }> = {
-  'gold_monthly':   { planType: 'gold',          durationDays: 30,   amount: '9.90',   isSubscription: true  },
-  'gold_annual':    { planType: 'gold_anual',     durationDays: 365,  amount: '79.90',  isSubscription: true  },
-  'premium_monthly':{ planType: 'premium',        durationDays: 30,   amount: '19.90',  isSubscription: true  },
-  'premium_annual': { planType: 'premium_anual',  durationDays: 365,  amount: '129.90', isSubscription: true  },
-  'strong_lifetime':{ planType: 'strong_lifetime',durationDays: null, amount: '49.90',  isSubscription: false },
+  'biblia_gold_mensal':      { planType: 'gold',           durationDays: 30,   amount: '9.90',   isSubscription: true  },
+  'biblia_gold_anual':       { planType: 'gold_anual',     durationDays: 365,  amount: '79.90',  isSubscription: true  },
+  'biblia_premium_mensal':   { planType: 'premium',        durationDays: 30,   amount: '19.90',  isSubscription: true  },
+  'premium_anual':           { planType: 'premium_anual',  durationDays: 365,  amount: '129.90', isSubscription: true  },
+  'biblia_strong_vitalicio': { planType: 'strong_lifetime',durationDays: null, amount: '49.90',  isSubscription: false },
 };
 
 // Google Play applicationId — DEVE bater com `applicationId` em

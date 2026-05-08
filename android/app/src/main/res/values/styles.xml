@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Tema base da aplicação -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <!-- Tema base da aplicação — SEM ActionBar para garantir que a faixa branca
+         "Bíblia Inteligente IA" (vinda de android:label) NUNCA apareça acima do
+         conteúdo do app, em nenhuma tela e em nenhuma situação (incluindo
+         recreação de Activity, retomada vinda da Play Store, etc). -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>

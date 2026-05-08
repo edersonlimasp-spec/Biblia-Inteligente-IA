@@ -83,18 +83,10 @@ interface PurchaseResult {
   };
 }
 
-/**
- * Returns null — purchases are handled via our custom backend API (no RevenueCat dependency).
- * The purchase flow calls /api/iap/verify/google or /api/iap/verify/apple directly.
- */
-async function getIAPPlugin(): Promise<null> {
-  return null;
-}
-
-// ── Google Play Billing via cordova-plugin-purchase (CdvPurchase v13) ─────
-// O plugin expõe o objeto global window.CdvPurchase quando rodando no
-// Android dentro do Capacitor (após cap sync). Toda a integração fica isolada
-// neste módulo para não quebrar a build web.
+// ── In-App Purchases via cordova-plugin-purchase (CdvPurchase v13) ────────
+// O plugin expõe o objeto global window.CdvPurchase quando rodando dentro
+// do Capacitor (Android E iOS, após cap sync + pod install). Toda a
+// integração fica isolada neste módulo para não quebrar a build web.
 let _cdvStoreReady: Promise<any> | null = null;
 
 // Aguardar o objeto window.CdvPurchase aparecer (até 10s). Em algumas
@@ -151,31 +143,37 @@ function _routeApprovedTransaction(transaction: any): PendingTx | null {
   return _pendingPurchases.splice(idx, 1)[0];
 }
 
-async function getGooglePlayStore(): Promise<any | null> {
-  if (!isAndroid || !isNative) return null;
+// ───────────────────────────────────────────────────────────────────────────
+// Inicialização unificada do CdvPurchase store (Android Google Play OU iOS App Store).
+// O cordova-plugin-purchase v13 é multi-plataforma — registramos os produtos
+// da plataforma corrente e o listener .approved() roteia pra Google ou Apple.
+// ───────────────────────────────────────────────────────────────────────────
+async function _initCdvStore(): Promise<any | null> {
+  if (!isNative) return null;
+  if (!isAndroid && !isIOS) return null;
 
   const cdv = await _waitForCdvPurchase();
   if (!cdv) return null;
 
   const { store, ProductType, Platform } = cdv;
+  const targetPlatform = isIOS ? Platform.APPLE_APPSTORE : Platform.GOOGLE_PLAY;
 
   if (!_cdvStoreReady) {
     _cdvStoreReady = (async () => {
-      // Registrar produtos antes de initialize.
-      // IDs DEVEM bater exatamente com os cadastrados no Play Console.
+      // IDs DEVEM bater exatamente com os cadastrados no Console.
+      const ids = isIOS ? PRODUCT_IDS.ios : PRODUCT_IDS.android;
+
       store.register([
-        { id: 'biblia_gold_mensal',     type: ProductType.PAID_SUBSCRIPTION, platform: Platform.GOOGLE_PLAY },
-        { id: 'biblia_gold_anual',      type: ProductType.PAID_SUBSCRIPTION, platform: Platform.GOOGLE_PLAY },
-        { id: 'biblia_premium_mensal',  type: ProductType.PAID_SUBSCRIPTION, platform: Platform.GOOGLE_PLAY },
-        { id: 'premium_anual',          type: ProductType.PAID_SUBSCRIPTION, platform: Platform.GOOGLE_PLAY },
-        { id: 'biblia_strong_vitalicio',type: ProductType.NON_CONSUMABLE,    platform: Platform.GOOGLE_PLAY },
+        { id: ids.gold_monthly,    type: ProductType.PAID_SUBSCRIPTION, platform: targetPlatform },
+        { id: ids.gold_annual,     type: ProductType.PAID_SUBSCRIPTION, platform: targetPlatform },
+        { id: ids.premium_monthly, type: ProductType.PAID_SUBSCRIPTION, platform: targetPlatform },
+        { id: ids.premium_annual,  type: ProductType.PAID_SUBSCRIPTION, platform: targetPlatform },
+        { id: ids.strong_lifetime, type: ProductType.NON_CONSUMABLE,    platform: targetPlatform },
       ]);
 
       if (!_listenersRegistered) {
         _listenersRegistered = true;
 
-        // Listener global de erros para diagnóstico — e para resolver
-        // pedidos pendentes quando o erro vem do checkout.
         store.error((err: any) => {
           console.error('[IAP][CdvPurchase] error:', err?.code, err?.message || err);
         });
@@ -183,45 +181,77 @@ async function getGooglePlayStore(): Promise<any | null> {
         store.when()
           .approved(async (transaction: any) => {
             const pending = _routeApprovedTransaction(transaction);
-
-            const purchaseToken =
-              transaction?.purchaseToken ||
-              transaction?.nativePurchase?.purchaseToken ||
-              '';
-            const orderId =
-              transaction?.transactionId ||
-              transaction?.nativePurchase?.orderId ||
-              '';
             const productId =
               transaction?.products?.[0]?.id ||
               transaction?.productId ||
               pending?.productId ||
               '';
 
-            if (!purchaseToken || !orderId || !productId) {
-              console.error('[IAP] Transação aprovada sem dados completos', transaction);
-              pending?.resolve({ success: false, error: 'Transação inválida (token ausente)' });
-              return;
-            }
+            const txPlatform = transaction?.platform || targetPlatform;
 
             try {
-              const result = await verifyGooglePurchase({
-                productId,
-                purchaseToken,
-                orderId,
-              });
+              if (txPlatform === Platform.APPLE_APPSTORE) {
+                // ─── Apple StoreKit ─────────────────────────────────────
+                const transactionId =
+                  transaction?.transactionId ||
+                  transaction?.nativePurchase?.transactionId ||
+                  '';
+                const originalTransactionId =
+                  transaction?.nativePurchase?.originalTransactionIdentifier ||
+                  transaction?.nativePurchase?.originalTransactionId ||
+                  transactionId;
+                const receiptData =
+                  transaction?.nativePurchase?.appStoreReceipt ||
+                  transaction?.transactionReceipt ||
+                  (store as any)?.localReceipts?.[0]?.nativePurchase?.appStoreReceipt ||
+                  (store as any)?.localReceipts?.[0]?.transactions?.[0]?.nativePurchase?.appStoreReceipt ||
+                  '';
 
-              if (result.success) {
-                try {
-                  await transaction.finish();
-                } catch (e) {
-                  console.warn('[IAP] Falha ao finalizar transação no plugin (ignorável):', e);
+                if (!receiptData || !transactionId || !productId) {
+                  console.error('[IAP][Apple] Transação aprovada sem dados completos', {
+                    hasReceipt: !!receiptData, transactionId, productId,
+                  });
+                  pending?.resolve({ success: false, error: 'Recibo Apple inválido (dados ausentes)' });
+                  return;
                 }
-              }
 
-              // Se houver consumidor pendente, resolve. Caso contrário, foi
-              // uma transação espontânea (restore/renovação) — só verificamos.
-              pending?.resolve(result);
+                const result = await verifyApplePurchase({
+                  productId, transactionId, originalTransactionId, receiptData,
+                });
+
+                if (result.success) {
+                  try { await transaction.finish(); } catch (e) {
+                    console.warn('[IAP][Apple] Falha ao finalizar transação (ignorável):', e);
+                  }
+                }
+                pending?.resolve(result);
+
+              } else {
+                // ─── Google Play Billing ────────────────────────────────
+                const purchaseToken =
+                  transaction?.purchaseToken ||
+                  transaction?.nativePurchase?.purchaseToken ||
+                  '';
+                const orderId =
+                  transaction?.transactionId ||
+                  transaction?.nativePurchase?.orderId ||
+                  '';
+
+                if (!purchaseToken || !orderId || !productId) {
+                  console.error('[IAP][Google] Transação aprovada sem dados completos', transaction);
+                  pending?.resolve({ success: false, error: 'Transação inválida (token ausente)' });
+                  return;
+                }
+
+                const result = await verifyGooglePurchase({ productId, purchaseToken, orderId });
+
+                if (result.success) {
+                  try { await transaction.finish(); } catch (e) {
+                    console.warn('[IAP][Google] Falha ao finalizar transação (ignorável):', e);
+                  }
+                }
+                pending?.resolve(result);
+              }
             } catch (e: any) {
               console.error('[IAP] Erro processando transação aprovada:', e);
               pending?.resolve({ success: false, error: e?.message || String(e) });
@@ -229,9 +259,9 @@ async function getGooglePlayStore(): Promise<any | null> {
           });
       }
 
-      await store.initialize([Platform.GOOGLE_PLAY]);
+      await store.initialize([targetPlatform]);
       await store.update();
-      console.log('[IAP] CdvPurchase store inicializada com sucesso');
+      console.log(`[IAP] CdvPurchase store inicializada (${isIOS ? 'Apple App Store' : 'Google Play'})`);
       return store;
     })().catch(e => {
       console.error('[IAP] Falha ao inicializar CdvPurchase store:', e);
@@ -242,6 +272,16 @@ async function getGooglePlayStore(): Promise<any | null> {
   }
 
   return _cdvStoreReady;
+}
+
+async function getGooglePlayStore(): Promise<any | null> {
+  if (!isAndroid || !isNative) return null;
+  return _initCdvStore();
+}
+
+async function getAppleStore(): Promise<any | null> {
+  if (!isIOS || !isNative) return null;
+  return _initCdvStore();
 }
 
 /**
@@ -353,45 +393,90 @@ async function purchaseWithMercadoPago(planType: string): Promise<PurchaseResult
 }
 
 /**
- * Purchase with Apple StoreKit (iOS)
+ * Purchase with Apple StoreKit (iOS) via cordova-plugin-purchase v13
+ * Mesmo fluxo do Google: registra pendência → store.order(offer) → listener
+ * .approved() global resolve a Promise com o resultado da verificação backend.
  */
 async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
   const productId = getProductId(planType as any);
-  
+
   try {
-    const plugin = await getIAPPlugin();
-    
-    if (!plugin) {
-      // iOS: NUNCA podemos usar Mercado Pago como fallback (compliance Apple).
-      // Falhamos com mensagem clara até StoreKit ser integrado.
-      console.error('[IAP] Apple StoreKit plugin não instalado nesta build');
+    const store = await getAppleStore();
+
+    if (!store) {
+      // Plugin nativo indisponível (build antiga sem o pod do CdvPurchase).
+      // NUNCA caímos pra Mercado Pago no iOS — compliance App Store (3.1.1).
+      console.error('[IAP] Apple StoreKit indisponível nesta build');
       return {
         success: false,
-        error: 'Compras dentro do app estarão disponíveis em breve. Atualize o aplicativo na App Store quando uma nova versão estiver disponível.',
+        error: 'Compras dentro do app indisponíveis nesta versão. Atualize o aplicativo pela App Store.',
       };
     }
-    
-    // Real purchase flow with plugin
-    const purchaseResult = await (plugin as any).purchase({ productId });
-    
-    if (!purchaseResult.customerInfo?.entitlements?.active) {
-      return { success: false, error: 'Compra não concluída' };
+
+    const product = store.get(productId);
+    if (!product) {
+      console.error('[IAP][Apple] Produto não encontrado no store:', productId);
+      return {
+        success: false,
+        error: `Produto não disponível (${productId}). Verifique a configuração no App Store Connect.`,
+      };
     }
-    
-    // Verify with backend
-    return await verifyApplePurchase({
-      productId,
-      transactionId: purchaseResult.transaction?.transactionId,
-      originalTransactionId: purchaseResult.transaction?.originalTransactionId,
-      receiptData: purchaseResult.transaction?.receipt,
+
+    const offer = product.getOffer();
+    if (!offer) {
+      return { success: false, error: 'Oferta indisponível para este produto' };
+    }
+
+    // Registra a transação pendente ANTES de chamar order(), para que o
+    // listener .approved() global consiga rotear corretamente.
+    let resolvePending!: (r: PurchaseResult) => void;
+    const verificationPromise = new Promise<PurchaseResult>((resolve) => {
+      resolvePending = resolve;
     });
-    
+    const pendingEntry: PendingTx = {
+      productId,
+      resolve: resolvePending,
+      createdAt: Date.now(),
+    };
+    _pendingPurchases.push(pendingEntry);
+
+    // Timeout defensivo de 2 minutos.
+    const timeoutId = setTimeout(() => {
+      const idx = _pendingPurchases.indexOf(pendingEntry);
+      if (idx !== -1) _pendingPurchases.splice(idx, 1);
+      resolvePending({ success: false, error: 'Tempo esgotado aguardando aprovação da compra' });
+    }, 120_000);
+
+    // Disparar checkout do StoreKit. Apple não retorna IError direto pro order(),
+    // mas pode lançar exceção (ex.: IAP desabilitado nas Settings).
+    const orderResult: any = await store.order(offer);
+    if (orderResult && (orderResult.code !== undefined || orderResult.isError)) {
+      clearTimeout(timeoutId);
+      const idx = _pendingPurchases.indexOf(pendingEntry);
+      if (idx !== -1) _pendingPurchases.splice(idx, 1);
+
+      const code = orderResult.code;
+      // Apple usa SKErrorPaymentCancelled (2) — CdvPurchase normaliza pra 6500/USER_CANCELLED.
+      if (code === 6500 || code === 2 || code === 'USER_CANCELLED') {
+        return { success: false, error: 'Compra cancelada' };
+      }
+      console.error('[IAP][Apple] store.order() retornou erro:', orderResult);
+      return {
+        success: false,
+        error: orderResult.message || `Erro ao iniciar compra (código ${code ?? 'desconhecido'})`,
+      };
+    }
+
+    const result = await verificationPromise;
+    clearTimeout(timeoutId);
+    return result;
+
   } catch (error: any) {
-    if (error.code === 'USER_CANCELLED') {
+    if (error?.code === 'USER_CANCELLED' || error?.code === 6500 || error?.code === 2) {
       return { success: false, error: 'Compra cancelada' };
     }
     console.error('[IAP] Apple purchase error:', error);
-    return { success: false, error: error.message || String(error) };
+    return { success: false, error: error?.message || String(error) };
   }
 }
 
@@ -576,8 +661,45 @@ export async function restorePurchases(): Promise<{ success: boolean; restored: 
     }
 
     if (paymentMethod === 'apple') {
-      // Apple StoreKit ainda não integrado nesta build.
-      return { success: true, restored: 0 };
+      const store = await getAppleStore();
+      if (!store) {
+        return { success: false, restored: 0, error: 'Apple StoreKit indisponível nesta versão' };
+      }
+
+      // Disparar restore nativo — o StoreKit recupera transações pagas e
+      // dispara .approved() para cada uma (que automaticamente verifica
+      // com o backend via listener global).
+      try {
+        await store.restorePurchases();
+      } catch (e) {
+        console.warn('[IAP][Apple] restorePurchases nativo lançou erro:', e);
+      }
+
+      // Aguardar um instante para o iOS popular localReceipts após o restore.
+      await new Promise((r) => setTimeout(r, 1500));
+
+      // Pegar o appStoreReceipt unificado (1 receipt cobre todas as compras
+      // do bundleId no device) e enviar pro backend, que valida e cria/atualiza
+      // todas as subscriptions encontradas.
+      const receipts = (store as any).localReceipts || [];
+      let appStoreReceipt = '';
+      for (const r of receipts) {
+        const candidate =
+          (r as any)?.nativePurchase?.appStoreReceipt ||
+          (r as any)?.transactions?.[0]?.nativePurchase?.appStoreReceipt ||
+          '';
+        if (candidate) { appStoreReceipt = candidate; break; }
+      }
+
+      if (!appStoreReceipt) {
+        // Sem recibo = nada pra restaurar (usuário nunca comprou neste Apple ID).
+        return { success: true, restored: 0 };
+      }
+
+      const response = await apiRequest('POST', '/api/iap/restore/apple', {
+        receiptData: appStoreReceipt,
+      });
+      return await response.json();
     }
 
     return { success: false, restored: 0, error: 'Plataforma não suportada' };

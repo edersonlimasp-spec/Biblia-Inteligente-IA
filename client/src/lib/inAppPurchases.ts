@@ -342,7 +342,9 @@ export async function getProducts(): Promise<IAPProduct[]> {
 /**
  * Purchase a subscription or one-time product
  */
-export async function purchaseProduct(planType: 'gold' | 'premium' | 'strong_lifetime'): Promise<PurchaseResult> {
+export type PurchasablePlanType = 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime';
+
+export async function purchaseProduct(planType: PurchasablePlanType): Promise<PurchaseResult> {
   const paymentMethod = getPaymentMethod();
   
   console.log('[IAP] Starting purchase:', { planType, paymentMethod });

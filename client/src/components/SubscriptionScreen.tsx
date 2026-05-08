@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2, Tag, X, AlertCircle } from "lucide-react";
+import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2, Tag, X, AlertCircle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import { UserButton } from "@/components/UserButton";
 import { apiRequest, getApiUrl } from "@/lib/queryClient";
 import { trackSubscriptionPageVisit } from "@/lib/tracking";
 import { isAndroid, isIOS, isNative, platform } from "@/lib/capacitor";
-import { purchaseProduct } from "@/lib/inAppPurchases";
+import { purchaseProduct, restorePurchases } from "@/lib/inAppPurchases";
 
 interface CouponData {
   valid: boolean;
@@ -55,6 +55,42 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   // Detected when the user has an active Mercado Pago (web) subscription but is
   // using the Play Store app — we show them an informational banner.
   const [hasWebOnlySubscription, setHasWebOnlySubscription] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+
+  // Restaurar compras nativas (obrigatório pela App Store guideline 3.1.1).
+  // Disponível em iOS e Android — em web não faz sentido (Mercado Pago é gerenciado server-side).
+  const handleRestorePurchases = async () => {
+    setIsRestoring(true);
+    try {
+      const result = await restorePurchases();
+      if (result.success) {
+        toast({
+          title: 'Compras restauradas',
+          description: result.restored > 0
+            ? `${result.restored} compra(s) restaurada(s) com sucesso.`
+            : 'Nenhuma compra ativa encontrada para esta conta.',
+        });
+        if (result.restored > 0) {
+          // Recarrega para refletir o novo status de assinatura na UI.
+          setTimeout(() => window.location.reload(), 1500);
+        }
+      } else {
+        toast({
+          title: t("common.error"),
+          description: result.error || 'Não foi possível restaurar as compras.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: t("common.error"),
+        description: error?.message || 'Erro ao restaurar compras.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRestoring(false);
+    }
+  };
 
   useEffect(() => {
     trackSubscriptionPageVisit();
@@ -199,7 +235,10 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           premium_anual: 'premium_anual',
           vitalicio:     'strong_lifetime',
         };
-        const mappedPlan = planTypeMap[planId] || (planId as any);
+        const mappedPlan = planTypeMap[planId];
+        if (!mappedPlan) {
+          throw new Error('Plano desconhecido para compra iOS: ' + planId);
+        }
         const result = await purchaseProduct(mappedPlan);
         if (result.success) {
           toast({ title: 'Assinatura ativada!', description: `Plano ${planName} ativo com sucesso.` });
@@ -474,6 +513,27 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Restaurar compras — obrigatório pela App Store guideline 3.1.1.
+            Visível em iOS e Android (lojas nativas). No web não aparece. */}
+        {isNative && (
+          <div className="flex justify-center mb-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRestorePurchases}
+              disabled={isRestoring}
+              data-testid="button-restore-purchases"
+            >
+              {isRestoring ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RotateCcw className="h-4 w-4 mr-2" />
+              )}
+              {isRestoring ? 'Restaurando…' : 'Restaurar compras'}
+            </Button>
+          </div>
         )}
 
         {/* Plans Grid */}

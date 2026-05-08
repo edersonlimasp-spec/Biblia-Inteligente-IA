@@ -96,3 +96,9 @@ id = "vRl8oD3YHh6bYV9CRKU9z"
 uri = "file://screenshots/ipad-6.jpg"
 type = "image"
 title = "iPad 6 — Mini-Jogos (2048×2732px)"
+
+[[outputs]]
+id = "ZyvK0a0ux0SoGA5CuyaRq"
+uri = "file://.local/tmp/profile_base64.txt"
+type = "text"
+title = "Base64 do Provisioning Profile (cole no GitHub)"

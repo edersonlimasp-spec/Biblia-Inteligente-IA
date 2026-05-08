@@ -389,15 +389,13 @@
 }
 
 @media (max-width: 768px) {
-  /* Main content needs padding to account for sticky header - SPECIFIC FOR BIBLE PAGE */
+  /* NOTA: removido o padding-top forçado em main / main.bible-page.
+   * O header da Bíblia e o título do capítulo são IRMÃOS do <main> em fluxo
+   * flex-col normal (não há sobreposição). O padding-top extra estava criando
+   * um espaço enorme e vazio entre "Capítulo X" e o versículo 1 no iOS.
+   * A safe-area-inset-top é absorvida pelo .sticky.top-0 (regra mais abaixo). */
   main.bible-page {
-    padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top)) !important;
-    scroll-padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top)) !important;
-  }
-  
-  /* Fallback for any main element */
-  main {
-    padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top)) !important;
+    scroll-padding-top: env(safe-area-inset-top) !important;
   }
 
   /* Input in footer/chat should be smaller than button */

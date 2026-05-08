@@ -49,10 +49,14 @@ const config: CapacitorConfig = {
   },
 
   ios: {
-    contentInset: 'automatic',
+    // 'never' evita que o WKWebView aplique insets automáticos sobre o conteúdo
+    // (causa "fora de esquadro" na abertura). As safe-areas são tratadas via CSS env(safe-area-inset-*).
+    contentInset: 'never',
     allowsLinkPreview: true,
     scrollEnabled: true,
-    backgroundColor: '#1A5299',
+    // backgroundColor NEUTRO (branco). O body do app define a cor real e responde a light/dark
+    // via @media (prefers-color-scheme) — assim a faixa do notch e do home indicator acompanham o tema.
+    backgroundColor: '#ffffff',
     webContentsDebuggingEnabled: true,
     handleApplicationNotifications: false,
   },

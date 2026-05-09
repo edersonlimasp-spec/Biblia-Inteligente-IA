@@ -8,6 +8,15 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Prevent transient errors (Neon DB outages, async failures in background jobs)
+// from crashing the production server and causing white screens in the apps.
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ unhandledRejection (server still running):', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ uncaughtException (server still running):', err);
+});
+
 // ========== ENVIRONMENT DIAGNOSTICS ==========
 function logEnvironmentDiagnostics() {
   const diagnostics = {
@@ -239,17 +248,19 @@ app.use((req, res, next) => {
   // Ensure frontend files are in correct location before starting server
   ensureFrontendFilesReady();
 
-  // Initialize database with seed data if needed
-  await initializeDatabase();
-
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    // Log the error with stack so it's still visible, but DO NOT re-throw:
+    // re-throwing here turns every route error into an uncaughtException, which
+    // would kill the process (or, with our safety handler, mask real bugs).
+    console.error('[express error]', status, message, err?.stack || err);
+    if (!res.headersSent) {
+      res.status(status).json({ message });
+    }
   });
 
   // importantly only setup vite in development and after
@@ -272,5 +283,14 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+
+    // Initialize database AFTER server is listening, so port opens immediately.
+    // This prevents transient Neon errors (Control plane request failed) from
+    // blocking deployment health checks and causing white screens in production.
+    initializeDatabase()
+      .then(() => log('✅ Database initialization completed'))
+      .catch((err) => {
+        console.error('❌ Database initialization failed (server still running):', err);
+      });
   });
 })();

@@ -223,10 +223,11 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     
     setIsPurchasing(planId);
 
-    // ── IAP nativa iOS (Apple StoreKit) ────────────────────────────────
-    // iOS NUNCA pode usar Mercado Pago (exigência App Store).
-    // Android usa o fluxo Mercado Pago abaixo até integração nativa do Google Play Billing.
-    if (isIOS) {
+    // ── IAP nativa iOS (Apple StoreKit) ou Android (Google Play Billing) ──
+    // Política das lojas: dentro dos apps nativos a compra de conteúdo digital
+    // DEVE usar a billing nativa (App Store IAP / Google Play Billing).
+    // Mercado Pago só é permitido na versão web (fora das lojas).
+    if (isIOS || isAndroid) {
       try {
         const planTypeMap: Record<string, 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime'> = {
           gold:          'gold',
@@ -237,11 +238,14 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         };
         const mappedPlan = planTypeMap[planId];
         if (!mappedPlan) {
-          throw new Error('Plano desconhecido para compra iOS: ' + planId);
+          throw new Error('Plano desconhecido para compra nativa: ' + planId);
         }
         const result = await purchaseProduct(mappedPlan);
         if (result.success) {
           toast({ title: 'Assinatura ativada!', description: `Plano ${planName} ativo com sucesso.` });
+          // Recarrega para refletir o novo status de assinatura na UI
+          // (mesmo padrão do handleRestorePurchases).
+          setTimeout(() => window.location.reload(), 1500);
         } else if (result.error && result.error !== 'Compra cancelada') {
           toast({ title: t("common.error"), description: result.error, variant: 'destructive' });
         }

@@ -102,3 +102,9 @@ id = "ZyvK0a0ux0SoGA5CuyaRq"
 uri = "file://.local/tmp/profile_base64.txt"
 type = "text"
 title = "Base64 do Provisioning Profile (cole no GitHub)"
+
+[[outputs]]
+id = "3NSfHeVL5moARDzww83Z6"
+uri = "file://.local/out/IOS_PROVISIONING_PROFILE_BASE64.txt"
+type = "text"
+title = "IOS_PROVISIONING_PROFILE_BASE64 (cole no GitHub Secret)"

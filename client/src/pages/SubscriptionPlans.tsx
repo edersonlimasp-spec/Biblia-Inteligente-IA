@@ -159,7 +159,9 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
 
   return (
     <div className="min-h-screen bg-background p-4">
-      {selectedPlan && (
+      {/* PixPaymentModal NUNCA é renderizado no iOS (defesa em profundidade
+          contra qualquer mecanismo de pagamento externo — App Store 3.1.1). */}
+      {selectedPlan && !isIOS && (
         <PixPaymentModal
           open={pixModalOpen}
           onOpenChange={setPixModalOpen}

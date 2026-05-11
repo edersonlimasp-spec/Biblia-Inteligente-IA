@@ -792,10 +792,10 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     </Button>
                     
                     <p className="text-xs text-center text-muted-foreground">
-                      {isAndroid
-                        ? "Compra processada com segurança pelo Google Play"
-                        : isIOS
+                      {isIOS
                         ? "Compra processada com segurança pela App Store"
+                        : isAndroid
+                        ? "Compra processada com segurança pelo Google Play"
                         : "Você será redirecionado para o Mercado Pago para concluir o pagamento"
                       }
                     </p>

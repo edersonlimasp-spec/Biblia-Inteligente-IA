@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Copy, CheckCircle, Loader2, QrCode, X } from "lucide-react";
+import { isIOS } from "@/lib/capacitor";
 import {
   Dialog,
   DialogContent,
@@ -148,6 +149,12 @@ export function PixPaymentModal({
     }
     onOpenChange(false);
   };
+
+  // HARD GUARD iOS (App Store guideline 3.1.1):
+  // PIX usa Mercado Pago e NÃO pode aparecer no iOS sob nenhuma circunstância.
+  if (isIOS) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>

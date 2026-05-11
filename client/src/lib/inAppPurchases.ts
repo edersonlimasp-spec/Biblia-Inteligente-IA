@@ -346,22 +346,33 @@ export type PurchasablePlanType = 'gold' | 'gold_anual' | 'premium' | 'premium_a
 
 export async function purchaseProduct(planType: PurchasablePlanType): Promise<PurchaseResult> {
   const paymentMethod = getPaymentMethod();
-  
-  console.log('[IAP] Starting purchase:', { planType, paymentMethod });
-  
-  if (paymentMethod === 'mercadopago') {
-    // Redirect to Mercado Pago checkout (existing flow)
-    return purchaseWithMercadoPago(planType);
+
+  console.log('[IAP] ▶ Purchase started:', { planType, paymentMethod, platform, isIOS, isAndroid });
+
+  // ── HARD GUARD iOS (App Store guideline 3.1.1) ──────────────────────
+  // No iOS NUNCA caímos em Mercado Pago / checkout web — apenas Apple IAP.
+  // Esta verificação é defesa em profundidade: além das condicionais de UI,
+  // qualquer chamada acidental aqui é bloqueada antes de tocar a rede.
+  if (isIOS) {
+    if (paymentMethod !== 'apple') {
+      console.error('[IAP] ✖ iOS BLOCK: tentativa de usar', paymentMethod, '— forçando Apple StoreKit');
+    }
+    return purchaseWithApple(planType);
   }
-  
+
   if (paymentMethod === 'apple') {
     return purchaseWithApple(planType);
   }
-  
+
   if (paymentMethod === 'google') {
     return purchaseWithGoogle(planType);
   }
-  
+
+  if (paymentMethod === 'mercadopago') {
+    // Redirect to Mercado Pago checkout (somente Web — fora das lojas)
+    return purchaseWithMercadoPago(planType);
+  }
+
   return { success: false, error: 'Plataforma não suportada' };
 }
 
@@ -369,6 +380,11 @@ export async function purchaseProduct(planType: PurchasablePlanType): Promise<Pu
  * Purchase with Mercado Pago (Web)
  */
 async function purchaseWithMercadoPago(planType: string): Promise<PurchaseResult> {
+  // Defesa em profundidade — esta função NUNCA pode rodar no iOS.
+  if (isIOS) {
+    console.error('[IAP] ✖ purchaseWithMercadoPago bloqueado no iOS');
+    return { success: false, error: 'Pagamento externo indisponível no iOS' };
+  }
   try {
     const response = await apiRequest('POST', '/api/mp/create-checkout', { plan: planType });
     const data = await response.json();
@@ -401,32 +417,37 @@ async function purchaseWithMercadoPago(planType: string): Promise<PurchaseResult
  */
 async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
   const productId = getProductId(planType as any);
+  console.log('[IAP][Apple] ▶ Iniciando compra StoreKit', { planType, productId });
 
   try {
     const store = await getAppleStore();
 
     if (!store) {
-      // Plugin nativo indisponível (build antiga sem o pod do CdvPurchase).
+      // Plugin nativo indisponível (build antiga sem o pod do CdvPurchase
+      // OU capability "In-App Purchase" desabilitada no provisioning profile).
       // NUNCA caímos pra Mercado Pago no iOS — compliance App Store (3.1.1).
-      console.error('[IAP] Apple StoreKit indisponível nesta build');
+      console.error('[IAP][Apple] ✖ StoreKit indisponível — plugin não carregou');
       return {
         success: false,
-        error: 'Compras dentro do app indisponíveis nesta versão. Atualize o aplicativo pela App Store.',
+        error: 'A loja da Apple está indisponível neste momento. Verifique sua conexão e tente novamente. Se persistir, reinicie o aplicativo.',
       };
     }
 
+    console.log('[IAP][Apple] ✓ Store inicializada — buscando produto', productId);
     const product = store.get(productId);
     if (!product) {
-      console.error('[IAP][Apple] Produto não encontrado no store:', productId);
+      console.error('[IAP][Apple] ✖ Produto não encontrado no store:', productId);
       return {
         success: false,
-        error: `Produto não disponível (${productId}). Verifique a configuração no App Store Connect.`,
+        error: `Este plano não está disponível agora. Tente novamente em instantes ou escolha outro plano.`,
       };
     }
 
+    console.log('[IAP][Apple] ✓ Produto encontrado:', { productId, title: product.title, price: product.pricing?.price });
     const offer = product.getOffer();
     if (!offer) {
-      return { success: false, error: 'Oferta indisponível para este produto' };
+      console.error('[IAP][Apple] ✖ Oferta indisponível para o produto', productId);
+      return { success: false, error: 'Oferta indisponível para este plano. Tente novamente em instantes.' };
     }
 
     // Registra a transação pendente ANTES de chamar order(), para que o
@@ -469,16 +490,23 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
       };
     }
 
+    console.log('[IAP][Apple] ⏳ Aguardando aprovação do usuário e verificação backend…');
     const result = await verificationPromise;
     clearTimeout(timeoutId);
+    if (result.success) {
+      console.log('[IAP][Apple] ✓ Compra aprovada e verificada com sucesso');
+    } else {
+      console.warn('[IAP][Apple] ⚠ Compra falhou:', result.error);
+    }
     return result;
 
   } catch (error: any) {
     if (error?.code === 'USER_CANCELLED' || error?.code === 6500 || error?.code === 2) {
+      console.log('[IAP][Apple] ℹ Usuário cancelou a compra');
       return { success: false, error: 'Compra cancelada' };
     }
-    console.error('[IAP] Apple purchase error:', error);
-    return { success: false, error: error?.message || String(error) };
+    console.error('[IAP][Apple] ✖ Erro inesperado:', error);
+    return { success: false, error: error?.message || 'Erro ao processar a compra. Tente novamente.' };
   }
 }
 

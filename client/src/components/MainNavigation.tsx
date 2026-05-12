@@ -32,7 +32,6 @@ import { NavigationProvider, useNavigation } from "@/contexts/NavigationContext"
 import { getDeviceId, getPlatform, getLocale } from "@/hooks/use-device-id";
 import { RequireAuthScreen } from "./RequireAuthScreen";
 import { PaymentSuccess, PaymentError, PaymentPending } from "@/pages/PaymentResult";
-import { InstallPage } from "@/pages/InstallPage";
 import { PrivacyPolicy } from "@/pages/PrivacyPolicy";
 import { TermsOfUse } from "@/pages/TermsOfUse";
 
@@ -87,9 +86,6 @@ function NavigationContent() {
   useEffect(() => {
     if (location.includes("reset-password")) {
       navigate("reset-password");
-    }
-    if (location === "/install" || location.startsWith("/install?")) {
-      navigate("install");
     }
   }, [location, navigate]);
 
@@ -166,7 +162,6 @@ function NavigationContent() {
           onNavigateToProfessorPremium={() => navigate("professor-premium")}
           onNavigateToLogin={() => navigate("login")}
           onNavigateToSettings={() => navigate("settings")}
-          onNavigateToInstall={() => navigate("install")}
         />
       )}
       {currentScreen === "recordings" && (
@@ -319,9 +314,6 @@ function NavigationContent() {
             goBack();
           }}
         />
-      )}
-      {currentScreen === "install" && (
-        <InstallPage onBack={() => goBack()} />
       )}
     </>
   );

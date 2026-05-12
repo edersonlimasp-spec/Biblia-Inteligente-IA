@@ -3,10 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
-import { usePWAInstall } from "@/hooks/use-pwa-install";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { InstallModal } from "@/components/InstallModal";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { 
   BookOpen, 
@@ -27,8 +25,7 @@ import {
   User,
   Crown,
   Gem,
-  Infinity,
-  Download
+  Infinity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -49,7 +46,6 @@ interface DashboardProps {
   onNavigateToProfessorPremium: () => void;
   onNavigateToLogin: () => void;
   onNavigateToSettings: () => void;
-  onNavigateToInstall?: () => void;
 }
 
 interface ModuleCardProps {
@@ -128,20 +124,11 @@ export function Dashboard({
   onNavigateToProfessorPremium,
   onNavigateToLogin,
   onNavigateToSettings,
-  onNavigateToInstall,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
   const { t } = useLanguage();
   const deviceId = getDeviceId();
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || isSuperAdmin;
-  const { isInstalled, isStandalone } = usePWAInstall();
-  const [showInstallModal, setShowInstallModal] = useState(false);
-  
-  const handleInstallClick = () => {
-    setShowInstallModal(true);
-  };
-  
-  const showInstallModule = !isInstalled && !isStandalone;
 
   useEffect(() => {
     trackAppOpen().catch(() => {});
@@ -312,15 +299,6 @@ export function Dashboard({
       iconColor: "bg-slate-500",
       onClick: onNavigateToSubscriptions,
     },
-    ...(showInstallModule ? [{
-      id: "install",
-      title: t("module.install"),
-      description: t("module.install.desc"),
-      icon: Download,
-      gradient: "bg-gradient-to-br from-green-600 to-emerald-700",
-      iconColor: "bg-green-500",
-      onClick: handleInstallClick,
-    }] : []),
   ];
 
   return (
@@ -442,11 +420,6 @@ export function Dashboard({
         </div>
       </ScrollArea>
 
-      <InstallModal 
-        open={showInstallModal} 
-        onOpenChange={setShowInstallModal}
-        autoPrompt={false}
-      />
     </div>
   );
 }

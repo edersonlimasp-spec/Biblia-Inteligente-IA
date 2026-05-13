@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { getApiUrl } from "@/lib/queryClient";
+import { initializeIAP } from "@/lib/inAppPurchases";
 import { SplashScreen } from "./SplashScreen";
 import { LoginScreen } from "./LoginScreen";
 import { RegisterScreen } from "./RegisterScreen";
@@ -76,9 +77,18 @@ function NavigationContent() {
 
     const timer = setTimeout(measureHeaderHeight, 100);
     window.addEventListener('resize', measureHeaderHeight);
+
+    // Pré-inicializar store IAP logo no boot (Android/iOS).
+    // Isso garante que o CdvPurchase já esteja pronto quando o usuário
+    // tentar comprar, evitando timeout na hora da compra.
+    // Delay de 2s para o bridge nativo Capacitor terminar de carregar primeiro.
+    const iapTimer = setTimeout(() => {
+      initializeIAP();
+    }, 2000);
     
     return () => {
       clearTimeout(timer);
+      clearTimeout(iapTimer);
       window.removeEventListener('resize', measureHeaderHeight);
     };
   }, []);

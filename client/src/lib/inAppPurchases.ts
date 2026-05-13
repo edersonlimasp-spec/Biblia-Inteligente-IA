@@ -89,9 +89,10 @@ interface PurchaseResult {
 // integração fica isolada neste módulo para não quebrar a build web.
 let _cdvStoreReady: Promise<any> | null = null;
 
-// Aguardar o objeto window.CdvPurchase aparecer (até 10s). Em algumas
-// builds Capacitor o bridge pode demorar um pouco mais que `deviceready`.
-async function _waitForCdvPurchase(timeoutMs = 10_000): Promise<any | null> {
+// Aguardar o objeto window.CdvPurchase aparecer (até 30s). Em alguns
+// dispositivos Android mais lentos o bridge Capacitor/Cordova demora mais.
+// Timeout aumentado de 10s → 30s para cobrir dispositivos de entrada.
+async function _waitForCdvPurchase(timeoutMs = 30_000): Promise<any | null> {
   const w = window as any;
   if (w.CdvPurchase?.store) return w.CdvPurchase;
 
@@ -113,7 +114,7 @@ async function _waitForCdvPurchase(timeoutMs = 10_000): Promise<any | null> {
       } else if (Date.now() - start > timeoutMs) {
         clearInterval(interval);
         document.removeEventListener('deviceready', onReady);
-        console.error('[IAP] Timeout esperando CdvPurchase ficar disponível');
+        console.error('[IAP] Timeout esperando CdvPurchase ficar disponível — plugin pode não estar compilado nesta build');
         resolve(null);
       }
     }, 200);
@@ -151,6 +152,11 @@ function _routeApprovedTransaction(transaction: any): PendingTx | null {
 async function _initCdvStore(): Promise<any | null> {
   if (!isNative) return null;
   if (!isAndroid && !isIOS) return null;
+
+  // BUGFIX: Se a store já foi inicializada, retornar imediatamente sem
+  // chamar _waitForCdvPurchase novamente (que causava timeout de 30s desnecessário
+  // em cada chamada subsequente, mesmo quando o plugin já estava disponível).
+  if (_cdvStoreReady) return _cdvStoreReady;
 
   const cdv = await _waitForCdvPurchase();
   if (!cdv) return null;
@@ -282,6 +288,28 @@ async function getGooglePlayStore(): Promise<any | null> {
 async function getAppleStore(): Promise<any | null> {
   if (!isIOS || !isNative) return null;
   return _initCdvStore();
+}
+
+/**
+ * Pré-inicializa a store IAP logo no boot do app (Android e iOS).
+ * Chamado no mount do componente raiz para garantir que o CdvPurchase
+ * já esteja pronto quando o usuário tentar comprar, evitando o timeout
+ * de espera que ocorria somente na hora da compra.
+ */
+export async function initializeIAP(): Promise<void> {
+  if (!isNative) return;
+  if (!isAndroid && !isIOS) return;
+  try {
+    console.log(`[IAP] Pré-inicializando store (${isIOS ? 'Apple' : 'Google'})...`);
+    const store = await _initCdvStore();
+    if (store) {
+      console.log('[IAP] Store pré-inicializada com sucesso');
+    } else {
+      console.warn('[IAP] Store indisponível durante pré-inicialização (será tentado novamente na compra)');
+    }
+  } catch (e) {
+    console.warn('[IAP] Erro na pré-inicialização (não crítico):', e);
+  }
 }
 
 /**
@@ -423,13 +451,14 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     const store = await getAppleStore();
 
     if (!store) {
-      // Plugin nativo indisponível (build antiga sem o pod do CdvPurchase
-      // OU capability "In-App Purchase" desabilitada no provisioning profile).
+      // CdvPurchase não inicializou — StoreKit indisponível neste build.
+      // Causas comuns: pod install não foi executado, ou capability
+      // "In-App Purchase" não está habilitada no App ID.
       // NUNCA caímos pra Mercado Pago no iOS — compliance App Store (3.1.1).
-      console.error('[IAP][Apple] ✖ StoreKit indisponível — plugin não carregou');
+      console.error('[IAP][Apple] ✖ StoreKit indisponível — CdvPurchase não inicializou');
       return {
         success: false,
-        error: 'A loja da Apple está indisponível neste momento. Verifique sua conexão e tente novamente. Se persistir, reinicie o aplicativo.',
+        error: 'Loja da Apple indisponível neste momento. Feche o app e abra novamente. Se o problema persistir, verifique se há uma atualização disponível no App Store.',
       };
     }
 
@@ -520,13 +549,12 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
     const store = await getGooglePlayStore();
 
     if (!store) {
-      // Plugin nativo não está disponível nesta build (ex.: APK antigo, ou
-      // rodando no navegador). Não há fallback para Mercado Pago no Android
-      // dentro do app — política do Google Play exige IAP para conteúdo digital.
-      console.error('[IAP] Google Play Billing indisponível nesta build');
+      // CdvPurchase não inicializou — pode ser que o bridge ainda esteja
+      // carregando (dispositivo lento) ou que o plugin não esteja no APK.
+      console.error('[IAP] Google Play Billing indisponível — CdvPurchase não inicializou');
       return {
         success: false,
-        error: 'Compras dentro do app indisponíveis nesta versão. Atualize o app pelo Google Play.',
+        error: 'Loja do Google Play não disponível. Feche completamente o app, reabra e tente novamente. Se persistir, reinstale pelo Google Play.',
       };
     }
 

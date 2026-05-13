@@ -31,9 +31,13 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
     // Em iOS jamais redirecionar para Mercado Pago (exigência App Store).
     if (isIOS || isAndroid) {
       try {
-        const planMap: Record<string, 'gold' | 'premium' | 'strong_lifetime'> = {
-          'gold_monthly': 'gold',
+        const planMap: Record<string, 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime'> = {
+          'gold_monthly':    'gold',
+          'gold_annual':     'gold_anual',
+          'gold_anual':      'gold_anual',
           'premium_monthly': 'premium',
+          'premium_annual':  'premium_anual',
+          'premium_anual':   'premium_anual',
           'strong_lifetime': 'strong_lifetime',
         };
         const mappedPlan = planMap[planId] || (planId as any);

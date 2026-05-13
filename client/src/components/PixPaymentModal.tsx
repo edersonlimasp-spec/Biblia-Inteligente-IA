@@ -92,6 +92,14 @@ export function PixPaymentModal({
   }, [pixData, paymentApproved]);
 
   const generatePix = async () => {
+    // ── HARD GUARD iOS (App Store 3.1.1) ───────────────────────────────
+    // Mesmo que o componente seja montado por engano em iOS, esta função
+    // jamais chama o backend Mercado Pago.
+    if (isIOS) {
+      console.error('[IAP] ✖ iOS BLOCK em generatePix — Mercado Pago bloqueado');
+      onOpenChange(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const planMap: Record<string, string> = {

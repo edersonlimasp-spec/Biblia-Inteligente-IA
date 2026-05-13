@@ -257,6 +257,21 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       return;
     }
 
+    // ── HARD GUARD iOS (App Store 3.1.1) ───────────────────────────────
+    // Defesa redundante: se por qualquer motivo (race condition na detecção
+    // de plataforma, falha do Capacitor, etc.) o branch acima não interceptar
+    // um device iOS, este guard impede que o fluxo Mercado Pago seja iniciado.
+    if (isIOS) {
+      console.error('[IAP] ✖ iOS BLOCK em handlePlanSelect — Mercado Pago bloqueado');
+      toast({
+        title: t("common.error"),
+        description: 'A loja da Apple não está respondendo no momento. Tente novamente em instantes.',
+        variant: 'destructive',
+      });
+      setIsPurchasing(null);
+      return;
+    }
+
     // ── Mercado Pago (somente Web — fora das lojas) ────────────────────
     try {
       const payload: { plan: string; couponCode?: string } = { 

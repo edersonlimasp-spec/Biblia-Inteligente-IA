@@ -6093,6 +6093,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create Mercado Pago Checkout preference
   app.post("/api/mp/create-checkout", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
+      // ── HARD BLOCK iOS (App Store guideline 3.1.1) ──────────────────
+      // Pagamentos externos (Mercado Pago) NUNCA podem ser iniciados a partir
+      // do app iOS — Apple exige uso exclusivo de StoreKit IAP. Mesmo que toda
+      // a UI client-side falhe, o servidor recusa aqui de forma definitiva.
+      if (getClientPlatform(req) === 'ios') {
+        console.warn('[MP] ✖ create-checkout bloqueado: requisição vinda do iOS (App Store 3.1.1)');
+        return res.status(403).json({ error: "Pagamento indisponível neste dispositivo. Use a App Store." });
+      }
+
       const userId = req.userId;
       if (!userId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -6312,6 +6321,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===================================
   app.post("/api/mp/create-pix", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
+      // ── HARD BLOCK iOS (App Store guideline 3.1.1) ──────────────────
+      // PIX é exclusivamente Mercado Pago e NUNCA pode rodar no iOS.
+      if (getClientPlatform(req) === 'ios') {
+        console.warn('[MP Pix] ✖ create-pix bloqueado: requisição vinda do iOS (App Store 3.1.1)');
+        return res.status(403).json({ error: "Pagamento indisponível neste dispositivo. Use a App Store." });
+      }
+
       const userId = req.userId;
       if (!userId) {
         return res.status(401).json({ error: "Usuário não autenticado" });
@@ -6414,6 +6430,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Check Pix payment status (with ownership verification)
   app.get("/api/mp/pix-status/:paymentId", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
+      // ── HARD BLOCK iOS (App Store guideline 3.1.1) ──────────────────
+      if (getClientPlatform(req) === 'ios') {
+        return res.status(403).json({ error: "Indisponível neste dispositivo." });
+      }
       const { paymentId } = req.params;
       const userId = req.userId;
       
@@ -6589,6 +6609,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // GET /api/mp/status - Verificar status da assinatura do usuário
   app.get("/api/mp/status", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
+      // ── HARD BLOCK iOS (App Store guideline 3.1.1) ──────────────────
+      // No iOS o app não pode consultar/expor assinaturas de fonte web.
+      if (getClientPlatform(req) === 'ios') {
+        return res.status(403).json({ error: "Indisponível neste dispositivo." });
+      }
       const userId = req.userId;
       if (!userId) {
         return res.status(401).json({ error: "Usuário não autenticado" });

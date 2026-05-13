@@ -56,6 +56,20 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
       return;
     }
 
+    // ── HARD GUARD iOS (App Store 3.1.1) ───────────────────────────────
+    // Defesa redundante: garante que o iOS jamais inicie checkout externo
+    // mesmo se o branch acima falhar (race condition de detecção, etc.).
+    if (isIOS) {
+      console.error('[IAP] ✖ iOS BLOCK em handlePurchase — Mercado Pago bloqueado');
+      toast({
+        title: 'Erro',
+        description: 'A loja da Apple não está respondendo no momento. Tente novamente em instantes.',
+        variant: 'destructive',
+      });
+      setIsPurchasing(null);
+      return;
+    }
+
     try {
       // Map plan IDs to backend plan names
       const planMap: Record<string, string> = {

@@ -348,6 +348,7 @@ export function MainNavigation() {
   });
   const [showExitDialog, setShowExitDialog] = useState(false);
   const { isLoading } = useAuth();
+  const [location, setLocation] = useLocation();
 
   useEffect(() => {
     if (showSplash) {
@@ -399,7 +400,12 @@ export function MainNavigation() {
 
   return (
     <ThemeProvider>
-      {(showSplash || isLoading) ? (
+      {/* Reset de senha: renderizado diretamente pelo path da URL, ignorando
+          splash e loading de auth — o usuário chegou via link do email e
+          precisa ver o formulário imediatamente, independente do estado do app. */}
+      {(location === "/reset-password" || location.startsWith("/reset-password?")) ? (
+        <ResetPassword onBackToLogin={() => setLocation("/")} />
+      ) : (showSplash || isLoading) ? (
         <SplashScreen />
       ) : (
         <NavigationProvider onExitRequest={handleExitRequest}>

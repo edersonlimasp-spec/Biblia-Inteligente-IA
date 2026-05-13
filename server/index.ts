@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./init-db";
+import { storage } from "./storage";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -292,5 +293,14 @@ app.use((req, res, next) => {
       .catch((err) => {
         console.error('❌ Database initialization failed (server still running):', err);
       });
+
+    // Mark expired subscriptions on startup and every 6 hours
+    const runMarkExpired = () => {
+      storage.markExpiredSubscriptions()
+        .then(count => { if (count > 0) log(`✅ ${count} assinatura(s) marcadas como expiradas`); })
+        .catch(err => console.error('❌ Erro ao marcar expiradas:', err));
+    };
+    setTimeout(runMarkExpired, 5000); // 5s após iniciar
+    setInterval(runMarkExpired, 6 * 60 * 60 * 1000); // a cada 6h
   });
 })();

@@ -68,6 +68,7 @@ export interface IStorage {
   hasActiveSubscription(userId: string, planType: string, allowedSources?: string[]): Promise<boolean>;
   getActiveSubscription(userId: string): Promise<Subscription | null>;
   getSubscriptionByExternalId(externalId: string): Promise<Subscription | null>;
+  markExpiredSubscriptions(): Promise<number>;
 
   // Bookmarks
   getUserBookmarks(userId: string): Promise<Bookmark[]>;
@@ -598,6 +599,36 @@ class PostgresStorage implements IStorage {
       .where(eq(subscriptions.storeTransactionId, externalId))
       .limit(1);
     return sub || null;
+  }
+
+  async markExpiredSubscriptions(): Promise<number> {
+    const now = new Date();
+    const result = await db
+      .update(subscriptions)
+      .set({ status: 'expired' })
+      .where(
+        and(
+          sql`${subscriptions.endDate} IS NOT NULL`,
+          sql`${subscriptions.endDate} < ${now}`,
+          or(
+            eq(subscriptions.status, 'active'),
+            eq(subscriptions.status, 'Active'),
+            eq(subscriptions.status, 'ACTIVE'),
+            eq(subscriptions.status, 'approved'),
+            eq(subscriptions.status, 'Approved'),
+            eq(subscriptions.status, 'APPROVED'),
+            eq(subscriptions.status, 'authorized'),
+            eq(subscriptions.status, 'Authorized'),
+            eq(subscriptions.status, 'AUTHORIZED')
+          )
+        )
+      )
+      .returning({ id: subscriptions.id });
+    const count = result.length;
+    if (count > 0) {
+      console.log(`[Storage] Marcadas ${count} assinatura(s) como expiradas`);
+    }
+    return count;
   }
 
   // Bookmarks

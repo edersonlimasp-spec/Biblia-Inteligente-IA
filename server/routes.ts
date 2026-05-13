@@ -5058,12 +5058,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const skip = (pageNum - 1) * pageSize;
 
       const { users: usersList, total } = await storage.getAllUsers(email as string | undefined, pageSize, skip);
-      
-      // Remove passwords
-      const safeUsers = usersList.map(u => {
+      const now = new Date();
+
+      // Enrich each user with their real subscription/trial status
+      const safeUsers = await Promise.all(usersList.map(async (u) => {
         const { password: _, ...rest } = u;
-        return rest;
-      });
+
+        // Trial status
+        const trialActive = isTrialActive(u.trialStartDate);
+        const trialDaysRemaining = getTrialDaysRemaining(u.trialStartDate);
+
+        // Active subscription
+        const activeSub = await storage.getActiveSubscription(u.id);
+
+        // Calculate real subscription status
+        let subscriptionStatus: string;
+        let subscriptionPlan: string | null = null;
+        let subscriptionEndDate: string | null = null;
+
+        if (activeSub) {
+          subscriptionPlan = activeSub.planType;
+          subscriptionEndDate = activeSub.endDate ? new Date(activeSub.endDate).toLocaleDateString('pt-BR') : 'Vitalício';
+          subscriptionStatus = 'active';
+        } else if (trialActive) {
+          subscriptionStatus = 'trial';
+        } else {
+          subscriptionStatus = 'free';
+        }
+
+        return {
+          ...rest,
+          subscriptionStatus,
+          subscriptionPlan,
+          subscriptionEndDate,
+          trialActive,
+          trialDaysRemaining,
+        };
+      }));
 
       res.json({ users: safeUsers, total });
     } catch (error) {
@@ -7555,6 +7586,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[Cron] Erro na campanha:", error);
       res.status(500).json({ error: "Erro ao executar campanha" });
+    }
+  });
+
+  // GET /api/cron/mark-expired-subscriptions - Marca assinaturas expiradas
+  app.get("/api/cron/mark-expired-subscriptions", async (req, res) => {
+    try {
+      const secret = req.headers['x-cron-secret'] || req.query.secret;
+      if (secret !== CRON_SECRET) {
+        return res.status(401).json({ error: "Não autorizado" });
+      }
+      const count = await storage.markExpiredSubscriptions();
+      console.log(`[Cron] markExpiredSubscriptions: ${count} assinatura(s) marcadas como expiradas`);
+      res.json({ success: true, markedExpired: count });
+    } catch (error) {
+      console.error("[Cron] Erro ao marcar expiradas:", error);
+      res.status(500).json({ error: "Erro ao marcar assinaturas expiradas" });
     }
   });
 

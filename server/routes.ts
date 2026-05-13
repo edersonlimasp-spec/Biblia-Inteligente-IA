@@ -722,39 +722,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Build the base URL for the reset link.
       // Priority:
       //   1. FRONTEND_URL env var (set this in production for reliability)
-      //   2. Origin header — only if it is a real http/https URL.
-      //      Capacitor native apps send "capacitor://localhost" which is NOT
-      //      a valid web URL and would generate a broken email link.
-      //   3. Referer header (http/https only)
-      //   4. Known production URL derived from REPLIT_DOMAINS env var
-      //   5. Hard-coded production URL as last resort
+      //   2. Origin header — only if it is a real public http/https URL.
+      //      REJECTED: capacitor://localhost (iOS Capacitor WebView)
+      //      REJECTED: http://localhost (Android Capacitor WebView — serves from localhost)
+      //      REJECTED: http://127.0.0.1 / ::1 (loopback addresses)
+      //   3. Referer header (public http/https only, same exclusions)
+      //   4. Hard-coded production URL (most reliable for Capacitor users)
+      function _isPublicOrigin(raw: string): boolean {
+        try {
+          const url = new URL(raw);
+          if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+          const h = url.hostname;
+          if (h === 'localhost' || h === '127.0.0.1' || h === '::1') return false;
+          return true;
+        } catch {
+          return false;
+        }
+      }
       function _resolveBaseUrl(): string {
+        // 1. Explicit env var (set FRONTEND_URL to https://bibliainteligente.replit.app)
         if (process.env.FRONTEND_URL) {
           const u = process.env.FRONTEND_URL;
           return u.endsWith('/') ? u.slice(0, -1) : u;
         }
+        // 2. Origin header — only public URLs (rejects localhost & capacitor://)
         const origin = req.get('origin');
-        if (origin && (origin.startsWith('http://') || origin.startsWith('https://'))) {
+        if (origin && _isPublicOrigin(origin)) {
           return origin.endsWith('/') ? origin.slice(0, -1) : origin;
         }
+        // 3. Referer header — only public URLs
         const referer = req.get('referer');
-        if (referer) {
+        if (referer && _isPublicOrigin(referer)) {
           try {
-            const url = new URL(referer);
-            if (url.protocol === 'http:' || url.protocol === 'https:') {
-              return url.origin;
-            }
+            return new URL(referer).origin;
           } catch { /* ignore */ }
         }
-        // Derive from Replit environment variables when available
-        if (process.env.REPLIT_DOMAINS) {
-          const domain = process.env.REPLIT_DOMAINS.split(',')[0].trim();
-          if (domain) return `https://${domain}`;
-        }
-        if (process.env.REPLIT_DEV_DOMAIN) {
-          return `https://${process.env.REPLIT_DEV_DOMAIN}.replit.dev`;
-        }
-        // Fallback: known production URL (same value used by the Capacitor app)
+        // 4. Always use the known production URL — safest fallback for native apps
+        //    (both Android Capacitor http://localhost and iOS capacitor://localhost
+        //     are filtered above, so we land here and return the correct public URL)
         return 'https://bibliainteligente.replit.app';
       }
       const baseUrl = _resolveBaseUrl();

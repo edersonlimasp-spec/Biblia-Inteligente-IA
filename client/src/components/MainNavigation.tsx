@@ -123,6 +123,14 @@ function NavigationContent() {
     if (paymentStatus === "pendente") return <PaymentPending />;
   }
 
+  // Página de reset de senha — early return direto pelo path da URL para
+  // evitar race condition com o useEffect de autenticação que poderia
+  // redirecionar para "dashboard" antes da tela de reset ser exibida.
+  // Idêntico ao padrão usado por /privacidade e /termos.
+  if (location === "/reset-password" || location.startsWith("/reset-password?")) {
+    return <ResetPassword onBackToLogin={handleBackToLoginFromReset} />;
+  }
+
   // Páginas legais públicas (acessíveis sem login — exigência App Store/Play Store)
   if (location === "/privacidade" || location.startsWith("/privacidade?")) {
     return <PrivacyPolicy onBack={() => setLocation("/")} />;

@@ -719,9 +719,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.createPasswordResetToken(user.id, resetToken, expiresAt);
 
-      // Generate reset link using request origin or configured URL
-      const origin = req.get('origin') || req.get('referer')?.split('?')[0].split('#')[0] || process.env.FRONTEND_URL || 'http://localhost:5000';
-      const baseUrl = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+      // Build the base URL for the reset link.
+      // Priority:
+      //   1. FRONTEND_URL env var (set this in production for reliability)
+      //   2. Origin header — only if it is a real http/https URL.
+      //      Capacitor native apps send "capacitor://localhost" which is NOT
+      //      a valid web URL and would generate a broken email link.
+      //   3. Referer header (http/https only)
+      //   4. Known production URL derived from REPLIT_DOMAINS env var
+      //   5. Hard-coded production URL as last resort
+      function _resolveBaseUrl(): string {
+        if (process.env.FRONTEND_URL) {
+          const u = process.env.FRONTEND_URL;
+          return u.endsWith('/') ? u.slice(0, -1) : u;
+        }
+        const origin = req.get('origin');
+        if (origin && (origin.startsWith('http://') || origin.startsWith('https://'))) {
+          return origin.endsWith('/') ? origin.slice(0, -1) : origin;
+        }
+        const referer = req.get('referer');
+        if (referer) {
+          try {
+            const url = new URL(referer);
+            if (url.protocol === 'http:' || url.protocol === 'https:') {
+              return url.origin;
+            }
+          } catch { /* ignore */ }
+        }
+        // Derive from Replit environment variables when available
+        if (process.env.REPLIT_DOMAINS) {
+          const domain = process.env.REPLIT_DOMAINS.split(',')[0].trim();
+          if (domain) return `https://${domain}`;
+        }
+        if (process.env.REPLIT_DEV_DOMAIN) {
+          return `https://${process.env.REPLIT_DEV_DOMAIN}.replit.dev`;
+        }
+        // Fallback: known production URL (same value used by the Capacitor app)
+        return 'https://bibliainteligente.replit.app';
+      }
+      const baseUrl = _resolveBaseUrl();
       const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
       
       // Send email with reset link

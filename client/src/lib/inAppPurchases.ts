@@ -10,10 +10,10 @@ import { apiRequest, getApiUrl } from './queryClient';
 // Product IDs by platform
 export const PRODUCT_IDS = {
   ios: {
-    gold_monthly:    'com.bibliainteligente.gold_monthly',
-    gold_annual:     'com.bibliainteligente.gold_annual',
-    premium_monthly: 'com.bibliainteligente.premium_monthly',
-    premium_annual:  'com.bibliainteligente.premium_annual',
+    gold_monthly:    'com.bibliainteligente.gold.monthly',
+    gold_annual:     'com.bibliainteligente.gold.yearly',
+    premium_monthly: 'com.bibliainteligente.premium.monthly',
+    premium_annual:  'com.bibliainteligente.premium.yearly',
     strong_lifetime: 'com.bibliainteligente.strong_lifetime',
   },
   android: {

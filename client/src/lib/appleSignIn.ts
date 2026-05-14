@@ -40,7 +40,7 @@ export async function signInWithApple(): Promise<AppleSignInResult> {
 
   const nonce = cryptoRandomNonce();
   const options = {
-    clientId: "com.bibliainteligente.app",
+    clientId: "com.bibliainteligente.ios",
     redirectURI: "https://bibliainteligente.app/auth/apple/callback",
     scopes: "email name",
     state: "biblia-inteligente-ios",

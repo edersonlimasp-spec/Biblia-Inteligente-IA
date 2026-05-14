@@ -17,7 +17,7 @@ export const APPLE_PRODUCT_MAP: Record<string, { planType: string; durationDays:
   'com.bibliainteligente.gold.yearly':    { planType: 'gold_anual',    durationDays: 365,  amount: '79.90'  },
   'com.bibliainteligente.premium.monthly':{ planType: 'premium',       durationDays: 30,   amount: '19.90'  },
   'com.bibliainteligente.premium.yearly': { planType: 'premium_anual', durationDays: 365,  amount: '129.90' },
-  'com.bibliainteligente.strong_lifetime':{ planType: 'strong_lifetime',durationDays: null, amount: '49.90'  },
+  'com.bibliainteligente.strong.lifetime':{ planType: 'strong_lifetime',durationDays: null, amount: '49.90'  },
 };
 
 interface AppleReceiptResponse {

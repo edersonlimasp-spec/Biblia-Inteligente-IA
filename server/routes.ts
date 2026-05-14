@@ -503,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   //      Para o login básico que validamos aqui (verificação de identityToken)
   //      NÃO precisamos da chave privada — apenas das chaves públicas JWKS.
   // ============================================================================
-  const APPLE_BUNDLE_ID = "com.bibliainteligente.app";
+  const APPLE_BUNDLE_ID = "com.bibliainteligente.ios";
   let appleJwksCache: { keys: any[]; fetchedAt: number } | null = null;
 
   async function getAppleJwks(): Promise<any[]> {

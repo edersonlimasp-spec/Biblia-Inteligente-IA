@@ -14,7 +14,7 @@ export const PRODUCT_IDS = {
     gold_annual:     'com.bibliainteligente.gold.yearly',
     premium_monthly: 'com.bibliainteligente.premium.monthly',
     premium_annual:  'com.bibliainteligente.premium.yearly',
-    strong_lifetime: 'com.bibliainteligente.strong_lifetime',
+    strong_lifetime: 'com.bibliainteligente.strong.lifetime',
   },
   android: {
     // IDs exatos cadastrados no Google Play Console (não podem ser renomeados)

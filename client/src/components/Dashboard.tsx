@@ -80,29 +80,29 @@ function ModuleCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
-      className={`cursor-pointer ${isLarge ? "col-span-2 sm:col-span-1" : ""}`}
+      className={`cursor-pointer rounded-xl hover-elevate active-elevate-2 ${isLarge ? "col-span-2 sm:col-span-1" : ""}`}
       onClick={onClick}
       data-testid={testId}
     >
-      <div className={`relative overflow-visible rounded-xl ${gradient} p-3 h-full min-h-[85px] flex flex-col shadow-lg border border-white/10 dark:border-white/5 hover-elevate active-elevate-2`}>
-        <div className="absolute top-0 right-0 w-14 h-14 opacity-10">
+      <div className={`relative overflow-hidden rounded-xl ${gradient} p-3 h-full min-h-[85px] flex flex-col shadow-lg border border-white/10 dark:border-white/5`}>
+        <div className="absolute top-0 right-0 w-14 h-14 opacity-10 pointer-events-none">
           <Icon className="w-full h-full" />
         </div>
         
-        <div className={`w-8 h-8 rounded-lg ${iconColor} flex items-center justify-center mb-2 shadow-md`}>
+        <div className={`w-8 h-8 rounded-lg ${iconColor} flex items-center justify-center mb-2 shadow-md flex-shrink-0`}>
           <Icon className="w-4 h-4 text-white" />
         </div>
         
-        <div className="flex-1 flex flex-col justify-end relative z-10">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <h3 className="text-base font-bold text-white">{title}</h3>
+        <div className="flex-1 flex flex-col justify-end relative z-10 min-w-0">
+          <div className="flex items-center gap-1 mb-0.5 flex-wrap">
+            <h3 className="text-sm sm:text-base font-bold text-white leading-tight break-words">{title}</h3>
             {badge && (
-              <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-white/20 text-white border-0">
+              <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-white/20 text-white border-0 flex-shrink-0">
                 {badge}
               </Badge>
             )}
           </div>
-          <p className="text-xs text-white/75 line-clamp-2">{description}</p>
+          <p className="text-[11px] sm:text-xs text-white/75 line-clamp-2 break-words">{description}</p>
         </div>
       </div>
     </motion.div>
@@ -345,8 +345,11 @@ export function Dashboard({
       </header>
 
       <ScrollArea className="h-[calc(100vh-60px)]">
-        <div className="max-w-2xl mx-auto px-4 py-6 sm:px-6">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div
+          className="max-w-2xl mx-auto px-3 py-6 sm:px-6"
+          style={{ paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))' }}
+        >
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
             {modules.map((module, index) => (
               <ModuleCard
                 key={module.id}

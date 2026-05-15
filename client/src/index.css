@@ -223,11 +223,18 @@
 
   html {
     overflow-x: hidden;
+    /* Impede que o WebView (iOS/Android) e navegadores mobile escalem o tamanho
+       do texto quando o usuário tem fonte grande no sistema. Garante que o app
+       use exatamente os tamanhos definidos no Tailwind/CSS. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
     overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 }
 

@@ -108,3 +108,33 @@ id = "3NSfHeVL5moARDzww83Z6"
 uri = "file://.local/out/IOS_PROVISIONING_PROFILE_BASE64.txt"
 type = "text"
 title = "IOS_PROVISIONING_PROFILE_BASE64 (cole no GitHub Secret)"
+
+[[outputs]]
+id = "iPUJXCIepMZ6Rt_Ke9fgi"
+uri = "file://attached_assets/iap_screenshots/strong_lifetime.png"
+type = "image"
+title = "Strong Vitalício (com.bibliainteligente.strong.lifetime)"
+
+[[outputs]]
+id = "hwdSYev6wh_ecET4N7Syj"
+uri = "file://attached_assets/iap_screenshots/gold_monthly.png"
+type = "image"
+title = "Gold Mensal (com.bibliainteligente.gold.monthly)"
+
+[[outputs]]
+id = "jsU_f7OfUyaWf75WWgcTx"
+uri = "file://attached_assets/iap_screenshots/gold_yearly.png"
+type = "image"
+title = "Gold Anual (com.bibliainteligente.gold.yearly)"
+
+[[outputs]]
+id = "kdRHxBRQG6WO-iZndk3Kr"
+uri = "file://attached_assets/iap_screenshots/premium_monthly.png"
+type = "image"
+title = "Premium Mensal (com.bibliainteligente.premium.monthly)"
+
+[[outputs]]
+id = "2qpFkSaVvca3R-1yGNhvs"
+uri = "file://attached_assets/iap_screenshots/premium_yearly.png"
+type = "image"
+title = "Premium Anual (com.bibliainteligente.premium.yearly)"

@@ -130,12 +130,39 @@ export async function processApplePurchase(
       return { success: false, error: `Apple verification failed: ${verification.status}` };
     }
 
+    // SECURITY: bind receipt to our app — reject receipts from other apps
+    const expectedBundleId = process.env.APPLE_BUNDLE_ID || 'com.bibliainteligente.ios';
+    const receiptBundleId = verification.receipt?.bundle_id;
+    if (receiptBundleId && receiptBundleId !== expectedBundleId) {
+      console.error('[Apple IAP] SECURITY: bundle_id mismatch', { receiptBundleId, expectedBundleId });
+      return { success: false, error: 'Receipt does not belong to this app' };
+    }
+
     // Find the matching transaction
     const transactions = verification.latest_receipt_info || verification.receipt?.in_app || [];
     const transaction = transactions.find(t => t.transaction_id === transactionId);
 
     if (!transaction) {
       return { success: false, error: 'Transaction not found in receipt' };
+    }
+
+    // SECURITY: enforce product_id match — prevent plan escalation
+    // (e.g. paying for monthly while claiming yearly/lifetime in request body)
+    if (transaction.product_id !== productId) {
+      console.error('[Apple IAP] SECURITY: product_id mismatch', {
+        receiptProductId: transaction.product_id,
+        requestProductId: productId,
+      });
+      return { success: false, error: 'Product mismatch between receipt and request' };
+    }
+
+    // SECURITY: enforce original_transaction_id match — prevent transaction binding tampering
+    if (transaction.original_transaction_id !== originalTransactionId) {
+      console.error('[Apple IAP] SECURITY: original_transaction_id mismatch', {
+        receiptOriginalTxId: transaction.original_transaction_id,
+        requestOriginalTxId: originalTransactionId,
+      });
+      return { success: false, error: 'Original transaction mismatch' };
     }
 
     // Get product mapping

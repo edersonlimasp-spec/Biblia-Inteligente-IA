@@ -23,6 +23,7 @@ import {
   Library,
   LogIn,
   User,
+  Settings,
   Crown,
   Gem,
   Infinity
@@ -320,16 +321,17 @@ export function Dashboard({
           <div className="flex items-center gap-1 flex-shrink-0">
             {user && getSubscriptionBadge()}
             
-            {user ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onNavigateToSettings}
-                data-testid="button-settings"
-              >
-                <User className="w-5 h-5" />
-              </Button>
-            ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onNavigateToSettings}
+              data-testid="button-settings"
+              aria-label={t("common.settings") || "Configurações"}
+            >
+              {user ? <User className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
+            </Button>
+
+            {!user && (
               <Button
                 variant="outline"
                 size="sm"

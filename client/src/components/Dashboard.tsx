@@ -22,7 +22,6 @@ import {
   Mic,
   Library,
   LogIn,
-  User,
   Settings,
   Crown,
   Gem,
@@ -328,7 +327,7 @@ export function Dashboard({
               data-testid="button-settings"
               aria-label={t("common.settings") || "Configurações"}
             >
-              {user ? <User className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
+              <Settings className="w-5 h-5" />
             </Button>
 
             {!user && (

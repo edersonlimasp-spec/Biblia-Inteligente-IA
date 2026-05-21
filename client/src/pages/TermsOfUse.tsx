@@ -42,7 +42,7 @@ export function TermsOfUse({ onBack }: TermsOfUseProps) {
             <br />
             E.L SERVIÇOS EMPRESARIAIS LTDA
             <br />
-            CNPJ: [SEU CNPJ]
+            CNPJ: 47.817.862/0001-75
             <br />
             E-mail:{" "}
             <a

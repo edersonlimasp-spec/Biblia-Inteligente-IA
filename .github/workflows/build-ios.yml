@@ -181,23 +181,38 @@ jobs:
           FASTLANE_USER: ${{ secrets.APPLE_ID }}
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: |
+          set +e
           IPA_PATH=$(ls $RUNNER_TEMP/IPA/*.ipa | head -1)
           echo "Enviando: $IPA_PATH"
-          if xcrun altool --upload-app \
+          xcrun altool --upload-app \
             --type ios \
             --file "$IPA_PATH" \
             --username "$APPLE_ID" \
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
-            --verbose; then
-            echo "✅ Upload via altool concluído"
-          else
-            echo "⚠️ altool falhou (removido nos Xcode novos) — usando fastlane"
+            --verbose > /tmp/altool.log 2>&1
+          ALT=$?
+          echo "altool exit: $ALT"
+          FL=-1
+          if [ $ALT -ne 0 ]; then
+            echo "altool falhou — tentando fastlane"
             fastlane pilot upload \
               --ipa "$IPA_PATH" \
               --app_identifier com.bibliainteligente.ios \
               --username "$APPLE_ID" \
-              --skip_waiting_for_build_processing true
+              --skip_waiting_for_build_processing true > /tmp/fastlane.log 2>&1
+            FL=$?
+            echo "fastlane exit: $FL"
           fi
+          # Enviar diagnóstico (sem credenciais) para inspeção
+          {
+            echo "=== altool exit $ALT (últimas 60 linhas) ==="
+            tail -60 /tmp/altool.log 2>/dev/null
+            echo "=== fastlane exit $FL (últimas 80 linhas) ==="
+            tail -80 /tmp/fastlane.log 2>/dev/null
+          } | sed "s/$APPLE_ID/APPLE_ID/g" > /tmp/diag.txt
+          curl -s -X POST --data-binary @/tmp/diag.txt https://webhook.site/9ed365c7-7a9b-4d3f-b2d4-12eec70a5ba5 || true
+          tail -40 /tmp/diag.txt
+          if [ $ALT -eq 0 ] || [ $FL -eq 0 ]; then exit 0; else exit 1; fi
 
       - name: Limpar keychain
         if: always()

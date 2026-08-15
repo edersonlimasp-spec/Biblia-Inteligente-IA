@@ -131,7 +131,8 @@ title = "Gold Anual (com.bibliainteligente.gold.yearly)"
 id = "kdRHxBRQG6WO-iZndk3Kr"
 uri = "file://attached_assets/iap_screenshots/premium_monthly.png"
 type = "image"
-title = "Premium Mensal (com.bibliainteligente.premium.monthly)"
+title = "Screenshot Premium Mensal (App Review)"
+description = "Captura 1024×1024 para o campo de screenshot de revisão da assinatura Premium Mensal no App Store Connect."
 
 [[outputs]]
 id = "2qpFkSaVvca3R-1yGNhvs"

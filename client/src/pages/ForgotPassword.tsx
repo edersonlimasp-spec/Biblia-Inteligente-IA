@@ -96,7 +96,7 @@ export function ForgotPassword({ onBackToLogin }: ForgotPasswordProps) {
                       Link de reset de senha gerado:
                     </p>
                     <div className="space-y-3">
-                      <div className="bg-white dark:bg-slate-900 p-3 rounded border border-gray-200 dark:border-gray-700 break-all">
+                      <div className="bg-card p-3 rounded border border-border break-all">
                         <p className="text-xs text-muted-foreground mb-2">Link de reset:</p>
                         <p className="text-xs font-mono text-primary">{resetLink}</p>
                       </div>

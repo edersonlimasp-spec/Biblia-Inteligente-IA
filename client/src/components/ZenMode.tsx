@@ -124,7 +124,7 @@ export function ZenMode({ onBack, initialBook, initialChapter }: ZenModeProps) {
           animate={{ opacity: 1, scale: 1 }}
           className="relative"
         >
-          <Card className="border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-transparent overflow-hidden">
+          <Card className="border-[#4A4285]/30 bg-gradient-to-br from-[#4A4285]/10 to-transparent overflow-hidden">
             <CardContent className="p-8 flex flex-col items-center">
               <div className="relative w-64 h-64 flex items-center justify-center">
                 <svg className="absolute inset-0 w-full h-full -rotate-90">

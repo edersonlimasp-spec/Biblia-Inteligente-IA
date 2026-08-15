@@ -6,13 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  ArrowLeft, 
-  BookOpen, 
-  Calendar,
-  Clock,
-  Play
-} from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, Clock, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ReadingPlanTemplate } from "@shared/schema";
 
@@ -22,59 +16,49 @@ interface PlansProgressScreenProps {
   onOpenMyPlan?: (planId: string) => void;
 }
 
-interface DailyReading {
-  book: string;
-  startChapter: number;
-  endChapter?: number;
-}
-
-interface TodayReading {
-  dayIndex: number;
-  readings: DailyReading[];
-  isCompleted: boolean;
-}
-
+interface DailyReading { book: string; startChapter: number; endChapter?: number }
+interface TodayReading { dayIndex: number; readings: DailyReading[]; isCompleted: boolean }
 interface ActivePlanResponse {
   activePlan: {
-    id: string;
-    templateId: string;
-    startDate: string;
-    completedDays: number;
-    streakDays: number;
-    template?: ReadingPlanTemplate;
+    id: string; templateId: string; startDate: string;
+    completedDays: number; streakDays: number; template?: ReadingPlanTemplate;
   } | null;
   todayReading?: TodayReading;
 }
 
+/* módulo Planos: #1F6A5C → #134C43 */
+const MOD_FROM = "#1F6A5C";
+const MOD_TO   = "#134C43";
+
+/* gradientes para os cards de planos — mesma família de tons, sem arco-íris */
 const PLAN_GRADIENTS = [
-  'linear-gradient(135deg, #4A90D9 0%, #357ABD 100%)',
-  'linear-gradient(135deg, #5CB85C 0%, #449D44 100%)',
-  'linear-gradient(135deg, #5BC0DE 0%, #31B0D5 100%)',
-  'linear-gradient(135deg, #F0AD4E 0%, #EC971F 100%)',
-  'linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%)',
-  'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
+  "linear-gradient(158deg, #1F6A5C, #134C43)",
+  "linear-gradient(158deg, #22668F, #154968)",
+  "linear-gradient(158deg, #2C6076, #1B4557)",
+  "linear-gradient(158deg, #3A4657, #2A3441)",
+  "linear-gradient(158deg, #4A4285, #362F66)",
+  "linear-gradient(158deg, #1F5C74, #123F53)",
 ];
 
 export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }: PlansProgressScreenProps) {
   const { language } = useLanguage();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'progress' | 'plans'>('plans');
-  
-  const lang = (language || 'pt') as 'pt' | 'en' | 'es';
+  const [activeTab, setActiveTab] = useState<"progress" | "plans">("plans");
+  const lang = (language || "pt") as "pt" | "en" | "es";
 
   const { data: templates, isLoading: templatesLoading } = useQuery<ReadingPlanTemplate[]>({
-    queryKey: ['/api/reading-plans/templates'],
+    queryKey: ["/api/reading-plans/templates"],
   });
 
   const { data: activePlanData } = useQuery<ActivePlanResponse>({
-    queryKey: ['/api/reading-plans/user/active'],
+    queryKey: ["/api/reading-plans/user/active"],
     staleTime: 0,
-    refetchOnMount: 'always',
+    refetchOnMount: "always",
   });
 
   const createPlanMutation = useMutation({
     mutationFn: async (templateId: string) => {
-      const response = await apiRequest('POST', '/api/reading-plans/user', {
+      const response = await apiRequest("POST", "/api/reading-plans/user", {
         templateId,
         startDate: new Date().toISOString(),
       });
@@ -82,178 +66,185 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
     },
     onSuccess: async (data) => {
       await Promise.all([
-        queryClient.refetchQueries({ queryKey: ['/api/reading-plans/user'] }),
-        queryClient.refetchQueries({ queryKey: ['/api/reading-plans/user/active'] }),
+        queryClient.refetchQueries({ queryKey: ["/api/reading-plans/user"] }),
+        queryClient.refetchQueries({ queryKey: ["/api/reading-plans/user/active"] }),
       ]);
       toast({
-        title: lang === 'pt' ? "Plano iniciado!" : lang === 'es' ? "Plan iniciado!" : "Plan started!",
+        title: lang === "pt" ? "Plano iniciado!" : lang === "es" ? "Plan iniciado!" : "Plan started!",
       });
-      if (onOpenMyPlan) {
-        onOpenMyPlan(data.id);
-      }
+      if (onOpenMyPlan) onOpenMyPlan(data.id);
     },
     onError: () => {
       toast({
-        title: lang === 'pt' ? "Erro ao criar plano" : "Error creating plan",
+        title: lang === "pt" ? "Erro ao criar plano" : "Error creating plan",
         variant: "destructive",
       });
     },
   });
 
   const hasActivePlan = activePlanData?.activePlan != null;
-  
   const progressPercent = hasActivePlan && activePlanData?.activePlan?.template
     ? Math.round((activePlanData.activePlan.completedDays / activePlanData.activePlan.template.durationDays) * 100)
     : 0;
 
-  const getTemplateTitle = (template: ReadingPlanTemplate) => {
+  const getTemplateTitle = (t: ReadingPlanTemplate) => {
     switch (lang) {
-      case 'en': return template.titleEn || template.titlePt;
-      case 'es': return template.titleEs || template.titlePt;
-      default: return template.titlePt;
+      case "en": return t.titleEn || t.titlePt;
+      case "es": return t.titleEs || t.titlePt;
+      default: return t.titlePt;
     }
   };
 
-  const getTemplateDescription = (template: ReadingPlanTemplate) => {
-    const days = template.durationDays;
-    const pace = template.defaultPace;
-    
-    if (days <= 7) {
-      return lang === 'pt' ? `Leitura rápida • ${days} dias` : `Quick read • ${days} days`;
-    } else if (days <= 30) {
-      return lang === 'pt' ? `${pace} capítulos por dia • ${days} dias` : `${pace} chapters/day • ${days} days`;
-    } else if (days <= 90) {
+  const getTemplateDesc = (t: ReadingPlanTemplate) => {
+    const days = t.durationDays;
+    const pace = t.defaultPace;
+    if (days <= 7) return lang === "pt" ? `Leitura rápida · ${days} dias` : `Quick read · ${days} days`;
+    if (days <= 30) return lang === "pt" ? `${pace} cap./dia · ${days} dias` : `${pace} ch/day · ${days} days`;
+    if (days <= 90) {
       const weeks = Math.round(days / 7);
-      return lang === 'pt' ? `Leitura em ${weeks} semanas` : `${weeks} weeks reading`;
-    } else {
-      const months = Math.round(days / 30);
-      return lang === 'pt' ? `${pace} cap/dia • ${months} meses` : `${pace} ch/day • ${months} months`;
+      return lang === "pt" ? `Leitura em ${weeks} semanas` : `${weeks} weeks reading`;
     }
+    const months = Math.round(days / 30);
+    return lang === "pt" ? `${pace} cap./dia · ${months} meses` : `${pace} ch/day · ${months} months`;
+  };
+
+  const iconForIndex = (i: number) => {
+    const icons = [Calendar, Clock, BookOpen, BookOpen, Play, Calendar];
+    const Icon = icons[i % icons.length];
+    return <Icon className="w-5 h-5" style={{ color: "#fff" }} />;
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
-      <header className="shrink-0 px-4 py-4 bg-white dark:bg-slate-800 flex items-center gap-3 shadow-sm">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onBack} 
-          className="text-slate-600 dark:text-slate-300"
+    <div className="flex flex-col h-full bg-background">
+      {/* cabeçalho com cor do módulo */}
+      <header
+        className="shrink-0 sticky top-0 z-40 flex items-center gap-3 px-4 py-4"
+        style={{
+          background: `linear-gradient(158deg, ${MOD_FROM}, ${MOD_TO})`,
+          paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))",
+        }}
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onBack}
           data-testid="button-back"
+          style={{ color: "rgba(255,255,255,0.85)" }}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h1 className="text-lg font-bold text-slate-800 dark:text-white flex-1 text-center pr-10">
-          {lang === 'pt' ? 'Planos de Leitura' : lang === 'es' ? 'Planes de Lectura' : 'Reading Plans'}
+        <h1 className="text-base font-serif font-semibold flex-1 text-center pr-10" style={{ color: "#F2F6FA" }}>
+          {lang === "pt" ? "Planos de Leitura" : lang === "es" ? "Planes de Lectura" : "Reading Plans"}
         </h1>
       </header>
 
-      <div className="shrink-0 px-4 py-3 flex justify-center">
-        <div className="inline-flex bg-slate-200 dark:bg-slate-700 rounded-full p-1">
-          <button
-            onClick={() => setActiveTab('progress')}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-              activeTab === 'progress'
-                ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-300'
-            }`}
-            data-testid="tab-progress"
-          >
-            {lang === 'pt' ? 'Progresso' : 'Progress'}
-          </button>
-          <button
-            onClick={() => setActiveTab('plans')}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-              activeTab === 'plans'
-                ? 'bg-[#357ABD] text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-300'
-            }`}
-            data-testid="tab-plans"
-          >
-            {lang === 'pt' ? 'Planos de Leitura' : 'Reading Plans'}
-          </button>
+      {/* abas */}
+      <div className="shrink-0 px-4 py-3 flex justify-center border-b border-border bg-background">
+        <div
+          className="inline-flex rounded-full p-0.5 gap-0.5"
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+        >
+          {[
+            { key: "progress", label: lang === "pt" ? "Progresso" : "Progress" },
+            { key: "plans",    label: lang === "pt" ? "Planos de Leitura" : "Reading Plans" },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key as "progress" | "plans")}
+              data-testid={`tab-${key}`}
+              className="px-5 py-1.5 rounded-full text-sm font-medium transition-all"
+              style={
+                activeTab === key
+                  ? { background: MOD_FROM, color: "#F2F6FA" }
+                  : { color: "#8FA3B8" }
+              }
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="px-4 pb-6 space-y-4">
+        <div className="px-4 pb-8 space-y-3 pt-4">
+          {/* plano ativo */}
           {hasActivePlan && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700"
+              className="rounded-xl p-4 border border-border"
+              style={{ background: "rgba(31,106,92,0.12)" }}
             >
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">
-                    {lang === 'pt' ? 'Plano Ativo:' : 'Active Plan:'}
+                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] mb-0.5" style={{ color: "#647B90" }}>
+                    {lang === "pt" ? "Plano Ativo" : "Active Plan"}
                   </p>
-                  <h3 className="font-semibold text-slate-800 dark:text-white">
-                    {activePlanData?.activePlan?.template 
+                  <h3 className="font-serif text-base font-semibold text-foreground">
+                    {activePlanData?.activePlan?.template
                       ? getTemplateTitle(activePlanData.activePlan.template)
-                      : lang === 'pt' ? 'Bíblia em 1 Ano' : 'Bible in 1 Year'}
+                      : "Bíblia em 1 Ano"}
                   </h3>
+                  <p className="text-xs mt-0.5" style={{ color: "#8FA3B8" }}>
+                    {progressPercent}% concluído
+                  </p>
                 </div>
                 <Button
                   size="sm"
-                  className="bg-[#357ABD] hover:bg-[#2A5F8F] text-white rounded-full px-4"
                   onClick={() => {
-                    if (onOpenMyPlan && activePlanData?.activePlan) {
-                      onOpenMyPlan(activePlanData.activePlan.id);
-                    }
+                    if (onOpenMyPlan && activePlanData?.activePlan) onOpenMyPlan(activePlanData.activePlan.id);
                   }}
                   data-testid="button-continue"
+                  style={{ background: MOD_FROM, color: "#F2F6FA" }}
                 >
-                  {lang === 'pt' ? 'Continuar' : 'Continue'}
+                  {lang === "pt" ? "Continuar" : "Continue"}
                 </Button>
               </div>
-              <Progress 
-                value={progressPercent} 
-                className="h-2 bg-slate-200 dark:bg-slate-600" 
-              />
+              <Progress value={progressPercent} className="h-1.5" />
             </motion.div>
           )}
 
+          {/* lista de planos */}
           {templatesLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-24 rounded-2xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
+            <div className="space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: "rgba(255,255,255,0.05)" }} />
               ))}
             </div>
           ) : (
             templates?.map((template, index) => {
               const gradient = PLAN_GRADIENTS[index % PLAN_GRADIENTS.length];
               const isActive = activePlanData?.activePlan?.templateId === template.id;
-              
+
               return (
                 <motion.div
                   key={template.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="rounded-2xl overflow-hidden shadow-md"
-                  style={{ background: gradient }}
+                  transition={{ delay: index * 0.04 }}
+                  className="rounded-xl overflow-hidden"
+                  style={{
+                    background: gradient,
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.13), inset 0 0 0 1px rgba(255,255,255,0.05)",
+                  }}
                 >
-                  <div className="p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                      {index % 4 === 0 && <Calendar className="w-6 h-6 text-white" />}
-                      {index % 4 === 1 && <Clock className="w-6 h-6 text-white" />}
-                      {index % 4 === 2 && <BookOpen className="w-6 h-6 text-white" />}
-                      {index % 4 === 3 && <BookOpen className="w-6 h-6 text-white" />}
+                  <div className="p-4 flex items-center gap-3">
+                    <div
+                      className="flex items-center justify-center flex-shrink-0"
+                      style={{ width: 40, height: 40, borderRadius: 8, background: "rgba(255,255,255,0.15)" }}
+                    >
+                      {iconForIndex(index)}
                     </div>
-                    
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-white text-base">
+                      <h3 className="font-serif font-semibold text-sm" style={{ color: "#fff" }}>
                         {getTemplateTitle(template)}
                       </h3>
-                      <p className="text-white/80 text-sm mt-0.5">
-                        {getTemplateDescription(template)}
+                      <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.78)" }}>
+                        {getTemplateDesc(template)}
                       </p>
                     </div>
-                    
                     <Button
                       size="sm"
-                      className="bg-white/20 hover:bg-white/30 text-white border-0 rounded-full px-5"
                       onClick={() => {
                         if (isActive && onOpenMyPlan && activePlanData?.activePlan) {
                           onOpenMyPlan(activePlanData.activePlan.id);
@@ -263,10 +254,16 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
                       }}
                       disabled={createPlanMutation.isPending}
                       data-testid={`button-start-${template.slug}`}
+                      className="flex-shrink-0"
+                      style={{
+                        background: "rgba(255,255,255,0.20)",
+                        color: "#fff",
+                        border: "none",
+                      }}
                     >
-                      {isActive 
-                        ? (lang === 'pt' ? 'Abrir' : 'Open')
-                        : (lang === 'pt' ? 'Iniciar' : 'Start')}
+                      {isActive
+                        ? lang === "pt" ? "Abrir" : "Open"
+                        : lang === "pt" ? "Iniciar" : "Start"}
                     </Button>
                   </div>
                 </motion.div>

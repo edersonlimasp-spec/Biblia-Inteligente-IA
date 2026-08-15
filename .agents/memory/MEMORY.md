@@ -1,0 +1,13 @@
+- [Apple IAP review rejections](apple-iap-review-rejections.md) — 2.1 purchase-error rejections are usually stale bundle or missing App Store Connect config, not source bugs; store.error() must resolve pending purchase.
+- [Dev splash blocks screenshots](dev-splash-screenshots.md) — ~2s splash gated by sessionStorage means app_preview (fresh session each time) always lands on it; can't screenshot dashboard or dark mode this way.
+- [Android TWA status bar color](android-twa-statusbar.md) — published Android app is a TWA, not Capacitor; top "faixa branca" is the theme-color meta following system theme instead of the in-app .dark toggle.
+- [Vitral color migration](vitral-color-migration.md) — full palette strategy, module gradients, accent approximations, and final audit cmd (0 violations).
+- [Bible reader typography system](bible-reader-typography.md) — 4-step font sizes in CSS classes, Newsreader font, Settings-button popover pattern, verse column 68ch.
+- [Routes split boundary detection](routes-split-boundary.md) — ao dividir routes.ts em módulos, verificar onde handlers realmente fecham (});) antes de cortar; handler cortado no meio vira unclosed paren no arquivo destino.
+- [Banco de produção real](prod-database-reality.md) — app publicado usa o banco gerenciado da Replit; conteúdo só chega via seed idempotente que copia do Neon.
+- [Modelo de acesso da Biblioteca](library-access-model.md) — todos os livros são Premium; amostra = 2 primeiros caps + is_sample, sem login; compras antigas preservadas; Gold não dá acesso.
+- [Biblioteca — conteúdo autoral](library-authorial-content.md) — NUNCA gerar texto de capítulo dos livros; 40 caps completos nos 2 bancos (jul 2026); publicar só sob pedido explícito.
+- [Drizzle push orphan-table rename trap](drizzle-push-orphan-tables.md) — db:push pode propor renomear tabela órfã do BD para a nova tabela; recusar e criar via SQL manual.
+- [Design palette isolation rules](design-palette-rules.md) — paleta do ícone (azul-petróleo/vermelho); pergaminho isolado em .bible-page; dourado APENAS em .strong-word; dark mode padrão.
+- [Dados Strong em produção](strong-data-prod-seed.md) — bible_words/pdf_word_index chegam à prod via seed do Neon no boot; manter Neon espelho do dev; Mateus 99,8% sem inventar.
+- [Sincronização da Biblioteca](library-seed-sync.md) — seed casa livros por título e capítulos por (book_id, order_num); casar por id duplicou livros.

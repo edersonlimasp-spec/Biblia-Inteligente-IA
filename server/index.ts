@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./init-db";
@@ -248,6 +249,29 @@ app.use((req, res, next) => {
   
   // Ensure frontend files are in correct location before starting server
   ensureFrontendFilesReady();
+
+  // ── Rate limiting: camada adicional de proteção por IP ──────────────────
+  // Endpoints de autenticação: 10 tentativas por IP a cada 15 min (anti brute-force)
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Muitas tentativas. Tente novamente em 15 minutos.' },
+  });
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api/auth/register', authLimiter);
+
+  // Endpoints de IA: 40 req/min por IP (camada adicional às quotas por usuário)
+  const aiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 40,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Limite de requisições por minuto atingido. Aguarde um momento.' },
+  });
+  app.use('/api/ai/', aiLimiter);
+  // ────────────────────────────────────────────────────────────────────────
 
   const server = await registerRoutes(app);
 

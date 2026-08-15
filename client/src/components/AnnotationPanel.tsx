@@ -164,7 +164,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
   const notesCount = chapterAnnotations.length;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background dark:bg-slate-950 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background">
       {/* Collapsible Header */}
       <button
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
@@ -212,7 +212,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
             placeholder="Escreva sua anotação aqui..."
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
-            className="min-h-[120px] text-base leading-relaxed resize-none bg-background dark:bg-slate-900 text-foreground dark:text-white border border-border placeholder:text-muted-foreground"
+            className="min-h-[120px] text-base leading-relaxed resize-none bg-background text-foreground border border-border placeholder:text-muted-foreground"
             data-testid="input-annotation"
           />
 
@@ -261,7 +261,7 @@ export function AnnotationPanel({ book, bookName, chapter, selectedVerse, isInit
                     className={`text-sm p-3 rounded-md border transition-colors ${
                       editingId === ann.id 
                         ? "bg-primary/15 border-primary text-foreground" 
-                        : "bg-background dark:bg-slate-800 border-border text-foreground hover:bg-muted/50 dark:hover:bg-slate-700"
+                        : "bg-card border-border text-foreground hover-elevate"
                     }`}
                     data-testid={`annotation-item-${ann.id}`}
                   >

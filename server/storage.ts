@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, subscriptions, bookmarks, annotations, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts, chatSessions, userSyncMeta, prayerLists, prayerRequests } from '@shared/schema';
+import { users, subscriptions, bookmarks, annotations, studyCompletions, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts, chatSessions, userSyncMeta, prayerLists, prayerRequests } from '@shared/schema';
 import type { FreeStrongQuota, GuestStrongQuota, PaymentReceipt, InsertPaymentReceipt, ChatSession, InsertChatSession, UserSyncMeta, PrayerList, PrayerRequest } from '@shared/schema';
 import { getBookById } from './bible-data/books';
 import type {
@@ -10,6 +10,8 @@ import type {
   InsertSubscription,
   Bookmark,
   InsertBookmark,
+  StudyCompletion,
+  InsertStudyCompletion,
   Annotation,
   InsertAnnotation,
   AIHistory,
@@ -75,6 +77,10 @@ export interface IStorage {
   createBookmark(bookmark: InsertBookmark): Promise<Bookmark>;
   deleteBookmark(id: string, userId: string): Promise<void>;
 
+  // Study completions (cartão "Seu ritmo")
+  getUserStudyCompletions(userId: string, since: Date): Promise<StudyCompletion[]>;
+  createStudyCompletion(completion: InsertStudyCompletion & { completedAt?: Date }): Promise<StudyCompletion>;
+
   // Annotations
   getUserAnnotations(userId: string): Promise<Annotation[]>;
   getVerseAnnotations(userId: string, book: string, chapter: number, verse: number): Promise<Annotation[]>;
@@ -108,7 +114,7 @@ export interface IStorage {
   revokeBonus(bonusId: string): Promise<void>;
   deleteBonus(bonusId: string): Promise<void>;
   getActiveBonuses(): Promise<Bonus[]>;
-  getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string; userName: string | null; daysRemaining: number | null }>>;
+  getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string | null; userName: string | null; daysRemaining: number | null }>>;
   renewBonus(bonusId: string, extraDays: number): Promise<Bonus>;
 
   // Audit Log
@@ -228,6 +234,7 @@ export interface IStorage {
   getLessonWithContext(id: string): Promise<{ lesson: StudyLesson; track: StudyTrack; module: StudyModule; lessonIndex: number; moduleIndex: number } | undefined>;
   getUserStudyProgress(userId: string | null, deviceId: string | null): Promise<UserStudyProgress[]>;
   updateStudyProgress(userId: string | null, deviceId: string | null, lessonId: string, completed: boolean): Promise<UserStudyProgress>;
+  migrateStudyProgressToUser(userId: string, deviceId: string): Promise<{ migrated: number; merged: number }>;
   getModuleProgress(moduleId: string, userId: string | null, deviceId: string | null): Promise<{ total: number; completed: number; percentage: number }>;
   createStudyModule(module: InsertStudyModule): Promise<StudyModule>;
   createStudyTrack(track: InsertStudyTrack): Promise<StudyTrack>;
@@ -357,7 +364,7 @@ class PostgresStorage implements IStorage {
       .where(whereCondition || undefined);
     const total = totalResult[0]?.count || 0;
 
-    let query = db.select().from(users);
+    let query = db.select().from(users).$dynamic();
     if (whereCondition) {
       query = query.where(whereCondition);
     }
@@ -645,6 +652,20 @@ class PostgresStorage implements IStorage {
     await db.delete(bookmarks).where(and(eq(bookmarks.id, id), eq(bookmarks.userId, userId)));
   }
 
+  // Study completions (cartão "Seu ritmo")
+  async getUserStudyCompletions(userId: string, since: Date): Promise<StudyCompletion[]> {
+    return db
+      .select()
+      .from(studyCompletions)
+      .where(and(eq(studyCompletions.userId, userId), gte(studyCompletions.completedAt, since)))
+      .orderBy(desc(studyCompletions.completedAt));
+  }
+
+  async createStudyCompletion(completion: InsertStudyCompletion & { completedAt?: Date }): Promise<StudyCompletion> {
+    const result = await db.insert(studyCompletions).values(completion).returning();
+    return result[0];
+  }
+
   // Annotations
   async getUserAnnotations(userId: string): Promise<Annotation[]> {
     return db.select().from(annotations).where(eq(annotations.userId, userId)).orderBy(desc(annotations.updatedAt));
@@ -851,7 +872,7 @@ class PostgresStorage implements IStorage {
     return db.select().from(bonuses).where(eq(bonuses.isActive, true)).orderBy(desc(bonuses.createdAt));
   }
 
-  async getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string; userName: string | null; daysRemaining: number | null }>> {
+  async getBonusesWithEmail(searchEmail?: string, includeExpired?: boolean): Promise<Array<Bonus & { userEmail: string | null; userName: string | null; daysRemaining: number | null }>> {
     const now = new Date();
     
     // Build query with join to users table
@@ -877,6 +898,7 @@ class PostgresStorage implements IStorage {
         endAt: bonuses.endAt,
         grantedByAdminId: bonuses.grantedByAdminId,
         createdAt: bonuses.createdAt,
+        expiresAt: bonuses.expiresAt,
         userEmail: users.email,
         userName: users.name,
       })
@@ -1071,7 +1093,7 @@ class PostgresStorage implements IStorage {
 
     for (const event of events) {
       const user = await this.getUser(event.userId);
-      if (user) {
+      if (user && user.email) {
         const existing = abandonment.get(event.userId);
         if (!existing || new Date(event.createdAt) > existing.lastSeenAt) {
           abandonment.set(event.userId, {
@@ -1784,7 +1806,7 @@ class PostgresStorage implements IStorage {
     const RENEWAL_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
     const renewedCohort: Array<typeof recurringReceipts[number]> = [];
     const notRenewedCohort: Array<typeof recurringReceipts[number]> = [];
-    for (const r of latestEndedPerUser.values()) {
+    for (const r of Array.from(latestEndedPerUser.values())) {
       const pe = periodEndOf(r);
       const family = planFamily(r.planType);
       const graceStart = new Date(pe.getTime() - RENEWAL_GRACE_MS);
@@ -1982,7 +2004,11 @@ class PostgresStorage implements IStorage {
   async updateStudyProgress(userId: string | null, deviceId: string | null, lessonId: string, completed: boolean): Promise<UserStudyProgress> {
     const conditions = [eq(userStudyProgress.lessonId, lessonId)];
     if (userId) conditions.push(eq(userStudyProgress.userId, userId));
-    else if (deviceId) conditions.push(eq(userStudyProgress.deviceId, deviceId!));
+    else if (deviceId) {
+      // Anônimo: só pode ver/alterar registros sem dono
+      conditions.push(eq(userStudyProgress.deviceId, deviceId!));
+      conditions.push(sql`${userStudyProgress.userId} IS NULL`);
+    }
     
     const existing = await db.select().from(userStudyProgress).where(and(...conditions)).limit(1);
     
@@ -2007,6 +2033,74 @@ class PostgresStorage implements IStorage {
       }).returning();
       return created as UserStudyProgress;
     }
+  }
+
+  // Migra o progresso de lições feito sem login (apenas deviceId) para a conta
+  // do usuário. Mescla sem duplicar: se o usuário já tem registro para a mesma
+  // lição, mantém o "melhor" estado (concluída vence; datas mais informativas).
+  async migrateStudyProgressToUser(userId: string, deviceId: string): Promise<{ migrated: number; merged: number }> {
+    return db.transaction(async (tx) => {
+      const deviceRows = await tx.select().from(userStudyProgress)
+        .where(and(
+          eq(userStudyProgress.deviceId, deviceId),
+          sql`${userStudyProgress.userId} IS NULL`,
+        ));
+
+      if (deviceRows.length === 0) return { migrated: 0, merged: 0 };
+
+      const userRows = await tx.select().from(userStudyProgress)
+        .where(eq(userStudyProgress.userId, userId));
+      const userByLesson = new Map(userRows.map(r => [r.lessonId, r]));
+
+      // Agrupa por lição (o progresso anônimo pode ter duplicatas históricas)
+      const deviceByLesson = new Map<string, typeof deviceRows>();
+      for (const row of deviceRows) {
+        const list = deviceByLesson.get(row.lessonId) ?? [];
+        list.push(row);
+        deviceByLesson.set(row.lessonId, list);
+      }
+
+      let migrated = 0;
+      let merged = 0;
+
+      for (const [lessonId, rows] of Array.from(deviceByLesson.entries())) {
+        const existing = userByLesson.get(lessonId);
+        // Estado combinado de todas as linhas envolvidas (concluída vence;
+        // data de conclusão mais antiga; último acesso mais recente)
+        const all = existing ? [existing, ...rows] : rows;
+        const completed = all.some(r => r.completed);
+        const completedAt = completed
+          ? all.map(r => r.completedAt).filter(Boolean)
+              .sort((a, b) => a!.getTime() - b!.getTime())[0] ?? new Date()
+          : null;
+        const lastAccessAt = all.map(r => r.lastAccessAt).filter(Boolean)
+          .sort((a, b) => b!.getTime() - a!.getTime())[0] ?? new Date();
+
+        if (existing) {
+          await tx.update(userStudyProgress)
+            .set({ completed, completedAt, lastAccessAt })
+            .where(eq(userStudyProgress.id, existing.id));
+          // Remove todas as linhas do aparelho para esta lição
+          for (const row of rows) {
+            await tx.delete(userStudyProgress).where(eq(userStudyProgress.id, row.id));
+          }
+          merged++;
+        } else {
+          // Promove UMA linha para a conta (deviceId limpo para que uso
+          // anônimo futuro no mesmo aparelho não altere registros da conta)
+          const [keep, ...extras] = rows;
+          await tx.update(userStudyProgress)
+            .set({ userId, deviceId: null, completed, completedAt, lastAccessAt })
+            .where(eq(userStudyProgress.id, keep.id));
+          for (const row of extras) {
+            await tx.delete(userStudyProgress).where(eq(userStudyProgress.id, row.id));
+          }
+          migrated++;
+        }
+      }
+
+      return { migrated, merged };
+    });
   }
 
   async getModuleProgress(moduleId: string, userId: string | null, deviceId: string | null): Promise<{ total: number; completed: number; percentage: number }> {
@@ -2484,7 +2578,7 @@ class PostgresStorage implements IStorage {
     } else if (userId) {
       whereClause = eq(prayerLists.userId, userId);
     } else {
-      whereClause = eq(prayerLists.deviceId, deviceId);
+      whereClause = eq(prayerLists.deviceId, deviceId!);
     }
 
     return db.select().from(prayerLists)
@@ -2537,7 +2631,7 @@ class PostgresStorage implements IStorage {
     } else if (userId) {
       ownerClause = eq(prayerRequests.userId, userId);
     } else {
-      ownerClause = eq(prayerRequests.deviceId, deviceId);
+      ownerClause = eq(prayerRequests.deviceId, deviceId!);
     }
 
     const whereClause = listId 

@@ -73,75 +73,75 @@ const CLASSIC_HYMNS = [
 
 // Seção 1: Minhas Orações (4 cards existentes)
 const MINHAS_ORACOES = [
-  { 
-    key: "family", 
-    title: "Família e Vida Sentimental", 
-    icon: Heart, 
-    color: "#8B5CF6",
-    bgGradient: "from-violet-500 to-violet-600"
+  {
+    key: "family",
+    title: "Família e Vida Sentimental",
+    icon: Heart,
+    color: "#93602A",
+    gradient: "linear-gradient(158deg, #93602A, #734818)",
   },
-  { 
-    key: "spiritual", 
-    title: "Vida Espiritual e Ministério", 
-    icon: Church, 
-    color: "#22C55E",
-    bgGradient: "from-green-500 to-green-600"
+  {
+    key: "spiritual",
+    title: "Vida Espiritual e Ministério",
+    icon: Church,
+    color: "#2C6076",
+    gradient: "linear-gradient(158deg, #2C6076, #1B4557)",
   },
-  { 
-    key: "professional", 
-    title: "Vida Profissional e Estudos", 
-    icon: Briefcase, 
-    color: "#3B82F6",
-    bgGradient: "from-blue-500 to-blue-600"
+  {
+    key: "professional",
+    title: "Vida Profissional e Estudos",
+    icon: Briefcase,
+    color: "#3E5F8A",
+    gradient: "linear-gradient(158deg, #3E5F8A, #2A4466)",
   },
-  { 
-    key: "dreams", 
-    title: "Meus Sonhos e Conquistas", 
-    icon: Star, 
-    color: "#F59E0B",
-    bgGradient: "from-amber-500 to-amber-600"
+  {
+    key: "dreams",
+    title: "Meus Sonhos e Conquistas",
+    icon: Star,
+    color: "#8A6A2E",
+    gradient: "linear-gradient(158deg, #8A6A2E, #6B501C)",
   },
 ];
 
 // Seção 2: Diversos Motivos (4 novos cards)
 const DIVERSOS_MOTIVOS = [
-  { 
-    key: "motivos_igreja", 
-    title: "Motivos Igreja", 
-    icon: Church, 
-    color: "#EC4899",
-    bgGradient: "from-pink-500 to-pink-600"
+  {
+    key: "motivos_igreja",
+    title: "Motivos Igreja",
+    icon: Church,
+    color: "#4A4285",
+    gradient: "linear-gradient(158deg, #4A4285, #362F66)",
   },
-  { 
-    key: "motivo_irmaos", 
-    title: "Motivo Irmãos", 
-    icon: Users, 
-    color: "#6366F1",
-    bgGradient: "from-indigo-500 to-indigo-600"
+  {
+    key: "motivo_irmaos",
+    title: "Motivo Irmãos",
+    icon: Users,
+    color: "#1F6A5C",
+    gradient: "linear-gradient(158deg, #1F6A5C, #134C43)",
   },
-  { 
-    key: "missoes_trabalhos", 
-    title: "Missões e Trabalhos", 
-    icon: Globe, 
-    color: "#14B8A6",
-    bgGradient: "from-teal-500 to-teal-600"
+  {
+    key: "missoes_trabalhos",
+    title: "Missões e Trabalhos",
+    icon: Globe,
+    color: "#22668F",
+    gradient: "linear-gradient(158deg, #22668F, #154968)",
   },
-  { 
-    key: "motivos_gerais", 
-    title: "Motivos Gerais", 
-    icon: Heart, 
-    color: "#EF4444",
-    bgGradient: "from-red-500 to-red-600"
+  {
+    key: "motivos_gerais",
+    title: "Motivos Gerais",
+    icon: Heart,
+    color: "#8E3341",
+    gradient: "linear-gradient(158deg, #8E3341, #6E2431)",
   },
 ];
 
 // Categoria Geral (para Lista Geral)
-const CATEGORIA_GERAL = { 
-  key: "general", 
-  title: "Geral", 
-  icon: Globe, 
-  color: "#64748B",
-  bgGradient: "from-slate-500 to-slate-600"
+const CATEGORIA_GERAL = {
+  key: "general",
+  title: "Geral",
+  icon: Globe,
+  color: "#647B90",
+  gradient: "linear-gradient(158deg, #3A4657, #2A3441)",
 };
 
 // Todas as categorias combinadas (para Lista Geral e filtros)
@@ -596,24 +596,36 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
-      <header className="sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="flex items-center justify-between p-4">
-          <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
-            <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+    <div className="min-h-screen bg-background">
+      <header
+        className="sticky top-0 z-50"
+        style={{
+          background: "linear-gradient(158deg, #93602A, #734818)",
+          paddingTop: "env(safe-area-inset-top, 0px)",
+        }}
+      >
+        <div className="flex items-center justify-between px-4 py-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            data-testid="button-back"
+            style={{ color: "rgba(255,255,255,0.85)" }}
+          >
+            <ArrowLeft className="w-5 h-5" />
           </Button>
-          
-          <h1 className="text-lg font-bold text-slate-800 dark:text-white">
+
+          <h1 className="text-base font-serif font-semibold" style={{ color: "#F2F6FA" }}>
             Modo Oração
           </h1>
-          
+
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setShowTimerDialog(true)}
-              className="text-[#357ABD]"
               data-testid="button-timer"
+              style={{ color: "rgba(255,255,255,0.85)" }}
             >
               <Timer className="w-5 h-5" />
             </Button>
@@ -623,10 +635,10 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
       </header>
 
       <Tabs defaultValue="prayer" className="flex-1">
-        <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 rounded-none h-12">
+        <TabsList className="grid w-full grid-cols-2 bg-card border-b border-border rounded-none h-12">
           <TabsTrigger 
             value="prayer" 
-            className="flex items-center gap-2 data-[state=active]:bg-[#357ABD]/10 data-[state=active]:text-[#357ABD] rounded-none h-full"
+            className="flex items-center gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-none h-full"
             data-testid="tab-prayer"
           >
             <Heart className="w-4 h-4" />
@@ -634,7 +646,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
           </TabsTrigger>
           <TabsTrigger 
             value="hymns" 
-            className="flex items-center gap-2 data-[state=active]:bg-[#357ABD]/10 data-[state=active]:text-[#357ABD] rounded-none h-full"
+            className="flex items-center gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-none h-full"
             data-testid="tab-hymns"
           >
             <Music className="w-4 h-4" />
@@ -645,18 +657,18 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
         <TabsContent value="prayer" className="mt-0">
           <ScrollArea className="h-[calc(100vh-140px)]">
             <div className="p-4 space-y-6">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
+          <div className="bg-card rounded-2xl p-4">
+            <h2 className="text-lg font-bold text-foreground mb-4">
               Memorial de Oração
             </h2>
             
             <div className="space-y-3">
               {chartData.map((item, index) => (
                 <div key={item.name} className="flex items-center gap-3">
-                  <span className="text-sm text-slate-600 dark:text-slate-400 w-24">
+                  <span className="text-sm text-muted-foreground w-24">
                     {item.name}
                   </span>
-                  <div className="flex-1 h-8 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="flex-1 h-8 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-300"
                       style={{ 
@@ -672,7 +684,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                     </div>
                   </div>
                   {item.value === 0 && (
-                    <span className="text-lg font-bold text-slate-400 w-8 text-right">
+                    <span className="text-lg font-bold text-muted-foreground w-8 text-right">
                       0
                     </span>
                   )}
@@ -693,7 +705,8 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className={`rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white shadow-lg overflow-hidden`}
+                className="rounded-2xl text-white overflow-hidden"
+                style={{ background: category.gradient }}
               >
                 <button
                   onClick={() => toggleExpandCategory(category.key)}
@@ -810,7 +823,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
 
           {/* SEÇÃO 1: Minhas Orações */}
           <div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-3">
+            <h2 className="text-lg font-bold text-foreground mb-3">
               Minhas Orações
             </h2>
             
@@ -823,7 +836,8 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   <button
                     key={category.key}
                     onClick={() => toggleExpandCategory(category.key)}
-                    className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
+                    className="relative p-4 rounded-2xl text-white text-left transition-all active:scale-95"
+                    style={{ background: category.gradient }}
                     data-testid={`category-${category.key}`}
                   >
                     <div className="flex items-center gap-3">
@@ -845,7 +859,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
 
           {/* SEÇÃO 2: Diversos Motivos */}
           <div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-3">
+            <h2 className="text-lg font-bold text-foreground mb-3">
               Diversos Motivos
             </h2>
             
@@ -858,7 +872,8 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   <button
                     key={category.key}
                     onClick={() => toggleExpandCategory(category.key)}
-                    className={`relative p-4 rounded-2xl bg-gradient-to-br ${category.bgGradient} text-white text-left shadow-lg hover:shadow-xl transition-all active:scale-95`}
+                    className="relative p-4 rounded-2xl text-white text-left transition-all active:scale-95"
+                    style={{ background: category.gradient }}
                     data-testid={`category-${category.key}`}
                   >
                     <div className="flex items-center gap-3">
@@ -878,39 +893,39 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+          <div className="bg-card rounded-2xl p-4">
             <button
               onClick={() => setShowGeneralList(!showGeneralList)}
               className="w-full flex items-center justify-between"
               data-testid="toggle-general-list"
             >
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <ListChecks className="w-5 h-5 text-[#357ABD]" />
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <ListChecks className="w-5 h-5 text-primary" />
                 Lista Geral de Oração
               </h2>
-              <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${showGeneralList ? 'rotate-90' : ''}`} />
+              <ChevronRight className={`w-5 h-5 text-muted-foreground transition-transform ${showGeneralList ? 'rotate-90' : ''}`} />
             </button>
             
             {showGeneralList && (
               <div className="mt-4 space-y-4">
-                <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 space-y-3">
-                  <h3 className="font-medium text-slate-700 dark:text-slate-300">Cadastrar Pedido</h3>
+                <div className="bg-muted/60 rounded-xl p-4 space-y-3">
+                  <h3 className="font-medium text-foreground">Cadastrar Pedido</h3>
                   <Input
                     placeholder="Nome (ex: João)"
                     value={newRequestTitle}
                     onChange={(e) => setNewRequestTitle(e.target.value)}
-                    className="bg-white dark:bg-slate-800"
+                    className="bg-card"
                     data-testid="input-general-name"
                   />
                   <Input
                     placeholder="Motivo (ex: Saúde, Trabalho...)"
                     value={newRequestDescription}
                     onChange={(e) => setNewRequestDescription(e.target.value)}
-                    className="bg-white dark:bg-slate-800"
+                    className="bg-card"
                     data-testid="input-general-reason"
                   />
                   <Select value={generalListCategory} onValueChange={setGeneralListCategory}>
-                    <SelectTrigger className="bg-white dark:bg-slate-800" data-testid="select-category">
+                    <SelectTrigger className="bg-card" data-testid="select-category">
                       <SelectValue placeholder="Categoria" />
                     </SelectTrigger>
                     <SelectContent>
@@ -930,8 +945,8 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                   </Button>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 space-y-3">
-                  <h3 className="font-medium text-slate-700 dark:text-slate-300">Gerar Lista</h3>
+                <div className="bg-muted/60 rounded-xl p-4 space-y-3">
+                  <h3 className="font-medium text-foreground">Gerar Lista</h3>
                   <div className="space-y-2">
                     <label className="flex items-center gap-2">
                       <Checkbox
@@ -939,7 +954,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                         onCheckedChange={() => toggleFilter("all")}
                         data-testid="filter-all"
                       />
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Selecionar todas</span>
+                      <span className="text-sm text-muted-foreground">Selecionar todas</span>
                     </label>
                     {PRESET_CATEGORIES.map(cat => (
                       <label key={cat.key} className="flex items-center gap-2">
@@ -948,7 +963,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                           onCheckedChange={() => toggleFilter(cat.key)}
                           data-testid={`filter-${cat.key}`}
                         />
-                        <span className="text-sm text-slate-600 dark:text-slate-400">{cat.title}</span>
+                        <span className="text-sm text-muted-foreground">{cat.title}</span>
                       </label>
                     ))}
                   </div>
@@ -958,9 +973,9 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 </div>
 
                 {generatedList.length > 0 && (
-                  <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 space-y-3">
+                  <div className="bg-muted/60 rounded-xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-slate-700 dark:text-slate-300">
+                      <h3 className="font-medium text-foreground">
                         Lista Consolidada ({generatedList.length})
                       </h3>
                       <div className="flex gap-2">
@@ -977,19 +992,19 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                         const list = prayerLists.find(l => l.id === req.listId);
                         const category = PRESET_CATEGORIES.find(c => c.key === list?.categoryKey);
                         return (
-                          <div key={req.id} className="bg-white dark:bg-slate-800 rounded-lg p-3 flex items-start justify-between gap-2">
+                          <div key={req.id} className="bg-card rounded-lg p-3 flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
                                 <span 
                                   className="w-2 h-2 rounded-full flex-shrink-0" 
                                   style={{ backgroundColor: category?.color || '#64748B' }}
                                 />
-                                <span className="font-medium text-slate-800 dark:text-white">{req.title}</span>
+                                <span className="font-medium text-foreground">{req.title}</span>
                               </div>
                               {req.description && (
-                                <p className="text-sm text-slate-600 dark:text-slate-400 ml-4">{req.description}</p>
+                                <p className="text-sm text-muted-foreground ml-4">{req.description}</p>
                               )}
-                              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-500 mt-1 ml-4">
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 ml-4">
                                 <span>{category?.title || 'Outros'}</span>
                                 <span>•</span>
                                 <span>{formatDate(req.createdAt)}</span>
@@ -999,7 +1014,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                               size="icon"
                               variant="ghost"
                               onClick={() => deleteRequestMutation.mutate(req.id)}
-                              className="h-8 w-8 text-slate-400 hover:text-red-500"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
                               data-testid={`delete-general-${req.id}`}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -1014,9 +1029,9 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
             )}
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+          <div className="bg-card rounded-2xl p-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+              <h2 className="text-lg font-bold text-foreground">
                 Horários de Oração
               </h2>
               <Button
@@ -1033,13 +1048,13 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
               {localAlarms.map((alarm: typeof DEFAULT_ALARMS[0], index: number) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-700 last:border-0"
+                  className="flex items-center justify-between py-3 border-b border-border last:border-0"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg font-mono font-bold text-[#357ABD]">
+                    <span className="text-lg font-mono font-bold text-primary">
                       {alarm.time}
                     </span>
-                    <span className="text-slate-600 dark:text-slate-300 text-sm">
+                    <span className="text-muted-foreground text-sm">
                       {alarm.label}
                     </span>
                   </div>
@@ -1047,7 +1062,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                     size="icon"
                     variant="ghost"
                     onClick={() => toggleAlarm(index)}
-                    className={alarm.enabled ? "text-[#357ABD]" : "text-slate-300"}
+                    className={alarm.enabled ? "text-primary" : "text-muted-foreground"}
                     data-testid={`button-alarm-${index}`}
                   >
                     {alarm.enabled ? (
@@ -1068,7 +1083,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
         <TabsContent value="hymns" className="mt-0">
           <ScrollArea className="h-[calc(100vh-140px)]">
             <div className="p-4 space-y-4">
-              <div className="bg-gradient-to-r from-[#357ABD] to-[#4A90D9] rounded-2xl p-6 text-white">
+              <div className="bg-gradient-to-r from-[#93602A] to-[#734818] rounded-2xl p-6 text-white">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
                     <BookOpen className="w-7 h-7" />
@@ -1083,30 +1098,30 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                  <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                    <Music className="w-5 h-5 text-[#357ABD]" />
+              <div className="bg-card rounded-2xl overflow-hidden">
+                <div className="p-4 border-b border-border">
+                  <h3 className="font-bold text-foreground flex items-center gap-2">
+                    <Music className="w-5 h-5 text-primary" />
                     Hinos Clássicos
                   </h3>
                 </div>
-                <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                <div className="divide-y divide-border">
                   {CLASSIC_HYMNS.map((hymn) => (
                     <div
                       key={hymn.id}
-                      className="flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                      className="flex items-center gap-3 p-4 hover-elevate transition-colors"
                       data-testid={`hymn-${hymn.id}`}
                     >
-                      <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                      <div className="w-10 h-10 rounded-full bg-[#8A6A2E]/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-[#BFA87A]">
                           {hymn.number}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-800 dark:text-white truncate">
+                        <p className="font-medium text-foreground truncate">
                           {hymn.title}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-muted-foreground">
                           {hymn.author}
                         </p>
                       </div>
@@ -1115,8 +1130,8 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
                 </div>
               </div>
 
-              <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl p-4 text-center">
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+              <div className="bg-card rounded-2xl p-4 text-center">
+                <p className="text-sm text-muted-foreground">
                   Use o temporizador de oração enquanto medita nos hinos
                 </p>
                 <Button
@@ -1141,7 +1156,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+              <label className="text-sm font-medium text-foreground mb-2 block">
                 Horário
               </label>
               <Input
@@ -1152,7 +1167,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
+              <label className="text-sm font-medium text-foreground mb-2 block">
                 Descrição
               </label>
               <Input
@@ -1186,13 +1201,13 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
             <DialogTitle className="text-center">Temporizador de Oração</DialogTitle>
           </DialogHeader>
           <div className="py-6 text-center">
-            <div className="text-6xl font-mono font-bold text-[#357ABD] mb-6">
+            <div className="text-6xl font-mono font-bold text-primary mb-6">
               {formatTime(timerSeconds)}
             </div>
             
             {!timerActive && (
               <div className="mb-6">
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                <p className="text-sm text-muted-foreground mb-3">
                   Selecione a duração:
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">

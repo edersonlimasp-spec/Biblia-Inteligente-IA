@@ -278,26 +278,23 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
   const isPending = askMutation.isPending || analyzeImageMutation.isPending;
 
   return (
-    <div className="h-screen bg-gradient-to-b from-blue-950/20 to-background flex flex-col overflow-hidden">
-      {/* Header - Classroom style (fixed) */}
-      <header className="flex-shrink-0 z-50 bg-blue-600/95 backdrop-blur text-white">
+    <div className="h-screen bg-background flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
+      {/* Header */}
+      <header className="flex-shrink-0 z-50 bg-card border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
+          <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-            <GraduationCap className="w-6 h-6" />
-          </div>
+          <GraduationCap className="w-6 h-6 text-muted-foreground" />
           <div className="flex-1">
-            <h1 className="text-xl font-bold">Modo Professor</h1>
-            <p className="text-sm text-blue-100">Explicações didáticas e claras</p>
+            <h1 className="text-xl font-bold text-foreground">Modo Professor</h1>
+            <p className="text-sm text-muted-foreground">Explicações didáticas e claras</p>
           </div>
           <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={handleNewConversation}
-              className="text-white hover:bg-white/20"
               title="Nova conversa"
               data-testid="button-new-conversation"
             >
@@ -305,10 +302,10 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative" data-testid="button-history">
+                <Button variant="ghost" size="icon" className="relative" data-testid="button-history">
                   <History className="w-5 h-5" />
                   {savedConversations.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full text-[10px] flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-[10px] flex items-center justify-center text-primary-foreground">
                       {savedConversations.length}
                     </span>
                   )}
@@ -331,7 +328,7 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
                       onClick={() => handleLoadConversation(conv)}
                       className="flex items-start gap-2 cursor-pointer"
                     >
-                      <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-500" />
+                      <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{conv.title}</p>
                         <p className="text-xs text-muted-foreground">
@@ -351,7 +348,7 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Badge className="bg-amber-500 text-white border-0">Gold+</Badge>
+            <Badge variant="outline" className="border-primary/40 text-primary">Gold+</Badge>
           </div>
         </div>
       </header>
@@ -365,15 +362,13 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
               {STUDY_SUGGESTIONS.map((item, i) => (
                 <Card 
                   key={i} 
-                  className="cursor-pointer hover-elevate bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+                  className="cursor-pointer hover-elevate"
                   onClick={() => setInput(item.text)}
                 >
                   <CardContent className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
-                      <item.icon className="w-5 h-5 text-white" />
-                    </div>
+                    <item.icon className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                     <div>
-                      <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{item.category}</p>
+                      <p className="text-xs text-muted-foreground font-medium">{item.category}</p>
                       <p className="text-sm font-medium">{item.text}</p>
                     </div>
                   </CardContent>
@@ -381,17 +376,15 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
               ))}
             </div>
             
-            <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50">
+            <Card>
               <CardContent className="p-6 text-center">
-                <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
-                  <GraduationCap className="w-10 h-10 text-white" />
-                </div>
+                <GraduationCap className="w-14 h-14 text-muted-foreground mx-auto mb-4" />
                 <h2 className="text-xl font-semibold mb-2">Bem-vindo à Sala de Aula</h2>
                 <p className="text-muted-foreground max-w-md mx-auto">
                   Sou seu professor de teologia. Faça perguntas sobre passagens bíblicas, 
                   contexto histórico, interpretação ou qualquer dúvida teológica.
                 </p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-4">
+                <p className="text-xs text-muted-foreground mt-4">
                   Todas as respostas incluem referências de comentaristas renomados
                 </p>
               </CardContent>
@@ -407,48 +400,42 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
               key={index}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {message.role === 'assistant' && (
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
-                  <GraduationCap className="w-5 h-5 text-white" />
+              {message.role === 'user' ? (
+                <div className="max-w-[80%] bg-muted rounded-2xl px-4 py-3">
+                  {message.attachment?.type === 'image' && (
+                    <img src={message.attachment.url} alt="Uploaded" className="max-h-48 rounded-lg mb-2" />
+                  )}
+                  <p className="text-base whitespace-pre-wrap leading-relaxed text-foreground">{message.content}</p>
+                  <span className="text-[10px] text-muted-foreground mt-1 block text-right">
+                    {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
-              )}
-              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                message.role === 'user' ? 'bg-blue-600 text-white' : 'bg-muted border border-blue-200/30'
-              }`}>
-                {message.attachment?.type === 'image' && (
-                  <img src={message.attachment.url} alt="Uploaded" className="max-h-48 rounded-lg mb-2" />
-                )}
-                {message.imageUrl && (
-                  <div className="relative group mb-2">
-                    <img src={message.imageUrl} alt="Generated" className="max-w-full rounded-lg" />
-                    <a href={message.imageUrl} download className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100">
-                      <Download className="w-4 h-4 text-white" />
-                    </a>
-                  </div>
-                )}
-                <p className="text-base whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                <span className="text-[10px] opacity-60 mt-1 block">
-                  {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-              {message.role === 'user' && (
-                <div className="w-10 h-10 rounded-xl bg-blue-200 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-blue-600 dark:text-blue-300" />
+              ) : (
+                <div className="max-w-[90%] border-l-2 border-primary pl-4 py-1">
+                  {message.imageUrl && (
+                    <div className="relative group mb-2">
+                      <img src={message.imageUrl} alt="Generated" className="max-w-full rounded-lg" />
+                      <a href={message.imageUrl} download className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100">
+                        <Download className="w-4 h-4 text-white" />
+                      </a>
+                    </div>
+                  )}
+                  <p className="text-base whitespace-pre-wrap leading-relaxed text-foreground">{message.content}</p>
+                  <span className="text-[10px] text-muted-foreground mt-1 block">
+                    {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
               )}
             </motion.div>
           ))}
 
           {isPending && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-white" />
-              </div>
-              <div className="bg-muted rounded-2xl px-4 py-3 border border-blue-200/30">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+              <div className="border-l-2 border-primary pl-4 py-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
                   Preparando explicação...
                 </div>
               </div>
@@ -459,7 +446,10 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
       </div>
 
       {/* Input area (fixed at bottom) */}
-      <div className="flex-shrink-0 border-t bg-background p-4">
+      <div
+        className="flex-shrink-0 border-t bg-background p-4"
+        style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+      >
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (
@@ -488,7 +478,7 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
               className="resize-none min-h-[44px] max-h-[200px] flex-1"
               data-testid="input-message"
             />
-            <Button onClick={handleSubmit} disabled={(!input.trim() && !pendingImage) || isPending} size="icon" className="h-[44px] w-[44px] bg-blue-600 hover:bg-blue-700" data-testid="button-send">
+            <Button onClick={handleSubmit} disabled={(!input.trim() && !pendingImage) || isPending} size="icon" className="h-[44px] w-[44px]" data-testid="button-send">
               {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             </Button>
           </div>

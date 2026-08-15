@@ -3,6 +3,7 @@ import { setAuthToken, clearAuthToken, apiRequest, queryClient } from '@/lib/que
 import { signInWithGoogle, isFirebaseConfigured } from '@/lib/firebase';
 import { signInWithApple, isAppleSignInAvailable } from '@/lib/appleSignIn';
 import { isIOS } from '@/lib/capacitor';
+import { syncLocalCompletionsToServer, migrateDeviceStudyProgressToAccount } from '@/lib/completions';
 import type { User } from '@shared/schema';
 
 interface AuthContextType {
@@ -50,6 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.user);
         setTrialActive(data.trial.active);
         setTrialDaysRemaining(data.trial.daysRemaining);
+        // Envia conclusões locais pendentes (feitas offline) para a conta
+        syncLocalCompletionsToServer();
+        migrateDeviceStudyProgressToAccount();
+    queryClient.invalidateQueries({ predicate: q => String(q.queryKey[0]).startsWith("/api/library") });
       } catch (error) {
         console.error('Auth check failed:', error);
         clearAuthToken();
@@ -63,6 +68,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
+  // Ao voltar a ficar online, sincroniza conclusões pendentes (se logado)
+  useEffect(() => {
+    const onOnline = () => {
+      if (localStorage.getItem('authToken')) {
+        syncLocalCompletionsToServer();
+        migrateDeviceStudyProgressToAccount();
+    queryClient.invalidateQueries({ predicate: q => String(q.queryKey[0]).startsWith("/api/library") });
+      }
+    };
+    window.addEventListener('online', onOnline);
+    return () => window.removeEventListener('online', onOnline);
+  }, []);
+
   const login = async (email: string, password: string) => {
     const res = await apiRequest('POST', '/api/auth/login', { email, password });
     const data = await res.json();
@@ -72,6 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
     setTrialActive(data.trial.active);
     setTrialDaysRemaining(data.trial.daysRemaining);
+    syncLocalCompletionsToServer();
+    migrateDeviceStudyProgressToAccount();
+    queryClient.invalidateQueries({ predicate: q => String(q.queryKey[0]).startsWith("/api/library") });
   };
 
   const register = async (name: string, email: string, password: string, deviceId?: string) => {
@@ -83,6 +104,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
     setTrialActive(data.trial.active);
     setTrialDaysRemaining(data.trial.daysRemaining);
+    syncLocalCompletionsToServer();
+    migrateDeviceStudyProgressToAccount();
+    queryClient.invalidateQueries({ predicate: q => String(q.queryKey[0]).startsWith("/api/library") });
   };
 
   const loginWithGoogle = async () => {
@@ -109,6 +133,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
     setTrialActive(data.trial.active);
     setTrialDaysRemaining(data.trial.daysRemaining);
+    syncLocalCompletionsToServer();
+    migrateDeviceStudyProgressToAccount();
+    queryClient.invalidateQueries({ predicate: q => String(q.queryKey[0]).startsWith("/api/library") });
   };
 
   const loginWithApple = async () => {
@@ -136,6 +163,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
     setTrialActive(data.trial.active);
     setTrialDaysRemaining(data.trial.daysRemaining);
+    syncLocalCompletionsToServer();
+    migrateDeviceStudyProgressToAccount();
+    queryClient.invalidateQueries({ predicate: q => String(q.queryKey[0]).startsWith("/api/library") });
   };
 
   const logout = async () => {

@@ -525,88 +525,67 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
         <ScrollArea className="flex-1 w-full overflow-x-hidden">
           <div className="p-4 sm:p-6 space-y-4 overflow-x-hidden pr-6" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
             
-            {/* Header: Original Word - LARGE AND PROMINENT */}
-            <div className="text-center pb-2 border-b-2 border-primary/30">
-              <div className="mb-3">
-                <h1 
-                  className="text-6xl sm:text-7xl font-serif font-bold text-primary mb-2" 
-                  style={{ direction: isHebrew ? 'rtl' : 'ltr' }}
+            {/* Header: Original Word + Code + Transliteration */}
+            <div className="pb-3 border-b border-border">
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <h1
+                  className="font-serif font-bold text-foreground leading-tight"
+                  style={{ fontSize: "24px", direction: isHebrew ? 'rtl' : 'ltr' }}
                   data-testid="text-strong-word"
                 >
                   {strongData.word}
                 </h1>
+                <p
+                  className="font-mono font-bold shrink-0 pt-0.5"
+                  style={{ fontSize: "12px", color: "#A88445" }}
+                  data-testid="text-strong-number"
+                >
+                  {strongData.number}
+                </p>
               </div>
-              
-              {/* Transliteration - Medium size */}
-              <p className="text-xl text-muted-foreground font-semibold mb-1">
-                {strongData.transliteration}
-              </p>
-              
+
+              {/* Transliteration */}
+              {strongData.transliteration && (
+                <p className="font-serif italic text-muted-foreground" style={{ fontSize: "15px" }}>
+                  {strongData.transliteration}
+                </p>
+              )}
+
               {/* Pronunciation */}
               {strongData.pronunciation && (
-                <p className="text-sm text-muted-foreground italic">
-                  Pronúncia: {strongData.pronunciation}
+                <p className="font-mono text-muted-foreground mt-0.5" style={{ fontSize: "12px" }}>
+                  {strongData.pronunciation}
                 </p>
               )}
             </div>
 
-            {/* STRONG'S NUMBER - Orange/Primary highlight */}
-            <div className="bg-primary/10 border-l-4 border-primary px-4 py-3 my-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">STRONG'S NUMBER</p>
-                  <p className="text-2xl font-mono font-bold text-primary" data-testid="text-strong-number">
-                    {strongData.number}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {strongData.aiGenerated === true && (
-                    <Badge variant="default" className="text-xs flex items-center gap-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0">
-                      <Sparkles className="w-3 h-3" />
-                      {language === "pt" ? "Gerado por IA" : "AI Generated"}
-                    </Badge>
-                  )}
-                  {isCached && (
-                    <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                      <Database className="w-3 h-3" />
-                      {language === "pt" ? "Offline" : "Cached"}
-                    </Badge>
-                  )}
-                </div>
+            {/* Badges row (AI-generated, cached, actions) */}
+            <div className="flex items-center justify-between gap-2 flex-wrap -mt-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                {strongData.aiGenerated === true && (
+                  <Badge variant="default" className="text-xs flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    {language === "pt" ? "Gerado por IA" : "AI Generated"}
+                  </Badge>
+                )}
+                {isCached && (
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                    <Database className="w-3 h-3" />
+                    {language === "pt" ? "Offline" : "Cached"}
+                  </Badge>
+                )}
               </div>
-              
-              {/* Share Actions */}
-              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-primary/20">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => handleShareStrong(strongData)}
-                  data-testid="button-share-strong"
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => handleShareStrong(strongData)} data-testid="button-share-strong">
+                  <Share2 className="h-3.5 w-3.5 mr-1" />
                   {language === "pt" ? "Compartilhar" : language === "es" ? "Compartir" : "Share"}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleCopyStrong(strongData)}
-                  data-testid="button-copy-strong"
-                >
-                  {justCopied ? (
-                    <>
-                      <Check className="h-4 w-4 mr-1 text-green-500" />
-                      {language === "pt" ? "Copiado!" : "Copied!"}
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4 mr-1" />
-                      {language === "pt" ? "Copiar" : "Copy"}
-                    </>
-                  )}
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => handleCopyStrong(strongData)} data-testid="button-copy-strong">
+                  {justCopied ? <><Check className="h-3.5 w-3.5 mr-1 text-green-500" />{language === "pt" ? "Copiado!" : "Copied!"}</> : <><Copy className="h-3.5 w-3.5 mr-1" />{language === "pt" ? "Copiar" : "Copy"}</>}
                 </Button>
               </div>
             </div>
+
 
             {/* Dictionary Definition Section */}
             <div className="space-y-3">
@@ -742,14 +721,14 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
 
               {/* Etymology Section (AI-generated) */}
               {strongData.etymology && (
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800/50 rounded p-4 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#8A6A2E]/15 to-[#93602A]/10 border border-[#8A6A2E]/40 rounded p-4 overflow-hidden">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <ScrollText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                    <p className="text-sm font-semibold text-[#BFA87A]">
                       {language === "pt" ? "Etimologia" : language === "es" ? "Etimología" : "Etymology"}
                     </p>
                     {strongData.aiGenerated && (
-                      <Badge variant="outline" className="text-[10px] px-1 py-0 border-amber-400 text-amber-700">
+                      <Badge variant="outline" className="text-[10px] px-1 py-0 border-[#8A6A2E]/60 text-[#BFA87A]">
                         <Sparkles className="w-2 h-2 mr-0.5" />IA
                       </Badge>
                     )}
@@ -762,7 +741,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
 
               {/* Historical Context Section (AI-generated) */}
               {strongData.historicalContext && (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800/50 rounded p-4 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#22668F]/15 to-[#154968]/10 border border-[#22668F]/40 rounded p-4 overflow-hidden">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <History className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
@@ -802,7 +781,7 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
 
               {/* Semantic Range Section (AI-generated) */}
               {strongData.semanticRange && (
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800/50 rounded p-4 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#1F6A5C]/15 to-[#134C43]/10 border border-[#1F6A5C]/40 rounded p-4 overflow-hidden">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <Layers className="w-4 h-4 text-green-600 dark:text-green-400" />
                     <p className="text-sm font-semibold text-green-800 dark:text-green-300">

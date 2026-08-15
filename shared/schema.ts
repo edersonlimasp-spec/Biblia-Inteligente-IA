@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index, uniqueIndex, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -98,6 +98,22 @@ export const insertBookmarkSchema = createInsertSchema(bookmarks).omit({
 
 export type InsertBookmark = z.infer<typeof insertBookmarkSchema>;
 export type Bookmark = typeof bookmarks.$inferSelect;
+
+// Study completions table (histórico do cartão "Seu ritmo")
+export const studyCompletions = pgTable("study_completions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type: text("type"), // ex.: "library_chapter"; null = lição/devocional
+  completedAt: timestamp("completed_at").notNull().defaultNow(),
+});
+
+export const insertStudyCompletionSchema = createInsertSchema(studyCompletions).omit({
+  id: true,
+  completedAt: true,
+});
+
+export type InsertStudyCompletion = z.infer<typeof insertStudyCompletionSchema>;
+export type StudyCompletion = typeof studyCompletions.$inferSelect;
 
 // Annotations table
 export const annotations = pgTable("annotations", {
@@ -244,7 +260,9 @@ export const bibleWords = pgTable("bible_words", {
   morphology: text("morphology"), // Grammatical parsing
   gloss: text("gloss"), // English gloss/translation
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("bible_words_bcv_idx").on(table.book, table.chapter, table.verse),
+]);
 
 export const insertBibleWordSchema = createInsertSchema(bibleWords).omit({
   id: true,
@@ -1267,3 +1285,149 @@ export const insertCouponRedemptionSchema = createInsertSchema(couponRedemptions
 
 export type InsertCouponRedemption = z.infer<typeof insertCouponRedemptionSchema>;
 export type CouponRedemption = typeof couponRedemptions.$inferSelect;
+
+// ══════════════════════════════════════════════════════════════════════════
+// MÓDULO BIBLIOTECA — Livros, Capítulos, Progresso, Destaques, Compras
+// Cor exclusiva do módulo: couro (#5C4632 → #3F2F21). Nenhum outro módulo usa marrom.
+// ══════════════════════════════════════════════════════════════════════════
+
+// Library Books table
+export const libraryBooks = pgTable("library_books", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  author: text("author").notNull(),
+  description: text("description"),
+  coverUrl: text("cover_url"),
+  category: text("category").notNull(), // Devocionais | Vida Cristã | Ministério | Estudo Bíblico e Teologia | Família | Clássicos
+  // accessType: free | plan | purchase  (§4.1)
+  accessType: text("access_type").notNull().default("free"),
+  price: text("price"), // BRL string e.g. "19.90" — only for purchase type
+  planRequired: text("plan_required"), // gold | premium | strong_lifetime — only for plan type
+  estimatedReadTime: text("estimated_read_time"), // e.g. "3h 20min"
+  chaptersCount: integer("chapters_count").notNull().default(0),
+  publishStatus: text("publish_status").notNull().default("draft"), // draft | published
+  isNew: boolean("is_new").notNull().default(false),
+  editionNote: text("edition_note"), // Origin/translation credit displayed in BookScreen
+  // Id do livro no banco de conteúdo (Neon) — chave estável de casamento no
+  // seed, permitindo propagar até correções de título sem duplicar livros.
+  sourceBookId: varchar("source_book_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  categoryIdx: index("library_books_category_idx").on(table.category),
+  publishStatusIdx: index("library_books_publish_status_idx").on(table.publishStatus),
+  accessTypeIdx: index("library_books_access_type_idx").on(table.accessType),
+}));
+
+export const insertLibraryBookSchema = createInsertSchema(libraryBooks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLibraryBook = z.infer<typeof insertLibraryBookSchema>;
+export type LibraryBook = typeof libraryBooks.$inferSelect;
+
+// Library Chapters table
+export const libraryChapters = pgTable("library_chapters", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bookId: varchar("book_id").notNull().references(() => libraryBooks.id, { onDelete: "cascade" }),
+  orderNum: integer("order_num").notNull(), // 1-based
+  title: text("title").notNull(),
+  content: text("content").notNull(), // Stored as Markdown
+  estimatedReadTime: text("estimated_read_time"), // e.g. "12 min"
+  // §4.5: first 2 chapters always isSample=true (enforced server-side)
+  isSample: boolean("is_sample").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  bookIdIdx: index("library_chapters_book_id_idx").on(table.bookId),
+  orderIdx: uniqueIndex("library_chapters_order_idx").on(table.bookId, table.orderNum),
+}));
+
+export const insertLibraryChapterSchema = createInsertSchema(libraryChapters).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLibraryChapter = z.infer<typeof insertLibraryChapterSchema>;
+export type LibraryChapter = typeof libraryChapters.$inferSelect;
+
+// Library Reading Progress table
+export const libraryReadingProgress = pgTable("library_reading_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  bookId: varchar("book_id").notNull().references(() => libraryBooks.id, { onDelete: "cascade" }),
+  currentChapter: integer("current_chapter").notNull().default(1),
+  scrollPosition: integer("scroll_position").notNull().default(0),
+  percentComplete: integer("percent_complete").notNull().default(0),
+  lastReadAt: timestamp("last_read_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userBookIdx: index("library_reading_progress_user_book_idx").on(table.userId, table.bookId),
+  userIdIdx: index("library_reading_progress_user_id_idx").on(table.userId),
+}));
+
+export const insertLibraryReadingProgressSchema = createInsertSchema(libraryReadingProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLibraryReadingProgress = z.infer<typeof insertLibraryReadingProgressSchema>;
+export type LibraryReadingProgress = typeof libraryReadingProgress.$inferSelect;
+
+// Library Highlights table — caderno único (§8.3)
+export const libraryHighlights = pgTable("library_highlights", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  bookId: varchar("book_id").notNull().references(() => libraryBooks.id, { onDelete: "cascade" }),
+  chapterId: varchar("chapter_id").notNull().references(() => libraryChapters.id, { onDelete: "cascade" }),
+  selectedText: text("selected_text").notNull(),
+  color: text("color").notNull().default("yellow"), // yellow | green | blue | pink | orange | purple
+  annotation: text("annotation"), // optional note
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("library_highlights_user_id_idx").on(table.userId),
+  userBookIdx: index("library_highlights_user_book_idx").on(table.userId, table.bookId),
+}));
+
+export const insertLibraryHighlightSchema = createInsertSchema(libraryHighlights).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLibraryHighlight = z.infer<typeof insertLibraryHighlightSchema>;
+export type LibraryHighlight = typeof libraryHighlights.$inferSelect;
+
+// Library Purchases table — compra avulsa (§4.4)
+export const libraryPurchases = pgTable("library_purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  bookId: varchar("book_id").notNull().references(() => libraryBooks.id, { onDelete: "cascade" }),
+  amount: text("amount").notNull(), // BRL string e.g. "19.90"
+  paymentProvider: text("payment_provider").notNull().default("mercadopago"),
+  externalPaymentId: text("external_payment_id"),
+  status: text("status").notNull().default("pending"), // pending | confirmed | refunded
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("library_purchases_user_id_idx").on(table.userId),
+  userBookIdx: index("library_purchases_user_book_idx").on(table.userId, table.bookId),
+  statusIdx: index("library_purchases_status_idx").on(table.status),
+}));
+
+export const insertLibraryPurchaseSchema = createInsertSchema(libraryPurchases).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLibraryPurchase = z.infer<typeof insertLibraryPurchaseSchema>;
+export type LibraryPurchase = typeof libraryPurchases.$inferSelect;

@@ -64,18 +64,18 @@ interface AgendaEvent {
 }
 
 const EVENT_TYPE_IDS = [
-  { id: "culto", icon: Church, color: "text-blue-500", bgColor: "bg-blue-500" },
-  { id: "estudo", icon: BookOpen, color: "text-emerald-500", bgColor: "bg-emerald-500" },
-  { id: "oracao", icon: Heart, color: "text-red-500", bgColor: "bg-red-500" },
-  { id: "louvor", icon: Music, color: "text-purple-500", bgColor: "bg-purple-500" },
-  { id: "visita", icon: Users, color: "text-amber-500", bgColor: "bg-amber-500" },
-  { id: "evangelismo", icon: Megaphone, color: "text-orange-500", bgColor: "bg-orange-500" },
-  { id: "jovens", icon: Sparkles, color: "text-pink-500", bgColor: "bg-pink-500" },
-  { id: "criancas", icon: Baby, color: "text-cyan-500", bgColor: "bg-cyan-500" },
-  { id: "discipulado", icon: GraduationCap, color: "text-indigo-500", bgColor: "bg-indigo-500" },
-  { id: "comunhao", icon: Coffee, color: "text-yellow-600", bgColor: "bg-yellow-600" },
-  { id: "lideranca", icon: Crown, color: "text-slate-500", bgColor: "bg-slate-500" },
-  { id: "outro", icon: Calendar, color: "text-gray-500", bgColor: "bg-gray-500" },
+  { id: "culto",       icon: Church,       color: "text-[#7BAED4]", bgColor: "bg-[#22668F]" },
+  { id: "estudo",      icon: BookOpen,     color: "text-[#68B8A2]", bgColor: "bg-[#1F6A5C]" },
+  { id: "oracao",      icon: Heart,        color: "text-[#BF8B60]", bgColor: "bg-[#93602A]" },
+  { id: "louvor",      icon: Music,        color: "text-[#B48CB8]", bgColor: "bg-[#75356A]" },
+  { id: "visita",      icon: Users,        color: "text-[#8FA3B8]", bgColor: "bg-[#3E5F8A]" },
+  { id: "evangelismo", icon: Megaphone,    color: "text-[#C48090]", bgColor: "bg-[#8E3341]" },
+  { id: "jovens",      icon: Sparkles,     color: "text-[#9B95CA]", bgColor: "bg-[#4A4285]" },
+  { id: "criancas",    icon: Baby,         color: "text-[#7ABCCA]", bgColor: "bg-[#2C6076]" },
+  { id: "discipulado", icon: GraduationCap,color: "text-[#9B95CA]", bgColor: "bg-[#4A4285]" },
+  { id: "comunhao",    icon: Coffee,       color: "text-[#BFA87A]", bgColor: "bg-[#8A6A2E]" },
+  { id: "lideranca",   icon: Crown,        color: "text-[#8FA3B8]", bgColor: "bg-[#3A4657]" },
+  { id: "outro",       icon: Calendar,     color: "text-[#8FA3B8]", bgColor: "bg-[#647B90]" },
 ];
 
 const THEME_IDS = [
@@ -586,8 +586,8 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
           )}
           {event.theme && (
             <div className="flex items-center justify-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              <span className="text-xs text-amber-300">{getThemeName(event.theme)}</span>
+              <Sparkles className="w-3 h-3 text-[#BFA87A]" />
+              <span className="text-xs text-[#BFA87A]/80">{getThemeName(event.theme)}</span>
             </div>
           )}
         </div>
@@ -637,7 +637,7 @@ export function AgendaScreen({ onBack }: AgendaScreenProps) {
         <main className="max-w-2xl mx-auto p-4 space-y-6">
           
           {/* Elegant Compact Calendar */}
-          <Card className="overflow-hidden border-0 shadow-sm">
+          <Card className="overflow-hidden border-0 ">
             <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/30">
               <Button variant="ghost" size="sm" onClick={prevMonth} className="h-7 w-7 p-0">
                 <ChevronLeft className="w-4 h-4" />

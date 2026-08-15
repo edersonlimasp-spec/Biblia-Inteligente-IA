@@ -2,6 +2,7 @@ package com.bibliainteligente.app;
 
 import android.os.Bundle;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 import androidx.activity.EdgeToEdge;
 import com.getcapacitor.BridgeActivity;
 
@@ -23,6 +24,30 @@ public class MainActivity extends BridgeActivity {
         if (this.bridge != null && this.bridge.getWebView() != null) {
             WebSettings settings = this.bridge.getWebView().getSettings();
             settings.setTextZoom(100);
+        }
+    }
+
+    /**
+     * Fix: faixa branca após fechar o Google Play Billing bottom sheet.
+     *
+     * Quando o bottom sheet do Google Play Billing é exibido, o Android comprime
+     * o WebView verticalmente (resize do viewport). Ao fechar o sheet, o sistema
+     * não restaura automaticamente a altura do WebView — resultado: faixa branca
+     * na parte inferior do app até o próximo redraw.
+     *
+     * Solução: ao recuperar o foco da janela (hasFocus=true), forçamos o WebView
+     * a recalcular seu layout (requestLayout) e redesenhar (invalidate).
+     * Isso ocorre sempre que qualquer overlay nativo fecha, incluindo o billing sheet.
+     */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && this.bridge != null) {
+            WebView webView = this.bridge.getWebView();
+            if (webView != null) {
+                webView.requestLayout();
+                webView.invalidate();
+            }
         }
     }
 }

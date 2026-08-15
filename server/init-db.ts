@@ -2,6 +2,8 @@ import { db } from './db';
 import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons, readingPlanTemplates, subscriptions, paymentReceipts } from '@shared/schema';
 import { seedAdminUsers } from './seed-admins';
 import { seedBibleVersions } from './seed-versions';
+import { seedLibraryBooks } from './seed-library';
+import { seedStrongWords } from './seed-strong-words';
 
 const READING_PLAN_TEMPLATES = [
   {
@@ -122,7 +124,7 @@ const READING_PLAN_TEMPLATES = [
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { sql } from 'drizzle-orm';
+import { sql, inArray } from 'drizzle-orm';
 import { STRONG_DATA } from './strong-data-embedded';
 import { STUDY_MODULES_DATA } from './study-modules-data-embedded';
 
@@ -430,6 +432,13 @@ export async function initializeDatabase() {
     
     // SEMPRE seed versões de Bíblia
     await seedBibleVersions();
+
+    // Biblioteca: copiar livros do banco de conteúdo se estiver vazia (idempotente)
+    await seedLibraryBooks();
+
+    // Strong interlinear + índice do PDF: copiar da fonte quando faltarem
+    // linhas (idempotente). Em background para não atrasar o boot.
+    seedStrongWords().catch((e) => console.error('Strong seed (background) falhou:', e));
     
     // Check if strong_entries table has SUFFICIENT data (expect ~14000 entries)
     const strongCountResult = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);
@@ -558,12 +567,16 @@ async function dedupDuplicateSubscriptions() {
     const ids = dupRows.map((r: any) => r.id);
     console.log(`🧹 Subscriptions: cancelando ${ids.length} duplicata(s) por storeTransactionId race`);
 
-    await db.execute(sql`
-      UPDATE subscriptions
-      SET status = 'cancelled',
-          cancellation_at = COALESCE(cancellation_at, NOW())
-      WHERE id = ANY(${ids}::varchar[])
-    `);
+    // NOTE: interpolating a JS array into sql`` produces a Postgres record
+    // (tuple), which cannot be cast to varchar[] (error 42846 in production).
+    // Use drizzle's inArray to generate a proper IN (...) clause instead.
+    await db
+      .update(subscriptions)
+      .set({
+        status: 'cancelled',
+        cancellationAt: sql`COALESCE(cancellation_at, NOW())`,
+      })
+      .where(inArray(subscriptions.id, ids));
 
     console.log(`🧹 Subscriptions: ${ids.length} duplicata(s) marcadas como 'cancelled'`);
   } catch (err) {

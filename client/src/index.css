@@ -1,64 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400;1,6..72,600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE */
+/* LIGHT MODE — Pergaminho quente | acento vermelho profundo */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
   --opaque-button-border-intensity: -8;
   --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
-  --background: 0 0% 100%;
-  --foreground: 215 25% 20%;
-  --border: 215 15% 88%;
-  --card: 0 0% 100%;
-  --card-foreground: 215 25% 20%;
-  --card-border: 215 10% 92%;
-  --sidebar: 215 20% 97%;
-  --sidebar-foreground: 215 25% 20%;
-  --sidebar-border: 215 15% 90%;
-  --sidebar-primary: 210 90% 42%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 215 15% 94%;
-  --sidebar-accent-foreground: 215 25% 20%;
-  --sidebar-ring: 210 90% 50%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 215 25% 20%;
-  --popover-border: 215 15% 88%;
-  --primary: 210 90% 42%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 215 15% 93%;
-  --secondary-foreground: 215 25% 20%;
-  --muted: 215 15% 95%;
-  --muted-foreground: 215 15% 45%;
-  --accent: 210 80% 95%;
-  --accent-foreground: 215 25% 20%;
-  --destructive: 0 75% 45%;
+  --elevate-2: rgba(0,0,0, .07);
+  /* Fundo: #EFEBE2 — bege quente, nunca branco puro */
+  --background: 42 28% 91%;
+  /* Texto principal: #1B2634 */
+  --foreground: 214 32% 15%;
+  /* Cartão: #F7F4EC — superfície neutra quente */
+  --card: 44 28% 95%;
+  --card-foreground: 214 32% 15%;
+  /* Borda: #D9D2C3 — separador quente */
+  --card-border: 40 18% 80%;
+  --sidebar: 42 28% 91%;
+  --sidebar-foreground: 214 32% 15%;
+  --sidebar-border: 40 18% 80%;
+  /* Acento: #9E3129 vermelho profundo */
+  --sidebar-primary: 4 59% 39%;
+  --sidebar-primary-foreground: 9 100% 97%;
+  --sidebar-accent: 45 33% 97%;
+  --sidebar-accent-foreground: 214 32% 15%;
+  --sidebar-ring: 4 59% 39%;
+  --popover: 44 28% 95%;
+  --popover-foreground: 214 32% 15%;
+  --popover-border: 40 18% 80%;
+  /* Acento primário: #9E3129 — vermelho encadernação */
+  --primary: 4 59% 39%;
+  --primary-foreground: 9 100% 97%;
+  /* Superfície elevada: #FBF9F3 */
+  --secondary: 45 33% 97%;
+  --secondary-foreground: 214 32% 15%;
+  --muted: 44 28% 95%;
+  /* Texto secundário: #5D6470 */
+  --muted-foreground: 218 9% 40%;
+  --accent: 45 33% 97%;
+  --accent-foreground: 214 32% 15%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --input: 215 15% 70%;
-  --ring: 210 90% 50%;
-  --chart-1: 210 90% 42%;
-  --chart-2: 200 80% 45%;
-  --chart-3: 195 70% 50%;
-  --chart-4: 185 65% 55%;
-  --chart-5: 175 60% 60%;
+  --border: 40 18% 80%;
+  --input: 40 18% 80%;
+  --ring: 4 59% 39%;
+  --chart-1: 4 59% 39%;
+  --chart-2: 4 59% 55%;
+  --chart-3: 209 43% 40%;
+  --chart-4: 210 20% 41%;
+  --chart-5: 209 66% 13%;
+  /* Painel exclusivo de leitura bíblica — pergaminho / Ardósia
+     NÃO vaza para fora do componente .bible-page */
+  --bible-panel-bg:    40 50% 93%;   /* #F6F0E4 — área de leitura (pergaminho) */
+  --bible-panel-text:  213 14% 16%;
+  --bible-panel-muted: 36 14% 42%;
+  /* Cromado do leitor — barras de UI em modo claro */
+  --bible-chrome-nav:  40 31% 89%;   /* #EBE5D9 — barra de ícones / rodapé IA */
+  --bible-chrome-top:  39 27% 83%;   /* #E0D8C9 — barra do topo (seletores) */
+  /* Dourado exclusivo para marcações Strong's — #A88445
+     Permitido APENAS em .strong-word e no código Strong exibido */
+  --strong-code-color: 38 42% 47%;
   --font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
-  --font-mono: Menlo, monospace;
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-mono: 'Menlo', 'Consolas', 'Courier New', monospace;
   --radius: .5rem;
-  --shadow-2xs: 0px 2px 0px 0px hsl(220 8% 50% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(220 8% 50% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 1px 2px -1px hsl(220 8% 50% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 1px 2px -1px hsl(220 8% 50% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 2px 4px -1px hsl(220 8% 50% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 4px 6px -1px hsl(220 8% 50% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 8px 10px -1px hsl(220 8% 50% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(220 8% 50% / 0.00);
+  /* Sombras removidas — separação feita por borda e diferença de tom */
+  --shadow-2xs: 0px 0px 0px 0px transparent;
+  --shadow-xs: 0px 0px 0px 0px transparent;
+  --shadow-sm: 0px 0px 0px 0px transparent;
+  --shadow: 0px 0px 0px 0px transparent;
+  --shadow-md: 0px 0px 0px 0px transparent;
+  --shadow-lg: 0px 0px 0px 0px transparent;
+  --shadow-xl: 0px 0px 0px 0px transparent;
+  --shadow-2xl: 0px 0px 0px 0px transparent;
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
-/* Fallback for older browsers */
+  /* Fallback for older browsers */
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 
@@ -87,56 +109,74 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
+/* DARK MODE — Vitral (#0A1420) | acento vermelho (#B03A32) */
 .dark {
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
   --opaque-button-border-intensity: 9;
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
-  --background: 220 30% 8%;
-  --foreground: 215 15% 92%;
-  --border: 220 20% 18%;
-  --card: 220 25% 11%;
-  --card-foreground: 215 15% 92%;
-  --card-border: 220 20% 15%;
-  --sidebar: 220 28% 10%;
-  --sidebar-foreground: 215 15% 92%;
-  --sidebar-border: 220 20% 16%;
-  --sidebar-primary: 210 90% 45%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 220 20% 14%;
-  --sidebar-accent-foreground: 215 15% 92%;
-  --sidebar-ring: 210 90% 55%;
-  --popover: 220 25% 12%;
-  --popover-foreground: 215 15% 92%;
-  --popover-border: 220 20% 18%;
-  --primary: 210 90% 45%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 220 20% 16%;
-  --secondary-foreground: 215 15% 92%;
-  --muted: 220 20% 15%;
-  --muted-foreground: 215 15% 65%;
-  --accent: 210 60% 15%;
-  --accent-foreground: 215 15% 92%;
-  --destructive: 0 75% 45%;
+  /* Fundo geral: #121F33 */
+  --background: 216 48% 14%;
+  /* Texto principal: #F2F6FA */
+  --foreground: 210 45% 96%;
+  /* Superfície neutra de cartão: #16263C */
+  --card: 215 46% 16%;
+  --card-foreground: 210 45% 96%;
+  /* Bordas e divisores: #1D3247 */
+  --card-border: 210 41% 25%;
+  --sidebar: 216 48% 14%;
+  --sidebar-foreground: 210 45% 96%;
+  --sidebar-border: 210 41% 25%;
+  /* Acento primário: #B03A32 */
+  --sidebar-primary: 4 56% 44%;
+  --sidebar-primary-foreground: 9 100% 97%;
+  /* Superfície elevada e hover: #1E3F5C */
+  --sidebar-accent: 208 51% 24%;
+  --sidebar-accent-foreground: 210 45% 96%;
+  --sidebar-ring: 4 56% 44%;
+  /* Popover: mesma superfície de cartão */
+  --popover: 215 46% 16%;
+  --popover-foreground: 210 45% 96%;
+  --popover-border: 210 41% 25%;
+  /* Acento primário: #B03A32 */
+  --primary: 4 56% 44%;
+  --primary-foreground: 9 100% 97%;
+  /* Superfície elevada: #1E3F5C */
+  --secondary: 208 51% 24%;
+  --secondary-foreground: 210 45% 96%;
+  --muted: 208 51% 24%;
+  /* Texto secundário: #8FA3B8 */
+  --muted-foreground: 210 22% 64%;
+  --accent: 208 51% 24%;
+  --accent-foreground: 210 45% 96%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --input: 220 15% 35%;
-  --ring: 210 90% 55%;
-  --chart-1: 210 90% 55%;
-  --chart-2: 200 80% 60%;
-  --chart-3: 195 70% 65%;
-  --chart-4: 185 65% 70%;
-  --chart-5: 175 60% 75%;
-  --shadow-2xs: 0px 2px 0px 0px hsl(220 8% 50% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(220 8% 50% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 1px 2px -1px hsl(220 8% 50% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 1px 2px -1px hsl(220 8% 50% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 2px 4px -1px hsl(220 8% 50% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 4px 6px -1px hsl(220 8% 50% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(220 8% 50% / 0.00), 0px 8px 10px -1px hsl(220 8% 50% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(220 8% 50% / 0.00);
+  /* Bordas: #26405A */
+  --border: 210 41% 25%;
+  --input: 210 41% 25%;
+  --ring: 4 56% 44%;
+  --chart-1: 4 56% 44%;
+  --chart-2: 4 56% 60%;
+  --chart-3: 209 43% 50%;
+  --chart-4: 207 21% 65%;
+  --chart-5: 210 36% 93%;
+  /* Ardósia — página bíblica em modo escuro: mais escura que o entorno */
+  --bible-panel-bg: 204 25% 12%;    /* #161F25 — fundo de leitura */
+  --bible-panel-text: 60 14% 89%;   /* #E6E6DE — marfim levemente esverdeado */
+  --bible-panel-muted: 175 5% 54%;  /* #84908F — números, transliterações */
+  --strong-code-color: 41 43% 57%;  /* #C0A263 — código Strong em dark */
+  /* Sombras — zero em ambos os modos */
+  --shadow-2xs: 0px 0px 0px 0px transparent;
+  --shadow-xs: 0px 0px 0px 0px transparent;
+  --shadow-sm: 0px 0px 0px 0px transparent;
+  --shadow: 0px 0px 0px 0px transparent;
+  --shadow-md: 0px 0px 0px 0px transparent;
+  --shadow-lg: 0px 0px 0px 0px transparent;
+  --shadow-xl: 0px 0px 0px 0px transparent;
+  --shadow-2xl: 0px 0px 0px 0px transparent;
 
-/* Fallback for older browsers */
+  /* Fallback for older browsers */
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 
@@ -166,54 +206,129 @@
 }
 
 /* ========================================
-   STRONG'S DICTIONARY WORDS - GLOBAL UNIFIED STYLE
-   Padronização consistente em toda a Bíblia (Antigo e Novo Testamento)
-   
-   Regras de aplicação:
-   - Mesma cor em TODOS os livros, capítulos e versículos
-   - Cor alterada apenas no hover (feedback visual)
-   - Sem alteração de tamanho, espaçamento ou layout
-   - Clicável = sempre abre dicionário Strong
-   
+   STRONG'S DICTIONARY — DOURADO #A88445
+   Único uso permitido do dourado na interface.
+   Sublinhado das palavras com entrada no Strong's.
+   Código Strong exibido usa --strong-code-color.
    ======================================== */
-   
+
 .strong-word {
-  /* Cor base azul-acinzentada: visível, profissional, consistente */
-  color: hsl(210, 45%, 50%);
-  
-  /* Propriedades de interação */
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(168, 132, 69, 0.55);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
   cursor: pointer;
   font-weight: 500;
-  transition: color 0.2s ease-in-out;
-  
-  /* Sem sublinhado ou background - apenas cor */
-  text-decoration: none;
+  border-radius: 2px;
+  transition: background-color 0.15s ease, text-decoration-color 0.15s ease;
   background-color: transparent;
 }
 
-/* Hover: mais claro e escuro conforme o tema */
 .strong-word:hover {
-  color: hsl(210, 55%, 42%);
+  background-color: rgba(168, 132, 69, 0.22);
+  text-decoration-color: rgba(168, 132, 69, 0.80);
 }
 
-/* Dark mode: cor complementar mantendo o mesmo tom */
+.strong-word[data-selected="true"],
+.strong-word.selected {
+  background-color: rgba(168, 132, 69, 0.25);
+  text-decoration-color: rgba(168, 132, 69, 0.80);
+}
+
 .dark .strong-word {
-  color: hsl(210, 50%, 62%);
+  color: inherit;
+  text-decoration-color: rgba(178, 146, 84, 0.60);   /* #B29254 a 60% */
 }
 
 .dark .strong-word:hover {
-  color: hsl(210, 60%, 70%);
+  background-color: rgba(178, 146, 84, 0.22);         /* #B29254 a 22% */
+  text-decoration-color: rgba(178, 146, 84, 0.85);
 }
 
-/* Focus state para acessibilidade (quando navegado com teclado) */
+.dark .strong-word[data-selected="true"],
+.dark .strong-word.selected {
+  background-color: rgba(178, 146, 84, 0.22);         /* #B29254 a 22% */
+  text-decoration-color: rgba(178, 146, 84, 0.85);
+}
+
 .strong-word:focus-visible {
-  outline: 2px solid hsl(210, 45%, 50%);
+  outline: 2px solid rgba(168, 132, 69, 0.70);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
 .dark .strong-word:focus-visible {
-  outline-color: hsl(210, 50%, 62%);
+  outline-color: rgba(168, 132, 69, 0.80);
+}
+
+/* ========================================
+   LEITOR BÍBLICO — TAMANHOS DE TEXTO
+   Quatro passos controlados pelo usuário.
+   Aplicados via verseTextClass no BibleReader.
+   ======================================== */
+
+.bible-font-small  { font-size: 18px; line-height: 1.55; }
+.bible-font-medium { font-size: 20px; line-height: 1.65; }
+.bible-font-large  { font-size: 23px; line-height: 1.70; }
+.bible-font-xlarge { font-size: 26px; line-height: 1.75; }
+
+/* ========================================
+   LEITOR — CHROME LINHO (modo claro)
+   Define background-color diretamente (não via
+   variável CSS) para evitar conflito de
+   especificidade com utilitários Tailwind.
+   Também sobrescreve os tokens internos para que
+   componentes shadcn filhos (SelectTrigger, input,
+   botões ghost etc.) herdem a paleta Linho.
+   Em modo escuro usa as superfícies escuras do tema.
+   ======================================== */
+
+.linho-chrome {
+  /* Cor direta — maior especificidade que qualquer utilitário Tailwind */
+  background-color: hsl(var(--bible-chrome-nav));   /* #EBE5D9 — barra de nav e rodapé */
+  color: #2C3440;
+  border-color: #CCC6B6;                            /* divisória harmonizada (mais clara) */
+
+  /* Tokens internos — filhos com bg-background / bg-card usam o tom elevado */
+  --background:       40 38% 91%;   /* #EDE8DC — seletores, inputs */
+  --card:             40 38% 91%;
+  --border:           41 19% 78%;   /* #CCC6B6 */
+  --input:            41 19% 78%;
+  --foreground:       216 18% 21%;  /* #2C3440 */
+  --muted:            40 38% 91%;
+  --muted-foreground: 44 10% 39%;   /* #6C6759 */
+  --secondary:        40 38% 91%;
+  --accent:           40 38% 91%;
+  --secondary-foreground: 216 18% 21%;
+  --accent-foreground:    216 18% 21%;
+  --ring:             41 19% 78%;
+}
+
+/* Barra do topo (seletores de versão / livro / capítulo + avatar) — um tom mais escuro */
+.linho-chrome-top {
+  background-color: hsl(var(--bible-chrome-top));   /* #E0D8C9 */
+}
+
+.dark .linho-chrome {
+  /* Ardósia — entorno do leitor em modo escuro */
+  background-color: #202B33;        /* fundo das faixas de chrome */
+  color: #E6E6DE;                   /* texto principal */
+  border-color: #334149;            /* bordas e divisores */
+
+  /* Tokens internos para componentes shadcn filhos */
+  --background:       204 21% 20%;  /* #29363F — seletores, inputs */
+  --card:             204 21% 20%;
+  --border:           202 17% 24%;  /* #334149 */
+  --input:            202 17% 24%;
+  --foreground:       60 14% 89%;   /* #E6E6DE */
+  --muted:            204 21% 20%;
+  --muted-foreground: 199 10% 63%;  /* #96A3A9 */
+  --secondary:        204 21% 20%;
+  --accent:           204 21% 20%;
+  --secondary-foreground: 60 14% 89%;
+  --accent-foreground:    60 14% 89%;
+  --ring:             202 17% 24%;
 }
 
 @layer base {
@@ -228,6 +343,11 @@
        use exatamente os tamanhos definidos no Tailwind/CSS. */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Fix: garante que o html sempre preencha a tela inteira.
+       Quando o Google Play Billing bottom sheet fecha, o WebView pode não restaurar
+       sua altura automaticamente; min-height: 100% no html evita a faixa branca
+       ao garantir que o DOM sempre cubra o viewport disponível. */
+    min-height: 100%;
   }
 
   body {
@@ -235,6 +355,7 @@
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    min-height: 100%;
   }
 }
 
@@ -299,10 +420,8 @@
     pointer-events: none;
     position: absolute;
     inset: 0px;
-    /*border-radius: inherit;   match rounded corners */
     border-radius: inherit;
     z-index: -1;
-    /* sits behind content but above backdrop */
   }
 
   .toggle-elevate.toggle-elevated::before {
@@ -331,10 +450,8 @@
     pointer-events: none;
     position: absolute;
     inset: 0px;
-    /*border-radius: inherit;   match rounded corners */
     border-radius: inherit;
     z-index: 999;
-    /* sits in front of content */
   }
 
   .hover-elevate:hover:not(.no-default-hover-elevate)::after,
@@ -356,37 +473,18 @@
     inset: -1px;
   }
 
-  /* Bible page with backlight effect */
+  /* Painel exclusivo de leitura bíblica — pergaminho #F2E9DA / #23282E
+     Confinado ao componente .bible-page. NÃO vaza para outras telas. */
   .bible-page {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%);
+    background: hsl(var(--bible-panel-bg));
+    color: hsl(var(--bible-panel-text));
     position: relative;
-    box-shadow: 
-      inset 0 0 60px rgba(26, 82, 153, 0.08),
-      inset 0 0 40px rgba(26, 82, 153, 0.05),
-      0 0 80px rgba(26, 82, 153, 0.1);
   }
 
-  .bible-page::before {
-    content: "";
-    position: absolute;
-    top: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 800px;
-    height: 500px;
-    background: radial-gradient(ellipse at center, rgba(26, 82, 153, 0.15) 0%, transparent 70%);
-    pointer-events: none;
-    filter: blur(60px);
-  }
-
-  /* Dark mode for bible page */
+  /* Dark mode Ardósia: página mais escura que o entorno — descanso para os olhos */
   .dark .bible-page {
-    background: #0f0f0f;
-    box-shadow: none;
-  }
-
-  .dark .bible-page::before {
-    display: none;
+    background: hsl(var(--bible-panel-bg));
+    color: hsl(var(--bible-panel-text));
   }
 }
 
@@ -442,12 +540,12 @@
 
 /* Hide scrollbar while maintaining scroll functionality */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;             /* Chrome, Safari and Opera */
+  display: none;
 }
 
 /* Capacitor Native App Support */
@@ -478,10 +576,7 @@
   }
 }
 
-/* Esconder indicador de scroll nativo do iOS/WebKit no body
- * Resolve o "tracinho azul" visível na faixa da notch quando a página
- * é mais alta que 100vh (bug recorrente em Dashboard, Subscription, etc).
- * O scroll continua funcionando normalmente — só o indicador visual some. */
+/* Esconder indicador de scroll nativo do iOS/WebKit no body */
 html, body {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -497,4 +592,298 @@ body::-webkit-scrollbar {
 .overflow-wrap-anywhere {
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+/* ========================================
+   LEITOR DE LIVROS — TIPOGRAFIA DE LIVRO IMPRESSO
+   Exclusivo do BookReaderScreen paginado.
+   NÃO afeta o leitor bíblico (bible-font-* / bible-page).
+   ======================================== */
+
+/* Tamanhos de fonte do leitor de livros */
+.book-font-small  { font-size: 16px; }
+.book-font-medium { font-size: 18px; }
+.book-font-large  { font-size: 20px; }
+.book-font-xlarge { font-size: 23px; }
+
+/* Entrelinha em três passos */
+.book-lh-compact { line-height: 1.50; }
+.book-lh-normal  { line-height: 1.65; }
+.book-lh-wide    { line-height: 1.90; }
+
+/* Container de colunas — motor de paginação CSS multi-column.
+   column-width e height são definidos via inline style pelo JS.
+   overflow: visible permite que as colunas extras extravasem à direita;
+   o pai com overflow: hidden faz o corte visual. */
+.book-columns {
+  font-family: var(--font-serif);
+  column-fill: auto;
+  column-gap: 0;
+  overflow: visible;
+  position: relative;
+  /* Tipografia livro */
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  text-align: justify;
+  orphans: 3;
+  widows: 3;
+  word-spacing: -0.01em;
+}
+
+/* Margem horizontal em todos os filhos diretos (= margens da página) */
+.book-columns > * {
+  padding-left: 1.375rem;
+  padding-right: 1.375rem;
+  box-sizing: border-box;
+}
+
+/* Parágrafo padrão — recuo de primeira linha, sem espaço entre parágrafos */
+.book-columns p.book-para {
+  text-indent: 1.5em;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Primeiro parágrafo do capítulo — sem recuo */
+.book-columns p.book-para-first {
+  text-indent: 0;
+  margin: 0;
+}
+
+/* Após blockquote, heading ou lista — sem recuo */
+.book-columns p.book-para-no-indent {
+  text-indent: 0;
+}
+
+/* Capitular — primeira letra flutuante */
+.book-dropcap {
+  float: left;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 3.4em;
+  line-height: 0.80;
+  padding-right: 0.05em;
+  padding-top: 0.07em;
+  color: #C9A87E;
+  display: block;
+}
+
+/* Versalete para as primeiras palavras do capítulo */
+.book-smallcaps {
+  font-variant-caps: small-caps;
+  letter-spacing: 0.04em;
+}
+
+/* Abertura de capítulo */
+.book-chapter-open {
+  text-align: center;
+  padding-top: 2rem !important;
+  padding-bottom: 0.25rem !important;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.book-chapter-num {
+  display: block;
+  font-family: var(--font-serif);
+  font-variant: small-caps;
+  font-size: 0.72em;
+  letter-spacing: 0.22em;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+}
+
+.book-chapter-title-text {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.35em;
+  font-weight: 600;
+  line-height: 1.25;
+  color: hsl(var(--foreground));
+  margin-bottom: 0.55rem;
+}
+
+.book-ornament {
+  display: block;
+  font-size: 1.4em;
+  color: #C9A87E;
+  opacity: 0.75;
+  margin-bottom: 0.6rem;
+  font-family: Georgia, serif;
+}
+
+/* Heading dentro do corpo */
+.book-h2 {
+  font-family: var(--font-serif);
+  font-size: 1.05em;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.06em;
+  margin: 0;
+  padding-top: 1em !important;
+  padding-bottom: 0.3em !important;
+  break-after: avoid;
+  -webkit-column-break-after: avoid;
+}
+
+.book-h3 {
+  font-family: var(--font-serif);
+  font-size: 1em;
+  font-weight: 600;
+  font-style: italic;
+  margin: 0;
+  padding-top: 0.8em !important;
+  padding-bottom: 0.2em !important;
+  break-after: avoid;
+  -webkit-column-break-after: avoid;
+}
+
+/* Blockquote tipográfico com filete couro */
+.book-blockquote {
+  border-left: 2.5px solid #C9A87E;
+  font-style: italic;
+  margin: 0.6em 0;
+  padding-top: 0.25em !important;
+  padding-bottom: 0.25em !important;
+  padding-left: calc(1.375rem + 0.85em) !important;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+}
+
+.book-blockquote p {
+  text-indent: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin: 0;
+}
+
+/* Estrofe de verso: itálico, centralizada, sem recuo de parágrafo */
+.book-verse {
+  font-style: italic;
+  text-align: center;
+  margin: 0.9em 0;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+}
+
+.book-verse p {
+  text-indent: 0 !important;
+  text-align: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* Referência bíblica discreta (monospace, cor secundária, sem colchetes) */
+.book-bible-ref {
+  font-family: var(--font-mono);
+  font-size: 0.76em;
+  color: hsl(var(--muted-foreground));
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Filete tipográfico */
+.book-hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border) / 0.5);
+  margin: 0.6em auto !important;
+  width: 40%;
+}
+
+/* Listas no corpo */
+.book-list {
+  padding-left: calc(1.375rem + 1.2em) !important;
+  margin: 0.3em 0;
+  break-inside: avoid;
+}
+
+.book-list li {
+  text-align: left;
+  margin-bottom: 0.15em;
+}
+
+/* Cabeçalho corrente — overlay absoluto sobre a área de colunas */
+/* Setas de virada de página (só aparecem em ambientes com mouse) */
+.book-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--card) / 0.7);
+  border: 1px solid hsl(var(--border));
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.18s ease, color 0.18s ease;
+}
+.book-reader-root:hover .book-nav-arrow { opacity: 0.75; }
+.book-nav-arrow:hover { opacity: 1; color: hsl(var(--foreground)); }
+.book-nav-arrow-left  { left: 0.75rem; }
+.book-nav-arrow-right { right: 0.75rem; }
+
+.book-running-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.375rem;
+  font-family: var(--font-serif);
+  font-variant: small-caps;
+  font-size: 0.62em;
+  letter-spacing: 0.09em;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 1px solid hsl(var(--border) / 0.4);
+  background: hsl(var(--bible-panel-bg));
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Rodapé de página — overlay absoluto */
+.book-page-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.375rem;
+  font-family: var(--font-serif);
+  font-size: 0.62em;
+  color: hsl(var(--muted-foreground));
+  border-top: 1px solid hsl(var(--border) / 0.4);
+  background: hsl(var(--bible-panel-bg));
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Fim de capítulo no leitor paginado */
+.book-chapter-end {
+  text-align: center;
+  padding-top: 2.5rem !important;
+  padding-bottom: 2rem !important;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
 }

@@ -10,7 +10,7 @@ import { and, eq } from 'drizzle-orm';
 
 // Mapeamento manual de palavras frequentes em João 1
 // Baseado em: OpenBibleData, Oliver Interlinear, BibleHub
-const COMMON_WORD_MAPPINGS: Record<string, Record<string, string>> = {
+const COMMON_WORD_MAPPINGS: Record<string, Record<string, Record<string, string>>> = {
   jhn: {
     '1:1': {
       'Palavra': 'G3056', // logos (λόγος)

@@ -57,7 +57,7 @@ export async function signInWithApple(): Promise<AppleSignInResult> {
   return {
     identityToken: r.identityToken,
     authorizationCode: r.authorizationCode,
-    user: r.user,
+    user: r.user ?? undefined,
     email: r.email ?? null,
     fullName: r.givenName || r.familyName
       ? { givenName: r.givenName ?? null, familyName: r.familyName ?? null }

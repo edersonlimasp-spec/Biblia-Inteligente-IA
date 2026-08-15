@@ -6,6 +6,7 @@
 
 import { isNative, platform, isIOS, isAndroid } from './capacitor';
 import { apiRequest, getApiUrl } from './queryClient';
+import { trackPurchaseStep } from './tracking';
 
 // Product IDs by platform
 export const PRODUCT_IDS = {
@@ -144,6 +145,26 @@ function _routeApprovedTransaction(transaction: any): PendingTx | null {
   return _pendingPurchases.splice(idx, 1)[0];
 }
 
+// Resolve uma transação pendente quando a store emite um erro ASSÍNCRONO
+// (depois de store.order(), via store.error()). Sem isto, a compra ficava
+// pendurada até o timeout de 120s — um revisor da Apple veria a compra
+// "travada", o que motiva rejeição 2.1. Tenta rotear pelo productId do erro;
+// se não houver e existir exatamente uma compra em andamento, resolve essa.
+function _routePendingByError(err: any): PendingTx | null {
+  const errProductId = err?.productId || err?.product?.id || null;
+  if (errProductId) {
+    const idx = _pendingPurchases.findIndex(p => p.productId === errProductId);
+    if (idx !== -1) return _pendingPurchases.splice(idx, 1)[0];
+    return null;
+  }
+  // Erro genérico sem productId: só resolvemos se houver UMA compra em curso,
+  // para não associar o erro à transação errada.
+  if (_pendingPurchases.length === 1) {
+    return _pendingPurchases.splice(0, 1)[0];
+  }
+  return null;
+}
+
 // ───────────────────────────────────────────────────────────────────────────
 // Inicialização unificada do CdvPurchase store (Android Google Play OU iOS App Store).
 // O cordova-plugin-purchase v13 é multi-plataforma — registramos os produtos
@@ -182,6 +203,28 @@ async function _initCdvStore(): Promise<any | null> {
 
         store.error((err: any) => {
           console.error('[IAP][CdvPurchase] error:', err?.code, err?.message || err);
+
+          // Resolve compras pendentes em vez de deixá-las penduradas até o
+          // timeout de 120s. Erros assíncronos da StoreKit/Billing chegam aqui.
+          const code = err?.code;
+          const isUserCancel = code === 6500 || code === 2 || code === 'USER_CANCELLED';
+          const pending = _routePendingByError(err);
+          if (pending) {
+            if (isUserCancel) {
+              trackPurchaseStep('USER_CANCELLED', { productId: pending.productId, errorCode: code });
+              pending.resolve({ success: false, error: 'Compra cancelada' });
+            } else {
+              trackPurchaseStep('STORE_ERROR', {
+                productId: pending.productId,
+                errorCode: code,
+                errorMessage: err?.message || String(err),
+              });
+              pending.resolve({
+                success: false,
+                error: 'Não foi possível concluir a compra. Tente novamente em instantes.',
+              });
+            }
+          }
         });
 
         store.when()
@@ -194,6 +237,13 @@ async function _initCdvStore(): Promise<any | null> {
               '';
 
             const txPlatform = transaction?.platform || targetPlatform;
+
+            // Marco crítico do funil: loja aprovou ANTES da verificação backend.
+            // Separa "nunca aprovou" de "aprovou mas verify falhou".
+            trackPurchaseStep('APPROVED_RECEIVED', {
+              productId,
+              paymentMethod: txPlatform === Platform.APPLE_APPSTORE ? 'apple' : 'google',
+            });
 
             try {
               if (txPlatform === Platform.APPLE_APPSTORE) {
@@ -374,8 +424,12 @@ export type PurchasablePlanType = 'gold' | 'gold_anual' | 'premium' | 'premium_a
 
 export async function purchaseProduct(planType: PurchasablePlanType): Promise<PurchaseResult> {
   const paymentMethod = getPaymentMethod();
+  const productId = getProductId(planType);
 
   console.log('[IAP] ▶ Purchase started:', { planType, paymentMethod, platform, isIOS, isAndroid });
+  trackPurchaseStep(paymentMethod === 'mercadopago' ? 'ROUTE_MP' : 'ROUTE_NATIVE', {
+    planType, productId, paymentMethod, isNative,
+  });
 
   // ── HARD GUARD iOS (App Store guideline 3.1.1) ──────────────────────
   // No iOS NUNCA caímos em Mercado Pago / checkout web — apenas Apple IAP.
@@ -451,31 +505,49 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     const store = await getAppleStore();
 
     if (!store) {
-      // CdvPurchase não inicializou — StoreKit indisponível neste build.
-      // Causas comuns: pod install não foi executado, ou capability
-      // "In-App Purchase" não está habilitada no App ID.
-      // NUNCA caímos pra Mercado Pago no iOS — compliance App Store (3.1.1).
       console.error('[IAP][Apple] ✖ StoreKit indisponível — CdvPurchase não inicializou');
+      trackPurchaseStep('STORE_INIT_FAIL', { planType, productId, paymentMethod: 'apple' });
       return {
         success: false,
-        error: 'Loja da Apple indisponível neste momento. Feche o app e abra novamente. Se o problema persistir, verifique se há uma atualização disponível no App Store.',
+        error: 'Não foi possível conectar à App Store neste momento. Verifique sua conexão e tente novamente em instantes.',
       };
     }
+    trackPurchaseStep('STORE_INIT_OK', { planType, productId, paymentMethod: 'apple' });
 
     console.log('[IAP][Apple] ✓ Store inicializada — buscando produto', productId);
-    const product = store.get(productId);
+    let product = store.get(productId);
+    if (!product) {
+      // O StoreKit pode ainda não ter carregado os metadados do produto
+      // (rede lenta, primeira abertura, ou device do revisor da Apple). Antes de
+      // desistir, força um store.update() para buscar os produtos da App Store
+      // novamente — garante que tentamos carregar o produto antes de exibir erro.
+      console.warn('[IAP][Apple] Produto ainda não carregado — forçando store.update() e tentando novamente:', productId);
+      try {
+        await store.update();
+        await new Promise((r) => setTimeout(r, 1500));
+      } catch (e) {
+        console.warn('[IAP][Apple] store.update() falhou na retentativa:', e);
+      }
+      product = store.get(productId);
+    }
     if (!product) {
       console.error('[IAP][Apple] ✖ Produto não encontrado no store:', productId);
+      trackPurchaseStep('PRODUCT_NOT_FOUND', { planType, productId, paymentMethod: 'apple' });
       return {
         success: false,
-        error: `Este plano não está disponível agora. Tente novamente em instantes ou escolha outro plano.`,
+        error: 'Produto temporariamente indisponível. Verifique sua conexão ou tente novamente em instantes.',
       };
     }
+    trackPurchaseStep('PRODUCT_FOUND', {
+      planType, productId, paymentMethod: 'apple',
+      productTitle: product.title, productPrice: product.pricing?.price,
+    });
 
     console.log('[IAP][Apple] ✓ Produto encontrado:', { productId, title: product.title, price: product.pricing?.price });
     const offer = product.getOffer();
     if (!offer) {
       console.error('[IAP][Apple] ✖ Oferta indisponível para o produto', productId);
+      trackPurchaseStep('OFFER_NOT_FOUND', { planType, productId, paymentMethod: 'apple' });
       return { success: false, error: 'Oferta indisponível para este plano. Tente novamente em instantes.' };
     }
 
@@ -496,6 +568,7 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     const timeoutId = setTimeout(() => {
       const idx = _pendingPurchases.indexOf(pendingEntry);
       if (idx !== -1) _pendingPurchases.splice(idx, 1);
+      trackPurchaseStep('TIMEOUT', { planType, productId, paymentMethod: 'apple' });
       resolvePending({ success: false, error: 'Tempo esgotado aguardando aprovação da compra' });
     }, 120_000);
 
@@ -508,33 +581,45 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
       if (idx !== -1) _pendingPurchases.splice(idx, 1);
 
       const code = orderResult.code;
-      // Apple usa SKErrorPaymentCancelled (2) — CdvPurchase normaliza pra 6500/USER_CANCELLED.
       if (code === 6500 || code === 2 || code === 'USER_CANCELLED') {
+        trackPurchaseStep('USER_CANCELLED', { planType, productId, paymentMethod: 'apple', errorCode: code });
         return { success: false, error: 'Compra cancelada' };
       }
       console.error('[IAP][Apple] store.order() retornou erro:', orderResult);
+      trackPurchaseStep('ORDER_ERROR', {
+        planType, productId, paymentMethod: 'apple',
+        errorCode: code, errorMessage: orderResult.message,
+      });
       return {
         success: false,
         error: orderResult.message || `Erro ao iniciar compra (código ${code ?? 'desconhecido'})`,
       };
     }
+    trackPurchaseStep('ORDER_DISPATCHED', { planType, productId, paymentMethod: 'apple' });
 
     console.log('[IAP][Apple] ⏳ Aguardando aprovação do usuário e verificação backend…');
     const result = await verificationPromise;
     clearTimeout(timeoutId);
     if (result.success) {
       console.log('[IAP][Apple] ✓ Compra aprovada e verificada com sucesso');
+      trackPurchaseStep('VERIFY_OK', { planType, productId, paymentMethod: 'apple' });
     } else {
       console.warn('[IAP][Apple] ⚠ Compra falhou:', result.error);
+      trackPurchaseStep('VERIFY_FAIL', { planType, productId, paymentMethod: 'apple', errorMessage: result.error });
     }
     return result;
 
   } catch (error: any) {
     if (error?.code === 'USER_CANCELLED' || error?.code === 6500 || error?.code === 2) {
       console.log('[IAP][Apple] ℹ Usuário cancelou a compra');
+      trackPurchaseStep('USER_CANCELLED', { planType, productId, paymentMethod: 'apple', errorCode: error.code });
       return { success: false, error: 'Compra cancelada' };
     }
     console.error('[IAP][Apple] ✖ Erro inesperado:', error);
+    trackPurchaseStep('UNEXPECTED_ERROR', {
+      planType, productId, paymentMethod: 'apple',
+      errorCode: error?.code, errorMessage: error?.message || String(error),
+    });
     return { success: false, error: error?.message || 'Erro ao processar a compra. Tente novamente.' };
   }
 }
@@ -549,26 +634,32 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
     const store = await getGooglePlayStore();
 
     if (!store) {
-      // CdvPurchase não inicializou — pode ser que o bridge ainda esteja
-      // carregando (dispositivo lento) ou que o plugin não esteja no APK.
       console.error('[IAP] Google Play Billing indisponível — CdvPurchase não inicializou');
+      trackPurchaseStep('STORE_INIT_FAIL', { planType, productId, paymentMethod: 'google' });
       return {
         success: false,
         error: 'Loja do Google Play não disponível. Feche completamente o app, reabra e tente novamente. Se persistir, reinstale pelo Google Play.',
       };
     }
+    trackPurchaseStep('STORE_INIT_OK', { planType, productId, paymentMethod: 'google' });
 
     const product = store.get(productId);
     if (!product) {
       console.error('[IAP] Produto não encontrado no store:', productId);
+      trackPurchaseStep('PRODUCT_NOT_FOUND', { planType, productId, paymentMethod: 'google' });
       return {
         success: false,
         error: `Produto não disponível (${productId}). Verifique a configuração no Google Play Console.`,
       };
     }
+    trackPurchaseStep('PRODUCT_FOUND', {
+      planType, productId, paymentMethod: 'google',
+      productTitle: product.title, productPrice: product.pricing?.price,
+    });
 
     const offer = product.getOffer();
     if (!offer) {
+      trackPurchaseStep('OFFER_NOT_FOUND', { planType, productId, paymentMethod: 'google' });
       return { success: false, error: 'Oferta indisponível para este produto' };
     }
 
@@ -589,6 +680,7 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
     const timeoutId = setTimeout(() => {
       const idx = _pendingPurchases.indexOf(pendingEntry);
       if (idx !== -1) _pendingPurchases.splice(idx, 1);
+      trackPurchaseStep('TIMEOUT', { planType, productId, paymentMethod: 'google' });
       resolvePending({ success: false, error: 'Tempo esgotado aguardando aprovação da compra' });
     }, 120_000);
 
@@ -600,26 +692,41 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
       const idx = _pendingPurchases.indexOf(pendingEntry);
       if (idx !== -1) _pendingPurchases.splice(idx, 1);
 
-      // Códigos comuns: 6500 = cancelado pelo usuário; outros = erro real.
       const code = orderResult.code;
       if (code === 6500 || code === 'USER_CANCELLED') {
+        trackPurchaseStep('USER_CANCELLED', { planType, productId, paymentMethod: 'google', errorCode: code });
         return { success: false, error: 'Compra cancelada' };
       }
       console.error('[IAP] store.order() retornou erro:', orderResult);
+      trackPurchaseStep('ORDER_ERROR', {
+        planType, productId, paymentMethod: 'google',
+        errorCode: code, errorMessage: orderResult.message,
+      });
       return {
         success: false,
         error: orderResult.message || `Erro ao iniciar compra (código ${code ?? 'desconhecido'})`,
       };
     }
+    trackPurchaseStep('ORDER_DISPATCHED', { planType, productId, paymentMethod: 'google' });
 
     const result = await verificationPromise;
     clearTimeout(timeoutId);
+    if (result.success) {
+      trackPurchaseStep('VERIFY_OK', { planType, productId, paymentMethod: 'google' });
+    } else {
+      trackPurchaseStep('VERIFY_FAIL', { planType, productId, paymentMethod: 'google', errorMessage: result.error });
+    }
     return result;
   } catch (error: any) {
     if (error?.code === 'USER_CANCELLED' || error?.code === 6500) {
+      trackPurchaseStep('USER_CANCELLED', { planType, productId, paymentMethod: 'google', errorCode: error.code });
       return { success: false, error: 'Compra cancelada' };
     }
     console.error('[IAP] Google purchase error:', error);
+    trackPurchaseStep('UNEXPECTED_ERROR', {
+      planType, productId, paymentMethod: 'google',
+      errorCode: error?.code, errorMessage: error?.message || String(error),
+    });
     return { success: false, error: error?.message || String(error) };
   }
 }

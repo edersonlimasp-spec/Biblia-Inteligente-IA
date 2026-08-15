@@ -310,32 +310,28 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
   // Premium lock screen
   if (!hasPremium) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-amber-950/30 to-background flex flex-col">
-        <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-600 to-orange-600 text-white">
+      <div className="min-h-screen bg-background flex flex-col">
+        <header className="sticky top-0 z-50 bg-card border-b border-border">
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
+            <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-              <Scale className="w-6 h-6" />
-            </div>
+            <Scale className="w-6 h-6 text-muted-foreground" />
             <div className="flex-1">
-              <h1 className="text-xl font-bold">Comparação Teológica</h1>
-              <p className="text-sm text-amber-100">Perspectivas denominacionais</p>
+              <h1 className="text-xl font-bold text-foreground">Comparação Teológica</h1>
+              <p className="text-sm text-muted-foreground">Perspectivas denominacionais</p>
             </div>
-            <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
+            <Badge variant="outline" className="border-primary/40 text-primary">
               <Crown className="w-3 h-3 mr-1" /> Premium
             </Badge>
           </div>
         </header>
 
         <div className="flex-1 flex items-center justify-center p-6">
-          <Card className="max-w-md w-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 border-amber-200">
+          <Card className="max-w-md w-full">
             <CardContent className="p-8 text-center">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-500/30">
-                <Scale className="w-12 h-12 text-white" />
-              </div>
-              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 mb-4">
+              <Scale className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+              <Badge variant="outline" className="border-primary/40 text-primary mb-4">
                 <Crown className="w-3 h-3 mr-1" /> Recurso Premium
               </Badge>
               <h2 className="text-2xl font-bold mb-3">Comparação Teológica</h2>
@@ -346,19 +342,19 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
               </p>
               <div className="space-y-2 text-left mb-6">
                 <div className="flex items-center gap-2 text-sm">
-                  <ChurchIcon className="w-4 h-4 text-amber-500" />
+                  <ChurchIcon className="w-4 h-4 text-primary" />
                   <span>Múltiplas tradições cristãs</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <GitCompare className="w-4 h-4 text-amber-500" />
+                  <GitCompare className="w-4 h-4 text-primary" />
                   <span>Quadros comparativos estruturados</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <BookOpen className="w-4 h-4 text-amber-500" />
+                  <BookOpen className="w-4 h-4 text-primary" />
                   <span>Referências a documentos oficiais</span>
                 </div>
               </div>
-              <Button onClick={onNavigateToSubscriptions} className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
+              <Button onClick={onNavigateToSubscriptions} className="w-full">
                 <Crown className="w-4 h-4 mr-2" />
                 Assinar Premium
               </Button>
@@ -370,29 +366,28 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
   }
 
   return (
-    <div className="h-screen bg-gradient-to-b from-amber-950/20 to-background flex flex-col overflow-hidden">
-      {/* Premium Header with gradient (fixed) */}
-      <header className="flex-shrink-0 z-50 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 text-white shadow-lg">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
+      {/* Header */}
+      <header className="flex-shrink-0 z-50 bg-card border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
+          <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center ring-2 ring-white/30">
-            <Scale className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center">
+            <Scale className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="text-xl font-bold flex items-center gap-2">
+            <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
               Comparação Teológica
-              <Sparkles className="w-4 h-4 text-amber-200" />
+              <Sparkles className="w-4 h-4 text-primary" />
             </h1>
-            <p className="text-sm text-amber-100">Perspectivas denominacionais comparadas</p>
+            <p className="text-sm text-muted-foreground">Perspectivas denominacionais comparadas</p>
           </div>
           <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={handleNewConversation}
-              className="text-white hover:bg-white/20"
               title="Nova conversa"
               data-testid="button-new-conversation"
             >
@@ -400,10 +395,10 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative" data-testid="button-history">
+                <Button variant="ghost" size="icon" className="relative" data-testid="button-history">
                   <History className="w-5 h-5" />
                   {savedConversations.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full text-[10px] flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-[10px] flex items-center justify-center text-primary-foreground">
                       {savedConversations.length}
                     </span>
                   )}
@@ -426,7 +421,7 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
                       onClick={() => handleLoadConversation(conv)}
                       className="flex items-start gap-2 cursor-pointer"
                     >
-                      <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-500" />
+                      <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{conv.title}</p>
                         <p className="text-xs text-muted-foreground">
@@ -446,7 +441,7 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Badge className="bg-gradient-to-r from-amber-300 to-orange-400 text-amber-900 border-0 shadow-lg font-semibold">
+            <Badge variant="outline" className="border-primary/40 text-primary">
               <Crown className="w-3 h-3 mr-1" /> Premium
             </Badge>
           </div>
@@ -454,13 +449,13 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
       </header>
 
       {/* Tradition filter bar (fixed) */}
-      <div className="flex-shrink-0 border-b bg-amber-50/50 dark:bg-amber-950/20 py-2 overflow-x-auto">
+      <div className="flex-shrink-0 border-b bg-card py-2 overflow-x-auto">
         <div className="max-w-6xl mx-auto px-4 flex gap-2">
           {["Todas", "Católica", "Ortodoxa", "Luterana", "Reformada", "Batista", "Pentecostal"].map((tradition) => (
             <Badge 
               key={tradition}
               variant="outline" 
-              className="cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/30 border-amber-300 text-amber-700 dark:text-amber-300 whitespace-nowrap"
+              className="cursor-pointer border-border text-foreground whitespace-nowrap hover-elevate"
             >
               {tradition}
             </Badge>
@@ -477,19 +472,17 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
               {COMPARISON_TOPICS.map((item, i) => (
                 <Card 
                   key={i} 
-                  className="cursor-pointer hover-elevate bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border-amber-200 dark:border-amber-800"
+                  className="cursor-pointer hover-elevate"
                   onClick={() => setInput(item.text)}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
-                        <item.icon className="w-6 h-6 text-white" />
-                      </div>
+                      <item.icon className="w-6 h-6 text-muted-foreground flex-shrink-0" />
                       <div className="flex-1">
                         <p className="font-medium mb-2">{item.text}</p>
                         <div className="flex flex-wrap gap-1">
                           {item.traditions.map((t, j) => (
-                            <Badge key={j} variant="secondary" className="text-[10px] bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+                            <Badge key={j} variant="secondary" className="text-[10px]">
                               {t}
                             </Badge>
                           ))}
@@ -501,11 +494,9 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
               ))}
             </div>
             
-            <Card className="bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border-amber-200/50 shadow-lg">
+            <Card>
               <CardContent className="p-8 text-center">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-amber-500/30 ring-4 ring-amber-200/50 dark:ring-amber-800/50">
-                  <Scale className="w-12 h-12 text-white" />
-                </div>
+                <Scale className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h2 className="text-2xl font-bold mb-2">Conversas Bíblicas</h2>
                 <p className="text-muted-foreground max-w-lg mx-auto mb-4">
                   Compare posições teológicas de diferentes tradições cristãs com imparcialidade acadêmica.
@@ -513,13 +504,13 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
                   catecismos, confissões de fé e teólogos representativos.
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
+                  <Badge variant="outline" className="border-primary/30 text-primary">
                     <ChurchIcon className="w-3 h-3 mr-1" /> 6+ Tradições
                   </Badge>
-                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
+                  <Badge variant="outline" className="border-primary/30 text-primary">
                     <GitCompare className="w-3 h-3 mr-1" /> Análise Comparativa
                   </Badge>
-                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">
+                  <Badge variant="outline" className="border-primary/30 text-primary">
                     <Users className="w-3 h-3 mr-1" /> Imparcialidade
                   </Badge>
                 </div>
@@ -536,50 +527,42 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
               key={index}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {message.role === 'assistant' && (
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ring-amber-200/50 dark:ring-amber-800/50">
-                  <Scale className="w-5 h-5 text-white" />
+              {message.role === 'user' ? (
+                <div className="max-w-[80%] bg-muted rounded-2xl px-4 py-3">
+                  {message.attachment?.type === 'image' && (
+                    <img src={message.attachment.url} alt="Uploaded" className="max-h-48 rounded-lg mb-2" />
+                  )}
+                  <p className="text-base whitespace-pre-wrap leading-relaxed text-foreground">{message.content}</p>
+                  <span className="text-[10px] text-muted-foreground mt-2 block text-right">
+                    {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
-              )}
-              <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                message.role === 'user' 
-                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-lg' 
-                  : 'bg-white dark:bg-card border border-amber-200/50 dark:border-amber-800/50 shadow-sm'
-              }`}>
-                {message.attachment?.type === 'image' && (
-                  <img src={message.attachment.url} alt="Uploaded" className="max-h-48 rounded-lg mb-2" />
-                )}
-                {message.imageUrl && (
-                  <div className="relative group mb-2">
-                    <img src={message.imageUrl} alt="Generated" className="max-w-full rounded-lg" />
-                    <a href={message.imageUrl} download className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100">
-                      <Download className="w-4 h-4 text-white" />
-                    </a>
-                  </div>
-                )}
-                <p className="text-base whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                <span className="text-[10px] opacity-60 mt-2 block">
-                  {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-              {message.role === 'user' && (
-                <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              ) : (
+                <div className="max-w-[90%] border-l-2 border-primary pl-4 py-1">
+                  {message.imageUrl && (
+                    <div className="relative group mb-2">
+                      <img src={message.imageUrl} alt="Generated" className="max-w-full rounded-lg" />
+                      <a href={message.imageUrl} download className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100">
+                        <Download className="w-4 h-4 text-white" />
+                      </a>
+                    </div>
+                  )}
+                  <p className="text-base whitespace-pre-wrap leading-relaxed text-foreground">{message.content}</p>
+                  <span className="text-[10px] text-muted-foreground mt-2 block">
+                    {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
               )}
             </motion.div>
           ))}
 
           {isPending && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg ring-2 ring-amber-200/50">
-                <Scale className="w-5 h-5 text-white" />
-              </div>
-              <div className="bg-white dark:bg-card rounded-2xl px-4 py-3 border border-amber-200/50 shadow-sm">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+              <div className="border-l-2 border-primary pl-4 py-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
                   Comparando perspectivas teológicas...
                 </div>
               </div>
@@ -590,13 +573,13 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
       </div>
 
       {/* Premium Input area (fixed at bottom) */}
-      <div className="flex-shrink-0 border-t bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20 p-4">
+      <div className="flex-shrink-0 border-t bg-card p-4">
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-3">
                 <div className="relative inline-block">
-                  <img src={pendingImage.url} alt="Preview" className="h-20 rounded-lg border-2 border-amber-300" />
+                  <img src={pendingImage.url} alt="Preview" className="h-20 rounded-lg border" />
                   <button onClick={() => setPendingImage(null)} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center">
                     <X className="w-3 h-3" />
                   </button>
@@ -607,8 +590,8 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
 
           <div className="flex gap-2 items-end">
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
-            <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isPending} className="h-[44px] w-[44px] border-amber-300" data-testid="button-attach">
-              <ImageIcon className="w-5 h-5 text-amber-600" />
+            <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isPending} className="h-[44px] w-[44px]" data-testid="button-attach">
+              <ImageIcon className="w-5 h-5" />
             </Button>
             <Textarea
               placeholder="Compare posições teológicas (ex: batismo nas tradições...)"
@@ -616,10 +599,10 @@ export function ComparacaoChat({ onBack, onNavigateToSubscriptions }: Comparacao
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
               rows={1}
-              className="resize-none min-h-[44px] max-h-[200px] flex-1 border-amber-200 focus-visible:ring-amber-500"
+              className="resize-none min-h-[44px] max-h-[200px] flex-1"
               data-testid="input-message"
             />
-            <Button onClick={handleSubmit} disabled={(!input.trim() && !pendingImage) || isPending} size="icon" className="h-[44px] w-[44px] bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg" data-testid="button-send">
+            <Button onClick={handleSubmit} disabled={(!input.trim() && !pendingImage) || isPending} size="icon" className="h-[44px] w-[44px]" data-testid="button-send">
               {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             </Button>
           </div>

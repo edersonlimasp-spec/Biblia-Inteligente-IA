@@ -13,8 +13,6 @@ import { AIHistoryScreen } from "./AIHistoryScreen";
 import { AdminPanel } from "./AdminPanel";
 import { Dashboard } from "./Dashboard";
 import { PrayerMode } from "./PrayerMode";
-import { AchievementsScreen } from "./AchievementsScreen";
-import { BibleGames } from "./BibleGames";
 import { ProfessorScreen } from "./ProfessorScreen";
 import { AIModesScreen } from "./AIModesScreen";
 import { PlansProgressScreen } from "./PlansProgressScreen";
@@ -24,6 +22,9 @@ import { RecordingsScreen } from "./RecordingsScreen";
 import { StudyModulesScreen } from "./StudyModulesScreen";
 import { ModuleDetailScreen } from "./ModuleDetailScreen";
 import { LessonScreen } from "./LessonScreen";
+import { LibraryScreen } from "./LibraryScreen";
+import { BookScreen } from "./BookScreen";
+import { BookReaderScreen } from "./BookReaderScreen";
 import { ThemeProvider } from "./ThemeProvider";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
@@ -41,12 +42,21 @@ function NavigationContent() {
     currentScreen, 
     navigate, 
     goBack,
+    navigateToVerse,
     selectedModuleId,
     setSelectedModuleId,
     selectedLessonId,
     setSelectedLessonId,
     selectedTrackLevel,
     setSelectedTrackLevel,
+    selectedBookId,
+    setSelectedBookId,
+    selectedBookTitle,
+    setSelectedBookTitle,
+    selectedChapterNum,
+    setSelectedChapterNum,
+    libraryPreview,
+    setLibraryPreview,
   } = useNavigation();
   
   const { user, isLoading } = useAuth();
@@ -99,6 +109,45 @@ function NavigationContent() {
     }
   }, [location, navigate]);
 
+  // Dev-only: deep link para abrir uma tela direto via query params
+  // Ex.: /?devScreen=library-reader&bookId=<id>&ch=1
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const params = new URLSearchParams(window.location.search);
+    const devScreen = params.get("devScreen");
+    if (!devScreen) return;
+    // Dev-only: simular largura estreita (?devWidth=360)
+    const devWidth = parseInt(params.get("devWidth") ?? "", 10);
+    if (Number.isFinite(devWidth) && devWidth >= 280 && devWidth <= 1000) {
+      const root = document.getElementById("root");
+      if (root) {
+        root.style.width = `${devWidth}px`;
+        root.style.margin = "0 auto";
+        root.style.position = "relative";
+        root.style.outline = "1px dashed rgba(255,255,255,0.2)";
+      }
+    }
+
+    if (devScreen === "library-reader") {
+      const bookId = params.get("bookId");
+      const chParsed = parseInt(params.get("ch") ?? "1", 10);
+      const ch = Number.isFinite(chParsed) && chParsed >= 1 ? chParsed : 1;
+      if (bookId) {
+        setSelectedBookId(bookId);
+        setSelectedBookTitle(params.get("title") ?? "");
+        setSelectedChapterNum(ch);
+        navigate("library-reader");
+      } else {
+        navigate("dashboard");
+      }
+    } else if (["dashboard", "library", "bible", "study"].includes(devScreen)) {
+      navigate(devScreen as Parameters<typeof navigate>[0]);
+    } else {
+      navigate("dashboard");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Handle payment result pages from Mercado Pago redirect
   const isPaymentPage = location.startsWith("/pagamento/");
   const paymentStatus = isPaymentPage ? location.split("/pagamento/")[1]?.split("?")[0] : null;
@@ -106,6 +155,10 @@ function NavigationContent() {
   useEffect(() => {
     if (!isLoading) {
       if (currentScreen === "splash") {
+        // Dev-only: deep link tem prioridade sobre o redirect padrão
+        if (import.meta.env.DEV && new URLSearchParams(window.location.search).has("devScreen")) {
+          return;
+        }
         // All users (logged or guest) go to dashboard
         navigate("dashboard");
       }
@@ -168,8 +221,6 @@ function NavigationContent() {
         <Dashboard
           onNavigateToBible={() => navigate("bible")}
           onNavigateToPrayer={() => navigate("prayer")}
-          onNavigateToAchievements={() => navigate("achievements")}
-          onNavigateToGames={() => navigate("games")}
           onNavigateToProfessor={() => navigate("professor")}
           onNavigateToAIModes={() => navigate("ai-modes")}
           onNavigateToPlansProgress={() => navigate("plans-progress")}
@@ -180,6 +231,7 @@ function NavigationContent() {
           onNavigateToProfessorPremium={() => navigate("professor-premium")}
           onNavigateToLogin={() => navigate("login")}
           onNavigateToSettings={() => navigate("settings")}
+          onNavigateToLibrary={() => navigate("library")}
         />
       )}
       {currentScreen === "recordings" && (
@@ -266,16 +318,6 @@ function NavigationContent() {
           <PrayerMode onBack={() => goBack()} />
         </RequireAuthScreen>
       )}
-      {currentScreen === "achievements" && (
-        <RequireAuthScreen featureName="Conquistas" onAuthCancel={() => goBack()}>
-          <AchievementsScreen onBack={() => goBack()} />
-        </RequireAuthScreen>
-      )}
-      {currentScreen === "games" && (
-        <RequireAuthScreen featureName="Jogos Bíblicos" onAuthCancel={() => goBack()}>
-          <BibleGames onBack={() => goBack()} />
-        </RequireAuthScreen>
-      )}
       {currentScreen === "subscriptions" && (
         <RequireAuthScreen featureName="Assinaturas" onAuthCancel={() => goBack()}>
           <SubscriptionScreen onBack={() => goBack()} />
@@ -333,6 +375,56 @@ function NavigationContent() {
           }}
         />
       )}
+      {currentScreen === "library" && (
+        <LibraryScreen
+          onBack={() => goBack()}
+          onNavigateToBook={(bookId, bookTitle) => {
+            setSelectedBookId(bookId);
+            setSelectedBookTitle(bookTitle);
+            navigate("library-book");
+          }}
+          onNavigateToReader={(bookId, chapterNum, bookTitle) => {
+            setSelectedBookId(bookId);
+            setSelectedBookTitle(bookTitle);
+            setSelectedChapterNum(chapterNum);
+            setLibraryPreview(false);
+            navigate("library-reader");
+          }}
+        />
+      )}
+      {currentScreen === "library-book" && selectedBookId && (
+        <BookScreen
+          bookId={selectedBookId}
+          onBack={() => goBack()}
+          onNavigateToReader={(bookId, chapterNum, bookTitle) => {
+            setSelectedBookId(bookId);
+            setSelectedBookTitle(bookTitle);
+            setSelectedChapterNum(chapterNum);
+            setLibraryPreview(false);
+            navigate("library-reader");
+          }}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+        />
+      )}
+      {currentScreen === "library-reader" && selectedBookId && selectedChapterNum !== null && (
+        <BookReaderScreen
+          bookId={selectedBookId}
+          bookTitle={selectedBookTitle ?? ""}
+          chapterNum={selectedChapterNum}
+          preview={libraryPreview}
+          onBack={() => goBack()}
+          onNavigateToBible={(book, chapter, verse) => {
+            // navigateToVerse sets targetVerse + navigates to "bible"
+            // BibleReader scrolls to [data-verse="${verse}"] on mount
+            navigateToVerse(book, chapter, verse ?? 1);
+          }}
+          onNavigateToChapter={(chapterNum) => {
+            setSelectedChapterNum(chapterNum);
+            navigate("library-reader");
+          }}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
+        />
+      )}
     </>
   );
 }
@@ -340,6 +432,9 @@ function NavigationContent() {
 export function MainNavigation() {
   const [showSplash, setShowSplash] = useState(() => {
     try {
+      if (import.meta.env.DEV && new URLSearchParams(window.location.search).has("devScreen")) {
+        return false;
+      }
       const hasVisited = sessionStorage.getItem('hasVisitedApp');
       return !hasVisited;
     } catch {

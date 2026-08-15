@@ -44,7 +44,7 @@ export function SubscriptionLimitModal({
 
         {showUpgradeButton && (
           <div className="py-4 space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-[#8A6A2E]/15 to-[#93602A]/10 border border-[#8A6A2E]/40">
               <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
               <div className="text-sm">
                 <p className="font-medium">Upgrade seu plano</p>
@@ -65,7 +65,7 @@ export function SubscriptionLimitModal({
           {showUpgradeButton && (
             <AlertDialogAction 
               onClick={onSubscribe}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+              className="bg-gradient-to-r from-primary to-primary/80"
               data-testid="button-upgrade-subscription"
             >
               <Crown className="h-4 w-4 mr-2" />

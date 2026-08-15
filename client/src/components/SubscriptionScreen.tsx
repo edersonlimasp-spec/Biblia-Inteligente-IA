@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
 import { apiRequest, getApiUrl } from "@/lib/queryClient";
-import { trackSubscriptionPageVisit } from "@/lib/tracking";
+import { trackSubscriptionPageVisit, trackPurchaseStep } from "@/lib/tracking";
 import { isAndroid, isIOS, isNative, platform } from "@/lib/capacitor";
 import { purchaseProduct, restorePurchases } from "@/lib/inAppPurchases";
 
@@ -206,7 +206,15 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   // Plan ID mapping is now handled via plan.id in the plans array
 
   const handlePlanSelect = async (planId: string, planName: string) => {
+    // Telemetria — capturar TODO clique de compra (logado ou não) para
+    // entender o funil real no Android (zero compradores em 50 instalações).
+    trackPurchaseStep('BUTTON_CLICK', {
+      planType: planId, planName, isLoggedIn: !!user,
+      paymentMethod: isIOS ? 'apple' : isAndroid ? 'google' : 'mercadopago',
+    });
+
     if (!user) {
+      trackPurchaseStep('LOGIN_GATE', { planType: planId, planName });
       setSelectedPlan(planName);
       setShowAuthModal(true);
       return;
@@ -253,6 +261,15 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         toast({ title: t("common.error"), description: error.message || t("subscription.processingError"), variant: 'destructive' });
       } finally {
         setIsPurchasing(null);
+        // Fix: força o WebView a recalcular o layout após o Google Play Billing
+        // bottom sheet fechar. O sheet comprime o WebView verticalmente; ao fechar,
+        // o Android não restaura a altura automaticamente → faixa branca.
+        // Disparar resize aqui (lado JS) complementa o requestLayout() do MainActivity.
+        if (isAndroid) {
+          requestAnimationFrame(() => {
+            window.dispatchEvent(new Event('resize'));
+          });
+        }
       }
       return;
     }

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Teste de paginação — 320px / 360px</title>
+<style>
+  body { font-family: monospace; margin: 16px; background: #f5f0e6; }
+  .case { margin-bottom: 24px; }
+  .area { overflow: hidden; border: 2px solid #333; background: #fdf9f0; }
+  .book-columns {
+    font-family: Georgia, serif;
+    column-fill: auto;
+    column-gap: 0;
+    overflow: visible;
+    position: relative;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    text-align: justify;
+    orphans: 3;
+    widows: 3;
+    word-spacing: -0.01em;
+  }
+  .book-columns > * { padding-left: 1.375rem; padding-right: 1.375rem; box-sizing: border-box; }
+  .book-columns p { text-indent: 1.5em; margin: 0; }
+  .book-font-small  { font-size: 16px; }
+  .book-font-medium { font-size: 18px; }
+  .book-font-xlarge { font-size: 23px; }
+  .book-lh-compact { line-height: 1.50; }
+  .book-lh-normal { line-height: 1.65; }
+  .book-lh-wide { line-height: 1.90; }
+  .result { font-size: 14px; padding: 6px 0; white-space: pre; }
+  .pass { color: #0a7a0a; font-weight: bold; }
+  .fail { color: #c00; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1 style="font-size:16px">Paginação multi-column — medição offsetLeft vs scrollWidth</h1>
+<div id="out"></div>
+<script>
+const LOREM = "A graça de Deus se manifesta na história da igreja através dos séculos, moldando homens e mulheres que dedicaram suas vidas ao evangelho. ";
+const CONTENT = LOREM.repeat(40); // ~5400 chars
+
+function makeCase(width, height, fontClass, lhClass) {
+  const wrap = document.createElement("div");
+  wrap.className = "case";
+  const area = document.createElement("div");
+  area.className = "area";
+  area.style.width = width + "px";
+  area.style.height = height + "px";
+  const col = document.createElement("div");
+  col.className = "book-columns " + fontClass + " " + lhClass;
+  const paras = CONTENT.match(/.{1,270}(\s|$)/g) || [CONTENT];
+  paras.forEach((t, i) => {
+    const p = document.createElement("p");
+    p.setAttribute("data-para-id", String(i));
+    p.textContent = t;
+    col.appendChild(p);
+  });
+  area.appendChild(col);
+  wrap.appendChild(area);
+  document.getElementById("out").appendChild(wrap);
+
+  // mesma sequência do BookReaderScreen
+  const pageW = area.offsetWidth;
+  col.style.columnWidth = pageW + "px";
+  col.style.height = area.offsetHeight + "px";
+
+  const all = col.querySelectorAll("[data-para-id]");
+  const last = all[all.length - 1];
+  const lastLeft = last.offsetLeft;
+  const totalOffset = Math.round(lastLeft / pageW) + 1;
+  const scrollW = col.scrollWidth;
+  const totalScroll = Math.max(1, Math.round(scrollW / pageW));
+
+  const contentLen = CONTENT.length;
+  let mode, total;
+  if (totalOffset <= 1 && contentLen > 1200 && all.length > 4) {
+    if (totalScroll > 1) { mode = "scrollWidth-rescue"; total = totalScroll; }
+    else { mode = "FALLBACK-SCROLL"; total = 1; }
+  } else { mode = "offsetLeft"; total = totalOffset; }
+
+  const ok = total > 1 && mode !== "FALLBACK-SCROLL";
+  const div = document.createElement("div");
+  div.className = "result " + (ok ? "pass" : "fail");
+  div.textContent =
+    `width=${width} ${fontClass}/${lhClass}\n` +
+    `  pageW=${pageW} lastLeft=${lastLeft} scrollW=${scrollW}\n` +
+    `  totalOffset=${totalOffset} totalScroll=${totalScroll} → modo=${mode} páginas=${total} ` +
+    (ok ? "PASS" : "FAIL");
+  wrap.insertBefore(div, area);
+  // encolher visual para caber no screenshot
+  area.style.height = "120px";
+  return { width, mode, total, ok };
+}
+
+const results = [
+  makeCase(320, 560, "book-font-medium", "book-lh-normal"),
+  makeCase(320, 560, "book-font-small", "book-lh-compact"),
+  makeCase(360, 640, "book-font-medium", "book-lh-normal"),
+  makeCase(360, 640, "book-font-xlarge", "book-lh-wide"),
+];
+document.title = results.every(r => r.ok) ? "ALL PASS" : "SOME FAIL";
+const summary = document.createElement("h2");
+summary.style.fontSize = "18px";
+summary.className = results.every(r => r.ok) ? "pass" : "fail";
+summary.textContent = "RESULTADO: " + (results.every(r => r.ok) ? "ALL PASS" : "SOME FAIL");
+document.body.insertBefore(summary, document.getElementById("out"));
+</script>
+</body>
+</html>

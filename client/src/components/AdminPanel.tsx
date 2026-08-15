@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag } from "lucide-react";
+import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag, BookMarked } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,6 +10,7 @@ import { AdminBonuses } from "./admin/AdminBonuses";
 import { AdminSystemHealth } from "./admin/AdminSystemHealth";
 import { AdminCampaigns } from "./admin/AdminCampaigns";
 import { AdminCoupons } from "./admin/AdminCoupons";
+import { AdminLibrary } from "./admin/AdminLibrary";
 
 interface AdminPanelProps {
   onBack?: () => void;
@@ -58,7 +59,7 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
       {/* Admin Tabs */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="dashboard" data-testid="tab-dashboard">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
@@ -86,6 +87,10 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
             <TabsTrigger value="health" data-testid="tab-health">
               <HeartPulse className="h-4 w-4 mr-2" />
               Sistema
+            </TabsTrigger>
+            <TabsTrigger value="library" data-testid="tab-library">
+              <BookMarked className="h-4 w-4 mr-2" />
+              Biblioteca
             </TabsTrigger>
           </TabsList>
 
@@ -115,6 +120,10 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
 
           <TabsContent value="health" className="mt-6">
             <AdminSystemHealth />
+          </TabsContent>
+
+          <TabsContent value="library" className="mt-6">
+            <AdminLibrary />
           </TabsContent>
         </Tabs>
       </div>

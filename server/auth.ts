@@ -2,7 +2,18 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { type Request, type Response, type NextFunction } from 'express';
 
-const JWT_SECRET = process.env.SESSION_SECRET || 'fallback-secret-change-in-production';
+function requireSessionSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error(
+      'CRÍTICO: A variável de ambiente SESSION_SECRET não está definida. ' +
+      'O servidor não pode iniciar sem um JWT secret seguro. ' +
+      'Configure SESSION_SECRET nos secrets do ambiente.'
+    );
+  }
+  return secret;
+}
+const JWT_SECRET: string = requireSessionSecret();
 // Trial de degustação Premium: 7 dias para novos cadastros
 const TRIAL_DURATION_DAYS = 7;
 

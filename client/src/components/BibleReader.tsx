@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useBibleFontSize, bibleFontSizeClass, setBibleFontSize, type BibleFontSize } from "@/hooks/use-bible-font-size";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Loader2, Globe, BookOpen, Home, Share2, Copy, Check, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AIPanel } from "@/components/AIPanel";
 import { UserButton } from "@/components/UserButton";
@@ -118,8 +120,10 @@ export function BibleReader({
 }: BibleReaderProps) {
   const { user, isAdmin, logout } = useAuth();
   const { toast } = useToast();
-  const { targetVerse, clearTargetVerse, shouldResetAI, clearResetAI } = useNavigation();
+  const { targetVerse, clearTargetVerse, shouldResetAI, clearResetAI, bookReturn, goBack, navigate } = useNavigation();
   const { language, getDefaultBibleVersion, t } = useLanguage();
+  const bibleFontSize = useBibleFontSize();
+  const verseTextClass = bibleFontSizeClass(bibleFontSize);
   
   const {
     isSyncing,
@@ -169,6 +173,8 @@ export function BibleReader({
   const [selectedVersesForShare, setSelectedVersesForShare] = useState<Set<number>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [justCopied, setJustCopied] = useState(false);
+  // Font size popover
+  const [showFontSizePanel, setShowFontSizePanel] = useState(false);
 
   // Initialize with last reading position - only runs once on mount
   // BUT always use the version matching the current language
@@ -947,8 +953,24 @@ export function BibleReader({
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground dark:bg-background dark:text-foreground">
+      {/* Barra de retorno ao livro da Biblioteca */}
+      {bookReturn && (
+        <button
+          className="flex items-center gap-1.5 px-3 h-8 w-full text-left text-xs font-medium border-b linho-chrome"
+          style={{ flexShrink: 0 }}
+          data-testid="button-back-to-book"
+          onClick={() => {
+            // Volta pelo histórico (o leitor restaura a página exata via bookReturn)
+            if (!goBack()) navigate("library-reader");
+          }}
+        >
+          <ChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className="truncate">Voltar para {bookReturn.bookTitle}</span>
+        </button>
+      )}
+
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-card dark:bg-card">
+      <header className="linho-chrome linho-chrome-top sticky top-0 z-50 border-b">
         {/* Top Row: Bible Navigation */}
         <div className="flex items-center px-3 h-12 gap-2">
           <AlmeidaVersionSelector 
@@ -1043,9 +1065,49 @@ export function BibleReader({
                 <Home className="h-4 w-4" />
               </Button>
             )}
-            <Button variant="ghost" size="icon" data-testid="button-settings" onClick={onNavigateToSettings} className="h-8 w-8">
-              <Settings className="h-4 w-4" />
-            </Button>
+            <Popover open={showFontSizePanel} onOpenChange={setShowFontSizePanel}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" data-testid="button-settings" className="h-8 w-8">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent side="bottom" align="end" className="w-52 p-3">
+                <div className="space-y-3">
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Tamanho do texto</p>
+                  <div className="grid grid-cols-4 gap-1">
+                    {([ 
+                      { size: "small" as BibleFontSize,  label: "A",  style: { fontSize: "13px" } },
+                      { size: "medium" as BibleFontSize, label: "A",  style: { fontSize: "16px" } },
+                      { size: "large" as BibleFontSize,  label: "A",  style: { fontSize: "19px" } },
+                      { size: "xlarge" as BibleFontSize, label: "A",  style: { fontSize: "22px" } },
+                    ]).map(({ size, label, style }) => (
+                      <Button
+                        key={size}
+                        variant={bibleFontSize === size ? "default" : "ghost"}
+                        className="font-serif h-9"
+                        style={style}
+                        onClick={() => { setBibleFontSize(size); setShowFontSizePanel(false); }}
+                        data-testid={`button-font-size-${size}`}
+                      >
+                        {label}
+                      </Button>
+                    ))}
+                  </div>
+                  {onNavigateToSettings && (
+                    <div className="border-t border-border pt-2">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-sm h-8"
+                        onClick={() => { setShowFontSizePanel(false); onNavigateToSettings(); }}
+                      >
+                        <Settings className="h-3.5 w-3.5 mr-2" />
+                        Configurações
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
             {isAdmin && (
               <Button variant="ghost" size="icon" data-testid="button-admin" onClick={onNavigateToAdmin} className="h-8 w-8" title="Painel Admin">
                 <Shield className="h-4 w-4" />
@@ -1234,14 +1296,17 @@ export function BibleReader({
       {/* Bible Text */}
       {/* Chapter Title - fixed above scroll area, never scrolls */}
       {chapterData && (
-        <div className="bg-background dark:bg-background border-b border-border/50 shrink-0">
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center py-2.5 px-4" data-testid="chapter-title">
+        <div className="linho-chrome border-t border-b shrink-0">
+          <h2
+            className="text-2xl sm:text-3xl font-bold font-serif text-center py-2.5 px-4"
+            data-testid="chapter-title"
+          >
             {chapterData.book.name} {selectedChapter}
           </h2>
         </div>
       )}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-28 sm:pb-24 bible-page bg-background dark:bg-background text-foreground dark:text-foreground">
-        <div className="w-full max-w-3xl mx-auto px-6 sm:px-10 lg:px-14 py-4 sm:py-6">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-28 sm:pb-24 bible-page">
+        <div className="w-full mx-auto px-6 sm:px-8 py-4 sm:py-6" style={{ maxWidth: "68ch" }}>
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-6 w-3/4" />
@@ -1255,7 +1320,7 @@ export function BibleReader({
           ) : chapterData ? (
             <>
               {/* Verses with number on left and actions on right */}
-              <div className="space-y-3 sm:space-y-4 text-xl sm:text-2xl font-serif leading-relaxed">
+              <div className="space-y-4 sm:space-y-5">
                 {filteredVerses.map((verse) => {
                   const highlightColor = getVerseHighlight(verse.verse);
                   const highlightBg = highlightColor 
@@ -1289,7 +1354,7 @@ export function BibleReader({
                     >
                       {/* Verse Number + Icons on left */}
                       <div className="flex flex-col items-center gap-0.5 min-w-[24px] pt-1">
-                        <span className="text-sm font-bold font-sans text-primary select-none">
+                        <span className="font-mono select-none" style={{ fontSize: "12px", color: 'hsl(var(--bible-panel-muted))' }}>
                           {verse.verse}
                         </span>
                         {hasNote ? (
@@ -1303,7 +1368,7 @@ export function BibleReader({
                       </div>
                       
                       {/* Verse Text */}
-                      <p className="flex-1">
+                      <p className={`flex-1 font-serif ${verseTextClass}`}>
                         {(tokenizedVerses[verse.verse] || []).map((token, idx) => (
                           <span key={idx}>
                             <StrongWord
@@ -1369,7 +1434,7 @@ export function BibleReader({
         <button
           onClick={handlePreviousChapter}
           disabled={selectedBook === books?.[0]?.id && selectedChapter === 1}
-          className="pointer-events-auto p-2 sm:p-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
+          className="pointer-events-auto p-2 sm:p-3 text-muted-foreground hover:text-foreground disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
           data-testid="button-prev-chapter-fixed"
           aria-label="Capítulo anterior"
         >
@@ -1380,7 +1445,7 @@ export function BibleReader({
         <button
           onClick={handleNextChapter}
           disabled={selectedBook === books?.[books.length - 1]?.id && selectedChapter === currentBook?.chapters}
-          className="pointer-events-auto p-2 sm:p-3 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
+          className="pointer-events-auto p-2 sm:p-3 text-muted-foreground hover:text-foreground disabled:opacity-0 disabled:pointer-events-none transition-all duration-300"
           data-testid="button-next-chapter-fixed"
           aria-label="Próximo capítulo"
         >

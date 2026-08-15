@@ -1,4 +1,7 @@
-import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft, Lock, RefreshCw, Trash2, Loader2 } from "lucide-react";
+import { User, Moon, BookText, CreditCard, Info, LogOut, Bell, ArrowLeft, Lock, RefreshCw, Trash2, Loader2, Download } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { listDownloadedBooks, clearBookChapterCache, formatBytes } from "@/lib/chapterCache";
+import { getApiUrl } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -23,6 +26,7 @@ import { UserButton } from "@/components/UserButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface SettingsScreenProps {
   onBack?: () => void;
@@ -34,7 +38,7 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
   const { t } = useLanguage();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -48,6 +52,63 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
     }
   });
   const [isClearing, setIsClearing] = useState(false);
+
+  // ── Downloads (leitura offline da Biblioteca) ─────────────────────────
+  const cacheUserId = user?.id ?? "guest";
+  const [downloads, setDownloads] = useState<Array<{ bookId: string; chapters: number; bytes: number }>>([]);
+  const [downloadsLoaded, setDownloadsLoaded] = useState(false);
+  const [removingBookId, setRemovingBookId] = useState<string | null>(null);
+  const [storageEstimate, setStorageEstimate] = useState<{ usage: number; quota: number } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const list = await listDownloadedBooks(cacheUserId);
+      if (!cancelled) {
+        setDownloads(list);
+        setDownloadsLoaded(true);
+      }
+      try {
+        if (navigator.storage?.estimate) {
+          const est = await navigator.storage.estimate();
+          if (!cancelled && typeof est.usage === "number") {
+            setStorageEstimate({ usage: est.usage, quota: est.quota ?? 0 });
+          }
+        }
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, [cacheUserId]);
+
+  const { data: libraryBooks = [] } = useQuery<Array<{ id: string; title: string }>>({
+    queryKey: ["/api/library/books"],
+    queryFn: async () => {
+      const res = await fetch(getApiUrl("/api/library/books"));
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    staleTime: 30_000,
+    enabled: downloads.length > 0,
+  });
+
+  const handleRemoveDownload = async (bookId: string) => {
+    if (removingBookId) return;
+    setRemovingBookId(bookId);
+    try {
+      await clearBookChapterCache(cacheUserId, bookId);
+      setDownloads(prev => prev.filter(d => d.bookId !== bookId));
+      try {
+        if (navigator.storage?.estimate) {
+          const est = await navigator.storage.estimate();
+          if (typeof est.usage === "number") {
+            setStorageEstimate({ usage: est.usage, quota: est.quota ?? 0 });
+          }
+        }
+      } catch {}
+    } finally {
+      setRemovingBookId(null);
+    }
+  };
 
   const handleForceUpdate = async () => {
     setIsClearing(true);
@@ -72,6 +133,9 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
   useEffect(() => {
     try {
       localStorage.setItem("bible-font-size", fontSize);
+      window.dispatchEvent(
+        new CustomEvent("bible-font-size-change", { detail: fontSize })
+      );
     } catch (error) {
       console.error("Error saving font size:", error);
     }
@@ -158,8 +222,8 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
               <Label htmlFor="dark-mode">{t("settings.darkMode")}</Label>
               <Switch
                 id="dark-mode"
-                checked={darkMode}
-                onCheckedChange={setDarkMode}
+                checked={theme === "dark"}
+                onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
                 data-testid="switch-dark-mode"
               />
             </div>
@@ -301,6 +365,68 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
             <Button variant="ghost" className="p-0 h-auto" data-testid="link-help">
               {t("settings.helpCenter")}
             </Button>
+          </CardContent>
+        </Card>
+
+        {/* Downloads da Biblioteca — gerenciar leitura offline num só lugar. */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5" />
+              Downloads
+            </CardTitle>
+            <CardDescription>
+              Livros salvos no aparelho para leitura offline
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {!downloadsLoaded ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Verificando downloads...
+              </div>
+            ) : downloads.length === 0 ? (
+              <p className="text-sm text-muted-foreground" data-testid="text-no-downloads">
+                Nenhum livro baixado. Use o botão "Baixar" na tela de um livro para ler offline.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {downloads.map((d) => {
+                  const title = libraryBooks.find(b => b.id === d.bookId)?.title || "Livro";
+                  return (
+                    <div key={d.bookId} className="flex items-center justify-between gap-3" data-testid={`row-download-${d.bookId}`}>
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {d.chapters} {d.chapters === 1 ? "capítulo" : "capítulos"} · {formatBytes(d.bytes)}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRemoveDownload(d.bookId)}
+                        disabled={removingBookId !== null}
+                        data-testid={`button-remove-download-${d.bookId}`}
+                      >
+                        {removingBookId === d.bookId ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <><Trash2 className="h-4 w-4 mr-1" />Remover</>
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {storageEstimate && storageEstimate.usage > 0 && (
+              <>
+                <Separator />
+                <p className="text-xs text-muted-foreground" data-testid="text-storage-estimate">
+                  Armazenamento total usado pelo app: {formatBytes(storageEstimate.usage)}
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 

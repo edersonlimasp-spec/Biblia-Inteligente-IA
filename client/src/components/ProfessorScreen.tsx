@@ -6,7 +6,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { LoginPromptModal } from "@/components/LoginPromptModal";
@@ -426,21 +425,21 @@ https://bibliainteligente.replit.app`;
   const isPending = askMutation.isPending || analyzeImageMutation.isPending || generateImageMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
+    <div className="h-screen bg-background flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
+      <header className="flex-shrink-0 z-50 bg-background/95 backdrop-blur border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-3 flex-1">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3E5F8A] to-[#2A4466] flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-bold flex items-center gap-2">
                 {t("professor.title")}
                 {hasPremium && (
-                  <Badge variant="default" className="bg-amber-600 text-xs">
+                  <Badge variant="default" className="bg-[#8A6A2E] text-xs">
                     <Crown className="w-3 h-3 mr-1" />
                     Premium
                   </Badge>
@@ -462,7 +461,7 @@ https://bibliainteligente.replit.app`;
         </div>
       </header>
 
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
         <div className="max-w-4xl mx-auto space-y-4 pb-4">
           {messages.length === 0 && (
             <motion.div
@@ -470,7 +469,7 @@ https://bibliainteligente.replit.app`;
               animate={{ opacity: 1, y: 0 }}
               className="text-center py-12"
             >
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#3E5F8A] to-[#2A4466] flex items-center justify-center mx-auto mb-4">
                 <GraduationCap className="w-10 h-10 text-white" />
               </div>
               <h2 className="text-xl font-semibold mb-2">{t("professor.greeting")}</h2>
@@ -511,7 +510,7 @@ https://bibliainteligente.replit.app`;
                       className="text-xs"
                       data-testid="premium-suggestion-image"
                     >
-                      <ImageIcon className="w-3 h-3 mr-1.5 text-amber-500" />
+                      <ImageIcon className="w-3 h-3 mr-1.5 text-[#BFA87A]" />
                       Gerar imagem bíblica
                     </Button>
                     <Button
@@ -538,7 +537,7 @@ https://bibliainteligente.replit.app`;
               className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {message.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3E5F8A] to-[#2A4466] flex items-center justify-center flex-shrink-0">
                   <GraduationCap className="w-4 h-4 text-white" />
                 </div>
               )}
@@ -631,7 +630,7 @@ https://bibliainteligente.replit.app`;
               animate={{ opacity: 1 }}
               className="flex gap-3"
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3E5F8A] to-[#2A4466] flex items-center justify-center">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
               <div className="bg-muted rounded-2xl px-4 py-3">
@@ -645,9 +644,9 @@ https://bibliainteligente.replit.app`;
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+      </div>
 
-      <div className="border-t bg-background p-4">
+      <div className="flex-shrink-0 border-t bg-background p-4" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}>
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (
@@ -727,7 +726,7 @@ https://bibliainteligente.replit.app`;
 
           {!hasPremium && (
             <p className="text-xs text-muted-foreground text-center mt-2">
-              <Crown className="w-3 h-3 inline mr-1 text-amber-500" />
+              <Crown className="w-3 h-3 inline mr-1 text-[#BFA87A]" />
               Assine Premium para gerar e analisar imagens
             </p>
           )}

@@ -65,7 +65,9 @@ export async function seedAdminUsers(): Promise<void> {
         console.log(`  ✅ ${adminUser.email} já existe (role: ${user.role})`);
         
         // Verificar se a senha está correta - se não, atualizar
-        const isPasswordValid = await bcrypt.compare(adminUser.password, user.password);
+        const isPasswordValid = user.password
+          ? await bcrypt.compare(adminUser.password, user.password)
+          : false;
         if (!isPasswordValid) {
           console.log(`  🔄 Atualizando senha de ${adminUser.email}...`);
           const newHash = await bcrypt.hash(adminUser.password, 10);
@@ -135,6 +137,10 @@ export async function testAdminLogin(email: string, password: string): Promise<b
 
   const user = userResult[0];
   console.log(`  ✅ Usuário encontrado: ID=${user.id}, Role=${user.role}`);
+  if (!user.password) {
+    console.log(`  ❌ Usuário não possui senha cadastrada (login social?)`);
+    return false;
+  }
   console.log(`  📊 Hash no banco: ${user.password.substring(0, 30)}...`);
 
   // 2. Testar senha

@@ -138,3 +138,16 @@ id = "2qpFkSaVvca3R-1yGNhvs"
 uri = "file://attached_assets/iap_screenshots/premium_yearly.png"
 type = "image"
 title = "Premium Anual (com.bibliainteligente.premium.yearly)"
+
+[[outputs]]
+id = "drRYLEGV7FBtI9ZzVxsex"
+uri = "file://releases/biblia-inteligente-1.0.49.aab"
+type = "unspecified"
+title = "Bíblia Inteligente 1.0.49 — Google Play (AAB)"
+
+[[outputs]]
+id = "LN_mqv2TEN3ZSuTd3ihnQ"
+uri = "file://releases/biblia-inteligente-1.0.50.aab"
+type = "unspecified"
+title = "Bíblia Inteligente v1.0.50 (Google Play)"
+description = "Arquivo AAB assinado com a chave de upload, pronto para enviar no Play Console (versionCode 50)."

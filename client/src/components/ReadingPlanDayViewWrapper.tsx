@@ -44,7 +44,7 @@ export function ReadingPlanDayViewWrapper({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 items-center justify-center">
+      <div className="flex flex-col h-full bg-background items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="mt-2 text-sm text-muted-foreground">
           {lang === 'pt' ? 'Carregando...' : 'Loading...'}
@@ -55,7 +55,7 @@ export function ReadingPlanDayViewWrapper({
 
   if (error || !data) {
     return (
-      <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 items-center justify-center p-4">
+      <div className="flex flex-col h-full bg-background items-center justify-center p-4">
         <p className="text-destructive text-center">
           {lang === 'pt' ? 'Erro ao carregar o plano.' : 'Error loading plan.'}
         </p>

@@ -860,7 +860,10 @@ Conheça: https://bibliainteligente.replit.app`;
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t shadow-lg pb-1">
+    <div
+      className="linho-chrome fixed bottom-0 left-0 right-0 z-40 border-t"
+      style={{ paddingBottom: "calc(0.25rem + env(safe-area-inset-bottom, 0px))" }}
+    >
       {/* Expanded Chat Area */}
       {isExpanded && messages.length > 0 && (
         <div className="border-b bg-background">
@@ -1186,7 +1189,8 @@ Conheça: https://bibliainteligente.replit.app`;
             disabled={askAIMutation.isPending || generateImageMutation.isPending || subscriptionLoading || !question.trim()}
             data-testid="button-ask-ai"
             size="icon"
-            className="h-10 w-10 rounded-lg shrink-0"
+            className="h-10 w-10 rounded-lg shrink-0 text-white"
+            style={{ backgroundColor: '#3E5F8A' }}
           >
             {askAIMutation.isPending || generateImageMutation.isPending || subscriptionLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

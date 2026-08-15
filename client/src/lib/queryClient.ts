@@ -35,6 +35,12 @@ export function clearAuthToken() {
   localStorage.removeItem('authToken');
 }
 
+// Authorization headers for plain fetch() calls (auth is via Bearer token, not cookie)
+export function getAuthHeaders(): Record<string, string> {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 // Custom error class to preserve response data
 export class ApiError extends Error {
   status: number;

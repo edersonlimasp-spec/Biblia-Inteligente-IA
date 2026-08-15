@@ -267,39 +267,39 @@ export function ReadingPlanDayView({
     : (lang === 'pt' ? 'Meu Plano' : 'My Plan');
 
   return (
-    <div className="flex flex-col h-full bg-slate-100 dark:bg-slate-900">
-      <header className="shrink-0 px-4 py-3 bg-white dark:bg-slate-800 flex items-center gap-3 border-b border-slate-200 dark:border-slate-700">
+    <div className="flex flex-col h-full bg-background">
+      <header className="shrink-0 px-4 py-3 bg-card flex items-center gap-3 border-b border-border">
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={onBack}
-          className="text-slate-600 dark:text-slate-300"
+          className="text-muted-foreground"
           data-testid="button-back-plan"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h1 className="text-lg font-bold text-[#357ABD] flex-1 text-center pr-10">
+        <h1 className="text-lg font-bold text-primary flex-1 text-center pr-10">
           {planTitle} - {lang === 'pt' ? 'Dia' : 'Day'} {plan.currentDay}
         </h1>
       </header>
 
       <ScrollArea className="flex-1">
         <div className="px-4 py-4 space-y-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+          <div className="bg-card rounded-xl p-4 border border-border">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              <span className="text-sm font-medium text-muted-foreground">
                 {lang === 'pt' ? 'Progresso:' : 'Progress:'} {progressPercent}% {lang === 'pt' ? 'Completo' : 'Complete'}
               </span>
             </div>
             <Progress 
               value={progressPercent} 
-              className="h-2 bg-slate-200 dark:bg-slate-600" 
+              className="h-2 " 
             />
           </div>
 
           {todayReading && (
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
-              <h2 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-4">
+            <div className="bg-card rounded-xl p-4 border border-border">
+              <h2 className="text-base font-semibold text-foreground mb-4">
                 {lang === 'pt' ? 'Leitura de Hoje:' : "Today's Reading:"}
               </h2>
               
@@ -313,11 +313,11 @@ export function ReadingPlanDayView({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
-                      className="flex items-center gap-3 py-3 border-b border-slate-100 dark:border-slate-700 last:border-0"
+                      className="flex items-center gap-3 py-3 border-b border-border last:border-0"
                     >
                       <button
                         onClick={() => handleToggleReading(reading)}
-                        className="text-[#357ABD] shrink-0"
+                        className="text-primary shrink-0"
                         data-testid={`check-left-${reading.book}-${reading.startChapter}`}
                       >
                         <Check className="w-5 h-5" />
@@ -325,7 +325,7 @@ export function ReadingPlanDayView({
                       
                       <button
                         onClick={() => onNavigateToChapter(reading.book, reading.startChapter)}
-                        className="flex-1 text-left text-slate-700 dark:text-slate-300 font-medium text-base"
+                        className="flex-1 text-left text-foreground font-medium text-base"
                         data-testid={`reading-${reading.book}-${reading.startChapter}`}
                       >
                         {formatReadingReference(reading, lang)}
@@ -335,8 +335,8 @@ export function ReadingPlanDayView({
                         onClick={() => handleToggleReading(reading)}
                         className={`w-6 h-6 rounded flex items-center justify-center shrink-0 transition-colors ${
                           isChecked 
-                            ? 'bg-[#357ABD]' 
-                            : 'border-2 border-[#357ABD]'
+                            ? 'bg-primary' 
+                            : 'border-2 border-primary'
                         }`}
                         data-testid={`check-${reading.book}-${reading.startChapter}`}
                       >
@@ -349,18 +349,18 @@ export function ReadingPlanDayView({
             </div>
           )}
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
-            <h2 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <h2 className="text-base font-semibold text-foreground mb-2">
               {lang === 'pt' ? 'Notas do Dia' : 'Daily Notes'}
             </h2>
             <div className="flex items-start gap-3">
               <div className="flex-1">
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                <p className="text-sm text-muted-foreground mb-1">
                   {lang === 'pt' 
                     ? 'Reflexão sobre a leitura de hoje.'
                     : 'Reflection on today\'s reading.'}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 italic mb-3">
+                <p className="text-sm text-muted-foreground italic mb-3">
                   {lang === 'pt' 
                     ? 'Anote insights e perguntas importantes.'
                     : 'Write down insights and important questions.'}
@@ -368,21 +368,21 @@ export function ReadingPlanDayView({
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#357ABD]/50"
+                  className="w-full p-3 rounded-lg border border-border bg-muted/40 text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
                   placeholder={lang === 'pt' ? 'Escreva suas notas aqui...' : 'Write your notes here...'}
                   rows={3}
                   data-testid="input-notes"
                 />
               </div>
               <div className="w-14 h-14 flex items-center justify-center shrink-0">
-                <BookOpen className="w-10 h-10 text-[#5CB85C]" />
+                <BookOpen className="w-10 h-10 text-primary" />
               </div>
             </div>
           </div>
 
           <div className="flex gap-3">
             <Button
-              className="flex-1 bg-[#F0AD4E] hover:bg-[#EC971F] text-white font-semibold rounded-full py-3 h-12"
+              className="flex-1 bg-primary text-primary-foreground font-semibold rounded-full py-3 h-12"
               onClick={handleMarkAllComplete}
               disabled={markCompleteMutation.isPending || todayReading?.isCompleted}
               data-testid="button-mark-read"
@@ -393,7 +393,7 @@ export function ReadingPlanDayView({
             </Button>
             
             <Button
-              className="flex-1 bg-[#357ABD] hover:bg-[#2A5F8F] text-white font-semibold rounded-full py-3 h-12"
+              className="flex-1 bg-primary hover:bg-[#2A5F8F] text-white font-semibold rounded-full py-3 h-12"
               onClick={() => {
                 if (onAskAI && todayReading) {
                   const refs = todayReading.readings.map(r => formatReadingReference(r, lang)).join(', ');
@@ -409,15 +409,15 @@ export function ReadingPlanDayView({
 
           <div className="flex justify-center items-center gap-4 py-3">
             <button 
-              className="text-sm text-slate-500 dark:text-slate-400"
+              className="text-sm text-muted-foreground"
               data-testid="button-skip-day"
             >
               {lang === 'pt' ? 'Pular Dia' : 'Skip Day'}
             </button>
-            <span className="text-slate-300 dark:text-slate-600">|</span>
+            <span className="text-border">|</span>
             {nextDayReading && (
               <button 
-                className="text-sm text-slate-500 dark:text-slate-400"
+                className="text-sm text-muted-foreground"
                 data-testid="button-next-day"
               >
                 {lang === 'pt' 
@@ -429,7 +429,7 @@ export function ReadingPlanDayView({
 
           {nextDayRef && (
             <div className="text-center pb-4">
-              <span className="text-base font-bold text-slate-700 dark:text-slate-300">
+              <span className="text-base font-bold text-foreground">
                 {nextDayRef}
               </span>
             </div>

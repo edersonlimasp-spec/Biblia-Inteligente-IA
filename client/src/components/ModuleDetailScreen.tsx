@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, BookOpen, ChevronRight, Check, Clock, Crown, Sparkles, AlertTriangle } from "lucide-react";
+import {
+  ArrowLeft, Lock, Check, Clock, Award, Crown, Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
@@ -40,7 +41,6 @@ interface Lesson {
   estimatedMinutes: number;
   order: number;
   completed: boolean;
-  lastAccessAt: string | null;
 }
 
 interface ModuleDetail {
@@ -54,30 +54,8 @@ interface ModuleDetail {
     order: number;
   };
   tracks: Track[];
-  progress: {
-    total: number;
-    completed: number;
-    percentage: number;
-  };
+  progress: { total: number; completed: number; percentage: number };
 }
-
-const LEVEL_CONFIG: Record<string, { labelKey: string; color: string; badgeClass: string }> = {
-  iniciante: { 
-    labelKey: "courses.beginner", 
-    color: "text-green-600", 
-    badgeClass: "bg-green-500/10 text-green-600 border-green-500/30" 
-  },
-  moderado: { 
-    labelKey: "courses.intermediate", 
-    color: "text-amber-600", 
-    badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/30" 
-  },
-  avancado: { 
-    labelKey: "courses.advanced", 
-    color: "text-red-600", 
-    badgeClass: "bg-red-500/10 text-red-600 border-red-500/30" 
-  },
-};
 
 interface SubscriptionStatus {
   hasGold?: boolean;
@@ -85,415 +63,502 @@ interface SubscriptionStatus {
   trialActive?: boolean;
 }
 
-interface GuestTrialInfo {
-  active: boolean;
-  daysRemaining: number;
-}
+type ClassLevel = "iniciante" | "moderado" | "avancado";
 
-function TrackCard({ 
-  track, 
-  userPlan,
-  isLoggedIn,
-  isAdmin,
-  moduleIndex,
-  onLessonClick,
-  onLoginRequired,
-  onUpgradeRequired,
-  t,
-  language
-}: { 
-  track: Track; 
-  userPlan: UserPlan;
-  isLoggedIn: boolean;
-  isAdmin: boolean;
-  moduleIndex: number;
-  onLessonClick: (lessonId: string) => void;
-  onLoginRequired: () => void;
-  onUpgradeRequired: (requiredPlan: 'gold' | 'premium', message: string) => void;
-  t: (key: string) => string;
-  language: string;
-}) {
-  const levelConfig = LEVEL_CONFIG[track.level] || LEVEL_CONFIG.iniciante;
-  const levelLabel = t(levelConfig.labelKey);
-  
-  const { data: lessonsData, isLoading, error } = useQuery<{ lessons: Lesson[] }>({
-    queryKey: ['/api/study/tracks', track.id, language],
-    queryFn: async () => {
-      const res = await fetch(getApiUrl(`/api/study/tracks/${track.id}?lang=${language}`));
-      if (!res.ok) throw new Error('Failed to fetch lessons');
-      return res.json();
-    }
-  });
-  
-  const lessons = lessonsData?.lessons || [];
-  
-  const handleLessonClick = (lesson: Lesson) => {
-    const courseLevel = track.level as CourseLevel;
-    const lessonIndex = lesson.order;
-    const globalLessonIndex = (moduleIndex - 1) * 10 + lessonIndex;
-    
-    console.log(`[Lesson Click] plan=${userPlan}, courseLevel=${courseLevel}, moduleIndex=${moduleIndex}, lessonIndex=${lessonIndex}, globalIndex=${globalLessonIndex}, isLoggedIn=${isLoggedIn}, isAdmin=${isAdmin}`);
-    
-    const accessResult = canOpenLesson({
-      isLoggedIn,
-      plan: userPlan,
-      courseLevel,
-      moduleIndex,
-      lessonIndex,
-      isAdmin,
-    });
-    
-    console.log(`[Lesson Click] RESULT: allowed=${accessResult.allowed}, reason=${accessResult.reason}, requiredPlan=${accessResult.requiredPlan}`);
-    
-    if (accessResult.allowed) {
-      onLessonClick(lesson.id);
-    } else if (accessResult.reason === 'NOT_AUTHENTICATED') {
-      onLoginRequired();
-    } else {
-      onUpgradeRequired(accessResult.requiredPlan || 'gold', accessResult.message || t("subscription.subscribeToUnlock"));
-    }
-  };
-  
-  const getLessonLockInfo = (lesson: Lesson): { isLocked: boolean; requiredPlan?: 'gold' | 'premium' } => {
-    const courseLevel = track.level as CourseLevel;
-    const lessonIndex = lesson.order;
-    
-    const accessResult = canOpenLesson({
-      isLoggedIn,
-      plan: userPlan,
-      courseLevel,
-      moduleIndex,
-      lessonIndex,
-      isAdmin,
-    });
-    
-    if (accessResult.allowed) {
-      return { isLocked: false };
-    }
-    
-    return { 
-      isLocked: true, 
-      requiredPlan: accessResult.requiredPlan 
-    };
-  };
-  
+const CLASS_CONFIG: Record<ClassLevel, { name: string; from: string; to: string; accent: string }> = {
+  iniciante: { name: "Classe I",   from: "#22668F", to: "#154968", accent: "#7FB6DA" },
+  moderado:  { name: "Classe II",  from: "#4A4285", to: "#362F66", accent: "#9990D0" },
+  avancado:  { name: "Classe III", from: "#8A6A2E", to: "#6B501C", accent: "#D3B573" },
+};
+
+function Mono({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-6"
-      data-testid={`track-card-${track.id}`}
-    >
-      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-        <div className="flex items-center gap-2 min-w-0 flex-wrap">
-          <Badge variant="outline" className={levelConfig.badgeClass}>
-            {levelLabel}
-          </Badge>
-          <h3 className="font-semibold truncate">{track.name}</h3>
-        </div>
-        {track.totalLessons > 0 && (
-          <span className="text-xs text-muted-foreground flex-shrink-0">
-            {track.completedLessons}/{track.totalLessons}
-          </span>
-        )}
-      </div>
-      
-      <p className="text-sm text-muted-foreground mb-3 break-words">{track.description}</p>
-      
-      <div className="space-y-2">
-        {isLoading ? (
-          <>
-            <LessonItemSkeleton />
-            <LessonItemSkeleton />
-          </>
-        ) : lessons.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("courses.noLessons")}</p>
-        ) : (
-          lessons.map((lesson) => {
-            const lockInfo = getLessonLockInfo(lesson);
-            return (
-              <LessonItem 
-                key={lesson.id} 
-                lesson={lesson} 
-                onClick={() => handleLessonClick(lesson)}
-                isLocked={lockInfo.isLocked}
-                requiredPlan={lockInfo.requiredPlan}
-              />
-            );
-          })
-        )}
-        {!isLoading && track.percentage > 0 && (
-          <div className="pt-2">
-            <Progress value={track.percentage} className="h-1.5" />
-          </div>
-        )}
-      </div>
-    </motion.div>
+    <span className={`font-mono text-[10px] uppercase tracking-[0.12em] ${className}`}>
+      {children}
+    </span>
   );
 }
 
-function LessonItem({ 
-  lesson, 
-  onClick, 
-  isLocked = false,
-  requiredPlan
-}: { 
-  lesson: Lesson; 
-  onClick: () => void; 
-  isLocked?: boolean;
-  requiredPlan?: 'gold' | 'premium';
+function ClassBadge({ level }: { level: ClassLevel }) {
+  const cfg = CLASS_CONFIG[level] ?? CLASS_CONFIG.iniciante;
+  return (
+    <span
+      className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded-full font-semibold"
+      style={{ backgroundColor: `${cfg.accent}20`, color: cfg.accent, border: `1px solid ${cfg.accent}40` }}
+    >
+      {cfg.name}
+    </span>
+  );
+}
+
+function SegmentedBar({ total, completed, accent, className = "" }: {
+  total: number; completed: number; accent: string; className?: string;
 }) {
+  const capped = Math.min(completed, total);
+  return (
+    <div className={`flex gap-[2px] h-1.5 ${className}`}>
+      {Array.from({ length: total }, (_, i) => (
+        <div
+          key={i}
+          className="flex-1 rounded-full"
+          style={{ backgroundColor: i < capped ? accent : "rgba(255,255,255,0.12)" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function CircleMarker({ state, number, accent }: {
+  state: "completed" | "current" | "locked" | "available";
+  number: number;
+  accent: string;
+}) {
+  if (state === "completed") {
+    return (
+      <div
+        className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+        style={{ border: "2px solid rgba(34,197,94,0.55)", backgroundColor: "rgba(34,197,94,0.10)" }}
+      >
+        <Check className="w-2.5 h-2.5 text-green-500" />
+      </div>
+    );
+  }
+  if (state === "current") {
+    return (
+      <div
+        className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: accent, boxShadow: `0 0 8px ${accent}55` }}
+      >
+        <span className="text-[9px] font-bold text-white leading-none">{number}</span>
+      </div>
+    );
+  }
+  if (state === "locked") {
+    return (
+      <div
+        className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+        style={{ border: "1px solid rgba(255,255,255,0.14)", backgroundColor: "transparent" }}
+      >
+        <Lock className="w-2.5 h-2.5" style={{ color: "rgba(255,255,255,0.25)" }} />
+      </div>
+    );
+  }
   return (
     <div
-      onClick={onClick}
-      className="flex items-center gap-3 p-3 rounded-lg bg-card border cursor-pointer hover-elevate active-elevate-2"
-      data-testid={`lesson-item-${lesson.id}`}
+      className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+      style={{ border: "1px solid rgba(255,255,255,0.22)", backgroundColor: "transparent" }}
     >
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-        lesson.completed 
-          ? 'bg-green-500 text-white' 
-          : isLocked
-            ? requiredPlan === 'premium' ? 'bg-purple-500/20' : 'bg-amber-500/20'
-            : 'bg-muted'
-      }`}>
-        {lesson.completed ? (
-          <Check className="w-4 h-4" />
-        ) : isLocked ? (
-          <Lock className={`w-3 h-3 ${requiredPlan === 'premium' ? 'text-purple-600' : 'text-amber-600'}`} />
-        ) : (
-          <span className="text-sm font-medium">{lesson.order}</span>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-sm truncate">{lesson.title}</h4>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Clock className="w-3 h-3" />
-          <span>{lesson.estimatedMinutes} min</span>
-        </div>
-      </div>
-      {isLocked ? (
-        <Crown className={`w-4 h-4 ${requiredPlan === 'premium' ? 'text-purple-500' : 'text-amber-500'}`} />
-      ) : (
-        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-      )}
+      <span className="text-[9px] font-mono leading-none" style={{ color: "rgba(255,255,255,0.40)" }}>
+        {number}
+      </span>
     </div>
   );
 }
 
-function LessonItemSkeleton() {
-  return (
-    <div className="flex items-center gap-3 p-3 rounded-lg bg-card border">
-      <Skeleton className="w-8 h-8 rounded-full" />
-      <div className="flex-1">
-        <Skeleton className="h-4 w-3/4 mb-1" />
-        <Skeleton className="h-3 w-16" />
-      </div>
-    </div>
-  );
-}
-
-export function ModuleDetailScreen({ 
-  moduleId, 
-  onBack, 
+export function ModuleDetailScreen({
+  moduleId,
+  onBack,
   onNavigateToLesson,
-  onNavigateToSubscriptions 
+  onNavigateToSubscriptions,
 }: ModuleDetailScreenProps) {
   const { user, isAdmin } = useAuth();
   const { language, t } = useLanguage();
   const deviceId = getDeviceId();
   const isLoggedIn = !!user;
-  
+
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
-  const [paywallInfo, setPaywallInfo] = useState<{ requiredPlan: 'gold' | 'premium'; message: string }>({ 
-    requiredPlan: 'gold', 
-    message: '' 
-  });
-  
+  const [paywallInfo, setPaywallInfo] = useState<{
+    requiredPlan: "gold" | "premium";
+    message: string;
+  }>({ requiredPlan: "gold", message: "" });
+
   const { data: moduleDetail, isLoading: moduleLoading } = useQuery<ModuleDetail>({
-    queryKey: ['/api/study/modules', moduleId, language],
+    queryKey: ["/api/study/modules", moduleId, language],
     queryFn: async () => {
       const res = await fetch(getApiUrl(`/api/study/modules/${moduleId}?lang=${language}`), {
-        headers: { 'x-device-id': deviceId || '' }
+        headers: { "x-device-id": deviceId || "" },
       });
-      if (!res.ok) throw new Error('Failed to fetch module');
+      if (!res.ok) throw new Error("Failed to fetch module");
       return res.json();
-    }
+    },
   });
 
   const { data: subscriptionData } = useQuery<SubscriptionStatus>({
-    queryKey: ['/api/user/subscription-status'],
+    queryKey: ["/api/user/subscription-status"],
     enabled: !!user,
-    staleTime: 0, // Always fetch fresh subscription data
+    staleTime: 0,
     refetchOnWindowFocus: true,
   });
 
-  const { data: guestTrialData } = useQuery<GuestTrialInfo>({
-    queryKey: ['/api/guest/trial', deviceId],
-    enabled: !user && !!deviceId,
+  const module = moduleDetail?.module;
+  const track = moduleDetail?.tracks?.[0] ?? null;
+
+  const { data: trackLessons, isLoading: lessonsLoading } = useQuery<{ lessons: Lesson[] }>({
+    queryKey: ["/api/study/tracks", track?.id, language],
+    enabled: !!track?.id,
+    queryFn: async () => {
+      const res = await fetch(getApiUrl(`/api/study/tracks/${track!.id}?lang=${language}`));
+      if (!res.ok) throw new Error("Failed to fetch lessons");
+      return res.json();
+    },
   });
 
+  const lessons = trackLessons?.lessons ?? [];
+  const completedCount = lessons.filter((l) => l.completed).length;
+  const lessonsRemaining = lessons.length - completedCount;
+  const firstUncompletedIndex = lessons.findIndex((l) => !l.completed);
+
   const getUserPlan = (): UserPlan => {
-    if (!user) return 'free';
-    if (subscriptionData?.hasPremium) return 'premium';
-    if (subscriptionData?.hasGold) return 'gold';
-    return 'free';
+    if (!user) return "free";
+    if (subscriptionData?.hasPremium) return "premium";
+    if (subscriptionData?.hasGold) return "gold";
+    return "free";
   };
-  
   const userPlan = getUserPlan();
-  
-  const getModuleIndex = (): number => {
-    if (!moduleDetail?.module) return 1;
-    return moduleDetail.module.order || 1;
+  const moduleIndex = module?.order ?? 1;
+  const level = (module?.level as ClassLevel) ?? "iniciante";
+  const cfg = CLASS_CONFIG[level] ?? CLASS_CONFIG.iniciante;
+  const className = cfg.name;
+
+  const getLessonState = (
+    lesson: Lesson,
+    index: number
+  ): "completed" | "current" | "locked" | "available" => {
+    if (lesson.completed) return "completed";
+    const isCurrent = index === firstUncompletedIndex;
+    const accessResult = canOpenLesson({
+      isLoggedIn,
+      plan: userPlan,
+      courseLevel: (track?.level ?? "iniciante") as CourseLevel,
+      moduleIndex,
+      lessonIndex: lesson.order,
+      isAdmin,
+    });
+    if (!accessResult.allowed) return "locked";
+    return isCurrent ? "current" : "available";
   };
 
-  const handleLoginRequired = () => {
-    setShowLoginModal(true);
+  const getLockInfo = (lesson: Lesson): { requiredPlan?: "gold" | "premium" } => {
+    const result = canOpenLesson({
+      isLoggedIn,
+      plan: userPlan,
+      courseLevel: (track?.level ?? "iniciante") as CourseLevel,
+      moduleIndex,
+      lessonIndex: lesson.order,
+      isAdmin,
+    });
+    return { requiredPlan: result.requiredPlan };
   };
-  
-  const handleUpgradeRequired = (requiredPlan: 'gold' | 'premium', message: string) => {
-    setPaywallInfo({ requiredPlan, message });
-    setShowPaywallModal(true);
+
+  const handleLessonClick = (lesson: Lesson) => {
+    const result = canOpenLesson({
+      isLoggedIn,
+      plan: userPlan,
+      courseLevel: (track?.level ?? "iniciante") as CourseLevel,
+      moduleIndex,
+      lessonIndex: lesson.order,
+      isAdmin,
+    });
+    if (result.allowed) {
+      onNavigateToLesson(lesson.id, track?.level ?? "iniciante");
+    } else if (result.reason === "NOT_AUTHENTICATED") {
+      setShowLoginModal(true);
+    } else {
+      setPaywallInfo({
+        requiredPlan: result.requiredPlan ?? "gold",
+        message: result.message ?? t("subscription.subscribeToUnlock"),
+      });
+      setShowPaywallModal(true);
+    }
   };
 
   if (moduleLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={onBack}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <Skeleton className="h-6 w-48" />
-          </div>
-        </header>
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-          <Skeleton className="h-32 w-full rounded-xl" />
+      <div className="min-h-screen bg-background overflow-x-hidden">
+        <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b px-4 py-3 flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={onBack}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <Skeleton className="h-5 w-40" />
+        </div>
+        <div className="px-4 py-5 space-y-4">
+          <Skeleton className="h-24 w-full rounded-xl" />
           <Skeleton className="h-6 w-32" />
-          <Skeleton className="h-48 w-full rounded-xl" />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex gap-3">
+              <Skeleton className="w-5 h-5 rounded-full flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <Skeleton className="h-4 w-3/4 mb-1" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  const module = moduleDetail?.module;
-  const tracks = moduleDetail?.tracks || [];
-  const progress = moduleDetail?.progress;
-  const moduleIndex = getModuleIndex();
-
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      {/* ── Cabeçalho fixo ── */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-2xl mx-auto px-4 py-3">
+          {/* Breadcrumb */}
+          <button
+            className="flex items-center gap-1.5 mb-1"
             onClick={onBack}
             data-testid="button-back-module-detail"
           >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-lg font-serif font-bold truncate">{module?.name}</h1>
-            <p className="text-xs text-muted-foreground">
-              {progress?.completed}/{progress?.total} {t("courses.lessonsCompleted")}
+            <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground" />
+            <Mono className="text-[#647B90]">Alicerce · {className}</Mono>
+          </button>
+          {/* Título da trilha */}
+          <h1 className="font-serif text-xl font-semibold text-foreground leading-snug">
+            {module?.name}
+          </h1>
+          {track && (
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              {track.totalLessons} aulas
+              {track.totalLessons > 0 && ` · ~${track.totalLessons * 10} min`}
             </p>
-          </div>
-          {isAdmin && (
-            <Badge variant="outline" className="text-xs border-purple-500/30 text-purple-600">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Admin
-            </Badge>
           )}
         </div>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-60px)]">
-        <div className="max-w-2xl mx-auto px-4 py-6">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl p-4 mb-6 text-white"
-            style={{ background: `linear-gradient(135deg, ${module?.color} 0%, ${module?.color}cc 100%)` }}
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                <BookOpen className="w-6 h-6" />
+      <div className="h-[calc(100vh-80px)] overflow-y-auto overflow-x-hidden">
+        <div
+          className="max-w-2xl mx-auto pb-10"
+          style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom, 0px))" }}
+        >
+          {/* ── Bloco de classe colorido ── */}
+          {track && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mx-4 my-4 rounded-xl p-4"
+              style={{
+                background: `linear-gradient(158deg, ${cfg.from}BB, ${cfg.to}BB)`,
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.10), inset 0 0 0 1px rgba(255,255,255,0.05)",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-2.5">
+                <ClassBadge level={level} />
               </div>
-              <div className="flex-1">
-                <h2 className="font-bold">{module?.name}</h2>
-                <p className="text-sm text-white/80">{module?.description}</p>
+              <SegmentedBar
+                total={lessons.length || track.totalLessons}
+                completed={completedCount}
+                accent={cfg.accent}
+                className="mb-2"
+              />
+              <p className="text-[11px] text-white/70">
+                {completedCount === 0
+                  ? `${lessons.length || track.totalLessons} aulas nesta trilha`
+                  : completedCount === lessons.length && lessons.length > 0
+                  ? "Trilha concluída"
+                  : `Você está na aula ${Math.min(completedCount + 1, lessons.length || 1)} de ${lessons.length || track.totalLessons}`}
+              </p>
+            </motion.div>
+          )}
+
+          {/* ── Caminho vertical ── */}
+          <div className="px-4">
+            {lessonsLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex gap-3">
+                    <Skeleton className="w-5 h-5 rounded-full flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-3/4 mb-1.5" />
+                      <Skeleton className="h-3 w-14" />
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-            {progress && progress.total > 0 && (
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-sm mb-1">
-                  <span>{t("courses.progress")}</span>
-                  <span>{progress.percentage}%</span>
+            ) : (
+              <div>
+                {lessons.map((lesson, index) => {
+                  const state = getLessonState(lesson, index);
+                  const lockInfo = state === "locked" ? getLockInfo(lesson) : {};
+                  const isLast = index === lessons.length - 1;
+
+                  return (
+                    <div key={lesson.id} className="flex gap-3" data-testid={`lesson-row-${lesson.id}`}>
+                      {/* Coluna esquerda: marcador + linha */}
+                      <div className="flex flex-col items-center flex-shrink-0 pt-0.5">
+                        <CircleMarker state={state} number={lesson.order} accent={cfg.accent} />
+                        {!isLast && (
+                          <div
+                            className="w-[1.5px] flex-1 mt-1"
+                            style={{
+                              minHeight: state === "current" ? "80px" : "20px",
+                              backgroundColor:
+                                state === "completed"
+                                  ? "rgba(34,197,94,0.22)"
+                                  : "rgba(255,255,255,0.08)",
+                            }}
+                          />
+                        )}
+                      </div>
+
+                      {/* Conteúdo */}
+                      <div
+                        className={`flex-1 pb-4 ${state !== "completed" ? "cursor-pointer" : ""}`}
+                        onClick={() => handleLessonClick(lesson)}
+                      >
+                        <p
+                          className={`font-serif text-sm font-medium leading-snug ${
+                            state === "completed"
+                              ? "text-muted-foreground/60 line-through"
+                              : state === "current"
+                              ? "text-foreground"
+                              : state === "locked"
+                              ? "text-muted-foreground/50"
+                              : "text-foreground/80"
+                          }`}
+                        >
+                          {lesson.title}
+                        </p>
+
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <span className="text-[10px] text-muted-foreground/70 flex items-center gap-1">
+                            <Clock className="w-2.5 h-2.5" />
+                            {lesson.estimatedMinutes} min
+                          </span>
+                          {state === "locked" && lockInfo.requiredPlan && (
+                            <span
+                              className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full"
+                              style={
+                                lockInfo.requiredPlan === "premium"
+                                  ? { color: "#9990D0", backgroundColor: "#9990D015", border: "1px solid #9990D025" }
+                                  : { color: "#D3B573", backgroundColor: "#D3B57315", border: "1px solid #D3B57325" }
+                              }
+                            >
+                              {lockInfo.requiredPlan === "premium" ? "Premium" : "Gold"}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Expansão da aula atual */}
+                        {state === "current" && (
+                          <div
+                            className="mt-3 rounded-xl p-3.5"
+                            style={{
+                              backgroundColor: `${cfg.from}18`,
+                              border: `1px solid ${cfg.accent}28`,
+                            }}
+                          >
+                            <Mono className="text-[#647B90] block mb-3">Você está aqui</Mono>
+                            <button
+                              className="w-full text-center text-[12px] font-semibold py-2 rounded-lg"
+                              style={{
+                                backgroundColor: `${cfg.accent}20`,
+                                color: cfg.accent,
+                                border: `1px solid ${cfg.accent}35`,
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleLessonClick(lesson);
+                              }}
+                              data-testid="button-resume-current-lesson"
+                            >
+                              Retomar aula
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Marcador de certificado */}
+                <div className="flex gap-3">
+                  <div className="flex flex-col items-center flex-shrink-0 pt-0.5">
+                    <div
+                      className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ border: "1.5px dashed #D3B573", backgroundColor: "transparent" }}
+                    >
+                      <Award className="w-2.5 h-2.5" style={{ color: "#D3B573" }} />
+                    </div>
+                  </div>
+                  <div className="flex-1 pb-4">
+                    <p className="font-serif text-sm font-medium text-foreground/50">
+                      Certificado da Trilha
+                    </p>
+                    {lessonsRemaining > 0 ? (
+                      <p className="text-[10px] text-muted-foreground/50 mt-0.5">
+                        Faltam {lessonsRemaining} {lessonsRemaining === 1 ? "aula" : "aulas"}
+                      </p>
+                    ) : (
+                      <p className="text-[10px] mt-0.5" style={{ color: "#D3B573" }}>
+                        Trilha concluída
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <Progress value={progress.percentage} className="h-2 bg-white/20" />
               </div>
             )}
-          </motion.div>
+          </div>
 
-          <h2 className="text-lg font-semibold mb-4">{t("courses.studyTracks")}</h2>
-          
-          {tracks.map((track) => (
-            <TrackCard
-              key={track.id}
-              track={track}
-              userPlan={userPlan}
-              isLoggedIn={isLoggedIn}
-              isAdmin={isAdmin}
-              moduleIndex={moduleIndex}
-              onLessonClick={(lessonId) => onNavigateToLesson(lessonId, track.level)}
-              onLoginRequired={handleLoginRequired}
-              onUpgradeRequired={handleUpgradeRequired}
-              t={t}
-              language={language}
-            />
-          ))}
-
-          {userPlan === 'free' && !isAdmin && (
+          {/* ── CTA de upgrade ── */}
+          {userPlan === "free" && !isAdmin && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl text-center mt-6"
+              transition={{ delay: 0.2 }}
+              className="mx-4 mt-6 p-4 rounded-xl text-center"
+              style={{
+                backgroundColor: "rgba(215,179,115,0.06)",
+                border: "1px solid rgba(215,179,115,0.18)",
+              }}
             >
-              <Sparkles className="w-8 h-8 mx-auto text-amber-500 mb-2" />
-              <h3 className="font-semibold mb-1">{t("courses.unlockAll")}</h3>
-              <p className="text-sm text-muted-foreground mb-3">
+              <Crown className="w-7 h-7 mx-auto mb-2" style={{ color: "#D3B573" }} />
+              <p className="font-serif text-sm font-medium text-foreground mb-1">
+                Acesso completo com Gold
+              </p>
+              <p className="text-xs text-muted-foreground mb-3">
                 {t("courses.subscribeGold")}
               </p>
-              <Button onClick={onNavigateToSubscriptions} data-testid="button-subscribe-cta">
-                <Crown className="w-4 h-4 mr-1" />
+              <Button size="sm" onClick={onNavigateToSubscriptions} data-testid="button-subscribe-cta">
+                <Crown className="w-3.5 h-3.5 mr-1.5" />
                 {t("subscription.viewPlans")}
               </Button>
             </motion.div>
           )}
-          
-          {userPlan === 'gold' && !isAdmin && (
+
+          {userPlan === "gold" && !isAdmin && level === "avancado" && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl text-center mt-6"
+              transition={{ delay: 0.2 }}
+              className="mx-4 mt-6 p-4 rounded-xl text-center"
+              style={{
+                backgroundColor: "rgba(153,144,208,0.06)",
+                border: "1px solid rgba(153,144,208,0.18)",
+              }}
             >
-              <Crown className="w-8 h-8 mx-auto text-purple-500 mb-2" />
-              <h3 className="font-semibold mb-1">{t("subscription.upgradeToPremium")}</h3>
-              <p className="text-sm text-muted-foreground mb-3">
+              <Sparkles className="w-7 h-7 mx-auto mb-2" style={{ color: "#9990D0" }} />
+              <p className="font-serif text-sm font-medium text-foreground mb-1">
+                {t("subscription.upgradeToPremium")}
+              </p>
+              <p className="text-xs text-muted-foreground mb-3">
                 {t("subscription.unlockAdvanced")}
               </p>
-              <Button onClick={onNavigateToSubscriptions} variant="outline" className="border-purple-500/30" data-testid="button-upgrade-premium">
-                <Sparkles className="w-4 h-4 mr-1" />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onNavigateToSubscriptions}
+                data-testid="button-upgrade-premium"
+              >
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                 {t("subscription.viewPremium")}
               </Button>
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+      </div>
 
+      {/* ── Modal de login ── */}
       <LoginPromptModal
         open={showLoginModal}
         onOpenChange={setShowLoginModal}
@@ -501,50 +566,69 @@ export function ModuleDetailScreen({
         onAuthSuccess={() => setShowLoginModal(false)}
       />
 
+      {/* ── Modal de paywall ── */}
       <Dialog open={showPaywallModal} onOpenChange={setShowPaywallModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {paywallInfo.requiredPlan === 'premium' ? (
+              {paywallInfo.requiredPlan === "premium" ? (
                 <Sparkles className="w-5 h-5 text-purple-500" />
               ) : (
                 <Crown className="w-5 h-5 text-amber-500" />
               )}
               {t("subscription.lockedContent")}
             </DialogTitle>
-            <DialogDescription>
-              {paywallInfo.message}
-            </DialogDescription>
+            <DialogDescription>{paywallInfo.message}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <div className={`p-4 rounded-lg ${
-              paywallInfo.requiredPlan === 'premium' 
-                ? 'bg-purple-500/10 border border-purple-500/20' 
-                : 'bg-amber-500/10 border border-amber-500/20'
-            }`}>
+            <div
+              className={`p-4 rounded-lg ${
+                paywallInfo.requiredPlan === "premium"
+                  ? "bg-purple-500/10 border border-purple-500/20"
+                  : "bg-amber-500/10 border border-amber-500/20"
+              }`}
+            >
               <h4 className="font-semibold mb-2">
-                {paywallInfo.requiredPlan === 'premium' ? t("subscription.premiumPlan") : t("subscription.goldPlan")}
+                {paywallInfo.requiredPlan === "premium"
+                  ? t("subscription.premiumPlan")
+                  : t("subscription.goldPlan")}
               </h4>
               <ul className="text-sm text-muted-foreground space-y-1">
-                {paywallInfo.requiredPlan === 'gold' ? (
+                {paywallInfo.requiredPlan === "gold" ? (
                   <>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.gold100Beginner")}</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.gold7Intermediate")}</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.strongsDictionary")}</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.essentialAI")}</li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" /> {t("subscription.gold100Beginner")}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" /> {t("subscription.gold7Intermediate")}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" /> {t("subscription.strongsDictionary")}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" /> {t("subscription.essentialAI")}
+                    </li>
                   </>
                 ) : (
                   <>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.allOfGold")}</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.premium100Intermediate")}</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.premium100Advanced")}</li>
-                    <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-500" /> {t("subscription.premiumAI")}</li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" /> {t("subscription.allOfGold")}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" /> {t("subscription.premium100Intermediate")}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" /> {t("subscription.premium100Advanced")}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" /> {t("subscription.premiumAI")}
+                    </li>
                   </>
                 )}
               </ul>
             </div>
-            <Button 
-              className="w-full" 
+            <Button
+              className="w-full"
               onClick={() => {
                 setShowPaywallModal(false);
                 onNavigateToSubscriptions();

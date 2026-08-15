@@ -300,32 +300,28 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
   // Premium lock screen
   if (!hasPremium) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-emerald-950/30 to-background flex flex-col">
-        <header className="sticky top-0 z-50 bg-gradient-to-r from-emerald-600 to-teal-700 text-white">
+      <div className="min-h-screen bg-background flex flex-col">
+        <header className="sticky top-0 z-50 bg-card border-b border-border">
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
+            <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-              <Microscope className="w-6 h-6" />
-            </div>
+            <Microscope className="w-6 h-6 text-muted-foreground" />
             <div className="flex-1">
-              <h1 className="text-xl font-bold">Exegese Profunda</h1>
-              <p className="text-sm text-emerald-100">Análise textual do original</p>
+              <h1 className="text-xl font-bold text-foreground">Exegese Profunda</h1>
+              <p className="text-sm text-muted-foreground">Análise textual do original</p>
             </div>
-            <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+            <Badge variant="outline" className="border-primary/40 text-primary">
               <Crown className="w-3 h-3 mr-1" /> Premium
             </Badge>
           </div>
         </header>
 
         <div className="flex-1 flex items-center justify-center p-6">
-          <Card className="max-w-md w-full bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 border-emerald-200">
+          <Card className="max-w-md w-full">
             <CardContent className="p-8 text-center">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
-                <Microscope className="w-12 h-12 text-white" />
-              </div>
-              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 mb-4">
+              <Microscope className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+              <Badge variant="outline" className="border-primary/40 text-primary mb-4">
                 <Crown className="w-3 h-3 mr-1" /> Recurso Premium
               </Badge>
               <h2 className="text-2xl font-bold mb-3">Exegese Profunda</h2>
@@ -336,19 +332,19 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
               </p>
               <div className="space-y-2 text-left mb-6">
                 <div className="flex items-center gap-2 text-sm">
-                  <Languages className="w-4 h-4 text-emerald-500" />
+                  <Languages className="w-4 h-4 text-primary" />
                   <span>Análise de palavras em hebraico/grego</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <BookOpenCheck className="w-4 h-4 text-emerald-500" />
+                  <BookOpenCheck className="w-4 h-4 text-primary" />
                   <span>Referências de BDAG, BDB, HALOT</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <FileSearch className="w-4 h-4 text-emerald-500" />
+                  <FileSearch className="w-4 h-4 text-primary" />
                   <span>Parsing gramatical completo</span>
                 </div>
               </div>
-              <Button onClick={onNavigateToSubscriptions} className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
+              <Button onClick={onNavigateToSubscriptions} className="w-full">
                 <Crown className="w-4 h-4 mr-2" />
                 Assinar Premium
               </Button>
@@ -360,29 +356,28 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
   }
 
   return (
-    <div className="h-screen bg-gradient-to-b from-emerald-950/20 to-background flex flex-col overflow-hidden">
-      {/* Premium Header (fixed) */}
-      <header className="flex-shrink-0 z-50 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-lg">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
+      {/* Header */}
+      <header className="flex-shrink-0 z-50 bg-card border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20" data-testid="button-back">
+          <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center ring-2 ring-white/30">
-            <Microscope className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center">
+            <Microscope className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="text-xl font-bold flex items-center gap-2">
+            <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
               Exegese Profunda
-              <Sparkles className="w-4 h-4 text-amber-300" />
+              <Sparkles className="w-4 h-4 text-primary" />
             </h1>
-            <p className="text-sm text-emerald-100">Análise textual do original hebraico/grego</p>
+            <p className="text-sm text-muted-foreground">Análise textual do original hebraico/grego</p>
           </div>
           <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={handleNewConversation}
-              className="text-white hover:bg-white/20"
               title="Nova conversa"
               data-testid="button-new-conversation"
             >
@@ -390,10 +385,10 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 relative" data-testid="button-history">
+                <Button variant="ghost" size="icon" className="relative" data-testid="button-history">
                   <History className="w-5 h-5" />
                   {savedConversations.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full text-[10px] flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-[10px] flex items-center justify-center text-primary-foreground">
                       {savedConversations.length}
                     </span>
                   )}
@@ -416,7 +411,7 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
                       onClick={() => handleLoadConversation(conv)}
                       className="flex items-start gap-2 cursor-pointer"
                     >
-                      <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-500" />
+                      <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{conv.title}</p>
                         <p className="text-xs text-muted-foreground">
@@ -436,7 +431,7 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+            <Badge variant="outline" className="border-primary/40 text-primary">
               <Crown className="w-3 h-3 mr-1" /> Premium
             </Badge>
           </div>
@@ -444,14 +439,14 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
       </header>
 
       {/* Premium Tabs (fixed) */}
-      <div className="flex-shrink-0 border-b bg-emerald-50/50 dark:bg-emerald-950/20">
+      <div className="flex-shrink-0 border-b bg-card">
         <div className="max-w-6xl mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="bg-transparent gap-4 h-12">
-              <TabsTrigger value="chat" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+              <TabsTrigger value="chat" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 Chat Exegético
               </TabsTrigger>
-              <TabsTrigger value="references" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+              <TabsTrigger value="references" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 Referências Rápidas
               </TabsTrigger>
             </TabsList>
@@ -471,15 +466,13 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
                   {EXEGESIS_TOPICS.map((item, i) => (
                     <Card 
                       key={i} 
-                      className="cursor-pointer hover-elevate bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800"
+                      className="cursor-pointer hover-elevate"
                       onClick={() => setInput(item.text)}
                     >
                       <CardContent className="p-3 flex flex-col items-center text-center gap-2">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                          <item.icon className="w-5 h-5 text-white" />
-                        </div>
+                        <item.icon className="w-5 h-5 text-muted-foreground" />
                         <div>
-                          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-wide">{item.category}</p>
+                          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{item.category}</p>
                           <p className="text-xs font-medium">{item.text}</p>
                         </div>
                       </CardContent>
@@ -487,11 +480,9 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
                   ))}
                 </div>
                 
-                <Card className="bg-gradient-to-br from-emerald-50 to-teal-50/50 dark:from-emerald-950/30 dark:to-teal-950/20 border-emerald-200/50 shadow-lg">
+                <Card>
                   <CardContent className="p-8 text-center">
-                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-emerald-500/30 ring-4 ring-emerald-200/50 dark:ring-emerald-800/50">
-                      <Microscope className="w-12 h-12 text-white" />
-                    </div>
+                    <Microscope className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                     <h2 className="text-2xl font-bold mb-2">Laboratório Exegético</h2>
                     <p className="text-muted-foreground max-w-lg mx-auto mb-4">
                       Análise profunda de textos bíblicos nos idiomas originais. 
@@ -499,13 +490,13 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
                       acadêmicos (BDAG, BDB, HALOT) e citações de comentários exegéticos.
                     </p>
                     <div className="flex flex-wrap justify-center gap-2">
-                      <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                      <Badge variant="outline" className="border-primary/30 text-primary">
                         <Languages className="w-3 h-3 mr-1" /> Hebraico & Grego
                       </Badge>
-                      <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                      <Badge variant="outline" className="border-primary/30 text-primary">
                         <BookOpenCheck className="w-3 h-3 mr-1" /> Léxicos Acadêmicos
                       </Badge>
-                      <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:text-emerald-300">
+                      <Badge variant="outline" className="border-primary/30 text-primary">
                         <FileSearch className="w-3 h-3 mr-1" /> Parsing Gramatical
                       </Badge>
                     </div>
@@ -522,50 +513,42 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
                   key={index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {message.role === 'assistant' && (
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ring-emerald-200/50 dark:ring-emerald-800/50">
-                      <Microscope className="w-5 h-5 text-white" />
+                  {message.role === 'user' ? (
+                    <div className="max-w-[80%] bg-muted rounded-2xl px-4 py-3">
+                      {message.attachment?.type === 'image' && (
+                        <img src={message.attachment.url} alt="Uploaded" className="max-h-48 rounded-lg mb-2" />
+                      )}
+                      <p className="text-base whitespace-pre-wrap leading-relaxed text-foreground">{message.content}</p>
+                      <span className="text-[10px] text-muted-foreground mt-2 block text-right">
+                        {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                  )}
-                  <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                    message.role === 'user' 
-                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg' 
-                      : 'bg-white dark:bg-card border border-emerald-200/50 dark:border-emerald-800/50 shadow-sm'
-                  }`}>
-                    {message.attachment?.type === 'image' && (
-                      <img src={message.attachment.url} alt="Uploaded" className="max-h-48 rounded-lg mb-2" />
-                    )}
-                    {message.imageUrl && (
-                      <div className="relative group mb-2">
-                        <img src={message.imageUrl} alt="Generated" className="max-w-full rounded-lg" />
-                        <a href={message.imageUrl} download className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100">
-                          <Download className="w-4 h-4 text-white" />
-                        </a>
-                      </div>
-                    )}
-                    <p className="text-base whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                    <span className="text-[10px] opacity-60 mt-2 block">
-                      {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                  {message.role === 'user' && (
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <div className="max-w-[90%] border-l-2 border-primary pl-4 py-1">
+                      {message.imageUrl && (
+                        <div className="relative group mb-2">
+                          <img src={message.imageUrl} alt="Generated" className="max-w-full rounded-lg" />
+                          <a href={message.imageUrl} download className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100">
+                            <Download className="w-4 h-4 text-white" />
+                          </a>
+                        </div>
+                      )}
+                      <p className="text-base whitespace-pre-wrap leading-relaxed text-foreground">{message.content}</p>
+                      <span className="text-[10px] text-muted-foreground mt-2 block">
+                        {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
                   )}
                 </motion.div>
               ))}
 
               {isPending && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg ring-2 ring-emerald-200/50">
-                    <Microscope className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="bg-white dark:bg-card rounded-2xl px-4 py-3 border border-emerald-200/50 shadow-sm">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+                  <div className="border-l-2 border-primary pl-4 py-3">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       Analisando texto original...
                     </div>
                   </div>
@@ -576,13 +559,13 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
           </div>
 
           {/* Premium Input area (fixed at bottom) */}
-          <div className="flex-shrink-0 border-t bg-gradient-to-r from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/20 p-4">
+          <div className="flex-shrink-0 border-t bg-card p-4">
             <div className="max-w-4xl mx-auto">
               <AnimatePresence>
                 {pendingImage && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-3">
                     <div className="relative inline-block">
-                      <img src={pendingImage.url} alt="Preview" className="h-20 rounded-lg border-2 border-emerald-300" />
+                      <img src={pendingImage.url} alt="Preview" className="h-20 rounded-lg border" />
                       <button onClick={() => setPendingImage(null)} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-white rounded-full flex items-center justify-center">
                         <X className="w-3 h-3" />
                       </button>
@@ -593,8 +576,8 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
 
               <div className="flex gap-2 items-end">
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
-                <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isPending} className="h-[44px] w-[44px] border-emerald-300" data-testid="button-attach">
-                  <ImageIcon className="w-5 h-5 text-emerald-600" />
+                <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isPending} className="h-[44px] w-[44px]" data-testid="button-attach">
+                  <ImageIcon className="w-5 h-5" />
                 </Button>
                 <Textarea
                   placeholder="Digite sua análise exegética (ex: João 1:1 no grego...)"
@@ -602,10 +585,10 @@ export function ExegeseChat({ onBack, onNavigateToSubscriptions }: ExegeseChatPr
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyPress}
                   rows={1}
-                  className="resize-none min-h-[44px] max-h-[200px] flex-1 border-emerald-200 focus-visible:ring-emerald-500"
+                  className="resize-none min-h-[44px] max-h-[200px] flex-1"
                   data-testid="input-message"
                 />
-                <Button onClick={handleSubmit} disabled={(!input.trim() && !pendingImage) || isPending} size="icon" className="h-[44px] w-[44px] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg" data-testid="button-send">
+                <Button onClick={handleSubmit} disabled={(!input.trim() && !pendingImage) || isPending} size="icon" className="h-[44px] w-[44px]" data-testid="button-send">
                   {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 </Button>
               </div>

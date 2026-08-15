@@ -5,8 +5,8 @@
 
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft, Bookmark, MessageSquare, Search, Calendar, BookOpen, Filter, Trash2 } from "lucide-react";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ArrowLeft, Bookmark, MessageSquare, Search, Calendar, BookOpen, Filter, Trash2, BookMarked, Highlighter } from "lucide-react";
+import { apiRequest, queryClient, getApiUrl, getAuthHeaders } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
@@ -23,7 +23,30 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { LibraryHighlightItem } from "@/components/LibraryHighlightItem";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
+
+// Leather accent — same token used in BookReaderScreen
+const LEATHER_ACC = "#C9A87E";
+const LEATHER_FROM = "#5C4632";
+
+interface LibraryHighlightEntry {
+  id: string;
+  book_id: string;
+  chapter_id: string;
+  selected_text: string;
+  color: string;
+  annotation: string | null;
+  created_at: string;
+  book_title: string;
+  chapter_order_num: number;
+  chapter_title: string;
+}
+
+const HIGHLIGHT_COLOR_BG: Record<string, string> = {
+  yellow: "#FBBF24", green: "#34D399", blue: "#60A5FA",
+  pink: "#F472B6", orange: "#FB923C", purple: "#C084FC",
+};
 
 interface BibleBook {
   id: string;
@@ -37,17 +60,24 @@ interface BookmarksPageProps {
 }
 
 export function BookmarksPage({ onBack }: BookmarksPageProps) {
-  const { navigateToVerse } = useNavigation();
+  const { navigateToVerse, navigate, setSelectedBookId, setSelectedChapterNum } = useNavigation();
   const { toast } = useToast();
   
   const handleNavigateToVerse = (book: string, chapter: number, verse: number, source: 'bookmark' | 'annotation') => {
     console.log('[BookmarksPage] NOTE_CLICKED - book:', book, 'chapter:', chapter, 'verse:', verse, 'source:', source);
     navigateToVerse(book, chapter, verse, source);
   };
+
+  const handleNavigateToLibraryChapter = (bookId: string, chapterNum: number) => {
+    setSelectedBookId(bookId);
+    setSelectedChapterNum(chapterNum);
+    navigate("library-reader");
+  };
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBook, setSelectedBook] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"chronological" | "biblical">("chronological");
-  const [activeTab, setActiveTab] = useState<"all" | "bookmarks" | "annotations">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "bookmarks" | "annotations" | "books">("all");
 
   const deleteBookmarkMutation = useMutation({
     mutationFn: async (bookmarkId: string) => {
@@ -99,6 +129,15 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
 
   const { data: books = [], isLoading: booksLoading } = useQuery<BibleBook[]>({
     queryKey: ['/api/bible/books'],
+  });
+
+  const { data: libraryHighlights = [], isLoading: libraryHighlightsLoading } = useQuery<LibraryHighlightEntry[]>({
+    queryKey: ['/api/library/highlights'],
+    queryFn: async () => {
+      const res = await fetch(getApiUrl('/api/library/highlights'), { credentials: 'include', headers: getAuthHeaders() });
+      if (!res.ok) return [];
+      return res.json();
+    },
   });
 
   const isLoading = bookmarksLoading || annotationsLoading || booksLoading;
@@ -198,9 +237,22 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
     return marks;
   }, [bookmarks, annotations, books, activeTab, selectedBook, searchTerm, sortOrder]);
 
+  // Filtered library highlights
+  const filteredLibraryHighlights = useMemo(() => {
+    if (!searchTerm) return libraryHighlights;
+    const term = searchTerm.toLowerCase();
+    return libraryHighlights.filter(h =>
+      h.selected_text.toLowerCase().includes(term) ||
+      h.book_title.toLowerCase().includes(term) ||
+      (h.annotation ?? "").toLowerCase().includes(term) ||
+      h.chapter_title.toLowerCase().includes(term)
+    );
+  }, [libraryHighlights, searchTerm]);
+
   const bookmarksCount = bookmarks.length;
   const annotationsCount = annotations.length;
-  const totalCount = bookmarksCount + annotationsCount;
+  const libraryHighlightsCount = libraryHighlights.length;
+  const totalCount = bookmarksCount + annotationsCount + libraryHighlightsCount;
 
   return (
     <div className="min-h-screen bg-background fixed inset-0 z-50 overflow-auto">
@@ -275,9 +327,9 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="px-4">
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="all" data-testid="tab-all">
-              Todos ({totalCount})
+              Tudo ({totalCount})
             </TabsTrigger>
             <TabsTrigger value="bookmarks" data-testid="tab-bookmarks">
               <Bookmark className="h-3 w-3 mr-1 fill-green-500 text-green-500" />
@@ -286,6 +338,10 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
             <TabsTrigger value="annotations" data-testid="tab-annotations">
               <MessageSquare className="h-3 w-3 mr-1 text-blue-500" />
               ({annotationsCount})
+            </TabsTrigger>
+            <TabsTrigger value="books" data-testid="tab-books">
+              <BookMarked className="h-3 w-3 mr-1" style={{ color: LEATHER_ACC }} />
+              ({libraryHighlightsCount})
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -299,72 +355,146 @@ export function BookmarksPage({ onBack }: BookmarksPageProps) {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3" />
               <p className="text-muted-foreground">Carregando marcações...</p>
             </div>
-          ) : filteredMarks.length === 0 ? (
+
+          ) : activeTab === "books" ? (
+            /* ── Aba Livros — destaques da Biblioteca ─────────────────── */
+            libraryHighlightsLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3" />
+                <p className="text-muted-foreground">Carregando destaques...</p>
+              </div>
+            ) : filteredLibraryHighlights.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <BookMarked className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                <p className="text-lg font-medium">Nenhum destaque de livro</p>
+                <p className="text-sm">
+                  {searchTerm ? "Tente ajustar a busca" : "Grifos feitos durante a leitura de livros aparecerão aqui"}
+                </p>
+              </div>
+            ) : (
+              filteredLibraryHighlights.map((h, idx) => (
+                <LibraryHighlightItem
+                  key={h.id}
+                  highlight={{
+                    id: h.id,
+                    selectedText: h.selected_text,
+                    color: h.color,
+                    annotation: h.annotation,
+                    chapterOrderNum: h.chapter_order_num,
+                    chapterTitle: h.chapter_title,
+                    bookTitle: h.book_title,
+                    createdAt: h.created_at,
+                  }}
+                  onNavigate={() => handleNavigateToLibraryChapter(h.book_id, h.chapter_order_num)}
+                  invalidateKeys={[["/api/library/highlights"], ["/api/library/highlights", h.book_id]]}
+                  badgeColor={LEATHER_ACC}
+                  testId={`card-library-highlight-${idx}`}
+                />
+              ))
+            )
+
+          ) : filteredMarks.length === 0 && (activeTab !== "all" || filteredLibraryHighlights.length === 0) ? (
             <div className="text-center py-12 text-muted-foreground">
               <Bookmark className="h-12 w-12 mx-auto mb-3 opacity-30" />
               <p className="text-lg font-medium">Nenhuma marcação encontrada</p>
               <p className="text-sm">
-                {searchTerm || selectedBook !== "all" 
+                {searchTerm || selectedBook !== "all"
                   ? "Tente ajustar os filtros de busca"
                   : "Marque versículos para salvá-los aqui"}
               </p>
             </div>
           ) : (
-            filteredMarks.map((mark, index) => (
-              <Card 
-                key={`${mark.type}-${mark.id}`}
-                className="hover-elevate cursor-pointer transition-all"
-                onClick={() => handleNavigateToVerse(mark.book, mark.chapter, mark.verse, mark.type)}
-                data-testid={`card-mark-${index}`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    {/* Icon */}
-                    <div className={`mt-0.5 p-1.5 rounded-full ${
-                      mark.type === 'annotation' 
-                        ? 'bg-blue-100 dark:bg-blue-900/30' 
-                        : 'bg-green-100 dark:bg-green-900/30'
-                    }`}>
-                      {mark.type === 'annotation' ? (
-                        <MessageSquare className="h-4 w-4 text-blue-500" />
-                      ) : (
-                        <Bookmark className="h-4 w-4 fill-green-500 text-green-500" />
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className="font-semibold">
-                          {mark.bookName} {mark.chapter}:{mark.verse}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {mark.createdAt.toLocaleDateString('pt-BR')}
-                        </span>
+            <>
+              {/* Bible bookmarks / annotations */}
+              {filteredMarks.map((mark, index) => (
+                <Card
+                  key={`${mark.type}-${mark.id}`}
+                  className="hover-elevate cursor-pointer transition-all"
+                  onClick={() => handleNavigateToVerse(mark.book, mark.chapter, mark.verse, mark.type)}
+                  data-testid={`card-mark-${index}`}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      {/* Icon */}
+                      <div className={`mt-0.5 p-1.5 rounded-full ${
+                        mark.type === 'annotation'
+                          ? 'bg-blue-100 dark:bg-blue-900/30'
+                          : 'bg-green-100 dark:bg-green-900/30'
+                      }`}>
+                        {mark.type === 'annotation' ? (
+                          <MessageSquare className="h-4 w-4 text-blue-500" />
+                        ) : (
+                          <Bookmark className="h-4 w-4 fill-green-500 text-green-500" />
+                        )}
                       </div>
-                      
-                      {mark.note && (
-                        <p className="text-sm text-foreground mt-2 line-clamp-3">
-                          {mark.note}
-                        </p>
-                      )}
-                    </div>
 
-                    {/* Delete Button */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="shrink-0 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
-                      onClick={(e) => handleDelete(e, mark.id, mark.type)}
-                      disabled={deleteBookmarkMutation.isPending || deleteAnnotationMutation.isPending}
-                      data-testid={`button-delete-mark-${index}`}
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant="outline" className="font-semibold">
+                            {mark.bookName} {mark.chapter}:{mark.verse}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {mark.createdAt.toLocaleDateString('pt-BR')}
+                          </span>
+                        </div>
+
+                        {mark.note && (
+                          <p className="text-sm text-foreground mt-2 line-clamp-3">
+                            {mark.note}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Delete Button */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                        onClick={(e) => handleDelete(e, mark.id, mark.type)}
+                        disabled={deleteBookmarkMutation.isPending || deleteAnnotationMutation.isPending}
+                        data-testid={`button-delete-mark-${index}`}
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* Library highlights inline in "Tudo" view */}
+              {activeTab === "all" && filteredLibraryHighlights.map((h, idx) => (
+                <Card
+                  key={`lib-${h.id}`}
+                  className="hover-elevate cursor-pointer transition-all"
+                  onClick={() => handleNavigateToLibraryChapter(h.book_id, h.chapter_order_num)}
+                  data-testid={`card-lib-mark-${idx}`}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 p-1.5 rounded-full" style={{ background: `${LEATHER_FROM}20` }}>
+                        <BookMarked className="h-4 w-4" style={{ color: LEATHER_ACC }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <Badge variant="outline" className="font-semibold text-xs" style={{ borderColor: `${LEATHER_ACC}60`, color: LEATHER_ACC }}>
+                            {h.book_title}
+                          </Badge>
+                          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wide">Livro</span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(h.created_at).toLocaleDateString('pt-BR')}
+                          </span>
+                        </div>
+                        <p className="text-sm text-foreground italic line-clamp-2 border-l-2 pl-2"
+                          style={{ borderColor: HIGHLIGHT_COLOR_BG[h.color] ?? HIGHLIGHT_COLOR_BG.yellow }}>
+                          "{h.selected_text}"
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
           )}
         </div>
       </ScrollArea>

@@ -11,8 +11,6 @@ type Screen =
   | "bookmarks"
   | "prayer"
   | "hymns"
-  | "achievements"
-  | "games"
   | "professor"
   | "ai-modes"
   | "plans-progress"
@@ -26,7 +24,18 @@ type Screen =
   | "professor-premium"
   | "module-detail"
   | "lesson"
-  | "install";
+  | "install"
+  | "library"
+  | "library-book"
+  | "library-reader";
+
+/** Origem guardada ao abrir a Bíblia a partir de um livro da Biblioteca */
+export interface BookReturn {
+  bookId: string;
+  bookTitle: string;
+  chapterNum: number;
+  page: number;
+}
 
 interface TargetVerse {
   book: string;
@@ -51,6 +60,19 @@ interface NavigationContextValue {
   clearTargetVerse: () => void;
   shouldResetAI: boolean;
   clearResetAI: () => void;
+  // Biblioteca
+  selectedBookId: string | null;
+  setSelectedBookId: (id: string | null) => void;
+  selectedBookTitle: string | null;
+  setSelectedBookTitle: (title: string | null) => void;
+  selectedChapterNum: number | null;
+  setSelectedChapterNum: (num: number | null) => void;
+  /** Leitor da Biblioteca aberto em modo pré-visualização (admin) */
+  libraryPreview: boolean;
+  setLibraryPreview: (v: boolean) => void;
+  /** Origem (livro/capítulo/página) para retorno da Bíblia ao leitor de livros */
+  bookReturn: BookReturn | null;
+  setBookReturn: (v: BookReturn | null) => void;
 }
 
 const NavigationContext = createContext<NavigationContextValue | null>(null);
@@ -68,8 +90,6 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "bookmarks": "bible",
   "prayer": "dashboard",
   "hymns": "prayer",
-  "achievements": "dashboard",
-  "games": "dashboard",
   "professor": "dashboard",
   "ai-modes": "dashboard",
   "plans-progress": "dashboard",
@@ -84,6 +104,9 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "module-detail": "professor-premium",
   "lesson": "module-detail",
   "install": "dashboard",
+  "library": "dashboard",
+  "library-book": "library",
+  "library-reader": "library-book",
 };
 
 interface NavigationProviderProps {
@@ -98,6 +121,12 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
   const [selectedTrackLevel, setSelectedTrackLevel] = useState<string>("iniciante");
   const [targetVerse, setTargetVerse] = useState<TargetVerse | null>(null);
   const [shouldResetAI, setShouldResetAI] = useState(false);
+  // Biblioteca
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+  const [selectedBookTitle, setSelectedBookTitle] = useState<string | null>(null);
+  const [selectedChapterNum, setSelectedChapterNum] = useState<number | null>(null);
+  const [libraryPreview, setLibraryPreview] = useState(false);
+  const [bookReturn, setBookReturn] = useState<BookReturn | null>(null);
   
   const historyStack = useRef<Screen[]>(["splash"]);
   const isHandlingPopState = useRef(false);
@@ -105,6 +134,18 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
 
   const navigate = useCallback((screen: Screen) => {
     if (screen === currentScreen) return;
+
+    // Segurança: o modo pré-visualização só sobrevive dentro do leitor.
+    // Qualquer navegação para telas públicas da Biblioteca limpa o flag.
+    if (screen === "library" || screen === "library-book") {
+      setLibraryPreview(false);
+    }
+
+    // O retorno ao livro só faz sentido entre o leitor de livros e a Bíblia.
+    // Qualquer outra navegação descarta a origem guardada.
+    if (screen !== "bible" && screen !== "library-reader") {
+      setBookReturn(null);
+    }
     
     if (screen === HOME_SCREEN && historyStack.current.length === 1 && historyStack.current[0] === "splash") {
       historyStack.current = [HOME_SCREEN];
@@ -237,6 +278,16 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
     clearTargetVerse,
     shouldResetAI,
     clearResetAI,
+    selectedBookId,
+    setSelectedBookId,
+    selectedBookTitle,
+    setSelectedBookTitle,
+    selectedChapterNum,
+    setSelectedChapterNum,
+    libraryPreview,
+    setLibraryPreview,
+    bookReturn,
+    setBookReturn,
   };
 
   return (

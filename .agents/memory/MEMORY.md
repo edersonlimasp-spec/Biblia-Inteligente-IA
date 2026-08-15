@@ -1,3 +1,4 @@
+- [GitHub CI a partir do Replit](github-ci-from-replit.md) — lock gerado no Replit aponta pro package-firewall e quebra npm ci no Actions; conector sem escopo workflow; logs via webhook temporário.
 - [Apple IAP review rejections](apple-iap-review-rejections.md) — 2.1 purchase-error rejections are usually stale bundle or missing App Store Connect config, not source bugs; store.error() must resolve pending purchase.
 - [Dev splash blocks screenshots](dev-splash-screenshots.md) — ~2s splash gated by sessionStorage means app_preview (fresh session each time) always lands on it; can't screenshot dashboard or dark mode this way.
 - [Android TWA status bar color](android-twa-statusbar.md) — published Android app is a TWA, not Capacitor; top "faixa branca" is the theme-color meta following system theme instead of the in-app .dark toggle.

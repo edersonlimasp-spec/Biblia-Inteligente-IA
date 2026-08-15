@@ -18,7 +18,11 @@ function run(cmd, args) {
 const results = [];
 results.push(run('node', ['-v']));
 results.push(run('npm', ['-v']));
-results.push(run('sh', ['-c', 'ls node_modules/.bin | grep -E "vite|esbuild" || echo MISSING']));
+results.push(run('sh', ['-c', 'ls node_modules/.bin 2>/dev/null | grep -E "vite|esbuild" || echo MISSING']));
+results.push(run('sh', ['-c', 'df -h . | tail -1; ls -la | head -20; cat .npmrc 2>/dev/null']));
+if (!results[2].out.includes('vite')) {
+  results.push(run('sh', ['-c', 'npm ci --no-audit --no-fund 2>&1 | tail -40; echo "npmci_exit=$?"; ls node_modules/.bin 2>/dev/null | grep -E "vite|esbuild" || echo AINDA_MISSING']));
+}
 const vite = run('sh', ['-c', 'npx vite build 2>&1']);
 results.push(vite);
 let esb = null;

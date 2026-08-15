@@ -9,4 +9,6 @@ description: Armadilhas ao usar GitHub Actions com código sincronizado do Repli
 
 **Regra 3 — logs de Actions ilegíveis:** endpoints de logs redirecionam para blob storage e o proxy devolve "Forbidden"; anotações do check-run só trazem o exit code. Diagnóstico que funcionou: fazer o script de build no CI postar seu próprio log num webhook.site temporário (criar token via `POST https://webhook.site/token`, ler via `/token/<uuid>/requests`). Remover o wrapper depois.
 
+**Regra 4 — iOS upload:** o workflow "Build iOS IPA (App Store)" (workflow_dispatch, inputs version_name/version_code) envia via altool + fallback fastlane, com diagnóstico postado num webhook.site. Erro `CONTRACT_NOT_VALID` = pendência de contrato/assinatura na conta Apple do usuário, não é problema de credencial nem de CI.
+
 **Como aplicar:** sempre que sincronizar o repo com o GitHub para buildar o AAB (workflow "Build Android AAB (Signed)", dispara em push na main), aplicar Regra 1 no lock antes do push e usar a Git Data API do conector.

@@ -178,15 +178,26 @@ jobs:
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          FASTLANE_USER: ${{ secrets.APPLE_ID }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: |
           IPA_PATH=$(ls $RUNNER_TEMP/IPA/*.ipa | head -1)
           echo "Enviando: $IPA_PATH"
-          xcrun altool --upload-app \
+          if xcrun altool --upload-app \
             --type ios \
             --file "$IPA_PATH" \
             --username "$APPLE_ID" \
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
-            --verbose
+            --verbose; then
+            echo "✅ Upload via altool concluído"
+          else
+            echo "⚠️ altool falhou (removido nos Xcode novos) — usando fastlane"
+            fastlane pilot upload \
+              --ipa "$IPA_PATH" \
+              --app_identifier com.bibliainteligente.ios \
+              --username "$APPLE_ID" \
+              --skip_waiting_for_build_processing true
+          fi
 
       - name: Limpar keychain
         if: always()

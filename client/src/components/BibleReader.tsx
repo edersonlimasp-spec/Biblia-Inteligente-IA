@@ -157,6 +157,7 @@ export function BibleReader({
   const [searchingWord, setSearchingWord] = useState<string | null>(null);
   const [searchingVerseNum, setSearchingVerseNum] = useState<number | null>(null);
   const [selectedStrongNumber, setSelectedStrongNumber] = useState<string | null>(null);
+  const [selectedClickedWord, setSelectedClickedWord] = useState<string | null>(null);
   const [wordsWithStrong, setWordsWithStrong] = useState<Set<string>>(new Set());
   // Mapeamento palavra→número Strong pré-calculado pelo servidor.
   // Quando presente, evita o round-trip /api/strong/search ao clicar em uma palavra.
@@ -816,6 +817,7 @@ export function BibleReader({
         trackStrongLookup(matchingResult.number, "chapter-strong-map").catch(() => {});
         // Close searching modal and open real modal
         setShowSearchingModal(false);
+        setSelectedClickedWord(searchingWordDisplay.replace(/^[.,;:!?"'()\[\]«»“”‘’—\-]+|[.,;:!?"'()\[\]«»“”‘’—\-]+$/g, '').trim() || searchingWord);
         setSelectedStrongNumber(matchingResult.number);
         const currentWord = searchingWord;
         setWordsWithStrong(prev => {
@@ -897,7 +899,8 @@ export function BibleReader({
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const handleWordClick = (word: string, verseNum: number, knownStrongNumber?: string) => {
-    const cleanWord = word.replace(/[.,;:!?"'()]/g, '').trim().toLowerCase();
+    const cleanWord = normalizeWordForLookup(word);
+    const displayWord = word.replace(/^[.,;:!?"'()\[\]«»“”‘’—\-]+|[.,;:!?"'()\[\]«»“”‘’—\-]+$/g, '').trim();
 
     console.log('[Strong Debug] Word clicked:', { word, cleanWord, verseNum, length: cleanWord.length, knownStrongNumber });
 
@@ -916,6 +919,7 @@ export function BibleReader({
     if (knownStrongNumber) {
       console.log('[Strong Debug] FAST PATH: opening modal directly with', knownStrongNumber);
       trackStrongLookup(knownStrongNumber, "verse-click").catch(() => {});
+      setSelectedClickedWord(displayWord || word);
       setSelectedStrongNumber(knownStrongNumber);
       return;
     }
@@ -1375,8 +1379,7 @@ export function BibleReader({
                               text={token.text}
                               hasStrong={token.hasStrong}
                               onWordClick={(word) => {
-                                const cleanWord = normalizeWordForLookup(word);
-                                handleWordClick(cleanWord, verse.verse, token.strongNumber);
+                                handleWordClick(word, verse.verse, token.strongNumber);
                               }}
                             />
                             {" "}
@@ -1548,11 +1551,13 @@ export function BibleReader({
       {selectedStrongNumber && (
         <StrongModal
           strongNumber={selectedStrongNumber}
-          onClose={() => setSelectedStrongNumber(null)}
+          clickedWord={selectedClickedWord || undefined}
+          onClose={() => { setSelectedStrongNumber(null); setSelectedClickedWord(null); }}
           onNavigateToSubscriptions={onNavigateToSubscriptions}
           onSearch={(query, type) => {
             // Trigger global search with the query
             setSelectedStrongNumber(null);
+            setSelectedClickedWord(null);
             setGlobalSearchTerm(query);
             setIsGlobalSearch(true);
             setShowGlobalResults(true);

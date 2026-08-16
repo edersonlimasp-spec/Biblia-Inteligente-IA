@@ -53,6 +53,7 @@ async function fetchStrongEntry(strongNumber: string, deviceId: string): Promise
 
 interface StrongModalProps {
   strongNumber: string;
+  clickedWord?: string;
   onClose: () => void;
   onNavigateToSubscriptions?: () => void;
   onSearch?: (query: string, type: 'strong' | 'word') => void;
@@ -120,7 +121,7 @@ const LANGUAGE_LABELS: Record<AppLanguage, { definition: string; fallback: strin
   es: { definition: "Definición en Español", fallback: "Definición disponible solo en inglés" },
 };
 
-export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, onSearch, onNavigateToVerse, onAIAnalysis }: StrongModalProps) {
+export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSubscriptions, onSearch, onNavigateToVerse, onAIAnalysis }: StrongModalProps) {
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const { toast } = useToast();
@@ -528,13 +529,24 @@ export function StrongModal({ strongNumber, onClose, onNavigateToSubscriptions, 
             {/* Header: Original Word + Code + Transliteration */}
             <div className="pb-3 border-b border-border">
               <div className="flex items-start justify-between gap-3 mb-2">
-                <h1
-                  className="font-serif font-bold text-foreground leading-tight"
-                  style={{ fontSize: "24px", direction: isHebrew ? 'rtl' : 'ltr' }}
-                  data-testid="text-strong-word"
-                >
-                  {strongData.word}
-                </h1>
+                <div className="flex items-baseline gap-2 flex-wrap min-w-0">
+                  <h1
+                    className="font-serif font-bold text-foreground leading-tight"
+                    style={{ fontSize: "29px", direction: isHebrew ? 'rtl' : 'ltr' }}
+                    data-testid="text-strong-word"
+                  >
+                    {strongData.word}
+                  </h1>
+                  {clickedWord && (
+                    <span
+                      className="font-serif text-muted-foreground leading-tight"
+                      style={{ fontSize: "18px" }}
+                      data-testid="text-clicked-word"
+                    >
+                      · {clickedWord}
+                    </span>
+                  )}
+                </div>
                 <p
                   className="font-mono font-bold shrink-0 pt-0.5"
                   style={{ fontSize: "12px", color: "#A88445" }}

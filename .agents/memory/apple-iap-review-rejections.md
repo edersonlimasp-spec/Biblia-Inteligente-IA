@@ -16,6 +16,8 @@ When Apple rejects with a screenshot showing a purchase/store error, check these
 
 3. **Code-fixable failure modes worth keeping handled:**
    - `store.error()` (CdvPurchase) must RESOLVE the pending purchase promise, not just log — otherwise an async StoreKit error leaves the purchase hanging until the 120s timeout, which a reviewer experiences as a frozen/broken purchase.
+   - In `cordova-plugin-purchase` v13, user cancellation is `PAYMENT_CANCELLED` (`6777006`); checking only legacy `6500`/`2` misclassifies a normal cancel as a store failure.
+   - Apple’s exact invalid-product array is only surfaced in the plugin’s `bridge.loaded` diagnostic log. Capture that logger output when device-console access is unavailable.
    - User-facing error messages must NOT imply the binary is outdated/broken (e.g. avoid "update the app / new version in App Store") — that wording itself invites rejection.
 
 **Why:** Repeated 2.1 rejections on this project were caused by (a) stale archived bundles and (b) missing manual App Store Connect config — the current TS source was already clean. Don't burn time rewriting code that's already correct; verify the build and the App Store Connect submission.

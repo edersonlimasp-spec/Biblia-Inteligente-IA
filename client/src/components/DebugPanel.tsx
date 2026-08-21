@@ -315,13 +315,28 @@ export function DebugPanel() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
+            <div className="rounded-lg border-2 border-blue-500 bg-blue-50 p-4 dark:border-blue-400 dark:bg-blue-950/40">
+              <div className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+                Bundle ID em execução no dispositivo
+              </div>
+              <div className="mt-1 break-all font-mono text-lg font-bold text-blue-950 dark:text-blue-50">
+                {iosIAP.runtimeBundleId || 'Não foi possível ler o Bundle ID'}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm font-mono">
               <div><span className="text-muted-foreground">status:</span> {iosIAP.status}</div>
               <div><span className="text-muted-foreground">timestamp:</span> {iosIAP.timestamp || 'N/A'}</div>
-              <div><span className="text-muted-foreground">bundleId:</span> {iosIAP.runtimeBundleId || 'N/A'}</div>
               <div><span className="text-muted-foreground">plugin:</span> {iosIAP.pluginVersion || 'N/A'}</div>
               <div><span className="text-muted-foreground">resposta Apple:</span> {iosIAP.storeResponseAt || 'N/A'}</div>
               <div><span className="text-muted-foreground">último erro:</span> {iosIAP.lastError || 'nenhum'}</div>
+            </div>
+
+            <div>
+              <div className="text-sm font-semibold mb-1">Erro bruto retornado pela loja</div>
+              <pre className="min-h-16 max-h-64 overflow-auto whitespace-pre-wrap break-all rounded bg-red-50 p-3 text-xs text-red-950 dark:bg-red-950/30 dark:text-red-100">
+                {iosIAP.rawStoreError || 'Nenhum erro bruto registrado nesta consulta.'}
+              </pre>
             </div>
 
             <div>

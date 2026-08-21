@@ -341,6 +341,41 @@ async function getAppleStore(): Promise<any | null> {
 }
 
 /**
+ * Aguarda o StoreKit carregar os metadados do produto.
+ *
+ * Em aparelhos/revisores com conexão lenta, store.update() pode concluir antes
+ * de o produto ficar disponível em store.get(). Também informamos a plataforma
+ * explicitamente para evitar ambiguidades entre produtos Apple e Google com IDs
+ * semelhantes.
+ */
+async function waitForAppleProduct(
+  store: any,
+  productId: string,
+  timeoutMs = 15_000,
+): Promise<any | undefined> {
+  const applePlatform = (window as any).CdvPurchase?.Platform?.APPLE_APPSTORE;
+  const getProduct = () => store.get(productId, applePlatform);
+
+  let product = getProduct();
+  if (product) return product;
+
+  try {
+    await store.update();
+  } catch (error) {
+    console.warn('[IAP][Apple] store.update() falhou ao carregar produtos:', error);
+  }
+
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    product = getProduct();
+    if (product) return product;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  return undefined;
+}
+
+/**
  * Pré-inicializa a store IAP logo no boot do app (Android e iOS).
  * Chamado no mount do componente raiz para garantir que o CdvPurchase
  * já esteja pronto quando o usuário tentar comprar, evitando o timeout
@@ -515,27 +550,24 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     trackPurchaseStep('STORE_INIT_OK', { planType, productId, paymentMethod: 'apple' });
 
     console.log('[IAP][Apple] ✓ Store inicializada — buscando produto', productId);
-    let product = store.get(productId);
+    const product = await waitForAppleProduct(store, productId);
     if (!product) {
-      // O StoreKit pode ainda não ter carregado os metadados do produto
-      // (rede lenta, primeira abertura, ou device do revisor da Apple). Antes de
-      // desistir, força um store.update() para buscar os produtos da App Store
-      // novamente — garante que tentamos carregar o produto antes de exibir erro.
-      console.warn('[IAP][Apple] Produto ainda não carregado — forçando store.update() e tentando novamente:', productId);
-      try {
-        await store.update();
-        await new Promise((r) => setTimeout(r, 1500));
-      } catch (e) {
-        console.warn('[IAP][Apple] store.update() falhou na retentativa:', e);
-      }
-      product = store.get(productId);
-    }
-    if (!product) {
-      console.error('[IAP][Apple] ✖ Produto não encontrado no store:', productId);
-      trackPurchaseStep('PRODUCT_NOT_FOUND', { planType, productId, paymentMethod: 'apple' });
+      const loadedProductIds = Array.isArray(store.products)
+        ? store.products.map((item: any) => item?.id).filter(Boolean)
+        : [];
+      console.error('[IAP][Apple] ✖ Produto não encontrado no store:', {
+        requestedProductId: productId,
+        loadedProductIds,
+      });
+      trackPurchaseStep('PRODUCT_NOT_FOUND', {
+        planType,
+        productId,
+        paymentMethod: 'apple',
+        loadedProductIds,
+      });
       return {
         success: false,
-        error: 'Produto temporariamente indisponível. Verifique sua conexão ou tente novamente em instantes.',
+        error: 'Este produto ainda não está disponível para compra na App Store. Tente novamente mais tarde.',
       };
     }
     trackPurchaseStep('PRODUCT_FOUND', {

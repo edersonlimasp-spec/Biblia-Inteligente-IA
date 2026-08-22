@@ -7,6 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RefreshCw, Trash2, Copy, Check } from "lucide-react";
+import {
+  getIOSIAPDiagnostics,
+  refreshIOSIAPDiagnostics,
+  type IOSIAPDiagnostics,
+} from "@/lib/inAppPurchases";
 
 interface SubscriptionStatus {
   hasGold?: boolean;
@@ -45,6 +50,8 @@ export function DebugPanel() {
   });
   const [copied, setCopied] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [refreshingIAP, setRefreshingIAP] = useState(false);
+  const [iosIAP, setIOSIAP] = useState<IOSIAPDiagnostics>(() => getIOSIAPDiagnostics());
 
   const { data: buildInfo, refetch: refetchBuild } = useQuery<BuildInfo>({
     queryKey: ['/api/debug/build-info'],
@@ -98,6 +105,24 @@ export function DebugPanel() {
     getSWInfo();
   }, []);
 
+  useEffect(() => {
+    const handleDiagnosticsUpdate = (event: Event) => {
+      const diagnosticsEvent = event as CustomEvent<IOSIAPDiagnostics>;
+      setIOSIAP(diagnosticsEvent.detail || getIOSIAPDiagnostics());
+    };
+    window.addEventListener('ios-iap-diagnostics-updated', handleDiagnosticsUpdate);
+    return () => window.removeEventListener('ios-iap-diagnostics-updated', handleDiagnosticsUpdate);
+  }, []);
+
+  const refreshIAP = async () => {
+    setRefreshingIAP(true);
+    try {
+      setIOSIAP(await refreshIOSIAPDiagnostics());
+    } finally {
+      setRefreshingIAP(false);
+    }
+  };
+
   const clearAllCaches = async () => {
     setClearing(true);
     try {
@@ -144,6 +169,7 @@ export function DebugPanel() {
         storageKey: localStorage.getItem('biblia_inteligente_language'),
       },
       serviceWorker: cacheInfo,
+      iosIAP,
     };
     
     navigator.clipboard.writeText(JSON.stringify(debugData, null, 2));
@@ -154,6 +180,8 @@ export function DebugPanel() {
   const isProduction = buildInfo?.nodeEnv === 'production' || 
                        buildInfo?.replDeployment === '1' ||
                        !import.meta.env.DEV;
+
+  if (!isAdmin) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] bg-background/95 backdrop-blur-sm overflow-auto p-4">
@@ -275,6 +303,78 @@ export function DebugPanel() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="text-lg">🍎 Diagnóstico StoreKit iOS</CardTitle>
+              <Button size="sm" variant="outline" onClick={refreshIAP} disabled={refreshingIAP}>
+                <RefreshCw className={`w-4 h-4 mr-1 ${refreshingIAP ? 'animate-spin' : ''}`} />
+                Consultar
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="rounded-lg border-2 border-blue-500 bg-blue-50 p-4 dark:border-blue-400 dark:bg-blue-950/40">
+              <div className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+                Bundle ID em execução no dispositivo
+              </div>
+              <div className="mt-1 break-all font-mono text-lg font-bold text-blue-950 dark:text-blue-50">
+                {iosIAP.runtimeBundleId || 'Não foi possível ler o Bundle ID'}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm font-mono">
+              <div><span className="text-muted-foreground">status:</span> {iosIAP.status}</div>
+              <div><span className="text-muted-foreground">timestamp:</span> {iosIAP.timestamp || 'N/A'}</div>
+              <div><span className="text-muted-foreground">plugin:</span> {iosIAP.pluginVersion || 'N/A'}</div>
+              <div><span className="text-muted-foreground">resposta Apple:</span> {iosIAP.storeResponseAt || 'N/A'}</div>
+              <div><span className="text-muted-foreground">último erro:</span> {iosIAP.lastError || 'nenhum'}</div>
+            </div>
+
+            <div>
+              <div className="text-sm font-semibold mb-1">Erro bruto retornado pela loja</div>
+              <pre className="min-h-16 max-h-64 overflow-auto whitespace-pre-wrap break-all rounded bg-red-50 p-3 text-xs text-red-950 dark:bg-red-950/30 dark:text-red-100">
+                {iosIAP.rawStoreError || 'Nenhum erro bruto registrado nesta consulta.'}
+              </pre>
+            </div>
+
+            <div>
+              <div className="text-sm font-semibold mb-1">IDs enviados ({iosIAP.requestedProductIds.length})</div>
+              <pre className="text-xs bg-muted p-2 rounded overflow-auto">
+                {JSON.stringify(iosIAP.requestedProductIds, null, 2)}
+              </pre>
+            </div>
+
+            <div>
+              <div className="text-sm font-semibold mb-1">IDs retornados ({iosIAP.returnedProductIds.length})</div>
+              <pre className="text-xs bg-muted p-2 rounded overflow-auto">
+                {JSON.stringify(iosIAP.returnedProductIds, null, 2)}
+              </pre>
+            </div>
+
+            <div>
+              <div className="text-sm font-semibold mb-1">IDs inválidos devolvidos pela Apple ({iosIAP.invalidProductIds.length})</div>
+              <pre className="text-xs bg-muted p-2 rounded overflow-auto">
+                {JSON.stringify(iosIAP.invalidProductIds, null, 2)}
+              </pre>
+            </div>
+
+            <details>
+              <summary className="cursor-pointer text-sm font-semibold">Resposta completa dos produtos</summary>
+              <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto max-h-64">
+                {JSON.stringify(iosIAP.returnedProducts, null, 2)}
+              </pre>
+            </details>
+
+            <details>
+              <summary className="cursor-pointer text-sm font-semibold">Erros da inicialização</summary>
+              <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto max-h-40">
+                {JSON.stringify(iosIAP.initializeErrors, null, 2)}
+              </pre>
+            </details>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader className="pb-2">

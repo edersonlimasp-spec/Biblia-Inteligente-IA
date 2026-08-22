@@ -9,9 +9,11 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { MainNavigation } from "@/components/MainNavigation";
 import { DebugPanel, useDebugMode } from "@/components/DebugPanel";
 import { hideSplashScreen } from "@/lib/capacitor";
+import { useAuth } from "@/contexts/AuthContext";
 
 function AppContent() {
   const isDebug = useDebugMode();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     // Hide splash screen only after React has rendered — prevents black screen
@@ -22,7 +24,7 @@ function AppContent() {
     <>
       <Toaster />
       <MainNavigation />
-      {isDebug && <DebugPanel />}
+      {isDebug && isAdmin && <DebugPanel />}
     </>
   );
 }

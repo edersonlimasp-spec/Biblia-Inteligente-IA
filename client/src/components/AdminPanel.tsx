@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag, BookMarked } from "lucide-react";
+import { BarChart3, Users, CreditCard, Gift, ArrowLeft, HeartPulse, Mail, Tag, BookMarked, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,8 +17,14 @@ interface AdminPanelProps {
 }
 
 export function AdminPanel({ onBack }: AdminPanelProps) {
-  const { user, isSuperAdmin, logout } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
+
+  const openDebugPanel = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('debug', '1');
+    window.location.href = url.toString();
+  };
 
   if (!user || (!isSuperAdmin && user.role !== 'admin')) {
     return (
@@ -51,6 +57,15 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
               <span className="text-sm text-muted-foreground">
                 {user?.role === 'super_admin' ? '👑 Super Admin' : '🔑 Admin'}
               </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openDebugPanel}
+                data-testid="button-ios-iap-diagnostics"
+              >
+                <Bug className="h-4 w-4 mr-1" />
+                Diagnóstico iOS
+              </Button>
             </div>
           </div>
         </div>

@@ -7,6 +7,11 @@
 import { isNative, platform, isIOS, isAndroid } from './capacitor';
 import { apiRequest, getApiUrl } from './queryClient';
 import { trackPurchaseStep } from './tracking';
+import { App as CapacitorApp } from '@capacitor/app';
+import {
+  isAppleIAPProductUnavailable,
+  isAppleIAPUserCancellation,
+} from './iapErrors';
 
 // Product IDs by platform
 export const PRODUCT_IDS = {
@@ -82,6 +87,226 @@ interface PurchaseResult {
     status: string;
     endDate?: string | null;
   };
+}
+
+export interface IOSIAPDiagnostics {
+  timestamp: string;
+  status: 'idle' | 'loading' | 'ready' | 'timeout' | 'error';
+  requestedProductIds: string[];
+  returnedProducts: any[];
+  returnedProductIds: string[];
+  invalidProductIds: string[];
+  runtimeBundleId: string | null;
+  pluginVersion: string | null;
+  storeResponseAt: string | null;
+  initializeErrors: Array<{
+    code?: string | number;
+    message?: string;
+    productId?: string;
+  }>;
+  lastError: string | null;
+  rawStoreError: string | null;
+}
+
+const IOS_IAP_DIAGNOSTICS_KEY = 'biblia_ios_iap_diagnostics';
+const IOS_IAP_DIAGNOSTICS_EVENT = 'ios-iap-diagnostics-updated';
+
+const EMPTY_IOS_IAP_DIAGNOSTICS: IOSIAPDiagnostics = {
+  timestamp: '',
+  status: 'idle',
+  requestedProductIds: [],
+  returnedProducts: [],
+  returnedProductIds: [],
+  invalidProductIds: [],
+  runtimeBundleId: null,
+  pluginVersion: null,
+  storeResponseAt: null,
+  initializeErrors: [],
+  lastError: null,
+  rawStoreError: null,
+};
+
+let _iosIAPDiagnostics: IOSIAPDiagnostics = { ...EMPTY_IOS_IAP_DIAGNOSTICS };
+let _appleLoggerCaptureInstalled = false;
+
+function uniqueStrings(values: unknown[]): string[] {
+  return Array.from(new Set(values.filter((value): value is string => typeof value === 'string' && value.length > 0)));
+}
+
+function loadPersistedIOSIAPDiagnostics(): IOSIAPDiagnostics {
+  if (typeof window === 'undefined') return { ...EMPTY_IOS_IAP_DIAGNOSTICS };
+  try {
+    const raw = window.localStorage.getItem(IOS_IAP_DIAGNOSTICS_KEY);
+    if (!raw) return { ...EMPTY_IOS_IAP_DIAGNOSTICS };
+    return { ...EMPTY_IOS_IAP_DIAGNOSTICS, ...JSON.parse(raw) };
+  } catch {
+    return { ...EMPTY_IOS_IAP_DIAGNOSTICS };
+  }
+}
+
+_iosIAPDiagnostics = loadPersistedIOSIAPDiagnostics();
+
+function updateIOSIAPDiagnostics(patch: Partial<IOSIAPDiagnostics>): IOSIAPDiagnostics {
+  _iosIAPDiagnostics = {
+    ..._iosIAPDiagnostics,
+    ...patch,
+    timestamp: new Date().toISOString(),
+    requestedProductIds: patch.requestedProductIds
+      ? uniqueStrings(patch.requestedProductIds)
+      : _iosIAPDiagnostics.requestedProductIds,
+    returnedProductIds: patch.returnedProductIds
+      ? uniqueStrings(patch.returnedProductIds)
+      : _iosIAPDiagnostics.returnedProductIds,
+    invalidProductIds: patch.invalidProductIds
+      ? uniqueStrings(patch.invalidProductIds)
+      : _iosIAPDiagnostics.invalidProductIds,
+  };
+
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage.setItem(IOS_IAP_DIAGNOSTICS_KEY, JSON.stringify(_iosIAPDiagnostics));
+    } catch {}
+    window.dispatchEvent(new CustomEvent(IOS_IAP_DIAGNOSTICS_EVENT, {
+      detail: _iosIAPDiagnostics,
+    }));
+  }
+
+  return _iosIAPDiagnostics;
+}
+
+export function getIOSIAPDiagnostics(): IOSIAPDiagnostics {
+  return { ..._iosIAPDiagnostics };
+}
+
+async function getRuntimeBundleId(): Promise<string | null> {
+  if (!isIOS || !isNative) return null;
+  try {
+    const info = await CapacitorApp.getInfo();
+    return info.id || null;
+  } catch (error) {
+    console.warn('[IAP][Apple][Diagnostics] Não foi possível ler o bundle ID:', error);
+    return null;
+  }
+}
+
+function serializeStoreError(error: any) {
+  return {
+    code: error?.code,
+    message: error?.message || String(error),
+    productId: error?.productId || error?.product?.id,
+  };
+}
+
+function formatRawStoreError(error: unknown): string {
+  if (typeof error === 'string') return error;
+
+  const seen = new WeakSet<object>();
+  try {
+    const serialized = JSON.stringify(error, (_key, value) => {
+      if (typeof value === 'bigint') return value.toString();
+      if (value instanceof Error) {
+        return {
+          name: value.name,
+          message: value.message,
+          stack: value.stack,
+          ...Object.fromEntries(
+            Object.getOwnPropertyNames(value)
+              .filter((key) => !['name', 'message', 'stack'].includes(key))
+              .map((key) => [key, (value as any)[key]]),
+          ),
+        };
+      }
+      if (value && typeof value === 'object') {
+        if (seen.has(value)) return '[Circular]';
+        seen.add(value);
+      }
+      return value;
+    }, 2);
+    if (serialized) return serialized;
+  } catch {}
+
+  try {
+    return String(error);
+  } catch {
+    return '[Erro da loja não serializável]';
+  }
+}
+
+function snapshotAppleProducts(store: any): any[] {
+  if (!Array.isArray(store?.products)) return [];
+  const applePlatform = (window as any).CdvPurchase?.Platform?.APPLE_APPSTORE;
+  return store.products
+    .filter((product: any) => !applePlatform || product?.platform === applePlatform)
+    .map((product: any) => ({
+      id: product?.id,
+      title: product?.title,
+      description: product?.description,
+      platform: product?.platform,
+      productType: product?.type,
+      pricing: product?.pricing,
+      offers: product?.offers,
+    }));
+}
+
+/**
+ * O cordova-plugin-purchase recebe da ponte nativa os arrays
+ * `validProducts` e `invalidProducts`, mas só os expõe no logger interno.
+ * O logger é uma API pública e substituível do plugin; preservamos o console
+ * original e capturamos apenas a resposta de carregamento da App Store.
+ */
+function installAppleLoggerCapture(cdv: any) {
+  if (_appleLoggerCaptureInstalled || !isIOS || !cdv?.Logger) return;
+
+  const originalConsole = cdv.Logger.console || window.console;
+  const capture = (args: any[]) => {
+    for (const arg of args) {
+      if (typeof arg !== 'string') continue;
+      const marker = 'bridge.loaded: ';
+      const markerIndex = arg.indexOf(marker);
+      if (markerIndex === -1) continue;
+
+      try {
+        const payload = JSON.parse(arg.slice(markerIndex + marker.length));
+        const returnedProducts = Array.isArray(payload?.validProducts) ? payload.validProducts : [];
+        const invalidProductIds = Array.isArray(payload?.invalidProducts) ? payload.invalidProducts : [];
+        const returnedProductIds = returnedProducts
+          .map((product: any) => product?.id || product?.productId)
+          .filter(Boolean);
+
+        console.info('[IAP][Apple][Diagnostics] Produtos retornados:', returnedProducts);
+        console.info('[IAP][Apple][Diagnostics] IDs inválidos retornados:', invalidProductIds);
+        updateIOSIAPDiagnostics({
+          status: 'ready',
+          returnedProducts,
+          returnedProductIds,
+          invalidProductIds,
+          storeResponseAt: new Date().toISOString(),
+          lastError: null,
+          rawStoreError: null,
+        });
+      } catch (error) {
+        console.warn('[IAP][Apple][Diagnostics] Falha ao interpretar resposta do StoreKit:', error);
+        updateIOSIAPDiagnostics({
+          status: 'error',
+          lastError: 'Falha ao interpretar a resposta bruta do StoreKit',
+          rawStoreError: formatRawStoreError({ error, rawLoggerMessage: arg }),
+        });
+      }
+    }
+  };
+
+  const forward = (method: 'log' | 'warn' | 'error') => (...args: any[]) => {
+    capture(args);
+    const originalMethod = originalConsole?.[method] || originalConsole?.log;
+    originalMethod?.apply(originalConsole, args);
+  };
+
+  cdv.Logger.console = {
+    log: forward('log'),
+    warn: forward('warn'),
+    error: forward('error'),
+  };
+  _appleLoggerCaptureInstalled = true;
 }
 
 // ── In-App Purchases via cordova-plugin-purchase (CdvPurchase v13) ────────
@@ -189,6 +414,28 @@ async function _initCdvStore(): Promise<any | null> {
     _cdvStoreReady = (async () => {
       // IDs DEVEM bater exatamente com os cadastrados no Console.
       const ids = isIOS ? PRODUCT_IDS.ios : PRODUCT_IDS.android;
+      const requestedProductIds = Object.values(ids);
+
+      if (isIOS) {
+        installAppleLoggerCapture(cdv);
+        store.verbosity = cdv.LogLevel?.DEBUG ?? 4;
+        const runtimeBundleId = await getRuntimeBundleId();
+        console.info('[IAP][Apple][Diagnostics] Product IDs enviados:', requestedProductIds);
+        console.info('[IAP][Apple][Diagnostics] Bundle ID em tempo de execução:', runtimeBundleId);
+        updateIOSIAPDiagnostics({
+          status: 'loading',
+          requestedProductIds,
+          returnedProducts: [],
+          returnedProductIds: [],
+          invalidProductIds: [],
+          runtimeBundleId,
+          pluginVersion: store.version || cdv.PLUGIN_VERSION || null,
+          storeResponseAt: null,
+          initializeErrors: [],
+          lastError: null,
+          rawStoreError: null,
+        });
+      }
 
       store.register([
         { id: ids.gold_monthly,    type: ProductType.PAID_SUBSCRIPTION, platform: targetPlatform },
@@ -207,7 +454,29 @@ async function _initCdvStore(): Promise<any | null> {
           // Resolve compras pendentes em vez de deixá-las penduradas até o
           // timeout de 120s. Erros assíncronos da StoreKit/Billing chegam aqui.
           const code = err?.code;
-          const isUserCancel = code === 6500 || code === 2 || code === 'USER_CANCELLED';
+          const isUserCancel = isIOS
+            ? isAppleIAPUserCancellation(code, cdv.ErrorCode?.PAYMENT_CANCELLED)
+            : code === 6500 || code === 2 || code === 'USER_CANCELLED';
+          if (isIOS) {
+            const isInvalidProduct = code === cdv.ErrorCode?.INVALID_PRODUCT_ID;
+            const isUnavailableProduct = isAppleIAPProductUnavailable(
+              code,
+              cdv.ErrorCode?.INVALID_PRODUCT_ID,
+              cdv.ErrorCode?.PRODUCT_NOT_AVAILABLE,
+            );
+            updateIOSIAPDiagnostics({
+              status: isUserCancel
+                ? _iosIAPDiagnostics.status
+                : isUnavailableProduct ? 'ready' : 'error',
+              invalidProductIds: isInvalidProduct
+                ? [..._iosIAPDiagnostics.invalidProductIds, err?.productId || err?.product?.id]
+                : _iosIAPDiagnostics.invalidProductIds,
+              lastError: isUserCancel ? null : err?.message || String(err),
+              rawStoreError: isUserCancel
+                ? _iosIAPDiagnostics.rawStoreError
+                : formatRawStoreError(err),
+            });
+          }
           const pending = _routePendingByError(err);
           if (pending) {
             if (isUserCancel) {
@@ -315,12 +584,74 @@ async function _initCdvStore(): Promise<any | null> {
           });
       }
 
-      await store.initialize([targetPlatform]);
+      const initializeErrors: any[] = await store.initialize([targetPlatform]);
+      if (isIOS) {
+        const serializedErrors = Array.isArray(initializeErrors)
+          ? initializeErrors.map(serializeStoreError)
+          : [];
+        const hasStoreLoadError = serializedErrors.some(
+          (error) => !isAppleIAPProductUnavailable(
+            error.code,
+            cdv.ErrorCode?.INVALID_PRODUCT_ID,
+            cdv.ErrorCode?.PRODUCT_NOT_AVAILABLE,
+          ),
+        );
+        const invalidFromErrors = serializedErrors
+          .filter((error) => error.code === cdv.ErrorCode?.INVALID_PRODUCT_ID)
+          .map((error) => error.productId)
+          .filter(Boolean) as string[];
+        const returnedProducts = snapshotAppleProducts(store);
+
+        console.info('[IAP][Apple][Diagnostics] Produtos disponíveis após initialize:', returnedProducts);
+        console.info('[IAP][Apple][Diagnostics] Erros de initialize:', serializedErrors);
+        updateIOSIAPDiagnostics({
+          status: hasStoreLoadError ? 'error' : 'ready',
+          returnedProducts: returnedProducts.length > 0
+            ? returnedProducts
+            : _iosIAPDiagnostics.returnedProducts,
+          returnedProductIds: returnedProducts.length > 0
+            ? returnedProducts.map((product: any) => product.id).filter(Boolean)
+            : _iosIAPDiagnostics.returnedProductIds,
+          invalidProductIds: uniqueStrings([
+            ..._iosIAPDiagnostics.invalidProductIds,
+            ...invalidFromErrors,
+          ]),
+          storeResponseAt: hasStoreLoadError
+            ? _iosIAPDiagnostics.storeResponseAt
+            : _iosIAPDiagnostics.storeResponseAt || new Date().toISOString(),
+          initializeErrors: serializedErrors,
+          lastError: serializedErrors.length > 0
+            ? serializedErrors.map((error) => error.message).filter(Boolean).join(' | ')
+            : null,
+          rawStoreError: serializedErrors.length > 0
+            ? formatRawStoreError(initializeErrors)
+            : null,
+        });
+      }
       await store.update();
+      if (isIOS) {
+        const returnedProducts = snapshotAppleProducts(store);
+        console.info('[IAP][Apple][Diagnostics] Produtos disponíveis após update:', returnedProducts);
+        updateIOSIAPDiagnostics({
+          returnedProducts: returnedProducts.length > 0
+            ? returnedProducts
+            : _iosIAPDiagnostics.returnedProducts,
+          returnedProductIds: returnedProducts.length > 0
+            ? returnedProducts.map((product: any) => product.id).filter(Boolean)
+            : _iosIAPDiagnostics.returnedProductIds,
+        });
+      }
       console.log(`[IAP] CdvPurchase store inicializada (${isIOS ? 'Apple App Store' : 'Google Play'})`);
       return store;
     })().catch(e => {
       console.error('[IAP] Falha ao inicializar CdvPurchase store:', e);
+      if (isIOS) {
+        updateIOSIAPDiagnostics({
+          status: 'error',
+          lastError: e?.message || String(e),
+          rawStoreError: formatRawStoreError(e),
+        });
+      }
       _cdvStoreReady = null;
       _listenersRegistered = false;
       throw e;
@@ -338,6 +669,131 @@ async function getGooglePlayStore(): Promise<any | null> {
 async function getAppleStore(): Promise<any | null> {
   if (!isIOS || !isNative) return null;
   return _initCdvStore();
+}
+
+/**
+ * Aguarda o StoreKit carregar os metadados do produto.
+ *
+ * Em aparelhos/revisores com conexão lenta, store.update() pode concluir antes
+ * de o produto ficar disponível em store.get(). Também informamos a plataforma
+ * explicitamente para evitar ambiguidades entre produtos Apple e Google com IDs
+ * semelhantes.
+ */
+interface AppleProductLookupResult {
+  product?: any;
+  failure?: 'not_found' | 'network_or_timeout';
+}
+
+async function waitForAppleProduct(
+  store: any,
+  productId: string,
+  timeoutMs = 15_000,
+): Promise<AppleProductLookupResult> {
+  const applePlatform = (window as any).CdvPurchase?.Platform?.APPLE_APPSTORE;
+  const getProduct = () => store.get(productId, applePlatform);
+
+  let product = getProduct();
+  if (product) return { product };
+
+  let updateError: any = null;
+  try {
+    await store.update();
+  } catch (error) {
+    updateError = error;
+    console.warn('[IAP][Apple] store.update() falhou ao carregar produtos:', error);
+  }
+
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    product = getProduct();
+    if (product) return { product };
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  const diagnostics = getIOSIAPDiagnostics();
+  const appleReturnedProductStatus =
+    diagnostics.invalidProductIds.includes(productId) ||
+    (diagnostics.status === 'ready' && diagnostics.storeResponseAt !== null);
+
+  if (appleReturnedProductStatus && !updateError) {
+    return { failure: 'not_found' };
+  }
+
+  updateIOSIAPDiagnostics({
+    status: 'timeout',
+    lastError: updateError?.message || 'Timeout aguardando resposta do StoreKit',
+    rawStoreError: updateError
+      ? formatRawStoreError(updateError)
+      : 'Timeout aguardando resposta do StoreKit; nenhuma resposta de produto foi recebida.',
+  });
+  return { failure: 'network_or_timeout' };
+}
+
+async function withIOSDiagnosticTimeout<T>(
+  operation: Promise<T>,
+  timeoutMs: number,
+  timeoutMessage: string,
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<T>((_resolve, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
+export async function refreshIOSIAPDiagnostics(): Promise<IOSIAPDiagnostics> {
+  if (!isIOS || !isNative) return getIOSIAPDiagnostics();
+  try {
+    const runtimeBundleId = await getRuntimeBundleId();
+    updateIOSIAPDiagnostics({
+      status: 'loading',
+      requestedProductIds: Object.values(PRODUCT_IDS.ios),
+      runtimeBundleId,
+      lastError: null,
+      rawStoreError: null,
+    });
+
+    const store = await withIOSDiagnosticTimeout(
+      getAppleStore(),
+      35_000,
+      'Timeout ao inicializar o plugin de compras da App Store',
+    );
+    if (!store) {
+      return updateIOSIAPDiagnostics({
+        status: 'error',
+        lastError: 'StoreKit não inicializado',
+        rawStoreError: 'O plugin CdvPurchase não ficou disponível para iniciar a consulta.',
+      });
+    }
+    await withIOSDiagnosticTimeout(
+      store.update(),
+      20_000,
+      'Timeout ao consultar produtos na App Store',
+    );
+    const returnedProducts = snapshotAppleProducts(store);
+    return updateIOSIAPDiagnostics({
+      status: 'ready',
+      returnedProducts: returnedProducts.length > 0
+        ? returnedProducts
+        : _iosIAPDiagnostics.returnedProducts,
+      returnedProductIds: returnedProducts.length > 0
+        ? returnedProducts.map((product: any) => product.id).filter(Boolean)
+        : _iosIAPDiagnostics.returnedProductIds,
+      storeResponseAt: _iosIAPDiagnostics.storeResponseAt || new Date().toISOString(),
+    });
+  } catch (error: any) {
+    return updateIOSIAPDiagnostics({
+      status: 'error',
+      lastError: error?.message || String(error),
+      rawStoreError: formatRawStoreError(error),
+    });
+  }
 }
 
 /**
@@ -501,6 +957,20 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
   const productId = getProductId(planType as any);
   console.log('[IAP][Apple] ▶ Iniciando compra StoreKit', { planType, productId });
 
+  let activePendingEntry: PendingTx | null = null;
+  let purchaseTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  const cleanupPendingPurchase = () => {
+    if (purchaseTimeoutId) {
+      clearTimeout(purchaseTimeoutId);
+      purchaseTimeoutId = null;
+    }
+    if (activePendingEntry) {
+      const index = _pendingPurchases.indexOf(activePendingEntry);
+      if (index !== -1) _pendingPurchases.splice(index, 1);
+      activePendingEntry = null;
+    }
+  };
+
   try {
     const store = await getAppleStore();
 
@@ -515,27 +985,27 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     trackPurchaseStep('STORE_INIT_OK', { planType, productId, paymentMethod: 'apple' });
 
     console.log('[IAP][Apple] ✓ Store inicializada — buscando produto', productId);
-    let product = store.get(productId);
+    const lookup = await waitForAppleProduct(store, productId);
+    const product = lookup.product;
     if (!product) {
-      // O StoreKit pode ainda não ter carregado os metadados do produto
-      // (rede lenta, primeira abertura, ou device do revisor da Apple). Antes de
-      // desistir, força um store.update() para buscar os produtos da App Store
-      // novamente — garante que tentamos carregar o produto antes de exibir erro.
-      console.warn('[IAP][Apple] Produto ainda não carregado — forçando store.update() e tentando novamente:', productId);
-      try {
-        await store.update();
-        await new Promise((r) => setTimeout(r, 1500));
-      } catch (e) {
-        console.warn('[IAP][Apple] store.update() falhou na retentativa:', e);
-      }
-      product = store.get(productId);
-    }
-    if (!product) {
-      console.error('[IAP][Apple] ✖ Produto não encontrado no store:', productId);
-      trackPurchaseStep('PRODUCT_NOT_FOUND', { planType, productId, paymentMethod: 'apple' });
+      const loadedProductIds = Array.isArray(store.products)
+        ? store.products.map((item: any) => item?.id).filter(Boolean)
+        : [];
+      console.error('[IAP][Apple] ✖ Produto não encontrado no store:', {
+        requestedProductId: productId,
+        loadedProductIds,
+      });
+      trackPurchaseStep('PRODUCT_NOT_FOUND', {
+        planType,
+        productId,
+        paymentMethod: 'apple',
+        loadedProductIds,
+      });
       return {
         success: false,
-        error: 'Produto temporariamente indisponível. Verifique sua conexão ou tente novamente em instantes.',
+        error: lookup.failure === 'not_found'
+          ? 'Este plano não está disponível para compra na App Store. Não é necessário tentar novamente agora. Se você já assinou, use “Restaurar compras”.'
+          : 'As assinaturas pela App Store estão indisponíveis. Não é necessário tentar novamente agora. Se você já assinou, use “Restaurar compras”.',
       };
     }
     trackPurchaseStep('PRODUCT_FOUND', {
@@ -557,18 +1027,17 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     const verificationPromise = new Promise<PurchaseResult>((resolve) => {
       resolvePending = resolve;
     });
-    const pendingEntry: PendingTx = {
+    activePendingEntry = {
       productId,
       resolve: resolvePending,
       createdAt: Date.now(),
     };
-    _pendingPurchases.push(pendingEntry);
+    _pendingPurchases.push(activePendingEntry);
 
     // Timeout defensivo de 2 minutos.
-    const timeoutId = setTimeout(() => {
-      const idx = _pendingPurchases.indexOf(pendingEntry);
-      if (idx !== -1) _pendingPurchases.splice(idx, 1);
+    purchaseTimeoutId = setTimeout(() => {
       trackPurchaseStep('TIMEOUT', { planType, productId, paymentMethod: 'apple' });
+      cleanupPendingPurchase();
       resolvePending({ success: false, error: 'Tempo esgotado aguardando aprovação da compra' });
     }, 120_000);
 
@@ -576,12 +1045,13 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     // mas pode lançar exceção (ex.: IAP desabilitado nas Settings).
     const orderResult: any = await store.order(offer);
     if (orderResult && (orderResult.code !== undefined || orderResult.isError)) {
-      clearTimeout(timeoutId);
-      const idx = _pendingPurchases.indexOf(pendingEntry);
-      if (idx !== -1) _pendingPurchases.splice(idx, 1);
+      cleanupPendingPurchase();
 
       const code = orderResult.code;
-      if (code === 6500 || code === 2 || code === 'USER_CANCELLED') {
+      if (isAppleIAPUserCancellation(
+        code,
+        (window as any).CdvPurchase?.ErrorCode?.PAYMENT_CANCELLED,
+      )) {
         trackPurchaseStep('USER_CANCELLED', { planType, productId, paymentMethod: 'apple', errorCode: code });
         return { success: false, error: 'Compra cancelada' };
       }
@@ -599,7 +1069,7 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
 
     console.log('[IAP][Apple] ⏳ Aguardando aprovação do usuário e verificação backend…');
     const result = await verificationPromise;
-    clearTimeout(timeoutId);
+    cleanupPendingPurchase();
     if (result.success) {
       console.log('[IAP][Apple] ✓ Compra aprovada e verificada com sucesso');
       trackPurchaseStep('VERIFY_OK', { planType, productId, paymentMethod: 'apple' });
@@ -610,7 +1080,11 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     return result;
 
   } catch (error: any) {
-    if (error?.code === 'USER_CANCELLED' || error?.code === 6500 || error?.code === 2) {
+    cleanupPendingPurchase();
+    if (isAppleIAPUserCancellation(
+      error?.code,
+      (window as any).CdvPurchase?.ErrorCode?.PAYMENT_CANCELLED,
+    )) {
       console.log('[IAP][Apple] ℹ Usuário cancelou a compra');
       trackPurchaseStep('USER_CANCELLED', { planType, productId, paymentMethod: 'apple', errorCode: error.code });
       return { success: false, error: 'Compra cancelada' };

@@ -152,3 +152,17 @@ uri = "file://releases/biblia-inteligente-1.0.50.aab"
 type = "unspecified"
 title = "Bíblia Inteligente v1.0.50 (Google Play)"
 description = "Arquivo AAB assinado com a chave de upload, pronto para enviar no Play Console (versionCode 50)."
+
+[[outputs]]
+id = "9cIxAZjK5YOv4V3dRu7i4"
+uri = "file://screenshots/dashboard-desktop-fixed.jpg"
+type = "image"
+title = "Dashboard corrigido — desktop"
+description = "Prévia pós-restart em 1280×720, com o cabeçalho encostado no topo e sem faixa branca."
+
+[[outputs]]
+id = "agYpto39zn3jaVU2QUt9W"
+uri = "file://screenshots/dashboard-mobile-fixed.png"
+type = "image"
+title = "Dashboard corrigido — mobile"
+description = "Prévia pós-restart em 390×844, validada com elementsFromPoint em Y=10, 20, 40, 60 e 80."

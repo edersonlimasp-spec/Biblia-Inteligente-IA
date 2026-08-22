@@ -11,6 +11,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">#0A1420</item>
     </style>
 
     <!-- Tema principal (sem ActionBar) com suporte Edge-to-Edge -->
@@ -18,6 +19,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <item name="android:windowBackground">#0A1420</item>
         <!-- Edge-to-Edge via EdgeToEdge.enable() no MainActivity cuida da transparência -->
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>

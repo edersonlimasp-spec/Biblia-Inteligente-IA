@@ -1,12 +1,14 @@
 ---
-name: Android TWA status bar color
-description: Why native Capacitor status-bar fixes don't affect the published Android app, and what actually controls the top "faixa branca".
+name: Superfície superior sem faixa branca
+description: Como distinguir um espaçamento real do DOM de uma faixa criada pela primeira pintura, safe area, status bar ou fundo nativo.
 ---
 
-The published Google Play Android app (`applicationId: app.replit.bibliainteligente.twa`) is a **TWA (Trusted Web Activity)** that loads the live website — NOT the Capacitor WebView in `android/`. So Capacitor `StatusBar.setBackgroundColor`, `MainActivity.java`, and `android/.../styles.xml` edits do **not** change the status bar on the published app.
+Antes de alterar margens ou transforms, execute `elementsFromPoint` no centro da tela em vários valores de Y próximos ao topo. Se o header e seus ancestrais já começam em `y=0`, com fundo correto e sem margem/padding indevido, a faixa não pertence ao layout React.
 
-In a TWA the Android status bar color follows the page's `<meta name="theme-color">`. The recurring top "faixa branca" happens when those metas are `prefers-color-scheme` (system) driven while the app's dark/light is an in-app `.dark` class toggle (ThemeProvider) independent of the system: system=light + app=dark → theme-color stays `#ffffff` → white status bar over dark content.
+Nessa situação, trate a superfície superior como um contrato entre quatro camadas: tema aplicado antes da primeira pintura, cor PWA/browser, sobreposição da status bar/safe area e fundo de segurança da janela/WebView. Todas devem nascer na mesma família de cor do app; uma única camada clara pode aparecer como faixa mesmo com o DOM correto.
 
-**Fix pattern:** make `theme-color` follow the *in-app* theme, not the system. ThemeProvider rewrites all `meta[name=theme-color]` (removing `media`, setting `#0c1421` dark / `#ffffff` light) on theme change, plus an early inline script in `index.html` reads `localStorage.theme` before React mounts to avoid a cold-start flash.
+O sufixo histórico do application ID não prova qual runtime está publicado. Confirme o pipeline de build antes de decidir entre uma correção PWA/TWA ou Capacitor; o projeto pode preservar um ID antigo enquanto gera um binário Capacitor.
 
-**Why:** months of native styles.xml/MainActivity attempts never fixed it because they target the wrong runtime (Capacitor, not the TWA).
+**Why:** tentativas de compensar visualmente com offsets falharam porque o header já ocupava o topo. A faixa era produzida fora do fluxo do documento por estados claros conflitantes durante a pintura e pela integração da status bar.
+
+**How to apply:** em qualquer regressão no topo, primeiro registre os elementos e estilos em Y=10/20/40/60/80. Só mexa no layout se a sondagem mostrar um elemento ou espaço real; caso contrário, audite as quatro camadas acima.

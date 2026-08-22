@@ -7,16 +7,17 @@
     
     <!-- PWA Configuration -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0c1421" media="(prefers-color-scheme: dark)" />
-    <!-- Ajusta a cor da barra de status (TWA Android) a partir do tema SALVO no app,
-         ANTES do React montar — evita o lampejo da "faixa branca" no topo durante o
-         cold start quando o tema do sistema difere do tema escolhido no app. -->
+    <meta name="theme-color" content="#0A1420" />
+    <!-- Aplica o mesmo tema padrão do React ANTES da primeira pintura.
+         Sem a classe inicial, html:not(.dark) pintava a superfície superior de branco
+         até o ThemeProvider montar, expondo uma faixa clara no PWA/WebView. -->
     <script>
       (function () {
         try {
-          var t = localStorage.getItem("theme") || "light";
-          var color = t === "dark" ? "#0c1421" : "#ffffff";
+          var savedTheme = localStorage.getItem("theme");
+          var t = savedTheme === "light" ? "light" : "dark";
+          var color = t === "dark" ? "#0A1420" : "#F2F5F8";
+          document.documentElement.classList.add(t);
           var metas = document.querySelectorAll('meta[name="theme-color"]');
           for (var i = 0; i < metas.length; i++) {
             metas[i].removeAttribute("media");
@@ -30,7 +31,7 @@
     
     <!-- Apple iOS Configuration -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Bíblia IA" />
     <link rel="apple-touch-icon" href="/pwa-icons/icon-bible-192.png" />
     <link rel="apple-touch-startup-image" href="/splash-screen.png" />
@@ -57,14 +58,10 @@
          (notch no topo e home indicator embaixo) sigam o tema do app, e não fiquem azuis fixas.
          O __boot_fallback continua azul (branding) apenas durante o carregamento inicial. -->
     <style>
-      html,body,#root{background:#ffffff;margin:0;padding:0;height:100%;width:100%;}
-      /* Tema do SO (paint inicial, antes do React montar) */
-      @media (prefers-color-scheme: dark){
-        html,body,#root{background:#0A1420;}
-      }
-      /* Toggle de tema dentro do app (.dark adicionada em <html> pelo ThemeProvider) */
+      html,body,#root{background:#0A1420;margin:0;padding:0;height:100%;width:100%;}
+      /* Toggle de tema dentro do app; a classe já existe antes da primeira pintura. */
       html.dark,html.dark body,html.dark #root{background:#0A1420;}
-      html:not(.dark),html:not(.dark) body,html:not(.dark) #root{background:#ffffff;}
+      html.light,html.light body,html.light #root{background:#F2F5F8;}
       .__boot_fallback{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1A5299;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center;padding:20px;z-index:1;}
       .__boot_fallback h1{font-size:28px;font-weight:600;margin:0 0 10px;letter-spacing:-0.5px;}
       .__boot_fallback p{font-size:15px;opacity:0.85;margin:6px 0;}

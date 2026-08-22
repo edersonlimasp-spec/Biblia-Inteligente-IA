@@ -23,10 +23,13 @@ export async function initializeCapacitor() {
   if (!isNative) return;
 
   try {
-    await StatusBar.setStyle({ style: Style.Dark });
+    // O conteúdo ocupa também a área da status bar; os headers absorvem o
+    // safe-area-inset-top e pintam essa região com a mesma cor do app.
+    await StatusBar.setOverlaysWebView({ overlay: true });
+    await StatusBar.setStyle({ style: Style.Light });
     
     if (isAndroid) {
-      await StatusBar.setBackgroundColor({ color: '#1A5299' });
+      await StatusBar.setBackgroundColor({ color: '#0A1420' });
     }
 
     Keyboard.addListener('keyboardWillShow', () => {

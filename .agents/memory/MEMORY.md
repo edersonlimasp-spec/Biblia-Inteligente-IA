@@ -2,7 +2,7 @@
 - [Apple IAP review rejections](apple-iap-review-rejections.md) — 2.1 purchase-error rejections are usually stale bundle or missing App Store Connect config, not source bugs; store.error() must resolve pending purchase.
 - [Capacitor app IDs por plataforma](capacitor-platform-app-ids.md) — appId compartilhado preserva a identidade Android; no iOS, StoreKit e App.getInfo usam o Bundle ID do alvo Xcode.
 - [Dev splash blocks screenshots](dev-splash-screenshots.md) — ~2s splash gated by sessionStorage means app_preview (fresh session each time) always lands on it; can't screenshot dashboard or dark mode this way.
-- [Android TWA status bar color](android-twa-statusbar.md) — published Android app is a TWA, not Capacitor; top "faixa branca" is the theme-color meta following system theme instead of the in-app .dark toggle.
+- [Superfície superior sem faixa branca](android-twa-statusbar.md) — confirme o DOM em y=0; se o header já ocupa o topo, alinhe primeira pintura, status bar e fundo nativo em vez de deslocar layout.
 - [Vitral color migration](vitral-color-migration.md) — full palette strategy, module gradients, accent approximations, and final audit cmd (0 violations).
 - [Bible reader typography system](bible-reader-typography.md) — 4-step font sizes in CSS classes, Newsreader font, Settings-button popover pattern, verse column 68ch.
 - [Routes split boundary detection](routes-split-boundary.md) — ao dividir routes.ts em módulos, verificar onde handlers realmente fecham (});) antes de cortar; handler cortado no meio vira unclosed paren no arquivo destino.

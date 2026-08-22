@@ -25,13 +25,10 @@ const config: CapacitorConfig = {
       splashImmersive: true,
     },
     StatusBar: {
-      // DARK = ícones brancos — necessário sobre o cabeçalho azul (#1A5299)
-      // Implementado via WindowInsetsControllerCompat (API moderna, não depreciada).
-      // backgroundColor removido: em modo Edge-to-Edge, a barra de status é transparente
-      // e a cor azul do cabeçalho preenche a área visualmente via CSS env(safe-area-inset-top).
-      style: 'DARK',
-      // overlaysWebView não definido aqui: o EdgeToEdge.enable() em MainActivity.java
-      // já configura o modo correto antes dos plugins inicializarem.
+      // Ícones claros sobre o cabeçalho escuro. Com overlay, o próprio header
+      // preenche a safe area; não sobra uma superfície nativa branca acima dele.
+      style: 'LIGHT',
+      overlaysWebView: true,
     },
     Keyboard: {
       resize: 'body',
@@ -54,9 +51,9 @@ const config: CapacitorConfig = {
     contentInset: 'never',
     allowsLinkPreview: true,
     scrollEnabled: true,
-    // backgroundColor NEUTRO (branco). O body do app define a cor real e responde a light/dark
-    // via @media (prefers-color-scheme) — assim a faixa do notch e do home indicator acompanham o tema.
-    backgroundColor: '#ffffff',
+    // Fundo de segurança do WKWebView, visível durante a primeira pintura e
+    // eventuais redimensionamentos/overscrolls antes do CSS ser redesenhado.
+    backgroundColor: '#0A1420',
     webContentsDebuggingEnabled: true,
     handleApplicationNotifications: false,
   },

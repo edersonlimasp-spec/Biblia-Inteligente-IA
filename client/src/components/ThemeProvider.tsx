@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { setStatusBarStyle } from "@/lib/capacitor";
 
 type Theme = "light" | "dark";
 
@@ -49,6 +50,8 @@ export function ThemeProvider({
         m.setAttribute("content", color);
       });
     }
+
+    void setStatusBarStyle(theme === "dark");
   }, [theme]);
 
   return (

@@ -20,4 +20,6 @@ When Apple rejects with a screenshot showing a purchase/store error, check these
    - Apple’s exact invalid-product array is only surfaced in the plugin’s `bridge.loaded` diagnostic log. Capture that logger output when device-console access is unavailable.
    - User-facing error messages must NOT imply the binary is outdated/broken (e.g. avoid "update the app / new version in App Store") — that wording itself invites rejection.
 
+4. **Version gate:** App Store error `90062` means `CFBundleShortVersionString` is not higher than the latest approved version. Increasing only the build number does not fix it; the marketing version must also advance.
+
 **Why:** Repeated 2.1 rejections on this project were caused by (a) stale archived bundles and (b) missing manual App Store Connect config — the current TS source was already clean. Don't burn time rewriting code that's already correct; verify the build and the App Store Connect submission.

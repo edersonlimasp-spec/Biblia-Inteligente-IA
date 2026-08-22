@@ -6,11 +6,11 @@ on:
       version_name:
         description: 'Versao do app (ex: 1.0.1)'
         required: false
-        default: '1.0.1'
+        default: '1.0.51'
       version_code:
         description: 'Build number (ex: 2)'
         required: false
-        default: '54'
+        default: '55'
       upload_to_store:
         description: 'Enviar para App Store Connect? (true/false)'
         required: false

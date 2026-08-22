@@ -166,3 +166,10 @@ uri = "file://screenshots/dashboard-mobile-fixed.png"
 type = "image"
 title = "Dashboard corrigido — mobile"
 description = "Prévia pós-restart em 390×844, validada com elementsFromPoint em Y=10, 20, 40, 60 e 80."
+
+[[outputs]]
+id = "4TlEw6U1Na4bKGoUV6rcN"
+uri = "file://android/app/build/outputs/bundle/release/app-release.aab"
+type = "unspecified"
+title = "Bíblia Inteligente Android 1.0.51 (51)"
+description = "App Bundle Android de release assinado, pronto para upload manual no Google Play Console."

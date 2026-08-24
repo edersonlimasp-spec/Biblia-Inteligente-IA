@@ -287,7 +287,7 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ============================================================================
+  // ----------------------------------------------------------------------------
   // Sign in with Apple (iOS) — verifica identityToken via JWKS da Apple
   //
   // PRÉ-REQUISITOS QUE NÃO PODEM SER FEITOS NESTE REPO (manuais):
@@ -299,7 +299,7 @@ export function registerAuthRoutes(app: Express): void {
   //      criar Service ID + chave privada AuthKey e armazenar como segredo.
   //      Para o login básico que validamos aqui (verificação de identityToken)
   //      NÃO precisamos da chave privada — apenas das chaves públicas JWKS.
-  // ============================================================================
+  // ----------------------------------------------------------------------------
   const APPLE_BUNDLE_ID = "com.bibliainteligente.ios";
   let appleJwksCache: { keys: any[]; fetchedAt: number } | null = null;
 
@@ -436,10 +436,10 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ============================================================================
+  // ----------------------------------------------------------------------------
   // Apagar conta — exigência da Apple App Store (Guideline 5.1.1(v)) e Google Play.
   // Remove o usuário; cascades do schema removem dados associados.
-  // ============================================================================
+  // ----------------------------------------------------------------------------
   app.delete("/api/user/me", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
       const userId = req.userId!;
@@ -855,9 +855,9 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ===================================
+  // -----------------------------------
   // HIGHLIGHTS ROUTES (Cloud Sync)
-  // ===================================
+  // -----------------------------------
 
   app.get("/api/highlights", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
@@ -924,9 +924,9 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ===================================
+  // -----------------------------------
   // READING HISTORY ROUTES (Cloud Sync)
-  // ===================================
+  // -----------------------------------
 
   app.get("/api/reading-history", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
@@ -962,9 +962,9 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ===================================
+  // -----------------------------------
   // CLOUD SYNC ROUTES
-  // ===================================
+  // -----------------------------------
 
   app.get("/api/sync/all", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
@@ -1001,9 +1001,9 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ===================================
+  // -----------------------------------
   // CHAT SESSIONS CLOUD SYNC
-  // ===================================
+  // -----------------------------------
 
   // Get all chat sessions from cloud
   app.get("/api/sync/chat-sessions", ensureAuthenticated, async (req: AuthRequest, res) => {
@@ -1100,9 +1100,9 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ===================================
+  // -----------------------------------
   // GUEST ROUTES (anonymous visitors)
-  // ===================================
+  // -----------------------------------
 
   // Register or update guest device
   app.post("/api/guest/register", async (req, res) => {
@@ -1281,9 +1281,9 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ===================================
+  // -----------------------------------
   // BIBLE VERSIONS ROUTES
-  // ===================================
+  // -----------------------------------
   
   // Get all available versions from Translation Registry
   app.get("/api/versions", async (req, res) => {

@@ -309,4 +309,3 @@ export function LibraryScreen({ onBack, onNavigateToBook, onNavigateToReader }: 
     </div>
   );
 }
-

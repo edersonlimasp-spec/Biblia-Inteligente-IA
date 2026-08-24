@@ -58,7 +58,7 @@ export function recordStudyCompletion(type?: string): void {
   }
 }
 
-// ==================== SINCRONIZAÇÃO (login / voltar a ficar online) ====================
+// -------------------- SINCRONIZAÇÃO (login / voltar a ficar online) --------------------
 // Conclusões feitas antes do login (ou offline) ficam apenas no localStorage.
 // Ao logar ou reconectar, enviamos as pendentes ao servidor com o ts original.
 

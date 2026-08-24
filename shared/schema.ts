@@ -916,9 +916,9 @@ export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts).om
 export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
 export type PaymentReceipt = typeof paymentReceipts.$inferSelect;
 
-// ==========================================
+// ------------------------------------------
 // READING PLANS MODULE
-// ==========================================
+// ------------------------------------------
 
 // Reading Plan Templates - predefined plans (52-Week, Five-Day, Chronological, etc.)
 export const readingPlanTemplates = pgTable("reading_plan_templates", {

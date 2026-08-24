@@ -31,7 +31,7 @@ import { DEU_WORD_STRONG } from "../deu-strong-mappings";
 import { getClientPlatform, getPlatformAllowedSources, getFromStrongCache, setInStrongCache, initFirebaseAdmin, firebaseInitialized } from "./shared";
 
 export function registerStudyRoutes(app: Express): void {
-  // ==================== STUDY COMPLETIONS (cartão "Seu ritmo") ====================
+  // -------------------- STUDY COMPLETIONS (cartão "Seu ritmo") --------------------
 
   // Lista as conclusões dos últimos 90 dias do usuário logado
   app.get("/api/study/completions", ensureAuthenticated, async (req: AuthRequest, res: Response) => {
@@ -70,7 +70,7 @@ export function registerStudyRoutes(app: Express): void {
     }
   });
 
-  // ==================== PROFESSOR PREMIUM (Study Modules) ====================
+  // -------------------- PROFESSOR PREMIUM (Study Modules) --------------------
   
   // Helper function to get translated module
   async function getTranslatedModule(module: any, lang: string): Promise<any> {
@@ -432,9 +432,9 @@ export function registerStudyRoutes(app: Express): void {
     }
   });
 
-  // ============================================
+  // --------------------------------------------
   // IN-APP PURCHASE (iOS/Android) ROUTES
-  // ============================================
+  // --------------------------------------------
   app.get("/api/reading-plans/templates", async (req, res) => {
     try {
       const { category, duration } = req.query;
@@ -644,9 +644,9 @@ export function registerStudyRoutes(app: Express): void {
     res.json(readingPlanService.getAllBooks());
   });
 
-  // ============================================================
+  // ------------------------------------------------------------
   // PRAYER MODULE ROUTES
-  // ============================================================
+  // ------------------------------------------------------------
 
   // GET /api/prayer/lists - Get user's prayer lists
   app.get("/api/prayer/lists", optionalAuth, async (req: AuthRequest, res) => {
@@ -820,9 +820,9 @@ export function registerStudyRoutes(app: Express): void {
     res.json({ ok: true, timestamp: new Date().toISOString() });
   });
 
-  // ========================================
+  // ----------------------------------------
   // SERMON RECORDINGS ENDPOINTS
-  // ========================================
+  // ----------------------------------------
 
   // GET /api/sermons - List user's sermon recordings
   app.get("/api/sermons", ensureAuthenticated, async (req: AuthRequest, res) => {
@@ -1120,9 +1120,9 @@ export function registerStudyRoutes(app: Express): void {
     }
   });
 
-  // ============================================================
+  // ------------------------------------------------------------
   // Google Play Console: Installs / Uninstalls (Reporting API)
-  // ============================================================
+  // ------------------------------------------------------------
   // Requires the service account to have the "Play Developer Reporting API"
   // permission AND the playdeveloperreporting OAuth scope. If either is missing
   // we return a graceful 200 response with `available: false` and a helpful

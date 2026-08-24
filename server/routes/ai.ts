@@ -288,9 +288,9 @@ export function registerAiRoutes(app: Express): void {
       // Trial inclui acesso completo (como Premium)
       const hasFullAccess = hasGold || hasPremium || hasLifetime || trialActiveAI;
 
-      // ========================================
+      // ----------------------------------------
       // PLANO GRATUITO: 2 perguntas com login (+ 1 sem login = 3 total)
-      // ========================================
+      // ----------------------------------------
       const AI_FREE_LIMIT = 2;  // 2 perguntas para usuários logados sem assinatura
 
       if (!hasFullAccess && !isAdmin) {
@@ -1160,9 +1160,9 @@ export function registerAiRoutes(app: Express): void {
     }
   });
 
-  // ===================================
+  // -----------------------------------
   // BILLING ROUTES - RevenueCat Integration
-  // ===================================
+  // -----------------------------------
 
   // Get user billing status
   app.get("/api/billing/status", ensureAuthenticated, async (req: AuthRequest, res) => {
@@ -1239,9 +1239,9 @@ export function registerAiRoutes(app: Express): void {
     }
   });
 
-  // ============================================
+  // --------------------------------------------
   // ADMIN ROUTES (Protected by role guards)
-  // ============================================
+  // --------------------------------------------
 
   // Admin Dashboard - Stats
 

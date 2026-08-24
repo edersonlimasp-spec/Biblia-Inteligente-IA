@@ -38,9 +38,9 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-// ===================================
+// -----------------------------------
 // TYPES - Sistema de Sessões
-// ===================================
+// -----------------------------------
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -71,9 +71,9 @@ interface AIResponse {
   response: string;
 }
 
-// ===================================
+// -----------------------------------
 // STORAGE - LocalStorage Management
-// ===================================
+// -----------------------------------
 
 const STORAGE_KEY = "bible-ai-chat-sessions";
 const CURRENT_SESSION_KEY = "bible-ai-current-session-id";
@@ -125,9 +125,9 @@ function loadCurrentSessionId(): string | null {
   }
 }
 
-// ===================================
+// -----------------------------------
 // COMPONENT - AIPanel
-// ===================================
+// -----------------------------------
 
 interface UserSubscription {
   hasPremium: boolean;
@@ -164,9 +164,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   const { quotaInfo, consumeQuestion, isLoading: quotaLoading } = useAIQuota();
   
 
-  // ===================================
+  // -----------------------------------
   // STATE - Sessões e Mensagens
-  // ===================================
+  // -----------------------------------
   
   const [currentSessionId, setCurrentSessionId] = useState<string>("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -175,9 +175,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   // Ref para scroll automático ao final do chat
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // ===================================
+  // -----------------------------------
   // AUTO-SCROLL - Scroll automático ao final quando mensagens mudam
-  // ===================================
+  // -----------------------------------
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -229,9 +229,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     }
   }, [shouldResetAI, onResetComplete]);
 
-  // ===================================
+  // -----------------------------------
   // INITIALIZATION - Carregar status de assinatura
-  // ===================================
+  // -----------------------------------
 
   useEffect(() => {
     async function fetchSubscriptionStatus() {
@@ -273,18 +273,18 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     fetchSubscriptionStatus();
   }, [user]);
   
-  // ===================================
+  // -----------------------------------
   // HELPERS - Check if user has unlimited AI access (uses centralized quota)
-  // ===================================
+  // -----------------------------------
   
   const hasUnlimitedAccess = (): boolean => {
     return quotaInfo.hasUnlimitedAccess;
   };
 
-  // ===================================
+  // -----------------------------------
   // INITIALIZATION - Carregar sessões do localStorage (com RESET automático)
   // IMPORTANTE: Respeitar shouldResetAI para não restaurar sessão quando vindo de anotações
-  // ===================================
+  // -----------------------------------
   
   useEffect(() => {
     console.log('[AIPanel] INITIALIZATION effect - shouldResetAI:', shouldResetAI);
@@ -363,9 +363,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     }
   }, [shouldResetAI]);
 
-  // ===================================
+  // -----------------------------------
   // INITIAL PROMPT - Handle external prompt from Strong's dictionary
-  // ===================================
+  // -----------------------------------
   
   useEffect(() => {
     if (initialPrompt && !hidden) {
@@ -377,9 +377,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     }
   }, [initialPrompt, hidden, onPromptConsumed]);
 
-  // ===================================
+  // -----------------------------------
   // AUTO-SAVE - Salvar sempre que mensagens mudarem
-  // ===================================
+  // -----------------------------------
   
   useEffect(() => {
     if (currentSessionId && messages.length > 0) {
@@ -388,9 +388,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
   }, [messages]);
   
 
-  // ===================================
+  // -----------------------------------
   // HELPERS - Gerenciamento de Sessões
-  // ===================================
+  // -----------------------------------
 
   const generateTitle = (firstQuestion: string): string => {
     // Pegar primeiras 50 caracteres da primeira pergunta
@@ -434,9 +434,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     });
   }, [messages, currentSessionId]);
 
-  // ===================================
+  // -----------------------------------
   // ACTIONS - Nova Conversa
-  // ===================================
+  // -----------------------------------
 
   const handleNewConversation = () => {
     // PASSO 1: Salvar sessão atual se houver mensagens
@@ -462,9 +462,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     });
   };
 
-  // ===================================
+  // -----------------------------------
   // ACTIONS - Carregar Sessão do Histórico
-  // ===================================
+  // -----------------------------------
 
   const handleLoadSession = (sessionId: string) => {
     const session = chatSessions.find(s => s.id === sessionId);
@@ -488,9 +488,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     });
   };
 
-  // ===================================
+  // -----------------------------------
   // AI MUTATION - Perguntar ao Professor
-  // ===================================
+  // -----------------------------------
 
   const askAIMutation = useMutation({
     mutationFn: async (request: AIRequest & { sessionId: string; isGuest?: boolean; deviceId?: string }) => {
@@ -586,9 +586,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
     },
   });
 
-  // ===================================
+  // -----------------------------------
   // IMAGE GENERATION MUTATION - DALL-E 3
-  // ===================================
+  // -----------------------------------
   
   const generateImageMutation = useMutation({
     mutationFn: async (request: { prompt: string; sessionId: string }) => {
@@ -678,9 +678,9 @@ export function AIPanel({ hidden = false, shouldResetAI = false, onResetComplete
       .trim() || text;
   };
 
-  // ===================================
+  // -----------------------------------
   // ACTIONS - Compartilhar Resposta
-  // ===================================
+  // -----------------------------------
 
   const getShareText = (assistantMsg: ChatMessage, idx: number) => {
     const userMsg = messages[idx - 1];
@@ -749,10 +749,10 @@ Conheça: https://bibliainteligente.replit.app`;
     // Clear input immediately for better UX
     setQuestion("");
     
-    // ===================================
+    // -----------------------------------
     // CHECK QUOTA (Centralized system)
     // Guest: 2 permanent questions, User: 5 permanent total
-    // ===================================
+    // -----------------------------------
     
     // Wait for quota to load if authenticated
     if (isAuthenticated && quotaLoading) {
@@ -764,27 +764,27 @@ Conheça: https://bibliainteligente.replit.app`;
       return;
     }
     
-    // ===================================
+    // -----------------------------------
     // CASE 1: Guest - require login if limit reached
-    // ===================================
+    // -----------------------------------
     if (quotaInfo.requiresLogin) {
       setQuestion(currentQuestion); // Restore question
       setShowLoginPrompt(true);
       return;
     }
     
-    // ===================================
+    // -----------------------------------
     // CASE 2: User without subscription - require upgrade if limit reached
-    // ===================================
+    // -----------------------------------
     if (quotaInfo.requiresSubscription) {
       setQuestion(currentQuestion); // Restore question
       setShowUpgradePrompt(true);
       return;
     }
     
-    // ===================================
+    // -----------------------------------
     // PROCEED - User has quota or unlimited access
-    // ===================================
+    // -----------------------------------
     
     // Add user message to chat
     const userMessage: ChatMessage = {
@@ -850,9 +850,9 @@ Conheça: https://bibliainteligente.replit.app`;
     });
   };
 
-  // ===================================
+  // -----------------------------------
   // RENDER
-  // ===================================
+  // -----------------------------------
 
   // Ocultar completamente quando hidden=true (ex: AnnotationPanel aberto)
   if (hidden) {

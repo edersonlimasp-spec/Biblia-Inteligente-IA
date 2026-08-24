@@ -205,12 +205,12 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* ========================================
+/* ----------------------------------------
    STRONG'S DICTIONARY — DOURADO #A88445
    Único uso permitido do dourado na interface.
    Sublinhado das palavras com entrada no Strong's.
    Código Strong exibido usa --strong-code-color.
-   ======================================== */
+   ---------------------------------------- */
 
 .strong-word {
   color: inherit;
@@ -262,18 +262,18 @@
   outline-color: rgba(168, 132, 69, 0.80);
 }
 
-/* ========================================
+/* ----------------------------------------
    LEITOR BÍBLICO — TAMANHOS DE TEXTO
    Quatro passos controlados pelo usuário.
    Aplicados via verseTextClass no BibleReader.
-   ======================================== */
+   ---------------------------------------- */
 
 .bible-font-small  { font-size: 18px; line-height: 1.55; }
 .bible-font-medium { font-size: 20px; line-height: 1.65; }
 .bible-font-large  { font-size: 23px; line-height: 1.70; }
 .bible-font-xlarge { font-size: 26px; line-height: 1.75; }
 
-/* ========================================
+/* ----------------------------------------
    LEITOR — CHROME LINHO (modo claro)
    Define background-color diretamente (não via
    variável CSS) para evitar conflito de
@@ -282,7 +282,7 @@
    componentes shadcn filhos (SelectTrigger, input,
    botões ghost etc.) herdem a paleta Linho.
    Em modo escuro usa as superfícies escuras do tema.
-   ======================================== */
+   ---------------------------------------- */
 
 .linho-chrome {
   /* Cor direta — maior especificidade que qualquer utilitário Tailwind */
@@ -594,11 +594,11 @@ body::-webkit-scrollbar {
   word-break: break-word;
 }
 
-/* ========================================
+/* ----------------------------------------
    LEITOR DE LIVROS — TIPOGRAFIA DE LIVRO IMPRESSO
    Exclusivo do BookReaderScreen paginado.
    NÃO afeta o leitor bíblico (bible-font-* / bible-page).
-   ======================================== */
+   ---------------------------------------- */
 
 /* Tamanhos de fonte do leitor de livros */
 .book-font-small  { font-size: 16px; }

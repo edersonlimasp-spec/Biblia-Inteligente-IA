@@ -1481,9 +1481,9 @@ export function registerAdminRoutes(app: Express): void {
     }
   });
 
-  // ============================================
+  // --------------------------------------------
   // USER ACTIVITY TRACKING & RE-ENGAGEMENT
-  // ============================================
+  // --------------------------------------------
 
   // Rate limiter for heartbeat (6 hours cooldown per user)
   const heartbeatCache = new Map<string, number>();
@@ -1645,9 +1645,9 @@ export function registerAdminRoutes(app: Express): void {
     }
   });
 
-  // ============================================
+  // --------------------------------------------
   // ADMIN - PAYMENT RECEIPTS
-  // ============================================
+  // --------------------------------------------
 
   // GET /api/admin/receipts - List payment receipts with optional filters
   app.get("/api/admin/receipts", ensureAdmin, async (req: AuthRequest, res) => {
@@ -1747,9 +1747,9 @@ export function registerAdminRoutes(app: Express): void {
     }
   });
 
-  // ============================================
+  // --------------------------------------------
   // ADMIN - CAMPAIGN MANAGEMENT
-  // ============================================
+  // --------------------------------------------
 
   // GET /api/admin/campaigns/stats - Get campaign statistics
   app.get("/api/admin/campaigns/stats", ensureAdmin, async (req: AuthRequest, res) => {
@@ -1914,9 +1914,9 @@ export function registerAdminRoutes(app: Express): void {
     }
   });
 
-  // ==========================================
+  // ------------------------------------------
   // READING PLANS API
-  // ==========================================
+  // ------------------------------------------
 
   // GET /api/reading-plans/templates - Get all reading plan templates
   app.get("/api/admin/metrics/google-play-installs", ensureAdmin, async (_req: AuthRequest, res) => {
@@ -2030,9 +2030,9 @@ export function registerAdminRoutes(app: Express): void {
     }
   });
 
-  // ============================================================
+  // ------------------------------------------------------------
   // Google Play Console: Subscription offers (base plans + offers)
-  // ============================================================
+  // ------------------------------------------------------------
   // Lists every subscription product, its base plans and offers (including the
   // free-trial / introductory phases). Read-only. Same graceful fallback rules.
   app.get("/api/admin/play-console/offers", ensureAdmin, async (_req: AuthRequest, res) => {

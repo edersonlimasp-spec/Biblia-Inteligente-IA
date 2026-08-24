@@ -11,7 +11,6 @@ import { AdminSystemHealth } from "./admin/AdminSystemHealth";
 import { AdminCampaigns } from "./admin/AdminCampaigns";
 import { AdminCoupons } from "./admin/AdminCoupons";
 import { AdminLibrary } from "./admin/AdminLibrary";
-import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag, BookMarked } from "lucide-react";
 
 interface AdminPanelProps {
   onBack?: () => void;

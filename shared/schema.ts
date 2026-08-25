@@ -66,6 +66,7 @@ export const subscriptions = pgTable("subscriptions", {
   storeTransactionId: text("store_transaction_id"), // Apple transactionId or Google purchaseToken
   originalTransactionId: text("original_transaction_id"), // For subscription renewals
   storeProductId: text("store_product_id"), // Product ID in App Store/Play Store
+  storePurchaseToken: text("store_purchase_token"), // Google purchaseToken — needed to re-verify renewals with the Play Developer API
   lastVerifiedAt: timestamp("last_verified_at"),
   nextRenewalCheck: timestamp("next_renewal_check"),
   cancellationAt: timestamp("cancellation_at"),

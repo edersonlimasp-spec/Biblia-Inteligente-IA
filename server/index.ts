@@ -318,11 +318,19 @@ app.use((req, res, next) => {
         console.error('❌ Database initialization failed (server still running):', err);
       });
 
-    // Mark expired subscriptions on startup and every 6 hours
+    // Re-verify Google renewals, then mark expired subscriptions — on startup and every 6 hours.
+    // Order matters: refreshing first prevents auto-renewed Google subscriptions
+    // from being wrongly marked expired when only the old endDate is stored.
     const runMarkExpired = () => {
-      storage.markExpiredSubscriptions()
+      import('./payments/google')
+        .then(({ refreshGoogleSubscriptions }) => refreshGoogleSubscriptions())
+        .then(() => storage.markExpiredSubscriptions())
         .then(count => { if (count > 0) log(`✅ ${count} assinatura(s) marcadas como expiradas`); })
-        .catch(err => console.error('❌ Erro ao marcar expiradas:', err));
+        .catch(err => {
+          // Se a rechecagem no Google falhar, NÃO rode o expirador neste ciclo:
+          // expirar sem verificar revogaria assinantes renovados automaticamente.
+          console.error('❌ Erro na varredura de assinaturas (expiração adiada para o próximo ciclo):', err);
+        });
     };
     setTimeout(runMarkExpired, 5000); // 5s após iniciar
     setInterval(runMarkExpired, 6 * 60 * 60 * 1000); // a cada 6h

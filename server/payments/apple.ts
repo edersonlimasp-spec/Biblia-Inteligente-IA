@@ -5,7 +5,7 @@
 
 import { db } from '../db';
 import { subscriptions, paymentReceipts, users } from '@shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or, lte, isNotNull, sql } from 'drizzle-orm';
 
 // Apple verification endpoints
 const APPLE_PRODUCTION_URL = 'https://buy.itunes.apple.com/verifyReceipt';
@@ -198,11 +198,19 @@ export async function processApplePurchase(
     if (existingByTransaction.length > 0) {
       // Update existing subscription (renewal)
       const existing = existingByTransaction[0];
+
+      // SECURITY: uma assinatura já vinculada a outra conta não pode ser
+      // atualizada/reivindicada por outro usuário (ex.: aparelho compartilhado).
+      if (existing.userId !== userId) {
+        console.error('[Apple IAP] SECURITY: purchase already linked to another account', { originalTransactionId });
+        return { success: false, error: 'Purchase already linked to another account' };
+      }
       await db.update(subscriptions)
         .set({
           storeTransactionId: transactionId,
           endDate,
           status,
+          storePurchaseToken: receiptData,
           lastVerifiedAt: now,
           nextRenewalCheck: endDate ? new Date(endDate.getTime() - 24 * 60 * 60 * 1000) : null,
         })
@@ -261,6 +269,7 @@ export async function processApplePurchase(
         storeTransactionId: transactionId,
         originalTransactionId,
         storeProductId: productId,
+        storePurchaseToken: receiptData,
         lastVerifiedAt: now,
         nextRenewalCheck: endDate ? new Date(endDate.getTime() - 24 * 60 * 60 * 1000) : null,
       })
@@ -301,6 +310,94 @@ export async function processApplePurchase(
 }
 
 /**
+ * Re-verify Apple subscriptions close to (or past) their stored expiry using
+ * the persisted receipt, extending endDate when Apple has auto-renewed them.
+ * Mirrors refreshGoogleSubscriptions — without it, renewals never reach the
+ * database unless the device happens to report the new transaction.
+ */
+export async function refreshAppleSubscriptions(): Promise<{ checked: number; renewed: number; expired: number; failed: number }> {
+  const summary = { checked: 0, renewed: 0, expired: 0, failed: 0 };
+
+  if (!process.env.APPLE_SHARED_SECRET) {
+    return summary; // sem credencial não há verificação confiável (dev/test)
+  }
+
+  const windowEnd = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const candidates = await db.select()
+    .from(subscriptions)
+    .where(and(
+      eq(subscriptions.source, 'apple'),
+      isNotNull(subscriptions.endDate),
+      isNotNull(subscriptions.storePurchaseToken),
+      lte(subscriptions.endDate, windowEnd),
+      or(
+        sql`LOWER(${subscriptions.status}) = 'active'`,
+        // renovação pode ter ocorrido depois do último ciclo do expirador
+        sql`LOWER(${subscriptions.status}) = 'expired'`
+      )
+    ));
+
+  for (const subscription of candidates) {
+    const receiptData = subscription.storePurchaseToken;
+    const productInfo = subscription.storeProductId ? APPLE_PRODUCT_MAP[subscription.storeProductId] : undefined;
+    if (!receiptData || !productInfo?.durationDays) continue; // vitalícios fora
+
+    summary.checked++;
+    try {
+      const verification = await verifyAppleReceipt(receiptData);
+      if (verification.status !== APPLE_STATUS.VALID) {
+        console.warn('[Apple IAP] Renewal check: verification status', verification.status, 'for subscription', subscription.id);
+        // 21005 = servidor da Apple indisponível (transitório) → falha real;
+        // demais códigos indicam recibo inválido — deixa expirar naturalmente.
+        if (verification.status === 21005) summary.failed++;
+        continue;
+      }
+
+      const transactions = verification.latest_receipt_info || verification.receipt?.in_app || [];
+      const related = transactions.filter(t =>
+        t.original_transaction_id === subscription.originalTransactionId && t.expires_date_ms
+      );
+      if (related.length === 0) continue;
+
+      const latest = related.reduce((a, b) =>
+        parseInt(a.expires_date_ms!) >= parseInt(b.expires_date_ms!) ? a : b
+      );
+      const newEndDate = new Date(parseInt(latest.expires_date_ms!));
+      const isActive = newEndDate > new Date();
+      const changed =
+        !subscription.endDate ||
+        newEndDate.getTime() !== new Date(subscription.endDate).getTime() ||
+        (isActive ? 'active' : 'expired') !== subscription.status.toLowerCase();
+
+      await db.update(subscriptions)
+        .set({
+          storeTransactionId: latest.transaction_id,
+          endDate: newEndDate,
+          status: isActive ? 'active' : 'expired',
+          lastVerifiedAt: new Date(),
+          nextRenewalCheck: new Date(newEndDate.getTime() - 24 * 60 * 60 * 1000),
+        })
+        .where(eq(subscriptions.id, subscription.id));
+
+      if (isActive && changed) {
+        summary.renewed++;
+        console.log(`[Apple IAP] Renewal detected: subscription ${subscription.id} extended to ${newEndDate.toISOString()}`);
+      } else if (!isActive) {
+        summary.expired++;
+      }
+    } catch (error) {
+      summary.failed++;
+      console.error('[Apple IAP] Renewal check failed for subscription', subscription.id, error);
+    }
+  }
+
+  if (summary.checked > 0) {
+    console.log(`[Apple IAP] Renewal sweep: checked=${summary.checked} renewed=${summary.renewed} expired=${summary.expired} failed=${summary.failed}`);
+  }
+  return summary;
+}
+
+/**
  * Restore Apple purchases for a user
  */
 export async function restoreApplePurchases(
@@ -323,19 +420,10 @@ export async function restoreApplePurchases(
       const productInfo = APPLE_PRODUCT_MAP[transaction.product_id];
       if (!productInfo) continue;
 
-      // Check if already restored
-      const existing = await db.select()
-        .from(subscriptions)
-        .where(and(
-          eq(subscriptions.userId, userId),
-          eq(subscriptions.originalTransactionId, transaction.original_transaction_id),
-          eq(subscriptions.source, 'apple')
-        ))
-        .limit(1);
-
-      if (existing.length > 0) continue;
-
-      // Process this purchase
+      // Reprocessa mesmo quando a assinatura já existe: processApplePurchase
+      // atualiza a linha existente por originalTransactionId, estendendo o
+      // endDate quando o recibo contém uma renovação mais recente. Antes,
+      // linhas existentes eram puladas e o restore não refletia renovações.
       const result = await processApplePurchase(
         userId,
         receiptData,

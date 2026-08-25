@@ -197,6 +197,80 @@ router.post('/restore/google', ensureAuthenticated, async (req: AuthRequest, res
 });
 
 /**
+ * POST /api/iap/rtdn/google
+ * Google Play Real-Time Developer Notifications (Pub/Sub push).
+ *
+ * Segurança: o payload NUNCA é confiado — ele só aponta qual purchaseToken
+ * verificar; toda atualização passa por re-verificação na Play Developer API.
+ * Opcionalmente, defina GOOGLE_RTDN_TOKEN e configure o push endpoint como
+ * .../api/iap/rtdn/google?token=<valor> para rejeitar chamadas de terceiros.
+ * Respondemos 200 mesmo em casos ignoráveis para o Pub/Sub não reenviar.
+ */
+const rtdnRate = { windowStart: 0, count: 0 };
+
+router.post('/rtdn/google', async (req: Request, res: Response) => {
+  try {
+    // Rate limit simples em memória: RTDN legítimo é de baixa frequência.
+    const nowMs = Date.now();
+    if (nowMs - rtdnRate.windowStart > 60_000) {
+      rtdnRate.windowStart = nowMs;
+      rtdnRate.count = 0;
+    }
+    if (++rtdnRate.count > 120) {
+      return res.status(429).json({ error: 'Too many requests' });
+    }
+
+    const expectedToken = process.env.GOOGLE_RTDN_TOKEN;
+    if (!expectedToken) {
+      if (process.env.NODE_ENV === 'production') {
+        // Sem segredo configurado, o endpoint ficaria aberto a abuso em produção.
+        console.error('[Google RTDN] GOOGLE_RTDN_TOKEN não configurado — endpoint desabilitado');
+        return res.status(503).json({ error: 'RTDN not configured' });
+      }
+    } else if (req.query.token !== expectedToken) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const encoded = req.body?.message?.data;
+    if (!encoded || typeof encoded !== 'string') {
+      return res.status(200).json({ ok: true, ignored: 'no message data' });
+    }
+
+    let notification: any;
+    try {
+      notification = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'));
+    } catch {
+      return res.status(200).json({ ok: true, ignored: 'invalid payload' });
+    }
+
+    const purchaseToken: string | undefined =
+      notification?.subscriptionNotification?.purchaseToken ||
+      notification?.voidedPurchaseNotification?.purchaseToken;
+
+    if (!purchaseToken) {
+      // testNotification e outros tipos sem token são apenas confirmados
+      return res.status(200).json({ ok: true, ignored: 'no purchase token' });
+    }
+
+    const { syncGoogleSubscriptionByToken } = await import('./google');
+    const outcome = await syncGoogleSubscriptionByToken(purchaseToken);
+    console.log('[Google RTDN] notificationType:',
+      notification?.subscriptionNotification?.notificationType, '→', outcome);
+
+    if (outcome === 'failed') {
+      // Falha transitória (rede/Google API): não confirmar para o Pub/Sub
+      // reentregar com backoff.
+      return res.status(503).json({ ok: false, outcome });
+    }
+    return res.status(200).json({ ok: true, outcome });
+  } catch (error) {
+    console.error('[Google RTDN] Error handling notification:', error);
+    // Erro inesperado também é retryável
+    return res.status(503).json({ ok: false });
+  }
+});
+
+/**
  * GET /api/iap/status
  * Get current subscription status for the authenticated user (includes native purchases)
  */

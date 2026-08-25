@@ -176,7 +176,7 @@ export async function verifyGooglePurchase(
 export async function verifyGoogleSubscription(
   subscriptionId: string,
   purchaseToken: string
-): Promise<GoogleSubscriptionVerification | null> {
+): Promise<GoogleSubscriptionVerification | 'gone' | null> {
   const packageName = GOOGLE_PLAY_PACKAGE_NAME;
   const accessToken = await getGoogleAccessToken();
   
@@ -193,6 +193,12 @@ export async function verifyGoogleSubscription(
     });
 
     if (!response.ok) {
+      // 400/404/410: o token não é mais válido no Google (assinatura muito
+      // antiga, voided ou inexistente) — diferente de falha transitória.
+      if ([400, 404, 410].includes(response.status)) {
+        console.warn('[Google IAP] Subscription token no longer valid:', response.status);
+        return 'gone';
+      }
       console.error('[Google IAP] Subscription verification failed:', response.status);
       return null;
     }
@@ -272,6 +278,9 @@ export async function processGooglePurchase(
 
     if (productInfo.isSubscription) {
       verification = await verifyGoogleSubscription(productId, purchaseToken);
+      if (verification === 'gone') {
+        return { success: false, error: 'Subscription token no longer valid with Google' };
+      }
       if (!verification && hasGoogleCredentials) {
         console.error('[Google IAP] Subscription verification failed');
         return { success: false, error: 'Failed to verify subscription with Google' };
@@ -329,6 +338,13 @@ export async function processGooglePurchase(
     if (existingByOrder.length > 0) {
       // Update existing subscription
       const existing = existingByOrder[0];
+
+      // SECURITY: uma compra já vinculada a outra conta não pode ser
+      // silenciosamente movida/atualizada por outro usuário.
+      if (existing.userId !== userId) {
+        console.error('[Google IAP] SECURITY: purchase already linked to another account', { orderId });
+        return { success: false, error: 'Purchase already linked to another account' };
+      }
       await db.update(subscriptions)
         .set({
           endDate,
@@ -407,13 +423,87 @@ export async function processGooglePurchase(
 }
 
 /**
+ * Sync a single stored Google subscription row against the Play Developer API.
+ * Used by the renewal sweep and by the RTDN webhook. Returns the outcome.
+ */
+export async function syncGoogleSubscriptionRow(
+  subscription: typeof subscriptions.$inferSelect
+): Promise<'renewed' | 'expired' | 'unchanged' | 'skipped' | 'failed'> {
+  const productId = subscription.storeProductId;
+  const purchaseToken = subscription.storePurchaseToken;
+  if (!productId || !purchaseToken) return 'skipped';
+  const productInfo = GOOGLE_PRODUCT_MAP[productId];
+  if (!productInfo?.isSubscription) return 'skipped';
+
+  try {
+    const verification = await verifyGoogleSubscription(productId, purchaseToken);
+    if (verification === 'gone') {
+      // Token definitivamente inválido no Google: a assinatura pode expirar.
+      await db.update(subscriptions)
+        .set({ status: 'expired', lastVerifiedAt: new Date() })
+        .where(eq(subscriptions.id, subscription.id));
+      return 'expired';
+    }
+    if (!verification?.expiryTimeMillis) {
+      console.warn('[Google IAP] Sync: no verification for subscription', subscription.id);
+      return 'failed';
+    }
+
+    const newEndDate = new Date(parseInt(verification.expiryTimeMillis));
+    const isActive = newEndDate > new Date();
+    const changed =
+      !subscription.endDate ||
+      newEndDate.getTime() !== new Date(subscription.endDate).getTime() ||
+      (isActive ? 'active' : 'expired') !== subscription.status.toLowerCase();
+
+    await db.update(subscriptions)
+      .set({
+        endDate: newEndDate,
+        status: isActive ? 'active' : 'expired',
+        lastVerifiedAt: new Date(),
+        nextRenewalCheck: new Date(newEndDate.getTime() - 24 * 60 * 60 * 1000),
+      })
+      .where(eq(subscriptions.id, subscription.id));
+
+    if (isActive && changed) {
+      console.log(`[Google IAP] Renewal detected: subscription ${subscription.id} extended to ${newEndDate.toISOString()}`);
+      return 'renewed';
+    }
+    return isActive ? 'unchanged' : 'expired';
+  } catch (error) {
+    console.error('[Google IAP] Sync failed for subscription', subscription.id, error);
+    return 'failed';
+  }
+}
+
+/**
+ * Sync the subscription row that owns a given Google purchaseToken.
+ * Used by the Real-Time Developer Notifications (RTDN) webhook — we never
+ * trust the notification payload itself; we always re-verify with Google.
+ */
+export async function syncGoogleSubscriptionByToken(
+  purchaseToken: string
+): Promise<'renewed' | 'expired' | 'unchanged' | 'skipped' | 'failed' | 'not_found'> {
+  const [subscription] = await db.select()
+    .from(subscriptions)
+    .where(and(
+      eq(subscriptions.source, 'google'),
+      eq(subscriptions.storePurchaseToken, purchaseToken)
+    ))
+    .limit(1);
+
+  if (!subscription) return 'not_found';
+  return syncGoogleSubscriptionRow(subscription);
+}
+
+/**
  * Re-verify Google Play subscriptions that are close to (or past) their stored
  * expiry against the Play Developer API, extending endDate when Google has
  * auto-renewed them. Without this, renewals never reach the database and users
  * lose access at the end of the first billing period.
  */
-export async function refreshGoogleSubscriptions(): Promise<{ checked: number; renewed: number; expired: number }> {
-  const summary = { checked: 0, renewed: 0, expired: 0 };
+export async function refreshGoogleSubscriptions(): Promise<{ checked: number; renewed: number; expired: number; failed: number }> {
+  const summary = { checked: 0, renewed: 0, expired: 0, failed: 0 };
 
   if (!process.env.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY) {
     return summary; // nothing to do without credentials (dev/test)
@@ -436,49 +526,16 @@ export async function refreshGoogleSubscriptions(): Promise<{ checked: number; r
     ));
 
   for (const subscription of candidates) {
-    const productId = subscription.storeProductId;
-    const purchaseToken = subscription.storePurchaseToken;
-    if (!productId || !purchaseToken) continue;
-    const productInfo = GOOGLE_PRODUCT_MAP[productId];
-    if (!productInfo?.isSubscription) continue;
-
+    const outcome = await syncGoogleSubscriptionRow(subscription);
+    if (outcome === 'skipped') continue;
     summary.checked++;
-    try {
-      const verification = await verifyGoogleSubscription(productId, purchaseToken);
-      if (!verification?.expiryTimeMillis) {
-        console.warn('[Google IAP] Renewal check: no verification for subscription', subscription.id);
-        continue;
-      }
-
-      const newEndDate = new Date(parseInt(verification.expiryTimeMillis));
-      const isActive = newEndDate > new Date();
-      const changed =
-        !subscription.endDate ||
-        newEndDate.getTime() !== new Date(subscription.endDate).getTime() ||
-        (isActive ? 'active' : 'expired') !== subscription.status.toLowerCase();
-
-      await db.update(subscriptions)
-        .set({
-          endDate: newEndDate,
-          status: isActive ? 'active' : 'expired',
-          lastVerifiedAt: new Date(),
-          nextRenewalCheck: new Date(newEndDate.getTime() - 24 * 60 * 60 * 1000),
-        })
-        .where(eq(subscriptions.id, subscription.id));
-
-      if (isActive && changed) {
-        summary.renewed++;
-        console.log(`[Google IAP] Renewal detected: subscription ${subscription.id} extended to ${newEndDate.toISOString()}`);
-      } else if (!isActive) {
-        summary.expired++;
-      }
-    } catch (error) {
-      console.error('[Google IAP] Renewal check failed for subscription', subscription.id, error);
-    }
+    if (outcome === 'renewed') summary.renewed++;
+    else if (outcome === 'expired') summary.expired++;
+    else if (outcome === 'failed') summary.failed++;
   }
 
   if (summary.checked > 0) {
-    console.log(`[Google IAP] Renewal sweep: checked=${summary.checked} renewed=${summary.renewed} expired=${summary.expired}`);
+    console.log(`[Google IAP] Renewal sweep: checked=${summary.checked} renewed=${summary.renewed} expired=${summary.expired} failed=${summary.failed}`);
   }
   return summary;
 }

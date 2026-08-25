@@ -12,5 +12,5 @@
 - [Drizzle push orphan-table rename trap](drizzle-push-orphan-tables.md) — db:push pode propor renomear tabela órfã do BD para a nova tabela; recusar e criar via SQL manual.
 - [Design palette isolation rules](design-palette-rules.md) — paleta do ícone (azul-petróleo/vermelho); pergaminho isolado em .bible-page; dourado APENAS em .strong-word; dark mode padrão.
 - [Dados Strong em produção](strong-data-prod-seed.md) — bible_words/pdf_word_index chegam à prod via seed do Neon no boot; manter Neon espelho do dev; Mateus 99,8% sem inventar.
-- [Google Play renewals](google-play-renewals.md) — renovações exigem purchaseToken persistido + varredura antes do expirador; orderId muda a cada ciclo; sem RTDN.
+- [Store renewals Google+Apple](store-subscription-renewals.md) — credencial persistida + varredura + RTDN com guard pré-parser; expiração adiada se verificação falhar; iOS nunca chama restore nativo no boot.
 - [Sincronização da Biblioteca](library-seed-sync.md) — seed casa livros por título e capítulos por (book_id, order_num); casar por id duplicou livros.

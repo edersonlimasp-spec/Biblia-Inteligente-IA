@@ -810,11 +810,61 @@ export async function initializeIAP(): Promise<void> {
     const store = await _initCdvStore();
     if (store) {
       console.log('[IAP] Store pré-inicializada com sucesso');
+      // Ressincroniza assinaturas em segundo plano: garante que renovações e
+      // assinaturas antigas (sem token/recibo salvo no servidor) voltem a
+      // valer sem o usuário precisar tocar em "Restaurar compras".
+      setTimeout(() => {
+        _autoSyncSubscriptions().catch((e) =>
+          console.warn('[IAP] Auto-sync de assinaturas falhou (não crítico):', e)
+        );
+      }, 4000);
     } else {
       console.warn('[IAP] Store indisponível durante pré-inicialização (será tentado novamente na compra)');
     }
   } catch (e) {
     console.warn('[IAP] Erro na pré-inicialização (não crítico):', e);
+  }
+}
+
+let _autoSyncDone = false;
+
+/**
+ * Ressincronização silenciosa de assinaturas com o backend, uma vez por sessão.
+ * - Android: queryPurchases é silencioso; usa o fluxo normal de restore.
+ * - iOS: NÃO chama store.restorePurchases() (pode abrir prompt de senha da
+ *   Apple); apenas envia o appStoreReceipt local, se existir, ao backend.
+ * Usuário não autenticado: o backend responde 401 e o erro é ignorado.
+ */
+async function _autoSyncSubscriptions(): Promise<void> {
+  if (_autoSyncDone) return;
+  _autoSyncDone = true;
+
+  if (isAndroid) {
+    const result = await restorePurchases();
+    console.log('[IAP] Auto-sync Android:', result.success ? `ok (${result.restored} sincronizadas)` : result.error);
+    return;
+  }
+
+  if (isIOS) {
+    const store = await getAppleStore();
+    if (!store) return;
+
+    const receipts = (store as any).localReceipts || [];
+    let appStoreReceipt = '';
+    for (const r of receipts) {
+      const candidate =
+        (r as any)?.nativePurchase?.appStoreReceipt ||
+        (r as any)?.transactions?.[0]?.nativePurchase?.appStoreReceipt ||
+        '';
+      if (candidate) { appStoreReceipt = candidate; break; }
+    }
+    if (!appStoreReceipt) return; // nunca comprou neste Apple ID
+
+    const response = await apiRequest('POST', '/api/iap/restore/apple', {
+      receiptData: appStoreReceipt,
+    });
+    const data = await response.json().catch(() => null);
+    console.log('[IAP] Auto-sync iOS:', data?.success ? `ok (${data.restored} sincronizadas)` : 'sem alterações');
   }
 }
 

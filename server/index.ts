@@ -122,6 +122,34 @@ declare module 'http' {
     rawBody: unknown
   }
 }
+// Guarda do webhook RTDN ANTES do parser global de 50mb: token, rate limit e
+// tamanho máximo são checados antes de qualquer parsing de corpo, evitando
+// que chamadas não autenticadas consumam memória/CPU com payloads grandes.
+const rtdnGuard = { windowStart: 0, count: 0 };
+app.use('/api/iap/rtdn/google', (req, res, next) => {
+  const nowMs = Date.now();
+  if (nowMs - rtdnGuard.windowStart > 60_000) {
+    rtdnGuard.windowStart = nowMs;
+    rtdnGuard.count = 0;
+  }
+  if (++rtdnGuard.count > 120) {
+    return res.status(429).json({ error: 'Too many requests' });
+  }
+  const expectedToken = process.env.GOOGLE_RTDN_TOKEN;
+  if (!expectedToken) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(503).json({ error: 'RTDN not configured' });
+    }
+  } else if (req.query.token !== expectedToken) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  const len = parseInt(String(req.headers['content-length'] || '0'), 10);
+  if (!Number.isFinite(len) || len <= 0 || len > 64 * 1024) {
+    return res.status(413).json({ error: 'Payload too large' });
+  }
+  next();
+});
+
 app.use(express.json({
   limit: '50mb',
   verify: (req, _res, buf) => {
@@ -322,9 +350,20 @@ app.use((req, res, next) => {
     // Order matters: refreshing first prevents auto-renewed Google subscriptions
     // from being wrongly marked expired when only the old endDate is stored.
     const runMarkExpired = () => {
-      import('./payments/google')
-        .then(({ refreshGoogleSubscriptions }) => refreshGoogleSubscriptions())
-        .then(() => storage.markExpiredSubscriptions())
+      Promise.all([
+        import('./payments/google').then(({ refreshGoogleSubscriptions }) => refreshGoogleSubscriptions()),
+        import('./payments/apple').then(({ refreshAppleSubscriptions }) => refreshAppleSubscriptions()),
+      ])
+        .then(([google, apple]) => {
+          const failures = google.failed + apple.failed;
+          if (failures > 0) {
+            // Falhas transitórias de verificação: não expire ninguém neste
+            // ciclo — o assinante pode já ter renovado na loja.
+            console.warn(`⚠️ ${failures} verificação(ões) de renovação falharam; expiração adiada para o próximo ciclo`);
+            return 0;
+          }
+          return storage.markExpiredSubscriptions();
+        })
         .then(count => { if (count > 0) log(`✅ ${count} assinatura(s) marcadas como expiradas`); })
         .catch(err => {
           // Se a rechecagem no Google falhar, NÃO rode o expirador neste ciclo:

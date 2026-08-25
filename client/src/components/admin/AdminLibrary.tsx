@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Edit2, Trash2, BookOpen, Check, X, Eye, EyeOff, GripVertical, BookOpenCheck } from "lucide-react";
+import { Plus, Edit2, Trash2, BookOpen, Check, X, Eye, EyeOff, GripVertical, BookOpenCheck, RefreshCw } from "lucide-react";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { getApiUrl } from "@/lib/queryClient";
+import { getApiUrl, getAuthHeaders } from "@/lib/queryClient";
 
 // ── Paleta couro ─────────────────────────────────────────────────────────
 const LEATHER_FROM = "#5C4632";
@@ -56,6 +56,19 @@ interface LibraryChapter {
   isSample: boolean;
 }
 
+interface LibrarySyncResult {
+  message?: string;
+  ok?: boolean;
+  skipped?: string;
+  error?: string;
+  sourceBooks?: number;
+  sourceChapters?: number;
+  booksInserted?: number;
+  booksUpdated?: number;
+  chaptersInserted?: number;
+  chaptersUpdated?: number;
+}
+
 const EMPTY_BOOK: Partial<LibraryBook> = {
   title: "", author: "", category: CATEGORIES[0],
   accessType: "plan", publishStatus: "draft", isNew: false,
@@ -65,7 +78,7 @@ async function apiFetch(url: string, options?: RequestInit) {
   const res = await fetch(getApiUrl(url), {
     ...options,
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(options?.headers ?? {}) },
+    headers: { "Content-Type": "application/json", ...getAuthHeaders(), ...(options?.headers ?? {}) },
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
@@ -406,6 +419,7 @@ export function AdminLibrary() {
   const [editingChapter, setEditingChapter] = useState<Partial<LibraryChapter> | null>(null);
   const [newBook, setNewBook] = useState(false);
   const [newChapter, setNewChapter] = useState(false);
+  const [syncResult, setSyncResult] = useState<LibrarySyncResult | null>(null);
 
   // Drag-to-reorder state
   const dragId = useRef<string | null>(null);
@@ -458,6 +472,25 @@ export function AdminLibrary() {
     mutationFn: (id: string) => apiFetch(`/api/admin/library/chapters/${selectedBookId}/${id}`, { method: "DELETE" }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["/api/admin/library/chapters", selectedBookId] }); toast({ description: "Capítulo excluído." }); },
     onError: (e: any) => toast({ variant: "destructive", description: `Erro: ${e.message}` }),
+  });
+
+  const syncLibraryMut = useMutation({
+    mutationFn: () => apiFetch("/api/admin/library/sync", { method: "POST" }) as Promise<LibrarySyncResult>,
+    onSuccess: (result) => {
+      setSyncResult(result);
+      qc.invalidateQueries({ queryKey: ["/api/admin/library/books"] });
+      qc.invalidateQueries({ queryKey: ["/api/admin/library/chapters"] });
+      toast({ description: result.message || "Biblioteca sincronizada." });
+    },
+    onError: (e: any) => {
+      setSyncResult(null);
+      let msg = e?.message || "Erro desconhecido";
+      try {
+        const parsed = JSON.parse(msg);
+        msg = parsed.message || parsed.error || msg;
+      } catch { /* not JSON, keep raw text */ }
+      toast({ variant: "destructive", description: `Erro ao sincronizar: ${msg}` });
+    },
   });
 
   const reorderChaptersMut = useMutation({
@@ -522,13 +555,44 @@ export function AdminLibrary() {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground">{books.length} livro{books.length !== 1 ? "s" : ""} no catálogo</p>
-            <Button
-              onClick={() => setNewBook(true)}
-              style={{ background: `linear-gradient(158deg, ${LEATHER_FROM}, ${LEATHER_TO})`, color: "#fff", border: "none" }}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Novo livro
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => syncLibraryMut.mutate()}
+                disabled={syncLibraryMut.isPending}
+                data-testid="button-sync-library"
+              >
+                <RefreshCw className={`w-4 h-4 mr-1 ${syncLibraryMut.isPending ? "animate-spin" : ""}`} />
+                {syncLibraryMut.isPending ? "Sincronizando..." : "Sincronizar Biblioteca"}
+              </Button>
+              <Button
+                onClick={() => setNewBook(true)}
+                style={{ background: `linear-gradient(158deg, ${LEATHER_FROM}, ${LEATHER_TO})`, color: "#fff", border: "none" }}
+              >
+                <Plus className="w-4 h-4 mr-1" /> Novo livro
+              </Button>
+            </div>
           </div>
+
+          {syncResult && (
+            <div className="rounded-lg border border-border p-3 text-sm space-y-1" data-testid="sync-result">
+              <div className="flex items-center justify-between">
+                <p className="font-medium">{syncResult.message || "Sincronização concluída."}</p>
+                <button onClick={() => setSyncResult(null)} className="text-muted-foreground hover:text-foreground" aria-label="Fechar resultado">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              {syncResult.skipped ? (
+                <p className="text-muted-foreground">Motivo: {syncResult.skipped}</p>
+              ) : (
+                <p className="text-muted-foreground">
+                  Livros: {syncResult.booksInserted ?? 0} inserido(s), {syncResult.booksUpdated ?? 0} atualizado(s) ·
+                  Capítulos: {syncResult.chaptersInserted ?? 0} inserido(s), {syncResult.chaptersUpdated ?? 0} atualizado(s) ·
+                  Fonte: {syncResult.sourceBooks ?? 0} livro(s), {syncResult.sourceChapters ?? 0} capítulo(s)
+                </p>
+              )}
+            </div>
+          )}
 
           {newBook && (
             <BookForm

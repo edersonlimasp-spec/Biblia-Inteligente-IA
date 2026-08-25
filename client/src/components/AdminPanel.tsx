@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, Users, CreditCard, Gift, ArrowLeft, HeartPulse, Mail, Tag, BookMarked, Bug } from "lucide-react";
+import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag, BookMarked, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";

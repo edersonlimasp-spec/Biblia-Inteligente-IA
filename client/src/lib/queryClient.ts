@@ -22,12 +22,12 @@ export function getApiUrl(path: string): string {
 
 // Get token from localStorage
 function getAuthToken(): string | null {
-  return localStorage.getItem('authToken');
+  return isNative ? localStorage.getItem('authToken') : null;
 }
 
 // Set token in localStorage
 export function setAuthToken(token: string) {
-  localStorage.setItem('authToken', token);
+  if (isNative) localStorage.setItem('authToken', token);
 }
 
 // Remove token from localStorage
@@ -37,8 +37,14 @@ export function clearAuthToken() {
 
 // Authorization headers for plain fetch() calls (auth is via Bearer token, not cookie)
 export function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {};
+  const platform = Capacitor.getPlatform();
+  if (isNative && (platform === 'android' || platform === 'ios')) {
+    headers['x-client-platform'] = platform;
+  }
   const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
 }
 
 // Custom error class to preserve response data
@@ -112,7 +118,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const token = getAuthToken();
+  const token = getAuthToken();
     const deviceId = getDeviceId();
     const headers: Record<string, string> = {};
     

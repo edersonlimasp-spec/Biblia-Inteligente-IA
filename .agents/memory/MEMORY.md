@@ -15,3 +15,4 @@
 - [Dados Strong em produção](strong-data-prod-seed.md) — bible_words/pdf_word_index chegam à prod via seed do Neon no boot; manter Neon espelho do dev; Mateus 99,8% sem inventar.
 - [Store renewals Google+Apple](store-subscription-renewals.md) — credencial persistida + varredura + RTDN com guard pré-parser; expiração adiada se verificação falhar; iOS nunca chama restore nativo no boot.
 - [Sincronização da Biblioteca](library-seed-sync.md) — seed casa livros por título e capítulos por (book_id, order_num); casar por id duplicou livros.
+- [Clerk e UUID local](clerk-local-user-bridge.md) — contas Clerk ligam ao UUID de dados por e-mail verificado; não usar auth.userId em queries locais; vínculo persistente é hardening futuro.

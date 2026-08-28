@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireAuth } from "@/contexts/AuthGateContext";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,6 +74,7 @@ export function UserButton({
           data-testid="button-user-menu"
         >
           <Avatar className="h-8 w-8">
+            {user.profileImageUrl && <AvatarImage src={user.profileImageUrl} alt="" />}
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">
               {getInitials(user.name, user.email)}
             </AvatarFallback>
@@ -83,6 +84,7 @@ export function UserButton({
       <DropdownMenuContent align="end" className="w-56">
         <div className="flex items-center gap-2 p-2">
           <Avatar className="h-8 w-8">
+            {user.profileImageUrl && <AvatarImage src={user.profileImageUrl} alt="" />}
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">
               {getInitials(user.name, user.email)}
             </AvatarFallback>

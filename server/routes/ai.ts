@@ -4,7 +4,6 @@ import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensur
 import { sendPasswordResetEmail, sendReengagementEmail } from "../email";
 import admin from "firebase-admin";
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
 import { askTheologicalQuestion, generateBiblicalImage, analyzeImageWithVision } from "../openai";
 import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, pdfWordIndex, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests, coupons, couponRedemptions, type Coupon, type CouponRedemption, insertCouponSchema, sermonRecordings } from "@shared/schema";
 import { z } from "zod";
@@ -573,88 +572,55 @@ export function registerAiRoutes(app: Express): void {
   const FREE_STRONG_LIMIT = 2; // Free users (logados sem assinatura) get 2 total
   const GOLD_STRONG_DAILY_LIMIT = 20; // Gold users get 20/day
   
-  app.get("/api/strong/quota", async (req, res) => {
+  app.get("/api/strong/quota", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      // NOVA REGRA: Strong REQUER LOGIN
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      const userId = req.userId!;
+      const user = req.dbUser ?? await storage.getUser(userId);
+      if (!user) {
+        return res.status(401).json({ error: "Usuário não encontrado", requiresLogin: true });
+      }
+
+      const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+      const sharePlatform = getClientPlatform(req);
+      const shareAllowedSources = getPlatformAllowedSources(sharePlatform);
+      const hasGold = await storage.hasActiveSubscription(userId, 'gold', shareAllowedSources);
+      const hasPremium = await storage.hasActiveSubscription(userId, 'premium', shareAllowedSources);
+      const hasLifetime = await storage.hasActiveSubscription(userId, 'strong_lifetime', shareAllowedSources);
+      const hasActiveBonus = await storage.hasActiveBonus(userId);
+
+      // Premium, Lifetime, Bonus and Admin have unlimited access
+      if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
         return res.json({
           used: 0,
-          limit: FREE_STRONG_LIMIT,
-          remaining: 0,
-          type: 'not_logged_in',
-          hasUnlimitedAccess: false,
-          requiresLogin: true,
+          limit: -1,
+          remaining: -1,
+          type: 'unlimited',
+          hasUnlimitedAccess: true,
         });
       }
-      
-      const token = authHeader.substring(7);
-      try {
-        const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
-        const user = await storage.getUser(decoded.userId);
-        
-        if (!user) {
-          return res.json({
-            used: 0,
-            limit: FREE_STRONG_LIMIT,
-            remaining: 0,
-            type: 'not_logged_in',
-            hasUnlimitedAccess: false,
-            requiresLogin: true,
-          });
-        }
-        
-        const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-        const sharePlatform = getClientPlatform(req);
-        const shareAllowedSources = getPlatformAllowedSources(sharePlatform);
-        const hasGold = await storage.hasActiveSubscription(decoded.userId, 'gold', shareAllowedSources);
-        const hasPremium = await storage.hasActiveSubscription(decoded.userId, 'premium', shareAllowedSources);
-        const hasLifetime = await storage.hasActiveSubscription(decoded.userId, 'strong_lifetime', shareAllowedSources);
-        const hasActiveBonus = await storage.hasActiveBonus(decoded.userId);
-        
-        // Premium, Lifetime, Bonus and Admin have unlimited access
-        if (hasPremium || hasLifetime || hasActiveBonus || isAdmin) {
-          return res.json({
-            used: 0,
-            limit: -1,
-            remaining: -1,
-            type: 'unlimited',
-            hasUnlimitedAccess: true,
-          });
-        }
-        
-        if (hasGold) {
-          const todayLookups = await storage.getTodayStrongLookups(decoded.userId);
-          return res.json({
-            used: todayLookups,
-            limit: GOLD_STRONG_DAILY_LIMIT,
-            remaining: Math.max(0, GOLD_STRONG_DAILY_LIMIT - todayLookups),
-            type: 'gold',
-            hasUnlimitedAccess: false,
-          });
-        }
-        
-        // Free user (logado sem assinatura): 2 palavras total
-        const quota = await storage.getFreeStrongQuota(decoded.userId);
-        const used = quota?.lookupsUsed || 0;
-        
+
+      if (hasGold) {
+        const todayLookups = await storage.getTodayStrongLookups(userId);
         return res.json({
-          used,
-          limit: FREE_STRONG_LIMIT,
-          remaining: Math.max(0, FREE_STRONG_LIMIT - used),
-          type: 'free',
+          used: todayLookups,
+          limit: GOLD_STRONG_DAILY_LIMIT,
+          remaining: Math.max(0, GOLD_STRONG_DAILY_LIMIT - todayLookups),
+          type: 'gold',
           hasUnlimitedAccess: false,
-        });
-      } catch (tokenError) {
-        return res.json({
-          used: 0,
-          limit: FREE_STRONG_LIMIT,
-          remaining: 0,
-          type: 'not_logged_in',
-          hasUnlimitedAccess: false,
-          requiresLogin: true,
         });
       }
+
+      // Free user (logado sem assinatura): 2 palavras total
+      const quota = await storage.getFreeStrongQuota(userId);
+      const used = quota?.lookupsUsed || 0;
+
+      return res.json({
+        used,
+        limit: FREE_STRONG_LIMIT,
+        remaining: Math.max(0, FREE_STRONG_LIMIT - used),
+        type: 'free',
+        hasUnlimitedAccess: false,
+      });
     } catch (error) {
       console.error("Get Strong quota error:", error);
       res.status(500).json({ error: "Erro ao buscar quota Strong" });
@@ -707,7 +673,7 @@ export function registerAiRoutes(app: Express): void {
   // Strong's Dictionary routes (Database-driven with in-memory cache)
   // NOVA REGRA: Strong REQUER LOGIN. Sem assinatura: 2 palavras gratuitas, na 3ª mostra planos
   // Gold=20/day, Premium/Lifetime=unlimited
-  app.get("/api/strong/:number", async (req, res) => {
+  app.get("/api/strong/:number", ensureAuthenticated, async (req: AuthRequest, res) => {
     const startTime = Date.now();
     try {
       const { number } = req.params;
@@ -720,35 +686,8 @@ export function registerAiRoutes(app: Express): void {
       
       let quotaInfo: { used: number; limit: number; type: 'free' | 'gold' | 'unlimited' } | null = null;
       
-      // NOVA REGRA: Strong SEMPRE requer login
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({
-          error: "Faça login para acessar o Dicionário Strong",
-          requiresLogin: true,
-          requiresSubscription: false,
-          used: 0,
-          limit: STRONG_FREE_LIMIT,
-        });
-      }
-      
-      const token = authHeader.substring(7);
-      let userId: string;
-      
-      try {
-        const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
-        userId = decoded.userId;
-      } catch (tokenError) {
-        return res.status(401).json({
-          error: "Sessão expirada. Faça login novamente para acessar o Dicionário Strong",
-          requiresLogin: true,
-          requiresSubscription: false,
-          used: 0,
-          limit: STRONG_FREE_LIMIT,
-        });
-      }
-      
-      const user = await storage.getUser(userId);
+      const userId = req.userId!;
+      const user = req.dbUser ?? await storage.getUser(userId);
       if (!user) {
         return res.status(401).json({
           error: "Usuário não encontrado. Faça login novamente.",

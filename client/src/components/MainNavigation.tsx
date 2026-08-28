@@ -36,6 +36,7 @@ import { RequireAuthScreen } from "./RequireAuthScreen";
 import { PaymentSuccess, PaymentError, PaymentPending } from "@/pages/PaymentResult";
 import { PrivacyPolicy } from "@/pages/PrivacyPolicy";
 import { TermsOfUse } from "@/pages/TermsOfUse";
+import { isNative } from "@/lib/capacitor";
 
 function NavigationContent() {
   const { 
@@ -74,6 +75,18 @@ function NavigationContent() {
   };
 
   useEffect(() => {
+    if (!isNative && currentScreen === "login") {
+      setLocation("/sign-in");
+    }
+    if (!isNative && currentScreen === "register") {
+      setLocation("/sign-up");
+    }
+    if (!isNative && (currentScreen === "forgot-password" || currentScreen === "reset-password")) {
+      setLocation("/sign-in");
+    }
+  }, [currentScreen, setLocation]);
+
+  useEffect(() => {
     const measureHeaderHeight = () => {
       const headerEl = document.querySelector('header') as HTMLElement | null;
       if (!headerEl) {
@@ -105,7 +118,11 @@ function NavigationContent() {
 
   useEffect(() => {
     if (location.includes("reset-password")) {
-      navigate("reset-password");
+      if (isNative) navigate("reset-password");
+      else setLocation("/sign-in");
+    }
+    if (!isNative && location.includes("forgot-password")) {
+      setLocation("/sign-in");
     }
   }, [location, navigate]);
 
@@ -180,7 +197,7 @@ function NavigationContent() {
   // evitar race condition com o useEffect de autenticação que poderia
   // redirecionar para "dashboard" antes da tela de reset ser exibida.
   // Idêntico ao padrão usado por /privacidade e /termos.
-  if (location === "/reset-password" || location.startsWith("/reset-password?")) {
+  if (isNative && (location === "/reset-password" || location.startsWith("/reset-password?"))) {
     return <ResetPassword onBackToLogin={handleBackToLoginFromReset} />;
   }
 
@@ -194,25 +211,25 @@ function NavigationContent() {
 
   return (
     <>
-      {currentScreen === "login" && (
+      {isNative && currentScreen === "login" && (
         <LoginScreen
           onLogin={() => navigate("dashboard")}
           onNavigateToRegister={() => navigate("register")}
           onNavigateToForgotPassword={() => navigate("forgot-password")}
         />
       )}
-      {currentScreen === "register" && (
+      {isNative && currentScreen === "register" && (
         <RegisterScreen
           onRegister={() => navigate("dashboard")}
           onNavigateToLogin={() => navigate("login")}
         />
       )}
-      {currentScreen === "forgot-password" && (
+      {isNative && currentScreen === "forgot-password" && (
         <ForgotPassword
           onBackToLogin={() => goBack()}
         />
       )}
-      {currentScreen === "reset-password" && (
+      {isNative && currentScreen === "reset-password" && (
         <ResetPassword
           onBackToLogin={handleBackToLoginFromReset}
         />
@@ -498,7 +515,7 @@ export function MainNavigation() {
       {/* Reset de senha: renderizado diretamente pelo path da URL, ignorando
           splash e loading de auth — o usuário chegou via link do email e
           precisa ver o formulário imediatamente, independente do estado do app. */}
-      {(location === "/reset-password" || location.startsWith("/reset-password?")) ? (
+      {isNative && (location === "/reset-password" || location.startsWith("/reset-password?")) ? (
         <ResetPassword onBackToLogin={() => setLocation("/")} />
       ) : (showSplash || isLoading) ? (
         <SplashScreen />

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Bíblia Inteligente">
+  <rect width="128" height="128" rx="26" fill="#9E3129"/>
+  <path fill="#F7F4EC" d="M34 28h44c9 0 16 7 16 16v55c-7-5-14-7-22-7H34z"/>
+  <path fill="none" stroke="#9E3129" stroke-width="6" d="M62 46v32m-16-16h32"/>
+  <path fill="none" stroke="#D9D2C3" stroke-width="4" d="M34 28h44c9 0 16 7 16 16v55c-7-5-14-7-22-7H34z"/>
+</svg>

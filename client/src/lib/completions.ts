@@ -3,6 +3,7 @@
 // fallback offline e para usuários não logados.
 
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { isNative } from "@/lib/capacitor";
 
 export type CompletionEntry = number | { ts: number; type?: string };
 
@@ -45,8 +46,7 @@ export function recordStudyCompletion(type?: string): void {
   }
 
   // 2) Servidor (fire-and-forget; se falhar, o fallback local cobre)
-  const token = localStorage.getItem("authToken");
-  if (token) {
+  if (!isNative || localStorage.getItem("authToken")) {
     apiRequest("POST", "/api/study/completions", { ts: now, ...(type ? { type } : {}) })
       .then(() => {
         markAsSynced([now]);
@@ -91,8 +91,7 @@ let migrateInFlight = false;
  */
 export async function migrateDeviceStudyProgressToAccount(): Promise<void> {
   if (migrateInFlight) return;
-  const token = localStorage.getItem("authToken");
-  if (!token) return;
+  if (isNative && !localStorage.getItem("authToken")) return;
 
   migrateInFlight = true;
   try {
@@ -120,8 +119,7 @@ let syncInFlight = false;
  */
 export async function syncLocalCompletionsToServer(): Promise<void> {
   if (syncInFlight) return;
-  const token = localStorage.getItem("authToken");
-  if (!token) return;
+  if (isNative && !localStorage.getItem("authToken")) return;
 
   const cutoff = Date.now() - NINETY_DAYS_MS;
   const syncedSet = new Set(getSyncedTs());

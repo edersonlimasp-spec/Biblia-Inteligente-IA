@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoginPromptModal } from '@/components/LoginPromptModal';
+import { isNative } from "@/lib/capacitor";
 
 interface PendingAction {
   action: () => void;
@@ -25,6 +26,10 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
     if (isAuthenticated) {
       action();
     } else {
+      if (!isNative) {
+        window.location.assign(`${import.meta.env.BASE_URL.replace(/\/$/, "")}/sign-in`);
+        return;
+      }
       setPendingAction({ action, featureName });
       setShowLoginModal(true);
     }
@@ -49,12 +54,12 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   return (
     <AuthGateContext.Provider value={{ requireAuth, isAuthenticated }}>
       {children}
-      <LoginPromptModal
+      {isNative && <LoginPromptModal
         open={showLoginModal}
         onOpenChange={handleModalClose}
         onAuthSuccess={handleAuthSuccess}
         featureName={pendingAction?.featureName || "este recurso"}
-      />
+      />}
     </AuthGateContext.Provider>
   );
 }

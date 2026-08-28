@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin, Database, History, BookMarked, ScrollText, Layers, Globe, Share2, Copy, Check } from "lucide-react";
-import { ApiError, getApiUrl } from "@/lib/queryClient";
+import { ApiError, getApiUrl, getAuthHeaders } from "@/lib/queryClient";
 import { AuthModal } from "./AuthModal";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,19 +16,9 @@ import { useLanguage, type AppLanguage } from "@/contexts/LanguageContext";
 import { getCachedStrongEntry, cacheStrongEntry, getCachedOccurrences, cacheOccurrences } from "@/lib/strong-cache";
 import { useToast } from "@/hooks/use-toast";
 
-// Helper to get auth token
-function getAuthToken(): string | null {
-  return localStorage.getItem('authToken');
-}
-
 // Fetch Strong entry with proper auth headers
 async function fetchStrongEntry(strongNumber: string, deviceId: string): Promise<any> {
-  const token = getAuthToken();
-  const headers: HeadersInit = {};
-  
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
+  const headers: HeadersInit = getAuthHeaders();
   
   // Always include deviceId for guests - backend checks both query and header
   if (deviceId) {

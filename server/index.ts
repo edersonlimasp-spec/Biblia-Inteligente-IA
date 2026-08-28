@@ -1,6 +1,14 @@
 import express, { type Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
+import cors from "cors";
+import { clerkMiddleware } from "@clerk/express";
+import { publishableKeyFromHost } from "@clerk/shared/keys";
 import { registerRoutes } from "./routes";
+import {
+  CLERK_PROXY_PATH,
+  clerkProxyMiddleware,
+  getClerkProxyHost,
+} from "./middlewares/clerkProxyMiddleware";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./init-db";
 import { storage } from "./storage";
@@ -116,6 +124,33 @@ function ensureFrontendFilesReady() {
 }
 
 const app = express();
+app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
+
+// Only Capacitor WebViews need cross-origin API access. Browser requests are
+// same-origin and must not receive reflective credentialed CORS headers.
+const ALLOWED_MOBILE_ORIGINS = new Set([
+  'https://localhost',
+  'http://localhost',
+  'capacitor://localhost',
+  'ionic://localhost',
+]);
+app.use(cors({
+  credentials: true,
+  origin: (origin, callback) => {
+    callback(null, Boolean(origin && ALLOWED_MOBILE_ORIGINS.has(origin)));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Cache-Control',
+    'Pragma',
+    'x-device-id',
+    'x-client-platform',
+    'x-bootstrap-token',
+  ],
+  maxAge: 86400,
+}));
 
 declare module 'http' {
   interface IncomingMessage {
@@ -158,54 +193,14 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
-// CORS for Capacitor mobile apps (Android WebView origin = https://localhost,
-// iOS = capacitor://localhost). Required so the native app can call this API
-// cross-origin without "Failed to fetch" errors.
-const ALLOWED_MOBILE_ORIGINS = new Set([
-  'https://localhost',
-  'http://localhost',
-  'capacitor://localhost',
-  'ionic://localhost',
-]);
-app.use((req, res, next) => {
-  const origin = req.headers.origin as string | undefined;
-  if (origin && ALLOWED_MOBILE_ORIGINS.has(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader(
-      'Access-Control-Allow-Methods',
-      'GET, POST, PUT, PATCH, DELETE, OPTIONS'
-    );
-    // Allow a known superset of headers the client may send, plus the
-    // intersection of any preflight-requested headers with that superset.
-    // Origin is already in our whitelist; intersecting (rather than pure echo)
-    // keeps the API from advertising arbitrary headers if the allowlist ever
-    // grows. The superset covers Cache-Control / Pragma so chapter loads work.
-    const ALLOWED_REQUEST_HEADERS = new Set([
-      'content-type', 'authorization', 'cache-control', 'pragma',
-      'x-device-id', 'x-client-platform', 'x-bootstrap-token',
-    ]);
-    const requestedHeaders = req.headers['access-control-request-headers'];
-    let allowHeadersValue =
-      'Content-Type, Authorization, Cache-Control, Pragma, x-device-id, x-client-platform, x-bootstrap-token';
-    if (typeof requestedHeaders === 'string' && requestedHeaders.length > 0) {
-      const intersected = requestedHeaders
-        .split(',')
-        .map((h) => h.trim())
-        .filter((h) => h.length > 0 && ALLOWED_REQUEST_HEADERS.has(h.toLowerCase()));
-      if (intersected.length > 0) {
-        allowHeadersValue = intersected.join(', ');
-      }
-    }
-    res.setHeader('Access-Control-Allow-Headers', allowHeadersValue);
-    res.setHeader('Access-Control-Max-Age', '86400');
-    res.setHeader('Vary', 'Origin, Access-Control-Request-Headers');
-    if (req.method === 'OPTIONS') {
-      return res.status(204).end();
-    }
-  }
-  next();
-});
+app.use(
+  clerkMiddleware((req) => ({
+    publishableKey: publishableKeyFromHost(
+      getClerkProxyHost(req) ?? "",
+      process.env.CLERK_PUBLISHABLE_KEY,
+    ),
+  })),
+);
 
 // CRITICAL: Set no-cache headers for index.html to prevent mobile caching issues
 app.use((req, res, next) => {

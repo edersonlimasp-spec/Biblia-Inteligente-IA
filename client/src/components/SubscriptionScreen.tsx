@@ -11,7 +11,7 @@ import { AuthModal } from "./AuthModal";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { UserButton } from "@/components/UserButton";
-import { apiRequest, getApiUrl } from "@/lib/queryClient";
+import { apiRequest, getApiUrl, getAuthHeaders } from "@/lib/queryClient";
 import { trackSubscriptionPageVisit, trackPurchaseStep } from "@/lib/tracking";
 import { isAndroid, isIOS, isNative, platform } from "@/lib/capacitor";
 import { purchaseProduct, restorePurchases } from "@/lib/inAppPurchases";
@@ -104,9 +104,8 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           if (platform === 'android' || platform === 'ios') {
             subHeaders['x-client-platform'] = platform;
           }
-          const authToken = localStorage.getItem('authToken');
-          if (authToken) subHeaders['Authorization'] = `Bearer ${authToken}`;
-          const res = await fetch(getApiUrl('/api/user/subscription-status'), { headers: subHeaders });
+          Object.assign(subHeaders, getAuthHeaders());
+          const res = await fetch(getApiUrl('/api/user/subscription-status'), { headers: subHeaders, credentials: "include" });
           if (res.ok) {
             const data = await res.json();
             if (data.trialActive && data.trialDaysRemaining) {

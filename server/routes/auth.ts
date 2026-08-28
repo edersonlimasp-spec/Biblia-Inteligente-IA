@@ -459,7 +459,7 @@ export function registerAuthRoutes(app: Express): void {
   // Get current user info
   app.get("/api/auth/me", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const user = await storage.getUser(req.userId!);
+      const user = req.dbUser ?? await storage.getUser(req.userId!);
       if (!user) {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
@@ -480,17 +480,6 @@ export function registerAuthRoutes(app: Express): void {
     } catch (error) {
       console.error("Get user error:", error);
       res.status(500).json({ error: "Erro ao buscar dados do usuário" });
-    }
-  });
-
-  // Logout - não requer autenticação pois o token pode estar expirado
-  app.post("/api/auth/logout", async (req, res) => {
-    try {
-      console.log(`🔓 Logout realizado`);
-      res.json({ message: "Logout realizado com sucesso" });
-    } catch (error) {
-      console.error("Logout error:", error);
-      res.status(500).json({ error: "Erro ao fazer logout" });
     }
   });
 
@@ -1151,7 +1140,7 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   // Track app event (for analytics)
-  app.post("/api/events/track", async (req, res) => {
+  app.post("/api/events/track", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const { deviceId, eventType, eventData } = req.body;
       
@@ -1159,16 +1148,7 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(400).json({ error: "deviceId e eventType são obrigatórios" });
       }
       
-      // Try to extract userId from auth token if provided
-      let userId: string | undefined;
-      const authHeader = req.headers.authorization;
-      if (authHeader?.startsWith('Bearer ')) {
-        try {
-          const token = authHeader.substring(7);
-          const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key') as { userId: string };
-          userId = decoded.userId;
-        } catch {}
-      }
+      const userId = req.userId;
       
       // Update guest lastSeenAt to track online status
       if (deviceId && !userId) {

@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
+import { apiRequest, queryClient, getApiUrl, getAuthHeaders } from "@/lib/queryClient";
 import { recordStudyCompletion } from "@/lib/completions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -174,8 +174,6 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
   const [isAskingProfessor, setIsAskingProfessor] = useState(false);
   const [completedUI, setCompletedUI] = useState(false);
 
-  const getAuthToken = () => localStorage.getItem("authToken");
-
   const level = (trackLevel as ClassLevel) in CLASS_CONFIG
     ? (trackLevel as ClassLevel)
     : "iniciante";
@@ -184,9 +182,7 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
   const { data: lessonData, isLoading, error } = useQuery<LessonData, ApiError>({
     queryKey: ["/api/study/lessons", lessonId, language],
     queryFn: async () => {
-      const token = getAuthToken();
-      const headers: HeadersInit = { "x-device-id": deviceId || "" };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const headers: HeadersInit = { "x-device-id": deviceId || "", ...getAuthHeaders() };
       const res = await fetch(
         getApiUrl(`/api/study/lessons/${lessonId}?lang=${language}`),
         { credentials: "include", headers }

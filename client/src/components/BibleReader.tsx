@@ -30,7 +30,7 @@ import { useNavigation } from "@/contexts/NavigationContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSyncManager, useReadingHistory } from "@/hooks/use-sync";
-import { apiRequest, queryClient, getApiUrl } from "@/lib/queryClient";
+import { apiRequest, queryClient, getApiUrl, getAuthHeaders } from "@/lib/queryClient";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { tokenizeVerse, normalizeWordForLookup } from "@/lib/verse-utils";
 import { getBookName } from "@/lib/bible-book-names";
@@ -382,10 +382,8 @@ export function BibleReader({
       // they trigger an extra CORS preflight whose Access-Control-Request-Headers
       // list must be allowed by the server. The `cache: 'no-store'` option below
       // already disables caching at the fetch layer without any custom header.
-      const token = localStorage.getItem('authToken');
       const deviceId = getDeviceId();
-      const headers: Record<string, string> = {};
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const headers: Record<string, string> = getAuthHeaders();
       if (deviceId) headers['x-device-id'] = deviceId;
       
       try {

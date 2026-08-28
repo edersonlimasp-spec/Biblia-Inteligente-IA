@@ -1,16 +1,6 @@
 import { getDeviceId } from '@/hooks/use-device-id';
-import { getApiUrl } from '@/lib/queryClient';
+import { getApiUrl, getAuthHeaders } from '@/lib/queryClient';
 import { Capacitor } from '@capacitor/core';
-
-// Get auth token to include in tracking requests for user identification
-function getAuthToken(): string | null {
-  try {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('authToken');
-  } catch {
-    return null;
-  }
-}
 
 // Snapshot da plataforma — anexado a TODO evento para diagnóstico.
 // Antes só sabíamos plataforma quando o backend recebia /api/guest/register.
@@ -35,12 +25,7 @@ export async function trackEvent(eventType: string, eventData?: any) {
     if (typeof window === 'undefined') return;
 
     const deviceId = getDeviceId();
-    const token = getAuthToken();
-
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    const headers: Record<string, string> = { 'Content-Type': 'application/json', ...getAuthHeaders() };
 
     // SEMPRE inclui platform/isNative no payload — assim qualquer evento
     // (APP_OPEN, PURCHASE_STEP, etc.) pode ser filtrado por plataforma no banco.
@@ -54,6 +39,7 @@ export async function trackEvent(eventType: string, eventData?: any) {
         eventType,
         eventData: enrichedData,
       }),
+      credentials: "include",
     }).catch(() => {});
   } catch {}
 }

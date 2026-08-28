@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { type Request, type Response, type NextFunction } from 'express';
+import { getAuth } from '@clerk/express';
+import { storage } from './storage';
+import type { User } from '@shared/schema';
 
 function requireSessionSecret(): string {
   const secret = process.env.SESSION_SECRET;
@@ -21,6 +24,7 @@ export interface AuthRequest extends Request {
   userId?: string;
   userEmail?: string;
   userRole?: string;
+  dbUser?: User;
 }
 
 // Hash password
@@ -47,109 +51,122 @@ export function verifyToken(token: string): { userId: string; email: string; rol
   }
 }
 
-// Middleware: Optional authentication (populates userId if token present, but doesn't block)
-export function optionalAuth(
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) {
-  const authHeader = req.headers.authorization;
-  
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    const payload = verifyToken(token);
-    
-    if (payload) {
-      req.userId = payload.userId;
-      req.userEmail = payload.email;
-      req.userRole = payload.role || 'user';
+function isNativeClient(req: Request): boolean {
+  const platform = req.headers['x-client-platform'];
+  const value = Array.isArray(platform) ? platform[0] : platform;
+  return value === 'android' || value === 'ios';
+}
+
+function claimString(claims: unknown, key: string): string | undefined {
+  if (!claims || typeof claims !== 'object') return undefined;
+  const value = (claims as Record<string, unknown>)[key];
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+async function attachDbUser(req: AuthRequest, email: string): Promise<boolean> {
+  let dbUser = await storage.getUserByEmail(email);
+
+  if (!dbUser) {
+    try {
+      dbUser = await storage.createUser({
+        email,
+      });
+    } catch {
+      // A concurrent first request may have created the email row.
+      dbUser = await storage.getUserByEmail(email);
     }
   }
-  
-  next();
+
+  if (!dbUser) return false;
+  req.dbUser = dbUser;
+  req.userId = dbUser.id;
+  req.userEmail = dbUser.email ?? email;
+  req.userRole = dbUser.role;
+  return true;
 }
 
-// Middleware: Ensure authenticated
-export function ensureAuthenticated(
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) {
+async function resolveAuthentication(req: AuthRequest): Promise<boolean> {
+  // Web sessions are first-class and are validated by clerkMiddleware.
+  const clerkAuth = getAuth(req);
+  const claims = clerkAuth.sessionClaims;
+  const email = claimString(claims, 'email');
+  if (clerkAuth.userId && email) {
+    return attachDbUser(req, email);
+  }
+
+  // The legacy JWT transport is intentionally limited to Capacitor clients.
+  if (!isNativeClient(req)) return false;
   const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  const token = authHeader.substring(7);
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-
-  req.userId = payload.userId;
-  req.userEmail = payload.email;
-  req.userRole = payload.role || 'user';
-  next();
+  if (!authHeader?.startsWith('Bearer ')) return false;
+  const payload = verifyToken(authHeader.substring(7));
+  if (!payload?.email) return false;
+  return attachDbUser(req, payload.email);
 }
 
-// Middleware: Ensure admin or super_admin
-export function ensureAdmin(
+// Optional authentication populates the local app user when a valid Clerk
+// cookie or native legacy JWT is present, without rejecting guests.
+export async function optionalAuth(
   req: AuthRequest,
-  res: Response,
-  next: NextFunction
+  _res: Response,
+  next: NextFunction,
 ) {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    await resolveAuthentication(req);
+    next();
+  } catch {
+    next();
   }
-
-  const token = authHeader.substring(7);
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-
-  if (payload.role !== 'admin' && payload.role !== 'super_admin') {
-    return res.status(403).json({ error: 'Forbidden: Admin access required' });
-  }
-
-  req.userId = payload.userId;
-  req.userEmail = payload.email;
-  req.userRole = payload.role;
-  next();
 }
 
-// Middleware: Ensure super_admin only
-export function ensureSuperAdmin(
+export async function ensureAuthenticated(
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  try {
+    if (!await resolveAuthentication(req)) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    next();
+  } catch {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+}
 
-  const token = authHeader.substring(7);
-  const payload = verifyToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ error: 'Invalid token' });
+export async function ensureAdmin(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    if (!await resolveAuthentication(req)) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (req.dbUser?.role !== 'admin' && req.dbUser?.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Forbidden: Admin access required' });
+    }
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
+}
 
-  if (payload.role !== 'super_admin') {
-    return res.status(403).json({ error: 'Forbidden: Super admin access required' });
+export async function ensureSuperAdmin(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    if (!await resolveAuthentication(req)) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (req.dbUser?.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Forbidden: Super admin access required' });
+    }
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
-
-  req.userId = payload.userId;
-  req.userEmail = payload.email;
-  req.userRole = payload.role;
-  next();
 }
 
 // Check if trial is still active (within 7 days - degustação Premium)

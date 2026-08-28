@@ -262,6 +262,18 @@
   outline-color: rgba(168, 132, 69, 0.80);
 }
 
+/* Clerk pseudo-states need regular CSS (not inline appearance objects). */
+.cl-formFieldInput::placeholder { color: #5D6470; opacity: 1; }
+.cl-formFieldInput:focus-visible, .cl-formButtonPrimary:focus-visible, .cl-socialButtonsBlockButton:focus-visible {
+  outline: 3px solid #9E3129;
+  outline-offset: 2px;
+}
+.dark .cl-cardBox { background: #16263C !important; border-color: #26405A !important; }
+.dark .clerk-page .cl-main, .dark .clerk-page .cl-headerTitle, .dark .clerk-page .cl-formFieldLabel { color: #F2F6FA !important; }
+.dark .clerk-page .cl-headerSubtitle, .dark .clerk-page .cl-footerActionText, .dark .clerk-page .cl-dividerText { color: #B8C5D1 !important; }
+.dark .cl-formFieldInput { background: #202B33 !important; color: #F2F6FA !important; border-color: #334149 !important; }
+.dark .cl-formFieldInput::placeholder { color: #B8C5D1; }
+
 /* ----------------------------------------
    LEITOR BÍBLICO — TAMANHOS DE TEXTO
    Quatro passos controlados pelo usuário.

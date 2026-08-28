@@ -24,7 +24,7 @@ The application is a fullstack PWA with a React frontend, an Express backend, an
 - **Access Rules:** Bible accessible to everyone without login. Strong's Dictionary and AI Professor require login, with tiered access based on subscription level.
 
 **Technical Implementations & Feature Specifications:**
-- **Authentication:** JWT with bcrypt for secure password hashing.
+- **Authentication:** Replit-managed Clerk sessions and cookie-based authentication on the web, bridged by email to the existing local user/application-data row. Capacitor iOS/Android builds retain the legacy JWT transport for native sign-in compatibility.
 - **State Management:** TanStack Query v5 for frontend server state.
 - **Bible Data:** Supports multiple versions (Portuguese, Spanish, English) with automated import and interlinear word-to-Strong mappings for Hebrew and Greek texts.
 - **Strong's Dictionary:** Over 14,000 entries with Brazilian Portuguese translations, including a significant mapping of Portuguese words from Genesis to Hebrew Strong numbers. An advanced endpoint strategy prioritizes curated mappings and leverages a PDF-derived index for comprehensive word coverage across all 66 books.

@@ -3,7 +3,7 @@ import { pgTable, text, varchar, timestamp, boolean, jsonb, integer, index, uniq
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table for Replit Auth
+// Legacy session table retained for schema and data compatibility.
 export const sessions = pgTable(
   "sessions",
   {

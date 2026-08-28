@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { getApiUrl } from "@/lib/queryClient";
 import { LogIn, UserPlus, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { isNative } from "@/lib/capacitor";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,12 @@ export function LoginPromptModal({
   const { login, register } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
+  useEffect(() => {
+    if (open && !isNative) {
+      window.location.assign(`${import.meta.env.BASE_URL.replace(/\/$/, "")}/sign-in`);
+    }
+  }, [open]);
+  if (!isNative) return null;
   
   const displayFeatureName = featureName || t("loginPrompt.thisFeature");
 

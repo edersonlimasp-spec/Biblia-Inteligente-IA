@@ -89,14 +89,22 @@ export async function seedLibraryBooks(): Promise<LibrarySeedResult> {
       const localByTitle = new Map(localBooks.map((lb) => [lb.title, lb]));
       // id do livro na fonte → id do livro local correspondente
       const bookIdMap = new Map<string, string>();
+      // IDs da fonte casados pelo fallback de título. Mesmo após o backfill de
+      // source_book_id, esse casamento não autoriza alterar o título nesta execução.
+      const titleFallbackSourceIds = new Set<string>();
 
       for (const b of booksRes.rows) {
         // Ordem de casamento: chave estável source_book_id → mesmo id
         // (livro legado copiado com o id da fonte, antes da coluna existir)
         // → título (fallback final para cópias locais com id próprio).
-        const existing =
-          localBySourceId.get(b.id) ?? localById.get(b.id) ?? localByTitle.get(b.title);
+        const bySourceId = localBySourceId.get(b.id);
+        const byId = localById.get(b.id);
+        const byTitle = localByTitle.get(b.title);
+        const existing = bySourceId ?? byId ?? byTitle;
         if (existing) {
+          if (!bySourceId && !byId && byTitle) {
+            titleFallbackSourceIds.add(b.id);
+          }
           bookIdMap.set(b.id, existing.id);
           // Backfill da chave estável em livros casados pelo título
           if (existing.sourceBookId !== b.id) {
@@ -245,7 +253,7 @@ export async function seedLibraryBooks(): Promise<LibrarySeedResult> {
           // Correção de título só é segura quando o livro está casado pela
           // chave estável (source_book_id); no fallback por título, o título
           // é a própria chave de casamento e não deve ser sobrescrito.
-          const canUpdateTitle = local.sourceBookId === b.id;
+          const canUpdateTitle = !titleFallbackSourceIds.has(b.id);
           await db
             .update(libraryBooks)
             .set({

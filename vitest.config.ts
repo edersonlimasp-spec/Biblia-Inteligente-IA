@@ -4,7 +4,7 @@ import path from "path";
 export default defineConfig({
   test: {
     environment: "jsdom",
-    include: ["client/src/**/*.test.ts"],
+    include: ["client/src/**/*.test.ts", "server/**/*.test.ts"],
   },
   resolve: {
     alias: {

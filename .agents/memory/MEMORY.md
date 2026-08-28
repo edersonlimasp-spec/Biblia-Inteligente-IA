@@ -1,5 +1,6 @@
 - [GitHub CI a partir do Replit](github-ci-from-replit.md) — lock gerado no Replit aponta pro package-firewall e quebra npm ci no Actions; conector sem escopo workflow; logs via webhook temporário.
 - [Apple IAP review rejections](apple-iap-review-rejections.md) — 2.1 purchase-error rejections are usually stale bundle or missing App Store Connect config, not source bugs; store.error() must resolve pending purchase.
+- [Recibo Apple no plugin v13](apple-iap-v13-receipt-shape.md) — StoreKit 1 guarda o recibo em Receipt.nativeData; nativePurchase é compatibilidade legada, não a fonte principal.
 - [Capacitor app IDs por plataforma](capacitor-platform-app-ids.md) — appId compartilhado preserva a identidade Android; no iOS, StoreKit e App.getInfo usam o Bundle ID do alvo Xcode.
 - [Dev splash blocks screenshots](dev-splash-screenshots.md) — ~2s splash gated by sessionStorage means app_preview (fresh session each time) always lands on it; can't screenshot dashboard or dark mode this way.
 - [Superfície superior sem faixa branca](android-twa-statusbar.md) — confirme o DOM em y=0; se o header já ocupa o topo, alinhe primeira pintura, status bar e fundo nativo em vez de deslocar layout.

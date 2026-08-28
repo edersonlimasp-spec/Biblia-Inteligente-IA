@@ -12,6 +12,10 @@ import {
   isAppleIAPProductUnavailable,
   isAppleIAPUserCancellation,
 } from './iapErrors';
+import {
+  extractAppleAppStoreReceipt,
+  extractApplePurchaseData,
+} from './applePurchaseData';
 
 // Product IDs by platform
 export const PRODUCT_IDS = {
@@ -517,31 +521,29 @@ async function _initCdvStore(): Promise<any | null> {
             try {
               if (txPlatform === Platform.APPLE_APPSTORE) {
                 // ─── Apple StoreKit ─────────────────────────────────────
-                const transactionId =
-                  transaction?.transactionId ||
-                  transaction?.nativePurchase?.transactionId ||
-                  '';
-                const originalTransactionId =
-                  transaction?.nativePurchase?.originalTransactionIdentifier ||
-                  transaction?.nativePurchase?.originalTransactionId ||
-                  transactionId;
-                const receiptData =
-                  transaction?.nativePurchase?.appStoreReceipt ||
-                  transaction?.transactionReceipt ||
-                  (store as any)?.localReceipts?.[0]?.nativePurchase?.appStoreReceipt ||
-                  (store as any)?.localReceipts?.[0]?.transactions?.[0]?.nativePurchase?.appStoreReceipt ||
-                  '';
+                const {
+                  productId: normalizedProductId,
+                  transactionId,
+                  originalTransactionId,
+                  receiptData,
+                } = extractApplePurchaseData(transaction, store, productId);
 
-                if (!receiptData || !transactionId || !productId) {
+                if (!receiptData || !transactionId || !normalizedProductId) {
                   console.error('[IAP][Apple] Transação aprovada sem dados completos', {
-                    hasReceipt: !!receiptData, transactionId, productId,
+                    hasReceipt: !!receiptData,
+                    transactionId,
+                    productId: normalizedProductId,
+                    localReceiptCount: store?.localReceipts?.length || 0,
                   });
                   pending?.resolve({ success: false, error: 'Recibo Apple inválido (dados ausentes)' });
                   return;
                 }
 
                 const result = await verifyApplePurchase({
-                  productId, transactionId, originalTransactionId, receiptData,
+                  productId: normalizedProductId,
+                  transactionId,
+                  originalTransactionId,
+                  receiptData,
                 });
 
                 if (result.success) {
@@ -849,15 +851,7 @@ async function _autoSyncSubscriptions(): Promise<void> {
     const store = await getAppleStore();
     if (!store) return;
 
-    const receipts = (store as any).localReceipts || [];
-    let appStoreReceipt = '';
-    for (const r of receipts) {
-      const candidate =
-        (r as any)?.nativePurchase?.appStoreReceipt ||
-        (r as any)?.transactions?.[0]?.nativePurchase?.appStoreReceipt ||
-        '';
-      if (candidate) { appStoreReceipt = candidate; break; }
-    }
+    const appStoreReceipt = extractAppleAppStoreReceipt(store);
     if (!appStoreReceipt) return; // nunca comprou neste Apple ID
 
     const response = await apiRequest('POST', '/api/iap/restore/apple', {
@@ -1370,15 +1364,7 @@ export async function restorePurchases(): Promise<{ success: boolean; restored: 
       // Pegar o appStoreReceipt unificado (1 receipt cobre todas as compras
       // do bundleId no device) e enviar pro backend, que valida e cria/atualiza
       // todas as subscriptions encontradas.
-      const receipts = (store as any).localReceipts || [];
-      let appStoreReceipt = '';
-      for (const r of receipts) {
-        const candidate =
-          (r as any)?.nativePurchase?.appStoreReceipt ||
-          (r as any)?.transactions?.[0]?.nativePurchase?.appStoreReceipt ||
-          '';
-        if (candidate) { appStoreReceipt = candidate; break; }
-      }
+      const appStoreReceipt = extractAppleAppStoreReceipt(store);
 
       if (!appStoreReceipt) {
         // Sem recibo = nada pra restaurar (usuário nunca comprou neste Apple ID).

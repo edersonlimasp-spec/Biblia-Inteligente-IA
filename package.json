@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@apple/app-store-server-library": "^3.1.0",
     "@capacitor-community/apple-sign-in": "^7.1.0",
     "@capacitor/android": "^8.0.0",
     "@capacitor/app": "^8.0.0",
@@ -68,6 +69,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "cordova-plugin-purchase": "^13.18.0",
+    "cordova-plugin-purchase-storekit2": "^1.0.5",
     "cors": "^2.8.6",
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.39.1",

@@ -330,6 +330,12 @@ export function DebugPanel() {
               <div><span className="text-muted-foreground">plugin:</span> {iosIAP.pluginVersion || 'N/A'}</div>
               <div><span className="text-muted-foreground">resposta Apple:</span> {iosIAP.storeResponseAt || 'N/A'}</div>
               <div><span className="text-muted-foreground">último erro:</span> {iosIAP.lastError || 'nenhum'}</div>
+              <div><span className="text-muted-foreground">modo StoreKit:</span> {iosIAP.runtimeStoreKitMode || 'N/A'}</div>
+              <div><span className="text-muted-foreground">fonte do recibo:</span> {iosIAP.receiptSource || 'N/A'}</div>
+              <div><span className="text-muted-foreground">tamanho do recibo:</span> {iosIAP.receiptLength}</div>
+              <div><span className="text-muted-foreground">tem JWS:</span> {String(iosIAP.hasJwsRepresentation)}</div>
+              <div><span className="text-muted-foreground">tentativas de coleta:</span> {iosIAP.receiptAttemptCount}</div>
+              <div><span className="text-muted-foreground">resultado da coleta:</span> {iosIAP.receiptCollectionResult}</div>
             </div>
 
             <div>

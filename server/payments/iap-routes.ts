@@ -4,7 +4,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { processApplePurchase, restoreApplePurchases, APPLE_PRODUCT_MAP } from './apple';
+import { processApplePurchase, processAppleStoreKit2Purchase, restoreApplePurchases, restoreAppleStoreKit2Purchase, APPLE_PRODUCT_MAP } from './apple';
 import { processGooglePurchase, restoreGooglePurchases, GOOGLE_PRODUCT_MAP } from './google';
 import { db } from '../db';
 import { subscriptions } from '@shared/schema';
@@ -64,22 +64,34 @@ router.get('/products', (req: Request, res: Response) => {
  */
 router.post('/verify/apple', ensureAuthenticated, async (req: AuthRequest, res: Response) => {
   try {
-    const { receiptData, productId, transactionId, originalTransactionId } = req.body;
+    const { receiptData, signedTransaction, productId, transactionId, originalTransactionId } = req.body;
     const userId = req.userId!;
 
-    if (!receiptData || !productId || !transactionId) {
+    if ((!receiptData && !signedTransaction) || !productId || !transactionId) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+    if (receiptData && signedTransaction) {
+      return res.status(400).json({ error: 'Provide either receiptData or signedTransaction, not both' });
     }
 
     console.log('[IAP API] Apple verification request:', { userId, productId, transactionId });
 
-    const result = await processApplePurchase(
-      userId,
-      receiptData,
-      productId,
-      transactionId,
-      originalTransactionId || transactionId
-    );
+    const result = signedTransaction
+      ? (!originalTransactionId
+        ? { success: false, error: 'originalTransactionId is required for signedTransaction' }
+        : await processAppleStoreKit2Purchase(userId, {
+          signedTransaction,
+          productId,
+          transactionId,
+          originalTransactionId,
+        }))
+      : await processApplePurchase(
+        userId,
+        receiptData,
+        productId,
+        transactionId,
+        originalTransactionId || transactionId
+      );
 
     if (result.success) {
       return res.json({
@@ -144,20 +156,22 @@ router.post('/verify/google', ensureAuthenticated, async (req: AuthRequest, res:
  */
 router.post('/restore/apple', ensureAuthenticated, async (req: AuthRequest, res: Response) => {
   try {
-    const { receiptData } = req.body;
+    const { receiptData, signedTransaction } = req.body;
     const userId = req.userId!;
 
-    if (!receiptData) {
-      return res.status(400).json({ error: 'Receipt data required' });
+    if ((!receiptData && !signedTransaction) || (receiptData && signedTransaction)) {
+      return res.status(400).json({ error: 'Provide exactly one of receiptData or signedTransaction' });
     }
 
     console.log('[IAP API] Apple restore request for user:', userId);
 
-    const result = await restoreApplePurchases(userId, receiptData);
+    const result = signedTransaction
+      ? await restoreAppleStoreKit2Purchase(userId, signedTransaction)
+      : await restoreApplePurchases(userId, receiptData);
 
     return res.json({
       success: result.success,
-      restored: result.restored,
+      restored: signedTransaction ? (result.success ? 1 : 0) : (result as { restored: number }).restored,
       error: result.error,
     });
 

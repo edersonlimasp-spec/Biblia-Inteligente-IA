@@ -2,11 +2,13 @@ interface AppleStoreLike {
   localReceipts?: unknown[];
 }
 
-interface ApplePurchaseData {
+export interface ApplePurchaseData {
   productId: string;
   transactionId: string;
   originalTransactionId: string;
   receiptData: string;
+  jwsRepresentation: string;
+  receiptSource: 'transaction' | 'localReceipt' | 'jws' | 'none';
 }
 
 function nonEmptyString(value: unknown): string {
@@ -26,6 +28,36 @@ function receiptFromLocalReceipt(receipt: any): string {
     if (candidate) return candidate;
   }
 
+  return '';
+}
+
+function jwsFrom(value: any): string {
+  return (
+    nonEmptyString(value?.jwsRepresentation) ||
+    nonEmptyString(value?.nativePurchase?.jwsRepresentation) ||
+    nonEmptyString(value?.nativeData?.jwsRepresentation)
+  );
+}
+
+/**
+ * StoreKit 2 sends a signed transaction (JWS), rather than an application
+ * receipt, on newer plugin/native combinations. It is intentionally returned
+ * separately: callers must never log or persist its contents client-side.
+ */
+export function extractAppleJwsRepresentation(
+  store: AppleStoreLike | null | undefined,
+  transaction?: any,
+): string {
+  const direct = jwsFrom(transaction);
+  if (direct) return direct;
+  for (const receipt of store?.localReceipts || []) {
+    const receiptJws = jwsFrom(receipt);
+    if (receiptJws) return receiptJws;
+    for (const localTransaction of (receipt as any)?.transactions || []) {
+      const transactionJws = jwsFrom(localTransaction);
+      if (transactionJws) return transactionJws;
+    }
+  }
   return '';
 }
 
@@ -69,10 +101,19 @@ export function extractApplePurchaseData(
     nonEmptyString(transaction?.nativePurchase?.originalTransactionId) ||
     transactionId;
 
+  const receiptData = extractAppleAppStoreReceipt(store, transaction);
+  const jwsRepresentation = receiptData ? '' : extractAppleJwsRepresentation(store, transaction);
+  const transactionReceipt =
+    nonEmptyString(transaction?.nativePurchase?.appStoreReceipt) ||
+    nonEmptyString(transaction?.transactionReceipt);
   return {
     productId,
     transactionId,
     originalTransactionId,
-    receiptData: extractAppleAppStoreReceipt(store, transaction),
+    receiptData,
+    jwsRepresentation,
+    receiptSource: receiptData
+      ? transactionReceipt ? 'transaction' : 'localReceipt'
+      : jwsRepresentation ? 'jws' : 'none',
   };
 }

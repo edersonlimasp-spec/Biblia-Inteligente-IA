@@ -71,7 +71,12 @@ export const subscriptions = pgTable("subscriptions", {
   nextRenewalCheck: timestamp("next_renewal_check"),
   cancellationAt: timestamp("cancellation_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  // A StoreKit subscription family may only be claimed by one account.
+  appleOriginalTransactionUnique: uniqueIndex("subscriptions_apple_original_transaction_unique")
+    .on(table.source, table.originalTransactionId)
+    .where(sql`${table.source} = 'apple' and ${table.originalTransactionId} is not null`),
+}));
 
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
   id: true,
@@ -903,6 +908,11 @@ export const paymentReceipts = pgTable("payment_receipts", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   externalPaymentIdx: index("payment_receipts_external_payment_idx").on(table.externalPaymentId),
+  // transactionId is immutable for a StoreKit purchase/renewal.  This makes
+  // delivery retries idempotent and prevents it being attached to two users.
+  appleExternalPaymentUnique: uniqueIndex("payment_receipts_apple_external_payment_unique")
+    .on(table.paymentProvider, table.externalPaymentId)
+    .where(sql`${table.paymentProvider} = 'apple'`),
   userIdIdx: index("payment_receipts_user_id_idx").on(table.userId),
   statusIdx: index("payment_receipts_status_idx").on(table.status),
   paymentDateIdx: index("payment_receipts_payment_date_idx").on(table.paymentDate),

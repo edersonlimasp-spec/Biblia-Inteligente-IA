@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { trackSubscriptionPageVisit } from '@/lib/tracking';
 import { PixPaymentModal } from '@/components/PixPaymentModal';
 import { isIOS, isAndroid } from '@/lib/capacitor';
-import { purchaseProduct } from '@/lib/inAppPurchases';
+import { purchaseProduct, restorePurchases } from '@/lib/inAppPurchases';
 
 interface SubscriptionPlansProps {
   onSubscriptionChange?: () => void;
@@ -16,6 +16,7 @@ interface SubscriptionPlansProps {
 
 export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansProps) {
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
+  const [isRestoring, setIsRestoring] = useState(false);
   const [pixModalOpen, setPixModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{ id: string; name: string; price: string } | null>(null);
   const { toast } = useToast();
@@ -122,11 +123,35 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
   };
 
   const handleRestorePurchases = async () => {
-    toast({
-      title: 'Info',
-      description: 'Se você já fez uma compra, seu plano será ativado automaticamente após confirmação do pagamento.',
-    });
-    onSubscriptionChange?.();
+    if (!isIOS && !isAndroid) {
+      toast({
+        title: 'Info',
+        description: 'Compras feitas no site já ficam vinculadas à sua conta.',
+      });
+      return;
+    }
+
+    setIsRestoring(true);
+    try {
+      const result = await restorePurchases();
+      if (result.success) {
+        toast({
+          title: 'Compras restauradas',
+          description: result.restored > 0
+            ? `${result.restored} compra(s) sincronizada(s) com sua conta.`
+            : 'Nenhuma compra anterior foi encontrada nesta loja.',
+        });
+        onSubscriptionChange?.();
+      } else {
+        toast({
+          title: 'Não foi possível restaurar',
+          description: result.error || 'Tente novamente em instantes.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsRestoring(false);
+    }
   };
 
   const plans = [
@@ -289,9 +314,10 @@ export function SubscriptionPlans({ onSubscriptionChange }: SubscriptionPlansPro
           <Button
             variant="ghost"
             onClick={handleRestorePurchases}
+            disabled={isRestoring}
             data-testid="button-restore-purchases"
           >
-            Restaurar Compras Anteriores
+            {isRestoring ? 'Restaurando...' : 'Restaurar Compras Anteriores'}
           </Button>
         </div>
 

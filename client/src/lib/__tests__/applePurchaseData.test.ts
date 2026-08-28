@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   extractAppleAppStoreReceipt,
   extractApplePurchaseData,
+  extractAppleJwsRepresentation,
 } from '../applePurchaseData';
+import { getAppleReceiptRefreshStrategy } from '../inAppPurchases';
 
 describe('Apple purchase data extraction', () => {
   it('reads the StoreKit 1 receipt from the cordova-plugin-purchase v13 shape', () => {
@@ -34,6 +36,8 @@ describe('Apple purchase data extraction', () => {
       transactionId: '2000000123456789',
       originalTransactionId: '2000000123000000',
       receiptData: 'base64-receipt',
+      jwsRepresentation: '',
+      receiptSource: 'localReceipt',
     });
   });
 
@@ -52,6 +56,8 @@ describe('Apple purchase data extraction', () => {
       transactionId: 'legacy-transaction',
       originalTransactionId: 'legacy-original',
       receiptData: 'legacy-receipt',
+      jwsRepresentation: '',
+      receiptSource: 'transaction',
     });
   });
 
@@ -63,5 +69,47 @@ describe('Apple purchase data extraction', () => {
     }, null);
 
     expect(data.originalTransactionId).toBe('transaction-id');
+  });
+
+  it('extracts a StoreKit 2 JWS when no base64 application receipt exists', () => {
+    const transaction = {
+      products: [{ id: 'com.example.product' }],
+      transactionId: 'storekit2-transaction',
+      nativePurchase: { jwsRepresentation: 'signed.storekit2.transaction' },
+    };
+
+    expect(extractAppleJwsRepresentation(null, transaction)).toBe('signed.storekit2.transaction');
+    expect(extractApplePurchaseData(transaction, null)).toMatchObject({
+      receiptData: '',
+      jwsRepresentation: 'signed.storekit2.transaction',
+      receiptSource: 'jws',
+    });
+  });
+
+  it('prefers the base64 receipt over a JWS when both are available', () => {
+    const data = extractApplePurchaseData({
+      transactionId: 'transaction-id',
+      transactionReceipt: 'base64-receipt',
+      jwsRepresentation: 'signed.transaction',
+    }, null);
+
+    expect(data.receiptData).toBe('base64-receipt');
+    expect(data.jwsRepresentation).toBe('');
+    expect(data.receiptSource).toBe('transaction');
+  });
+});
+
+describe('Apple receipt refresh adapter selection', () => {
+  it('uses the concrete StoreKit adapter receipt refresh when available', () => {
+    expect(getAppleReceiptRefreshStrategy({ refreshReceipt: () => undefined }))
+      .toBe('refreshReceipt');
+  });
+
+  it('uses forceReceiptReload plus loadReceipts only as an adapter fallback', () => {
+    expect(getAppleReceiptRefreshStrategy({
+      forceReceiptReload: false,
+      loadReceipts: () => undefined,
+    })).toBe('forceReloadAndLoad');
+    expect(getAppleReceiptRefreshStrategy({ loadReceipts: () => undefined })).toBe('unavailable');
   });
 });

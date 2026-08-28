@@ -12,10 +12,7 @@ import {
   isAppleIAPProductUnavailable,
   isAppleIAPUserCancellation,
 } from './iapErrors';
-import {
-  extractAppleAppStoreReceipt,
-  extractApplePurchaseData,
-} from './applePurchaseData';
+import { extractAppleAppStoreReceipt, extractApplePurchaseData } from './applePurchaseData';
 
 // Product IDs by platform
 export const PRODUCT_IDS = {
@@ -110,6 +107,12 @@ export interface IOSIAPDiagnostics {
   }>;
   lastError: string | null;
   rawStoreError: string | null;
+  receiptSource: 'transaction' | 'localReceipt' | 'jws' | 'none' | null;
+  receiptLength: number;
+  hasJwsRepresentation: boolean;
+  runtimeStoreKitMode: string | null;
+  receiptAttemptCount: number;
+  receiptCollectionResult: 'idle' | 'found' | 'timeout' | 'refresh_error' | 'unavailable';
 }
 
 const IOS_IAP_DIAGNOSTICS_KEY = 'biblia_ios_iap_diagnostics';
@@ -128,10 +131,15 @@ const EMPTY_IOS_IAP_DIAGNOSTICS: IOSIAPDiagnostics = {
   initializeErrors: [],
   lastError: null,
   rawStoreError: null,
+  receiptSource: null,
+  receiptLength: 0,
+  hasJwsRepresentation: false,
+  runtimeStoreKitMode: null,
+  receiptAttemptCount: 0,
+  receiptCollectionResult: 'idle',
 };
 
 let _iosIAPDiagnostics: IOSIAPDiagnostics = { ...EMPTY_IOS_IAP_DIAGNOSTICS };
-let _appleLoggerCaptureInstalled = false;
 
 function uniqueStrings(values: unknown[]): string[] {
   return Array.from(new Set(values.filter((value): value is string => typeof value === 'string' && value.length > 0)));
@@ -202,38 +210,22 @@ function serializeStoreError(error: any) {
 }
 
 function formatRawStoreError(error: unknown): string {
-  if (typeof error === 'string') return error;
+  const redact = (value: unknown) => String(value ?? '')
+    .replace(/[A-Za-z0-9+/_=-]{120,}/g, '[conteúdo sensível removido]')
+    .slice(0, 500);
+  const metadata = (value: any) => ({
+    ...(value?.name ? { name: redact(value.name) } : {}),
+    ...(value?.code !== undefined ? { code: redact(value.code) } : {}),
+    ...(value?.message ? { message: redact(value.message) } : {}),
+    ...(value?.productId || value?.product?.id
+      ? { productId: redact(value?.productId || value?.product?.id) }
+      : {}),
+  });
 
-  const seen = new WeakSet<object>();
-  try {
-    const serialized = JSON.stringify(error, (_key, value) => {
-      if (typeof value === 'bigint') return value.toString();
-      if (value instanceof Error) {
-        return {
-          name: value.name,
-          message: value.message,
-          stack: value.stack,
-          ...Object.fromEntries(
-            Object.getOwnPropertyNames(value)
-              .filter((key) => !['name', 'message', 'stack'].includes(key))
-              .map((key) => [key, (value as any)[key]]),
-          ),
-        };
-      }
-      if (value && typeof value === 'object') {
-        if (seen.has(value)) return '[Circular]';
-        seen.add(value);
-      }
-      return value;
-    }, 2);
-    if (serialized) return serialized;
-  } catch {}
-
-  try {
-    return String(error);
-  } catch {
-    return '[Erro da loja não serializável]';
-  }
+  if (Array.isArray(error)) return JSON.stringify(error.map(metadata));
+  if (typeof error === 'string') return JSON.stringify({ message: redact(error) });
+  if (error && typeof error === 'object') return JSON.stringify(metadata(error));
+  return JSON.stringify({ message: redact(error) });
 }
 
 function snapshotAppleProducts(store: any): any[] {
@@ -250,67 +242,6 @@ function snapshotAppleProducts(store: any): any[] {
       pricing: product?.pricing,
       offers: product?.offers,
     }));
-}
-
-/**
- * O cordova-plugin-purchase recebe da ponte nativa os arrays
- * `validProducts` e `invalidProducts`, mas só os expõe no logger interno.
- * O logger é uma API pública e substituível do plugin; preservamos o console
- * original e capturamos apenas a resposta de carregamento da App Store.
- */
-function installAppleLoggerCapture(cdv: any) {
-  if (_appleLoggerCaptureInstalled || !isIOS || !cdv?.Logger) return;
-
-  const originalConsole = cdv.Logger.console || window.console;
-  const capture = (args: any[]) => {
-    for (const arg of args) {
-      if (typeof arg !== 'string') continue;
-      const marker = 'bridge.loaded: ';
-      const markerIndex = arg.indexOf(marker);
-      if (markerIndex === -1) continue;
-
-      try {
-        const payload = JSON.parse(arg.slice(markerIndex + marker.length));
-        const returnedProducts = Array.isArray(payload?.validProducts) ? payload.validProducts : [];
-        const invalidProductIds = Array.isArray(payload?.invalidProducts) ? payload.invalidProducts : [];
-        const returnedProductIds = returnedProducts
-          .map((product: any) => product?.id || product?.productId)
-          .filter(Boolean);
-
-        console.info('[IAP][Apple][Diagnostics] Produtos retornados:', returnedProducts);
-        console.info('[IAP][Apple][Diagnostics] IDs inválidos retornados:', invalidProductIds);
-        updateIOSIAPDiagnostics({
-          status: 'ready',
-          returnedProducts,
-          returnedProductIds,
-          invalidProductIds,
-          storeResponseAt: new Date().toISOString(),
-          lastError: null,
-          rawStoreError: null,
-        });
-      } catch (error) {
-        console.warn('[IAP][Apple][Diagnostics] Falha ao interpretar resposta do StoreKit:', error);
-        updateIOSIAPDiagnostics({
-          status: 'error',
-          lastError: 'Falha ao interpretar a resposta bruta do StoreKit',
-          rawStoreError: formatRawStoreError({ error, rawLoggerMessage: arg }),
-        });
-      }
-    }
-  };
-
-  const forward = (method: 'log' | 'warn' | 'error') => (...args: any[]) => {
-    capture(args);
-    const originalMethod = originalConsole?.[method] || originalConsole?.log;
-    originalMethod?.apply(originalConsole, args);
-  };
-
-  cdv.Logger.console = {
-    log: forward('log'),
-    warn: forward('warn'),
-    error: forward('error'),
-  };
-  _appleLoggerCaptureInstalled = true;
 }
 
 // ── In-App Purchases via cordova-plugin-purchase (CdvPurchase v13) ────────
@@ -361,6 +292,11 @@ type PendingTx = {
 };
 const _pendingPurchases: PendingTx[] = [];
 let _listenersRegistered = false;
+// StoreKit can deliver the same approved transaction more than once (notably
+// around restores). Share its verification work, while still finishing each
+// delivered transaction after a successful validation.
+const _appleVerificationByTransaction = new Map<string, Promise<PurchaseResult>>();
+const _validatedAppleTransactions = new Set<string>();
 
 function _routeApprovedTransaction(transaction: any): PendingTx | null {
   const txProductId =
@@ -421,8 +357,10 @@ async function _initCdvStore(): Promise<any | null> {
       const requestedProductIds = Object.values(ids);
 
       if (isIOS) {
-        installAppleLoggerCapture(cdv);
-        store.verbosity = cdv.LogLevel?.DEBUG ?? 4;
+        // INFO/DEBUG logs stringify loaded receipts in plugin v13.18, which can
+        // expose the base64 application receipt or StoreKit 2 JWS. Keep only
+        // warnings/errors and build diagnostics from allowlisted state below.
+        store.verbosity = cdv.LogLevel?.WARNING ?? 2;
         const runtimeBundleId = await getRuntimeBundleId();
         console.info('[IAP][Apple][Diagnostics] Product IDs enviados:', requestedProductIds);
         console.info('[IAP][Apple][Diagnostics] Bundle ID em tempo de execução:', runtimeBundleId);
@@ -502,12 +440,24 @@ async function _initCdvStore(): Promise<any | null> {
 
         store.when()
           .approved(async (transaction: any) => {
-            const pending = _routeApprovedTransaction(transaction);
-            const productId =
+            const callbackProductId =
               transaction?.products?.[0]?.id ||
               transaction?.productId ||
-              pending?.productId ||
               '';
+            const callbackTransactionId =
+              transaction?.transactionId ||
+              transaction?.nativePurchase?.transactionId ||
+              '';
+            const callbackKey = callbackProductId && callbackTransactionId
+              ? `${callbackProductId}:${callbackTransactionId}`
+              : '';
+            // Do not consume a later UI purchase of the same product when the
+            // store merely repeats an already-known approved transaction.
+            const pending = callbackKey && (
+              _appleVerificationByTransaction.has(callbackKey) ||
+              _validatedAppleTransactions.has(callbackKey)
+            ) ? null : _routeApprovedTransaction(transaction);
+            const productId = callbackProductId || pending?.productId || '';
 
             const txPlatform = transaction?.platform || targetPlatform;
 
@@ -526,11 +476,13 @@ async function _initCdvStore(): Promise<any | null> {
                   transactionId,
                   originalTransactionId,
                   receiptData,
-                } = extractApplePurchaseData(transaction, store, productId);
+                  jwsRepresentation,
+                } = await collectApplePurchaseData(store, transaction, productId);
 
-                if (!receiptData || !transactionId || !normalizedProductId) {
+                if ((!receiptData && !jwsRepresentation) || !transactionId || !normalizedProductId) {
                   console.error('[IAP][Apple] Transação aprovada sem dados completos', {
                     hasReceipt: !!receiptData,
+                    hasJwsRepresentation: !!jwsRepresentation,
                     transactionId,
                     productId: normalizedProductId,
                     localReceiptCount: store?.localReceipts?.length || 0,
@@ -539,14 +491,25 @@ async function _initCdvStore(): Promise<any | null> {
                   return;
                 }
 
-                const result = await verifyApplePurchase({
-                  productId: normalizedProductId,
-                  transactionId,
-                  originalTransactionId,
-                  receiptData,
-                });
+                const verificationKey = `${normalizedProductId}:${transactionId}`;
+                let verification = _appleVerificationByTransaction.get(verificationKey);
+                if (!verification) {
+                  verification = verifyApplePurchase({
+                    productId: normalizedProductId,
+                    transactionId,
+                    originalTransactionId,
+                    receiptData,
+                    ...(jwsRepresentation ? { signedTransaction: jwsRepresentation } : {}),
+                  });
+                  _appleVerificationByTransaction.set(verificationKey, verification);
+                }
+                const result = await verification;
+                if (result.success) _validatedAppleTransactions.add(verificationKey);
+                else _appleVerificationByTransaction.delete(verificationKey);
 
-                if (result.success) {
+                // A duplicate callback may not have a pending UI purchase, but
+                // an already validated transaction must still be acknowledged.
+                if (result.success || _validatedAppleTransactions.has(verificationKey)) {
                   try { await transaction.finish(); } catch (e) {
                     console.warn('[IAP][Apple] Falha ao finalizar transação (ignorável):', e);
                   }
@@ -671,6 +634,121 @@ async function getGooglePlayStore(): Promise<any | null> {
 async function getAppleStore(): Promise<any | null> {
   if (!isIOS || !isNative) return null;
   return _initCdvStore();
+}
+
+const APPLE_RECEIPT_POLL_DELAYS_MS = [0, 350, 700, 1_200, 1_800, 2_500];
+
+export function getAppleReceiptRefreshStrategy(adapter: any): 'refreshReceipt' | 'forceReloadAndLoad' | 'unavailable' {
+  if (typeof adapter?.refreshReceipt === 'function') return 'refreshReceipt';
+  if (
+    adapter &&
+    'forceReceiptReload' in adapter &&
+    typeof adapter?.loadReceipts === 'function'
+  ) return 'forceReloadAndLoad';
+  return 'unavailable';
+}
+
+async function refreshAppleReceipt(store: any): Promise<string> {
+  const applePlatform = (window as any).CdvPurchase?.Platform?.APPLE_APPSTORE;
+  const adapter = typeof store?.getAdapter === 'function'
+    ? store.getAdapter(applePlatform)
+    : null;
+  const strategy = getAppleReceiptRefreshStrategy(adapter);
+  if (strategy === 'refreshReceipt') {
+    const result = await adapter.refreshReceipt();
+    if (result?.isError) {
+      throw new Error(result.message || 'A App Store não conseguiu atualizar o recibo');
+    }
+    return typeof result?.appStoreReceipt === 'string' ? result.appStoreReceipt : '';
+  }
+  if (strategy === 'forceReloadAndLoad') {
+    // Store v13.18 rejects store.refresh(); these are the Apple adapter APIs
+    // that request a new App Store receipt without initiating a restore flow.
+    adapter.forceReceiptReload = true;
+    const receipts = await adapter.loadReceipts();
+    return extractAppleAppStoreReceipt({ localReceipts: receipts });
+  }
+  throw new Error('A atualização de recibo não é suportada pelo adaptador Apple desta versão');
+}
+
+/**
+ * Collects the Apple verification artifact consistently for approved events,
+ * manual restore and silent iOS sync. The Apple adapter's supported receipt
+ * refresh operation is only requested when a receipt is absent, then local
+ * receipt state is polled because the native bridge updates it asynchronously.
+ */
+async function collectApplePurchaseData(
+  store: any,
+  transaction?: any,
+  fallbackProductId = '',
+): Promise<ReturnType<typeof extractApplePurchaseData>> {
+  let data = extractApplePurchaseData(transaction, store, fallbackProductId);
+  let attempts = 1;
+  let refreshError: unknown = null;
+  let receiptUpdatedHandler: (() => void) | null = null;
+
+  // Prefer the application receipt whenever it is available. Even if a
+  // StoreKit 2 JWS arrived with the transaction, explicitly request a receipt
+  // refresh first; the JWS is the fallback only when base64 remains absent.
+  if (!data.receiptData) {
+    let wakePolling!: () => void;
+    const receiptUpdated = new Promise<void>((resolve) => { wakePolling = resolve; });
+    const waitForReceiptOrDelay = async (delay: number) => {
+      if (!delay) return;
+      await Promise.race([
+        receiptUpdated,
+        new Promise((resolve) => setTimeout(resolve, delay)),
+      ]);
+    };
+    try {
+      receiptUpdatedHandler = () => wakePolling();
+      // This listener allows the first poll to proceed as soon as the native
+      // receipt bridge completes instead of always waiting for its interval.
+      store?.when?.().receiptUpdated(receiptUpdatedHandler);
+      const refreshedReceipt = await refreshAppleReceipt(store);
+      if (refreshedReceipt) {
+        data = {
+          ...data,
+          receiptData: refreshedReceipt,
+          jwsRepresentation: '',
+          receiptSource: 'localReceipt',
+        };
+      }
+    } catch (error) {
+      refreshError = error;
+      console.warn('[IAP][Apple] Falha ao atualizar recibo Apple:', error);
+    }
+    try {
+      for (const delay of data.receiptData ? [] : APPLE_RECEIPT_POLL_DELAYS_MS) {
+        await waitForReceiptOrDelay(delay);
+        attempts += 1;
+        data = extractApplePurchaseData(transaction, store, fallbackProductId);
+        if (data.receiptData || data.jwsRepresentation) break;
+      }
+    } finally {
+      if (receiptUpdatedHandler && typeof store?.off === 'function') {
+        try { store.off(receiptUpdatedHandler); } catch (error) {
+          console.warn('[IAP][Apple] Falha ao remover listener receiptUpdated:', error);
+        }
+      }
+    }
+  }
+
+  updateIOSIAPDiagnostics({
+    receiptSource: data.receiptSource,
+    receiptLength: data.receiptData.length,
+    hasJwsRepresentation: Boolean(data.jwsRepresentation),
+    runtimeStoreKitMode: data.jwsRepresentation ? 'StoreKit2' : data.receiptData ? 'StoreKit1' : null,
+    receiptAttemptCount: attempts,
+    receiptCollectionResult: data.receiptData || data.jwsRepresentation
+      ? 'found'
+      : refreshError ? 'refresh_error' : 'timeout',
+    ...(refreshError ? {
+      lastError: (refreshError as any)?.message || String(refreshError),
+      rawStoreError: formatRawStoreError(refreshError),
+    } : {}),
+  });
+  return data;
 }
 
 /**
@@ -834,7 +912,7 @@ let _autoSyncDone = false;
  * Ressincronização silenciosa de assinaturas com o backend, uma vez por sessão.
  * - Android: queryPurchases é silencioso; usa o fluxo normal de restore.
  * - iOS: NÃO chama store.restorePurchases() (pode abrir prompt de senha da
- *   Apple); apenas envia o appStoreReceipt local, se existir, ao backend.
+ *   Apple); coleta/atualiza o artefato local de verificação e o envia ao backend.
  * Usuário não autenticado: o backend responde 401 e o erro é ignorado.
  */
 async function _autoSyncSubscriptions(): Promise<void> {
@@ -851,11 +929,12 @@ async function _autoSyncSubscriptions(): Promise<void> {
     const store = await getAppleStore();
     if (!store) return;
 
-    const appStoreReceipt = extractAppleAppStoreReceipt(store);
-    if (!appStoreReceipt) return; // nunca comprou neste Apple ID
+    const purchaseData = await collectApplePurchaseData(store);
+    if (!purchaseData.receiptData && !purchaseData.jwsRepresentation) return;
 
     const response = await apiRequest('POST', '/api/iap/restore/apple', {
-      receiptData: appStoreReceipt,
+      receiptData: purchaseData.receiptData,
+      ...(purchaseData.jwsRepresentation ? { signedTransaction: purchaseData.jwsRepresentation } : {}),
     });
     const data = await response.json().catch(() => null);
     console.log('[IAP] Auto-sync iOS:', data?.success ? `ok (${data.restored} sincronizadas)` : 'sem alterações');
@@ -1257,6 +1336,7 @@ async function verifyApplePurchase(data: {
   transactionId: string;
   originalTransactionId: string;
   receiptData: string;
+  signedTransaction?: string;
 }): Promise<PurchaseResult> {
   try {
     const response = await apiRequest('POST', '/api/iap/verify/apple', data);
@@ -1358,21 +1438,18 @@ export async function restorePurchases(): Promise<{ success: boolean; restored: 
         console.warn('[IAP][Apple] restorePurchases nativo lançou erro:', e);
       }
 
-      // Aguardar um instante para o iOS popular localReceipts após o restore.
-      await new Promise((r) => setTimeout(r, 1500));
+      // A coleta também atualiza explicitamente o recibo ausente e aguarda a
+      // ponte StoreKit popular os dados, como no fluxo de compra aprovada.
+      const purchaseData = await collectApplePurchaseData(store);
 
-      // Pegar o appStoreReceipt unificado (1 receipt cobre todas as compras
-      // do bundleId no device) e enviar pro backend, que valida e cria/atualiza
-      // todas as subscriptions encontradas.
-      const appStoreReceipt = extractAppleAppStoreReceipt(store);
-
-      if (!appStoreReceipt) {
+      if (!purchaseData.receiptData && !purchaseData.jwsRepresentation) {
         // Sem recibo = nada pra restaurar (usuário nunca comprou neste Apple ID).
         return { success: true, restored: 0 };
       }
 
       const response = await apiRequest('POST', '/api/iap/restore/apple', {
-        receiptData: appStoreReceipt,
+        receiptData: purchaseData.receiptData,
+        ...(purchaseData.jwsRepresentation ? { signedTransaction: purchaseData.jwsRepresentation } : {}),
       });
       return await response.json();
     }

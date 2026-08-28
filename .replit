@@ -75,6 +75,7 @@ integrations = ["javascript_database:1.0.0", "javascript_openai_ai_integrations:
 RESEND_FROM_EMAIL = "Biblia Inteligente IA <noreply@bibliainteligente.com.br>"
 REVIEWER_PASSWORD = "GooglePlay@2025!"
 GOOGLE_RTDN_TOKEN = "0146884537e105b2d62e1368475e6e4b69106c3380742be64834e8fee1d5b27f"
+APPLE_APP_ID = "6766988872"
 
 [postMerge]
 path = "scripts/post-merge.sh"

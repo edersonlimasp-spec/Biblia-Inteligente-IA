@@ -9,12 +9,12 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.bibliainteligente.app
+        bundle_identifier: com.bibliainteligente.ios
       vars:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
-        BUNDLE_ID: "com.bibliainteligente.app"
-        APP_STORE_APPLE_ID: "" # opcional: preencher com o Apple ID numérico do app (achar em App Store Connect → App Information → Apple ID)
+        BUNDLE_ID: "com.bibliainteligente.ios"
+        APP_STORE_APPLE_ID: "6766988872"
       node: 20
       xcode: latest
       cocoapods: default
@@ -47,7 +47,7 @@ workflows:
 
       - name: Definir build number a partir do App Store Connect
         script: |
-          LATEST=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APP_ID" 2>/dev/null || echo 0)
+          LATEST=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || echo 0)
           NEW=$((LATEST + 1))
           echo "Novo CFBundleVersion: $NEW"
           cd ios/App

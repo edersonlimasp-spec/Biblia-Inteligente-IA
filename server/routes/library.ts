@@ -358,6 +358,7 @@ export function registerLibraryRoutes(app: Express): void {
         .orderBy(asc(libraryHighlights.createdAt));
       res.json(highlights);
     } catch (e) {
+      console.error("[Library] GET highlights by book error:", e);
       res.status(500).json({ error: "Erro ao buscar destaques" });
     }
   });

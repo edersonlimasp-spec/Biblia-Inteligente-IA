@@ -461,6 +461,8 @@ export function registerAuthRoutes(app: Express): void {
     try {
       // Native clients parse this response during startup. A bodyless 304 makes
       // the installed app interpret a valid session as broken and erase its JWT.
+      delete req.headers["if-none-match"];
+      delete req.headers["if-modified-since"];
       res.set("Cache-Control", "no-store, no-cache, must-revalidate");
       res.removeHeader("ETag");
 

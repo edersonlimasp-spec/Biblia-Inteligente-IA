@@ -29,6 +29,7 @@ import { NUM_WORD_STRONG } from "../num-strong-mappings";
 import { LEV_WORD_STRONG } from "../lev-strong-mappings";
 import { DEU_WORD_STRONG } from "../deu-strong-mappings";
 import { getClientPlatform, getPlatformAllowedSources, getFromStrongCache, setInStrongCache, initFirebaseAdmin, firebaseInitialized } from "./shared";
+import { findEmbeddedStrongEntry } from "../strong-embedded-fallback";
 
 export function registerAiRoutes(app: Express): void {
   app.get("/api/subscriptions", ensureAuthenticated, async (req: AuthRequest, res) => {
@@ -752,11 +753,23 @@ export function registerAiRoutes(app: Express): void {
       }
       
       // Query database for Strong's entry (single optimized query with index)
-      const [entry] = await db
+      let [entry] = await db
         .select()
         .from(strongEntries)
         .where(eq(strongEntries.strongNumber, upperNumber))
         .limit(1);
+
+      // Produção pode ter uma tabela incompleta mesmo quando o léxico completo
+      // está empacotado no servidor. Recupere a entrada autoritativa antes de
+      // recorrer à IA, e repare a tabela para as próximas consultas.
+      if (!entry) {
+        const embeddedEntry = findEmbeddedStrongEntry(upperNumber);
+        if (embeddedEntry) {
+          console.log(`[Strong API] Restoring ${upperNumber} from embedded lexicon`);
+          await db.insert(strongEntries).values(embeddedEntry).onConflictDoNothing();
+          entry = embeddedEntry as typeof entry;
+        }
+      }
       
       const elapsed = Date.now() - startTime;
       console.log(`[Strong API] DB query for ${upperNumber}: ${elapsed}ms`);

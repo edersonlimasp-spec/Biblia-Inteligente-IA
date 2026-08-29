@@ -125,11 +125,11 @@ export async function ensureAuthenticated(
 ) {
   try {
     if (!await resolveAuthentication(req)) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Unauthorized', requiresLogin: true });
     }
     next();
   } catch {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized', requiresLogin: true });
   }
 }
 

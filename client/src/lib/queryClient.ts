@@ -106,6 +106,10 @@ export async function apiRequest(
     headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
+    // Authenticated API responses must never be satisfied with a bodyless 304.
+    // Native startup parses /api/auth/me as JSON; a cached 304 would otherwise
+    // be mistaken for an invalid session and clear the valid JWT.
+    cache: "no-store",
   });
 
   await throwIfResNotOk(res);

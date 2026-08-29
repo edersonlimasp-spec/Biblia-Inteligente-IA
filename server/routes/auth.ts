@@ -459,6 +459,11 @@ export function registerAuthRoutes(app: Express): void {
   // Get current user info
   app.get("/api/auth/me", ensureAuthenticated, async (req: AuthRequest, res) => {
     try {
+      // Native clients parse this response during startup. A bodyless 304 makes
+      // the installed app interpret a valid session as broken and erase its JWT.
+      res.set("Cache-Control", "no-store, no-cache, must-revalidate");
+      res.removeHeader("ETag");
+
       const user = req.dbUser ?? await storage.getUser(req.userId!);
       if (!user) {
         return res.status(404).json({ error: "Usuário não encontrado" });

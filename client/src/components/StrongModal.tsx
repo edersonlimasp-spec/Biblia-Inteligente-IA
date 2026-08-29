@@ -28,6 +28,7 @@ async function fetchStrongEntry(strongNumber: string, deviceId: string): Promise
   const res = await fetch(getApiUrl(`/api/strong/${encodeURIComponent(strongNumber)}`), {
     credentials: 'include',
     headers,
+    cache: 'no-store',
   });
   
   if (!res.ok) {
@@ -273,7 +274,9 @@ export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSu
 
   const apiError = error as ApiError;
   const requiresSubscription = apiError?.data?.requiresSubscription;
-  const requiresLogin = apiError?.data?.requiresLogin;
+  // Generic authentication middleware returns { error: "Unauthorized" }.
+  // Treat its 401 status as login-required rather than "term not found".
+  const requiresLogin = apiError?.status === 401 || apiError?.data?.requiresLogin;
 
   const isHebrew = strongData?.number?.startsWith('H');
   

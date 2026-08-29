@@ -20,18 +20,23 @@ export function getApiUrl(path: string): string {
   return `${API_BASE_URL}${path}`;
 }
 
-// Get token from localStorage
+// Keep a synchronous in-memory copy as well as localStorage. Some native
+// WebViews can briefly return stale storage values immediately after login.
+let runtimeAuthToken: string | null = localStorage.getItem('authToken');
+
 function getAuthToken(): string | null {
-  return isNative ? localStorage.getItem('authToken') : null;
+  return runtimeAuthToken ?? localStorage.getItem('authToken');
 }
 
 // Set token in localStorage
 export function setAuthToken(token: string) {
-  if (isNative) localStorage.setItem('authToken', token);
+  runtimeAuthToken = token;
+  localStorage.setItem('authToken', token);
 }
 
 // Remove token from localStorage
 export function clearAuthToken() {
+  runtimeAuthToken = null;
   localStorage.removeItem('authToken');
 }
 

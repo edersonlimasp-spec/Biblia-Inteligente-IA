@@ -59,7 +59,12 @@ function NativeAuthProviderContent({ children }: { children: ReactNode }) {
   }, []);
   const login = async (email: string, password: string) => {
     const data = await (await apiRequest("POST", "/api/auth/login", { email, password })).json();
-    setAuthToken(data.token); setToken(data.token); apply(data);
+    setAuthToken(data.token);
+    setToken(data.token);
+    // Confirm that the newly issued JWT is actually attached to native
+    // requests before closing the login modal.
+    const verified = await (await apiRequest("GET", "/api/auth/me")).json();
+    apply(verified);
   };
   const register = async (name: string, email: string, password: string, deviceId?: string) => {
     const data = await (await apiRequest("POST", "/api/auth/register", { name, email, password, deviceId })).json();

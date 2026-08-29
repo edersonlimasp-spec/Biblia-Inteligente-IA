@@ -20,23 +20,20 @@ export function getApiUrl(path: string): string {
   return `${API_BASE_URL}${path}`;
 }
 
-// Keep a synchronous in-memory copy as well as localStorage. Some native
-// WebViews can briefly return stale storage values immediately after login.
-let runtimeAuthToken: string | null = localStorage.getItem('authToken');
-
-function getAuthToken(): string | null {
-  return runtimeAuthToken ?? localStorage.getItem('authToken');
+// localStorage.setItem is synchronous. Read the persisted source for every
+// request so React state or an in-memory mirror can never race or drift.
+export function getAuthToken(): string | null {
+  return localStorage.getItem('authToken');
 }
 
 // Set token in localStorage
 export function setAuthToken(token: string) {
-  runtimeAuthToken = token;
   localStorage.setItem('authToken', token);
+  lastFailedRevalidationToken = null;
 }
 
 // Remove token from localStorage
 export function clearAuthToken() {
-  runtimeAuthToken = null;
   localStorage.removeItem('authToken');
 }
 
@@ -119,6 +116,64 @@ export async function apiRequest(
 
   await throwIfResNotOk(res);
   return res;
+}
+
+let authRevalidationPromise: Promise<boolean> | null = null;
+let lastFailedRevalidationToken: string | null = null;
+
+async function revalidatePersistedAuthToken(): Promise<boolean> {
+  const currentToken = getAuthToken();
+  if (!currentToken || lastFailedRevalidationToken === currentToken) return false;
+  if (authRevalidationPromise) return authRevalidationPromise;
+
+  authRevalidationPromise = (async () => {
+    const headers = getAuthHeaders();
+    const deviceId = getDeviceId();
+    if (deviceId) headers['x-device-id'] = deviceId;
+
+    try {
+      const response = await fetch(getApiUrl('/api/auth/me'), {
+        method: 'GET',
+        headers,
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!response.ok) {
+        lastFailedRevalidationToken = currentToken;
+        return false;
+      }
+      // A logout or different login may have happened while the session check
+      // was in flight. Do not replay the failed request under another identity.
+      if (getAuthToken() !== currentToken) return false;
+      lastFailedRevalidationToken = null;
+      return true;
+    } catch {
+      lastFailedRevalidationToken = currentToken;
+      return false;
+    }
+  })().finally(() => {
+    authRevalidationPromise = null;
+  });
+
+  return authRevalidationPromise;
+}
+
+/**
+ * Authenticated request with exactly one silent session check after a 401.
+ * Intended for user-triggered reads such as Strong; it never retries twice.
+ */
+export async function apiRequestWithAuthRetry(
+  method: string,
+  url: string,
+  data?: unknown,
+): Promise<Response> {
+  try {
+    return await apiRequest(method, url, data);
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 401) throw error;
+    if (!await revalidatePersistedAuthToken()) throw error;
+    return apiRequest(method, url, data);
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

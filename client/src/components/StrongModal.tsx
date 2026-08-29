@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useReducer, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,37 +8,21 @@ import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, X, Search, Crown, BookOpen, Infinity, LogIn, Info, ChevronDown, Sparkles, MapPin, Database, History, BookMarked, ScrollText, Layers, Globe, Share2, Copy, Check } from "lucide-react";
-import { ApiError, getApiUrl, getAuthHeaders } from "@/lib/queryClient";
+import { ApiError, apiRequestWithAuthRetry, getApiUrl } from "@/lib/queryClient";
 import { AuthModal } from "./AuthModal";
 import { getDeviceId } from "@/hooks/use-device-id";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage, type AppLanguage } from "@/contexts/LanguageContext";
 import { getCachedStrongEntry, cacheStrongEntry, getCachedOccurrences, cacheOccurrences } from "@/lib/strong-cache";
 import { useToast } from "@/hooks/use-toast";
+import { strongAuthModalReducer } from "@/lib/strongAuthFlow";
 
 // Fetch Strong entry with proper auth headers
-async function fetchStrongEntry(strongNumber: string, deviceId: string): Promise<any> {
-  const headers: HeadersInit = getAuthHeaders();
-  
-  // Always include deviceId for guests - backend checks both query and header
-  if (deviceId) {
-    headers['x-device-id'] = deviceId;
-  }
-  
-  const res = await fetch(getApiUrl(`/api/strong/${encodeURIComponent(strongNumber)}`), {
-    credentials: 'include',
-    headers,
-    cache: 'no-store',
-  });
-  
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    const error = new Error(errorData.error || 'Request failed') as ApiError;
-    error.status = res.status;
-    error.data = errorData;
-    throw error;
-  }
-  
+async function fetchStrongEntry(strongNumber: string): Promise<any> {
+  const res = await apiRequestWithAuthRetry(
+    'GET',
+    `/api/strong/${encodeURIComponent(strongNumber)}`,
+  );
   return res.json();
 }
 
@@ -116,7 +100,7 @@ export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSu
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const { toast } = useToast();
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showAuthModal, dispatchAuthModal] = useReducer(strongAuthModalReducer, false);
   const [showOccurrences, setShowOccurrences] = useState(false);
   const [isCached, setIsCached] = useState(false);
   const [justCopied, setJustCopied] = useState(false);
@@ -211,7 +195,7 @@ export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSu
     queryFn: async () => {
       try {
         // Always try network first to respect auth/subscription status
-        const data = await fetchStrongEntry(strongNumber, deviceId);
+        const data = await fetchStrongEntry(strongNumber);
         
         // Cache successful response for offline use (only if no error)
         if (data && !data.error && !data.requiresSubscription && !data.requiresLogin) {
@@ -282,8 +266,12 @@ export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSu
   
   // Handle successful login - refetch the data
   const handleAuthSuccess = () => {
-    setShowAuthModal(false);
+    dispatchAuthModal({ type: 'AUTH_SUCCESS' });
     refetch();
+  };
+
+  const handleOpenAuth = () => {
+    dispatchAuthModal({ type: 'OPEN_REQUESTED' });
   };
 
   if (isLoading) {
@@ -335,9 +323,9 @@ export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSu
                       <div className="text-xs text-muted-foreground">2 palavras gratuitas para experimentar</div>
                     </div>
                   </div>
-                  <Button 
-                    className="w-full mt-3" 
-                    onClick={() => setShowAuthModal(true)}
+                  <Button
+                    className="w-full mt-3"
+                    onClick={handleOpenAuth}
                     data-testid="button-login-strong"
                   >
                     Entrar / Criar Conta
@@ -383,7 +371,9 @@ export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSu
         
         <AuthModal
           open={showAuthModal}
-          onOpenChange={setShowAuthModal}
+          onOpenChange={(open) => dispatchAuthModal({
+            type: open ? 'OPEN_REQUESTED' : 'CLOSE_REQUESTED',
+          })}
           onAuthSuccess={handleAuthSuccess}
           title="Acessar Dicionário Strong"
           description="Faça login para desbloquear 2 palavras gratuitas do Dicionário Strong."

@@ -44,17 +44,8 @@ export function generateToken(userId: string, email: string, role: string = 'use
 
 // Verify JWT token
 export function verifyToken(token: string): { userId: string; email: string; role?: string } | null {
-  try {
-    return jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role?: string };
-  } catch {
-    return null;
-  }
-}
-
-function isNativeClient(req: Request): boolean {
-  const platform = req.headers['x-client-platform'];
-  const value = Array.isArray(platform) ? platform[0] : platform;
-  return value === 'android' || value === 'ios';
+  const result = verifyLegacyToken(token);
+  return result.ok ? result.payload : null;
 }
 
 function claimString(claims: unknown, key: string): string | undefined {
@@ -63,10 +54,14 @@ function claimString(claims: unknown, key: string): string | undefined {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
-async function attachDbUser(req: AuthRequest, email: string): Promise<boolean> {
+async function attachDbUser(
+  req: AuthRequest,
+  email: string,
+  createIfMissing: boolean,
+): Promise<boolean> {
   let dbUser = await storage.getUserByEmail(email);
 
-  if (!dbUser) {
+  if (!dbUser && createIfMissing) {
     try {
       dbUser = await storage.createUser({
         email,
@@ -85,22 +80,96 @@ async function attachDbUser(req: AuthRequest, email: string): Promise<boolean> {
   return true;
 }
 
-async function resolveAuthentication(req: AuthRequest): Promise<boolean> {
+type LegacyTokenPayload = { userId: string; email: string; role?: string };
+type AuthResolution =
+  | { ok: true; source: 'clerk' | 'legacy_jwt' }
+  | { ok: false; reasons: string[] };
+
+function verifyLegacyToken(token: string):
+  | { ok: true; payload: LegacyTokenPayload }
+  | { ok: false; reason: string } {
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as LegacyTokenPayload;
+    return { ok: true, payload };
+  } catch (error) {
+    const errorName = error instanceof Error ? error.name : '';
+    const errorMessage = error instanceof Error ? error.message : '';
+    if (errorName === 'TokenExpiredError') {
+      return { ok: false, reason: 'legacy_jwt_expired' };
+    }
+    if (errorMessage === 'invalid signature') {
+      return { ok: false, reason: 'legacy_jwt_invalid_signature' };
+    }
+    if (errorName === 'NotBeforeError') {
+      return { ok: false, reason: 'legacy_jwt_not_active' };
+    }
+    return { ok: false, reason: 'legacy_jwt_invalid' };
+  }
+}
+
+async function resolveAuthentication(req: AuthRequest): Promise<AuthResolution> {
+  const reasons: string[] = [];
+
   // Web sessions are first-class and are validated by clerkMiddleware.
   const clerkAuth = getAuth(req);
   const claims = clerkAuth.sessionClaims;
   const email = claimString(claims, 'email');
   if (clerkAuth.userId && email) {
-    return attachDbUser(req, email);
+    if (await attachDbUser(req, email, true)) {
+      return { ok: true, source: 'clerk' };
+    }
+    reasons.push('clerk_user_link_failed');
+  } else if (clerkAuth.userId) {
+    reasons.push('clerk_email_missing');
+  } else {
+    reasons.push('clerk_session_missing');
   }
 
-  // The legacy JWT transport is intentionally limited to Capacitor clients.
-  if (!isNativeClient(req)) return false;
+  return resolveLegacyBearer(req, reasons);
+}
+
+async function resolveLegacyBearer(
+  req: AuthRequest,
+  reasons: string[] = [],
+): Promise<AuthResolution> {
+  // A valid server-signed legacy JWT is sufficient authentication on its own.
+  // Platform headers remain useful for policy decisions, but never gate JWT
+  // signature/expiry validation.
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return false;
-  const payload = verifyToken(authHeader.substring(7));
-  if (!payload?.email) return false;
-  return attachDbUser(req, payload.email);
+  if (!authHeader) {
+    reasons.push('authorization_header_missing');
+    return { ok: false, reasons };
+  }
+  if (!authHeader.startsWith('Bearer ')) {
+    reasons.push('authorization_header_malformed');
+    return { ok: false, reasons };
+  }
+
+  const verification = verifyLegacyToken(authHeader.substring(7));
+  if (!verification.ok) {
+    reasons.push(verification.reason);
+    return { ok: false, reasons };
+  }
+  if (!verification.payload.email?.trim()) {
+    reasons.push('legacy_jwt_email_missing');
+    return { ok: false, reasons };
+  }
+  if (!await attachDbUser(req, verification.payload.email, false)) {
+    reasons.push('legacy_jwt_user_not_found');
+    return { ok: false, reasons };
+  }
+  return { ok: true, source: 'legacy_jwt' };
+}
+
+function logAuthRejection(req: AuthRequest, reasons: string[]): void {
+  console.warn(
+    `[Auth] Rejected ${req.method} ${req.path}: ${reasons.join(', ')}`,
+  );
+}
+
+function logAuthException(req: AuthRequest, error: unknown): void {
+  const errorName = error instanceof Error ? error.name : 'UnknownError';
+  console.warn(`[Auth] Rejected ${req.method} ${req.path}: authentication_exception (${errorName})`);
 }
 
 // Optional authentication populates the local app user when a valid Clerk
@@ -124,11 +193,14 @@ export async function ensureAuthenticated(
   next: NextFunction,
 ) {
   try {
-    if (!await resolveAuthentication(req)) {
+    const resolution = await resolveAuthentication(req);
+    if (!resolution.ok) {
+      logAuthRejection(req, resolution.reasons);
       return res.status(401).json({ error: 'Unauthorized', requiresLogin: true });
     }
     next();
-  } catch {
+  } catch (error) {
+    logAuthException(req, error);
     return res.status(401).json({ error: 'Unauthorized', requiresLogin: true });
   }
 }
@@ -139,14 +211,17 @@ export async function ensureAdmin(
   next: NextFunction,
 ) {
   try {
-    if (!await resolveAuthentication(req)) {
+    const resolution = await resolveAuthentication(req);
+    if (!resolution.ok) {
+      logAuthRejection(req, resolution.reasons);
       return res.status(401).json({ error: 'Unauthorized' });
     }
     if (req.dbUser?.role !== 'admin' && req.dbUser?.role !== 'super_admin') {
       return res.status(403).json({ error: 'Forbidden: Admin access required' });
     }
     next();
-  } catch {
+  } catch (error) {
+    logAuthException(req, error);
     return res.status(401).json({ error: 'Unauthorized' });
   }
 }
@@ -157,14 +232,17 @@ export async function ensureSuperAdmin(
   next: NextFunction,
 ) {
   try {
-    if (!await resolveAuthentication(req)) {
+    const resolution = await resolveAuthentication(req);
+    if (!resolution.ok) {
+      logAuthRejection(req, resolution.reasons);
       return res.status(401).json({ error: 'Unauthorized' });
     }
     if (req.dbUser?.role !== 'super_admin') {
       return res.status(403).json({ error: 'Forbidden: Super admin access required' });
     }
     next();
-  } catch {
+  } catch (error) {
+    logAuthException(req, error);
     return res.status(401).json({ error: 'Unauthorized' });
   }
 }

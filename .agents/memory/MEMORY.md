@@ -16,4 +16,4 @@
 - [Store renewals Google+Apple](store-subscription-renewals.md) — credencial persistida + varredura + RTDN com guard pré-parser; expiração adiada se verificação falhar; iOS nunca chama restore nativo no boot.
 - [Sincronização da Biblioteca](library-seed-sync.md) — seed casa livros por título e capítulos por (book_id, order_num); casar por id duplicou livros.
 - [Clerk e UUID local](clerk-local-user-bridge.md) — contas Clerk ligam ao UUID de dados por e-mail verificado; não usar auth.userId em queries locais; vínculo persistente é hardening futuro.
-- [Cache de autenticação nativa](native-auth-cache.md) — `/api/auth/me` nunca pode responder 304: corpo vazio faz o Capacitor apagar um JWT válido e chamadas seguintes virarem 401.
+- [Autenticação nativa](native-auth-cache.md) — valide identidade pela credencial, preserve ciclos de sessão separados e nunca deixe cache ou recuperação de erro prender o usuário fora do login.

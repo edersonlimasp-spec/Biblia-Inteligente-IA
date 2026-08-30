@@ -66,10 +66,19 @@ export const subscriptions = pgTable("subscriptions", {
   storeTransactionId: text("store_transaction_id"), // Apple transactionId or Google purchaseToken
   originalTransactionId: text("original_transaction_id"), // For subscription renewals
   storeProductId: text("store_product_id"), // Product ID in App Store/Play Store
+  storeCurrency: text("store_currency"),
   storePurchaseToken: text("store_purchase_token"), // Google purchaseToken — needed to re-verify renewals with the Play Developer API
   lastVerifiedAt: timestamp("last_verified_at"),
   nextRenewalCheck: timestamp("next_renewal_check"),
   cancellationAt: timestamp("cancellation_at"),
+  storeEnvironment: text("store_environment"), // 'Production' or 'Sandbox'
+  storeStateSignedAt: timestamp("store_state_signed_at"),
+  autoRenewStatus: text("auto_renew_status"), // 'enabled' or 'disabled'
+  autoRenewProductId: text("auto_renew_product_id"),
+  billingRetryActive: boolean("billing_retry_active").notNull().default(false),
+  gracePeriodExpiresAt: timestamp("grace_period_expires_at"),
+  expirationReason: text("expiration_reason"),
+  churnRisk: boolean("churn_risk").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   // A StoreKit subscription family may only be claimed by one account.
@@ -878,6 +887,13 @@ export const paymentReceipts = pgTable("payment_receipts", {
   taxAmount: integer("tax_amount").default(0), // Impostos
   netAmount: integer("net_amount").notNull(), // Valor líquido recebido
   currency: text("currency").notNull().default("BRL"),
+  feeRateBps: integer("fee_rate_bps"), // Estimated Apple commission rate in basis points
+  netAmountEstimated: boolean("net_amount_estimated").notNull().default(false),
+  isRenewal: boolean("is_renewal").notNull().default(false),
+  isTest: boolean("is_test").notNull().default(false),
+  financiallyExcluded: boolean("financially_excluded").notNull().default(false),
+  financialExclusionReason: text("financial_exclusion_reason"),
+  originalExternalPaymentId: text("original_external_payment_id"),
   
   // Payment status
   status: text("status").notNull(), // 'approved', 'pending', 'rejected', 'refunded', 'cancelled'
@@ -926,6 +942,49 @@ export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts).om
 
 export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
 export type PaymentReceipt = typeof paymentReceipts.$inferSelect;
+
+// Raw, verified App Store Server Notifications V2 event history.
+// The decoded payload is retained for auditability; signed JWS values are not.
+export const appleNotificationEvents = pgTable("apple_notification_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  notificationUuid: text("notification_uuid").notNull().unique(),
+  notificationType: text("notification_type").notNull(),
+  subtype: text("subtype"),
+  environment: text("environment").notNull(),
+  isTest: boolean("is_test").notNull().default(false),
+  originalTransactionId: text("original_transaction_id"),
+  transactionId: text("transaction_id"),
+  productId: text("product_id"),
+  purchaseDate: timestamp("purchase_date"),
+  expiresDate: timestamp("expires_date"),
+  decodedPayload: jsonb("decoded_payload").notNull(),
+  processingStatus: text("processing_status").notNull().default("pending"),
+  processingError: text("processing_error"),
+  attemptCount: integer("attempt_count").notNull().default(0),
+  nextAttemptAt: timestamp("next_attempt_at").notNull().defaultNow(),
+  processingStartedAt: timestamp("processing_started_at"),
+  subscriptionId: varchar("subscription_id").references(() => subscriptions.id, { onDelete: "set null" }),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  duplicateCount: integer("duplicate_count").notNull().default(0),
+  receivedAt: timestamp("received_at").notNull().defaultNow(),
+  lastReceivedAt: timestamp("last_received_at").notNull().defaultNow(),
+  processedAt: timestamp("processed_at"),
+}, (table) => ({
+  receivedAtIdx: index("apple_notification_events_received_at_idx").on(table.receivedAt),
+  environmentIdx: index("apple_notification_events_environment_idx").on(table.environment),
+  originalTransactionIdx: index("apple_notification_events_original_transaction_idx").on(table.originalTransactionId),
+  processingStatusIdx: index("apple_notification_events_processing_status_idx").on(table.processingStatus),
+  nextAttemptIdx: index("apple_notification_events_next_attempt_idx").on(table.nextAttemptAt),
+}));
+
+export const insertAppleNotificationEventSchema = createInsertSchema(appleNotificationEvents).omit({
+  id: true,
+  receivedAt: true,
+  lastReceivedAt: true,
+});
+
+export type InsertAppleNotificationEvent = z.infer<typeof insertAppleNotificationEventSchema>;
+export type AppleNotificationEvent = typeof appleNotificationEvents.$inferSelect;
 
 // ------------------------------------------
 // READING PLANS MODULE

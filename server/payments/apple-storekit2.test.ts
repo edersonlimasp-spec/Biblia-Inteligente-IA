@@ -43,26 +43,20 @@ describe('StoreKit 2 JWS verifier configuration', () => {
       .rejects.toThrow('APPLE_APP_ID must be a positive numeric App Store Connect app ID in production');
   });
 
-  it('tries production then sandbox for TestFlight on a production server', async () => {
+  it('fails closed to production transactions on a production server', async () => {
     process.env.NODE_ENV = 'production';
     delete process.env.APPLE_STOREKIT_ENVIRONMENT;
     process.env.APPLE_APP_ID = '1234567890';
-    verifyAndDecodeTransaction
-      .mockRejectedValueOnce(new Error('not a production JWS'))
-      .mockResolvedValueOnce({ transactionId: 'sandbox-tx', environment: 'Sandbox' });
+    verifyAndDecodeTransaction.mockRejectedValueOnce(new Error('not a production JWS'));
 
     const { verifyAppleStoreKit2Transaction } = await import('./apple');
-    await expect(verifyAppleStoreKit2Transaction('opaque-jws')).resolves.toEqual({
-      transactionId: 'sandbox-tx',
-      environment: 'Sandbox',
-    });
-    expect(SignedDataVerifier).toHaveBeenNthCalledWith(
-      1, expect.any(Array), true, 'Production', expect.any(String), 1234567890,
+    await expect(verifyAppleStoreKit2Transaction('opaque-jws'))
+      .rejects.toThrow('not a production JWS');
+    expect(SignedDataVerifier).toHaveBeenCalledTimes(1);
+    expect(SignedDataVerifier).toHaveBeenCalledWith(
+      expect.any(Array), true, 'Production', expect.any(String), 1234567890,
     );
-    expect(SignedDataVerifier).toHaveBeenNthCalledWith(
-      2, expect.any(Array), true, 'Sandbox', expect.any(String), undefined,
-    );
-    expect(verifyAndDecodeTransaction).toHaveBeenCalledTimes(2);
+    expect(verifyAndDecodeTransaction).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -123,12 +117,22 @@ describe('Apple verified entitlement safety', () => {
             values = row;
             return chain;
           },
-          async onConflictDoNothing() {
+          onConflictDoNothing() {
             if (tableName(table) === 'subscriptions' && !state.subscription) {
               state.subscription = { id: 'sub-1', createdAt: new Date(), ...values };
             } else if (tableName(table) === 'payment_receipts' && !state.receipt) {
               state.receipt = { id: 'receipt-1', createdAt: new Date(), ...values };
             }
+            return chain;
+          },
+          async returning() {
+            if (tableName(table) === 'subscriptions') {
+              return state.subscription ? [state.subscription] : [];
+            }
+            if (tableName(table) === 'payment_receipts') {
+              return state.receipt ? [{ id: state.receipt.id }] : [];
+            }
+            return [];
           },
         };
         return chain;
@@ -166,7 +170,7 @@ describe('Apple verified entitlement safety', () => {
 
     expect(state.subscription?.userId).toBe('owner');
     expect(state.receipt?.userId).toBe('owner');
-    expect(tx.insert).toHaveBeenCalledTimes(4); // two idempotent inserts per owner delivery
+    expect(tx.insert).toHaveBeenCalledTimes(3); // first delivery inserts both rows; duplicate inserts neither receipt
     expect(execute).toHaveBeenCalledTimes(6); // two advisory locks per attempted delivery
     for (const [query] of execute.mock.calls) {
       expect(JSON.stringify(query)).toContain('pg_advisory_xact_lock');

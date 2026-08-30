@@ -185,6 +185,26 @@ app.use('/api/iap/rtdn/google', (req, res, next) => {
   next();
 });
 
+// Apple V2 notifications are authenticated by their JWS certificate chain.
+// Apply resource limits before the global 50 MB JSON parser.
+const appleNotificationGuard = { windowStart: 0, count: 0 };
+app.use('/api/iap/notifications/apple', express.json({ limit: '128kb', strict: true }));
+app.use('/api/iap/notifications/apple', (req, res, next) => {
+  const nowMs = Date.now();
+  if (nowMs - appleNotificationGuard.windowStart > 60_000) {
+    appleNotificationGuard.windowStart = nowMs;
+    appleNotificationGuard.count = 0;
+  }
+  if (++appleNotificationGuard.count > 240) {
+    return res.status(429).json({ error: 'Too many requests' });
+  }
+  const len = Number(req.headers['content-length'] || 0);
+  if (!Number.isFinite(len) || len > 128 * 1024) {
+    return res.status(413).json({ error: 'Payload too large' });
+  }
+  next();
+});
+
 app.use(express.json({
   limit: '50mb',
   verify: (req, _res, buf) => {

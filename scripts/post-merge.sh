@@ -94,4 +94,22 @@ async function migrate() {
 migrate().catch(e => { console.error('Migration warning (non-fatal):', e.message); pool.end(); });
 "
 
+echo "🍎 Applying Apple revenue DB migration..."
+node -e "
+const fs = require('fs');
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+async function migrate() {
+  const sql = fs.readFileSync('migrations/0002_apple_server_notifications_v2.sql', 'utf8');
+  await pool.query(sql);
+  console.log('Apple revenue tables ready');
+  await pool.end();
+}
+migrate().catch(async e => {
+  console.error('Apple revenue migration failed:', e.message);
+  await pool.end();
+  process.exit(1);
+});
+"
+
 echo "✅ Post-merge setup complete"

@@ -10,8 +10,50 @@ import { db } from '../db';
 import { subscriptions } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import { ensureAuthenticated, type AuthRequest } from '../auth';
+import {
+  persistVerifiedAppleNotification,
+  processAppleNotificationEvent,
+  verifyAppleServerNotification,
+} from './apple-notifications';
 
 const router = Router();
+
+/**
+ * POST /api/iap/notifications/apple
+ * Public App Store Server Notifications V2 receiver.
+ *
+ * The outer notification and both nested JWS values are cryptographically
+ * verified before the decoded event is persisted. Processing is asynchronous
+ * after durable storage so Apple receives a prompt acknowledgement.
+ */
+router.post('/notifications/apple', async (req: Request, res: Response) => {
+  try {
+    const signedPayload = req.body?.signedPayload;
+    const verified = await verifyAppleServerNotification(signedPayload);
+    console.log('[Apple Notifications] verified notification received', {
+      notificationUuid: verified.notificationUuid,
+      type: verified.notification.notificationType || 'UNKNOWN',
+      environment: verified.environment,
+    });
+    const persisted = await persistVerifiedAppleNotification(verified);
+    if (persisted.duplicate) {
+      console.log('[Apple Notifications] duplicate notification ignored', {
+        notificationUuid: verified.notificationUuid,
+      });
+      return res.status(200).json({ ok: true, duplicate: true });
+    }
+
+    res.status(200).json({ ok: true });
+    setImmediate(() => {
+      void processAppleNotificationEvent(persisted.id).catch(() => {
+        // The processor persists a safe failure status for later retry.
+      });
+    });
+  } catch {
+    console.warn('[Apple Notifications] notification JWS validation failed');
+    return res.status(400).json({ error: 'Invalid Apple signedPayload' });
+  }
+});
 
 /**
  * GET /api/iap/products

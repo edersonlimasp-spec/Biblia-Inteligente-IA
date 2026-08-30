@@ -118,7 +118,7 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
           </TabsContent>
 
           <TabsContent value="monetization" className="mt-6">
-            <AdminMonetization />
+            <AdminMonetization isSuperAdmin={isSuperAdmin} />
           </TabsContent>
 
           <TabsContent value="coupons" className="mt-6">

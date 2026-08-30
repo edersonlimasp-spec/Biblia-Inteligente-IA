@@ -46,6 +46,15 @@ import type {
   InsertCampaignLog,
 } from '@shared/schema';
 import { eq, and, desc, gte, sql, like, or } from 'drizzle-orm';
+import { isFinanciallyCountableSubscription } from './payments/apple-finance';
+const financialSubscriptionSql = sql<boolean>`
+  ${subscriptions.source} <> 'apple'
+  OR (
+    ${subscriptions.storeEnvironment} = 'Production'
+    AND upper(${subscriptions.storeCurrency}) = 'BRL'
+  )
+`;
+
 
 export interface IStorage {
   // Users
@@ -1141,6 +1150,8 @@ class PostgresStorage implements IStorage {
       id: paymentReceipts.id,
       externalPaymentId: paymentReceipts.externalPaymentId,
       status: paymentReceipts.status,
+      isTest: paymentReceipts.isTest,
+      financiallyExcluded: paymentReceipts.financiallyExcluded,
       createdAt: paymentReceipts.createdAt,
     }).from(paymentReceipts)
       .where(gte(paymentReceipts.createdAt, lastMonthStart));
@@ -1167,6 +1178,7 @@ class PostgresStorage implements IStorage {
       for (const r of allReceipts) {
         const ts = new Date(r.createdAt as any);
         if (ts < start || ts > end) continue;
+        if (r.isTest || r.financiallyExcluded) continue;
         if (!APPROVED_STATUSES.has(r.status)) continue;
         const key = r.externalPaymentId || `id:${r.id}`;
         if (seen.has(key)) continue;
@@ -1528,9 +1540,9 @@ class PostgresStorage implements IStorage {
     ] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(users),
       db.select({ count: sql<number>`count(*)` }).from(users).where(gte(users.trialStartDate, firstDayOfMonth)),
-      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'gold'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
-      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'premium'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
-      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.planType, 'strong_lifetime'), eq(subscriptions.status, 'active'))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(financialSubscriptionSql, eq(subscriptions.planType, 'gold'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(financialSubscriptionSql, eq(subscriptions.planType, 'premium'), eq(subscriptions.status, 'active'), gte(subscriptions.endDate, now))),
+      db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(financialSubscriptionSql, eq(subscriptions.planType, 'strong_lifetime'), eq(subscriptions.status, 'active'))),
       db.select({ count: sql<number>`count(*)` }).from(subscriptions).where(and(eq(subscriptions.status, 'cancelled'), gte(subscriptions.createdAt, firstDayOfMonth))),
       this.getGuestStats(),
       db.select({ count: sql<number>`count(*)` }).from(users).where(sql`${users.lastLoginAt} < ${thirtyDaysAgo} OR ${users.lastLoginAt} IS NULL`),
@@ -1723,7 +1735,8 @@ class PostgresStorage implements IStorage {
     ]);
     const isPaidActive = (s: any) => ACTIVE_STATUSES.has(s.status);
 
-    const allSubs = await db.select().from(subscriptions);
+    const allSubs = (await db.select().from(subscriptions))
+      .filter(isFinanciallyCountableSubscription);
     const usersWithEmail = await db
       .select({ id: users.id, email: users.email, name: users.name, lastSeenAt: users.lastSeenAt })
       .from(users);
@@ -1774,6 +1787,8 @@ class PostgresStorage implements IStorage {
     const APPROVED_RECEIPT_STATUSES = new Set(['approved', 'Approved', 'APPROVED']);
     const allReceipts = await db.select().from(paymentReceipts);
     const recurringReceipts = allReceipts.filter(r =>
+      !r.isTest &&
+      !r.financiallyExcluded &&
       APPROVED_RECEIPT_STATUSES.has(r.status) &&
       !r.isLifetime &&
       r.subscriptionDays && r.subscriptionDays > 0 &&
@@ -2447,7 +2462,11 @@ class PostgresStorage implements IStorage {
     byStatus: Record<string, number>;
     last30Days: { count: number; grossAmount: number; netAmount: number };
   }> {
-    const allReceipts = await db.select().from(paymentReceipts);
+    const allReceipts = await db.select().from(paymentReceipts)
+      .where(and(
+        eq(paymentReceipts.isTest, false),
+        eq(paymentReceipts.financiallyExcluded, false),
+      ));
     
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

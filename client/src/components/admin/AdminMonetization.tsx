@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { AppleNotificationsSection } from "./AppleNotificationsSection";
 
 interface SubscriptionStats {
   activeGold: number;
@@ -31,7 +32,7 @@ interface AdminSubscription {
   userEmail: string | null;
 }
 
-export function AdminMonetization() {
+export function AdminMonetization({ isSuperAdmin = false }: { isSuperAdmin?: boolean }) {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [planType, setPlanType] = useState<string>("");
@@ -285,6 +286,8 @@ export function AdminMonetization() {
           )}
         </CardContent>
       </Card>
+
+      <AppleNotificationsSection isSuperAdmin={isSuperAdmin} />
     </div>
   );
 }

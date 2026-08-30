@@ -7,6 +7,9 @@ import { db } from '../db';
 import { subscriptions, paymentReceipts, users } from '@shared/schema';
 import { eq, and, or, lte, isNotNull, sql } from 'drizzle-orm';
 import { Environment, SignedDataVerifier } from '@apple/app-store-server-library';
+import { createAppleFinancialReceipt } from './apple-finance';
+export { APPLE_PRODUCT_MAP } from './apple-products';
+import { APPLE_PRODUCT_MAP } from './apple-products';
 
 // Apple Root CA - G3, downloaded from Apple's Certificate Authority page.
 // Keeping the DER bytes in source means the production bundle does not depend
@@ -19,15 +22,6 @@ const APPLE_ROOT_CA_G3_DER = Buffer.from(
 // Apple verification endpoints
 const APPLE_PRODUCTION_URL = 'https://buy.itunes.apple.com/verifyReceipt';
 const APPLE_SANDBOX_URL = 'https://sandbox.itunes.apple.com/verifyReceipt';
-
-// Product ID to plan mapping
-export const APPLE_PRODUCT_MAP: Record<string, { planType: string; durationDays: number | null; amount: string }> = {
-  'com.bibliainteligente.gold.monthly':   { planType: 'gold',          durationDays: 30,   amount: '9.90'   },
-  'com.bibliainteligente.gold.yearly':    { planType: 'gold_anual',    durationDays: 365,  amount: '79.90'  },
-  'com.bibliainteligente.premium.monthly':{ planType: 'premium',       durationDays: 30,   amount: '19.90'  },
-  'com.bibliainteligente.premium.yearly': { planType: 'premium_anual', durationDays: 365,  amount: '129.90' },
-  'com.bibliainteligente.strong.lifetime':{ planType: 'strong_lifetime',durationDays: null, amount: '49.90'  },
-};
 
 export function isAppleTransactionCancelled(transaction: {
   cancellation_date?: string;
@@ -70,10 +64,10 @@ export async function verifyAppleStoreKit2Transaction(signedTransaction: string)
   const appAppleIdRaw = process.env.APPLE_APP_ID;
   const appAppleId = appAppleIdRaw ? Number(appAppleIdRaw) : undefined;
   const explicitEnvironment = explicitStoreKitEnvironment();
-  const environments = explicitEnvironment
-    ? [explicitEnvironment]
-    : process.env.NODE_ENV === 'production'
-      ? [Environment.PRODUCTION, Environment.SANDBOX]
+  const environments = process.env.NODE_ENV === 'production'
+    ? [Environment.PRODUCTION]
+    : explicitEnvironment
+      ? [explicitEnvironment]
       : [Environment.SANDBOX, Environment.PRODUCTION];
 
   let lastError: unknown;
@@ -126,6 +120,9 @@ export async function processAppleStoreKit2Purchase(
   ) {
     return { success: false, error: 'Signed transaction does not match requested identifiers' };
   }
+  if (process.env.NODE_ENV === 'production' && transaction.environment !== Environment.PRODUCTION) {
+    return { success: false, error: 'Sandbox transactions are not accepted in production' };
+  }
   if (transaction.revocationDate || !transaction.purchaseDate) {
     return { success: false, error: 'Transaction is revoked or incomplete' };
   }
@@ -147,7 +144,7 @@ export async function processAppleStoreKit2Purchase(
   const status = !endDate || endDate > now ? 'active' : 'expired';
 
   try {
-    return await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       // Transaction-scoped locks serialize ownership claims across all server
       // instances even when a managed schema deployment has not added the
       // defense-in-depth unique indexes yet. Sort to avoid lock-order deadlocks.
@@ -177,6 +174,8 @@ export async function processAppleStoreKit2Purchase(
         storeTransactionId: request.transactionId,
         originalTransactionId: request.originalTransactionId,
         storeProductId: request.productId,
+        storeCurrency: transaction.currency || null,
+        storeEnvironment: transaction.environment || null,
         lastVerifiedAt: now,
         nextRenewalCheck: endDate ? new Date(endDate.getTime() - 86_400_000) : null,
       }).onConflictDoNothing();
@@ -203,39 +202,36 @@ export async function processAppleStoreKit2Purchase(
           ...appleVerifiedProductPatch(request.productId, request.transactionId),
           endDate,
           status,
+          storeEnvironment: transaction.environment || null,
+          storeCurrency: transaction.currency || null,
+          billingRetryActive: false,
+          gracePeriodExpiresAt: null,
+          churnRisk: false,
           lastVerifiedAt: now,
           nextRenewalCheck: endDate ? new Date(endDate.getTime() - 86_400_000) : null,
         }).where(eq(subscriptions.id, subscription.id));
       }
 
-      const [user] = await tx.select({ email: users.email }).from(users)
-        .where(eq(users.id, userId)).limit(1);
-      await tx.insert(paymentReceipts).values({
-        externalPaymentId: request.transactionId,
-        paymentProvider: 'apple',
-        paymentType: productInfo.durationDays ? 'subscription' : 'payment',
+      await createAppleFinancialReceipt({
+        executor: tx,
         userId,
-        userEmail: user?.email || null,
-        planType: productInfo.planType,
-        subscriptionDays: productInfo.durationDays,
-        isLifetime: !productInfo.durationDays,
-        grossAmount: Math.round(parseFloat(productInfo.amount) * 100),
-        feeAmount: 0,
-        taxAmount: 0,
-        netAmount: Math.round(parseFloat(productInfo.amount) * 100),
-        status: 'approved',
-        origin: 'api',
-        providerRawData: {
-          source: 'storekit2',
-          environment: transaction.environment,
-          verifiedAt: now.toISOString(),
-        },
-        isValidated: true,
-        validatedAt: now,
         subscriptionId: subscription.id,
-        activatedAt: now,
-        paymentDate: purchaseDate,
-      }).onConflictDoNothing();
+        transaction: {
+          transactionId: request.transactionId,
+          originalTransactionId: request.originalTransactionId,
+          productId: request.productId,
+          purchaseDate,
+          originalPurchaseDate: transaction.originalPurchaseDate
+            ? new Date(transaction.originalPurchaseDate)
+            : purchaseDate,
+          priceMilliunits: transaction.price,
+          currency: transaction.currency,
+          environment: transaction.environment,
+          transactionReason: transaction.transactionReason,
+        },
+        origin: 'api',
+        metadata: { storeKitVersion: 2 },
+      });
 
       const [receipt] = await tx.select().from(paymentReceipts)
         .where(and(eq(paymentReceipts.paymentProvider, 'apple'), eq(paymentReceipts.externalPaymentId, request.transactionId)))
@@ -245,6 +241,15 @@ export async function processAppleStoreKit2Purchase(
       }
       return { success: true, subscription: { ...subscription, endDate: effectiveEndDate, status: effectiveStatus } };
     });
+    if (result.success) {
+      try {
+        const { requeueAppleNotificationsForTransaction } = await import('./apple-notifications');
+        await requeueAppleNotificationsForTransaction(request.originalTransactionId);
+      } catch {
+        console.warn('[Apple IAP] Deferred notification requeue failed; periodic retry will continue');
+      }
+    }
+    return result;
   } catch (error) {
     console.error('[Apple IAP] StoreKit 2 persistence failed');
     return { success: false, error: 'Could not process Apple purchase' };
@@ -285,6 +290,7 @@ interface AppleReceiptResponse {
       transaction_id: string;
       original_transaction_id: string;
       purchase_date_ms: string;
+      original_purchase_date_ms?: string;
       expires_date_ms?: string;
       cancellation_date?: string;
       cancellation_date_ms?: string;
@@ -297,6 +303,7 @@ interface AppleReceiptResponse {
     transaction_id: string;
     original_transaction_id: string;
     purchase_date_ms: string;
+    original_purchase_date_ms?: string;
     expires_date_ms?: string;
     cancellation_date?: string;
     cancellation_date_ms?: string;
@@ -347,6 +354,10 @@ export async function verifyAppleReceipt(
 
   // If production returns sandbox receipt, retry with sandbox
   if (data.status === APPLE_STATUS.SANDBOX_RECEIPT_IN_PRODUCTION && !useSandbox) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('[Apple IAP] Sandbox receipt rejected in production');
+      return data;
+    }
     console.log('[Apple IAP] Retrying with sandbox endpoint');
     return verifyAppleReceipt(receiptData, true);
   }
@@ -388,6 +399,10 @@ export async function processApplePurchase(
     if (verification.status !== APPLE_STATUS.VALID) {
       console.error('[Apple IAP] Verification failed, status:', verification.status);
       return { success: false, error: `Apple verification failed: ${verification.status}` };
+    }
+    if (process.env.NODE_ENV === 'production' && verification.environment !== Environment.PRODUCTION) {
+      console.warn('[Apple IAP] Sandbox or unknown legacy receipt environment rejected in production');
+      return { success: false, error: 'Sandbox receipts are not accepted in production' };
     }
 
     // SECURITY: bind receipt to our app — reject receipts from other apps
@@ -438,7 +453,7 @@ export async function processApplePurchase(
       return { success: false, error: `Unknown product: ${productId}` };
     }
 
-    return await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
     for (const lockId of [originalTransactionId, transactionId].sort()) {
       await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${lockId}, 0))`);
     }
@@ -496,6 +511,11 @@ export async function processApplePurchase(
             endDate,
             status,
             storePurchaseToken: receiptData,
+            storeCurrency: null,
+            storeEnvironment: verification.environment || null,
+            billingRetryActive: false,
+            gracePeriodExpiresAt: null,
+            churnRisk: false,
             lastVerifiedAt: now,
             nextRenewalCheck: endDate ? new Date(endDate.getTime() - 24 * 60 * 60 * 1000) : null,
           })
@@ -507,29 +527,24 @@ export async function processApplePurchase(
       // new transactionId per renewal while keeping originalTransactionId
       // stable — use transactionId as the immutable per-cycle key.
       if (existingReceipt.length === 0) {
-        const renewalUser = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
-        await tx.insert(paymentReceipts).values({
-          externalPaymentId: transactionId,
-          paymentProvider: 'apple',
-          paymentType: productInfo.durationDays ? 'subscription' : 'payment',
+        await createAppleFinancialReceipt({
+          executor: tx,
           userId,
-          userEmail: renewalUser[0]?.email || null,
-          planType: productInfo.planType,
-          subscriptionDays: productInfo.durationDays,
-          isLifetime: !productInfo.durationDays,
-          grossAmount: Math.round(parseFloat(productInfo.amount) * 100),
-          feeAmount: 0,
-          taxAmount: 0,
-          netAmount: Math.round(parseFloat(productInfo.amount) * 100),
-          status: 'approved',
-          origin: 'api',
-          providerRawData: verification as any,
-          isValidated: true,
-          validatedAt: now,
           subscriptionId: existing.id,
-          activatedAt: now,
-          paymentDate: purchaseDate,
-        }).onConflictDoNothing();
+          transaction: {
+            transactionId,
+            originalTransactionId,
+            productId,
+            purchaseDate,
+            originalPurchaseDate: transaction.original_purchase_date_ms
+              ? new Date(Number(transaction.original_purchase_date_ms))
+              : existing.startDate,
+            environment: verification.environment,
+            currency: null,
+          },
+          origin: 'api',
+          metadata: { storeKitVersion: 1 },
+        });
         console.log('[Apple IAP] Appended renewal receipt for sub:', existing.id);
       }
 
@@ -572,6 +587,8 @@ export async function processApplePurchase(
         originalTransactionId,
         storeProductId: productId,
         storePurchaseToken: receiptData,
+        storeCurrency: null,
+        storeEnvironment: verification.environment || null,
         lastVerifiedAt: now,
         nextRenewalCheck: endDate ? new Date(endDate.getTime() - 24 * 60 * 60 * 1000) : null,
       })
@@ -584,34 +601,37 @@ export async function processApplePurchase(
       throw new Error('Apple subscription ownership conflict');
     }
 
-    // Create payment receipt
-    const user = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
-    await tx.insert(paymentReceipts).values({
-      externalPaymentId: transactionId,
-      paymentProvider: 'apple',
-      paymentType: productInfo.durationDays ? 'subscription' : 'payment',
+    await createAppleFinancialReceipt({
+      executor: tx,
       userId,
-      userEmail: user[0]?.email || null,
-      planType: productInfo.planType,
-      subscriptionDays: productInfo.durationDays,
-      isLifetime: !productInfo.durationDays,
-      grossAmount: Math.round(parseFloat(productInfo.amount) * 100),
-      feeAmount: 0, // Apple doesn't provide fee breakdown
-      taxAmount: 0,
-      netAmount: Math.round(parseFloat(productInfo.amount) * 100),
-      status: 'approved',
-      origin: 'api',
-      providerRawData: verification as any,
-      isValidated: true,
-      validatedAt: now,
       subscriptionId: newSubscription.id,
-      activatedAt: now,
-      paymentDate: purchaseDate,
-    }).onConflictDoNothing();
+      transaction: {
+        transactionId,
+        originalTransactionId,
+        productId,
+        purchaseDate,
+        originalPurchaseDate: transaction.original_purchase_date_ms
+          ? new Date(Number(transaction.original_purchase_date_ms))
+          : purchaseDate,
+        environment: verification.environment,
+        currency: null,
+      },
+      origin: 'api',
+      metadata: { storeKitVersion: 1 },
+    });
 
     console.log('[Apple IAP] Created new subscription:', newSubscription.id);
     return { success: true, subscription: newSubscription };
     });
+    if (result.success) {
+      try {
+        const { requeueAppleNotificationsForTransaction } = await import('./apple-notifications');
+        await requeueAppleNotificationsForTransaction(originalTransactionId);
+      } catch {
+        console.warn('[Apple IAP] Deferred notification requeue failed; periodic retry will continue');
+      }
+    }
+    return result;
 
   } catch (error) {
     console.error('[Apple IAP] Error processing purchase:', error);
@@ -627,6 +647,22 @@ export async function processApplePurchase(
  */
 export async function refreshAppleSubscriptions(): Promise<{ checked: number; renewed: number; expired: number; failed: number }> {
   const summary = { checked: 0, renewed: 0, expired: 0, failed: 0 };
+
+  const {
+    hasAppleServerApiCredentials,
+    processPendingAppleNotifications,
+    reconcileAppleSubscriptionsFromServerApi,
+  } = await import('./apple-notifications');
+  await processPendingAppleNotifications();
+  if (hasAppleServerApiCredentials()) {
+    const reconciled = await reconcileAppleSubscriptionsFromServerApi();
+    return {
+      checked: reconciled.checked,
+      renewed: reconciled.renewed,
+      expired: reconciled.expired,
+      failed: reconciled.failed,
+    };
+  }
 
   if (!process.env.APPLE_SHARED_SECRET) {
     return summary; // sem credencial não há verificação confiável (dev/test)

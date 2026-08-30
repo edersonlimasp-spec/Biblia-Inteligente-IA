@@ -18,6 +18,7 @@ import fs from "fs";
 import { forceSeedStrongEntries, forceSeedStudyModules } from "../init-db";
 import { seedLibraryBooks } from "../seed-library";
 import { getGoogleAccessToken } from "../payments/google";
+import { isFinanciallyCountableSubscription } from "../payments/apple-finance";
 import { STRONG_DATA } from "../strong-data-embedded";
 import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTranslation, getDefaultTranslation } from "../bible/translations";
 import iapRoutes from "../payments/iap-routes";
@@ -369,6 +370,7 @@ export function registerAdminRoutes(app: Express): void {
       
       // Filter to only truly active subscriptions (not expired)
       const activeSubscriptions = allActiveSubscriptions.filter(s => {
+        if (!isFinanciallyCountableSubscription(s)) return false;
         // Lifetime subscriptions have no end_date
         if (s.planType?.toLowerCase() === 'strong_lifetime' || !s.endDate) return true;
         // Check if end_date is in the future
@@ -542,6 +544,9 @@ export function registerAdminRoutes(app: Express): void {
           startDate: subscriptions.startDate,
           endDate: subscriptions.endDate,
           storeTransactionId: subscriptions.storeTransactionId,
+          source: subscriptions.source,
+          storeEnvironment: subscriptions.storeEnvironment,
+          storeCurrency: subscriptions.storeCurrency,
         })
         .from(subscriptions)
         .where(and(
@@ -561,6 +566,7 @@ export function registerAdminRoutes(app: Express): void {
       const seenTransactionIds = new Set<string>();
       const seenUserPlans = new Set<string>();
       const uniqueSubscriptions = allSubscriptions.filter(s => {
+        if (!isFinanciallyCountableSubscription(s)) return false;
         // First, filter by storeTransactionId
         if (s.storeTransactionId) {
           if (seenTransactionIds.has(s.storeTransactionId)) {
@@ -1057,7 +1063,9 @@ export function registerAdminRoutes(app: Express): void {
   // Admin Monetization - Stats
   app.get("/api/admin/monetization", ensureAdmin, async (req: AuthRequest, res) => {
     try {
-      const activeSubscriptions = await db.select().from(subscriptions).where(eq(subscriptions.status, 'active'));
+      const activeSubscriptions = (await db.select().from(subscriptions)
+        .where(eq(subscriptions.status, 'active')))
+        .filter(isFinanciallyCountableSubscription);
       
       const activeGold = activeSubscriptions.filter(s => s.planType === 'gold').length;
       const activePremium = activeSubscriptions.filter(s => s.planType === 'premium').length;
@@ -1648,6 +1656,52 @@ export function registerAdminRoutes(app: Express): void {
   // --------------------------------------------
   // ADMIN - PAYMENT RECEIPTS
   // --------------------------------------------
+
+  app.get("/api/admin/apple/notifications", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { listRecentAppleNotifications } = await import("../payments/apple-notifications");
+      const notifications = await listRecentAppleNotifications(
+        parseInt(String(req.query.limit || "50"), 10),
+      );
+      res.json({ success: true, notifications });
+    } catch (error) {
+      console.error("[Admin Apple] Erro ao listar notificações:", error);
+      res.status(500).json({ error: "Erro ao listar notificações Apple" });
+    }
+  });
+
+  app.post("/api/admin/apple/backfill", ensureSuperAdmin, async (_req: AuthRequest, res) => {
+    try {
+      const { backfillAppleTransactions } = await import("../payments/apple-notifications");
+      const summary = await backfillAppleTransactions();
+      res.json({ success: true, summary });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erro desconhecido";
+      console.error("[Admin Apple] Backfill falhou:", message);
+      res.status(message.includes("not configured") ? 503 : 500).json({
+        error: message.includes("not configured")
+          ? "Credenciais da API Apple não configuradas"
+          : "Erro ao executar backfill Apple",
+      });
+    }
+  });
+
+  app.post("/api/admin/apple/reconcile", ensureSuperAdmin, async (_req: AuthRequest, res) => {
+    try {
+      const {
+        hasAppleServerApiCredentials,
+        reconcileAppleSubscriptionsFromServerApi,
+      } = await import("../payments/apple-notifications");
+      if (!hasAppleServerApiCredentials()) {
+        return res.status(503).json({ error: "Credenciais da API Apple não configuradas" });
+      }
+      const summary = await reconcileAppleSubscriptionsFromServerApi();
+      res.json({ success: true, summary });
+    } catch (error) {
+      console.error("[Admin Apple] Reconciliação falhou:", error);
+      res.status(500).json({ error: "Erro ao reconciliar assinaturas Apple" });
+    }
+  });
 
   // GET /api/admin/receipts - List payment receipts with optional filters
   app.get("/api/admin/receipts", ensureAdmin, async (req: AuthRequest, res) => {

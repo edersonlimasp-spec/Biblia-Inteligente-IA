@@ -13,6 +13,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { MainNavigation } from "@/components/MainNavigation";
 import { DebugPanel, useDebugMode } from "@/components/DebugPanel";
 import { hideSplashScreen, isNative } from "@/lib/capacitor";
+import { DownloadPage } from "@/pages/DownloadPage";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -120,5 +121,12 @@ function WebClerkProviderWithRoutes() {
 }
 export default function App() {
   if (isNative) return <NativeApp />;
-  return <WouterRouter base={basePath}><WebClerkProviderWithRoutes /></WouterRouter>;
+  return (
+    <WouterRouter base={basePath}>
+      <Switch>
+        <Route path="/baixar" component={DownloadPage} />
+        <Route component={WebClerkProviderWithRoutes} />
+      </Switch>
+    </WouterRouter>
+  );
 }

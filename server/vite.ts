@@ -5,6 +5,7 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
+import { withDownloadMetadata } from "./download-metadata";
 
 const viteLogger = createLogger();
 
@@ -58,6 +59,10 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
+      const pathname = new URL(url, "http://localhost").pathname;
+      if (pathname === "/baixar") {
+        template = withDownloadMetadata(template);
+      }
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
@@ -79,7 +84,12 @@ export function serveStatic(app: Express) {
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  app.use("*", (req, res, next) => {
+    if (req.path !== "/baixar") {
+      return res.sendFile(path.resolve(distPath, "index.html"));
+    }
+    fs.promises.readFile(path.resolve(distPath, "index.html"), "utf-8")
+      .then((template) => res.status(200).type("html").send(withDownloadMetadata(template)))
+      .catch(next);
   });
 }

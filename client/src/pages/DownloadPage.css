@@ -1,0 +1,130 @@
+.download-page-body {
+  background: #ebe5d9 !important;
+}
+
+.download-page {
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  background: #ebe5d9;
+  color: #2b2419;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.download-card {
+  width: min(100%, 430px);
+  box-sizing: border-box;
+  padding: clamp(30px, 8vw, 52px) clamp(22px, 7vw, 48px);
+  background: #f6f0e4;
+  border: 1px solid #d9cfbb;
+  border-radius: 24px;
+  text-align: center;
+}
+
+.download-app-icon {
+  display: block;
+  width: clamp(82px, 25vw, 112px);
+  height: clamp(82px, 25vw, 112px);
+  margin: 0 auto 24px;
+  border-radius: 24%;
+}
+
+.download-card h1 {
+  margin: 0;
+  color: #2b2419;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.download-description {
+  max-width: 310px;
+  margin: 16px auto 30px;
+  color: #5f574b;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.download-store-list {
+  display: grid;
+  gap: 12px;
+  text-align: left;
+}
+
+.download-store-button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  box-sizing: border-box;
+  padding: 13px 17px;
+  border: 1px solid #d9cfbb;
+  border-radius: 14px;
+  background: #fbf8f1;
+  color: #2b2419;
+  text-decoration: none;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.download-store-button:hover {
+  border-color: #1b3a5c;
+  transform: translateY(-1px);
+}
+
+.download-store-button:focus-visible {
+  outline: 3px solid #2b2419;
+  outline-offset: 4px;
+}
+
+.download-store-button.is-featured {
+  border-color: #1b3a5c;
+  background: #1b3a5c;
+  color: #fffaf0;
+}
+
+.download-store-icon {
+  flex: 0 0 auto;
+  width: 27px;
+  height: 27px;
+}
+
+.download-store-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.download-store-label {
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.download-store-subtitle {
+  color: #756b5d;
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.download-store-button.is-featured .download-store-subtitle {
+  color: #dce7ef;
+}
+
+@media (max-width: 360px) {
+  .download-page {
+    padding-inline: 12px;
+  }
+
+  .download-card {
+    padding-inline: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .download-store-button {
+    transition: none;
+  }
+}

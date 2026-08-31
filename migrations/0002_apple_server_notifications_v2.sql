@@ -18,6 +18,20 @@ ALTER TABLE "payment_receipts"
   ADD COLUMN IF NOT EXISTS "financial_exclusion_reason" text,
   ADD COLUMN IF NOT EXISTS "original_external_payment_id" text;
 
+-- Existing Apple rows predate trusted environment/currency metadata. Exclude
+-- only those legacy rows until the verified Server API backfill enriches them.
+-- The predicates keep this migration idempotent: verified/backfilled rows have
+-- fee_rate_bps and net_amount_estimated populated and remain countable.
+UPDATE "payment_receipts"
+SET
+  "financially_excluded" = true,
+  "financial_exclusion_reason" = 'unverified_legacy'
+WHERE
+  "payment_provider" = 'apple'
+  AND "fee_rate_bps" IS NULL
+  AND "net_amount_estimated" = false
+  AND "financial_exclusion_reason" IS NULL;
+
 CREATE TABLE IF NOT EXISTS "apple_notification_events" (
   "id" varchar PRIMARY KEY DEFAULT gen_random_uuid(),
   "notification_uuid" text NOT NULL UNIQUE,

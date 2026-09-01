@@ -11,6 +11,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { AppleNotificationsSection } from "./AppleNotificationsSection";
+import { RecurringRevenuePanel } from "./RecurringRevenuePanel";
 
 interface SubscriptionStats {
   activeGold: number;
@@ -108,6 +109,8 @@ export function AdminMonetization({ isSuperAdmin = false }: { isSuperAdmin?: boo
 
   return (
     <div className="space-y-4">
+      <RecurringRevenuePanel />
+
       <Card>
         <CardHeader>
           <CardTitle>Monetização e Assinaturas</CardTitle>

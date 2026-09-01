@@ -6,7 +6,7 @@ import admin from "firebase-admin";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { askTheologicalQuestion, generateBiblicalImage, analyzeImageWithVision } from "../openai";
-import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, pdfWordIndex, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests, coupons, couponRedemptions, type Coupon, type CouponRedemption, insertCouponSchema, sermonRecordings } from "@shared/schema";
+import { insertUserSchema, insertSubscriptionSchema, insertBookmarkSchema, insertAnnotationSchema, insertAIHistorySchema, strongEntries, users, subscriptions, paymentReceipts, bonuses, bibleVersions, bibleVerses, userBiblePreferences, bibleWords, pdfWordIndex, studyModules, studyTracks, studyLessons, studyModuleTranslations, studyTrackTranslations, studyLessonTranslations, guests, coupons, couponRedemptions, type Coupon, type CouponRedemption, insertCouponSchema, sermonRecordings } from "@shared/schema";
 import { z } from "zod";
 import { bibleBooks, getBookById } from "../bible-data/books";
 import { getBookChapter } from "../bible-data/bible-index";
@@ -31,6 +31,7 @@ import { NUM_WORD_STRONG } from "../num-strong-mappings";
 import { LEV_WORD_STRONG } from "../lev-strong-mappings";
 import { DEU_WORD_STRONG } from "../deu-strong-mappings";
 import { getClientPlatform, getPlatformAllowedSources, getFromStrongCache, setInStrongCache, initFirebaseAdmin, firebaseInitialized } from "./shared";
+import { buildRecurringRevenueMetrics } from "../admin/recurring-revenue";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -671,6 +672,26 @@ export function registerAdminRoutes(app: Express): void {
     } catch (error) {
       console.error("Subscription health error:", error);
       res.status(500).json({ error: "Erro ao buscar saúde das assinaturas" });
+    }
+  });
+
+  // Admin Metrics - Recurring subscriptions and realized recurring revenue
+  app.get("/api/admin/metrics/recurring-revenue", ensureAdmin, async (req: AuthRequest, res) => {
+    try {
+      const requestedDays = Number.parseInt(String(req.query.days || "90"), 10);
+      const days = Math.min(365, Math.max(30, Number.isFinite(requestedDays) ? requestedDays : 90));
+      const now = new Date();
+      const since = new Date(now.getTime() - (days - 1) * 24 * 60 * 60 * 1000);
+      since.setHours(0, 0, 0, 0);
+
+      const [health, receipts] = await Promise.all([
+        storage.getSubscriptionHealth(),
+        db.select().from(paymentReceipts).where(gte(paymentReceipts.paymentDate, since)),
+      ]);
+      res.json(buildRecurringRevenueMetrics({ health, receipts, days, since, now }));
+    } catch (error) {
+      console.error("Recurring revenue metrics error:", error);
+      res.status(500).json({ error: "Erro ao buscar receita recorrente" });
     }
   });
 

@@ -18,3 +18,13 @@ Ownership rule: a purchase row found by originalTransactionId/orderId that belon
 Client auto-sync once per session ~4s after store init: Android does a silent restore (queryPurchases is silent); iOS must NOT call native restorePurchases at launch (may prompt for Apple password) — it only POSTs the local appStoreReceipt if present. Apple restore no longer skips existing rows, so it now propagates renewals too.
 
 **Why:** subscribers on both platforms lost access after period 1 despite being charged; legacy rows without a stored credential only heal via the client auto-sync/restore path.
+
+## Recurring revenue reporting
+
+Recurring dashboards must use immutable payment receipts for realized revenue and subscription rows only for projected MRR/ARPU and active-base health. Report receipt amounts in integer centavos; subscription amounts are decimal BRL strings and must be converted at the API boundary. Net refund rows into revenue, and exclude test, financially excluded, foreign-currency, lifetime, and non-approved/non-refund records.
+
+Call a charge a renewal only when the provider supplies authoritative lifecycle metadata. Apple requires `transactionReason = RENEWAL`; unclassified Google/MP recurring charges belong in a neutral “other recurring charges” bucket until their provider events support a trustworthy distinction.
+
+**Why:** transaction-ID differences can also mean plan changes, provider defaults can mislabel every charge as new, and ignoring negative refund ledger rows overstates realized revenue.
+
+**How to apply:** any admin/reporting metric that combines subscriptions and receipts must preserve these unit, exclusion, refund-netting, and conservative-classification rules.

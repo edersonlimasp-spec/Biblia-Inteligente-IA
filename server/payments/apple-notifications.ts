@@ -338,7 +338,7 @@ async function createRefundReceipt(
     grossAmountOverride: targetGross,
     status: 'refunded',
     origin: 'webhook',
-    isRenewal: financialTransaction.transactionId !== financialTransaction.originalTransactionId,
+    isRenewal: financialTransaction.transactionReason === 'RENEWAL',
     metadata: {
       revocationReason: args.transaction.revocationReason || null,
       revocationType: args.transaction.revocationType || null,
@@ -393,7 +393,7 @@ async function reverseRefundReceipt(
     grossAmountOverride: 0,
     status: 'refund_reversed',
     origin: 'webhook',
-    isRenewal: financialTransaction.transactionId !== financialTransaction.originalTransactionId,
+    isRenewal: financialTransaction.transactionReason === 'RENEWAL',
     metadata: {
       refundState: 'reversed',
       refundStateSignedAt: incomingStateAt?.toISOString() || null,

@@ -118,10 +118,9 @@ export async function createAppleFinancialReceipt(args: {
     : currency !== 'BRL'
       ? `unsupported_currency_${currency}`
       : null;
-  const isRenewal = args.isRenewal ?? (
-    args.transaction.transactionReason === 'RENEWAL' ||
-    args.transaction.transactionId !== args.transaction.originalTransactionId
-  );
+  // Only Apple-provided lifecycle metadata is authoritative. A different
+  // transaction ID can also represent an upgrade/downgrade in the same family.
+  const isRenewal = args.isRenewal ?? args.transaction.transactionReason === 'RENEWAL';
   const receiptMetadata = {
     source: args.origin,
     environment: args.transaction.environment || 'unknown',

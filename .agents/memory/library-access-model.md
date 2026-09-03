@@ -15,6 +15,7 @@ Regras:
 
 - Plan types reais no banco: `premium`, `premium_annual` (com dois N), `gold`, `strong_lifetime`. A hierarquia em resolveAccess precisa incluir as duas grafias (`premium_anual` legado + `premium_annual`).
 - Admin/super_admin têm acesso completo via resolveAccess (userRole vem do JWT; auth usa header `Authorization: Bearer`, não cookie).
+- A Biblioteca deve usar o mesmo entitlement canônico de `/api/user/subscription-status`: validade/expiração, origem permitida por plataforma, bônus Premium, degustação ativa e vitalício. Não consultar apenas uma linha `subscriptions.status='active'`, pois isso diverge do plano mostrado ao usuário.
 
 ## Cliente precisa enviar Bearer nas rotas da Biblioteca
 A autenticação é SÓ por header `Authorization: Bearer` (localStorage authToken via getAuthHeaders() em queryClient.ts) — `credentials: "include"` não faz nada. Bug real em produção (jul 2026): fetches da Biblioteca sem o header faziam Premium/admin serem tratados como visitantes. Todo fetch novo a /api/library/* deve incluir getAuthHeaders(); após login, invalidar queries /api/library no react-query (cache é agnóstico de usuário).

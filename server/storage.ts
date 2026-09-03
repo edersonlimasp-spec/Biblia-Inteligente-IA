@@ -495,9 +495,9 @@ class PostgresStorage implements IStorage {
     // gold_anual gives access to 'gold', premium_anual gives access to 'premium'
     const planTypesToCheck = [planType];
     if (planType === 'gold') {
-      planTypesToCheck.push('gold_anual');
+      planTypesToCheck.push('gold_anual', 'gold_annual');
     } else if (planType === 'premium') {
-      planTypesToCheck.push('premium_anual');
+      planTypesToCheck.push('premium_anual', 'premium_annual');
     }
     
     // Check regular subscriptions - accept all valid active statuses from Mercado Pago

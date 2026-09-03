@@ -1,7 +1,10 @@
 import type { Express } from "express";
 import { db } from "../db";
-import { eq, and, desc, asc, sql } from "drizzle-orm";
-import { ensureAuthenticated, ensureAdmin, optionalAuth, type AuthRequest } from "../auth";
+import { eq, and, asc, sql } from "drizzle-orm";
+import { ensureAuthenticated, ensureAdmin, optionalAuth, isTrialActive, type AuthRequest } from "../auth";
+import { resolveLibraryAccess } from "../library-access";
+import { storage } from "../storage";
+import { getClientPlatform, getPlatformAllowedSources } from "./shared";
 import {
   libraryBooks, libraryChapters, libraryReadingProgress,
   libraryHighlights, libraryPurchases,
@@ -14,61 +17,23 @@ const BOOK_LIBRARY_CATEGORIES = [
 ] as const;
 
 /**
- * Resolve which chapters the user/guest can access.
- *
- * Modelo único de acesso (todos os livros):
- * — Capítulos de amostra (2 primeiros, sempre; mais os marcados is_sample)
- *   são livres para qualquer pessoa, mesmo sem cadastro.
- * — O conteúdo completo é exclusivo de assinantes Premium (ou superior).
- * — Compras avulsas antigas continuam valendo: quem pagou mantém o acesso.
+ * Usa a mesma fonte canônica de entitlement do restante do app. Isso inclui
+ * status válidos das lojas, expiração, origem permitida por plataforma,
+ * bônus Premium e o período de degustação.
  */
-function resolveAccess(
-  book: typeof libraryBooks.$inferSelect,
-  userId: string | null,
-  userPlan: string | null,
-  hasPurchased: boolean,
-  chapterOrder?: number,
-  chapterIsSample?: boolean,
-  userRole?: string | null,
-): "sample" | "owned" | "locked" {
-  // Amostra: 2 primeiros capítulos sempre (piso mínimo, nunca zero),
-  // mais qualquer capítulo marcado como amostra pelo administrador.
-  // Regra única: cortesia é SEMPRE e SOMENTE os 2 primeiros capítulos.
-  if (chapterOrder !== undefined && chapterOrder <= 2) {
-    return "sample";
-  }
+async function getUserPlan(req: AuthRequest): Promise<string | null> {
+  const userId = req.userId;
+  if (!userId) return null;
 
-  // Compras anteriores preservadas — ninguém que pagou perde acesso.
-  if (hasPurchased) return "owned";
+  const allowedSources = getPlatformAllowedSources(getClientPlatform(req));
+  const [hasLifetime, hasPremium] = await Promise.all([
+    storage.hasActiveSubscription(userId, "strong_lifetime", allowedSources),
+    storage.hasActiveSubscription(userId, "premium", allowedSources),
+  ]);
 
-  if (!userId) return "locked";
-
-  // Administradores têm acesso completo a todos os livros.
-  if (userRole === "admin" || userRole === "super_admin") return "owned";
-
-  const planHierarchy: Record<string, number> = {
-    gold: 1, gold_anual: 1, gold_annual: 1,
-    premium: 2, premium_anual: 2, premium_annual: 2,
-    vitalicio: 3, strong_lifetime: 3,
-  };
-  const requiredLevel = planHierarchy["premium"]; // todos os livros são Premium
-  const actual = userPlan ? (planHierarchy[userPlan] ?? 0) : 0;
-  return actual >= requiredLevel ? "owned" : "locked";
-}
-
-/** Get active plan from userId (queries subscriptions inline) */
-async function getUserPlan(userId: string): Promise<string | null> {
-  const { subscriptions } = await import("@shared/schema");
-  const rows = await db
-    .select({ planType: subscriptions.planType })
-    .from(subscriptions)
-    .where(and(
-      eq(subscriptions.userId, userId),
-      eq(subscriptions.status, "active"),
-    ))
-    .orderBy(desc(subscriptions.createdAt))
-    .limit(1);
-  return rows[0]?.planType ?? null;
+  if (hasLifetime) return "strong_lifetime";
+  if (hasPremium || isTrialActive(req.dbUser?.trialStartDate)) return "premium";
+  return null;
 }
 
 /** Check if user purchased a book */
@@ -92,7 +57,7 @@ export function registerLibraryRoutes(app: Express): void {
   app.get("/api/library/books", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const userId = req.userId ?? null;
-      const userPlan = userId ? await getUserPlan(userId) : null;
+      const userPlan = await getUserPlan(req);
 
       const books = await db
         .select()
@@ -103,7 +68,7 @@ export function registerLibraryRoutes(app: Express): void {
       // Resolve per-book access
       const result = await Promise.all(books.map(async (b) => {
         const hasPurchased = userId ? await userHasPurchased(userId, b.id) : false;
-        const accessState = resolveAccess(b, userId, userPlan, hasPurchased, undefined, undefined, req.userRole ?? null);
+        const accessState = resolveLibraryAccess({ userId, userPlan, hasPurchased, userRole: req.userRole ?? null });
         return { ...b, accessState };
       }));
 
@@ -119,7 +84,7 @@ export function registerLibraryRoutes(app: Express): void {
     try {
       const { id } = req.params;
       const userId = req.userId ?? null;
-      const userPlan = userId ? await getUserPlan(userId) : null;
+      const userPlan = await getUserPlan(req);
 
       const [book] = await db
         .select()
@@ -132,7 +97,7 @@ export function registerLibraryRoutes(app: Express): void {
       }
 
       const hasPurchased = userId ? await userHasPurchased(userId, id) : false;
-      const accessState = resolveAccess(book, userId, userPlan, hasPurchased, undefined, undefined, req.userRole ?? null);
+      const accessState = resolveLibraryAccess({ userId, userPlan, hasPurchased, userRole: req.userRole ?? null });
 
       // Reading progress
       let progress = null;
@@ -160,7 +125,7 @@ export function registerLibraryRoutes(app: Express): void {
     try {
       const { id } = req.params;
       const userId = req.userId ?? null;
-      const userPlan = userId ? await getUserPlan(userId) : null;
+      const userPlan = await getUserPlan(req);
 
       const [book] = await db
         .select()
@@ -188,7 +153,14 @@ export function registerLibraryRoutes(app: Express): void {
         .orderBy(asc(libraryChapters.orderNum));
 
       const result = chapters.map((c) => {
-        const access = resolveAccess(book, userId, userPlan, hasPurchased, c.orderNum, c.isSample, req.userRole ?? null);
+        const access = resolveLibraryAccess({
+          userId,
+          userPlan,
+          hasPurchased,
+          chapterOrder: c.orderNum,
+          chapterIsSample: c.isSample,
+          userRole: req.userRole ?? null,
+        });
         return { ...c, accessState: access };
       });
 
@@ -205,7 +177,7 @@ export function registerLibraryRoutes(app: Express): void {
       const { id, num } = req.params;
       const orderNum = parseInt(num, 10);
       const userId = req.userId ?? null;
-      const userPlan = userId ? await getUserPlan(userId) : null;
+      const userPlan = await getUserPlan(req);
 
       const [book] = await db
         .select()
@@ -230,7 +202,14 @@ export function registerLibraryRoutes(app: Express): void {
 
       if (!chapter) return res.status(404).json({ error: "Capítulo não encontrado" });
 
-      const access = resolveAccess(book, userId, userPlan, hasPurchased, orderNum, chapter.isSample, req.userRole ?? null);
+      const access = resolveLibraryAccess({
+        userId,
+        userPlan,
+        hasPurchased,
+        chapterOrder: orderNum,
+        chapterIsSample: chapter.isSample,
+        userRole: req.userRole ?? null,
+      });
 
       if (access === "locked") {
         return res.status(403).json({

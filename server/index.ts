@@ -314,6 +314,7 @@ app.use((req, res, next) => {
     message: { error: 'Limite de requisições por minuto atingido. Aguarde um momento.' },
   });
   app.use('/api/ai/', aiLimiter);
+  app.use(/^\/api\/sermons\/[^/]+\/(?:transcribe|summarize)\/?$/, aiLimiter);
   // ────────────────────────────────────────────────────────────────────────
 
   const server = await registerRoutes(app);

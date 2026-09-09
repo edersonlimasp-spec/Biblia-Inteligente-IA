@@ -30,6 +30,41 @@ import { LEV_WORD_STRONG } from "../lev-strong-mappings";
 import { DEU_WORD_STRONG } from "../deu-strong-mappings";
 import { getClientPlatform, getPlatformAllowedSources, getFromStrongCache, setInStrongCache, initFirebaseAdmin, firebaseInitialized } from "./shared";
 
+const SERMON_RECORDING_LIMITS = {
+  free: 3,
+  gold: 30,
+  premium: 100,
+} as const;
+
+async function getSermonRecordingLimit(req: AuthRequest): Promise<number> {
+  const userId = req.userId!;
+  const user = await storage.getUser(userId);
+  if (!user) {
+    throw new Error("SERMON_USER_NOT_FOUND");
+  }
+
+  if (user.role === "admin" || user.role === "super_admin") {
+    return SERMON_RECORDING_LIMITS.premium;
+  }
+
+  const platform = getClientPlatform(req);
+  const allowedSources = getPlatformAllowedSources(platform);
+  const [hasGold, hasPremium, hasLifetime, hasTrialExtend] = await Promise.all([
+    storage.hasActiveSubscription(userId, "gold", allowedSources),
+    storage.hasActiveSubscription(userId, "premium", allowedSources),
+    storage.hasActiveSubscription(userId, "strong_lifetime", allowedSources),
+    storage.hasActiveBonus(userId, "trial_extend"),
+  ]);
+
+  if (hasPremium || isTrialActive(user.trialStartDate)) {
+    return SERMON_RECORDING_LIMITS.premium;
+  }
+  if (hasGold || hasLifetime || hasTrialExtend) {
+    return SERMON_RECORDING_LIMITS.gold;
+  }
+  return SERMON_RECORDING_LIMITS.free;
+}
+
 export function registerStudyRoutes(app: Express): void {
   // -------------------- STUDY COMPLETIONS (cartão "Seu ritmo") --------------------
 
@@ -906,15 +941,40 @@ export function registerStudyRoutes(app: Express): void {
           .set({ title, category, speaker, tags, updatedAt: new Date() })
           .where(eq(sermonRecordings.id, id));
       } else {
-        await db.insert(sermonRecordings).values({
-          id,
-          userId,
-          title,
-          duration,
-          category: category || "culto",
-          speaker,
-          tags,
+        const recordingLimit = await getSermonRecordingLimit(req);
+        const creationResult = await db.transaction(async (tx) => {
+          // Serialize capacity checks for this user so parallel requests cannot
+          // create more recordings than the plan permits.
+          await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${userId}))`);
+
+          const userRecordings = await tx.select({ id: sermonRecordings.id })
+            .from(sermonRecordings)
+            .where(eq(sermonRecordings.userId, userId));
+
+          if (userRecordings.length >= recordingLimit) {
+            return { created: false as const, used: userRecordings.length };
+          }
+
+          await tx.insert(sermonRecordings).values({
+            id,
+            userId,
+            title,
+            duration,
+            category: category || "culto",
+            speaker,
+            tags,
+          });
+          return { created: true as const, used: userRecordings.length + 1 };
         });
+
+        if (!creationResult.created) {
+          return res.status(429).json({
+            error: "Limite de gravações atingido.",
+            limit: recordingLimit,
+            used: creationResult.used,
+            requiresSubscription: recordingLimit < SERMON_RECORDING_LIMITS.premium,
+          });
+        }
       }
       
       const result = await db.select().from(sermonRecordings).where(eq(sermonRecordings.id, id));
@@ -975,6 +1035,10 @@ export function registerStudyRoutes(app: Express): void {
       if (existing.length === 0) {
         return res.status(404).json({ error: "Sermon not found" });
       }
+
+      // Resolve the user's server-side plan before consuming the AI provider.
+      // Recording capacity is enforced when the recording is first synced.
+      await getSermonRecordingLimit(req);
       
       await db.update(sermonRecordings)
         .set({ transcriptStatus: "processing", updatedAt: new Date() })
@@ -1017,6 +1081,10 @@ export function registerStudyRoutes(app: Express): void {
       if (!sermon.transcriptText) {
         return res.status(400).json({ error: "Transcription required before summary" });
       }
+
+      // Resolve the user's server-side plan before consuming the AI provider.
+      // Recording capacity is enforced when the recording is first synced.
+      await getSermonRecordingLimit(req);
       
       const { summaryJson, summaryText } = await generateSermonSummary(sermon.transcriptText);
       

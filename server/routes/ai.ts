@@ -42,7 +42,10 @@ export function registerAiRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/subscriptions", ensureAuthenticated, async (req: AuthRequest, res) => {
+  // Direct subscription grants are administrative only. Store purchases and
+  // Mercado Pago activations persist subscriptions internally after provider
+  // validation and do not use this client-facing endpoint.
+  app.post("/api/subscriptions", ensureAdmin, async (req: AuthRequest, res) => {
     try {
       const validatedData = insertSubscriptionSchema.parse({
         ...req.body,
@@ -1142,7 +1145,10 @@ export function registerAiRoutes(app: Express): void {
   });
 
   // Webhook para eventos RevenueCat
-  app.post("/api/billing/webhook", async (req, res) => {
+  // This legacy endpoint does not validate a RevenueCat webhook signature.
+  // Keep manual processing available to admins, but never accept entitlement
+  // claims directly from an unauthenticated client.
+  app.post("/api/billing/webhook", ensureAdmin, async (req: AuthRequest, res) => {
     try {
       const { event, app_user_id, entitlements } = req.body;
       

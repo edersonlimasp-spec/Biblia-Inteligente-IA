@@ -27,7 +27,8 @@ type Screen =
   | "install"
   | "library"
   | "library-book"
-  | "library-reader";
+  | "library-reader"
+  | "atlas";
 
 /** Origem guardada ao abrir a Bíblia a partir de um livro da Biblioteca */
 export interface BookReturn {
@@ -107,6 +108,7 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "library": "dashboard",
   "library-book": "library",
   "library-reader": "library-book",
+  "atlas": "dashboard",
 };
 
 interface NavigationProviderProps {

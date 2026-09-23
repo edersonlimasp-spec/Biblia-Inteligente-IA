@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { getApiUrl } from "@/lib/queryClient";
@@ -37,6 +37,8 @@ import { PaymentSuccess, PaymentError, PaymentPending } from "@/pages/PaymentRes
 import { PrivacyPolicy } from "@/pages/PrivacyPolicy";
 import { TermsOfUse } from "@/pages/TermsOfUse";
 import { isNative } from "@/lib/capacitor";
+
+const AtlasScreen = lazy(() => import("./atlas/AtlasScreen").then((module) => ({ default: module.AtlasScreen })));
 
 function NavigationContent() {
   const { 
@@ -249,7 +251,13 @@ function NavigationContent() {
           onNavigateToLogin={() => navigate("login")}
           onNavigateToSettings={() => navigate("settings")}
           onNavigateToLibrary={() => navigate("library")}
+          onNavigateToAtlas={() => navigate("atlas")}
         />
+      )}
+      {currentScreen === "atlas" && (
+        <Suspense fallback={<div className="min-h-screen bg-background p-6 text-muted-foreground">Carregando atlas…</div>}>
+          <AtlasScreen onBack={() => goBack()} onSubscribe={() => navigate("subscriptions")} onLogin={() => navigate("login")} />
+        </Suspense>
       )}
       {currentScreen === "recordings" && (
         <RequireAuthScreen featureName="Gravações" onAuthCancel={() => goBack()}>

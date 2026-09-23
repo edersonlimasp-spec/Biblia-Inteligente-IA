@@ -14,6 +14,7 @@ import { initFirebaseAdmin } from "./routes/shared";
 import { registerAuthRoutes }     from "./routes/auth";
 import { registerBibleRoutes }    from "./routes/bible";
 import { registerAiRoutes }       from "./routes/ai";
+import { registerAtlasRoutes } from "./routes/atlas";
 import { registerPaymentsRoutes } from "./routes/payments";
 import { registerAdminRoutes }    from "./routes/admin";
 import { registerStudyRoutes }    from "./routes/study";
@@ -111,6 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAuthRoutes(app);     // /api/auth/*, /api/user/*, /api/bookmarks/*, /api/sync/*, /api/guest/*
   registerBibleRoutes(app);    // /api/bible/*, /api/reading-progress/*, /api/achievements/*
   registerAiRoutes(app);       // /api/subscriptions/*, /api/access/*, /api/ai/*, /api/strong/*
+  registerAtlasRoutes(app);
   registerPaymentsRoutes(app); // /api/iap/*, /api/coupons/*, /api/mp/*
   registerAdminRoutes(app);    // /api/admin/*, /api/debug/*, /api/cron/*, /api/telemetry/*
   registerStudyRoutes(app);    // /api/study/*, /api/reading-plans/*, /api/prayer/*, /api/sermons/*

@@ -30,6 +30,9 @@ import { LEV_WORD_STRONG } from "../lev-strong-mappings";
 import { DEU_WORD_STRONG } from "../deu-strong-mappings";
 import { getClientPlatform, getPlatformAllowedSources, getFromStrongCache, setInStrongCache, initFirebaseAdmin, firebaseInitialized } from "./shared";
 import { findEmbeddedStrongEntry } from "../strong-embedded-fallback";
+import { atlasContextSchema } from "../../shared/atlas";
+import { AtlasError, buildAtlasContext } from "../atlas/catalog";
+import { sendAtlasError } from "./atlas";
 
 export function registerAiRoutes(app: Express): void {
   app.get("/api/subscriptions", ensureAuthenticated, async (req: AuthRequest, res) => {
@@ -235,6 +238,7 @@ export function registerAiRoutes(app: Express): void {
         imageBase64: z.string().optional(),
         imageMimeType: z.string().optional(),
         imageUrl: z.string().optional(),
+        atlasContext: atlasContextSchema.optional(),
       });
       const aiParsed = aiAskSchema.safeParse(req.body);
       if (!aiParsed.success) {
@@ -268,6 +272,9 @@ export function registerAiRoutes(app: Express): void {
 
       // Degustação Premium de 7 dias: conta como Premium
       const trialActiveAI = isTrialActive(user.trialStartDate);
+      // Only server-shipped, accessible Atlas content may enter the model context.
+      const atlasContext = aiParsed.data.atlasContext === undefined ? undefined :
+        await buildAtlasContext(aiParsed.data.atlasContext, isAdmin || hasGold || hasPremium || trialActiveAI);
 
       // Trial = Premium durante a degustação de 7 dias
       const effectivePremiumAI = hasPremium || hasLifetime || trialActiveAI;
@@ -329,6 +336,7 @@ export function registerAiRoutes(app: Express): void {
         chapter,
         mode,
         language,
+        ...(atlasContext === undefined ? {} : { atlasContext }),
       });
 
       // Retornar informações de uso baseadas no tipo de acesso
@@ -367,6 +375,7 @@ export function registerAiRoutes(app: Express): void {
         }),
       ]).catch((err) => console.error("[AI ask] background persistence error:", err));
     } catch (error: any) {
+      if (error instanceof AtlasError) return sendAtlasError(res, error);
       console.error("AI ask error:", error);
       res.status(500).json({ error: error.message || "Erro ao processar pergunta" });
     }

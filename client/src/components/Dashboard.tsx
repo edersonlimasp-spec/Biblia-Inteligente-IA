@@ -9,7 +9,7 @@ import {
   BookOpen, Brain, TrendingUp,
   HandHeart, Calendar, CreditCard, Shield, GraduationCap,
   Mic, Library, LogIn, Settings, Crown, Gem, Infinity,
-  ChevronRight, LucideIcon, BookMarked,
+  ChevronRight, LucideIcon, BookMarked, Map,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,7 @@ interface DashboardProps {
   onNavigateToLogin: () => void;
   onNavigateToSettings: () => void;
   onNavigateToLibrary: () => void;
+  onNavigateToAtlas: () => void;
 }
 
 interface ModuleDef {
@@ -152,6 +153,7 @@ export function Dashboard({
   onNavigateToLogin,
   onNavigateToSettings,
   onNavigateToLibrary,
+  onNavigateToAtlas,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
   const { t } = useLanguage();
@@ -259,7 +261,13 @@ export function Dashboard({
       icon: TrendingUp, from: "#1F6A5C", to: "#134C43",
       onClick: onNavigateToPlansProgress, testId: "module-plans-progress",
     },
-  ], [t, onNavigateToProfessor, onNavigateToAIModes, onNavigateToProfessorPremium, onNavigateToPlansProgress]);
+    {
+      id: "atlas", title: "Mapas e Imagens",
+      desc: "Geografia, rotas e reconstruções para o estudo bíblico.",
+      icon: Map, from: "#2D5E7A", to: "#1C3E5A",
+      onClick: onNavigateToAtlas, testId: "module-atlas",
+    },
+  ], [t, onNavigateToProfessor, onNavigateToAIModes, onNavigateToProfessorPremium, onNavigateToPlansProgress, onNavigateToAtlas]);
 
   const rotina: ModuleDef[] = useMemo(() => [
     {

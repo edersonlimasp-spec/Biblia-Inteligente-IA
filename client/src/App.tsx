@@ -97,7 +97,12 @@ function WebClerkProviderWithRoutes() {
     window.location.hostname,
     import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
   );
-  const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+  // The server-side Clerk proxy is intentionally disabled in development.
+  // Keep the production proxy unchanged, but do not let a stale/injected
+  // VITE_CLERK_PROXY_URL send the dev client to an HTML fallback response.
+  const clerkProxyUrl = import.meta.env.PROD
+    ? import.meta.env.VITE_CLERK_PROXY_URL
+    : undefined;
   if (!clerkPubKey) throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY in .env file");
   return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={clerkAppearance}
     signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`}

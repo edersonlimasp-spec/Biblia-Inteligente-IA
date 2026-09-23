@@ -29,14 +29,14 @@ const storeDetails: Record<Store, { label: string; subtitle: string }> = {
 };
 
 const features = [
-  { icon: MessageCircleQuestion, title: "Professor IA", text: "Faça perguntas sobre a passagem e escolha a ajuda que precisa: modo Professor para entender, modo Pregador para estruturar uma mensagem." },
-  { icon: Languages, title: "Strong em hebraico e grego", text: "Veja palavras-chave no idioma original e aprofunde sua leitura com contexto." },
-  { icon: Mic, title: "Sermões que viram material", text: "Grave sua ministração, receba transcrição em português, resumo por IA e um PDF para guardar ou compartilhar." },
-  { icon: ScrollText, title: "Planos de leitura", text: "Leia com direção e acompanhe seu progresso, no seu ritmo." },
-  { icon: Library, title: "Biblioteca cristã", text: "Conheça livros e leia amostras. O catálogo completo está disponível no Premium." },
-  { icon: BookOpen, title: "Cursos e estudos bíblicos", text: "Organize temas, aprendizados e estudos para a sua caminhada." },
-  { icon: CalendarDays, title: "Agenda e listas de oração", text: "Lembre-se do que importa e cuide dos pedidos que você quer apresentar a Deus." },
-  { icon: Highlighter, title: "Marcas e anotações", text: "Destaque versículos e registre seus pensamentos enquanto estuda." },
+  { icon: MessageCircleQuestion, title: "Assistente de estudo: apoio de IA", text: "Consulte contexto histórico, cultural e costumes da época como apoio à sua leitura. Use as sugestões para aprofundar a pesquisa e preparar estudos e pregações, sempre conferindo as referências nas Escrituras." },
+  { icon: Languages, title: "Dicionário hebraico e grego (Strong)", text: "Consulte o significado das palavras no original com o dicionário Strong e aprofunde seu estudo, considerando o contexto da passagem." },
+  { icon: Mic, title: "Gravação e resumo de sermões", text: "Grave sua ministração e reúna transcrição em português, resumo com apoio de IA e PDF. Revise o material antes de guardar ou compartilhar." },
+  { icon: ScrollText, title: "Planos de leitura", text: "Cultive a leitura das Escrituras com um plano e acompanhe seu progresso, no seu ritmo." },
+  { icon: Library, title: "Biblioteca cristã", text: "Amplie suas consultas com livros cristãos e leia amostras. O catálogo completo está disponível no Premium." },
+  { icon: BookOpen, title: "Cursos e estudos bíblicos", text: "Reúna temas e organize seus estudos para aprofundar o conhecimento bíblico e apoiar a preparação de encontros." },
+  { icon: CalendarDays, title: "Agenda e listas de oração", text: "Organize seus compromissos e pedidos de oração para acompanhar sua caminhada de fé." },
+  { icon: Highlighter, title: "Anotações e destaques", text: "Destaque versículos, registre suas observações e retome suas anotações ao aprofundar o estudo." },
 ];
 
 function formatPrice(price: number) {
@@ -75,7 +75,7 @@ export function OfferPage() {
   useEffect(() => {
     getPlans();
     const previousTitle = document.title;
-    document.title = "Bíblia Inteligente IA — Estude a Bíblia com mais profundidade";
+    document.title = "Bíblia Inteligente IA — Aprofunde seu estudo da Bíblia";
     const hero = heroRef.current;
     if (!hero || !("IntersectionObserver" in window)) return () => { document.title = previousTitle; };
     const observer = new IntersectionObserver(([entry]) => setShowSticky(!entry.isIntersecting && entry.boundingClientRect.bottom <= 0), { threshold: 0.08 });
@@ -101,9 +101,9 @@ export function OfferPage() {
           </nav>
           <div className="offer-hero-grid">
             <div className="offer-hero-copy">
-              <p className="offer-eyebrow"><span /> Estudo bíblico para a vida real</p>
-              <h1 id="offer-title">Estude a Bíblia com um professor de IA no seu bolso.</h1>
-              <p className="offer-intro">Entenda melhor as Escrituras, prepare estudos, células e sermões com ferramentas que respeitam seu tempo de busca.</p>
+              <p className="offer-eyebrow"><span /> Ferramentas de apoio ao estudo bíblico</p>
+              <h1 id="offer-title">Aprofunde seu estudo da Bíblia.</h1>
+              <p className="offer-intro">Contexto histórico e cultural, dicionário hebraico e grego e um assistente de IA para apoiar sua leitura — sem substituir a Palavra.</p>
               <div className="offer-actions">
                 {device === "desktop" ? <button className="offer-primary" type="button" onClick={openDownload}>Baixar grátis <ArrowRight size={18} /></button> : <a className="offer-primary" href={STORE_LINKS[preferredStore]} target="_blank" rel="noopener noreferrer" onClick={trackStoreDownload}>Baixar grátis <ArrowRight size={18} /></a>}
                 <a className="offer-web-link" href={withAttribution("/")}>Usar no navegador</a>
@@ -120,9 +120,9 @@ export function OfferPage() {
                 <p className="offer-phone-book">João 15</p>
                 <p className="offer-phone-verse">“Eu sou a videira; vós, os ramos. Quem permanece em mim, e eu, nele, esse dá muito fruto.”</p>
                 <p className="offer-phone-ref">João 15:5</p>
-                <div className="offer-phone-answer"><Sparkles size={15} /><span>Pergunte ao Professor IA</span><ArrowRight size={14} /></div>
+                <div className="offer-phone-answer"><Sparkles size={15} /><span>Consulte o assistente de estudo</span><ArrowRight size={14} /></div>
               </div>
-              <div className="offer-art-card offer-art-card-a"><Languages size={18} /><span>Grego e hebraico</span></div>
+              <div className="offer-art-card offer-art-card-a"><Languages size={18} /><span>Dicionário Strong</span></div>
               <div className="offer-art-card offer-art-card-b"><Highlighter size={18} /><span>Suas anotações</span></div>
             </div>
           </div>
@@ -133,9 +133,9 @@ export function OfferPage() {
 
       <section className="offer-section offer-welcome" id="recursos">
         <div className="offer-shell offer-section-heading">
-          <p className="offer-kicker">Para quando você abre a Palavra</p>
-          <h2>Mais clareza para o que Deus já falou.</h2>
-          <p>Da leitura diária à preparação de uma mensagem, encontre apoio para ir além da superfície — sem substituir a sua oração, discernimento e comunidade.</p>
+          <p className="offer-kicker">Sua leitura no centro do estudo</p>
+          <h2>Mais contexto para aprofundar sua leitura.</h2>
+          <p>A IA não substitui sua leitura nem sua igreja: ela ajuda você a ir mais fundo nas Escrituras. É uma ferramenta de apoio, não uma autoridade espiritual, e não substitui a direção do Espírito Santo ou o acompanhamento do seu pastor.</p>
         </div>
         <div className="offer-shell offer-feature-grid">
           {features.map(({ icon: Icon, title, text }, index) => <article className={`offer-feature feature-${index + 1}`} key={title}><div className="offer-feature-icon"><Icon size={22} /></div><h3>{title}</h3><p>{text}</p></article>)}
@@ -144,17 +144,17 @@ export function OfferPage() {
 
       <section className="offer-section offer-study-band">
         <div className="offer-shell offer-study-layout">
-          <div><p className="offer-kicker">Prepare com mais tranquilidade</p><h2>Do texto bíblico para o seu próximo encontro.</h2><p>Reúna referências, anotações e ideias para um estudo em casa, uma célula ou uma pregação. Quando precisar, o Professor IA ajuda a organizar o caminho.</p></div>
+          <div><p className="offer-kicker">Apoio para preparar seus encontros</p><h2>Aprofunde a pesquisa. Prepare com cuidado.</h2><p>Reúna referências, contexto histórico e cultural e suas anotações para um estudo, uma célula ou uma pregação. O assistente de estudo auxilia na organização; a leitura, a conferência das fontes e o discernimento continuam com você.</p></div>
           <div className="offer-path" aria-label="Caminho para preparar um estudo"><div><BookOpen /><span>Leia a passagem</span></div><ArrowRight /><div><NotebookPen /><span>Faça suas notas</span></div><ArrowRight /><div><UsersRound /><span>Compartilhe com cuidado</span></div></div>
         </div>
       </section>
 
       <section className="offer-section offer-steps">
-        <div className="offer-shell"><div className="offer-section-heading"><p className="offer-kicker">Comece em poucos minutos</p><h2>Seu próximo estudo pode começar hoje.</h2></div><ol className="offer-step-list"><li><span>01</span><div><h3>Baixe o aplicativo</h3><p>Escolha a loja do seu aparelho e instale gratuitamente.</p></div></li><li><span>02</span><div><h3>Crie sua conta</h3><p>Ela mantém sua leitura, notas e progresso sincronizados.</p></div></li><li><span>03</span><div><h3>Abra a Bíblia e comece</h3><p>Leia, marque, pergunte e prepare com calma.</p></div></li></ol></div>
+        <div className="offer-shell"><div className="offer-section-heading"><p className="offer-kicker">Comece em poucos minutos</p><h2>Seu próximo estudo começa com a Palavra.</h2></div><ol className="offer-step-list"><li><span>01</span><div><h3>Baixe o aplicativo</h3><p>Escolha a loja do seu aparelho e instale gratuitamente.</p></div></li><li><span>02</span><div><h3>Crie sua conta</h3><p>Ela mantém sua leitura, notas e progresso sincronizados.</p></div></li><li><span>03</span><div><h3>Leia e aprofunde seu estudo</h3><p>Leia a passagem, faça anotações e consulte as ferramentas de apoio quando precisar.</p></div></li></ol></div>
       </section>
 
       <section className="offer-section offer-pricing" aria-labelledby="prices-title">
-        <div className="offer-shell"><div className="offer-pricing-header"><div><p className="offer-kicker">Escolhas claras</p><h2 id="prices-title">Comece livre. Avance quando fizer sentido.</h2><p>A leitura das Escrituras é gratuita. A conta permite sincronizar seu caminho; recursos de IA e planos pagos ampliam o que você pode fazer.</p></div></div>
+        <div className="offer-shell"><div className="offer-pricing-header"><div><p className="offer-kicker">Escolhas claras</p><h2 id="prices-title">Leitura gratuita. Apoio para aprofundar.</h2><p>A leitura das Escrituras é gratuita. A conta permite sincronizar seus dados; os planos pagos oferecem ferramentas adicionais de consulta, organização e apoio de IA, conforme o plano.</p></div></div>
           {!plans && !priceError && <div className="offer-price-loading" aria-live="polite"><span /><span /><span /></div>}
           {priceError && <div className="offer-price-error" role="alert"><p>Não foi possível carregar os valores agora.</p><button type="button" onClick={getPlans}>Tentar novamente</button></div>}
           {plans && <><div className="offer-plan-grid">{plans.map((plan) => <article className={`offer-plan ${plan.period === "lifetime" ? "is-lifetime" : ""}`} key={plan.id}><p>{plan.name}</p><strong>{formatPrice(plan.price)}</strong><small>{priceLabel(plan)}</small>{plan.period === "lifetime" && <span className="offer-plan-note">Vitalício para o Strong; não inclui Premium, Biblioteca ou todo o app.</span>}</article>)}</div><p className="offer-price-disclaimer">Valores para compra na web em reais (BRL). Nas lojas, confirme o preço final antes de concluir. A disponibilidade dos recursos varia conforme o plano.</p></>}
@@ -164,7 +164,9 @@ export function OfferPage() {
       <section className="offer-section offer-download" ref={choicesRef} aria-labelledby="download-title"><div className="offer-shell"><p className="offer-kicker">Leve seu estudo com você</p><h2 id="download-title">Baixe onde você lê.</h2><p>Disponível para iPhone, iPad e Android. Escolha sua loja.</p><div className="offer-store-list">{(["ios", "android"] as Store[]).map((store) => <a key={store} className="offer-store-button" href={STORE_LINKS[store]} target="_blank" rel="noopener noreferrer" onClick={trackStoreDownload}><StoreMark store={store} /><span><b>{storeDetails[store].label}</b><small>{storeDetails[store].subtitle}</small></span><ArrowRight size={18} /></a>)}</div></div></section>
 
       <section className="offer-section offer-faq" aria-labelledby="faq-title"><div className="offer-shell"><div className="offer-section-heading"><p className="offer-kicker">Dúvidas comuns</p><h2 id="faq-title">Antes de começar</h2></div><div className="offer-faq-list">
-        <details><summary>O aplicativo é gratuito? <ChevronDown /></summary><p>Sim. A leitura da Bíblia é gratuita. Criar uma conta ajuda a sincronizar seu progresso, notas e outros dados. Alguns recursos de IA e opções pagas são adicionais.</p></details>
+        <details><summary>O aplicativo é gratuito? <ChevronDown /></summary><p>Sim. A leitura da Bíblia é gratuita. Criar uma conta ajuda a sincronizar seu progresso, notas e outros dados. Algumas ferramentas de consulta e apoio de IA dependem do plano.</p></details>
+        <details><summary>A IA vai interpretar a Bíblia por mim? <ChevronDown /></summary><p>Não. O assistente é uma ferramenta de apoio e consulta para aprofundar o estudo de contextos históricos, culturais e costumes da época, além de auxiliar na preparação de estudos e pregações. As respostas podem conter erros: confira as referências e leia a passagem em seu contexto. A IA não substitui a Palavra, sua leitura, a direção do Espírito Santo, sua igreja ou seu pastor.</p></details>
+        <details><summary>Posso consultar mapas bíblicos? <ChevronDown /></summary><p>O app permite solicitar imagens de mapas com IA no recurso de geração de imagens, disponível no Premium. São ilustrações geradas, não um atlas bíblico com mapas verificados, e podem conter imprecisões históricas e geográficas. Confira os locais em fontes confiáveis.</p></details>
         <details><summary>Funciona no iPhone e no Android? <ChevronDown /></summary><p>Sim. Você pode baixar na App Store para iPhone e iPad ou no Google Play para Android.</p></details>
         <details><summary>Preciso criar uma conta? <ChevronDown /></summary><p>Você pode começar a explorar, mas a conta é necessária para manter seus dados sincronizados e acessar recursos que dependem dela.</p></details>
         <details><summary>Como cancelo uma assinatura? <ChevronDown /></summary><p>Assinaturas feitas pela App Store ou Google Play devem ser canceladas nas configurações da respectiva loja. Uma compra pela web concede o período contratado e não tem renovação automática.</p></details>

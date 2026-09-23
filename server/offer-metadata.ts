@@ -1,6 +1,6 @@
 const OFFER_ORIGIN = "https://bibliainteligente.replit.app";
-const TITLE = "Bíblia Inteligente IA — Estude a Bíblia com mais profundidade";
-const DESCRIPTION = "Bíblia com 66 livros, Professor IA, Strong em hebraico e grego, transcrição de sermões e planos de leitura. Baixe para iPhone ou Android. É gratuito para começar.";
+const TITLE = "Bíblia Inteligente IA — Aprofunde seu estudo da Bíblia";
+const DESCRIPTION = "Aprofunde seu estudo da Bíblia com contexto histórico e cultural, dicionário Strong hebraico e grego e apoio de IA para sua leitura — sem substituir a Palavra.";
 
 /** Fixed trusted metadata; never reflects host headers or campaign parameters. */
 export function withOfferMetadata(template: string): string {

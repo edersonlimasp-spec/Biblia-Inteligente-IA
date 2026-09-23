@@ -7,9 +7,9 @@ describe("public campaign HTML", () => {
   const template = readFileSync("client/index.html", "utf8");
   it("has its own SEO metadata without reflecting campaign inputs", () => {
     const html = withOfferMetadata(template);
-    expect(html).toContain("<title>Bíblia Inteligente IA — Estude a Bíblia com mais profundidade</title>");
+    expect(html).toContain("<title>Bíblia Inteligente IA — Aprofunde seu estudo da Bíblia</title>");
     expect(html).toContain('rel="canonical" href="https://bibliainteligente.replit.app/oferta"');
-    expect(html).toContain("Bíblia com 66 livros");
+    expect(html).toContain("contexto histórico e cultural, dicionário Strong hebraico e grego e apoio de IA");
   });
 
   it("retains exactly one global tag and config on every public template", () => {

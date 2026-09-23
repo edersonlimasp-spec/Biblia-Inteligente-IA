@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { detectDownloadDevice, STORE_LINKS, trackStoreDownload } from "@/lib/google-ads";
 import "./DownloadPage.css";
 
 type Store = "android" | "ios";
@@ -11,17 +12,17 @@ const STORES: Record<Store, {
   android: {
     label: "Baixar no Google Play",
     subtitle: "Android",
-    href: "https://play.google.com/store/apps/details?id=app.replit.bibliainteligente.twa",
+    href: STORE_LINKS.android,
   },
   ios: {
     label: "Baixar na App Store",
     subtitle: "iPhone e iPad",
-    href: "https://apps.apple.com/br/app/b%C3%ADblia-inteligente-ia/id6766988872",
+    href: STORE_LINKS.ios,
   },
 };
 
 export function detectStore(userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""): Store {
-  if (/iphone|ipad|ipod/i.test(userAgent)) {
+  if (detectDownloadDevice(userAgent) === "ios") {
     return "ios";
   }
   return "android";
@@ -113,6 +114,7 @@ export function DownloadPage() {
                 key={store}
                 className={`download-store-button${isFeatured ? " is-featured" : ""}`}
                 href={item.href}
+                onClick={trackStoreDownload}
                 target="_blank"
                 rel="noopener noreferrer"
               >

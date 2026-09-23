@@ -29,6 +29,14 @@ import { NUM_WORD_STRONG } from "../num-strong-mappings";
 import { LEV_WORD_STRONG } from "../lev-strong-mappings";
 import { DEU_WORD_STRONG } from "../deu-strong-mappings";
 import { getClientPlatform, getPlatformAllowedSources, getFromStrongCache, setInStrongCache, initFirebaseAdmin, firebaseInitialized } from "./shared";
+import {
+  MP_PLAN_CONFIG,
+  PUBLIC_MP_PLANS,
+  appendAttribution,
+  buildApprovedConversionHtml,
+  extractAttributionParams,
+  verifyMercadoPagoConversion,
+} from "../mp-marketing";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -356,16 +364,6 @@ export function registerPaymentsRoutes(app: Express): void {
   // MERCADO PAGO CHECKOUT PRO INTEGRATION
   // ============================================
   
-  // Plan configuration with fixed prices (BRL)
-  const MP_PLAN_CONFIG: Record<string, { title: string; price: number; days: number | null }> = {
-    gold: { title: "Bíblia Inteligente - Plano Gold", price: 9.90, days: 30 },
-    gold_anual: { title: "Bíblia Inteligente - Plano Gold Anual", price: 79.90, days: 365 },
-    premium: { title: "Bíblia Inteligente - Plano Premium", price: 19.90, days: 30 },
-    premium_anual: { title: "Bíblia Inteligente - Plano Premium Anual", price: 129.90, days: 365 },
-    vitalicio: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
-    strong_lifetime: { title: "Bíblia Inteligente - Strong Vitalício", price: 49.90, days: null },
-  };
-  
   // PRODUCTION URL - Always use this for redirects after payment
   // This ensures users are NEVER redirected to *.picard.replit.dev
   const PRODUCTION_APP_URL = 'https://bibliainteligente.replit.app';
@@ -393,6 +391,12 @@ export function registerPaymentsRoutes(app: Express): void {
     }
     return 'https://localhost:5000';
   }
+
+  // Public read-only plan catalog. Prices come from the same configuration
+  // used to create Mercado Pago preferences.
+  app.get("/api/public/plans", (_req, res) => {
+    res.json({ plans: PUBLIC_MP_PLANS });
+  });
   
   // Create Mercado Pago Checkout preference
   app.post("/api/mp/create-checkout", ensureAuthenticated, async (req: AuthRequest, res) => {
@@ -541,6 +545,7 @@ export function registerPaymentsRoutes(app: Express): void {
       
       // Create Mercado Pago preference
       // IMPORTANT: back_urls MUST use PRODUCTION_APP_URL to avoid *.picard.replit.dev redirect
+      const attribution = extractAttributionParams(req.get("referer"));
       const preference = {
         items: [{
           id: `plan_${planType}`,
@@ -572,9 +577,9 @@ export function registerPaymentsRoutes(app: Express): void {
         // o MP entende que é auto-compra e desabilita o botão "Pagar" (fica cinza).
         // Sem payer.email, o MP usa o e-mail do login do comprador automaticamente.
         back_urls: {
-          success: `${PRODUCTION_APP_URL}/mp/return?status=success`,
-          failure: `${PRODUCTION_APP_URL}/mp/return?status=failure`,
-          pending: `${PRODUCTION_APP_URL}/mp/return?status=pending`,
+          success: appendAttribution(`${PRODUCTION_APP_URL}/mp/return?status=success`, attribution),
+          failure: appendAttribution(`${PRODUCTION_APP_URL}/mp/return?status=failure`, attribution),
+          pending: appendAttribution(`${PRODUCTION_APP_URL}/mp/return?status=pending`, attribution),
         },
         auto_return: "approved",
         notification_url: `${PRODUCTION_APP_URL}/api/mp/webhook`,
@@ -866,18 +871,19 @@ export function registerPaymentsRoutes(app: Express): void {
   // MERCADO PAGO RETURN ROUTE - Redirect after payment
   // ===================================
   
-  // GET /mp/return - Rota de retorno após pagamento no Mercado Pago
-  // Esta rota SEMPRE redireciona para o app, nunca mostra erro
-  app.get("/mp/return", (req, res) => {
+  // GET /mp/return - Rota de retorno após pagamento no Mercado Pago.
+  // Sucesso verificado passa por um intersticial curto de medição e todos os
+  // demais casos mantêm o redirecionamento direto existente.
+  app.get("/mp/return", async (req, res) => {
     console.log("[MP Return] ========================================");
     console.log("[MP Return] Query params:", req.query);
     
     // Extrair parâmetros do Mercado Pago
-    const status = req.query.status as string || 'unknown';
-    const paymentId = req.query.payment_id as string || req.query.collection_id as string || '';
-    const preferenceId = req.query.preference_id as string || '';
-    const externalReference = req.query.external_reference as string || '';
-    const merchantOrderId = req.query.merchant_order_id as string || '';
+    const queryStringValue = (value: unknown): string =>
+      typeof value === "string" ? value : "";
+    const status = queryStringValue(req.query.status) || 'unknown';
+    const paymentId = queryStringValue(req.query.payment_id) || queryStringValue(req.query.collection_id);
+    const preferenceId = queryStringValue(req.query.preference_id);
     
     console.log(`[MP Return] status=${status}, payment_id=${paymentId}, preference_id=${preferenceId}`);
     
@@ -897,6 +903,12 @@ export function registerPaymentsRoutes(app: Express): void {
     const queryParams = new URLSearchParams();
     if (paymentId) queryParams.set('payment_id', paymentId);
     if (preferenceId) queryParams.set('preference_id', preferenceId);
+    const returnQuery = new URLSearchParams();
+    for (const [key, rawValue] of Object.entries(req.query)) {
+      if (typeof rawValue === "string") returnQuery.set(key, rawValue);
+    }
+    const attribution = extractAttributionParams(`?${returnQuery.toString()}`);
+    attribution.forEach((value, key) => queryParams.set(key, value));
     
     const queryString = queryParams.toString();
     if (queryString) {
@@ -908,7 +920,24 @@ export function registerPaymentsRoutes(app: Express): void {
     
     console.log(`[MP Return] Redirecionando para: ${finalUrl}`);
     
-    // SEMPRE retornar redirect 302
+    // A query de retorno é apenas um localizador. A conversão somente é
+    // emitida depois de consultar o pagamento na API autenticada do MP e
+    // validar status, moeda, valor e vínculo user/plano do checkout.
+    if ((status === 'success' || status === 'approved') && paymentId) {
+      const accessToken = process.env.MP_ACCESS_TOKEN;
+      if (accessToken) {
+        const conversion = await verifyMercadoPagoConversion(paymentId, accessToken);
+        if (conversion) {
+          return res
+            .status(200)
+            .type("html")
+            .set("Cache-Control", "no-store")
+            .send(buildApprovedConversionHtml(conversion, finalUrl));
+        }
+      }
+    }
+
+    // Falha de medição nunca interfere no resultado atual do pagamento.
     res.redirect(302, finalUrl);
   });
   

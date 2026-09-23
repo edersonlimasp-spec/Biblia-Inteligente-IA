@@ -14,6 +14,7 @@ import { MainNavigation } from "@/components/MainNavigation";
 import { DebugPanel, useDebugMode } from "@/components/DebugPanel";
 import { hideSplashScreen, isNative } from "@/lib/capacitor";
 import { DownloadPage } from "@/pages/DownloadPage";
+import { preserveMarketingAttribution } from "@/lib/google-ads";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -119,10 +120,17 @@ function WebClerkProviderWithRoutes() {
     </QueryClientProvider>
   </ClerkProvider>;
 }
+function MarketingAttribution() {
+  const [location] = useLocation();
+  useEffect(() => { preserveMarketingAttribution(); }, [location]);
+  return null;
+}
+
 export default function App() {
   if (isNative) return <NativeApp />;
   return (
     <WouterRouter base={basePath}>
+      <MarketingAttribution />
       <Switch>
         <Route path="/baixar" component={DownloadPage} />
         <Route component={WebClerkProviderWithRoutes} />

@@ -18,6 +18,14 @@ Nenhuma cor deve ser inventada fora desse conjunto de origem.
 - **Pergaminho (`bible-panel-bg: 38 48% 90%` ≈ #F2E9DA)** — aparece APENAS dentro de `.bible-page`. Em nenhum outro componente, nenhum fundo de card, nenhuma outra tela. O vazamento do pergaminho foi o que estragou a versão anterior.
 - **Dourado (`--strong-code-color` / rgba(168,132,69,...))** — aparece APENAS em `.strong-word` (sublinhado) e nos códigos Strong exibidos no modal. Em NENHUM outro lugar: sem dourado em logos, ícones, banners, botões, fundos.
 
+### Exceção explícita para campanha pública
+
+Na página pública `/oferta`, o usuário pediu azul-marinho e dourado para a divulgação. Essa exceção é restrita à página de campanha e não altera a identidade ou os tokens do aplicativo.
+
+**Why:** o pedido comercial autoriza uma apresentação distinta, mas exige preservar integralmente o restante do app.
+
+**How to apply:** manter o estilo da campanha isolado; não propagar o dourado para menus, telas de assinatura ou outros módulos.
+
 ### Acento vermelho — uso máximo
 - No máximo 2 elementos com acento (vermelho) por tela.
 - Usos válidos: botão/ação principal, estado ativo, borda do banner de assinatura.

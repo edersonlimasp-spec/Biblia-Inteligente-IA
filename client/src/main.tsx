@@ -1,9 +1,9 @@
 import { createRoot } from "react-dom/client";
-import App from "./App";
 import "./index.css";
 import { registerServiceWorker } from "./registerSW";
 import { initializeCapacitor, isNative } from "./lib/capacitor";
 import { getApiUrl } from "./lib/queryClient";
+import { preserveMarketingAttribution } from "./lib/google-ads";
 
 // ========== CLIENT ENVIRONMENT DIAGNOSTICS ==========
 console.log('');
@@ -31,7 +31,16 @@ fetch(getApiUrl('/api/debug/build-info'))
 
 initializeCapacitor();
 
-createRoot(document.getElementById("root")!).render(<App />);
+if (!isNative) preserveMarketingAttribution();
+
+const publicPath = window.location.pathname.replace(/\/$/, "");
+if (!isNative && (publicPath === "/oferta" || publicPath === "/baixar")) {
+  import("./public-main").then(({ renderPublicPage }) => renderPublicPage(publicPath));
+} else {
+  import("./App").then(({ default: App }) => {
+    createRoot(document.getElementById("root")!).render(<App />);
+  });
+}
 
 if (!isNative) {
   registerServiceWorker();

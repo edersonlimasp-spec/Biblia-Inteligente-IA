@@ -6,6 +6,7 @@ import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
 import { withDownloadMetadata } from "./download-metadata";
+import { withOfferMetadata } from "./offer-metadata";
 
 const viteLogger = createLogger();
 
@@ -63,6 +64,9 @@ export async function setupVite(app: Express, server: Server) {
       if (pathname === "/baixar") {
         template = withDownloadMetadata(template);
       }
+      if (pathname === "/oferta" || pathname === "/oferta/") {
+        template = withOfferMetadata(template);
+      }
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
@@ -85,11 +89,13 @@ export function serveStatic(app: Express) {
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (req, res, next) => {
-    if (req.path !== "/baixar") {
+    if (req.path !== "/baixar" && req.path !== "/oferta" && req.path !== "/oferta/") {
       return res.sendFile(path.resolve(distPath, "index.html"));
     }
     fs.promises.readFile(path.resolve(distPath, "index.html"), "utf-8")
-      .then((template) => res.status(200).type("html").send(withDownloadMetadata(template)))
+      .then((template) => res.status(200).type("html").send(
+        req.path === "/baixar" ? withDownloadMetadata(template) : withOfferMetadata(template),
+      ))
       .catch(next);
   });
 }

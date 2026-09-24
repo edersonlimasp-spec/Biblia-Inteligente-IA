@@ -21,6 +21,7 @@ export function searchAtlas(items: AtlasSummary[], query: string): AtlasSummary[
       const haystack = normalizeAtlasText([
         item.title, item.subtitle, item.category, item.period, item.testament,
         ...item.books, ...item.characters, ...item.keywords,
+        ...((item as AtlasSummary & { aliases?: string[] }).aliases ?? []),
       ].join(" "));
       const score = words.reduce((total, word) => {
         const expanded = Object.entries(aliases).find(([key, values]) =>

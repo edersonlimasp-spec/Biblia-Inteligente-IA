@@ -20,3 +20,4 @@
 - [Reset de senha nativo via e-mail](native-password-reset-links.md) — links de recuperação do login local abrem no navegador; não deixar a rota web do Clerk interceptar o formulário local.
 - [Clerk no appPreview local](clerk-app-preview-loopback.md) — appPreview em 127.0.0.1 pode gerar falso erro de proxy em dev; valide o build isolado em modo produção antes de mexer no Clerk.
 - [Posicionamento da campanha](offer-copy-positioning.md) — público cristão: IA como apoio ao aprofundamento, nunca autoridade espiritual; mudança de copy não autoriza renomear recursos do app.
+- [MapLibre offline em WebView](maplibre-offline-labels.md) — rótulos symbol exigem glifos locais; sem fonte empacotada, use rótulos DOM a partir da base local para evitar requisições externas.

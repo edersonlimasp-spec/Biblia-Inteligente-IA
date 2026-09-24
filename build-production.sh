@@ -77,6 +77,13 @@ echo "Copying data files..."
 [ -f "build-info.json" ]                && cp build-info.json dist/
 [ -f "server/strong-data.json" ]        && cp server/strong-data.json dist/        && echo "  strong-data.json copied"
 [ -f "server/study-modules-data.json" ] && cp server/study-modules-data.json dist/ && echo "  study-modules-data.json copied"
+if [ ! -f "data/atlas/manifest.json" ] || [ "$(find data/atlas/maps -maxdepth 1 -name '*.json' -type f 2>/dev/null | wc -l)" -lt 10 ]; then
+  echo "ERROR: Atlas manifest or sample maps missing; refusing incomplete build"
+  exit 1
+fi
+mkdir -p dist/data
+cp -r data/atlas dist/data/
+echo "  Atlas JSON and SVG assets copied to dist/data/atlas"
 
 # Step 6: Final verification
 if [ ! -f "server/public/index.html" ]; then

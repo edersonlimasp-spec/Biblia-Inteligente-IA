@@ -1,0 +1,379 @@
+{
+  "id": "divided-kingdom",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "1Kgs",
+    "2Kgs",
+    "Amos"
+  ],
+  "characters": [
+    "Jeroboão I",
+    "Roboão",
+    "Onri"
+  ],
+  "period": "c. 930–722 a.C. para Israel; Judá até 587/586 a.C.",
+  "title": "O reino dividido",
+  "subtitle": "Israel e Judá; capitais em momentos diferentes",
+  "summary": "A divisão de Reis separa o reino do norte, Israel, de Judá ao sul. Siquém e depois Samaria ilustram mudanças no centro político setentrional; Jerusalém permanece central para Judá. As áreas não representam um ano preciso e não incluem todas as expansões ou perdas territoriais.",
+  "modernSummary": "Recorte do sul do Levante, hoje Israel, território palestino ocupado, Jordânia e áreas vizinhas. Os nomes históricos Israel e Judá não são limites dos Estados atuais.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "O reino dividido",
+    "1Kgs",
+    "2Kgs",
+    "Amos",
+    "Jeroboão I",
+    "Roboão",
+    "Onri",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "old-testament",
+  "subsection": "Reino dividido",
+  "order": 5,
+  "era": "c. 930–587 a.C.",
+  "modernOverview": "Recorte do sul do Levante, hoje Israel, território palestino ocupado, Jordânia e áreas vizinhas. Os nomes históricos Israel e Judá não são limites dos Estados atuais. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "1Kgs",
+      "chapter": 12,
+      "verseStart": 1,
+      "verseEnd": 24,
+      "label": "1Kgs 12:1–24"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 16,
+      "verseStart": 24,
+      "label": "1Kgs 16:24"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 17,
+      "verseStart": 6,
+      "label": "2Kgs 17:6"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 25,
+      "verseStart": 8,
+      "verseEnd": 10,
+      "label": "2Kgs 25:8–10"
+    }
+  ],
+  "aliases": [
+    "O reino dividido",
+    "Jeroboão I",
+    "Roboão",
+    "Onri",
+    "Jerusalém",
+    "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+    "Siquém",
+    "Tell Balata, junto a Nablus, Cisjordânia",
+    "Samaria",
+    "Sebastia, Cisjordânia",
+    "Dã",
+    "Tel Dan, norte de Israel",
+    "Hebrom",
+    "Al-Khalil/Hebrom, Cisjordânia",
+    "Berseba",
+    "Tel Be'er Sheva, Israel"
+  ],
+  "references": [
+    {
+      "book": "1Kgs",
+      "chapter": 12,
+      "verseStart": 1,
+      "verseEnd": 24,
+      "label": "1Kgs 12:1–24"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 16,
+      "verseStart": 24,
+      "label": "1Kgs 16:24"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 17,
+      "verseStart": 6,
+      "label": "2Kgs 17:6"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 25,
+      "verseStart": 8,
+      "verseEnd": 10,
+      "label": "2Kgs 25:8–10"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: 1Kgs 12:1–24; 1Kgs 16:24; 2Kgs 17:6; 2Kgs 25:8–10",
+      "url": "https://ebible.org/web/1KI12.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    }
+  ],
+  "places": [
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "established",
+      "explanation": "Centro da Judeia sob domínio romano; a situação política atual não é projetada sobre o século I. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 21,
+          "verseStart": 10,
+          "label": "Matt 21:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "shechem",
+      "name": "Siquém",
+      "modernName": "Tell Balata, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.2817986718367,
+        32.21369123124062
+      ],
+      "certainty": "established",
+      "explanation": "O sítio de Tell Balata é a identificação arqueológica usual de Siquém. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 12,
+          "verseStart": 6,
+          "label": "Gen 12:6"
+        },
+        {
+          "book": "Josh",
+          "chapter": 24,
+          "verseStart": 1,
+          "label": "Josh 24:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "samaria",
+      "name": "Samaria",
+      "modernName": "Sebastia, Cisjordânia",
+      "coordinates": [
+        35.19792900000002,
+        32.28023100000001
+      ],
+      "certainty": "established",
+      "explanation": "Capital fundada por Onri segundo Reis; não foi capital do norte desde o primeiro ano da divisão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "1Kgs",
+          "chapter": 16,
+          "verseStart": 24,
+          "label": "1Kgs 16:24"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "dan",
+      "name": "Dã",
+      "modernName": "Tel Dan, norte de Israel",
+      "coordinates": [
+        35.65248345039043,
+        33.24865997897308
+      ],
+      "certainty": "established",
+      "explanation": "Tell el-Qadi/Tel Dan é a identificação corrente; o mapa não resolve as etapas de migração narradas. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 19,
+          "verseStart": 47,
+          "label": "Josh 19:47"
+        },
+        {
+          "book": "1Kgs",
+          "chapter": 12,
+          "verseStart": 29,
+          "label": "1Kgs 12:29"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "hebron",
+      "name": "Hebrom",
+      "modernName": "Al-Khalil/Hebrom, Cisjordânia",
+      "coordinates": [
+        35.09409986578734,
+        31.53577362133176
+      ],
+      "certainty": "established",
+      "explanation": "O ponto localiza a cidade associada às narrativas patriarcais e à tradição de Calebe; não identifica a tenda de Abraão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 13,
+          "verseStart": 18,
+          "label": "Gen 13:18"
+        },
+        {
+          "book": "Josh",
+          "chapter": 14,
+          "verseStart": 13,
+          "label": "Josh 14:13"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "beersheba",
+      "name": "Berseba",
+      "modernName": "Tel Be'er Sheva, Israel",
+      "coordinates": [
+        34.8408885849849,
+        31.24495217357714
+      ],
+      "certainty": "established",
+      "explanation": "Centro meridional mencionado nas críticas proféticas; não uma capital. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Amos",
+          "chapter": 5,
+          "verseStart": 5,
+          "label": "Amos 5:5"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "north",
+      "label": "Israel — núcleo ocidental aproximado",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.9,
+          31.98
+        ],
+        [
+          35.8,
+          31.98
+        ],
+        [
+          35.8,
+          33.25
+        ],
+        [
+          34.9,
+          33.25
+        ],
+        [
+          34.9,
+          31.98
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. A extensão a leste do Jordão variou; envelope não exaustivo. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "south",
+      "label": "Judá — núcleo aproximado",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.85,
+          31.15
+        ],
+        [
+          35.55,
+          31.15
+        ],
+        [
+          35.55,
+          31.98
+        ],
+        [
+          34.85,
+          31.98
+        ],
+        [
+          34.85,
+          31.15
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Não retrata todas as mudanças de controle da Sefelá ou do Neguebe. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    34.2,
+    30.7,
+    36.6,
+    33.7
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Divisão convencionalmente datada por volta de 930 a.C.; cronologias variam.",
+      "Os reinos mudaram de extensão e não coexistiram até a queda de Judá.",
+      "Polígonos não incluem todos os territórios transjordanianos e não são fronteiras arqueológicas."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

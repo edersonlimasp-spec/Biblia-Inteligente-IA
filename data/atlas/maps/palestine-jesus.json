@@ -1,0 +1,403 @@
+{
+  "id": "palestine-jesus",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Matt",
+    "Mark",
+    "Luke",
+    "John"
+  ],
+  "characters": [
+    "Jesus"
+  ],
+  "period": "c. 6 a.C.–30 d.C.; recorte geográfico do início do século I",
+  "title": "Palestina no tempo de Jesus",
+  "subtitle": "Galileia, Samaria e Judeia: localidades e regiões",
+  "summary": "Localidades dos Evangelhos e três faixas regionais aproximadas. 'Palestina' é aqui um termo geográfico editorial; não se afirma que esse fosse o nome oficial de uma única província durante o ministério de Jesus. Galileia e Judeia tiveram administrações distintas.",
+  "modernSummary": "Hoje o recorte inclui Israel, o território palestino ocupado (Cisjordânia, incluindo Jerusalém Oriental) e o sul do Líbano. Rótulos geográficos não decidem soberania; Jerusalém possui estatuto político disputado.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Palestina no tempo de Jesus",
+    "Matt",
+    "Mark",
+    "Luke",
+    "John",
+    "Jesus",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "new-testament",
+  "subsection": "Vida de Jesus",
+  "order": 1,
+  "era": "c. 6 a.C.–30 d.C.",
+  "modernOverview": "Hoje o recorte inclui Israel, o território palestino ocupado (Cisjordânia, incluindo Jerusalém Oriental) e o sul do Líbano. Rótulos geográficos não decidem soberania; Jerusalém possui estatuto político disputado. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Matt",
+      "chapter": 4,
+      "verseStart": 12,
+      "verseEnd": 25,
+      "label": "Matt 4:12–25"
+    },
+    {
+      "book": "John",
+      "chapter": 4,
+      "verseStart": 3,
+      "verseEnd": 5,
+      "label": "John 4:3–5"
+    },
+    {
+      "book": "Luke",
+      "chapter": 4,
+      "verseStart": 16,
+      "label": "Luke 4:16"
+    }
+  ],
+  "aliases": [
+    "Palestina no tempo de Jesus",
+    "Jesus",
+    "Nazaré",
+    "An-Nasira/Nazaré, Israel",
+    "Cafarnaum",
+    "Kfar Nahum, margem norte do lago da Galileia, Israel",
+    "Belém",
+    "Bayt Lahm/Belém, Cisjordânia",
+    "Jerusalém",
+    "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+    "Jericó",
+    "Ariha/Jericó, Cisjordânia",
+    "Betânia",
+    "Al-Eizariya, Cisjordânia",
+    "Tiro",
+    "Sour, Líbano"
+  ],
+  "references": [
+    {
+      "book": "Matt",
+      "chapter": 4,
+      "verseStart": 12,
+      "verseEnd": 25,
+      "label": "Matt 4:12–25"
+    },
+    {
+      "book": "John",
+      "chapter": 4,
+      "verseStart": 3,
+      "verseEnd": 5,
+      "label": "John 4:3–5"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Matt 4:12–25; John 4:3–5",
+      "url": "https://ebible.org/web/MAT04.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    },
+    {
+      "id": "pleiades-678437",
+      "title": "Pleiades 678437: Tyrus/Col. Septimia Severa",
+      "url": "https://pleiades.stoa.org/places/678437",
+      "license": "CC BY 3.0; Pleiades contributors / The Creators. Créditos específicos preservados no JSON de evidência.",
+      "note": "The ancient city of Tyre (modern es-Sur on the coast of Lebanon). A UNESCO World Heritage Site, in part because of its \"important archaeological remains, mainly from Roman times.\" Usado reprPoint do JSON recuperado, não polígono da cidade."
+    }
+  ],
+  "places": [
+    {
+      "id": "nazareth",
+      "name": "Nazaré",
+      "modernName": "An-Nasira/Nazaré, Israel",
+      "coordinates": [
+        35.30152807767973,
+        32.70674542474383
+      ],
+      "certainty": "established",
+      "explanation": "Localidade galileia associada à criação de Jesus. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 4,
+          "verseStart": 16,
+          "label": "Luke 4:16"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "capernaum",
+      "name": "Cafarnaum",
+      "modernName": "Kfar Nahum, margem norte do lago da Galileia, Israel",
+      "coordinates": [
+        35.57515767479308,
+        32.88059412581622
+      ],
+      "certainty": "established",
+      "explanation": "Sítio junto ao lago associado ao ministério de Jesus. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 4,
+          "verseStart": 13,
+          "label": "Matt 4:13"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "bethlehem",
+      "name": "Belém",
+      "modernName": "Bayt Lahm/Belém, Cisjordânia",
+      "coordinates": [
+        35.21026630105202,
+        31.70536129174666
+      ],
+      "certainty": "established",
+      "explanation": "Belém da Judeia, distinta da localidade homônima da Galileia. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Matt 2:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "established",
+      "explanation": "Centro da Judeia sob domínio romano; a situação política atual não é projetada sobre o século I. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 21,
+          "verseStart": 10,
+          "label": "Matt 21:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "jericho",
+      "name": "Jericó",
+      "modernName": "Ariha/Jericó, Cisjordânia",
+      "coordinates": [
+        35.44386371224434,
+        31.87060143818292
+      ],
+      "certainty": "probable",
+      "explanation": "O geocódigo é de Tell es-Sultan; a Jericó herodiana tinha núcleo ao sul. Não identifica o ponto exato do encontro com Zaqueu. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 19,
+          "verseStart": 1,
+          "label": "Luke 19:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "bethany",
+      "name": "Betânia",
+      "modernName": "Al-Eizariya, Cisjordânia",
+      "coordinates": [
+        35.26212203964414,
+        31.77166591433378
+      ],
+      "certainty": "probable",
+      "explanation": "Identificação usual a leste de Jerusalém; distinta da Betânia além do Jordão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 11,
+          "verseStart": 1,
+          "label": "John 11:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "tyre",
+      "name": "Tiro",
+      "modernName": "Sour, Líbano",
+      "coordinates": [
+        35.201829000000004,
+        33.2693355
+      ],
+      "certainty": "established",
+      "explanation": "A narrativa menciona a região de Tiro, não exige entrada neste centro urbano. Centro representativo do registro Pleiades; não delimita a cidade antiga.",
+      "references": [
+        {
+          "book": "Mark",
+          "chapter": 7,
+          "verseStart": 24,
+          "label": "Mark 7:24"
+        }
+      ],
+      "sourceIds": [
+        "pleiades-678437"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "galilee",
+      "label": "Galileia — faixa aproximada",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.05,
+          32.5
+        ],
+        [
+          35.65,
+          32.5
+        ],
+        [
+          35.65,
+          33.1
+        ],
+        [
+          35.05,
+          33.1
+        ],
+        [
+          35.05,
+          32.5
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Área de leitura dos relatos; não reproduz a fronteira da tetrarquia de Herodes Antipas. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "samaria",
+      "label": "Samaria — faixa aproximada",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.02,
+          32.02
+        ],
+        [
+          35.5,
+          32.02
+        ],
+        [
+          35.5,
+          32.5
+        ],
+        [
+          35.02,
+          32.5
+        ],
+        [
+          35.02,
+          32.02
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Região entre Galileia e Judeia, sem fronteira administrativa reconstruída. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "judea",
+      "label": "Judeia — faixa aproximada",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.9,
+          31.35
+        ],
+        [
+          35.5,
+          31.35
+        ],
+        [
+          35.5,
+          32.02
+        ],
+        [
+          34.9,
+          32.02
+        ],
+        [
+          34.9,
+          31.35
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope da área central; não abrange toda a província romana. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    34.1,
+    30.9,
+    36.5,
+    33.7
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Os polígonos não representam fronteiras precisas nem um único ano administrativo.",
+      "Jericó do período romano não coincide exatamente com o ponto de Tell es-Sultan.",
+      "Não se reconstrói uma cronologia harmonizada dos quatro Evangelhos."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

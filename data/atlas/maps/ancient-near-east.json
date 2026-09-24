@@ -1,0 +1,479 @@
+{
+  "id": "ancient-near-east",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Gen",
+    "1Kgs",
+    "2Kgs",
+    "Neh",
+    "Esth",
+    "Hos",
+    "Jer",
+    "Jonah"
+  ],
+  "characters": [
+    "Abraão",
+    "Nabucodonosor",
+    "Ester",
+    "Jonas"
+  ],
+  "period": "II–I milênios a.C.; panorama diacrônico, não um único império",
+  "title": "Antigo Oriente Próximo",
+  "subtitle": "Cidades de referência entre o Nilo, o Levante e a Mesopotâmia",
+  "summary": "Cidades ajudam a distinguir contextos egípcio, arameu, assírio, babilônico e persa. Esses poderes não atingiram seus apogeus simultaneamente. As faixas ilustram grandes regiões físicas, não limites de impérios. O Éden permanece sem coordenada.",
+  "modernSummary": "O recorte inclui Egito, Israel, território palestino ocupado, Jordânia, Líbano, Síria, Turquia, Iraque e Irã. Divisões modernas são apenas orientação geográfica e não reproduzem identidades antigas.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Antigo Oriente Próximo",
+    "Gen",
+    "1Kgs",
+    "2Kgs",
+    "Neh",
+    "Esth",
+    "Hos",
+    "Jer",
+    "Jonah",
+    "Abraão",
+    "Nabucodonosor",
+    "Ester",
+    "Jonas",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "old-testament",
+  "subsection": "Origens e patriarcas",
+  "order": 1,
+  "era": "II–I milênios a.C.",
+  "modernOverview": "O recorte inclui Egito, Israel, território palestino ocupado, Jordânia, Líbano, Síria, Turquia, Iraque e Irã. Divisões modernas são apenas orientação geográfica e não reproduzem identidades antigas. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Gen",
+      "chapter": 2,
+      "verseStart": 8,
+      "verseEnd": 14,
+      "label": "Gen 2:8–14"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 19,
+      "verseStart": 36,
+      "label": "2Kgs 19:36"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 25,
+      "verseStart": 1,
+      "label": "2Kgs 25:1"
+    },
+    {
+      "book": "Esth",
+      "chapter": 1,
+      "verseStart": 2,
+      "label": "Esth 1:2"
+    }
+  ],
+  "aliases": [
+    "Antigo Oriente Próximo",
+    "Abraão",
+    "Nabucodonosor",
+    "Ester",
+    "Jonas",
+    "Nínive",
+    "Margem oriental de Mossul, Iraque",
+    "Babilônia",
+    "Ruínas de Babilônia, perto de Hillah, Iraque",
+    "Susã",
+    "Shush, província do Khuzistão, Irã",
+    "Mênfis/Nof",
+    "Mit Rahina, ao sul do Cairo, Egito",
+    "Damasco",
+    "Dimashq/Damasco, Síria",
+    "Harã",
+    "Harran, Turquia",
+    "Jerusalém",
+    "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+    "Éden",
+    "Desconhecido; localização geográfica não estabelecida"
+  ],
+  "references": [
+    {
+      "book": "Gen",
+      "chapter": 2,
+      "verseStart": 8,
+      "verseEnd": 14,
+      "label": "Gen 2:8–14"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 19,
+      "verseStart": 36,
+      "label": "2Kgs 19:36"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 25,
+      "verseStart": 1,
+      "label": "2Kgs 25:1"
+    },
+    {
+      "book": "Esth",
+      "chapter": 1,
+      "verseStart": 2,
+      "label": "Esth 1:2"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Gen 2:8–14; 2Kgs 19:36; 2Kgs 25:1; Esth 1:2",
+      "url": "https://ebible.org/web/GEN02.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    }
+  ],
+  "places": [
+    {
+      "id": "nineveh",
+      "name": "Nínive",
+      "modernName": "Margem oriental de Mossul, Iraque",
+      "coordinates": [
+        43.152887,
+        36.35941
+      ],
+      "certainty": "established",
+      "explanation": "Centro assírio; ponto do sítio, não limite de toda a aglomeração. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Jonah",
+          "chapter": 1,
+          "verseStart": 2,
+          "label": "Jonah 1:2"
+        },
+        {
+          "book": "2Kgs",
+          "chapter": 19,
+          "verseStart": 36,
+          "label": "2Kgs 19:36"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "babylon",
+      "name": "Babilônia",
+      "modernName": "Ruínas de Babilônia, perto de Hillah, Iraque",
+      "coordinates": [
+        44.42088287373876,
+        32.53650368616845
+      ],
+      "certainty": "established",
+      "explanation": "Centro babilônico associado à conquista de Jerusalém e ao exílio. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 24,
+          "verseStart": 10,
+          "label": "2Kgs 24:10"
+        },
+        {
+          "book": "2Kgs",
+          "chapter": 25,
+          "verseStart": 1,
+          "label": "2Kgs 25:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "susa",
+      "name": "Susã",
+      "modernName": "Shush, província do Khuzistão, Irã",
+      "coordinates": [
+        48.25788647687722,
+        32.18919123705116
+      ],
+      "certainty": "established",
+      "explanation": "Centro elamita e aquemênida; referência ao cenário persa. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Neh",
+          "chapter": 1,
+          "verseStart": 1,
+          "label": "Neh 1:1"
+        },
+        {
+          "book": "Esth",
+          "chapter": 1,
+          "verseStart": 2,
+          "label": "Esth 1:2"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "memphis",
+      "name": "Mênfis/Nof",
+      "modernName": "Mit Rahina, ao sul do Cairo, Egito",
+      "coordinates": [
+        31.253958,
+        29.849632
+      ],
+      "certainty": "established",
+      "explanation": "Centro egípcio; identificação tradicional da Nof bíblica. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Hos",
+          "chapter": 9,
+          "verseStart": 6,
+          "label": "Hos 9:6"
+        },
+        {
+          "book": "Jer",
+          "chapter": 2,
+          "verseStart": 16,
+          "label": "Jer 2:16"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "damascus",
+      "name": "Damasco",
+      "modernName": "Dimashq/Damasco, Síria",
+      "coordinates": [
+        36.31344999999999,
+        33.519299
+      ],
+      "certainty": "established",
+      "explanation": "Centro arameu; não representa todo o território de Aram. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "1Kgs",
+          "chapter": 11,
+          "verseStart": 24,
+          "label": "1Kgs 11:24"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "haran",
+      "name": "Harã",
+      "modernName": "Harran, Turquia",
+      "coordinates": [
+        39.03219672227345,
+        36.86386407659651
+      ],
+      "certainty": "established",
+      "explanation": "Centro do norte da Mesopotâmia e referência patriarcal. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 11,
+          "verseStart": 31,
+          "label": "Gen 11:31"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "established",
+      "explanation": "Jerusalém como centro de Judá no contexto da conquista babilônica; ponto representativo, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 25,
+          "verseStart": 1,
+          "label": "2Kgs 25:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "eden",
+      "name": "Éden",
+      "modernName": "Desconhecido; localização geográfica não estabelecida",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Gênesis menciona rios, mas não fornece uma localização verificável do jardim. Não se equipara o Éden a uma cidade ou ponto moderno e não se desenha um perímetro.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 2,
+          "verseStart": 8,
+          "verseEnd": 14,
+          "label": "Gen 2:8–14"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "nile",
+      "label": "Vale inferior do Nilo — envelope",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          30,
+          25
+        ],
+        [
+          32,
+          25
+        ],
+        [
+          32,
+          31.5
+        ],
+        [
+          30,
+          31.5
+        ],
+        [
+          30,
+          25
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Faixa física aproximada; não território total do Egito antigo. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "levant",
+      "label": "Levante — envelope",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34,
+          30.5
+        ],
+        [
+          37,
+          30.5
+        ],
+        [
+          37,
+          36.5
+        ],
+        [
+          34,
+          36.5
+        ],
+        [
+          34,
+          30.5
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Região física de passagem, não unidade política antiga. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "mesopotamia",
+      "label": "Mesopotâmia — envelope",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          38,
+          37
+        ],
+        [
+          40,
+          38
+        ],
+        [
+          46.5,
+          31
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          38,
+          35
+        ],
+        [
+          38,
+          37
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Faixa aproximada entre os sistemas do Tigre e Eufrates; não fronteira da Assíria ou Babilônia. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    28,
+    24,
+    51,
+    40
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Panorama de muitos séculos: não implica coexistência de todos os poderes.",
+      "Éden desconhecido, sem coordenadas ou polígono.",
+      "Faixas físicas simplificadas não são mapas de extensão imperial."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

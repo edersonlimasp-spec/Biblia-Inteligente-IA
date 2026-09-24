@@ -256,7 +256,7 @@ function NavigationContent() {
       )}
       {currentScreen === "atlas" && (
         <Suspense fallback={<div className="min-h-screen bg-background p-6 text-muted-foreground">Carregando atlas…</div>}>
-          <AtlasScreen onBack={() => goBack()} onSubscribe={() => navigate("subscriptions")} onLogin={() => navigate("login")} />
+          <AtlasScreen onBack={() => goBack()} onSubscribe={() => navigate("subscriptions")} onLogin={() => navigate("login")} navigateToVerse={(book, chapter, verse) => navigateToVerse(book, chapter, verse ?? 1)} />
         </Suspense>
       )}
       {currentScreen === "recordings" && (

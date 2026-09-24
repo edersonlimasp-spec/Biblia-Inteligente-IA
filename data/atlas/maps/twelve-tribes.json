@@ -1,0 +1,748 @@
+{
+  "id": "twelve-tribes",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Josh",
+    "Gen"
+  ],
+  "characters": [
+    "Josué"
+  ],
+  "period": "Horizonte narrativo da instalação em Canaã; tradições territoriais sem data única",
+  "title": "As doze tribos: distribuição literária",
+  "subtitle": "Treze envelopes para doze tribos territoriais; Manassés em duas partes",
+  "summary": "Leitura de Josué 13–21: Efraim e Manassés figuram separadamente; Levi não recebe território contínuo e Simeão é descrito dentro de Judá. Manassés tem duas porções. Os treze envelopes não são um cadastro territorial e podem sobrepor-se; Dã aparece também como localidade setentrional da tradição de migração.",
+  "modernSummary": "A região corresponde hoje sobretudo a Israel, Cisjordânia, Jordânia e sul do Líbano. Os polígonos não legitimam reivindicações territoriais modernas.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "As doze tribos: distribuição literária",
+    "Josh",
+    "Gen",
+    "Josué",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "old-testament",
+  "subsection": "Conquista e juízes",
+  "order": 4,
+  "era": "Instalação em Canaã",
+  "modernOverview": "A região corresponde hoje sobretudo a Israel, Cisjordânia, Jordânia e sul do Líbano. Os polígonos não legitimam reivindicações territoriais modernas. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Josh",
+      "chapter": 13,
+      "verseStart": 14,
+      "label": "Josh 13:14"
+    },
+    {
+      "book": "Josh",
+      "chapter": 13,
+      "verseStart": 15,
+      "verseEnd": 33,
+      "label": "Josh 13:15–33"
+    },
+    {
+      "book": "Josh",
+      "chapter": 18,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Josh 18:1–10"
+    },
+    {
+      "book": "Josh",
+      "chapter": 19,
+      "verseStart": 1,
+      "label": "Josh 19:1"
+    },
+    {
+      "book": "Josh",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Josh 21:1–3"
+    }
+  ],
+  "aliases": [
+    "As doze tribos: distribuição literária",
+    "Josué",
+    "Siquém",
+    "Tell Balata, junto a Nablus, Cisjordânia",
+    "Hebrom",
+    "Al-Khalil/Hebrom, Cisjordânia",
+    "Dã",
+    "Tel Dan, norte de Israel",
+    "Siló",
+    "Khirbet Seilun, Cisjordânia",
+    "Berseba",
+    "Tel Be'er Sheva, junto a Be'er Sheva, Israel",
+    "Jericó",
+    "Tell es-Sultan, Ariha/Jericó, Cisjordânia"
+  ],
+  "references": [
+    {
+      "book": "Josh",
+      "chapter": 13,
+      "verseStart": 14,
+      "label": "Josh 13:14"
+    },
+    {
+      "book": "Josh",
+      "chapter": 13,
+      "verseStart": 15,
+      "verseEnd": 33,
+      "label": "Josh 13:15–33"
+    },
+    {
+      "book": "Josh",
+      "chapter": 18,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Josh 18:1–10"
+    },
+    {
+      "book": "Josh",
+      "chapter": 19,
+      "verseStart": 1,
+      "label": "Josh 19:1"
+    },
+    {
+      "book": "Josh",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Josh 21:1–3"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Josh 13:14; Josh 13:15–33; Josh 18:1–10; Josh 19:1; Josh 21:1–3",
+      "url": "https://ebible.org/web/JOS13.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    }
+  ],
+  "places": [
+    {
+      "id": "shechem",
+      "name": "Siquém",
+      "modernName": "Tell Balata, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.2817986718367,
+        32.21369123124062
+      ],
+      "certainty": "established",
+      "explanation": "O sítio de Tell Balata é a identificação arqueológica usual de Siquém. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 12,
+          "verseStart": 6,
+          "label": "Gen 12:6"
+        },
+        {
+          "book": "Josh",
+          "chapter": 24,
+          "verseStart": 1,
+          "label": "Josh 24:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "hebron",
+      "name": "Hebrom",
+      "modernName": "Al-Khalil/Hebrom, Cisjordânia",
+      "coordinates": [
+        35.09409986578734,
+        31.53577362133176
+      ],
+      "certainty": "established",
+      "explanation": "O ponto localiza a cidade associada às narrativas patriarcais e à tradição de Calebe; não identifica a tenda de Abraão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 13,
+          "verseStart": 18,
+          "label": "Gen 13:18"
+        },
+        {
+          "book": "Josh",
+          "chapter": 14,
+          "verseStart": 13,
+          "label": "Josh 14:13"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "dan",
+      "name": "Dã",
+      "modernName": "Tel Dan, norte de Israel",
+      "coordinates": [
+        35.65248345039043,
+        33.24865997897308
+      ],
+      "certainty": "established",
+      "explanation": "Tell el-Qadi/Tel Dan é a identificação corrente; o mapa não resolve as etapas de migração narradas. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 19,
+          "verseStart": 47,
+          "label": "Josh 19:47"
+        },
+        {
+          "book": "1Kgs",
+          "chapter": 12,
+          "verseStart": 29,
+          "label": "1Kgs 12:29"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "shiloh",
+      "name": "Siló",
+      "modernName": "Khirbet Seilun, Cisjordânia",
+      "coordinates": [
+        35.28952869712683,
+        32.05570050712985
+      ],
+      "certainty": "established",
+      "explanation": "Local de reunião na narrativa da distribuição territorial. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 18,
+          "verseStart": 1,
+          "label": "Josh 18:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "beersheba",
+      "name": "Berseba",
+      "modernName": "Tel Be'er Sheva, junto a Be'er Sheva, Israel",
+      "coordinates": [
+        34.8408885849849,
+        31.24495217357714
+      ],
+      "certainty": "established",
+      "explanation": "Marco meridional na lista de cidades de Simeão; não implica fronteira fixa. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 19,
+          "verseStart": 2,
+          "label": "Josh 19:2"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "jericho",
+      "name": "Jericó",
+      "modernName": "Tell es-Sultan, Ariha/Jericó, Cisjordânia",
+      "coordinates": [
+        35.44386371224434,
+        31.87060143818292
+      ],
+      "certainty": "established",
+      "explanation": "Localidade listada no território de Benjamim. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 18,
+          "verseStart": 21,
+          "label": "Josh 18:21"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "judah",
+      "label": "Judá",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.85,
+          31.1
+        ],
+        [
+          35.35,
+          31.1
+        ],
+        [
+          35.35,
+          31.7
+        ],
+        [
+          34.85,
+          31.7
+        ],
+        [
+          34.85,
+          31.1
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 15:1; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "simeon",
+      "label": "Simeão (dentro de Judá)",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.65,
+          31
+        ],
+        [
+          35.05,
+          31
+        ],
+        [
+          35.05,
+          31.4
+        ],
+        [
+          34.65,
+          31.4
+        ],
+        [
+          34.65,
+          31
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 19:1; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "benjamin",
+      "label": "Benjamim",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.12,
+          31.7
+        ],
+        [
+          35.55,
+          31.7
+        ],
+        [
+          35.55,
+          31.95
+        ],
+        [
+          35.12,
+          31.95
+        ],
+        [
+          35.12,
+          31.7
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 18:11; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "ephraim",
+      "label": "Efraim",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35,
+          31.95
+        ],
+        [
+          35.5,
+          31.95
+        ],
+        [
+          35.5,
+          32.2
+        ],
+        [
+          35,
+          32.2
+        ],
+        [
+          35,
+          31.95
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 16:5; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "manasseh",
+      "label": "Manassés ocidental",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.8,
+          32.2
+        ],
+        [
+          35.55,
+          32.2
+        ],
+        [
+          35.55,
+          32.6
+        ],
+        [
+          34.8,
+          32.6
+        ],
+        [
+          34.8,
+          32.2
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 17:1; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "issachar",
+      "label": "Issacar",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.3,
+          32.5
+        ],
+        [
+          35.65,
+          32.5
+        ],
+        [
+          35.65,
+          32.72
+        ],
+        [
+          35.3,
+          32.72
+        ],
+        [
+          35.3,
+          32.5
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 19:17; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "zebulun",
+      "label": "Zebulom",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.12,
+          32.65
+        ],
+        [
+          35.4,
+          32.65
+        ],
+        [
+          35.4,
+          32.85
+        ],
+        [
+          35.12,
+          32.85
+        ],
+        [
+          35.12,
+          32.65
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 19:10; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "asher",
+      "label": "Aser",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35,
+          32.75
+        ],
+        [
+          35.3,
+          32.75
+        ],
+        [
+          35.3,
+          33.25
+        ],
+        [
+          35,
+          33.25
+        ],
+        [
+          35,
+          32.75
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 19:24; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "naphtali",
+      "label": "Naftali",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.35,
+          32.8
+        ],
+        [
+          35.7,
+          32.8
+        ],
+        [
+          35.7,
+          33.3
+        ],
+        [
+          35.35,
+          33.3
+        ],
+        [
+          35.35,
+          32.8
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 19:32; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "dan",
+      "label": "Dã (alocação inicial)",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.65,
+          31.8
+        ],
+        [
+          35.1,
+          31.8
+        ],
+        [
+          35.1,
+          32.05
+        ],
+        [
+          34.65,
+          32.05
+        ],
+        [
+          34.65,
+          31.8
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 19:40; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "reuben",
+      "label": "Rúben",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.55,
+          31.25
+        ],
+        [
+          35.95,
+          31.25
+        ],
+        [
+          35.95,
+          31.85
+        ],
+        [
+          35.55,
+          31.85
+        ],
+        [
+          35.55,
+          31.25
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 13:15; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "gad",
+      "label": "Gade",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.55,
+          31.85
+        ],
+        [
+          36.05,
+          31.85
+        ],
+        [
+          36.05,
+          32.4
+        ],
+        [
+          35.55,
+          32.4
+        ],
+        [
+          35.55,
+          31.85
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 13:24; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    },
+    {
+      "id": "manasseh-east",
+      "label": "Meia tribo de Manassés oriental",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.65,
+          32.4
+        ],
+        [
+          36.25,
+          32.4
+        ],
+        [
+          36.25,
+          33.05
+        ],
+        [
+          35.65,
+          33.05
+        ],
+        [
+          35.65,
+          32.4
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Envelope de orientação da descrição de Josh 13:29; não reproduz os marcos da lista nem ocupação efetiva. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    34.2,
+    30.7,
+    36.6,
+    33.6
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Todos os envelopes tribais são altamente esquemáticos; não se conhece uma fronteira contínua demonstrada.",
+      "As tradições descrevem alocações e cidades; não equivalem a ocupação uniforme.",
+      "Levi tem cidades dispersas; não há polígono de Levi. Dã setentrional não substitui silenciosamente sua alocação inicial."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

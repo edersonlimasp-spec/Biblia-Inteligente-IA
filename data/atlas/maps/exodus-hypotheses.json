@@ -1,0 +1,340 @@
+{
+  "id": "exodus-hypotheses",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Exod",
+    "Num",
+    "Deut",
+    "Gal"
+  ],
+  "characters": [
+    "Moisés",
+    "Arão"
+  ],
+  "period": "Narrativa situada no II milênio a.C.; propostas nos séculos XV e XIII a.C., sem data consensual",
+  "title": "Êxodo: hipóteses geográficas",
+  "subtitle": "Candidatos de localização, não uma rota comprovada",
+  "summary": "O mapa distingue topônimos associados a sítios conhecidos, candidatos tradicionais e locais desconhecidos. Uma linha mostra apenas a sequência Ramessés–Sucote–Sinai–Cades na hipótese meridional; as etapas de Números 33 não são todas localizáveis. A ausência de consenso não autoriza inventar itinerários.",
+  "modernSummary": "Recorte do Egito, Sinai, sul do Levante e noroeste da Península Arábica. Países modernos orientam o leitor, sem projetar fronteiras contemporâneas sobre a narrativa.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Êxodo: hipóteses geográficas",
+    "Exod",
+    "Num",
+    "Deut",
+    "Gal",
+    "Moisés",
+    "Arão",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "old-testament",
+  "subsection": "Êxodo e deserto",
+  "order": 3,
+  "era": "II–I milênios a.C.",
+  "modernOverview": "Recorte do Egito, Sinai, sul do Levante e noroeste da Península Arábica. Países modernos orientam o leitor, sem projetar fronteiras contemporâneas sobre a narrativa. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Exod",
+      "chapter": 12,
+      "verseStart": 37,
+      "label": "Exod 12:37"
+    },
+    {
+      "book": "Exod",
+      "chapter": 14,
+      "verseStart": 21,
+      "verseEnd": 22,
+      "label": "Exod 14:21–22"
+    },
+    {
+      "book": "Exod",
+      "chapter": 19,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Exod 19:1–2"
+    },
+    {
+      "book": "Num",
+      "chapter": 33,
+      "verseStart": 1,
+      "verseEnd": 49,
+      "label": "Num 33:1–49"
+    }
+  ],
+  "aliases": [
+    "Êxodo: hipóteses geográficas",
+    "Moisés",
+    "Arão",
+    "Ramessés",
+    "Qantir/Pi-Ramessés, delta oriental do Nilo, Egito",
+    "Sucote do Egito",
+    "Região de Tjeku/Wadi Tumilat, Egito; sítio exato desconhecido",
+    "Sinai — candidato tradicional meridional",
+    "Jebel Musa, península do Sinai, Egito",
+    "Cades-Barneia — identificação proposta",
+    "Tell el-Qudeirat, nordeste do Sinai, Egito",
+    "Travessia do mar",
+    "Desconhecido; propostas no delta oriental e nos golfos do mar Vermelho",
+    "Sinai — outras propostas",
+    "Desconhecido; propostas no norte do Sinai e no noroeste da Arábia"
+  ],
+  "references": [
+    {
+      "book": "Exod",
+      "chapter": 12,
+      "verseStart": 37,
+      "label": "Exod 12:37"
+    },
+    {
+      "book": "Exod",
+      "chapter": 14,
+      "verseStart": 21,
+      "verseEnd": 22,
+      "label": "Exod 14:21–22"
+    },
+    {
+      "book": "Exod",
+      "chapter": 19,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Exod 19:1–2"
+    },
+    {
+      "book": "Num",
+      "chapter": 33,
+      "verseStart": 1,
+      "verseEnd": 49,
+      "label": "Num 33:1–49"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Exod 12:37; Exod 14:21–22; Exod 19:1–2; Num 33:1–49",
+      "url": "https://ebible.org/web/EXO12.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    }
+  ],
+  "places": [
+    {
+      "id": "rameses",
+      "name": "Ramessés",
+      "modernName": "Qantir/Pi-Ramessés, delta oriental do Nilo, Egito",
+      "coordinates": [
+        31.834216685474,
+        30.799370210096
+      ],
+      "certainty": "probable",
+      "explanation": "A associação toponímica com Pi-Ramessés é comum; não fixa a data do êxodo nem demonstra o evento. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 12,
+          "verseStart": 37,
+          "label": "Exod 12:37"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "succoth",
+      "name": "Sucote do Egito",
+      "modernName": "Região de Tjeku/Wadi Tumilat, Egito; sítio exato desconhecido",
+      "coordinates": [
+        32.25869322351544,
+        30.62077414398056
+      ],
+      "certainty": "debated",
+      "explanation": "Geocódigo legado como hipótese regional; não confundir com Sucote a leste do Jordão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 12,
+          "verseStart": 37,
+          "label": "Exod 12:37"
+        },
+        {
+          "book": "Exod",
+          "chapter": 13,
+          "verseStart": 20,
+          "label": "Exod 13:20"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "sinai",
+      "name": "Sinai — candidato tradicional meridional",
+      "modernName": "Jebel Musa, península do Sinai, Egito",
+      "coordinates": [
+        33.973333,
+        28.539722
+      ],
+      "certainty": "debated",
+      "explanation": "Coordenada do candidato tradicional Jebel Musa, não coordenada demonstrada do Sinai bíblico. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 19,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Exod 19:1–2"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "kadesh",
+      "name": "Cades-Barneia — identificação proposta",
+      "modernName": "Tell el-Qudeirat, nordeste do Sinai, Egito",
+      "coordinates": [
+        34.49479554246946,
+        30.68771281376111
+      ],
+      "certainty": "probable",
+      "explanation": "Identificação usual de Cades na região de oásis; cronologia e correspondência narrativa requerem discussão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 13,
+          "verseStart": 26,
+          "label": "Num 13:26"
+        },
+        {
+          "book": "Deut",
+          "chapter": 1,
+          "verseStart": 19,
+          "label": "Deut 1:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "sea-crossing",
+      "name": "Travessia do mar",
+      "modernName": "Desconhecido; propostas no delta oriental e nos golfos do mar Vermelho",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Yam Suph recebe traduções e localizações diversas. Nenhum ponto de travessia foi demonstrado e não se escolhe uma coordenada arbitrária.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 14,
+          "verseStart": 21,
+          "verseEnd": 22,
+          "label": "Exod 14:21–22"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "alternative-sinai",
+      "name": "Sinai — outras propostas",
+      "modernName": "Desconhecido; propostas no norte do Sinai e no noroeste da Arábia",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "As alternativas não são equiparadas a sítios confirmados. Faltam nesta compilação provas suficientes para escolher um monte ou traçar uma segunda rota detalhada.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 19,
+          "verseStart": 1,
+          "label": "Exod 19:1"
+        },
+        {
+          "book": "Gal",
+          "chapter": 4,
+          "verseStart": 25,
+          "label": "Gal 4:25"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "southern-hypothesis",
+      "label": "Hipótese meridional tradicional — sequência, não estrada",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          31.834216685474,
+          30.799370210096
+        ],
+        [
+          32.25869322351544,
+          30.62077414398056
+        ],
+        [
+          33.973333,
+          28.539722
+        ],
+        [
+          34.49479554246946,
+          30.68771281376111
+        ]
+      ],
+      "explanation": "ESQUEMÁTICO, NÃO EXATO. A ligação passa por um candidato tradicional ao Sinai. Não localiza a travessia do mar e omite numerosas estações não identificadas. Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.",
+      "sourceIds": [
+        "editorial",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    30,
+    27,
+    37,
+    32.8
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Data, escala e historicidade dos movimentos não são resolvidas pelo geocódigo.",
+      "O candidato Jebel Musa não é identificação arqueológica demonstrada.",
+      "Outras famílias de hipóteses são descritas, mas não recebem rotas inventadas.",
+      "Não se apresenta evidência de uma travessia específica do mar."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

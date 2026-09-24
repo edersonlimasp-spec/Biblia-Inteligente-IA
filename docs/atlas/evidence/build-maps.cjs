@@ -30,8 +30,34 @@ const beth = () => p("Bethlehem 1","bethlehem","Belém","Bayt Lahm/Belém, Cisjo
 const ant = () => p("Antioch 1","antioch","Antioquia da Síria","Antakya, província de Hatay, Turquia",[r("Acts",13,1),r("Acts",14,26)],"Cidade de partida e retorno de Paulo e Barnabé; 'da Síria' é a designação histórica, não o país atual.");
 const ephesus = () => pleiades("599612","ephesus","Éfeso","Sítio de Efes, perto de Selçuk, Turquia",[r("Rev",2,1),r("Acts",19,1)],"Metrópole da província romana da Ásia. O ponto difere do geocódigo legado do OpenBible porque cada base escolhe um representante do sítio.");
 const maps = [];
+const organization = {
+ "ancient-near-east":["old-testament","Origens e patriarcas",1],
+ "abraham-journeys":["old-testament","Origens e patriarcas",2],
+ "exodus-hypotheses":["old-testament","Êxodo e deserto",3],
+ "twelve-tribes":["old-testament","Conquista e juízes",4],
+ "divided-kingdom":["old-testament","Reino dividido",5],
+ "jerusalem-jesus":["jerusalem","Tempo de Jesus",1],
+ "palestine-jesus":["new-testament","Vida de Jesus",1],
+ "paul-first-journey":["new-testament","Viagens de Paulo",2],
+ "seven-churches":["new-testament","Epístolas e Apocalipse",3],
+ "roman-empire":["new-testament","Igreja primitiva",4],
+};
+const shortEras = {
+ "ancient-near-east":"II–I milênios a.C.", "abraham-journeys":"Horizonte patriarcal",
+ "exodus-hypotheses":"II–I milênios a.C.", "twelve-tribes":"Instalação em Canaã",
+ "divided-kingdom":"c. 930–587 a.C.", "jerusalem-jesus":"c. 20–33 d.C.",
+ "palestine-jesus":"c. 6 a.C.–30 d.C.", "paul-first-journey":"c. 46–48 d.C.",
+ "seven-churches":"c. 90–96 d.C.", "roman-empire":"Século I d.C.",
+};
 function add(id,title,subtitle,testament,books,characters,period,bounds,summary,modernSummary,places,overlays,references,uncertainties,status="needs-specialist") {
-  maps.push({id,version:"1",kind:"map",category:testament==="AT"?"Geografia do Antigo Testamento":"Geografia do Novo Testamento",testament,books,characters,period,title,subtitle,summary,modernSummary,certainty:status==="documented"?"established":"debated",sample:true,keywords:[title,...books,...characters,"atlas","amostra","geografia histórica"],references,sources:[],places,overlays,bounds,review:{date,status,verified:["Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].","Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.","Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."],uncertainties,methodology:"Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."}});
+  const [section, subsection, order] = organization[id] || [testament === "AT" ? "old-testament" : "new-testament", undefined, 99];
+  const keyReferences = [...references];
+  for (const place of places) for (const candidate of place.references) {
+    if (keyReferences.length >= 3) break;
+    if (!keyReferences.some(existing => existing.label === candidate.label)) keyReferences.push(candidate);
+  }
+  const aliases = [...new Set([title, ...characters, ...places.flatMap(place => [place.name, place.modernName])])];
+  maps.push({id,version:"1",kind:"map",category:testament==="AT"?"Geografia do Antigo Testamento":"Geografia do Novo Testamento",testament,books,characters,period,title,subtitle,summary,modernSummary,certainty:status==="documented"?"established":"debated",sample:true,keywords:[title,...books,...characters,"atlas","amostra","geografia histórica"],section,subsection,order,era:shortEras[id] || period.split(";")[0],modernOverview:`${modernSummary} As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.`,keyReferences:keyReferences.slice(0,8),aliases,references,sources:[],places,overlays,bounds,review:{date,status,verified:["Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].","Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.","Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."],uncertainties,methodology:"Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."}});
 }
 const route = (id,label,places,explanation,certainty="probable") => ({id,label,kind:"route",certainty,coordinates:places.map(p=>p.coordinates),explanation:`ESQUEMÁTICO, NÃO EXATO. ${explanation} Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.`,sourceIds:[...new Set(["editorial",...places.flatMap(p=>p.sourceIds)])]});
 const area = (id,label,coordinates,explanation) => ({id,label,kind:"area",certainty:"debated",coordinates,explanation:`POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. ${explanation} Não delimita cidades antigas, soberania atual ou propriedades.`,sourceIds:["editorial","biblical"]});

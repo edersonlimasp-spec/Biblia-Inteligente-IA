@@ -1,0 +1,363 @@
+{
+  "id": "abraham-journeys",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Gen"
+  ],
+  "characters": [
+    "Abraão",
+    "Sara",
+    "Ló"
+  ],
+  "period": "Horizonte patriarcal tradicional no II milênio a.C.; datação histórica não demonstrada",
+  "title": "Jornadas de Abraão",
+  "subtitle": "Localidades narrativas e conexões aproximadas",
+  "summary": "A sequência Ur–Harã–Canaã organiza a leitura de Gênesis 11–13. Os pontos identificam candidatos de cidades, não vestígios dos deslocamentos de uma pessoa. A estadia no Egito e outras etapas sem geocódigo seguro aparecem no texto sem coordenadas inventadas.",
+  "modernSummary": "O quadro abrange Iraque, Turquia, Síria e o sul do Levante. Hebrom e Siquém ficam na Cisjordânia; as conexões não descrevem estradas, fronteiras ou permissões de viagem atuais.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Jornadas de Abraão",
+    "Gen",
+    "Abraão",
+    "Sara",
+    "Ló",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "old-testament",
+  "subsection": "Origens e patriarcas",
+  "order": 2,
+  "era": "Horizonte patriarcal",
+  "modernOverview": "O quadro abrange Iraque, Turquia, Síria e o sul do Levante. Hebrom e Siquém ficam na Cisjordânia; as conexões não descrevem estradas, fronteiras ou permissões de viagem atuais. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Gen",
+      "chapter": 11,
+      "verseStart": 31,
+      "label": "Gen 11:31"
+    },
+    {
+      "book": "Gen",
+      "chapter": 12,
+      "verseStart": 4,
+      "verseEnd": 10,
+      "label": "Gen 12:4–10"
+    },
+    {
+      "book": "Gen",
+      "chapter": 13,
+      "verseStart": 18,
+      "label": "Gen 13:18"
+    },
+    {
+      "book": "Gen",
+      "chapter": 21,
+      "verseStart": 31,
+      "verseEnd": 33,
+      "label": "Gen 21:31–33"
+    }
+  ],
+  "aliases": [
+    "Jornadas de Abraão",
+    "Abraão",
+    "Sara",
+    "Ló",
+    "Ur dos caldeus — candidato meridional",
+    "Tell el-Muqayyar, sul do Iraque",
+    "Harã",
+    "Harran, província de Şanlıurfa, Turquia",
+    "Siquém",
+    "Tell Balata, junto a Nablus, Cisjordânia",
+    "Hebrom",
+    "Al-Khalil/Hebrom, Cisjordânia",
+    "Berseba",
+    "Tel Be'er Sheva e região de Be'er Sheva, Israel",
+    "Egito — estadia de Abraão",
+    "Egito; cidade da estadia desconhecida"
+  ],
+  "references": [
+    {
+      "book": "Gen",
+      "chapter": 11,
+      "verseStart": 31,
+      "label": "Gen 11:31"
+    },
+    {
+      "book": "Gen",
+      "chapter": 12,
+      "verseStart": 4,
+      "verseEnd": 10,
+      "label": "Gen 12:4–10"
+    },
+    {
+      "book": "Gen",
+      "chapter": 13,
+      "verseStart": 18,
+      "label": "Gen 13:18"
+    },
+    {
+      "book": "Gen",
+      "chapter": 21,
+      "verseStart": 31,
+      "verseEnd": 33,
+      "label": "Gen 21:31–33"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Gen 11:31; Gen 12:4–10; Gen 13:18; Gen 21:31–33",
+      "url": "https://ebible.org/web/GEN11.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    }
+  ],
+  "places": [
+    {
+      "id": "ur",
+      "name": "Ur dos caldeus — candidato meridional",
+      "modernName": "Tell el-Muqayyar, sul do Iraque",
+      "coordinates": [
+        46.10374195774169,
+        30.9620520474569
+      ],
+      "certainty": "debated",
+      "explanation": "Coordenada da cidade suméria de Ur; sua identificação com a Ur de Abraão é tradicional, mas não consensual. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 11,
+          "verseStart": 28,
+          "label": "Gen 11:28"
+        },
+        {
+          "book": "Gen",
+          "chapter": 11,
+          "verseStart": 31,
+          "label": "Gen 11:31"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "haran",
+      "name": "Harã",
+      "modernName": "Harran, província de Şanlıurfa, Turquia",
+      "coordinates": [
+        39.03219672227345,
+        36.86386407659651
+      ],
+      "certainty": "established",
+      "explanation": "Topônimo associado à cidade de Harran; não prova a presença pessoal de Abraão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 11,
+          "verseStart": 31,
+          "label": "Gen 11:31"
+        },
+        {
+          "book": "Gen",
+          "chapter": 12,
+          "verseStart": 4,
+          "label": "Gen 12:4"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "shechem",
+      "name": "Siquém",
+      "modernName": "Tell Balata, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.2817986718367,
+        32.21369123124062
+      ],
+      "certainty": "established",
+      "explanation": "O sítio de Tell Balata é a identificação arqueológica usual de Siquém. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 12,
+          "verseStart": 6,
+          "label": "Gen 12:6"
+        },
+        {
+          "book": "Josh",
+          "chapter": 24,
+          "verseStart": 1,
+          "label": "Josh 24:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "hebron",
+      "name": "Hebrom",
+      "modernName": "Al-Khalil/Hebrom, Cisjordânia",
+      "coordinates": [
+        35.09409986578734,
+        31.53577362133176
+      ],
+      "certainty": "established",
+      "explanation": "O ponto localiza a cidade associada às narrativas patriarcais e à tradição de Calebe; não identifica a tenda de Abraão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 13,
+          "verseStart": 18,
+          "label": "Gen 13:18"
+        },
+        {
+          "book": "Josh",
+          "chapter": 14,
+          "verseStart": 13,
+          "label": "Josh 14:13"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "beersheba",
+      "name": "Berseba",
+      "modernName": "Tel Be'er Sheva e região de Be'er Sheva, Israel",
+      "coordinates": [
+        34.8408885849849,
+        31.24495217357714
+      ],
+      "certainty": "established",
+      "explanation": "A narrativa menciona o poço e a região; o geocódigo não identifica o poço de Abraão. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 21,
+          "verseStart": 31,
+          "verseEnd": 33,
+          "label": "Gen 21:31–33"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "egypt",
+      "name": "Egito — estadia de Abraão",
+      "modernName": "Egito; cidade da estadia desconhecida",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Gênesis 12:10 menciona a descida ao Egito sem nomear a cidade. Não se usa Memphis ou outra capital como substituto especulativo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 12,
+          "verseStart": 10,
+          "label": "Gen 12:10"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "to-canaan",
+      "label": "Ur → Harã → Siquém",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          46.10374195774169,
+          30.9620520474569
+        ],
+        [
+          39.03219672227345,
+          36.86386407659651
+        ],
+        [
+          35.2817986718367,
+          32.21369123124062
+        ]
+      ],
+      "explanation": "ESQUEMÁTICO, NÃO EXATO. Sequência de Gênesis 11:31–12:6; a primeira identificação é debatida. A reta Ur–Harã não é um caminho pelo deserto. Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.",
+      "sourceIds": [
+        "editorial",
+        "openbible"
+      ]
+    },
+    {
+      "id": "canaan",
+      "label": "Siquém → Hebrom → Berseba",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.2817986718367,
+          32.21369123124062
+        ],
+        [
+          35.09409986578734,
+          31.53577362133176
+        ],
+        [
+          34.8408885849849,
+          31.24495217357714
+        ]
+      ],
+      "explanation": "ESQUEMÁTICO, NÃO EXATO. Síntese de localidades de Gênesis 12–21; não continuidade cronológica, pois omite Betel, o Egito e outras etapas. Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.",
+      "sourceIds": [
+        "editorial",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    33.8,
+    29.5,
+    47.2,
+    38
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Ur meridional é um candidato, não consenso sobre a origem de Abraão.",
+      "Datas e percursos dos patriarcas não são verificáveis por estes geocódigos.",
+      "A linha não é uma reconstrução de estradas mesopotâmicas ou cananeias."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

@@ -1,0 +1,471 @@
+{
+  "id": "paul-first-journey",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Acts"
+  ],
+  "characters": [
+    "Paulo",
+    "Barnabé",
+    "João Marcos"
+  ],
+  "period": "c. 46–48 d.C.; datação aproximada",
+  "title": "Primeira viagem de Paulo",
+  "subtitle": "Paulo e Barnabé: sequência de Atos 13–14",
+  "summary": "Percurso de leitura de Antioquia da Síria a Chipre e à Anatólia, com retorno por cidades já visitadas. A narrativa registra localidades e algumas travessias, mas não permite reconstruir cada estrada, porto intermediário ou tempo de caminhada.",
+  "modernSummary": "Os pontos estão na Turquia e na ilha de Chipre. Salamina fica no norte da ilha, sob administração de facto turco-cipriota, sem que o mapa reconheça uma alteração de soberania.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Primeira viagem de Paulo",
+    "Acts",
+    "Paulo",
+    "Barnabé",
+    "João Marcos",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "new-testament",
+  "subsection": "Viagens de Paulo",
+  "order": 2,
+  "era": "c. 46–48 d.C.",
+  "modernOverview": "Os pontos estão na Turquia e na ilha de Chipre. Salamina fica no norte da ilha, sob administração de facto turco-cipriota, sem que o mapa reconheça uma alteração de soberania. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Acts",
+      "chapter": 13,
+      "verseStart": 1,
+      "verseEnd": 14,
+      "label": "Acts 13:1–14"
+    },
+    {
+      "book": "Acts",
+      "chapter": 14,
+      "verseStart": 20,
+      "verseEnd": 28,
+      "label": "Acts 14:20–28"
+    },
+    {
+      "book": "Acts",
+      "chapter": 13,
+      "verseStart": 1,
+      "label": "Acts 13:1"
+    }
+  ],
+  "aliases": [
+    "Primeira viagem de Paulo",
+    "Paulo",
+    "Barnabé",
+    "João Marcos",
+    "Antioquia da Síria",
+    "Antakya, província de Hatay, Turquia",
+    "Selêucia Piéria",
+    "Çevlik/Samandağ, Turquia",
+    "Salamina",
+    "Ruínas de Salamina, perto de Famagusta, Chipre",
+    "Pafos",
+    "Pafos, Chipre",
+    "Perge",
+    "Perge/Aksu, perto de Antalya, Turquia",
+    "Antioquia da Pisídia",
+    "Sítio junto a Yalvaç, Turquia",
+    "Icônio",
+    "Konya, Turquia",
+    "Listra",
+    "Hatunsaray, perto de Konya, Turquia",
+    "Derbe",
+    "Kerti Höyük, região de Karaman, Turquia",
+    "Atália",
+    "Antalya, Turquia"
+  ],
+  "references": [
+    {
+      "book": "Acts",
+      "chapter": 13,
+      "verseStart": 1,
+      "verseEnd": 14,
+      "label": "Acts 13:1–14"
+    },
+    {
+      "book": "Acts",
+      "chapter": 14,
+      "verseStart": 20,
+      "verseEnd": 28,
+      "label": "Acts 14:20–28"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Acts 13:1–14; Acts 14:20–28",
+      "url": "https://ebible.org/web/ACT13.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    }
+  ],
+  "places": [
+    {
+      "id": "antioch",
+      "name": "Antioquia da Síria",
+      "modernName": "Antakya, província de Hatay, Turquia",
+      "coordinates": [
+        36.16238775165068,
+        36.20233087051257
+      ],
+      "certainty": "established",
+      "explanation": "Cidade de partida e retorno de Paulo e Barnabé; 'da Síria' é a designação histórica, não o país atual. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 13,
+          "verseStart": 1,
+          "label": "Acts 13:1"
+        },
+        {
+          "book": "Acts",
+          "chapter": 14,
+          "verseStart": 26,
+          "label": "Acts 14:26"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "seleucia",
+      "name": "Selêucia Piéria",
+      "modernName": "Çevlik/Samandağ, Turquia",
+      "coordinates": [
+        35.92680788324002,
+        36.11101750333098
+      ],
+      "certainty": "established",
+      "explanation": "Porto de embarque mencionado por Atos. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 13,
+          "verseStart": 4,
+          "label": "Acts 13:4"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "salamis",
+      "name": "Salamina",
+      "modernName": "Ruínas de Salamina, perto de Famagusta, Chipre",
+      "coordinates": [
+        33.90755212865949,
+        35.17724606944397
+      ],
+      "certainty": "established",
+      "explanation": "Primeira localidade nomeada na etapa cipriota. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 13,
+          "verseStart": 5,
+          "label": "Acts 13:5"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "paphos",
+      "name": "Pafos",
+      "modernName": "Pafos, Chipre",
+      "coordinates": [
+        32.40016213313376,
+        34.75410576175517
+      ],
+      "certainty": "established",
+      "explanation": "Localidade no oeste da ilha; o percurso interior não é informado. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 13,
+          "verseStart": 6,
+          "label": "Acts 13:6"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "perga",
+      "name": "Perge",
+      "modernName": "Perge/Aksu, perto de Antalya, Turquia",
+      "coordinates": [
+        30.90494591606115,
+        37.00520811721595
+      ],
+      "certainty": "established",
+      "explanation": "Escala da Panfília na ida e na volta. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 13,
+          "verseStart": 13,
+          "label": "Acts 13:13"
+        },
+        {
+          "book": "Acts",
+          "chapter": 14,
+          "verseStart": 25,
+          "label": "Acts 14:25"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "pisidian-antioch",
+      "name": "Antioquia da Pisídia",
+      "modernName": "Sítio junto a Yalvaç, Turquia",
+      "coordinates": [
+        31.17948683048973,
+        38.31643056393041
+      ],
+      "certainty": "established",
+      "explanation": "Distinta da Antioquia da Síria; tradicionalmente chamada 'da Pisídia'. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 13,
+          "verseStart": 14,
+          "label": "Acts 13:14"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "iconium",
+      "name": "Icônio",
+      "modernName": "Konya, Turquia",
+      "coordinates": [
+        32.4942625657248,
+        37.88353038890398
+      ],
+      "certainty": "established",
+      "explanation": "Cidade na sequência narrativa de Atos 14. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 14,
+          "verseStart": 1,
+          "label": "Acts 14:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "lystra",
+      "name": "Listra",
+      "modernName": "Hatunsaray, perto de Konya, Turquia",
+      "coordinates": [
+        32.45318282875567,
+        37.57813498250009
+      ],
+      "certainty": "probable",
+      "explanation": "Identificação do sítio de Listra na região de Hatunsaray. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 14,
+          "verseStart": 6,
+          "label": "Acts 14:6"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "derbe",
+      "name": "Derbe",
+      "modernName": "Kerti Höyük, região de Karaman, Turquia",
+      "coordinates": [
+        33.27141769926378,
+        37.35092016962404
+      ],
+      "certainty": "probable",
+      "explanation": "Identificação usual em Kerti Höyük; ponto aproximado da base legada. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 14,
+          "verseStart": 20,
+          "label": "Acts 14:20"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "attalia",
+      "name": "Atália",
+      "modernName": "Antalya, Turquia",
+      "coordinates": [
+        30.69456557778969,
+        36.88082580070078
+      ],
+      "certainty": "established",
+      "explanation": "Porto da etapa final de retorno. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 14,
+          "verseStart": 25,
+          "label": "Acts 14:25"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "outbound",
+      "label": "Ida: Antioquia → Chipre → Derbe",
+      "kind": "route",
+      "certainty": "probable",
+      "coordinates": [
+        [
+          36.16238775165068,
+          36.20233087051257
+        ],
+        [
+          35.92680788324002,
+          36.11101750333098
+        ],
+        [
+          33.90755212865949,
+          35.17724606944397
+        ],
+        [
+          32.40016213313376,
+          34.75410576175517
+        ],
+        [
+          30.90494591606115,
+          37.00520811721595
+        ],
+        [
+          31.17948683048973,
+          38.31643056393041
+        ],
+        [
+          32.4942625657248,
+          37.88353038890398
+        ],
+        [
+          32.45318282875567,
+          37.57813498250009
+        ],
+        [
+          33.27141769926378,
+          37.35092016962404
+        ]
+      ],
+      "explanation": "ESQUEMÁTICO, NÃO EXATO. Sequência textual de Atos 13:1–14:20. Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.",
+      "sourceIds": [
+        "editorial",
+        "openbible"
+      ]
+    },
+    {
+      "id": "return",
+      "label": "Volta: Derbe → Atália → Antioquia",
+      "kind": "route",
+      "certainty": "probable",
+      "coordinates": [
+        [
+          33.27141769926378,
+          37.35092016962404
+        ],
+        [
+          32.45318282875567,
+          37.57813498250009
+        ],
+        [
+          32.4942625657248,
+          37.88353038890398
+        ],
+        [
+          31.17948683048973,
+          38.31643056393041
+        ],
+        [
+          30.90494591606115,
+          37.00520811721595
+        ],
+        [
+          30.69456557778969,
+          36.88082580070078
+        ],
+        [
+          36.16238775165068,
+          36.20233087051257
+        ]
+      ],
+      "explanation": "ESQUEMÁTICO, NÃO EXATO. Sequência de Atos 14:21–26. O retorno de Atália é marítimo; a linha direta não é rota de navegação. Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.",
+      "sourceIds": [
+        "editorial",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    29.8,
+    34.2,
+    37,
+    39
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Cronologia aproximada; nenhuma estrada ou rota marítima é considerada exata.",
+      "As escalas são textuais; a geometria dos trajetos é editorial.",
+      "Listra e Derbe exigem verificação especializada antes de uso arqueológico."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

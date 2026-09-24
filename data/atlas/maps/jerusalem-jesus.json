@@ -1,0 +1,283 @@
+{
+  "id": "jerusalem-jesus",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Matt",
+    "Mark",
+    "Luke",
+    "John"
+  ],
+  "characters": [
+    "Jesus"
+  ],
+  "period": "c. 20–33 d.C.; antes da destruição de 70 d.C.",
+  "title": "Jerusalém no tempo de Jesus",
+  "subtitle": "Somente a fase herodiana e romana do início do século I",
+  "summary": "Foco exclusivo na Jerusalém do período de Jesus e em seu entorno oriental. O mapa não desenha muralhas nem identifica tribunais ou a Via Dolorosa como itinerário comprovado. As fases de Davi e Salomão, exílica, persa, pós-70, Aelia Capitolina, bizantina e islâmica ficam adiadas.",
+  "modernSummary": "A área mostrada inclui a Cidade Velha e o monte das Oliveiras em Jerusalém Oriental, território ocupado segundo a ONU, e Al-Eizariya na Cisjordânia. Os nomes não atribuem soberania.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Jerusalém no tempo de Jesus",
+    "Matt",
+    "Mark",
+    "Luke",
+    "John",
+    "Jesus",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "jerusalem",
+  "subsection": "Tempo de Jesus",
+  "order": 1,
+  "era": "c. 20–33 d.C.",
+  "modernOverview": "A área mostrada inclui a Cidade Velha e o monte das Oliveiras em Jerusalém Oriental, território ocupado segundo a ONU, e Al-Eizariya na Cisjordânia. Os nomes não atribuem soberania. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Mark",
+      "chapter": 11,
+      "verseStart": 1,
+      "verseEnd": 11,
+      "label": "Mark 11:1–11"
+    },
+    {
+      "book": "Luke",
+      "chapter": 19,
+      "verseStart": 29,
+      "verseEnd": 44,
+      "label": "Luke 19:29–44"
+    },
+    {
+      "book": "Matt",
+      "chapter": 21,
+      "verseStart": 10,
+      "label": "Matt 21:10"
+    }
+  ],
+  "aliases": [
+    "Jerusalém no tempo de Jesus",
+    "Jesus",
+    "Jerusalém do Segundo Templo",
+    "Cidade Velha de Jerusalém, Jerusalém Oriental",
+    "Monte das Oliveiras",
+    "Jabal al-Zaytun/Monte das Oliveiras, Jerusalém Oriental",
+    "Betânia",
+    "Al-Eizariya, Cisjordânia",
+    "Getsêmani",
+    "Desconhecido com exatidão; tradição ao pé do monte das Oliveiras",
+    "Gólgota",
+    "Desconhecido com exatidão; identificação tradicional no Santo Sepulcro, Jerusalém"
+  ],
+  "references": [
+    {
+      "book": "Mark",
+      "chapter": 11,
+      "verseStart": 1,
+      "verseEnd": 11,
+      "label": "Mark 11:1–11"
+    },
+    {
+      "book": "Luke",
+      "chapter": 19,
+      "verseStart": 29,
+      "verseEnd": 44,
+      "label": "Luke 19:29–44"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Mark 11:1–11; Luke 19:29–44",
+      "url": "https://ebible.org/web/MRK11.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    },
+    {
+      "id": "pleiades-687928",
+      "title": "Pleiades 687928: Ierusalem/Hierosolyma/Col. Aelia Capitolina",
+      "url": "https://pleiades.stoa.org/places/687928",
+      "license": "CC BY 3.0; Pleiades contributors / The Creators. Créditos específicos preservados no JSON de evidência.",
+      "note": "The city of Jerusalem. Usado reprPoint do JSON recuperado, não polígono da cidade."
+    }
+  ],
+  "places": [
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém do Segundo Templo",
+      "modernName": "Cidade Velha de Jerusalém, Jerusalém Oriental",
+      "coordinates": [
+        35.234978,
+        31.7771895
+      ],
+      "certainty": "established",
+      "explanation": "Ponto geral da cidade na fase de Jesus; o registro Pleiades também cobre outras fases que não são mapeadas aqui. Centro representativo do registro Pleiades; não delimita a cidade antiga.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 21,
+          "verseStart": 10,
+          "label": "Matt 21:10"
+        }
+      ],
+      "sourceIds": [
+        "pleiades-687928"
+      ]
+    },
+    {
+      "id": "olives",
+      "name": "Monte das Oliveiras",
+      "modernName": "Jabal al-Zaytun/Monte das Oliveiras, Jerusalém Oriental",
+      "coordinates": [
+        35.2471976093501,
+        31.77809503341373
+      ],
+      "certainty": "established",
+      "explanation": "Elevação a leste da cidade, não uma localização exata de cada discurso. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 19,
+          "verseStart": 37,
+          "label": "Luke 19:37"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "bethany",
+      "name": "Betânia",
+      "modernName": "Al-Eizariya, Cisjordânia",
+      "coordinates": [
+        35.26212203964414,
+        31.77166591433378
+      ],
+      "certainty": "probable",
+      "explanation": "Localidade a leste do monte das Oliveiras. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Mark",
+          "chapter": 11,
+          "verseStart": 1,
+          "label": "Mark 11:1"
+        },
+        {
+          "book": "John",
+          "chapter": 11,
+          "verseStart": 1,
+          "label": "John 11:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "gethsemane",
+      "name": "Getsêmani",
+      "modernName": "Desconhecido com exatidão; tradição ao pé do monte das Oliveiras",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "O OpenBible legado atribui a Getsêmani o ponto genérico de Jerusalém com til. Esse ponto não foi reutilizado como coordenada do jardim; a localização tradicional não é uma comprovação do episódio.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 26,
+          "verseStart": 36,
+          "label": "Matt 26:36"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "golgotha",
+      "name": "Gólgota",
+      "modernName": "Desconhecido com exatidão; identificação tradicional no Santo Sepulcro, Jerusalém",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A identificação tradicional é importante historicamente, mas este recorte não fornece uma coordenada arqueológica verificada para o local da execução.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 19,
+          "verseStart": 17,
+          "label": "John 19:17"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "approach",
+      "label": "Betânia → monte das Oliveiras → Jerusalém",
+      "kind": "route",
+      "certainty": "probable",
+      "coordinates": [
+        [
+          35.26212203964414,
+          31.77166591433378
+        ],
+        [
+          35.2471976093501,
+          31.77809503341373
+        ],
+        [
+          35.234978,
+          31.7771895
+        ]
+      ],
+      "explanation": "ESQUEMÁTICO, NÃO EXATO. Ordem de aproximação inspirada em Marcos 11 e Lucas 19, não percurso rua a rua. Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.",
+      "sourceIds": [
+        "editorial",
+        "openbible",
+        "pleiades-687928"
+      ]
+    }
+  ],
+  "bounds": [
+    35.21,
+    31.75,
+    35.28,
+    31.8
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Não há reconstrução de muralhas, portas, dimensões do Templo ou traçado urbano.",
+      "Getsêmani e Gólgota permanecem sem coordenadas nesta amostra.",
+      "Todas as fases históricas diferentes da fase de Jesus estão adiadas."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

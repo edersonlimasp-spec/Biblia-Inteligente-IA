@@ -15,6 +15,7 @@ import { storage } from "./storage";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { loadAtlasCatalog } from "./atlas/catalog";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -352,6 +353,11 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+
+    // Validate shipped Atlas files at startup without delaying the HTTP listener.
+    void loadAtlasCatalog()
+      .then(items => log(`🗺️ Atlas validated: ${items.length} item(s)`))
+      .catch(error => console.error("❌ Atlas validation failed (server still running):", error));
 
     // Initialize database AFTER server is listening, so port opens immediately.
     // This prevents transient Neon errors (Control plane request failed) from

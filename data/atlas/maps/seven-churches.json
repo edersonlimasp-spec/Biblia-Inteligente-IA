@@ -1,0 +1,350 @@
+{
+  "id": "seven-churches",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Rev",
+    "Acts"
+  ],
+  "characters": [
+    "João"
+  ],
+  "period": "Fim do século I d.C.; data frequentemente proposta c. 90–96 d.C., com alternativas",
+  "title": "As sete igrejas do Apocalipse",
+  "subtitle": "Sete cidades da província romana da Ásia",
+  "summary": "As sete mensagens de Apocalipse 2–3 são dirigidas a comunidades em cidades reais da Ásia romana. Os marcadores representam cidades, não edifícios de igrejas do século I. A sequência de leitura não prova uma viagem de João ou um circuito postal específico.",
+  "modernSummary": "Todas as cidades estão na atual Turquia ocidental. 'Ásia' designa aqui a província romana, não todo o continente. Sítios antigos e centros urbanos modernos nem sempre coincidem.",
+  "certainty": "established",
+  "sample": true,
+  "keywords": [
+    "As sete igrejas do Apocalipse",
+    "Rev",
+    "Acts",
+    "João",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "new-testament",
+  "subsection": "Epístolas e Apocalipse",
+  "order": 3,
+  "era": "c. 90–96 d.C.",
+  "modernOverview": "Todas as cidades estão na atual Turquia ocidental. 'Ásia' designa aqui a província romana, não todo o continente. Sítios antigos e centros urbanos modernos nem sempre coincidem. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Rev",
+      "chapter": 1,
+      "verseStart": 11,
+      "label": "Rev 1:11"
+    },
+    {
+      "book": "Rev",
+      "chapter": 2,
+      "verseStart": 1,
+      "label": "Rev 2:1"
+    },
+    {
+      "book": "Rev",
+      "chapter": 3,
+      "verseStart": 14,
+      "label": "Rev 3:14"
+    }
+  ],
+  "aliases": [
+    "As sete igrejas do Apocalipse",
+    "João",
+    "Éfeso",
+    "Sítio de Efes, perto de Selçuk, Turquia",
+    "Esmirna",
+    "İzmir, Turquia",
+    "Pérgamo",
+    "Bergama, Turquia",
+    "Tiatira",
+    "Akhisar, Turquia",
+    "Sardes",
+    "Sart, perto de Salihli, Turquia",
+    "Filadélfia",
+    "Alaşehir, Turquia",
+    "Laodiceia do Lico",
+    "Laodikeia, perto de Denizli, Turquia"
+  ],
+  "references": [
+    {
+      "book": "Rev",
+      "chapter": 1,
+      "verseStart": 11,
+      "label": "Rev 1:11"
+    },
+    {
+      "book": "Rev",
+      "chapter": 2,
+      "verseStart": 1,
+      "label": "Rev 2:1"
+    },
+    {
+      "book": "Rev",
+      "chapter": 3,
+      "verseStart": 14,
+      "label": "Rev 3:14"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Rev 1:11; Rev 2:1; Rev 3:14",
+      "url": "https://ebible.org/web/REV01.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    },
+    {
+      "id": "pleiades-599612",
+      "title": "Pleiades 599612: Ephesus/Arsinoe(ia)",
+      "url": "https://pleiades.stoa.org/places/599612",
+      "license": "CC BY 3.0; Pleiades contributors / The Creators. Créditos específicos preservados no JSON de evidência.",
+      "note": "Ephesus/Arsinoe(ia) was the most important ancient metropolis of Ionian Asia Minor. Usado reprPoint do JSON recuperado, não polígono da cidade."
+    }
+  ],
+  "places": [
+    {
+      "id": "ephesus",
+      "name": "Éfeso",
+      "modernName": "Sítio de Efes, perto de Selçuk, Turquia",
+      "coordinates": [
+        27.34240298195866,
+        37.940164271971945
+      ],
+      "certainty": "established",
+      "explanation": "Metrópole da província romana da Ásia. O ponto difere do geocódigo legado do OpenBible porque cada base escolhe um representante do sítio. Centro representativo do registro Pleiades; não delimita a cidade antiga.",
+      "references": [
+        {
+          "book": "Rev",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Rev 2:1"
+        },
+        {
+          "book": "Acts",
+          "chapter": 19,
+          "verseStart": 1,
+          "label": "Acts 19:1"
+        }
+      ],
+      "sourceIds": [
+        "pleiades-599612"
+      ]
+    },
+    {
+      "id": "smyrna",
+      "name": "Esmirna",
+      "modernName": "İzmir, Turquia",
+      "coordinates": [
+        27.16192104844777,
+        38.45196037886051
+      ],
+      "certainty": "established",
+      "explanation": "Localidade destinatária da segunda mensagem. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Rev",
+          "chapter": 2,
+          "verseStart": 8,
+          "label": "Rev 2:8"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "pergamum",
+      "name": "Pérgamo",
+      "modernName": "Bergama, Turquia",
+      "coordinates": [
+        27.16512610475739,
+        39.11894592031751
+      ],
+      "certainty": "established",
+      "explanation": "Cidade no norte da sequência das sete mensagens. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Rev",
+          "chapter": 2,
+          "verseStart": 12,
+          "label": "Rev 2:12"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "thyatira",
+      "name": "Tiatira",
+      "modernName": "Akhisar, Turquia",
+      "coordinates": [
+        27.85655574592795,
+        38.92579128786831
+      ],
+      "certainty": "established",
+      "explanation": "Cidade também associada à origem de Lídia em Atos 16:14. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Rev",
+          "chapter": 2,
+          "verseStart": 18,
+          "label": "Rev 2:18"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "sardis",
+      "name": "Sardes",
+      "modernName": "Sart, perto de Salihli, Turquia",
+      "coordinates": [
+        28.11413118732089,
+        38.47682690345803
+      ],
+      "certainty": "established",
+      "explanation": "Antiga capital lídia; a comunidade é destinatária de uma mensagem. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Rev",
+          "chapter": 3,
+          "verseStart": 1,
+          "label": "Rev 3:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "philadelphia",
+      "name": "Filadélfia",
+      "modernName": "Alaşehir, Turquia",
+      "coordinates": [
+        28.51946209047604,
+        38.34904803135629
+      ],
+      "certainty": "established",
+      "explanation": "Cidade do interior da província romana da Ásia. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Rev",
+          "chapter": 3,
+          "verseStart": 7,
+          "label": "Rev 3:7"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "laodicea",
+      "name": "Laodiceia do Lico",
+      "modernName": "Laodikeia, perto de Denizli, Turquia",
+      "coordinates": [
+        29.06450110237073,
+        37.76986723761415
+      ],
+      "certainty": "established",
+      "explanation": "Distinta de outras cidades antigas chamadas Laodiceia. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Rev",
+          "chapter": 3,
+          "verseStart": 14,
+          "label": "Rev 3:14"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "letters",
+      "label": "Ordem das mensagens: Éfeso → Laodiceia",
+      "kind": "route",
+      "certainty": "probable",
+      "coordinates": [
+        [
+          27.34240298195866,
+          37.940164271971945
+        ],
+        [
+          27.16192104844777,
+          38.45196037886051
+        ],
+        [
+          27.16512610475739,
+          39.11894592031751
+        ],
+        [
+          27.85655574592795,
+          38.92579128786831
+        ],
+        [
+          28.11413118732089,
+          38.47682690345803
+        ],
+        [
+          28.51946209047604,
+          38.34904803135629
+        ],
+        [
+          29.06450110237073,
+          37.76986723761415
+        ]
+      ],
+      "explanation": "ESQUEMÁTICO, NÃO EXATO. Conexão visual na ordem de Apocalipse 1:11 e capítulos 2–3; não itinerário histórico afirmado. Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.",
+      "sourceIds": [
+        "editorial",
+        "pleiades-599612",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    26.5,
+    37.2,
+    29.7,
+    39.6
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "documented",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "A cronologia do Apocalipse é discutida; a data proposta não é certeza.",
+      "O traçado não é uma estrada romana reconstituída nem uma jornada documentada.",
+      "O ponto Pleiades de Éfeso e o legado OpenBible têm centros representativos distintos."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

@@ -1,0 +1,393 @@
+{
+  "id": "roman-empire",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Acts",
+    "Luke",
+    "Rom"
+  ],
+  "characters": [
+    "Paulo",
+    "Apolo",
+    "Augusto"
+  ],
+  "period": "Século I d.C.; localidades em diferentes momentos, não fronteiras de 117 d.C.",
+  "title": "O mundo romano do Novo Testamento",
+  "subtitle": "Rede de cidades do Mediterrâneo oriental, não mapa integral do império",
+  "summary": "Pontos de referência para a circulação de pessoas e cartas no século I. O império abrangia também extensas regiões ocidentais não detalhadas nesta amostra. O mapa não usa a extensão máxima de Trajano como se fosse contemporânea ao nascimento de Jesus.",
+  "modernSummary": "Recorte europeu, norte-africano e próximo-oriental. Os pontos selecionados estão em Itália, Grécia, Turquia, Egito e Jerusalém; as regiões romanas não equivalem aos Estados nacionais atuais.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "O mundo romano do Novo Testamento",
+    "Acts",
+    "Luke",
+    "Rom",
+    "Paulo",
+    "Apolo",
+    "Augusto",
+    "atlas",
+    "amostra",
+    "geografia histórica"
+  ],
+  "section": "new-testament",
+  "subsection": "Igreja primitiva",
+  "order": 4,
+  "era": "Século I d.C.",
+  "modernOverview": "Recorte europeu, norte-africano e próximo-oriental. Os pontos selecionados estão em Itália, Grécia, Turquia, Egito e Jerusalém; as regiões romanas não equivalem aos Estados nacionais atuais. As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.",
+  "keyReferences": [
+    {
+      "book": "Luke",
+      "chapter": 2,
+      "verseStart": 1,
+      "label": "Luke 2:1"
+    },
+    {
+      "book": "Acts",
+      "chapter": 18,
+      "verseStart": 18,
+      "verseEnd": 24,
+      "label": "Acts 18:18–24"
+    },
+    {
+      "book": "Acts",
+      "chapter": 28,
+      "verseStart": 16,
+      "label": "Acts 28:16"
+    }
+  ],
+  "aliases": [
+    "O mundo romano do Novo Testamento",
+    "Paulo",
+    "Apolo",
+    "Augusto",
+    "Roma",
+    "Roma, Itália",
+    "Corinto",
+    "Ancient Corinth/Archaia Korinthos, Grécia",
+    "Atenas",
+    "Athina/Atenas, Grécia",
+    "Éfeso",
+    "Sítio de Efes, perto de Selçuk, Turquia",
+    "Antioquia da Síria",
+    "Antakya, província de Hatay, Turquia",
+    "Jerusalém",
+    "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+    "Alexandria",
+    "Al-Iskandariya/Alexandria, Egito"
+  ],
+  "references": [
+    {
+      "book": "Luke",
+      "chapter": 2,
+      "verseStart": 1,
+      "label": "Luke 2:1"
+    },
+    {
+      "book": "Acts",
+      "chapter": 18,
+      "verseStart": 18,
+      "verseEnd": 24,
+      "label": "Acts 18:18–24"
+    },
+    {
+      "book": "Acts",
+      "chapter": 28,
+      "verseStart": 16,
+      "label": "Acts 28:16"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. A versão histórica de 2007 é usada, não o cadastro atual.",
+      "note": "Pontos representativos extraídos das linhas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. A precisão decimal da fonte não equivale a precisão arqueológica. Identificações antigas não são certificadas por este banco."
+    },
+    {
+      "id": "biblical",
+      "title": "Referência textual: Luke 2:1; Acts 18:18–24; Acts 28:16",
+      "url": "https://ebible.org/web/LUK02.htm",
+      "license": "World English Bible (WEB): domínio público. Apenas referências e paráfrases editoriais em português; nenhum texto de tradução protegida reproduzido.",
+      "note": "A narrativa fundamenta a associação literária e a ordem das localidades, não comprova coordenadas, cronologia absoluta ou fronteiras."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial original e método de compilação",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria original desta compilação; nenhum mapa ou imagem de terceiros copiado. Dados de apoio: OpenBible.info, CC BY 4.0.",
+      "note": "Polilinhas ligam pontos apenas para leitura; polígonos são envelopes didáticos desenhados nesta compilação, não fronteiras antigas ou atuais. O endereço documenta o geocodificador de apoio, não publica nem endossa estes desenhos. Método e vértices no repositório."
+    },
+    {
+      "id": "pleiades-599612",
+      "title": "Pleiades 599612: Ephesus/Arsinoe(ia)",
+      "url": "https://pleiades.stoa.org/places/599612",
+      "license": "CC BY 3.0; Pleiades contributors / The Creators. Créditos específicos preservados no JSON de evidência.",
+      "note": "Ephesus/Arsinoe(ia) was the most important ancient metropolis of Ionian Asia Minor. Usado reprPoint do JSON recuperado, não polígono da cidade."
+    }
+  ],
+  "places": [
+    {
+      "id": "rome",
+      "name": "Roma",
+      "modernName": "Roma, Itália",
+      "coordinates": [
+        12.48333333333333,
+        41.9
+      ],
+      "certainty": "established",
+      "explanation": "Capital imperial, chegada de Paulo segundo Atos. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 28,
+          "verseStart": 16,
+          "label": "Acts 28:16"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "corinth",
+      "name": "Corinto",
+      "modernName": "Ancient Corinth/Archaia Korinthos, Grécia",
+      "coordinates": [
+        22.87788175588845,
+        37.9059573586561
+      ],
+      "certainty": "established",
+      "explanation": "Cidade romana próxima ao istmo, distinta do centro moderno de Corinto. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 18,
+          "verseStart": 1,
+          "label": "Acts 18:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "athens",
+      "name": "Atenas",
+      "modernName": "Athina/Atenas, Grécia",
+      "coordinates": [
+        23.73333333333333,
+        37.98333333333333
+      ],
+      "certainty": "established",
+      "explanation": "Ponto geral da cidade; não coordenada exata do discurso. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 17,
+          "verseStart": 16,
+          "label": "Acts 17:16"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "ephesus",
+      "name": "Éfeso",
+      "modernName": "Sítio de Efes, perto de Selçuk, Turquia",
+      "coordinates": [
+        27.34240298195866,
+        37.940164271971945
+      ],
+      "certainty": "established",
+      "explanation": "Metrópole da província romana da Ásia. O ponto difere do geocódigo legado do OpenBible porque cada base escolhe um representante do sítio. Centro representativo do registro Pleiades; não delimita a cidade antiga.",
+      "references": [
+        {
+          "book": "Rev",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Rev 2:1"
+        },
+        {
+          "book": "Acts",
+          "chapter": 19,
+          "verseStart": 1,
+          "label": "Acts 19:1"
+        }
+      ],
+      "sourceIds": [
+        "pleiades-599612"
+      ]
+    },
+    {
+      "id": "antioch",
+      "name": "Antioquia da Síria",
+      "modernName": "Antakya, província de Hatay, Turquia",
+      "coordinates": [
+        36.16238775165068,
+        36.20233087051257
+      ],
+      "certainty": "established",
+      "explanation": "Cidade de partida e retorno de Paulo e Barnabé; 'da Síria' é a designação histórica, não o país atual. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 13,
+          "verseStart": 1,
+          "label": "Acts 13:1"
+        },
+        {
+          "book": "Acts",
+          "chapter": 14,
+          "verseStart": 26,
+          "label": "Acts 14:26"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "established",
+      "explanation": "Centro da Judeia sob domínio romano; a situação política atual não é projetada sobre o século I. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 21,
+          "verseStart": 10,
+          "label": "Matt 21:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "alexandria",
+      "name": "Alexandria",
+      "modernName": "Al-Iskandariya/Alexandria, Egito",
+      "coordinates": [
+        29.9569242709775,
+        31.2278414761719
+      ],
+      "certainty": "established",
+      "explanation": "Cidade de origem de Apolo e referência a navios alexandrinos; não escala afirmada de Paulo nessa viagem. Ponto representativo da localidade, não limite urbano antigo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 18,
+          "verseStart": 24,
+          "label": "Acts 18:24"
+        },
+        {
+          "book": "Acts",
+          "chapter": 27,
+          "verseStart": 6,
+          "label": "Acts 27:6"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "paul-network",
+      "label": "Corinto → Éfeso → Jerusalém → Antioquia",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          22.87788175588845,
+          37.9059573586561
+        ],
+        [
+          27.34240298195866,
+          37.940164271971945
+        ],
+        [
+          35.234935,
+          31.777444
+        ],
+        [
+          36.16238775165068,
+          36.20233087051257
+        ]
+      ],
+      "explanation": "ESQUEMÁTICO, NÃO EXATO. Síntese de Atos 18:18–22; omite Cencreia e Cesareia. A 'subida' à igreja é usualmente interpretada como Jerusalém, mas o versículo não nomeia a cidade. Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.",
+      "sourceIds": [
+        "editorial",
+        "openbible",
+        "pleiades-599612"
+      ]
+    },
+    {
+      "id": "eastern-context",
+      "label": "Janela didática do Mediterrâneo oriental",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          20,
+          29
+        ],
+        [
+          37,
+          29
+        ],
+        [
+          37,
+          40
+        ],
+        [
+          20,
+          40
+        ],
+        [
+          20,
+          29
+        ]
+      ],
+      "explanation": "POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. Apenas área de atenção visual das cidades orientais; NÃO representa a extensão do Império Romano. Não delimita cidades antigas, soberania atual ou propriedades.",
+      "sourceIds": [
+        "editorial",
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    -11,
+    23,
+    46,
+    57
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].",
+      "Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.",
+      "Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."
+    ],
+    "uncertainties": [
+      "Não há contorno integral, nem fronteiras provinciais do império.",
+      "Atos 18:22 não nomeia Jerusalém explicitamente; a conexão é interpretação provável.",
+      "A amostra privilegia o Mediterrâneo oriental; Britânia, Gália, Hispânia e fronteiras do Danúbio não são detalhadas."
+    ],
+    "methodology": "Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."
+  }
+}

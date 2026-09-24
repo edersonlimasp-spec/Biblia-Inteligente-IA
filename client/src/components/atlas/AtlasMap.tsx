@@ -6,6 +6,20 @@ import type { AtlasItem } from "@shared/atlas";
 export type AtlasMode = "ancient" | "modern";
 export const overlayColor = (index: number) => ["#ef8174", "#efca78", "#81d2d0", "#c7a3ef"][index % 4];
 type City = { geometry: { coordinates: [number, number] }; properties: { NAME: string; NAME_EN?: string; POP_MAX?: number } };
+type Country = {
+  geometry: { type: "Polygon" | "MultiPolygon"; coordinates: number[][][] | number[][][][] };
+  properties: { NAME: string; NAME_EN?: string };
+};
+function countryCenter(country: Country): [number, number] | null {
+  const polygons = country.geometry.type === "Polygon"
+    ? [country.geometry.coordinates as number[][][]]
+    : country.geometry.coordinates as number[][][][];
+  const ring = polygons.map(polygon => polygon[0]).filter(Boolean).sort((a, b) => b.length - a.length)[0];
+  if (!ring?.length) return null;
+  const longitudes = ring.map(point => point[0]);
+  const latitudes = ring.map(point => point[1]);
+  return [(Math.min(...longitudes) + Math.max(...longitudes)) / 2, (Math.min(...latitudes) + Math.max(...latitudes)) / 2];
+}
 
 export function AtlasMap({ item, mode, selectedPlaceId, visibleOverlays, onPlace }: {
   item: AtlasItem; mode: AtlasMode; selectedPlaceId?: string;
@@ -16,6 +30,7 @@ export function AtlasMap({ item, mode, selectedPlaceId, visibleOverlays, onPlace
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [cities, setCities] = useState<City[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [cityError, setCityError] = useState(false);
   useEffect(() => {
     if (!node.current) return;
@@ -62,10 +77,16 @@ export function AtlasMap({ item, mode, selectedPlaceId, visibleOverlays, onPlace
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/atlas/base/cities.geojson", { signal: controller.signal })
-      .then(response => { if (!response.ok) throw new Error("cities"); return response.json(); })
-      .then(data => { if (!controller.signal.aborted) setCities(data.features); })
-      .catch(() => { if (!controller.signal.aborted) setCityError(true); });
+    Promise.all([
+      fetch("/atlas/base/cities.geojson", { signal: controller.signal })
+        .then(response => { if (!response.ok) throw new Error("cities"); return response.json(); })
+        .then(data => { if (!controller.signal.aborted) setCities(data.features); })
+        .catch(() => { if (!controller.signal.aborted) setCityError(true); }),
+      fetch("/atlas/base/countries.geojson", { signal: controller.signal })
+        .then(response => { if (!response.ok) throw new Error("countries"); return response.json(); })
+        .then(data => { if (!controller.signal.aborted) setCountries(data.features); })
+        .catch(() => {}),
+    ]);
     return () => controller.abort();
   }, []);
 
@@ -76,6 +97,7 @@ export function AtlasMap({ item, mode, selectedPlaceId, visibleOverlays, onPlace
     map.setLayoutProperty("borders", "visibility", mode === "modern" ? "visible" : "none");
     const layerIds: string[] = [];
     item.overlays.forEach((overlay, index) => {
+      if (mode !== "ancient" || overlay.certainty === "unknown") return;
       if (!visibleOverlays.has(overlay.id)) return;
       const id = `atlas-${overlay.id}`;
       map.addSource(id, {
@@ -89,16 +111,19 @@ export function AtlasMap({ item, mode, selectedPlaceId, visibleOverlays, onPlace
       } else {
         map.addLayer({ id, type: "line", source: id, paint: {
           "line-color": overlayColor(index), "line-width": 3,
-          "line-dasharray": overlay.certainty === "established" ? [1, 0] : [3, 2],
+          ...(overlay.certainty === "established" ? {} : { "line-dasharray": overlay.certainty === "probable" ? [4, 3] : [1, 3] }),
         } });
       }
       layerIds.push(id);
     });
-    const markers = item.places.filter(place => place.coordinates).map(place => {
+    const markers = item.places.filter(place => place.coordinates && place.certainty !== "unknown").map(place => {
       const element = document.createElement("button");
       element.className = "atlas-map-marker";
-      element.ariaLabel = `${place.name}: selecionar lugar`;
-      element.title = place.name;
+      const name = mode === "modern" ? place.modernName.split(/[;,]/)[0] : place.name;
+      element.textContent = name;
+      element.ariaLabel = `${name}: selecionar lugar`;
+      element.title = `${place.name} · ${place.modernName}`;
+      element.dataset.certainty = place.certainty;
       element.dataset.selected = String(place.id === selectedPlaceId);
       element.onclick = () => onPlace(place.id);
       return new maplibregl.Marker({ element }).setLngLat(place.coordinates!).addTo(map);
@@ -130,11 +155,31 @@ export function AtlasMap({ item, mode, selectedPlaceId, visibleOverlays, onPlace
     map.on("moveend", update);
     return () => { map.off("moveend", update); labels.forEach(label => label.remove()); };
   }, [ready, error, mode, cities]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || error || mode !== "modern") return;
+    let labels: maplibregl.Marker[] = [];
+    const update = () => {
+      labels.forEach(label => label.remove());
+      const bounds = map.getBounds();
+      labels = countries.map(country => ({ country, point: countryCenter(country) }))
+        .filter((entry): entry is { country: Country; point: [number, number] } => !!entry.point && bounds.contains(entry.point))
+        .slice(0, 30).map(({ country, point }) => {
+          const element = document.createElement("span");
+          element.className = "atlas-country";
+          element.textContent = country.properties.NAME_EN || country.properties.NAME;
+          return new maplibregl.Marker({ element }).setLngLat(point).addTo(map);
+        });
+    };
+    update();
+    map.on("moveend", update);
+    return () => { map.off("moveend", update); labels.forEach(label => label.remove()); };
+  }, [ready, error, mode, countries]);
   return (
     <div className="atlas-stage">
       <div ref={node} className="atlas-map" aria-label="Mapa histórico interativo" />
       {error ? <div className="atlas-map-error" role="alert">{error}</div> : !ready ? <div className="atlas-map-error" role="status">Carregando mapa…</div> : null}
-      <div className="atlas-attribution">Natural Earth · domínio público · base generalizada{mode === "modern" && cityError ? " · Nomes de cidades indisponíveis" : ""}</div>
+      <div className="atlas-attribution">Natural Earth · domínio público · OpenBible CC BY 4.0 · Pleiades CC BY 3.0{mode === "modern" && cityError ? " · Nomes de cidades indisponíveis" : ""}</div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { AtlasItem, AtlasReference, AtlasSummary } from "@shared/atlas";
 import { ATLAS_CERTAINTY_LABELS, ATLAS_CUBIT_NOTE, cubitsToMeters } from "@shared/atlas";
 import { ApiError, getApiUrl, getAuthHeaders } from "@/lib/queryClient";
@@ -8,7 +8,7 @@ import { AtlasMap, overlayColor, type AtlasMode } from "./AtlasMap";
 const reference = (ref: AtlasReference) =>
   `${ref.label} · ${ref.book} ${ref.chapter}:${ref.verseStart}${ref.verseEnd ? `–${ref.verseEnd}` : ""}`;
 const certainty = (value: AtlasItem["certainty"]) =>
-  <span className={`atlas-badge ${value}`}>{ATLAS_CERTAINTY_LABELS[value]}</span>;
+  <span className={`atlas-badge ${value}`}><i className={`atlas-certainty-line ${value}`} aria-hidden="true" />{ATLAS_CERTAINTY_LABELS[value]}</span>;
 
 function Illustration({ item, onLogin, onSubscribe }: {
   item: AtlasItem; onLogin: () => void; onSubscribe: () => void;
@@ -46,11 +46,19 @@ function Illustration({ item, onLogin, onSubscribe }: {
   return url ? <img className="atlas-illustration" alt={item.title} src={url} onError={() => setError("decode")} /> : <div className="atlas-empty atlas-panel" role="status">Carregando ilustração…</div>;
 }
 
-export function AtlasDetail({ item, items, onSelect, onBack, onLogin, onSubscribe }: {
+export function AtlasDetail({ item, items, onSelect, onBack, onLogin, onSubscribe, navigateToVerse }: {
   item: AtlasItem; items: AtlasSummary[]; onSelect: (id: string) => void;
   onBack: () => void; onLogin: () => void; onSubscribe: () => void;
+  navigateToVerse?: (book: string, chapter: number, verse?: number) => void;
 }) {
-  const [mode, setMode] = useState<AtlasMode>("ancient");
+  const [mode, setMode] = useState<AtlasMode | "compare">("ancient");
+  const [divider, setDivider] = useState(50);
+  const [sheetExpanded, setSheetExpanded] = useState(false);
+  const sheetTouchY = useRef<number | null>(null);
+  const sheetWasSwiped = useRef(false);
+  const modernOverview = (item as AtlasItem & { modernOverview?: string }).modernOverview ?? item.modernSummary;
+  const keyReferences = (item as AtlasItem & { keyReferences?: AtlasReference[] }).keyReferences ?? item.references;
+  const currentMode: AtlasMode = mode === "compare" ? "ancient" : mode;
   const [selectedPlaceId, setSelectedPlaceId] = useState<string>();
   const [visibleOverlays, setVisibleOverlays] = useState(() => new Set(item.overlays.map(overlay => overlay.id)));
   const place = item.places.find(entry => entry.id === selectedPlaceId);
@@ -60,19 +68,34 @@ export function AtlasDetail({ item, items, onSelect, onBack, onLogin, onSubscrib
       <section>
         <div className="atlas-panel atlas-copy">
           <button className="atlas-chip" onClick={onBack}>Catálogo</button>
-          <h2>{item.title}</h2>{certainty(item.certainty)}
-          <p>{mode === "ancient" ? item.summary : item.modernSummary}</p>
+          <h2>{item.title}</h2><span className="atlas-scripture-marker">{item.testament === "AT" ? "AT · Antigo Testamento" : "NT · Novo Testamento"}</span> {certainty(item.certainty)}
+          <p>{mode === "ancient" ? item.summary : mode === "modern" ? modernOverview : `${item.summary} Compare com a leitura atual sem confundir fronteiras modernas com o mundo antigo.`}</p>
         </div>
         <div className="atlas-mode" role="group" aria-label="Comparação histórica">
           <button aria-pressed={mode === "ancient"} onClick={() => setMode("ancient")}>Como era</button>
-          <button aria-pressed={mode === "modern"} onClick={() => setMode("modern")}>Como é hoje</button>
+           <button aria-pressed={mode === "modern"} onClick={() => setMode("modern")}>Como é hoje</button>
+           <button aria-pressed={mode === "compare"} onClick={() => setMode("compare")}>Comparar</button>
         </div>
-        {item.kind === "map" ? <AtlasMap item={item} mode={mode} selectedPlaceId={selectedPlaceId} visibleOverlays={visibleOverlays} onPlace={setSelectedPlaceId} /> : <Illustration key={item.id} item={item} onLogin={onLogin} onSubscribe={onSubscribe} />}
+         {item.kind === "map" && mode === "compare" ? <div className="atlas-compare" style={{ "--atlas-divider": `${divider}%` } as CSSProperties}>
+           <AtlasMap item={item} mode="ancient" selectedPlaceId={selectedPlaceId} visibleOverlays={visibleOverlays} onPlace={setSelectedPlaceId} />
+           <AtlasMap item={item} mode="modern" selectedPlaceId={selectedPlaceId} visibleOverlays={visibleOverlays} onPlace={setSelectedPlaceId} />
+           <label className="atlas-compare-divider" htmlFor="atlas-divider"><span>Arraste</span><input id="atlas-divider" type="range" min="20" max="80" value={divider} onChange={event => setDivider(Number(event.target.value))} aria-label="Divisor entre mapas antigo e moderno" /></label>
+         </div> : item.kind === "map" ? <AtlasMap item={item} mode={currentMode} selectedPlaceId={selectedPlaceId} visibleOverlays={visibleOverlays} onPlace={setSelectedPlaceId} /> : <Illustration key={item.id} item={item} onLogin={onLogin} onSubscribe={onSubscribe} />}
+        <section className="atlas-panel atlas-section">
+          <h3>Onde fica hoje</h3>
+          <p>{modernOverview}</p>
+        </section>
+        <section className="atlas-panel atlas-section atlas-key-references">
+          <h3>Principais referências</h3>
+          {keyReferences.map(ref => <div className="atlas-row" key={`key-${reference(ref)}`}>
+            {navigateToVerse ? <button className="atlas-reference-button" onClick={() => navigateToVerse(ref.book, ref.chapter, ref.verseStart)}>{reference(ref)}</button> : reference(ref)}
+          </div>)}
+        </section>
         {item.kind === "map" && <section className="atlas-panel atlas-section">
           <h3>Legenda</h3>
-          <p>● Lugares históricos · linhas tracejadas: percurso provável ou debatido, não uma rota exata · áreas sombreadas: extensão aproximada.</p>
+          <p>Identificação estabelecida: linha contínua. Provável: tracejada. Debatida: pontilhada. Desconhecida: sem ponto no mapa, listada abaixo. Rotas e áreas são esquemáticas, não trajetos ou fronteiras exatos.</p>
           {item.overlays.map((overlay, index) => <div className="atlas-row" key={overlay.id}><span style={{ color: overlayColor(index) }}>━ </span>{overlay.label} · {visibleOverlays.has(overlay.id) ? "Visível" : "Oculta"} · {ATLAS_CERTAINTY_LABELS[overlay.certainty]}</div>)}
-          {mode === "modern" && <p>Fronteiras e cidades atuais são referências generalizadas; não comprovam a identificação antiga.</p>}
+           {mode === "modern" && <p>Fronteiras e cidades atuais são referências generalizadas; não comprovam a identificação antiga.</p>}
         </section>}
         {item.illustration && <section className="atlas-panel atlas-section">
           <h3>Notas da ilustração</h3>
@@ -80,7 +103,22 @@ export function AtlasDetail({ item, items, onSelect, onBack, onLogin, onSubscrib
           {item.illustration.relatedIds.length > 0 && <><h3>Peças relacionadas</h3>{item.illustration.relatedIds.map(id => <button className="atlas-chip" key={id} onClick={() => onSelect(id)}>{items.find(entry => entry.id === id)?.title ?? id}</button>)}</>}
         </section>}
       </section>
-      <aside className="atlas-sidebar">
+      <aside className="atlas-sidebar" data-expanded={sheetExpanded}>
+        <button className="atlas-sheet-handle" aria-expanded={sheetExpanded}
+          onClick={() => {
+            if (sheetWasSwiped.current) { sheetWasSwiped.current = false; return; }
+            setSheetExpanded(value => !value);
+          }}
+          onTouchStart={event => { sheetTouchY.current = event.touches[0].clientY; }}
+          onTouchEnd={event => {
+            if (sheetTouchY.current === null) return;
+            const distance = event.changedTouches[0].clientY - sheetTouchY.current;
+            sheetTouchY.current = null;
+            if (Math.abs(distance) > 30) {
+              sheetWasSwiped.current = true;
+              setSheetExpanded(distance < 0);
+            }
+          }}>Detalhes do mapa {sheetExpanded ? "▾" : "▴"}</button>
         {item.places.length > 0 && <section className="atlas-panel atlas-section">
           <h3>Lugares</h3>
           {item.places.map(entry => <button className="atlas-place" key={entry.id} aria-pressed={selectedPlaceId === entry.id} onClick={() => setSelectedPlaceId(entry.id)}>
@@ -108,10 +146,18 @@ export function AtlasDetail({ item, items, onSelect, onBack, onLogin, onSubscrib
           </div>)}
           <p>{ATLAS_CUBIT_NOTE}</p>
         </section>}
+        {item.places.length > 0 && <section className="atlas-panel atlas-section"><h3>Nomes atuais dos lugares</h3><p>Localizações modernas são aproximações e não equivalem automaticamente aos nomes antigos.</p>{item.places.map(place => <div className="atlas-row" key={`modern-${place.id}`}><strong>{place.modernName}</strong><br /><small>{place.name} · {ATLAS_CERTAINTY_LABELS[place.certainty]}</small></div>)}</section>}
         <section className="atlas-panel atlas-section">
           <h3>Referências e fontes</h3>
-          {item.references.map(ref => <div className="atlas-row" key={reference(ref)}>{reference(ref)}</div>)}
+           {item.references.map(ref => <div className="atlas-row" key={reference(ref)}>
+             {navigateToVerse ? <button className="atlas-reference-button" onClick={() => navigateToVerse(ref.book, ref.chapter, ref.verseStart)}>{reference(ref)}</button> : reference(ref)}
+           </div>)}
           {item.sources.map(source => <div className="atlas-row" key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><p>{source.note}</p><small>Licença: {source.license}</small></div>)}
+           <div className="atlas-row">
+             <strong>Proveniência cartográfica</strong>
+             <p><a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer">Natural Earth</a> · OpenBible · Pleiades</p>
+             <small>Natural Earth · domínio público · OpenBible · CC BY 4.0 · Pleiades · CC BY 3.0</small>
+           </div>
         </section>
         <section className="atlas-panel atlas-section">
           <h3>Revisão histórica</h3>
@@ -121,7 +167,7 @@ export function AtlasDetail({ item, items, onSelect, onBack, onLogin, onSubscrib
           <h3>Incertezas</h3>{item.review.uncertainties.length ? item.review.uncertainties.map(text => <p key={text}>{text}</p>) : <p>Nenhuma incerteza adicional registrada.</p>}
         </section>
       </aside>
-      <AtlasAssistant context={{ itemId: item.id, version: item.version, selectedPlaceId, mode }} onLogin={onLogin} onSubscribe={onSubscribe} />
+      <AtlasAssistant context={{ itemId: item.id, version: item.version, selectedPlaceId, mode: currentMode }} onLogin={onLogin} onSubscribe={onSubscribe} />
     </div>
   );
 }

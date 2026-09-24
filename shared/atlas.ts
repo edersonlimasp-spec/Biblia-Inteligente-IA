@@ -20,6 +20,16 @@ export const atlasDimensionSchema = z.object({
   label: z.string(), cubits: z.number().positive().optional(),
   note: z.string().min(1), reference: atlasReferenceSchema,
 });
+export const atlasSectionSchema = z.enum([
+  "old-testament", "intertestamental", "new-testament", "jerusalem",
+  "tabernacle", "solomon-temple", "physical-geography",
+]);
+export const atlasIllustrationPartSchema = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/), name: z.string().min(1),
+  description: z.string().min(1), cubits: z.number().positive().optional(),
+  material: z.string().min(1).optional(), references: z.array(atlasReferenceSchema).min(1),
+  highlight: z.object({ x: z.number(), y: z.number(), width: z.number().nonnegative(), height: z.number().nonnegative() }).optional(),
+});
 export const atlasOverlaySchema = z.object({
   id: z.string(), label: z.string(), kind: z.enum(["route", "area"]),
   certainty: atlasCertaintySchema,
@@ -34,6 +44,10 @@ export const atlasItemSchema = z.object({
   title: z.string().min(3), subtitle: z.string(), summary: z.string().min(20),
   modernSummary: z.string().min(10), certainty: atlasCertaintySchema,
   sample: z.boolean(), keywords: z.array(z.string()),
+  section: atlasSectionSchema.default("old-testament"), subsection: z.string().min(1).optional(),
+  order: z.number().int().nonnegative().default(0), era: z.string().min(1).default("Período não especificado"),
+  modernOverview: z.string().min(20).default("A região é apresentada como orientação geográfica. Cidades e fronteiras atuais são referências modernas generalizadas. O mapa não resolve debates históricos ou políticos."),
+  keyReferences: z.array(atlasReferenceSchema).max(8).default([]), aliases: z.array(z.string()).default([]),
   references: z.array(atlasReferenceSchema).min(1),
   sources: z.array(atlasSourceSchema).min(1),
   places: z.array(atlasPlaceSchema), overlays: z.array(atlasOverlaySchema),
@@ -41,7 +55,7 @@ export const atlasItemSchema = z.object({
   illustration: z.object({
     svgFile: z.string().regex(/^[a-z0-9-]+\.svg$/),
     dimensions: z.array(atlasDimensionSchema), notes: z.array(z.string()).min(1),
-    relatedIds: z.array(z.string()),
+    relatedIds: z.array(z.string()), parts: z.array(atlasIllustrationPartSchema).default([]),
   }).optional(),
   review: z.object({
     date: z.string(), status: z.enum(["documented", "needs-specialist"]),
@@ -52,7 +66,7 @@ export const atlasItemSchema = z.object({
 export type AtlasItem = z.infer<typeof atlasItemSchema>;
 export type AtlasPlace = z.infer<typeof atlasPlaceSchema>;
 export type AtlasReference = z.infer<typeof atlasReferenceSchema>;
-export type AtlasSummary = Pick<AtlasItem, "id" | "version" | "kind" | "category" | "testament" | "books" | "characters" | "period" | "title" | "subtitle" | "certainty" | "sample" | "keywords"> & { locked: boolean };
+export type AtlasSummary = Pick<AtlasItem, "id" | "version" | "kind" | "category" | "testament" | "books" | "characters" | "period" | "title" | "subtitle" | "certainty" | "sample" | "keywords" | "section" | "subsection" | "order" | "era" | "modernOverview" | "keyReferences" | "aliases"> & { locked: boolean };
 export const atlasContextSchema = z.object({
   itemId: z.string().regex(/^[a-z0-9-]+$/), version: z.string().max(40),
   selectedPlaceId: z.string().max(80).optional(),

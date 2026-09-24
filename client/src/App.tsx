@@ -14,6 +14,7 @@ import { MainNavigation } from "@/components/MainNavigation";
 import { DebugPanel, useDebugMode } from "@/components/DebugPanel";
 import { hideSplashScreen, isNative } from "@/lib/capacitor";
 import { DownloadPage } from "@/pages/DownloadPage";
+import { ResetPassword } from "@/pages/ResetPassword";
 import { preserveMarketingAttribution } from "@/lib/google-ads";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -70,6 +71,13 @@ function SignUpPage() {
   return <div className="clerk-page flex min-h-[100dvh] items-center justify-center bg-background px-4">
     <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
   </div>;
+}
+function ResetPasswordPage() {
+  const [, setLocation] = useLocation();
+  return <>
+    <Toaster />
+    <ResetPassword onBackToLogin={() => setLocation("/sign-in")} />
+  </>;
 }
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
@@ -133,6 +141,7 @@ export default function App() {
       <MarketingAttribution />
       <Switch>
         <Route path="/baixar" component={DownloadPage} />
+        <Route path="/reset-password" component={ResetPasswordPage} />
         <Route component={WebClerkProviderWithRoutes} />
       </Switch>
     </WouterRouter>

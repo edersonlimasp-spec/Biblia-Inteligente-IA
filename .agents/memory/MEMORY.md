@@ -17,5 +17,6 @@
 - [Sincronização da Biblioteca](library-seed-sync.md) — seed casa livros por título e capítulos por (book_id, order_num); casar por id duplicou livros.
 - [Clerk e UUID local](clerk-local-user-bridge.md) — contas Clerk ligam ao UUID de dados por e-mail verificado; não usar auth.userId em queries locais; vínculo persistente é hardening futuro.
 - [Autenticação nativa](native-auth-cache.md) — valide identidade pela credencial, preserve ciclos de sessão separados e nunca deixe cache ou recuperação de erro prender o usuário fora do login.
+- [Reset de senha nativo via e-mail](native-password-reset-links.md) — links de recuperação do login local abrem no navegador; não deixar a rota web do Clerk interceptar o formulário local.
 - [Clerk no appPreview local](clerk-app-preview-loopback.md) — appPreview em 127.0.0.1 pode gerar falso erro de proxy em dev; valide o build isolado em modo produção antes de mexer no Clerk.
 - [Posicionamento da campanha](offer-copy-positioning.md) — público cristão: IA como apoio ao aprofundamento, nunca autoridade espiritual; mudança de copy não autoriza renomear recursos do app.

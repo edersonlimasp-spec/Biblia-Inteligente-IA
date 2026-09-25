@@ -1,0 +1,87 @@
+{
+  "id":"solomon-temple-bronze-sea",
+  "version":"1",
+  "kind":"illustration",
+  "category":"Templo de Salomão",
+  "testament":"AT",
+  "books":["1Kgs","2Chr"],
+  "characters":["Salomão","Hirão"],
+  "period":"Templo de Jerusalém atribuído ao reinado de Salomão",
+  "title":"Templo de Salomão: mar de fundição com 12 bois",
+  "subtitle":"Grande reservatório de bronze; capacidade reportada de modo divergente",
+  "summary":"O mar de fundição é descrito como redondo, com 10 côvados de borda a borda, 5 de altura e 30 de circunferência; a parede tinha um palmo de espessura e a borda era trabalhada como flor de lírio. A capacidade é de 2.000 batos em 1 Reis e 3.000 em 2 Crônicas: divergência textual. O recipiente repousava sobre doze bois de bronze, três orientados a cada ponto cardeal.",
+  "purpose":"Segundo 2 Crônicas 4:6, o mar servia à lavagem dos sacerdotes; o mesmo versículo associa as dez pias menores à lavagem de objetos ligados ao holocausto. O reservatório integrava o equipamento de bronze do templo, e o relato o situa ao lado direito da casa, na direção sudeste.",
+  "modernSummary":"Forma circular, diâmetro, altura, perímetro, espessura aproximada em palmo, orientação dos doze bois e posição geral são descritos textualmente. Conversão de bato para litros é estimativa debatida, não usada como capacidade exata.",
+  "certainty":"established",
+  "sample":false,
+  "keywords":["mar de fundição","mar de bronze","bois","batos","reservatório","lavagem sacerdotal"],
+  "section":"solomon-temple",
+  "subsection":"Equipamentos de bronze",
+  "order":8,
+  "era":"Reinado de Salomão, segundo 1 Reis e 2 Crônicas",
+  "modernOverview":"A ficha distingue as cotas concordantes de 10 × 5 côvados e 30 de circunferência da divergência textual na capacidade: 2.000 batos em 1Rs 7:26 e 3.000 em 2Cr 4:5. O volume em litros não é afirmado como exato.",
+  "keyReferences":[
+    {"book":"1Kgs","chapter":7,"verseStart":23,"verseEnd":26,"label":"1Rs 7:23–26"},
+    {"book":"1Kgs","chapter":7,"verseStart":25,"verseEnd":26,"label":"1Rs 7:25–26"},
+    {"book":"2Chr","chapter":4,"verseStart":2,"verseEnd":6,"label":"2Cr 4:2–6"},
+    {"book":"2Chr","chapter":4,"verseStart":10,"label":"2Cr 4:10"}
+  ],
+  "aliases":["mar de bronze","reservatório de fundição","mar sobre doze bois"],
+  "references":[
+    {"book":"1Kgs","chapter":7,"verseStart":23,"verseEnd":26,"label":"1Rs 7:23–26"},
+    {"book":"2Chr","chapter":4,"verseStart":2,"verseEnd":6,"label":"2Cr 4:2–6"},
+    {"book":"2Chr","chapter":4,"verseStart":10,"label":"2Cr 4:10"}
+  ],
+  "sources":[
+    {"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/","license":"Referência textual; paráfrases originais, sem reprodução de tradução protegida","note":"Conferido nos textos ACF locais server/bible-data/1ki.ts e 2ch.ts. Valores e referências divergentes são mantidos em separado."}
+  ],
+  "places":[],
+  "overlays":[],
+  "storySteps":[
+    {"placeId":"rim","title":"Borda e corpo do reservatório","text":"O texto informa dez côvados de uma borda à outra, cinco de altura, trinta de circunferência, parede de um palmo e borda semelhante a flor de lírio.","reference":{"book":"1Kgs","chapter":7,"verseStart":23,"verseEnd":26,"label":"1Rs 7:23–26"}},
+    {"placeId":"bulls","title":"Doze bois de bronze","text":"O reservatório repousava sobre doze bois; três olhavam para cada direção cardeal e as partes posteriores ficavam voltadas para dentro.","reference":{"book":"1Kgs","chapter":7,"verseStart":25,"label":"1Rs 7:25"}},
+    {"placeId":"location-use","title":"Lavagem e localização","text":"Crônicas associa o mar à lavagem sacerdotal e o situa à direita da casa, para o oriente e em direção ao sul; a localização é indicada como sudeste.","reference":{"book":"2Chr","chapter":4,"verseStart":6,"verseEnd":10,"label":"2Cr 4:6, 10"}}
+  ],
+  "curiosities":[
+    {"text":"1Rs 7:26 atribui ao recipiente capacidade de 2.000 batos; 2Cr 4:5 registra 3.000. É uma divergência textual e ambas as medidas são mantidas.","reference":{"book":"1Kgs","chapter":7,"verseStart":26,"label":"1Rs 7:26"},"sourceIds":["biblical"]},
+    {"text":"Diâmetro de 10 côvados e circunferência de 30 aparecem juntos. A relação aproxima uma circunferência redonda à razão ideal π; explicações propostas incluem medida arredondada e convenções de medição interna/externa, sem resolução textual.","reference":{"book":"1Kgs","chapter":7,"verseStart":23,"label":"1Rs 7:23"},"sourceIds":["biblical"]},
+    {"text":"A borda tinha espessura de um palmo e era comparada à borda de um copo e à flor de lírios; o texto não converte o palmo em metros.","reference":{"book":"1Kgs","chapter":7,"verseStart":26,"label":"1Rs 7:26"},"sourceIds":["biblical"]},
+    {"text":"Doze bois sustentavam o reservatório e eram distribuídos em grupos de três voltados para norte, oeste, sul e leste.","reference":{"book":"2Chr","chapter":4,"verseStart":4,"label":"2Cr 4:4"},"sourceIds":["biblical"]},
+    {"text":"O mar é associado à lavagem dos sacerdotes, e é situado à direita da casa, para o oriente e na direção do sul; não há coordenada ou distância métrica registrada.","reference":{"book":"2Chr","chapter":4,"verseStart":6,"verseEnd":10,"label":"2Cr 4:6, 10"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"solomon-temple-bronze-sea.svg",
+    "dimensions":[
+      {"label":"Diâmetro, borda a borda","cubits":10,"note":"Medida textual ≈ 4,50 m pelo côvado comum aproximado de 0,45 m.","reference":{"book":"1Kgs","chapter":7,"verseStart":23,"label":"1Rs 7:23"}},
+      {"label":"Altura do reservatório","cubits":5,"note":"Medida textual ≈ 2,25 m; não confundir com a altura total incluindo os bois.","reference":{"book":"1Kgs","chapter":7,"verseStart":23,"label":"1Rs 7:23"}},
+      {"label":"Circunferência externa informada","cubits":30,"note":"Medida textual ≈ 13,50 m pela mesma conversão; relação com o diâmetro explicada como aproximação, não como arredondamento definido pelo texto.","reference":{"book":"1Kgs","chapter":7,"verseStart":23,"label":"1Rs 7:23"}},
+      {"label":"Espessura da borda","reportedValue":"1 palmo","note":"medida não informada em côvados; descrita como um palmo, sem equivalência métrica fixada","reference":{"book":"1Kgs","chapter":7,"verseStart":26,"label":"1Rs 7:26"}},
+      {"label":"Capacidade — 1Rs 7:26","reportedValue":"2.000 batos","note":"2.000 batos; ≈22 L por bato é estimativa debatida e não foi convertida em cota exata.","reference":{"book":"1Kgs","chapter":7,"verseStart":26,"label":"1Rs 7:26"}},
+      {"label":"Capacidade — 2Cr 4:5 (divergência textual)","reportedValue":"3.000 batos","note":"3.000 batos; diverge dos 2.000 de 1Rs 7:26. Bato ≈22 L é estimativa debatida.","reference":{"book":"2Chr","chapter":4,"verseStart":5,"label":"2Cr 4:5"}},
+      {"label":"Altura e largura dos bois","note":"medida não informada no texto; desenho esquemático com contorno tracejado e sem escala","reference":{"book":"1Kgs","chapter":7,"verseStart":25,"label":"1Rs 7:25"}}
+    ],
+    "notes":[
+      "Cotas do recipiente (10 de diâmetro, 5 de altura e circunferência 30 côvados) conforme 1Rs 7:23. Conversão para metros usa côvado comum ≈ 0,45 m e é aproximada.",
+      "Capacidade: divergência textual — 2.000 batos (1Rs 7:26) e 3.000 batos (2Cr 4:5). Ambas são exibidas sem eleger uma silenciosamente.",
+      "Estimativa de cerca de 22 L por bato é debatida; nenhuma equivalência volumétrica exata ou desenho do nível de água é afirmado.",
+      "Diâmetro e circunferência guardam uma aproximação ao perímetro circular moderno. Discussões propõem medidas arredondadas ou referências a lados interno/externo da borda, mas o texto não define esse cálculo.",
+      "A silhueta de 1,70 m é uma escala visual moderna. Forma do boi, posição dos cascos, relevo da borda, sistema de suporte e detalhes sem cotas são esquemáticos.",
+      "Conversão aproximada: côvado comum ≈ 0,45 m; Ez 40:5 descreve côvado com palmo a mais (côvado longo estimado ≈ 0,52 m); 2Cr 3:3 menciona a medida antiga, sem equivalência métrica exata."
+    ],
+    "relatedIds":["solomon-temple-overview","solomon-temple-wheeled-bases","solomon-temple-lavers"],
+    "views":[
+      {"label":"Planta","svgFile":"solomon-temple-bronze-sea-planta.svg"},
+      {"label":"Frente","svgFile":"solomon-temple-bronze-sea-frente.svg"},
+      {"label":"Corte","svgFile":"solomon-temple-bronze-sea-corte.svg"},
+      {"label":"Vista 3/4","svgFile":"solomon-temple-bronze-sea.svg"}
+    ],
+    "parts":[
+      {"id":"vessel","name":"Mar de fundição","description":"Reservatório circular de bronze fundido. Cotas textuais: diâmetro 10, altura 5 e circunferência 30 côvados; capacidades de 2.000 e 3.000 batos divergem entre relatos.","cubits":10,"material":"Bronze","references":[{"book":"1Kgs","chapter":7,"verseStart":23,"verseEnd":26,"label":"1Rs 7:23–26"},{"book":"2Chr","chapter":4,"verseStart":2,"verseEnd":5,"label":"2Cr 4:2–5"}],"highlight":{"x":50,"y":37,"width":44,"height":29}},
+      {"id":"rim","name":"Borda e filetes","description":"Borda como flor de lírio, de um palmo de espessura; filetes e figuras ornamentais são descritos em torno do recipiente.","material":"Bronze","references":[{"book":"1Kgs","chapter":7,"verseStart":24,"verseEnd":26,"label":"1Rs 7:24–26"}],"highlight":{"x":50,"y":31,"width":48,"height":12}},
+      {"id":"bulls","name":"Doze bois","description":"Doze figuras de bronze sustentam o recipiente; três orientadas para cada ponto cardeal e partes posteriores voltadas para dentro. Altura e forma exatas não são informadas.","material":"Bronze","references":[{"book":"1Kgs","chapter":7,"verseStart":25,"label":"1Rs 7:25"},{"book":"2Chr","chapter":4,"verseStart":4,"label":"2Cr 4:4"}],"highlight":{"x":62,"y":77,"width":38,"height":23}},
+      {"id":"location-use","name":"Uso e localização","description":"Crônicas informa lavagem dos sacerdotes e situa o mar à direita da casa, para o oriente, em direção ao sul (sudeste).","references":[{"book":"2Chr","chapter":4,"verseStart":6,"verseEnd":10,"label":"2Cr 4:6, 10"}],"highlight":{"x":81,"y":38,"width":14,"height":22}}
+    ]
+  },
+  "review":{"date":"2026-09-24","status":"documented","verified":["1Rs 7:23–26: diâmetro 10, altura 5, circunferência 30, palmo, flor de lírio, capacidade 2.000 batos","2Cr 4:2–5: mesmas cotas principais e capacidade 3.000 batos","1Rs 7:25; 2Cr 4:4: doze bois e orientações cardeais","2Cr 4:6, 10: lavagem sacerdotal e localização sudeste"],"uncertainties":["Divergência textual de capacidade: 2.000 batos (1Rs) e 3.000 (2Cr).","Equivalência do bato em litros é estimada e debatida; não é tratada como conversão exata.","Relação entre 10 de diâmetro e 30 de circunferência e hipóteses de medidas pela borda não são resolvidas pelo texto.","Geometria dos bois e dimensões da borda em unidades métricas não são informadas."],"methodology":"Conferido nos textos ACF locais server/bible-data/1ki.ts e 2ch.ts. Divergências permanecem identificadas por passagem; equivalências modernas estimativas não são apresentadas como dado textual."}
+}

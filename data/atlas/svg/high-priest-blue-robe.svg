@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" role="img" aria-label="Diagrama do manto azul do sumo sacerdote, com abertura tecida e romãs e campainhas alternadas">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#152830"/><stop offset="1" stop-color="#0d1c23"/></linearGradient>
+    <linearGradient id="cloth" x2="1" y2="1"><stop stop-color="#3381b5"/><stop offset=".48" stop-color="#17517c"/><stop offset="1" stop-color="#103650"/></linearGradient>
+    <linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#f4d875"/><stop offset=".52" stop-color="#c99c35"/><stop offset="1" stop-color="#8d6324"/></linearGradient>
+    <linearGradient id="skin" x2="1" y2="1"><stop stop-color="#d7ad84"/><stop offset="1" stop-color="#9c7053"/></linearGradient>
+    <pattern id="weave" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 2h12M2 0v12" stroke="#b8e1ed" stroke-opacity=".08" stroke-width="1"/></pattern>
+    <filter id="shadow" x="-.3" y="-.3" width="1.7" height="1.7"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#02080b" flood-opacity=".55"/></filter>
+  </defs>
+  <rect width="960" height="680" rx="28" fill="url(#bg)"/>
+  <path d="M36 105h888" stroke="#87a5aa" stroke-opacity=".2"/>
+  <text x="54" y="58" fill="#f4eee1" font-family="Georgia,serif" font-size="29">Manto azul do sumo sacerdote</text>
+  <text x="56" y="84" fill="#9eb7b9" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">VISTA FRONTAL · DIAGRAMA TÊXTIL ESQUEMÁTICO</text>
+  <rect x="38" y="127" width="532" height="500" rx="22" fill="#192f38" stroke="#45616a" stroke-opacity=".52"/>
+  <ellipse cx="296" cy="593" rx="176" ry="15" fill="#071116" opacity=".65"/>
+  <g id="part-robe-body" filter="url(#shadow)">
+    <path d="M269 183c-45 8-94 23-125 58l-34 123 44 17 40-94-11 258c65 33 170 33 235 0l-11-258 40 94 44-17-34-123c-31-35-80-50-125-58z" fill="url(#cloth)" stroke="#77b5d2" stroke-opacity=".58" stroke-width="2"/>
+    <path d="M269 183c-45 8-94 23-125 58l-34 123 44 17 40-94-11 258c65 33 170 33 235 0l-11-258 40 94 44-17-34-123c-31-35-80-50-125-58z" fill="url(#weave)"/>
+    <path d="M245 199q50 22 101 0M262 222q-26 102-14 220m87-220q26 102 14 220M208 293l-37 81m213-81 37 81" fill="none" stroke="#b5d7e1" stroke-opacity=".27" stroke-width="4"/>
+    <path d="M271 183q48 38 96 0" fill="none" stroke="#8dc2d6" stroke-width="11" stroke-linecap="round"/>
+    <path d="M273 184q46 30 92 0" fill="none" stroke="#102f43" stroke-width="5" stroke-linecap="round"/>
+    <path d="M251 137q45-23 89 0l-7 48q-37 29-75 0z" fill="url(#skin)" stroke="#edcba5" stroke-opacity=".45" stroke-width="2"/>
+    <path d="M241 137q53-31 109 0" fill="none" stroke="#d6ba76" stroke-opacity=".45" stroke-width="7"/>
+  </g>
+  <g id="part-woven-opening">
+    <path d="M271 183q48 37 96 0" fill="none" stroke="#e5d9ad" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 4"/>
+  </g>
+  <g id="part-pomegranates">
+    <g stroke="#f0c37b" stroke-width="1">
+      <path d="M156 541q-10 10 0 21 10-11 0-21m-7 8 7-7 7 7" fill="#842f63"/>
+      <path d="M216 555q-10 10 0 21 10-11 0-21m-7 8 7-7 7 7" fill="#a93650"/>
+      <path d="M276 562q-10 10 0 21 10-11 0-21m-7 8 7-7 7 7" fill="#1b6e94"/>
+      <path d="M336 562q-10 10 0 21 10-11 0-21m-7 8 7-7 7 7" fill="#842f63"/>
+      <path d="M396 555q-10 10 0 21 10-11 0-21m-7 8 7-7 7 7" fill="#a93650"/>
+      <path d="M456 541q-10 10 0 21 10-11 0-21m-7 8 7-7 7 7" fill="#1b6e94"/>
+    </g>
+  </g>
+  <g id="part-bells" fill="url(#gold)" stroke="#f4df9c" stroke-width="1">
+    <path d="M183 544q-7-8-1-14 2-3 1-6 12 7 8 18h3v4h-15v-4z"/>
+    <path d="M243 558q-7-8-1-14 2-3 1-6 12 7 8 18h3v4h-15v-4z"/>
+    <path d="M303 564q-7-8-1-14 2-3 1-6 12 7 8 18h3v4h-15v-4z"/>
+    <path d="M363 564q-7-8-1-14 2-3 1-6 12 7 8 18h3v4h-15v-4z"/>
+    <path d="M423 558q-7-8-1-14 2-3 1-6 12 7 8 18h3v4h-15v-4z"/>
+  </g>
+  <rect x="593" y="127" width="329" height="500" rx="22" fill="#1a3038" stroke="#45616a" stroke-opacity=".52"/>
+  <text x="620" y="166" fill="#c3d3ce" font-family="Arial,sans-serif" font-size="13" letter-spacing="1.5">DETALHE DA BORDA</text>
+  <g transform="translate(630 212)">
+    <path d="M0 0h255v112H0z" fill="url(#cloth)" stroke="#63a1bf" stroke-width="2"/>
+    <path d="M0 0h255v112H0z" fill="url(#weave)"/>
+    <path d="M0 92q128 18 255 0" fill="none" stroke="#d5d0ad" stroke-opacity=".5" stroke-width="3"/>
+    <g transform="translate(24 82)">
+      <g fill="#9b3154" stroke="#e4b4a0"><path d="M0 0q-13 13 0 26Q13 13 0 0m-8 9 8-8 8 8"/></g>
+      <path d="M28 5q-8-9-1-15 2-2 1-5 13 7 9 18h3v4H24V3z" fill="url(#gold)" stroke="#f3dc9c"/>
+      <g fill="#552f76" stroke="#dec3d8"><path d="M67 0q-13 13 0 26Q80 13 67 0m-8 9 8-8 8 8"/></g>
+      <path d="M95 5q-8-9-1-15 2-2 1-5 13 7 9 18h3v4H91V3z" fill="url(#gold)" stroke="#f3dc9c"/>
+      <g fill="#1a7399" stroke="#a5d7e4"><path d="M134 0q-13 13 0 26Q147 13 134 0m-8 9 8-8 8 8"/></g>
+      <path d="M162 5q-8-9-1-15 2-2 1-5 13 7 9 18h3v4h-16V3z" fill="url(#gold)" stroke="#f3dc9c"/>
+      <g fill="#9b3154" stroke="#e4b4a0"><path d="M201 0q-13 13 0 26Q214 13 201 0m-8 9 8-8 8 8"/></g>
+    </g>
+  </g>
+  <path d="M620 370h275" stroke="#8aa2a3" stroke-opacity=".2"/>
+  <g font-family="Arial,sans-serif">
+    <circle cx="635" cy="403" r="6" fill="#2f7cab"/><text x="651" y="408" fill="#dce3d9" font-size="14">Manto inteiro azul</text>
+    <circle cx="635" cy="442" r="6" fill="#87b9cc"/><text x="651" y="447" fill="#dce3d9" font-size="14">Abertura central tecida</text>
+    <circle cx="635" cy="481" r="6" fill="#ac3b60"/><text x="651" y="486" fill="#dce3d9" font-size="14">Romãs em três cores</text>
+    <circle cx="635" cy="520" r="6" fill="#d7ad4b"/><text x="651" y="525" fill="#dce3d9" font-size="14">Campainhas de ouro</text>
+  </g>
+  <text x="620" y="578" fill="#92aaa9" font-family="Arial,sans-serif" font-size="12">Alternância ao redor; quantidade total não informada.</text>
+  <text x="54" y="654" fill="#66878c" font-family="Arial,sans-serif" font-size="11" letter-spacing="1">ÊXODO 28:31–35 · 39:22–26</text>
+</svg>

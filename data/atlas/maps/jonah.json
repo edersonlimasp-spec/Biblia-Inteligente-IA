@@ -1,0 +1,398 @@
+{
+  "id": "jonah",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Jonah",
+    "2Kgs"
+  ],
+  "characters": [
+    "Jonas"
+  ],
+  "period": "Profecia de Jonas; datação narrativa e histórica discutida",
+  "title": "Jonas: de Gate-Hefer a Nínive",
+  "subtitle": "Jope, Társis e o chamado à cidade assíria",
+  "summary": "O mapa reúne os lugares associados a Jonas: Gate-Hefer, identificada em 2 Reis 14:25 como sua terra natal; Jope, de onde embarca; Társis, destino proposto para o qual foge; e Nínive, para onde é enviado. A localização de Társis é debatida entre propostas no Mediterrâneo ocidental e não recebe pino. A linha narrativa não reconstrói uma rota marítima, e a data histórica de Jonas não é estabelecida apenas pelo livro.",
+  "modernSummary": "Gate-Hefer e Jope situam-se no atual Israel; Nínive fica perto de Mossul, no atual Iraque. A localização de Társis é debatida e não é marcada.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Jonas",
+    "Nínive",
+    "Jope",
+    "Társis",
+    "Gate-Hefer",
+    "profetas",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Profetas",
+  "order": 24,
+  "era": "Período dos profetas; datação do livro e do episódio discutida",
+  "modernOverview": "Gate-Hefer, a cidade associada ao profeta em 2 Reis 14:25, é identificada tradicionalmente com um sítio próximo à atual Kafr Kanna, na Galileia. Jope corresponde à antiga cidade portuária na costa mediterrânea. Nínive é identificada com a área arqueológica de Kuyunjik/Mossul, no Iraque. Társis não é fixada em um ponto: propostas incluem destinos no Mediterrâneo ocidental, mas o texto bíblico não decide entre elas. Qualquer linha de viagem seria esquemática e não uma rota marítima documentada; por isso este mapa não desenha rota.",
+  "keyReferences": [
+    {
+      "book": "2Kgs",
+      "chapter": 14,
+      "verseStart": 25,
+      "label": "2Kgs 14:25"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Jonah 1:1–3"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 1,
+      "verseStart": 4,
+      "verseEnd": 16,
+      "label": "Jonah 1:4–16"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 3,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Jonah 3:1–10"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 4,
+      "verseStart": 1,
+      "verseEnd": 11,
+      "label": "Jonah 4:1–11"
+    }
+  ],
+  "aliases": [
+    "Livro de Jonas",
+    "Jonas",
+    "Jope",
+    "Társis",
+    "Gate-Hefer",
+    "Nínive"
+  ],
+  "references": [
+    {
+      "book": "2Kgs",
+      "chapter": 14,
+      "verseStart": 23,
+      "verseEnd": 27,
+      "label": "2Kgs 14:23–27"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 17,
+      "label": "Jonah 1:1–17"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Jonah 2:1–10"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 3,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Jonah 3:1–10"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 4,
+      "verseStart": 1,
+      "verseEnd": 11,
+      "label": "Jonah 4:1–11"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pares numéricos sem marcadores foram plotados como [longitude, latitude]. Chaves usadas: Gath-hepher (32.73918470119603,35.32822661816711); Joppa (32.05351968494696,34.75042606009946); Nineveh (36.359410,43.152887). Tarshish tem uma proposta de coordenada no registro OpenBible, mas a identificação histórica é debatida; não foi plotada."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; paráfrases originais, sem reprodução de tradução protegida",
+      "note": "As referências identificam os lugares narrados e a associação biográfica de Jonas; o texto não é tratado como prova de coordenadas ou da identificação definitiva de Társis."
+    },
+    {
+      "id": "britannica",
+      "title": "Encyclopaedia Britannica — Nineveh",
+      "url": "https://www.britannica.com/place/Nineveh-ancient-city-Iraq",
+      "license": "Conteúdo factual resumido em paráfrase original; direitos do editor permanecem reservados",
+      "note": "Contexto histórico-geográfico de Nínive; não foi usada como fonte de coordenadas."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "Nenhuma rota é desenhada. Uma possível viagem marítima não é reconstruída e nenhuma proposta para Társis é privilegiada."
+    }
+  ],
+  "places": [
+    {
+      "id": "gath-hepher",
+      "name": "Gate-Hefer",
+      "modernName": "Khirbet ez-Zurra, perto de Kafr Kanna, Galileia, Israel",
+      "coordinates": [
+        35.32822661816711,
+        32.73918470119603
+      ],
+      "certainty": "probable",
+      "explanation": "2 Reis 14:25 identifica Jonas como natural de Gate-Hefer. O marcador usa o par numérico exato da chave Gath-hepher; a localização do sítio antigo não é afirmada como certeza absoluta.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 14,
+          "verseStart": 25,
+          "label": "2Kgs 14:25"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C.; cronologia discutida"
+      ],
+      "kingdoms": [
+        "Israel"
+      ]
+    },
+    {
+      "id": "joppa",
+      "name": "Jope",
+      "modernName": "Jaffa, Tel Aviv–Yafo, Israel",
+      "coordinates": [
+        34.75042606009946,
+        32.05351968494696
+      ],
+      "certainty": "probable",
+      "explanation": "Jope é o porto de onde Jonas embarca para fugir da missão. A coordenada é a chave Joppa da evidência OpenBible, usada como ponto representativo da cidade e não como localização exata do cais antigo.",
+      "references": [
+        {
+          "book": "Jonah",
+          "chapter": 1,
+          "verseStart": 3,
+          "label": "Jonah 1:3"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "Datação do episódio discutida"
+      ]
+    },
+    {
+      "id": "tarshish",
+      "name": "Társis",
+      "modernName": "Localização debatida; propostas no Mediterrâneo ocidental, sem identificação consensual",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Jonas tenta fugir em direção a Társis, mas a localização desse topônimo permanece debatida. A coordenada candidata presente em OpenBible aponta para uma proposta ocidental específica e foi rejeitada para não transformar hipótese em pino.",
+      "references": [
+        {
+          "book": "Jonah",
+          "chapter": 1,
+          "verseStart": 3,
+          "label": "Jonah 1:3"
+        },
+        {
+          "book": "Jonah",
+          "chapter": 4,
+          "verseStart": 2,
+          "label": "Jonah 4:2"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ],
+      "centuries": [
+        "Datação do episódio discutida"
+      ]
+    },
+    {
+      "id": "nineveh",
+      "name": "Nínive",
+      "modernName": "Área de Kuyunjik, junto a Mossul, Iraque",
+      "coordinates": [
+        43.152887,
+        36.35941
+      ],
+      "certainty": "probable",
+      "explanation": "Nínive é o destino da missão profética e a cidade descrita nos capítulos 3–4. O ponto usa a coordenada exata da chave Nineveh; não delimita a cidade antiga nem sua extensão na época da narrativa.",
+      "references": [
+        {
+          "book": "Jonah",
+          "chapter": 1,
+          "verseStart": 2,
+          "label": "Jonah 1:2"
+        },
+        {
+          "book": "Jonah",
+          "chapter": 3,
+          "verseStart": 2,
+          "verseEnd": 5,
+          "label": "Jonah 3:2–5"
+        },
+        {
+          "book": "Jonah",
+          "chapter": 4,
+          "verseStart": 11,
+          "label": "Jonah 4:11"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical",
+        "britannica"
+      ],
+      "centuries": [
+        "VIII–VII a.C.; datação da narrativa discutida"
+      ],
+      "kingdoms": [
+        "Assíria"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "gath-hepher",
+      "title": "Jonas, de Gate-Hefer",
+      "text": "O relato de Reis identifica Jonas como filho de Amitai, de Gate-Hefer. O versículo dá o vínculo biográfico, não uma data absoluta para o livro de Jonas.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 14,
+        "verseStart": 25,
+        "label": "2Kgs 14:25"
+      }
+    },
+    {
+      "placeId": "joppa",
+      "title": "Embarque em Jope",
+      "text": "Jonas desce a Jope e encontra um navio com destino a Társis. O mapa identifica o porto, mas não desenha a viagem.",
+      "reference": {
+        "book": "Jonah",
+        "chapter": 1,
+        "verseStart": 3,
+        "label": "Jonah 1:3"
+      }
+    },
+    {
+      "placeId": "tarshish",
+      "title": "Destino incerto: Társis",
+      "text": "Társis é o destino pretendido por Jonas, mas as propostas de localização não são consenso. Não há marcador nem rota marítima no mapa.",
+      "reference": {
+        "book": "Jonah",
+        "chapter": 1,
+        "verseStart": 3,
+        "label": "Jonah 1:3"
+      }
+    },
+    {
+      "placeId": "nineveh",
+      "title": "Chamado a Nínive",
+      "text": "Depois da chamada renovada, Jonas vai a Nínive e proclama a mensagem. O livro narra a resposta da cidade e o diálogo final sobre compaixão.",
+      "reference": {
+        "book": "Jonah",
+        "chapter": 3,
+        "verseStart": 1,
+        "verseEnd": 10,
+        "label": "Jonah 3:1–10"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "2 Reis 14:25 associa Jonas a Gate-Hefer e ao reinado de Jeroboão II; esse dado fornece contexto biográfico tradicional, mas não resolve a data de composição do livro de Jonas.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 14,
+        "verseStart": 25,
+        "label": "2Kgs 14:25"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Jope é o porto nomeado no texto para a tentativa de embarque. O destino Társis não está localizado com segurança, então qualquer linha Jope–Társis sugeriria uma rota e uma identificação que o mapa não pode comprovar.",
+      "reference": {
+        "book": "Jonah",
+        "chapter": 1,
+        "verseStart": 3,
+        "label": "Jonah 1:3"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "A narrativa chama Nínive de grande cidade e descreve sua resposta coletiva à advertência. Isso é parte do enredo profético, não uma medição arqueológica de sua população ou de seus limites.",
+      "reference": {
+        "book": "Jonah",
+        "chapter": 3,
+        "verseStart": 5,
+        "label": "Jonah 3:5"
+      },
+      "sourceIds": [
+        "biblical",
+        "britannica"
+      ]
+    },
+    {
+      "text": "Társis também aparece em outros textos bíblicos ligada a viagens marítimas e comércio, mas essas alusões não eliminam o debate sobre a localização mencionada na fuga de Jonas.",
+      "reference": {
+        "book": "Jonah",
+        "chapter": 1,
+        "verseStart": 3,
+        "label": "Jonah 1:3"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    34.75042606009946,
+    32.05351968494696,
+    43.152887,
+    36.35941
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Gate-Hefer, Jope e Nínive usam pares numéricos sem marca de aproximação da evidência OpenBible retida.",
+      "Társis não recebe pino; a coordenada candidata associada à proposta ocidental foi rejeitada por causa do debate de identificação.",
+      "As referências de 2 Reis e Jonas foram associadas aos lugares que efetivamente nomeiam."
+    ],
+    "uncertainties": [
+      "A localização de Társis permanece debatida entre propostas ocidentais; o mapa não privilegia nenhuma.",
+      "A data histórica e a data de composição do livro de Jonas não são estabelecidas pelo simples vínculo biográfico de 2Kgs 14:25.",
+      "Os pontos de Gate-Hefer, Jope e Nínive indicam topônimos modernos de referência, não perímetros antigos."
+    ],
+    "methodology": "Foram aceitos somente pares numéricos sem sinais de aproximação, incerteza ou coordenada regional inadequada no arquivo OpenBible retido. A proposta cartográfica para Társis foi rejeitada, e nenhum traçado marítimo foi acrescentado. Referências bíblicas sustentam a narrativa, não a certeza arqueológica ou cronológica."
+  }
+}

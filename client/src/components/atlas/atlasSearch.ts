@@ -1,4 +1,5 @@
 import type { AtlasSummary } from "@shared/atlas";
+import { atlasBookLabel } from "@shared/atlasBooks";
 
 const aliases: Record<string, string[]> = {
   jerusalem: ["jerusalém", "siao", "sião", "cidade de davi"],
@@ -20,7 +21,7 @@ export function searchAtlas(items: AtlasSummary[], query: string): AtlasSummary[
     .map((item) => {
       const haystack = normalizeAtlasText([
         item.title, item.subtitle, item.category, item.period, item.testament,
-        ...item.books, ...item.characters, ...item.keywords,
+        ...item.books, ...item.books.map(atlasBookLabel), ...item.characters, ...item.keywords,
         ...((item as AtlasSummary & { aliases?: string[] }).aliases ?? []),
       ].join(" "));
       const score = words.reduce((total, word) => {

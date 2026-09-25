@@ -1,0 +1,632 @@
+{
+  "id": "last-week-resurrection",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Matt",
+    "Mark",
+    "Luke",
+    "John"
+  ],
+  "characters": [
+    "Jesus",
+    "Zaqueu",
+    "Maria Madalena",
+    "Pedro",
+    "Tomé"
+  ],
+  "period": "Última semana, crucificação e relatos de ressurreição; cronologias evangélicas distintas",
+  "title": "Última semana e ressurreição",
+  "subtitle": "Jericó, Jerusalém, aparições e o caminho para a Galileia",
+  "summary": "O mapa reúne localidades nomeadas nos relatos da última semana de Jesus e de suas aparições após a ressurreição. Os Evangelhos não fornecem uma cronologia única e detalhada de todos esses episódios; suas narrativas e ordens próprias são preservadas, sem construir uma sequência harmonizada como certeza. Getsêmani e Gólgota não recebem pinos: o primeiro ponto geográfico legado é aproximado e o segundo representa apenas Jerusalém, não o local exato da execução. Emaús permanece sem coordenada porque sua identificação é debatida.",
+  "modernSummary": "Os pontos urbanos de referência estão na atual Cisjordânia e em Jerusalém; Galileia é uma região ampla. Getsêmani, Gólgota e Emaús não têm pino exato.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "última semana",
+    "Paixão",
+    "ressurreição",
+    "Jericó",
+    "Betânia",
+    "Jerusalém",
+    "Emaús",
+    "Galileia",
+    "Evangelhos"
+  ],
+  "section": "new-testament",
+  "subsection": "Vida de Jesus",
+  "order": 6,
+  "era": "Início do século I d.C.; cronologia evangélica não harmonizada",
+  "modernOverview": "Jericó, Betânia, Betfagé, o monte das Oliveiras e Jerusalém são representados por pontos gerais extraídos de pares numéricos exatos da evidência OpenBible retida; eles não localizam cada episódio dentro de cada cidade. Getsêmani e Gólgota são narrados como lugares, mas o registro geográfico disponível oferece apenas coordenadas aproximadas de Jerusalém e não prova a posição dos acontecimentos; ambos ficam sem pino. Emaús de Lucas 24:13 tem identificação debatida e nenhuma proposta é escolhida. Galileia é uma região, não um ponto. Os Evangelhos diferem na seleção e ordenação dos relatos e o mapa não afirma uma cronologia unificada; nenhuma linha de viagem é traçada.",
+  "keyReferences": [
+    {
+      "book": "Luke",
+      "chapter": 19,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Lucas 19:1–10"
+    },
+    {
+      "book": "Mark",
+      "chapter": 11,
+      "verseStart": 1,
+      "verseEnd": 11,
+      "label": "Marcos 11:1–11"
+    },
+    {
+      "book": "Matt",
+      "chapter": 26,
+      "verseStart": 36,
+      "verseEnd": 46,
+      "label": "Mateus 26:36–46"
+    },
+    {
+      "book": "John",
+      "chapter": 19,
+      "verseStart": 16,
+      "verseEnd": 18,
+      "label": "João 19:16–18"
+    },
+    {
+      "book": "Luke",
+      "chapter": 24,
+      "verseStart": 13,
+      "verseEnd": 35,
+      "label": "Lucas 24:13–35"
+    },
+    {
+      "book": "Matt",
+      "chapter": 28,
+      "verseStart": 16,
+      "verseEnd": 20,
+      "label": "Mateus 28:16–20"
+    },
+    {
+      "book": "John",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 14,
+      "label": "João 21:1–14"
+    },
+    {
+      "book": "Luke",
+      "chapter": 24,
+      "verseStart": 50,
+      "verseEnd": 53,
+      "label": "Lucas 24:50–53"
+    }
+  ],
+  "aliases": [
+    "Última semana de Jesus",
+    "Paixão de Cristo",
+    "Ressurreição de Jesus",
+    "Jericó e Zaqueu",
+    "Betânia e Betfagé",
+    "Getsêmani",
+    "Gólgota",
+    "Emaús",
+    "Aparições na Galileia",
+    "Ascensão perto de Betânia"
+  ],
+  "references": [
+    {
+      "book": "Luke",
+      "chapter": 19,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Lucas 19:1–10"
+    },
+    {
+      "book": "Matt",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 11,
+      "label": "Mateus 21:1–11"
+    },
+    {
+      "book": "Matt",
+      "chapter": 26,
+      "verseStart": 36,
+      "verseEnd": 46,
+      "label": "Mateus 26:36–46"
+    },
+    {
+      "book": "John",
+      "chapter": 19,
+      "verseStart": 17,
+      "verseEnd": 18,
+      "label": "João 19:17–18"
+    },
+    {
+      "book": "Luke",
+      "chapter": 24,
+      "verseStart": 13,
+      "verseEnd": 35,
+      "label": "Lucas 24:13–35"
+    },
+    {
+      "book": "Matt",
+      "chapter": 28,
+      "verseStart": 16,
+      "verseEnd": 20,
+      "label": "Mateus 28:16–20"
+    },
+    {
+      "book": "John",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 14,
+      "label": "João 21:1–14"
+    },
+    {
+      "book": "Luke",
+      "chapter": 24,
+      "verseStart": 50,
+      "verseEnd": 53,
+      "label": "Lucas 24:50–53"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info",
+      "note": "Foram usados somente pares numéricos sem qualificadores mantidos em docs/atlas/evidence/openbible-merged.txt: Jericho (35.44386371224434, 31.87060143818292), Bethany 1 (35.26212203964414, 31.77166591433378), Bethphage (35.25667232374259, 31.79038300543012), Mount of Olives (35.2471976093501, 31.77809503341373) e Jerusalem (35.234935, 31.777444), sempre convertidos a [longitude, latitude]. As coordenadas aproximadas de Getsêmani e Gólgota e o único par de Emaús foram excluídos."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas dos quatro Evangelhos",
+      "url": "https://ebible.org/web/",
+      "license": "World English Bible (WEB), domínio público; paráfrases editoriais originais em português",
+      "note": "As referências apoiam os episódios e os nomes que os textos narram. Não são usadas para provar identificação arqueológica, coordenadas nem uma cronologia harmonizada."
+    }
+  ],
+  "places": [
+    {
+      "id": "jericho",
+      "name": "Jericó",
+      "modernName": "Ariha/Jericó, Cisjordânia",
+      "coordinates": [
+        35.44386371224434,
+        31.87060143818292
+      ],
+      "certainty": "probable",
+      "explanation": "Lucas situa Zaqueu em Jericó. O par numérico exato OpenBible é um ponto geral da localidade, não o lugar da árvore, do encontro ou um perímetro da cidade antiga.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 19,
+          "verseStart": 1,
+          "verseEnd": 5,
+          "label": "Lucas 19:1–5"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "bethany",
+      "name": "Betânia",
+      "modernName": "Al-Eizariya, Cisjordânia",
+      "coordinates": [
+        35.26212203964414,
+        31.77166591433378
+      ],
+      "certainty": "probable",
+      "explanation": "A chave Bethany 1 coincide com as referências evangélicas a Betânia perto de Jerusalém. O marcador situa a localidade de modo geral; não identifica uma casa ou episódio particular.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 12,
+          "verseStart": 1,
+          "label": "João 12:1"
+        },
+        {
+          "book": "Luke",
+          "chapter": 24,
+          "verseStart": 50,
+          "label": "Lucas 24:50"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "bethphage",
+      "name": "Betfagé",
+      "modernName": "Localidade tradicional na encosta oriental do monte das Oliveiras, perto de Jerusalém",
+      "coordinates": [
+        35.25667232374259,
+        31.79038300543012
+      ],
+      "certainty": "probable",
+      "explanation": "A entrada numérica Bethphage fornece um ponto de referência para o topônimo citado nos relatos da entrada em Jerusalém. O ponto não localiza com precisão o episódio nem define a extensão da antiga localidade.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 21,
+          "verseStart": 1,
+          "label": "Mateus 21:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "mount-of-olives",
+      "name": "Monte das Oliveiras",
+      "modernName": "Jabal al-Zaytun/Monte das Oliveiras, Jerusalém Oriental",
+      "coordinates": [
+        35.2471976093501,
+        31.77809503341373
+      ],
+      "certainty": "probable",
+      "explanation": "A coordenada exata sem qualificador da chave Mount of Olives é um ponto representativo da elevação, não o local preciso da oração, da ascensão ou de cada acontecimento narrado.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 19,
+          "verseStart": 37,
+          "label": "Lucas 19:37"
+        },
+        {
+          "book": "Luke",
+          "chapter": 22,
+          "verseStart": 39,
+          "label": "Lucas 22:39"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "established",
+      "explanation": "Jerusalém é nomeada nos relatos da entrada e da crucificação. A coordenada é um ponto urbano de referência do registro OpenBible, não um local preciso de tribunal, cruz ou sepulcro; o rótulo atual não declara soberania.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 21,
+          "verseStart": 10,
+          "label": "Mateus 21:10"
+        },
+        {
+          "book": "Luke",
+          "chapter": 23,
+          "verseStart": 33,
+          "label": "Lucas 23:33"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "gethsemane",
+      "name": "Getsêmani",
+      "modernName": "Local exato desconhecido; tradição o situa ao pé do monte das Oliveiras",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Os Evangelhos nomeiam Getsêmani como lugar da oração. A linha geográfica retida só oferece para ele coordenadas aproximadas, atribuídas a Jerusalém; elas foram rejeitadas como pino. Jardins venerados na tradição não demonstram a posição exata do episódio.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 26,
+          "verseStart": 36,
+          "label": "Mateus 26:36"
+        },
+        {
+          "book": "Mark",
+          "chapter": 14,
+          "verseStart": 32,
+          "label": "Marcos 14:32"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "golgotha",
+      "name": "Gólgota",
+      "modernName": "Jerusalém; local da execução não identificado com exatidão",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Os Evangelhos situam a crucificação no lugar chamado Gólgota, fora da identificação pontual neste mapa. O registro OpenBible associa o nome apenas a coordenadas aproximadas de Jerusalém, portanto não sustenta pino de Gólgota. A identificação tradicional do Santo Sepulcro é apresentada como tradição, não como certeza arqueológica.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 27,
+          "verseStart": 33,
+          "label": "Mateus 27:33"
+        },
+        {
+          "book": "John",
+          "chapter": 19,
+          "verseStart": 17,
+          "label": "João 19:17"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "emmaus",
+      "name": "Emaús",
+      "modernName": "Identificação debatida; não há pino seguro para a Emaús de Lucas 24",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Lucas 24:13 menciona Emaús a sessenta estádios de Jerusalém na leitura textual comum, mas há propostas concorrentes para identificar o lugar. O ponto numérico OpenBible foi deliberadamente omitido: não resolve o debate e não deve ser tratado como identificação certa.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 24,
+          "verseStart": 13,
+          "verseEnd": 35,
+          "label": "Lucas 24:13–35"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "galilee",
+      "name": "Galileia",
+      "modernName": "Região histórica da Galileia, no atual norte de Israel",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Mateus relata uma aparição aos discípulos num monte da Galileia, sem nomear o monte ou fixar coordenada. João descreve aparição junto ao mar da Galileia, também sem um pino para o episódio; esta entrada regional não é um ponto ou polígono.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 28,
+          "verseStart": 16,
+          "verseEnd": 20,
+          "label": "Mateus 28:16–20"
+        },
+        {
+          "book": "John",
+          "chapter": 21,
+          "verseStart": 1,
+          "verseEnd": 14,
+          "label": "João 21:1–14"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "jericho",
+      "title": "Zaqueu em Jericó",
+      "text": "Lucas situa o encontro de Jesus com Zaqueu em Jericó. O ponto é apenas uma referência urbana geral e não tenta marcar a árvore nem a casa.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 19,
+        "verseStart": 1,
+        "verseEnd": 10,
+        "label": "Lucas 19:1–10"
+      }
+    },
+    {
+      "placeId": "bethany",
+      "title": "Betânia",
+      "text": "Os Evangelhos mencionam Betânia em episódios distintos, inclusive antes da entrada em Jerusalém; Lucas também situa a bênção final na direção de Betânia. Esses relatos não são fundidos aqui numa única cronologia detalhada.",
+      "reference": {
+        "book": "John",
+        "chapter": 12,
+        "verseStart": 1,
+        "label": "João 12:1"
+      }
+    },
+    {
+      "placeId": "bethphage",
+      "title": "Betfagé",
+      "text": "Mateus nomeia Betfagé quando Jesus se aproxima de Jerusalém pelo monte das Oliveiras. O ponto representa apenas a referência geográfica do topônimo.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 21,
+        "verseStart": 1,
+        "label": "Mateus 21:1"
+      }
+    },
+    {
+      "placeId": "mount-of-olives",
+      "title": "Monte das Oliveiras",
+      "text": "Lucas menciona a descida do monte das Oliveiras na aproximação de Jerusalém; em outro trecho, relata que Jesus saiu para esse monte. O mapa não desenha uma rota entre as localidades.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 19,
+        "verseStart": 37,
+        "label": "Lucas 19:37"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Jerusalém",
+      "text": "Os relatos da entrada, da paixão e da crucificação se concentram em Jerusalém. O marcador assinala a cidade, não um ponto exato de julgamento ou execução.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 21,
+        "verseStart": 10,
+        "label": "Mateus 21:10"
+      }
+    },
+    {
+      "placeId": "gethsemane",
+      "title": "Getsêmani, sem pino exato",
+      "text": "Mateus e Marcos nomeiam Getsêmani como lugar da oração antes da prisão. A tradição localiza jardins na encosta do monte das Oliveiras, mas a evidência cartográfica disponível só traz coordenadas aproximadas de Jerusalém.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 26,
+        "verseStart": 36,
+        "label": "Mateus 26:36"
+      }
+    },
+    {
+      "placeId": "golgotha",
+      "title": "Gólgota, sem pino exato",
+      "text": "João chama Gólgota ao lugar da crucificação. A tradição do Santo Sepulcro é registrada como tradição; não se escolhe uma coordenada para o acontecimento.",
+      "reference": {
+        "book": "John",
+        "chapter": 19,
+        "verseStart": 17,
+        "label": "João 19:17"
+      }
+    },
+    {
+      "placeId": "emmaus",
+      "title": "Emaús: identificação debatida",
+      "text": "Lucas narra que dois discípulos viajavam para Emaús e encontraram Jesus ressuscitado. As propostas modernas divergem e nenhuma coordenada é escolhida.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 24,
+        "verseStart": 13,
+        "verseEnd": 35,
+        "label": "Lucas 24:13–35"
+      }
+    },
+    {
+      "placeId": "galilee",
+      "title": "Aparições na Galileia",
+      "text": "Mateus situa os discípulos num monte da Galileia; João conta uma aparição junto ao mar da Galileia. Os relatos mantêm seus cenários próprios, sem pino regional nem cronologia conciliada.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 28,
+        "verseStart": 16,
+        "verseEnd": 20,
+        "label": "Mateus 28:16–20"
+      }
+    },
+    {
+      "placeId": "bethany",
+      "title": "A ascensão no relato de Lucas",
+      "text": "Lucas diz que Jesus conduziu os discípulos na direção de Betânia antes de abençoá-los e ser elevado. O texto é apresentado como relato lucano, sem afirmar que todos os Evangelhos fornecem a mesma ordem.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 24,
+        "verseStart": 50,
+        "verseEnd": 53,
+        "label": "Lucas 24:50–53"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Lucas abre o episódio de Zaqueu situando-o em Jericó; a coordenada do mapa aponta para a localidade em geral, não para a árvore descrita no relato.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 19,
+        "verseStart": 1,
+        "verseEnd": 4,
+        "label": "Lucas 19:1–4"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Getsêmani é nomeado nos relatos de Mateus e Marcos, mas a única coordenada geográfica retida para o topônimo está marcada como aproximada e ligada a Jerusalém; por isso não é um pino confiável do jardim.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 14,
+        "verseStart": 32,
+        "label": "Marcos 14:32"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "João nomeia Gólgota e descreve a crucificação, enquanto a referência cartográfica retida apenas remete a Jerusalém com coordenadas aproximadas. A tradição de um local sagrado não torna essa referência um ponto arqueológico exato.",
+      "reference": {
+        "book": "John",
+        "chapter": 19,
+        "verseStart": 17,
+        "verseEnd": 18,
+        "label": "João 19:17–18"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Lucas relata a aparição no caminho de Emaús, ao passo que Mateus situa uma aparição aos discípulos na Galileia. O mapa não transforma esses cenários narrativos em uma sequência cronológica harmonizada.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 24,
+        "verseStart": 13,
+        "verseEnd": 35,
+        "label": "Lucas 24:13–35"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Mateus associa a comissão final a um monte na Galileia sem nomeá-lo, e João descreve uma aparição à beira do mar da Galileia. Nenhum dos dois trechos fornece coordenada de acontecimento.",
+      "reference": {
+        "book": "John",
+        "chapter": 21,
+        "verseStart": 1,
+        "verseEnd": 14,
+        "label": "João 21:1–14"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    35.234935,
+    31.77166591433378,
+    35.44386371224434,
+    31.87060143818292
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Os cinco pontos urbanos usam pares numéricos exatos sem qualificador nas linhas retidas; coordenadas estão na ordem [longitude, latitude].",
+      "Getsêmani e Gólgota não recebem pinos porque as coordenadas legadas são aproximadas e não identificam os lugares dos eventos.",
+      "Emaús permanece sem pino por identificação debatida; Galileia aparece apenas como região narrativa.",
+      "As referências de cada parada apontam aos versículos que nomeiam o lugar ou narram o episódio."
+    ],
+    "uncertainties": [
+      "A localização arqueológica exata de Getsêmani e Gólgota não é estabelecida por esta evidência; a identificação tradicional do Santo Sepulcro não é tratada como prova definitiva.",
+      "A identificação moderna de Emaús é debatida.",
+      "Os Evangelhos selecionam, ordenam e situam os relatos de maneira própria; não há aqui uma harmonização cronológica certa das aparições ou da ascensão.",
+      "Os pontos urbanos são referências representativas e não delimitam cidades antigas ou locais precisos dos eventos."
+    ],
+    "methodology": "Foram incluídos somente pares numéricos sem qualificadores ou marcadores regionais da evidência OpenBible retida. Pares aproximados atribuídos a Getsêmani e Gólgota foram excluídos; a coordenada de Emaús não foi reutilizada como identificação consensual. As referências bíblicas apoiam a narrativa, não a localização arqueológica. Nenhuma rota foi desenhada, e as diferenças de cronologia entre os Evangelhos permanecem explícitas."
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "id": "tabernacle-incense-altar",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod"],
+  "characters": ["Moisés", "Arão"],
+  "period": "Instruções para o santuário móvel no deserto",
+  "title": "Tabernáculo: Altar do incenso",
+  "subtitle": "Altar quadrado revestido de ouro, situado diante do véu",
+  "summary": "O altar do incenso é descrito como uma peça de madeira de acácia revestida de ouro, com um côvado de comprimento, um de largura e dois de altura. Tem quatro pontas, argolas e varais para transporte. O texto o situa diante do véu e descreve a queima de incenso aromático em horários regulares.",
+  "modernSummary": "A localização e os detalhes apresentados nesta ficha seguem o texto bíblico; o desenho vetorial é esquemático e não documenta um exemplar arqueológico.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["altar do incenso", "altar de ouro", "incenso", "Lugar Santo", "véu", "acácia"],
+  "section": "tabernacle",
+  "subsection": "Mobiliário do Lugar Santo",
+  "order": 11,
+  "era": "Êxodo e deserto",
+  "modernOverview": "A posição diante do véu e as dimensões derivam das instruções escritas; esta ficha não localiza restos arqueológicos identificados.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 30, "verseStart": 1, "verseEnd": 10, "label": "Exod 30:1–10"},
+    {"book": "Exod", "chapter": 37, "verseStart": 25, "verseEnd": 28, "label": "Exod 37:25–28"},
+    {"book": "Exod", "chapter": 30, "verseStart": 34, "verseEnd": 38, "label": "Exod 30:34–38"}
+  ],
+  "aliases": ["altar de ouro", "altar do incenso aromático", "incensário do tabernáculo"],
+  "references": [
+    {"book": "Exod", "chapter": 30, "verseStart": 1, "verseEnd": 10, "label": "Exod 30:1–10"},
+    {"book": "Exod", "chapter": 37, "verseStart": 25, "verseEnd": 28, "label": "Exod 37:25–28"}
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Passagens bíblicas — texto ACF local e referências",
+      "url": "https://ebible.org/web/",
+      "license": "Paráfrases próprias; sem reprodução de trechos de tradução",
+      "note": "As referências e dimensões foram conferidas no texto ACF presente em server/bible-data/exo.ts; ilustrações vetoriais originais."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "purpose": "Servia para queimar o incenso aromático prescrito no santuário, diante do véu que separava o espaço da arca.",
+  "storySteps": [
+    {
+      "placeId": "altar-body",
+      "title": "Corpo de acácia revestido",
+      "text": "O corpo quadrado, com altura duas vezes a largura da base, é especificado em côvados no texto.",
+      "reference": {"book": "Exod", "chapter": 30, "verseStart": 1, "verseEnd": 3, "label": "Exod 30:1–3"}
+    },
+    {
+      "placeId": "four-horns",
+      "title": "Quatro pontas",
+      "text": "As pontas pertencem à própria construção do altar; o texto não dimensiona sua forma individual.",
+      "reference": {"book": "Exod", "chapter": 30, "verseStart": 2, "label": "Exod 30:2"}
+    },
+    {
+      "placeId": "rings-and-poles",
+      "title": "Transporte por varais",
+      "text": "Argolas de ouro e varais revestidos de ouro aparecem na descrição de transporte.",
+      "reference": {"book": "Exod", "chapter": 30, "verseStart": 4, "verseEnd": 5, "label": "Exod 30:4–5"}
+    },
+    {
+      "placeId": "incense",
+      "title": "Incenso diante do véu",
+      "text": "O texto coloca o altar diante do véu e registra o uso do incenso pela manhã e ao acender as lâmpadas à tarde.",
+      "reference": {"book": "Exod", "chapter": 30, "verseStart": 6, "verseEnd": 8, "label": "Exod 30:6–8"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A base tem um côvado por um côvado e a altura é de dois côvados; o texto não define o relevo das pontas.",
+      "reference": {"book": "Exod", "chapter": 30, "verseStart": 2, "label": "Exod 30:2"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "O altar ficava diante do véu, o qual é relacionado à arca e ao propiciatório no próprio texto.",
+      "reference": {"book": "Exod", "chapter": 30, "verseStart": 6, "label": "Exod 30:6"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "O texto vincula a queima do incenso à manutenção das lâmpadas pela manhã e ao seu acendimento à tarde.",
+      "reference": {"book": "Exod", "chapter": 30, "verseStart": 7, "verseEnd": 8, "label": "Exod 30:7–8"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Exod 30:9 especifica o que não deveria ser oferecido sobre esse altar, distinguindo-o das demais funções rituais.",
+      "reference": {"book": "Exod", "chapter": 30, "verseStart": 9, "label": "Exod 30:9"},
+      "sourceIds": ["biblical"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "tabernacle-incense-altar.svg",
+    "dimensions": [
+      {"label": "Comprimento", "cubits": 1, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 30, "verseStart": 2, "label": "Exod 30:2"}},
+      {"label": "Largura", "cubits": 1, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 30, "verseStart": 2, "label": "Exod 30:2"}},
+      {"label": "Altura", "cubits": 2, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 30, "verseStart": 2, "label": "Exod 30:2"}}
+    ],
+    "notes": [
+      "O tampo quadrado da planta e a razão dimensional 1:2 da vista frontal seguem as medidas escritas.",
+      "As pontas, coroas, anéis, varais e incensário são representados em desenho técnico esquemático; seus perfis e dimensões particulares não são informados.",
+      "A ilustração mostra a posição textual diante do véu por associação no resumo; não desenha uma reconstrução completa do interior da tenda."
+    ],
+    "relatedIds": ["tabernacle-overview", "tabernacle-menorah", "tabernacle-showbread-table", "tabernacle-ark-mercy-seat"],
+    "views": [
+      {"label": "Planta", "svgFile": "tabernacle-incense-altar.svg"},
+      {"label": "Frente", "svgFile": "tabernacle-incense-altar-frente.svg"},
+      {"label": "Vista 3/4", "svgFile": "tabernacle-incense-altar-isometrica.svg"}
+    ],
+    "parts": [
+      {
+        "id": "altar-body",
+        "name": "Corpo revestido de ouro",
+        "description": "Madeira de acácia, de base quadrada, com dimensões textuais de 1 × 1 × 2 côvados.",
+        "material": "Madeira de acácia revestida de ouro puro",
+        "references": [
+          {"book": "Exod", "chapter": 30, "verseStart": 1, "verseEnd": 3, "label": "Exod 30:1–3"},
+          {"book": "Exod", "chapter": 37, "verseStart": 25, "verseEnd": 26, "label": "Exod 37:25–26"}
+        ],
+        "highlight": {"x": 50, "y": 52, "width": 0, "height": 0}
+      },
+      {
+        "id": "four-horns",
+        "name": "Quatro pontas",
+        "description": "Pontas nos quatro cantos, descritas como parte do altar, sem dimensões individuais informadas.",
+        "material": "Madeira revestida de ouro",
+        "references": [{"book": "Exod", "chapter": 30, "verseStart": 2, "label": "Exod 30:2"}],
+        "highlight": {"x": 37, "y": 34, "width": 0, "height": 0}
+      },
+      {
+        "id": "gold-crown",
+        "name": "Coroa de ouro",
+        "description": "Coroa ao redor do altar; o texto não informa seu perfil ou largura.",
+        "material": "Ouro puro",
+        "references": [{"book": "Exod", "chapter": 30, "verseStart": 3, "label": "Exod 30:3"}],
+        "highlight": {"x": 50, "y": 28, "width": 0, "height": 0}
+      },
+      {
+        "id": "rings-and-poles",
+        "name": "Argolas e varais",
+        "description": "Duas argolas sob a coroa e varais revestidos para carregar o altar.",
+        "material": "Argolas de ouro; varais de acácia revestidos de ouro",
+        "references": [
+          {"book": "Exod", "chapter": 30, "verseStart": 4, "verseEnd": 5, "label": "Exod 30:4–5"},
+          {"book": "Exod", "chapter": 37, "verseStart": 27, "verseEnd": 28, "label": "Exod 37:27–28"}
+        ],
+        "highlight": {"x": 31, "y": 51, "width": 0, "height": 0}
+      },
+      {
+        "id": "incense",
+        "name": "Incenso aromático",
+        "description": "O texto relaciona a queima do incenso com a rotina das lâmpadas e determina que fosse queimado diante do véu.",
+        "material": "Incenso aromático prescrito no texto",
+        "references": [{"book": "Exod", "chapter": 30, "verseStart": 6, "verseEnd": 8, "label": "Exod 30:6–8"}],
+        "highlight": {"x": 50, "y": 49, "width": 0, "height": 0}
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-02-20",
+    "status": "documented",
+    "verified": ["Exod 30:1–10", "Exod 37:25–28; texto ACF local conferido"],
+    "uncertainties": [
+      "As dimensões gerais de 1 × 1 × 2 côvados são textuais; tamanho e desenho das pontas, coroa, argolas, varais e utensílios não são especificados.",
+      "O texto posiciona o altar diante do véu, mas não fornece uma planta dimensional detalhada da área interna."
+    ],
+    "methodology": "Dimensões, material, posição e uso conferidos no texto ACF local do projeto. Planta e frente são diagramas vetoriais originais, não reconstituição arqueológica."
+  }
+}

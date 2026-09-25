@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-label="Elevação frontal diagramática do templo de Salomão">
+ <rect width="720" height="480" fill="#14231f"/><text x="24" y="34" fill="#f4ead3" font-family="sans-serif" font-size="22" font-weight="700">ELEVAÇÃO FRONTAL · ESQUEMA</text>
+ <g id="part-main-house"><path d="M165 154L360 93L555 154V350H165Z" fill="#cfc5ac" stroke="#eee2c5" stroke-width="4"/><path d="M165 154L360 93L555 154" fill="none" stroke="#c9a84a" stroke-width="5"/><path d="M190 185H530M190 220H530M190 255H530M190 290H530M190 325H530" stroke="#887c63" stroke-width="2" opacity=".5"/><rect x="291" y="224" width="136" height="126" fill="#503a28" stroke="#d8bd70" stroke-width="3"/><path d="M359 224V350" stroke="#d8bd70" stroke-width="2"/></g>
+ <g id="part-porch"><path d="M272 350V265H448V350" fill="#ac8a47" stroke="#f0d985" stroke-width="4"/><path d="M270 264L360 225L450 264" fill="#bb9a53" stroke="#f0d985" stroke-width="4"/><path d="M286 270V350M434 270V350" stroke="#8b6930" stroke-width="5"/></g>
+ <g id="part-silhouette" fill="#d9dfd1"><circle cx="615" cy="291" r="9"/><path d="M608 302h14l6 29h-6l-2-19-3 37h-4l-2-31-3 31h-4l4-37z"/></g>
+ <g stroke="#e7d5a2" stroke-width="2" fill="none"><path d="M165 378H555M165 371V385M555 371V385"/><path d="M580 350V154M573 350H587M573 154H587"/></g>
+ <g fill="#f4ead3" font-family="sans-serif" font-size="15"><text x="300" y="407">20 côv. ≈ 9,0 m</text><text x="591" y="238">30 côv.</text><text x="591" y="258">≈ 13,5 m</text><text x="580" y="378">1,70 m</text></g>
+ <rect x="24" y="438" width="672" height="25" rx="5" fill="#263930" stroke="#b99a58" stroke-dasharray="6 4"/><text x="36" y="456" fill="#f2d68c" font-family="sans-serif" font-size="13">Telhado e fachada esquemáticos; alturas de detalhes não cotadas no texto.</text>
+</svg>

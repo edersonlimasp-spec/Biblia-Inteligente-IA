@@ -1,0 +1,637 @@
+{
+  "id": "church-acts-1-12",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Acts"
+  ],
+  "characters": [
+    "Filipe",
+    "Pedro",
+    "Cornélio",
+    "Barnabé",
+    "Saulo"
+  ],
+  "period": "Primeiras décadas da igreja cristã; cronologia aproximada do século I d.C.",
+  "title": "Igreja em Atos 1–12",
+  "subtitle": "De Jerusalém e Samaria à Judeia e Antioquia",
+  "summary": "O mapa acompanha episódios de Atos 8–11: a proclamação de Filipe na cidade de Samaria, o encontro com o eunuco na estrada que descia de Jerusalém para Gaza, e a passagem de Filipe por Azoto até Cesareia. Em seguida, apresenta os relatos de Pedro em Lida, Jope e Cesareia, sem fundir esses episódios numa única viagem precisa. A comunidade de Antioquia e a ida de Barnabé a Tarso para buscar Saulo ampliam o foco geográfico. Os marcadores indicam cidades identificadas por pares explícitos da evidência retida; a estrada e a região da Samaria não são pontos urbanos.",
+  "modernSummary": "Os lugares pontuados situam-se em Israel, nos Territórios Palestinos e na Turquia atual. A estrada para Gaza e a região da Samaria são referências narrativas amplas, não pinos.",
+  "certainty": "probable",
+  "sample": false,
+  "keywords": [
+    "Atos",
+    "igreja primitiva",
+    "Filipe",
+    "Pedro",
+    "Samaria",
+    "Gaza",
+    "Cesareia",
+    "Antioquia",
+    "Tarso"
+  ],
+  "section": "new-testament",
+  "subsection": "Igreja primitiva",
+  "order": 8,
+  "era": "Século I d.C.; datas e sequência histórica aproximadas",
+  "modernOverview": "Jerusalém, a cidade de Samaria, Azoto, Cesareia, Lida e Jope usam pares numéricos exatos, sem marcadores de aproximação, na evidência OpenBible retida. A cidade de Samaria é distinta da região mais ampla chamada Samaria; Atos 8:5 situa Filipe numa cidade, enquanto a região não recebe pino. Antioquia 1 é a cidade síria associada à comunidade de Atos 11, não Antioquia da Pisídia. A estrada de Jerusalém a Gaza não tem traçado ou localização exata documentados neste conjunto de evidências e fica sem coordenadas; a passagem de Azoto a Cesareia tampouco é convertida em rota. Os pinos indicam referências urbanas modernas, não os locais exatos dos acontecimentos antigos.",
+  "keyReferences": [
+    {
+      "book": "Acts",
+      "chapter": 8,
+      "verseStart": 5,
+      "verseEnd": 8,
+      "label": "Atos 8:5–8"
+    },
+    {
+      "book": "Acts",
+      "chapter": 8,
+      "verseStart": 26,
+      "verseEnd": 40,
+      "label": "Atos 8:26–40"
+    },
+    {
+      "book": "Acts",
+      "chapter": 9,
+      "verseStart": 32,
+      "verseEnd": 43,
+      "label": "Atos 9:32–43"
+    },
+    {
+      "book": "Acts",
+      "chapter": 10,
+      "verseStart": 1,
+      "verseEnd": 48,
+      "label": "Atos 10:1–48"
+    },
+    {
+      "book": "Acts",
+      "chapter": 11,
+      "verseStart": 19,
+      "verseEnd": 26,
+      "label": "Atos 11:19–26"
+    }
+  ],
+  "aliases": [
+    "Atos 1–12",
+    "Igreja primitiva",
+    "Filipe em Samaria",
+    "Estrada de Gaza",
+    "Pedro em Jope e Cesareia",
+    "Antioquia da Síria"
+  ],
+  "references": [
+    {
+      "book": "Acts",
+      "chapter": 8,
+      "verseStart": 4,
+      "verseEnd": 8,
+      "label": "Atos 8:4–8"
+    },
+    {
+      "book": "Acts",
+      "chapter": 8,
+      "verseStart": 26,
+      "verseEnd": 40,
+      "label": "Atos 8:26–40"
+    },
+    {
+      "book": "Acts",
+      "chapter": 9,
+      "verseStart": 32,
+      "verseEnd": 43,
+      "label": "Atos 9:32–43"
+    },
+    {
+      "book": "Acts",
+      "chapter": 10,
+      "verseStart": 1,
+      "verseEnd": 48,
+      "label": "Atos 10:1–48"
+    },
+    {
+      "book": "Acts",
+      "chapter": 11,
+      "verseStart": 19,
+      "verseEnd": 30,
+      "label": "Atos 11:19–30"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pares numéricos sem marcadores da evidência retida, armazenados na ordem [longitude, latitude]: Jerusalem (35.234935, 31.777444), Samaria (35.19792900000002, 32.28023100000001), Azotus (34.6351145939134, 31.80299971086164), Caesarea (34.89218497556097, 32.499544608298), Lydda (34.89527777777778, 31.95138888888889), Joppa (34.75042606009946, 32.05351968494696) e Antioch 1 (36.16238775165068, 36.20233087051257)."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; paráfrases originais, sem reprodução de tradução protegida",
+      "note": "Atos 8–11 sustenta os episódios narrados e a menção de lugares. As referências bíblicas não são tratadas como prova de coordenadas arqueológicas nem como documentação de uma rota precisa."
+    }
+  ],
+  "places": [
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém, cidade atual",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 8:1 e 8:26 situam os acontecimentos a partir de Jerusalém e mencionam a estrada que desce em direção a Gaza. O par é a chave Jerusalem da evidência retida; não indica uma casa, portão ou ponto de partida específico.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 8,
+          "verseStart": 1,
+          "label": "Atos 8:1"
+        },
+        {
+          "book": "Acts",
+          "chapter": 8,
+          "verseStart": 26,
+          "label": "Atos 8:26"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "samaria-city",
+      "name": "Cidade de Samaria",
+      "modernName": "Sítio de Samaria/Sebastia, Cisjordânia",
+      "coordinates": [
+        35.19792900000002,
+        32.28023100000001
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 8:5 diz que Filipe desceu a uma cidade de Samaria; a identificação tradicional com a cidade antiga usa a chave Samaria da evidência retida. O marcador não representa toda a região samaritana nem garante a localização de cada episódio nela.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 8,
+          "verseStart": 5,
+          "verseEnd": 8,
+          "label": "Atos 8:5–8"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "samaria-region",
+      "name": "Região da Samaria",
+      "modernName": "Região histórica da Samaria, no atual centro-norte da Cisjordânia",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Samaria também designa uma região mais ampla, mas Atos 8:5 fala de uma cidade e não define limites regionais para a atividade de Filipe. A coordenada disponível corresponde ao topônimo urbano Samaria, por isso não é reutilizada como pino regional.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 8,
+          "verseStart": 1,
+          "verseEnd": 5,
+          "label": "Atos 8:1–5"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "gaza-road",
+      "name": "Estrada em direção a Gaza",
+      "modernName": "Estrada não identificada com precisão entre Jerusalém e Gaza",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "O anjo orienta Filipe a seguir pela estrada que desce de Jerusalém para Gaza; o texto não localiza o encontro do eunuco num trecho identificável. Não há pino nem rota desenhada, e o mapa não presume uma estrada moderna equivalente.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 8,
+          "verseStart": 26,
+          "verseEnd": 31,
+          "label": "Atos 8:26–31"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "azotus",
+      "name": "Azoto",
+      "modernName": "Ashdod, Israel",
+      "coordinates": [
+        34.6351145939134,
+        31.80299971086164
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 8:40 nomeia Azoto como o lugar onde Filipe foi encontrado depois do episódio na estrada. A chave Azotus, cujo nome moderno associado é Ashdod, fornece o par numérico; ele identifica a cidade em geral, não o ponto de chegada de Filipe.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 8,
+          "verseStart": 40,
+          "label": "Atos 8:40"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "damascus",
+      "name": "Damasco",
+      "modernName": "Damasco, Síria",
+      "coordinates": [
+        36.31344999999999,
+        33.519299
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 9:1–9 relata que Saulo se aproximava de Damasco quando foi interrompido por uma luz e ouviu a voz de Jesus; depois, foi conduzido à cidade. O par usa a chave Damascus da evidência retida e identifica a cidade em termos gerais, não o ponto exato do encontro na estrada.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 9,
+          "label": "Atos 9:1–9"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "caesarea",
+      "name": "Cesareia",
+      "modernName": "Cesareia Marítima, Israel",
+      "coordinates": [
+        34.89218497556097,
+        32.499544608298
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 8:40 diz que Filipe chegou a Cesareia; Atos 10 narra ali o encontro de Pedro com Cornélio. A coordenada usa a chave Caesarea da evidência OpenBible e representa a cidade em termos gerais, não a casa de Cornélio.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 8,
+          "verseStart": 40,
+          "label": "Atos 8:40"
+        },
+        {
+          "book": "Acts",
+          "chapter": 10,
+          "verseStart": 1,
+          "verseEnd": 8,
+          "label": "Atos 10:1–8"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "lydda",
+      "name": "Lida",
+      "modernName": "Lod, Israel",
+      "coordinates": [
+        34.89527777777778,
+        31.95138888888889
+      ],
+      "certainty": "probable",
+      "explanation": "Pedro visita os discípulos em Lida e cura Eneias, segundo Atos 9:32–35. A entrada Lydda/Lod fornece a coordenada urbana de referência; o pino não identifica a casa nem o local exato da cura.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 9,
+          "verseStart": 32,
+          "verseEnd": 35,
+          "label": "Atos 9:32–35"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "joppa",
+      "name": "Jope",
+      "modernName": "Jaffa, Tel Aviv–Yafo, Israel",
+      "coordinates": [
+        34.75042606009946,
+        32.05351968494696
+      ],
+      "certainty": "probable",
+      "explanation": "De Lida, Pedro é chamado a Jope, onde Tabita morrera e é restaurada à vida; ele permanece ali por algum tempo. O par corresponde à chave Joppa e não marca a casa de Simão nem um cais específico.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 9,
+          "verseStart": 36,
+          "verseEnd": 43,
+          "label": "Atos 9:36–43"
+        },
+        {
+          "book": "Acts",
+          "chapter": 10,
+          "verseStart": 5,
+          "verseEnd": 8,
+          "label": "Atos 10:5–8"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "antioch-syria",
+      "name": "Antioquia da Síria",
+      "modernName": "Antakya, Turquia",
+      "coordinates": [
+        36.16238775165068,
+        36.20233087051257
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 11:19–26 descreve a comunidade de Antioquia e a chegada de Barnabé e Saulo. O par usa especificamente a entrada Antioch 1, não a Antioquia da Pisídia, listada separadamente na evidência.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 11,
+          "verseStart": 19,
+          "verseEnd": 26,
+          "label": "Atos 11:19–26"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "tarsus",
+      "name": "Tarso",
+      "modernName": "Tarsus, Turquia",
+      "coordinates": [
+        34.89153398422567,
+        36.91802695356275
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 11:25–26 informa que Barnabé foi a Tarso procurar Saulo e o levou a Antioquia. A chave Tarsus fornece a coordenada da cidade em geral, não a localização de uma residência de Saulo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 11,
+          "verseStart": 25,
+          "verseEnd": 26,
+          "label": "Atos 11:25–26"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "jerusalem",
+      "title": "A dispersão a partir de Jerusalém",
+      "text": "Após a perseguição, os discípulos se dispersam; Filipe chega à cidade de Samaria. Atos também menciona Jerusalém como referência para a estrada que desce em direção a Gaza.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 8,
+        "verseStart": 1,
+        "verseEnd": 5,
+        "label": "Atos 8:1–5"
+      }
+    },
+    {
+      "placeId": "samaria-city",
+      "title": "Filipe na cidade de Samaria",
+      "text": "Filipe anuncia o Cristo numa cidade de Samaria, e muitos acolhem sua mensagem. O nome da cidade neste marcador não deve ser confundido com toda a região samaritana.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 8,
+        "verseStart": 5,
+        "verseEnd": 8,
+        "label": "Atos 8:5–8"
+      }
+    },
+    {
+      "placeId": "samaria-region",
+      "title": "Samaria como região",
+      "text": "O texto mais amplo de Atos situa a expansão entre Jerusalém e Samaria, mas o episódio de Filipe especifica uma cidade. A região é mantida como contexto, sem transformar o ponto da cidade em fronteira regional.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 8,
+        "verseStart": 1,
+        "verseEnd": 5,
+        "label": "Atos 8:1–5"
+      }
+    },
+    {
+      "placeId": "gaza-road",
+      "title": "Encontro na estrada para Gaza",
+      "text": "Filipe encontra um eunuco etíope numa estrada que descia de Jerusalém para Gaza. O trecho específico não é identificável pelo relato, por isso esta parada narrativa não tem pino nem rota.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 8,
+        "verseStart": 26,
+        "verseEnd": 35,
+        "label": "Atos 8:26–35"
+      }
+    },
+    {
+      "placeId": "azotus",
+      "title": "Filipe em Azoto",
+      "text": "Depois do batismo do eunuco, Filipe é encontrado em Azoto e anuncia a mensagem pelas cidades até Cesareia. O relato não enumera todas as localidades intermediárias.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 8,
+        "verseStart": 36,
+        "verseEnd": 40,
+        "label": "Atos 8:36–40"
+      }
+    },
+    {
+      "placeId": "damascus",
+      "title": "Saulo encontra Jesus a caminho de Damasco",
+      "text": "Atos relata que Saulo se aproximava de Damasco quando uma luz o cercou; após o encontro, ele foi levado à cidade. O mapa marca apenas Damasco, não um ponto exato do acontecimento na estrada.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 1,
+        "verseEnd": 9,
+        "label": "Atos 9:1–9"
+      }
+    },
+    {
+      "placeId": "caesarea",
+      "title": "Filipe e, depois, Pedro em Cesareia",
+      "text": "Atos 8 conclui a passagem de Filipe em Cesareia. Mais adiante, Atos 10 narra a visita de Pedro à casa de Cornélio; a proximidade temática no mapa não afirma que os dois episódios ocorreram juntos.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 10,
+        "verseStart": 1,
+        "verseEnd": 8,
+        "label": "Atos 10:1–8"
+      }
+    },
+    {
+      "placeId": "lydda",
+      "title": "Pedro visita Lida",
+      "text": "Pedro encontra discípulos em Lida e cura Eneias. A narrativa diz que os habitantes da região se voltaram ao Senhor, sem especificar limites territoriais.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 32,
+        "verseEnd": 35,
+        "label": "Atos 9:32–35"
+      }
+    },
+    {
+      "placeId": "joppa",
+      "title": "Tabita em Jope",
+      "text": "Discípulos de Jope chamam Pedro após a morte de Tabita. Depois do episódio, Pedro fica em Jope na casa de Simão, curtidor; nenhum endereço ou cais é identificado.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 36,
+        "verseEnd": 43,
+        "label": "Atos 9:36–43"
+      }
+    },
+    {
+      "placeId": "caesarea",
+      "title": "Pedro e Cornélio",
+      "text": "Cornélio, oficial romano em Cesareia, manda chamar Pedro; a narrativa relata a visita e a recepção do Espírito Santo entre gentios. O mapa não marca a casa de Cornélio.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 10,
+        "verseStart": 1,
+        "verseEnd": 48,
+        "label": "Atos 10:1–48"
+      }
+    },
+    {
+      "placeId": "antioch-syria",
+      "title": "A comunidade de Antioquia",
+      "text": "Discípulos dispersos chegam a Antioquia e anunciam também a não judeus. Barnabé procura Saulo em Tarso, e ambos ensinam juntos à comunidade durante um ano, conforme o relato.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 11,
+        "verseStart": 19,
+        "verseEnd": 26,
+        "label": "Atos 11:19–26"
+      }
+    },
+    {
+      "placeId": "tarsus",
+      "title": "Barnabé procura Saulo em Tarso",
+      "text": "Atos diz que Barnabé foi a Tarso em busca de Saulo e o levou a Antioquia. O episódio contextualiza a ligação entre as cidades, mas não documenta o itinerário percorrido.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 11,
+        "verseStart": 25,
+        "verseEnd": 26,
+        "label": "Atos 11:25–26"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Atos 8:5 fala de uma cidade de Samaria, enquanto outros usos de Samaria designam uma região. A evidência geográfica oferece um topônimo urbano, não uma fronteira regional para o episódio.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 8,
+        "verseStart": 5,
+        "label": "Atos 8:5"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "O encontro do eunuco acontece numa estrada descrita em relação a Jerusalém e Gaza, mas o versículo não fornece um trecho cartograficamente identificável. O caminho, portanto, fica sem pino e sem traçado.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 8,
+        "verseStart": 26,
+        "label": "Atos 8:26"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Atos 8:40 nomeia Azoto e Cesareia como pontos sucessivos da narrativa de Filipe, mas não enumera as cidades atravessadas entre elas. Uma linha direta pareceria documentar um itinerário que o texto não especifica.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 8,
+        "verseStart": 40,
+        "label": "Atos 8:40"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "A entrada geográfica distingue Antioquia 1, usada para Antioquia da Síria, de Antioquia 2, associada a Antioquia da Pisídia. Atos 11:19–26 trata da primeira comunidade, não da cidade visitada mais tarde nas viagens missionárias.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 11,
+        "verseStart": 19,
+        "verseEnd": 26,
+        "label": "Atos 11:19–26"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    34.6351145939134,
+    31.777444,
+    36.31344999999999,
+    36.91802695356275
+  ],
+  "review": {
+    "date": "2025-02-20",
+    "status": "needs-specialist",
+    "verified": [
+      "As coordenadas de cidades correspondem a pares numéricos explícitos e sem marcadores de aproximação na evidência OpenBible retida, guardados como [longitude, latitude].",
+      "Samaria cidade foi separada da região da Samaria; a estrada para Gaza e a região não recebem pinos.",
+      "Antioquia da Síria usa a entrada Antioch 1, distinta de Antioquia da Pisídia.",
+      "As referências narrativas foram vinculadas aos episódios e lugares que Atos efetivamente nomeia."
+    ],
+    "uncertainties": [
+      "A identificação tradicional da cidade de Samaria com o sítio de Samaria/Sebastia e as coordenadas urbanas são referências gerais, não locais exatos dos episódios.",
+      "O trecho da estrada de Gaza e o itinerário entre Azoto e Cesareia não são definidos com precisão pelo texto.",
+      "As datas e a sequência histórica dos episódios de Atos 8–11 são aproximadas."
+    ],
+    "methodology": "Foram plotados somente pares numéricos não qualificados encontrados na evidência OpenBible retida, invertendo a ordem de latitude/longitude da fonte para [longitude, latitude]. Topônimos regionais, rotas não identificadas e locais de acontecimentos sem coordenada explícita foram mantidos como paradas narrativas sem pino. As referências bíblicas fundamentam a narrativa, não a precisão arqueológica dos marcadores."
+  }
+}

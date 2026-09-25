@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" role="img" aria-label="Túnica de linho, cinto bordado e calções de linho esquemáticos do sumo sacerdote">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#152830"/><stop offset="1" stop-color="#0d1c23"/></linearGradient>
+    <linearGradient id="linen" x2="1" y2="1"><stop stop-color="#f0e9d5"/><stop offset=".53" stop-color="#d4c9ad"/><stop offset="1" stop-color="#928a79"/></linearGradient>
+    <linearGradient id="skin" x2="1" y2="1"><stop stop-color="#d7ad84"/><stop offset="1" stop-color="#987052"/></linearGradient>
+    <linearGradient id="blue" x2="1"><stop stop-color="#255f81"/><stop offset=".5" stop-color="#3e829d"/><stop offset="1" stop-color="#552e63"/></linearGradient>
+    <pattern id="weave" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 2h10M2 0v10" stroke="#705d43" stroke-opacity=".13"/></pattern>
+    <pattern id="sashPattern" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M0 0l18 18M18 0L0 18" stroke="#e2c278" stroke-opacity=".55" stroke-width="2"/><path d="M9 0v18M0 9h18" stroke="#b94f55" stroke-opacity=".55" stroke-width="2"/></pattern>
+    <filter id="shadow" x="-.3" y="-.3" width="1.7" height="1.7"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#02080b" flood-opacity=".5"/></filter>
+  </defs>
+  <rect width="960" height="680" rx="28" fill="url(#bg)"/>
+  <path d="M36 105h888" stroke="#87a5aa" stroke-opacity=".2"/>
+  <text x="54" y="58" fill="#f4eee1" font-family="Georgia,serif" font-size="28">Túnica, cinto e calções</text>
+  <text x="56" y="84" fill="#9eb7b9" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">VESTES DE LINHO · FIGURA NEUTRA E ESQUEMÁTICA</text>
+  <rect x="38" y="127" width="532" height="500" rx="22" fill="#192f38" stroke="#45616a" stroke-opacity=".52"/>
+  <ellipse cx="298" cy="589" rx="155" ry="13" fill="#071116" opacity=".65"/>
+  <g filter="url(#shadow)">
+    <g id="part-linen-tunic">
+      <path d="M253 183q44-19 89 0l30 58 44 131-42 17-40-94 10 244H249l9-244-40 94-42-17 44-131z" fill="url(#linen)" stroke="#f4e8c7" stroke-opacity=".65" stroke-width="2"/>
+      <path d="M253 183q44-19 89 0l30 58 44 131-42 17-40-94 10 244H249l9-244-40 94-42-17 44-131z" fill="url(#weave)"/>
+    </g>
+    <path d="M253 183q44 28 89 0m-73 41q-24 107-13 268m82-268q28 97 26 238m-155-159-38 69m235-69 36 69" fill="none" stroke="#897e68" stroke-opacity=".25" stroke-width="4"/>
+    <path d="M259 153q39-16 78 0l-5 31q-34 23-69 0z" fill="url(#skin)"/>
+    <path d="M245 151q53-27 105 0" fill="none" stroke="#d6bd81" stroke-width="8" stroke-opacity=".8"/>
+  </g>
+  <g id="part-embroidered-sash">
+    <path d="M241 361q57 19 114 0l-4 31q-53 20-106 0z" fill="url(#blue)" stroke="#e3c982" stroke-width="2"/>
+    <path d="M241 361q57 19 114 0l-4 31q-53 20-106 0z" fill="url(#sashPattern)"/>
+    <path d="M276 390q-8 56 4 101l20-10q8-52-1-91" fill="url(#blue)" stroke="#e3c982" stroke-width="2"/>
+    <path d="M276 390q-8 56 4 101l20-10q8-52-1-91" fill="url(#sashPattern)"/>
+  </g>
+  <g id="part-linen-breeches">
+    <path d="M249 493h95l-6 71-34-2-9-46-9 46-39 2z" fill="#ded4b9" stroke="#f1e7ce" stroke-width="2"/>
+    <path d="M249 493h95l-6 71-34-2-9-46-9 46-39 2z" fill="url(#weave)"/>
+    <path d="M249 493h95" stroke="#978d78" stroke-width="3"/>
+  </g>
+  <rect x="593" y="127" width="329" height="500" rx="22" fill="#1a3038" stroke="#45616a" stroke-opacity=".52"/>
+  <text x="620" y="166" fill="#c3d3ce" font-family="Arial,sans-serif" font-size="13" letter-spacing="1.5">PEÇAS EM DETALHE</text>
+  <g transform="translate(640 209)">
+    <path d="M45 4q48-12 96 0l18 41 30 98-29 11-29-67 4 136h-95l4-136-29 67-29-11 30-98z" fill="url(#linen)" stroke="#f4e8c7" stroke-width="2"/>
+    <path d="M45 4q48-12 96 0l18 41 30 98-29 11-29-67 4 136h-95l4-136-29 67-29-11 30-98z" fill="url(#weave)"/>
+    <path d="M31 79q60 17 123 0l-3 23q-59 17-117 0z" fill="url(#blue)" stroke="#e3c982" stroke-width="2"/>
+    <path d="M31 79q60 17 123 0l-3 23q-59 17-117 0z" fill="url(#sashPattern)"/>
+  </g>
+  <path d="M620 471h275" stroke="#8aa2a3" stroke-opacity=".2"/>
+  <text x="620" y="499" fill="#c3d3ce" font-family="Arial,sans-serif" font-size="12" letter-spacing="1.5">CALÇÕES · COBERTURA</text>
+  <path d="M713 520h111l-8 72-40-2-8-38-9 38-44 2z" fill="url(#linen)" stroke="#f1e6cc" stroke-width="2"/>
+  <path d="M713 520h111l-8 72-40-2-8-38-9 38-44 2z" fill="url(#weave)"/>
+  <text x="620" y="611" fill="#92aaa9" font-family="Arial,sans-serif" font-size="11">Lombos às coxas · corte não especificado</text>
+  <text x="54" y="654" fill="#66878c" font-family="Arial,sans-serif" font-size="11" letter-spacing="1">ÊXODO 28:39, 42–43 · 39:27–29</text>
+</svg>

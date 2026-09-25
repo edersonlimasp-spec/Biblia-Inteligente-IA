@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Esquema original da pia e base de bronze, sem escala">
+<rect width="800" height="520" fill="#17262a"/>
+<path d="M100 410H700" stroke="#BFC5CC" stroke-width="2" opacity=".38"/>
+<g id="part-mirrors" fill="none" stroke="#C9A227" stroke-width="5">
+ <path d="M215 300l47-25 47 25v62l-47 25-47-25z"/><path d="M234 302l28-15 28 15v38l-28 15-28-15z"/>
+ <path d="M232 274l30-17 30 17M250 257v-15"/>
+</g>
+<g id="part-laver" fill="none" stroke="#A0673A" stroke-width="7" stroke-dasharray="13 10">
+ <path d="M375 233Q496 266 617 233L599 332Q496 379 393 332z"/>
+ <path d="M375 233Q496 273 617 233"/><ellipse cx="496" cy="235" rx="120" ry="28"/>
+ <path d="M395 278Q496 313 597 278M404 310Q496 341 588 310"/>
+</g>
+<g id="part-basin" fill="none" stroke="#BFC5CC" stroke-width="6" stroke-dasharray="11 9">
+ <path d="M408 354h176l-14 37H422z"/><path d="M438 392v18m58-18v18m58-18v18"/>
+</g>
+</svg>

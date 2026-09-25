@@ -1,0 +1,379 @@
+{
+  "id": "solomon-temple-wheeled-bases",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Templo de Salomão",
+  "testament": "AT",
+  "books": [
+    "1Kgs",
+    "2Chr",
+    "Jer"
+  ],
+  "characters": [
+    "Salomão",
+    "Hirão"
+  ],
+  "period": "Construção do Templo de Salomão, conforme Reis e Crônicas",
+  "title": "Templo de Salomão: dez bases com rodas",
+  "subtitle": "Bronze fundido; cotas textuais e esquema desmontado",
+  "summary": "Dez bases quadradas de bronze sustentavam as pias. O relato descreve painéis com leões, bois e querubins, suportes de canto e quatro rodas fundidas com eixos, cubos e raios. Cada unidade é mostrada separada; os relevos e proporções não cotados permanecem esquemáticos.",
+  "purpose": "As bases móveis sustentavam as pias usadas para lavar o que era oferecido em holocausto (2Cr 4:6). O conjunto integra a aparelhagem de água e serviço do templo; não se atribui a cada elemento um uso ritual além do relatado.",
+  "modernSummary": "Esquema vetorial das dez bases descritas em 1 Reis 7; não é objeto arqueológico identificado.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": [
+    "dez bases",
+    "rodas",
+    "bronze",
+    "pias",
+    "leões",
+    "bois",
+    "querubins",
+    "Templo de Salomão"
+  ],
+  "section": "solomon-temple",
+  "subsection": "Equipamentos de bronze",
+  "order": 9,
+  "era": "Reinado de Salomão, conforme a narrativa bíblica",
+  "modernOverview": "As descrições antigas informam dimensões e motivos, mas não especificam desenhos construtivos completos ou escala de cada relevo.",
+  "keyReferences": [
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 27,
+      "verseEnd": 37,
+      "label": "1Rs 7:27–37"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 39,
+      "label": "1Rs 7:39"
+    }
+  ],
+  "aliases": [
+    "bases de bronze",
+    "bases móveis",
+    "bases com rodas"
+  ],
+  "references": [
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 27,
+      "verseEnd": 37,
+      "label": "1Rs 7:27–37"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 39,
+      "label": "1Rs 7:39"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 6,
+      "label": "2Cr 4:6"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Texto bíblico ACF consultado em server/bible-data",
+      "url": "https://www.bible.com/pt/bible/212/1KI.7.ACF",
+      "license": "Referências e paráfrases originais; sem reprodução extensa da tradução",
+      "note": "1Rs 7:27–39 e 2Cr 4:6 conferidos na ACF local; paráfrases e SVG próprios."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "frame",
+      "title": "Estrutura quadrada",
+      "text": "Cada base media quatro côvados de comprimento e largura, e três de altura; as demais proporções desenhadas não são cotadas.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 27,
+        "label": "1Rs 7:27"
+      }
+    },
+    {
+      "placeId": "ornament",
+      "title": "Painéis e relevos",
+      "text": "Os painéis e cintas traziam leões, bois, querubins e palmas; o texto não fixa escala nem composição individual dos relevos.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 29,
+        "label": "1Rs 7:29"
+      }
+    },
+    {
+      "placeId": "wheels",
+      "title": "Rodas fundidas",
+      "text": "Quatro rodas ficavam sob cada base; seus eixos, aros, cubos e raios eram fundidos, em forma comparada a rodas de carro.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 32,
+        "verseEnd": 33,
+        "label": "1Rs 7:32–33"
+      }
+    },
+    {
+      "placeId": "frame",
+      "title": "Distribuição no templo",
+      "text": "Cinco bases ficavam à direita e cinco à esquerda da casa. A associação a norte e sul depende de orientar o observador voltado para leste.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 39,
+        "label": "1Rs 7:39"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A narrativa declara que as dez bases tinham a mesma fundição, medida e entalhe, mas não oferece um molde detalhado dos painéis.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 37,
+        "label": "1Rs 7:37"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Cada roda tinha altura textual de um côvado e meio; o versículo não chama essa medida de diâmetro.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 32,
+        "verseEnd": 33,
+        "label": "1Rs 7:32–33"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Reis nomeia leões, bois e querubins entre os motivos dos painéis e também menciona palmas nos adornos.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 29,
+        "verseEnd": 36,
+        "label": "1Rs 7:29, 36"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Na queda de Jerusalém, o relato de Reis diz que as bases foram quebradas e seu bronze levado para Babilônia.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 25,
+        "verseStart": 13,
+        "verseEnd": 16,
+        "label": "2Rs 25:13–16"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "solomon-temple-wheeled-bases.svg",
+    "dimensions": [
+      {
+        "label": "Comprimento da base",
+        "cubits": 4,
+        "note": "Medida textual; 4 côvados ≈ 1,80 m ao usar 0,45 m por côvado.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 7,
+          "verseStart": 27,
+          "label": "1Rs 7:27"
+        }
+      },
+      {
+        "label": "Largura da base",
+        "cubits": 4,
+        "note": "Medida textual; 4 côvados ≈ 1,80 m ao usar 0,45 m por côvado.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 7,
+          "verseStart": 27,
+          "label": "1Rs 7:27"
+        }
+      },
+      {
+        "label": "Altura da base",
+        "cubits": 3,
+        "note": "Medida textual; 3 côvados ≈ 1,35 m ao usar 0,45 m por côvado.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 7,
+          "verseStart": 27,
+          "label": "1Rs 7:27"
+        }
+      },
+      {
+        "label": "Altura de cada roda",
+        "cubits": 1.5,
+        "note": "Medida textual; 1,5 côvado ≈ 0,675 m. O texto fala em altura da roda, não em seu diâmetro.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 7,
+          "verseStart": 32,
+          "verseEnd": 33,
+          "label": "1Rs 7:32–33"
+        }
+      }
+    ],
+    "notes": [
+      "Côvado comum ≈ 0,45 m é apenas a conversão de referência; côvado longo ≈ 0,52 m é uma estimativa, e Ez 40:5 apresenta uma cana de seis côvados acrescida de um palmo. 2Cr 3:3 menciona a primeira medida antiga sem fixar equivalência métrica.",
+      "Desenho vetorial didático baseado em referências textuais; não é reconstrução arqueológica. Elementos sem medida textual são esquemáticos e não devem ser lidos em escala.",
+      "Silhueta de 1,70 m apenas como referência gráfica moderna, sem pretensão de representar uma pessoa histórica.",
+      "O texto local coloca cinco bases à direita e cinco à esquerda (1Rs 7:39); norte/sul é orientação convencional de quem olha a entrada a leste, não designação cardinal literal nesse versículo.",
+      "Arquivo adicional solomon-temple-wheeled-bases-explodida.svg apresenta uma base, rodas e encaixe da pia em componentes separados.",
+      "A ACF local chama o metal das bases de “cobre” (1Rs 7:27–37); o rótulo “bronze” segue a denominação solicitada, sem afirmar composição metalúrgica exata."
+    ],
+    "relatedIds": [
+      "solomon-temple-lavers",
+      "solomon-temple-overview"
+    ],
+    "parts": [
+      {
+        "id": "frame",
+        "name": "Base quadrada",
+        "description": "Estrutura de quatro por quatro por três côvados, com cintas e painéis; motivo e proporções internas são desenhados esquematicamente.",
+        "cubits": 4,
+        "material": "Bronze/cobre fundido; a ACF local usa “cobre” e não especifica a composição metalúrgica exata.",
+        "references": [
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 27,
+            "label": "1Rs 7:27"
+          },
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 29,
+            "label": "1Rs 7:29"
+          }
+        ],
+        "highlight": {
+          "x": 56,
+          "y": 38,
+          "width": 35,
+          "height": 38
+        }
+      },
+      {
+        "id": "wheels",
+        "name": "Quatro rodas e eixos",
+        "description": "Quatro rodas sob a base; altura indicada como 1,5 côvado, com eixos, aros, cubos e raios fundidos.",
+        "cubits": 1.5,
+        "material": "Bronze/cobre fundido; a ACF local usa “cobre” e não especifica a composição metalúrgica exata.",
+        "references": [
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 30,
+            "label": "1Rs 7:30"
+          },
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 32,
+            "verseEnd": 33,
+            "label": "1Rs 7:32–33"
+          }
+        ],
+        "highlight": {
+          "x": 66,
+          "y": 69,
+          "width": 34,
+          "height": 20
+        }
+      },
+      {
+        "id": "ornament",
+        "name": "Relevos dos painéis",
+        "description": "Leões, bois e querubins aparecem nas cintas; palmas e demais adornos aparecem em placas. Tamanho e arranjo específico: medida não informada no texto.",
+        "material": "Bronze/cobre fundido; a ACF local usa “cobre” e não especifica a composição metalúrgica exata.",
+        "references": [
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 29,
+            "label": "1Rs 7:29"
+          },
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 36,
+            "label": "1Rs 7:36"
+          }
+        ],
+        "highlight": {
+          "x": 66,
+          "y": 54,
+          "width": 25,
+          "height": 19
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "solomon-temple-wheeled-bases-planta.svg"
+      },
+      {
+        "label": "Frente",
+        "svgFile": "solomon-temple-wheeled-bases-frente.svg"
+      },
+      {
+        "label": "Corte",
+        "svgFile": "solomon-temple-wheeled-bases-corte.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "solomon-temple-wheeled-bases-isometrica.svg"
+      },
+      {
+        "label": "Vista explodida",
+        "svgFile": "solomon-temple-wheeled-bases-explodida.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-16",
+    "status": "documented",
+    "verified": [
+      "1Rs 7:27–37: base de 4×4×3 côvados, adornos, rodas e detalhes fundidos",
+      "1Rs 7:39: cinco à direita e cinco à esquerda",
+      "2Cr 4:6: função das pias e mar"
+    ],
+    "uncertainties": [
+      "1Rs 7:39 não nomeia pontos cardeais para as bases; sua identificação com norte/sul depende de orientação espacial convencional.",
+      "A tradução local descreve 1,5 côvado como altura de cada roda, sem identificá-lo como diâmetro.",
+      "Proporções exatas dos elementos ornamentais e da estrutura não especificadas."
+    ],
+    "methodology": "Versículos da ACF em server/bible-data/1ki.ts e 2ch.ts consultados antes da redação. Cotas seguem o texto; projeções e detalhes sem cotas são esquemáticos."
+  }
+}

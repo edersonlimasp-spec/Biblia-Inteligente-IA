@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" role="img" aria-label="Vista 3/4 esquemática do manto azul sacerdotal e detalhe isolado">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#152830"/><stop offset="1" stop-color="#0d1c23"/></linearGradient>
+    <linearGradient id="cloth" x2="1" y2=".6"><stop stop-color="#2876a8"/><stop offset=".53" stop-color="#174d74"/><stop offset="1" stop-color="#10334b"/></linearGradient>
+    <linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#f4d875"/><stop offset=".55" stop-color="#c99c35"/><stop offset="1" stop-color="#8d6324"/></linearGradient>
+    <pattern id="weave" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 2h12M2 0v12" stroke="#b8e1ed" stroke-opacity=".08"/></pattern>
+    <filter id="shadow" x="-.3" y="-.3" width="1.7" height="1.7"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#02080b" flood-opacity=".55"/></filter>
+  </defs>
+  <rect width="960" height="680" rx="28" fill="url(#bg)"/>
+  <path d="M36 105h888" stroke="#87a5aa" stroke-opacity=".2"/>
+  <text x="54" y="58" fill="#f4eee1" font-family="Georgia,serif" font-size="29">Manto azul · vista 3/4</text>
+  <text x="56" y="84" fill="#9eb7b9" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">VOLUME ILUSTRATIVO · SEM ESCALA</text>
+  <rect x="38" y="127" width="532" height="500" rx="22" fill="#192f38" stroke="#45616a" stroke-opacity=".52"/>
+  <ellipse cx="302" cy="593" rx="180" ry="15" fill="#071116" opacity=".65"/>
+  <g filter="url(#shadow)">
+    <path d="M274 182c-43 8-89 27-120 59l-33 119 45 18 40-87-4 253c62 34 160 30 230-5l-27-254 47 82 42-25-47-116c-34-32-79-48-126-50z" fill="url(#cloth)" stroke="#77b5d2" stroke-opacity=".58" stroke-width="2"/>
+    <path d="M274 182c-43 8-89 27-120 59l-33 119 45 18 40-87-4 253c62 34 160 30 230-5l-27-254 47 82 42-25-47-116c-34-32-79-48-126-50z" fill="url(#weave)"/>
+    <path d="M275 206q-15 108 9 271m37-266q41 103 40 242m-175-373 19 64m194-59-30 63" fill="none" stroke="#b5d7e1" stroke-opacity=".24" stroke-width="4"/>
+    <path d="M263 183q49 35 94-1" fill="none" stroke="#8dc2d6" stroke-width="11" stroke-linecap="round"/>
+    <path d="M266 184q45 27 88-1" fill="none" stroke="#102f43" stroke-width="5" stroke-linecap="round"/>
+    <path d="M260 136q45-21 84 0l-5 49q-34 29-73 0z" fill="#b98e6b" stroke="#edcba5" stroke-opacity=".4" stroke-width="2"/>
+    <path d="M250 137q52-31 107 0" fill="none" stroke="#d6ba76" stroke-opacity=".45" stroke-width="7"/>
+  </g>
+  <g fill="url(#gold)" stroke="#f3dc9c" stroke-width="1">
+    <path d="M174 541q-8-9-1-15 2-2 1-5 12 6 9 18h3v4h-15v-4z"/>
+    <path d="M237 557q-8-9-1-15 2-2 1-5 12 6 9 18h3v4h-15v-4z"/>
+    <path d="M300 563q-8-9-1-15 2-2 1-5 12 6 9 18h3v4h-15v-4z"/>
+    <path d="M363 562q-8-9-1-15 2-2 1-5 12 6 9 18h3v4h-15v-4z"/>
+  </g>
+  <g fill="#93345d" stroke="#e6c49c" stroke-width="1">
+    <path d="M149 535q-10 11 0 22 10-11 0-22m-7 8 7-7 7 7"/><path d="M212 552q-10 11 0 22 10-11 0-22m-7 8 7-7 7 7"/>
+    <path d="M275 559q-10 11 0 22 10-11 0-22m-7 8 7-7 7 7"/><path d="M338 559q-10 11 0 22 10-11 0-22m-7 8 7-7 7 7"/>
+  </g>
+  <rect x="593" y="127" width="329" height="500" rx="22" fill="#1a3038" stroke="#45616a" stroke-opacity=".52"/>
+  <text x="620" y="166" fill="#c3d3ce" font-family="Arial,sans-serif" font-size="13" letter-spacing="1.5">PEÇA ISOLADA · ESQUEMA</text>
+  <path d="M692 223q69-27 137 0l61 75-31 24-48-36 27 196q-74 32-150 0l21-196-47 36-31-24z" fill="url(#cloth)" stroke="#73b2ce" stroke-width="2"/>
+  <path d="M692 223q69-27 137 0l61 75-31 24-48-36 27 196q-74 32-150 0l21-196-47 36-31-24z" fill="url(#weave)"/>
+  <path d="M735 223q27 20 54 0" fill="none" stroke="#96c8d8" stroke-width="9" stroke-linecap="round"/>
+  <path d="M689 467q90 28 177 0" fill="none" stroke="#c3d6d4" stroke-opacity=".5" stroke-width="2"/>
+  <g fill="#ad385d" stroke="#edc58d">
+    <path d="M704 468q-11 12 0 23 11-11 0-23m-7 8 7-7 7 7"/><path d="M744 477q-11 12 0 23 11-11 0-23m-7 8 7-7 7 7"/>
+    <path d="M824 477q-11 12 0 23 11-11 0-23m-7 8 7-7 7 7"/><path d="M864 468q-11 12 0 23 11-11 0-23m-7 8 7-7 7 7"/>
+  </g>
+  <g fill="url(#gold)" stroke="#f3dc9c">
+    <path d="M724 471q-7-8-1-13 2-2 1-5 11 5 8 15h3v4h-13v-4z"/><path d="M784 480q-7-8-1-13 2-2 1-5 11 5 8 15h3v4h-13v-4z"/>
+    <path d="M844 471q-7-8-1-13 2-2 1-5 11 5 8 15h3v4h-13v-4z"/>
+  </g>
+  <text x="620" y="558" fill="#dce3d9" font-family="Arial,sans-serif" font-size="13">Alternância ilustrada; número total não indicado.</text>
+  <text x="54" y="654" fill="#66878c" font-family="Arial,sans-serif" font-size="11" letter-spacing="1">ÊXODO 28:31–35 · 39:22–26</text>
+</svg>

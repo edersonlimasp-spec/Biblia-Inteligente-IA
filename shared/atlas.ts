@@ -15,9 +15,12 @@ export const atlasPlaceSchema = z.object({
   coordinates: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]).nullable(),
   certainty: atlasCertaintySchema, explanation: z.string().min(10),
   references: z.array(atlasReferenceSchema).min(1), sourceIds: z.array(z.string()).min(1),
+  centuries: z.array(z.string().min(1)).optional(),
+  kingdoms: z.array(z.string().min(1)).optional(),
 });
 export const atlasDimensionSchema = z.object({
   label: z.string(), cubits: z.number().positive().optional(),
+  reportedValue: z.string().min(1).optional(),
   note: z.string().min(1), reference: atlasReferenceSchema,
 });
 export const atlasSectionSchema = z.enum([
@@ -31,10 +34,22 @@ export const atlasIllustrationPartSchema = z.object({
   highlight: z.object({ x: z.number(), y: z.number(), width: z.number().nonnegative(), height: z.number().nonnegative() }).optional(),
 });
 export const atlasOverlaySchema = z.object({
-  id: z.string(), label: z.string(), kind: z.enum(["route", "area"]),
+  id: z.string(), label: z.string(), kind: z.enum(["route", "area", "point"]),
   certainty: atlasCertaintySchema,
-  coordinates: z.array(z.tuple([z.number(), z.number()])).min(2),
+  coordinates: z.array(z.tuple([z.number(), z.number()])).min(1),
   explanation: z.string().min(10), sourceIds: z.array(z.string()).min(1),
+});
+export const atlasNarrativeStepSchema = z.object({
+  placeId: z.string().min(1), explanation: z.string().min(10),
+  reference: atlasReferenceSchema, group: z.string().optional(),
+});
+export const atlasStoryStepSchema = z.object({
+  placeId: z.string().min(1), title: z.string().min(2),
+  text: z.string().min(15), reference: atlasReferenceSchema,
+});
+export const atlasCuriositySchema = z.object({
+  text: z.string().min(15), reference: atlasReferenceSchema,
+  sourceIds: z.array(z.string().min(1)).min(1),
 });
 export const atlasItemSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/), version: z.string().min(1),
@@ -42,6 +57,7 @@ export const atlasItemSchema = z.object({
   testament: z.enum(["AT", "NT"]), books: z.array(z.string()).min(1),
   characters: z.array(z.string()), period: z.string().min(1),
   title: z.string().min(3), subtitle: z.string(), summary: z.string().min(20),
+  purpose: z.string().min(20).optional(),
   modernSummary: z.string().min(10), certainty: atlasCertaintySchema,
   sample: z.boolean(), keywords: z.array(z.string()),
   section: atlasSectionSchema.default("old-testament"), subsection: z.string().min(1).optional(),
@@ -51,10 +67,21 @@ export const atlasItemSchema = z.object({
   references: z.array(atlasReferenceSchema).min(1),
   sources: z.array(atlasSourceSchema).min(1),
   places: z.array(atlasPlaceSchema), overlays: z.array(atlasOverlaySchema),
+  narrative: z.array(atlasNarrativeStepSchema).optional(),
+  storySteps: z.array(atlasStoryStepSchema).min(1).optional(),
+  curiosities: z.array(atlasCuriositySchema).min(3).max(5).optional(),
   bounds: z.tuple([z.number(), z.number(), z.number(), z.number()]),
   illustration: z.object({
     svgFile: z.string().regex(/^[a-z0-9-]+\.svg$/),
+    views: z.array(z.object({
+      label: z.enum(["Planta", "Frente", "Corte", "Vista 3/4", "Vista explodida"]),
+      svgFile: z.string().regex(/^[a-z0-9-]+\.svg$/),
+    })).min(1).optional(),
     dimensions: z.array(atlasDimensionSchema), notes: z.array(z.string()).min(1),
+    stoneRows: z.array(z.object({
+      stones: z.tuple([z.string().min(1), z.string().min(1), z.string().min(1)]),
+      reference: atlasReferenceSchema,
+    })).length(4).optional(),
     relatedIds: z.array(z.string()), parts: z.array(atlasIllustrationPartSchema).default([]),
   }).optional(),
   review: z.object({

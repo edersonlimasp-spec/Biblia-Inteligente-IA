@@ -1,0 +1,152 @@
+{
+  "id": "high-priest-tunic-sash-undergarments",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod"],
+  "characters": ["Arão", "Moisés"],
+  "period": "Instruções e execução das vestes sacerdotais no deserto",
+  "title": "Túnica, cinto e calções do sumo sacerdote",
+  "subtitle": "Peças de linho fino; os calções cobriam dos lombos às coxas",
+  "summary": "A túnica e os calções de Arão eram de linho fino; a descrição da execução também identifica linho fino torcido nos calções. O cinto era obra de bordador, com linho fino torcido, azul, púrpura e carmesim. A aparência exata do tecido e o padrão chamado bordado são debatidos e não podem ser reconstruídos com certeza.",
+  "purpose": "A túnica e o cinto integravam as vestes do ofício sacerdotal. Os calções de linho cobriam a nudez dos lombos até as coxas e eram exigidos quando Arão e seus filhos entravam na tenda ou se aproximavam do altar para ministrar.",
+  "modernSummary": "O diagrama separa túnica, cinto bordado e calções como peças de vestuário, sem atribuir medidas ou resolver a aparência do padrão têxtil.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["túnica", "cinto", "calções de linho", "vestes sacerdotais", "sumo sacerdote", "bordado"],
+  "section": "tabernacle",
+  "subsection": "Vestes sacerdotais",
+  "order": 18,
+  "era": "Êxodo e deserto",
+  "modernOverview": "Êxodo descreve materiais, uso e cobertura fornecida pelos calções; não dá dimensões nem desenho de corte das peças. O estilo exato do cinto de obra de bordador não está totalmente definido.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 28, "verseStart": 39, "verseEnd": 43, "label": "Exod 28:39–43"},
+    {"book": "Exod", "chapter": 39, "verseStart": 27, "verseEnd": 29, "label": "Exod 39:27–29"},
+    {"book": "Exod", "chapter": 29, "verseStart": 5, "verseEnd": 6, "label": "Exod 29:5–6"}
+  ],
+  "aliases": ["vestes de linho de Arão", "túnica sacerdotal", "calções sacerdotais", "cinto bordado de Arão"],
+  "references": [
+    {"book": "Exod", "chapter": 28, "verseStart": 39, "verseEnd": 43, "label": "Exod 28:39–43"},
+    {"book": "Exod", "chapter": 39, "verseStart": 27, "verseEnd": 29, "label": "Exod 39:27–29"}
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Passagens bíblicas — texto ACF local e referências",
+      "url": "https://ebible.org/web/",
+      "license": "Paráfrases próprias; sem reprodução de trechos de tradução",
+      "note": "Êxodo 28:39–43 e 39:27–29 foram conferidos no arquivo ACF local server/bible-data/exo.ts. A aparência têxtil é mantida como questão em aberto."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "linen-tunic",
+      "title": "Túnica tecida",
+      "text": "A túnica de Arão é descrita como de linho fino; a execução registra túnicas de linho fino tecidas para Arão e seus filhos.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 27, "label": "Exod 39:27"}
+    },
+    {
+      "placeId": "embroidered-sash",
+      "title": "Cinto de obra de bordador",
+      "text": "O cinto era de obra de bordador, descrito com linho fino, azul, púrpura e carmesim; a técnica e o padrão exato não são definidos.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 29, "label": "Exod 39:29"}
+    },
+    {
+      "placeId": "linen-breeches",
+      "title": "Calções de linho",
+      "text": "Os calções cobriam dos lombos até as coxas, conforme a instrução, sem medida ou molde especificado.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 42, "label": "Exod 28:42"}
+    },
+    {
+      "placeId": "linen-breeches",
+      "title": "Cobertura durante o serviço",
+      "text": "A instrução exige o uso dos calções ao entrar na tenda da congregação ou ao aproximar-se do altar para ministrar.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 43, "label": "Exod 28:43"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A túnica de Arão e sua mitra são descritas em linho fino, enquanto o cinto é especificado como obra de bordador.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 39, "label": "Exod 28:39"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Os calções de linho cobriam a região dos lombos até as coxas; a passagem não fornece medidas.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 42, "label": "Exod 28:42"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "O uso dos calções é situado ao entrar na tenda ou ao chegar ao altar para ministrar.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 43, "label": "Exod 28:43"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Na execução, o cinto reúne linho fino torcido, azul, púrpura e carmesim, sem descrever detalhadamente o padrão bordado.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 27, "verseEnd": 29, "label": "Exod 39:27–29"},
+      "sourceIds": ["biblical"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "high-priest-tunic-sash-undergarments.svg",
+    "dimensions": [],
+    "notes": [
+      "As passagens não dão dimensões da túnica, cinto ou calções; a altura e proporções visuais não são medidas históricas.",
+      "A instrução define a cobertura dos calções dos lombos às coxas, mas não o corte, o fecho ou o comprimento exato.",
+      "“Obra de bordador” não fixa por si só um padrão xadrez. A trama colorida sugerida no cinto é apenas uma possibilidade visual, não uma conclusão."
+    ],
+    "relatedIds": ["high-priest-blue-robe", "high-priest-turban-gold-plate", "common-priest-garments"],
+    "views": [
+      {"label": "Frente", "svgFile": "high-priest-tunic-sash-undergarments.svg"},
+      {"label": "Vista 3/4", "svgFile": "high-priest-tunic-sash-undergarments-vista-3-4.svg"}
+    ],
+    "parts": [
+      {
+        "id": "linen-tunic",
+        "name": "Túnica de linho",
+        "description": "Túnica de linho fino para Arão; a passagem não determina comprimento, mangas ou corte detalhado.",
+        "material": "Linho fino",
+        "references": [
+          {"book": "Exod", "chapter": 28, "verseStart": 39, "label": "Exod 28:39"},
+          {"book": "Exod", "chapter": 39, "verseStart": 27, "label": "Exod 39:27"}
+        ],
+        "highlight": {"x": 50, "y": 47, "width": 0, "height": 0}
+      },
+      {
+        "id": "embroidered-sash",
+        "name": "Cinto bordado",
+        "description": "Cinto de obra de bordador, com linho fino torcido, azul, púrpura e carmesim; padrão e técnica não definidos em detalhe.",
+        "material": "Linho fino torcido, azul, púrpura e carmesim",
+        "references": [
+          {"book": "Exod", "chapter": 28, "verseStart": 39, "label": "Exod 28:39"},
+          {"book": "Exod", "chapter": 39, "verseStart": 29, "label": "Exod 39:29"}
+        ],
+        "highlight": {"x": 50, "y": 49, "width": 0, "height": 0}
+      },
+      {
+        "id": "linen-breeches",
+        "name": "Calções de linho",
+        "description": "Peça de linho para cobertura dos lombos até as coxas; molde e medidas não são indicados.",
+        "material": "Linho; execução especifica linho fino torcido",
+        "references": [
+          {"book": "Exod", "chapter": 28, "verseStart": 42, "verseEnd": 43, "label": "Exod 28:42–43"},
+          {"book": "Exod", "chapter": 39, "verseStart": 28, "label": "Exod 39:28"}
+        ],
+        "highlight": {"x": 50, "y": 70, "width": 0, "height": 0}
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-27",
+    "status": "needs-specialist",
+    "verified": ["Exod 28:39–43 conferido no ACF local", "Exod 39:27–29 conferido no ACF local"],
+    "uncertainties": [
+      "A construção exata do cinto de obra de bordador e se a linguagem implica padrão xadrez são debatidas.",
+      "Corte, medidas e formas de ajuste da túnica e dos calções não são descritos."
+    ],
+    "methodology": "Conferido no texto ACF local em server/bible-data/exo.ts. O item registra materiais e função descritos; o padrão têxtil é explicitamente tratado como debatido e não é apresentado como xadrez certo."
+  }
+}

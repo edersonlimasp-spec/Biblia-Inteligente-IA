@@ -1,0 +1,562 @@
+{
+  "id": "daniel-esther-map",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Dan",
+    "Esth",
+    "Ezra"
+  ],
+  "characters": [
+    "Daniel",
+    "Ester",
+    "Mardoqueu",
+    "Assuero",
+    "Ciro"
+  ],
+  "period": "Narrativas de Daniel 1–6 e Ester 1–10, com referência persa em Esdras 6:2; séculos VI–V a.C.",
+  "title": "Daniel e Ester no império persa",
+  "subtitle": "Babilônia, Susã, Ecbátana e o rio Ulai",
+  "summary": "O mapa localiza os cenários nomeados de Daniel e Ester com pinos apoiados em pares numéricos exatos da evidência geográfica retida. Babilônia é o cenário inicial de Daniel; Susã aparece em Ester e na visão de Daniel 8; Ecbátana/Acmata é mencionada no documento real de Esdras 6:2. O Ulai é tratado como região fluvial aproximada associada à visão de Daniel, não como ponto preciso. A cartografia não procura harmonizar a ambientação literária com debates sobre autoria, composição ou identificação histórica de Assuero.",
+  "modernSummary": "Os pinos ficam no atual Iraque e Irã: Babilônia, Susã (Susa) e Ecbátana (Hamadan). O rio Ulai é situado apenas em uma região aproximada no entorno de Susã; não recebe coordenada pontual.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Daniel",
+    "Ester",
+    "Babilônia",
+    "Susã",
+    "Ecbátana",
+    "Acmata",
+    "Ulai"
+  ],
+  "section": "old-testament",
+  "subsection": "Exílio e período persa",
+  "order": 30,
+  "era": "Contextos neobabilônico e persa; séculos VI–V a.C., sem harmonização cronológica forçada",
+  "modernOverview": "Babilônia é associada ao sítio antigo perto de Hillah, no Iraque; Susã corresponde ao sítio de Susa, no Irã; e Ecbátana/Acmata é identificada com Hamadan, no Irã. Esses pinos reproduzem pares numéricos do conjunto OpenBible, sem fixar áreas urbanas antigas. Daniel 8 nomeia Susã e o rio Ulai; a posição do curso fluvial na visão é regional e não é indicada por ponto preciso. O mapa distingue referências literárias de identificações históricas e não resolve debates de composição ou cronologia.",
+  "keyReferences": [
+    {
+      "book": "Dan",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 7,
+      "label": "Dn 1:1–7"
+    },
+    {
+      "book": "Dan",
+      "chapter": 6,
+      "verseStart": 1,
+      "verseEnd": 29,
+      "label": "Dn 6:1–29"
+    },
+    {
+      "book": "Dan",
+      "chapter": 8,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Dn 8:1–2"
+    },
+    {
+      "book": "Esth",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "Et 1:1–9"
+    },
+    {
+      "book": "Esth",
+      "chapter": 2,
+      "verseStart": 5,
+      "verseEnd": 8,
+      "label": "Et 2:5–8"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 6,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Ed 6:1–2"
+    }
+  ],
+  "aliases": [
+    "Daniel na Babilônia",
+    "Ester em Susã",
+    "Susã",
+    "Susa",
+    "Ecbátana",
+    "Acmata",
+    "Média e Pérsia"
+  ],
+  "references": [
+    {
+      "book": "Dan",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 7,
+      "label": "Dn 1:1–7"
+    },
+    {
+      "book": "Dan",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 49,
+      "label": "Dn 2:1–49"
+    },
+    {
+      "book": "Dan",
+      "chapter": 3,
+      "verseStart": 1,
+      "verseEnd": 30,
+      "label": "Dn 3:1–30"
+    },
+    {
+      "book": "Dan",
+      "chapter": 4,
+      "verseStart": 1,
+      "verseEnd": 37,
+      "label": "Dn 4:1–37"
+    },
+    {
+      "book": "Dan",
+      "chapter": 5,
+      "verseStart": 1,
+      "verseEnd": 31,
+      "label": "Dn 5:1–31"
+    },
+    {
+      "book": "Dan",
+      "chapter": 6,
+      "verseStart": 1,
+      "verseEnd": 29,
+      "label": "Dn 6:1–29"
+    },
+    {
+      "book": "Dan",
+      "chapter": 8,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Dn 8:1–2"
+    },
+    {
+      "book": "Esth",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 22,
+      "label": "Et 1:1–22"
+    },
+    {
+      "book": "Esth",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 23,
+      "label": "Et 2:1–23"
+    },
+    {
+      "book": "Esth",
+      "chapter": 3,
+      "verseStart": 1,
+      "verseEnd": 15,
+      "label": "Et 3:1–15"
+    },
+    {
+      "book": "Esth",
+      "chapter": 4,
+      "verseStart": 1,
+      "verseEnd": 17,
+      "label": "Et 4:1–17"
+    },
+    {
+      "book": "Esth",
+      "chapter": 5,
+      "verseStart": 1,
+      "verseEnd": 14,
+      "label": "Et 5:1–14"
+    },
+    {
+      "book": "Esth",
+      "chapter": 6,
+      "verseStart": 1,
+      "verseEnd": 14,
+      "label": "Et 6:1–14"
+    },
+    {
+      "book": "Esth",
+      "chapter": 7,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Et 7:1–10"
+    },
+    {
+      "book": "Esth",
+      "chapter": 8,
+      "verseStart": 1,
+      "verseEnd": 17,
+      "label": "Et 8:1–17"
+    },
+    {
+      "book": "Esth",
+      "chapter": 9,
+      "verseStart": 1,
+      "verseEnd": 32,
+      "label": "Et 9:1–32"
+    },
+    {
+      "book": "Esth",
+      "chapter": 10,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Et 10:1–3"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 6,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Ed 6:1–2"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pinos em ordem [longitude, latitude], usando pares numéricos sem marcas de aproximação: Babylon (32.53650368616845,44.42088287373876), Susa (32.18919123705116,48.25788647687722), Ecbatana (34.798311,48.514966). Ulai tem valores numéricos na fonte, mas não é aceito como pino preciso para a localização literária do rio; permanece uma região aproximada sem coordenada."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "As referências identificam os cenários conforme os livros bíblicos. A forma narrativa não é tomada como prova independente de uma datação ou identificação arqueológica."
+    },
+    {
+      "id": "historical",
+      "title": "Encyclopaedia Iranica — Hamadan",
+      "url": "https://iranicaonline.org/articles/hamadan",
+      "license": "Direitos reservados; dados históricos resumidos, sem reprodução textual",
+      "note": "Referência contextual para a identificação tradicional de Ecbátana com Hamadan; não determina qual camada ou localização antiga é representada pelo pino."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial do mapa",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "O mapa apresenta cenários nomeados, não itinerários de viagem, estradas, limites imperiais ou localização precisa do Ulai."
+    }
+  ],
+  "places": [
+    {
+      "id": "babylon",
+      "name": "Babilônia",
+      "modernName": "Sítio da antiga Babilônia, perto de Hillah, Iraque",
+      "coordinates": [
+        44.42088287373876,
+        32.53650368616845
+      ],
+      "certainty": "probable",
+      "explanation": "Daniel 1 situa o início do relato na Babilônia e capítulos seguintes mantêm o personagem na corte. O pino reproduz o par da chave OpenBible Babylon, sem representar a área total da cidade antiga.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 7,
+          "label": "Dn 1:1–7"
+        },
+        {
+          "book": "Dan",
+          "chapter": 2,
+          "verseStart": 48,
+          "verseEnd": 49,
+          "label": "Dn 2:48–49"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Império Neobabilônico"
+      ]
+    },
+    {
+      "id": "susa",
+      "name": "Susã",
+      "modernName": "Sítio de Susa, província do Cuzistão, Irã",
+      "coordinates": [
+        48.25788647687722,
+        32.18919123705116
+      ],
+      "certainty": "probable",
+      "explanation": "Susã é a residência real apresentada em Ester e o local da visão de Daniel 8. O marcador usa o par numérico exato da chave OpenBible Susa; não reconstitui a extensão do palácio ou da cidade antiga.",
+      "references": [
+        {
+          "book": "Esth",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 5,
+          "label": "Et 1:1–5"
+        },
+        {
+          "book": "Esth",
+          "chapter": 2,
+          "verseStart": 5,
+          "verseEnd": 8,
+          "label": "Et 2:5–8"
+        },
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Dn 8:1–2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C.",
+        "século V a.C."
+      ],
+      "kingdoms": [
+        "Império Persa Aquemênida"
+      ]
+    },
+    {
+      "id": "ecbatana",
+      "name": "Ecbátana (Acmata)",
+      "modernName": "Hamadan, Irã; identificação histórica tradicional",
+      "coordinates": [
+        48.514966,
+        34.798311
+      ],
+      "certainty": "probable",
+      "explanation": "Esdras 6:2 localiza o rolo do decreto em Acmata, associada a Ecbátana. O pino copia os valores numéricos da chave OpenBible Ecbatana; a identificação tradicional com Hamadan não pretende fixar a posição do arquivo antigo.",
+      "references": [
+        {
+          "book": "Ezra",
+          "chapter": 6,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Ed 6:1–2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical",
+        "historical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Império Persa Aquemênida"
+      ]
+    },
+    {
+      "id": "ulai",
+      "name": "Rio Ulai",
+      "modernName": "Região fluvial de Susã, Irã; curso e localização na visão não fixados",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Daniel 8:2 situa a visão junto ao Ulai, mas não identifica um ponto preciso do rio nem o trecho em que Daniel se encontrava. Embora a fonte retida liste um par numérico para Ulai, essa precisão não é considerada confiável para a interpretação regional do cenário; nenhum pino é usado.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Dn 8:1–2"
+        },
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 16,
+          "label": "Dn 8:16"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Império Persa Aquemênida"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "babylon",
+      "title": "Daniel levado à Babilônia",
+      "text": "O livro abre com a chegada de Nabucodonosor a Jerusalém e a transferência de jovens para a corte babilônica. A sequência dos capítulos 1–6 permanece centrada em episódios da corte e não é apresentada como roteiro de viagem.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 7,
+        "label": "Dn 1:1–7"
+      }
+    },
+    {
+      "placeId": "babylon",
+      "title": "Episódios da corte em Daniel 2–6",
+      "text": "Os relatos de sonhos, acusações, mudança de governante e livramento continuam ambientados na esfera real babilônica. A ordem literária é preservada sem impor uma cronologia histórica detalhada a cada episódio.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 6,
+        "verseStart": 1,
+        "verseEnd": 29,
+        "label": "Dn 6:1–29"
+      }
+    },
+    {
+      "placeId": "susa",
+      "title": "A corte de Ester em Susã",
+      "text": "Ester começa no palácio de Susã e desenvolve ali a sequência de banquetes, decretos e reversão do perigo para os judeus. O marcador é um ponto de orientação para o sítio antigo, não a posição exata dos salões narrados.",
+      "reference": {
+        "book": "Esth",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 9,
+        "label": "Et 1:1–9"
+      }
+    },
+    {
+      "placeId": "susa",
+      "title": "Mardoqueu e Ester em Susã",
+      "text": "A narrativa identifica Mardoqueu em Susã e acompanha a entrada de Ester na casa real. A ambientação é indicada pelo texto bíblico e não decide, por si só, questões históricas de datação ou identificação do rei.",
+      "reference": {
+        "book": "Esth",
+        "chapter": 2,
+        "verseStart": 5,
+        "verseEnd": 8,
+        "label": "Et 2:5–8"
+      }
+    },
+    {
+      "placeId": "susa",
+      "title": "Daniel vê Susã em sua visão",
+      "text": "Daniel descreve uma visão em Susã, na província de Elão. O texto dá o nome do cenário, mas o mapa não infere o ponto da visão dentro da cidade nem conecta Susã a Babilônia por uma rota.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Dn 8:1–2"
+      }
+    },
+    {
+      "placeId": "ulai",
+      "title": "A visão junto ao Ulai",
+      "text": "O Ulai é nomeado como referência fluvial para a visão. A fonte de geocodificação oferece coordenada, mas a confiança cartográfica para um ponto preciso não é suficiente; o rio permanece sem pino e apenas regionalmente associado a Susã.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 2,
+        "label": "Dn 8:2"
+      }
+    },
+    {
+      "placeId": "ecbatana",
+      "title": "O decreto encontrado em Acmata",
+      "text": "Na busca por registros, Esdras informa que um rolo foi encontrado em Acmata, chamada Ecbátana na tradição de identificação do lugar. A passagem pertence ao relato da reconstrução do templo e é incluída como referência do contexto persa.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 6,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Ed 6:1–2"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Daniel 8:2 dá duas referências espaciais — Susã e o rio Ulai — mas não especifica onde, ao longo do rio, ocorre a visão; por isso o mapa conserva o Ulai como região sem pino.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 2,
+        "label": "Dn 8:2"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Ester nomeia Susã como residência real e cenário de seus banquetes; a sequência literária do livro é representada no lugar, não como um itinerário entre cidades.",
+      "reference": {
+        "book": "Esth",
+        "chapter": 1,
+        "verseStart": 2,
+        "verseEnd": 5,
+        "label": "Et 1:2–5"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "O relato de Esdras usa Acmata para o local onde foi encontrado o rolo real; a associação de Acmata com Ecbátana e Hamadan é uma identificação histórica tradicional, não a localização arqueológica do próprio documento.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 6,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Ed 6:1–2"
+      },
+      "sourceIds": [
+        "biblical",
+        "historical"
+      ]
+    },
+    {
+      "text": "A ordem de Daniel 1–6 não pretende funcionar como cronologia contínua de todos os reis: o texto passa de Nabucodonosor a Belsazar e depois ao episódio de Dario, e as correlações históricas desses nomes permanecem discutidas.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 5,
+        "verseStart": 30,
+        "verseEnd": 31,
+        "label": "Dn 5:30–31"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    44.42088287373876,
+    32.178696,
+    48.514966,
+    34.798311
+  ],
+  "review": {
+    "date": "2026-06-10",
+    "status": "needs-specialist",
+    "verified": [
+      "Livros codificados como Dan, Esth e Ezra conforme atlasBooks",
+      "Pinos de Babilônia, Susã e Ecbátana reproduzem pares numéricos exatos da evidência geográfica retida",
+      "Ulai permanece sem pino apesar do registro numérico da fonte, por não haver base confiável para precisão pontual",
+      "Todas as localidades têm referências bíblicas, fonte(s) e parada narrativa"
+    ],
+    "uncertainties": [
+      "A correspondência entre os cenários literários, reis e cronologia histórica de Daniel e Ester permanece discutida",
+      "Ecbátana/Acmata é identificada tradicionalmente com Hamadan; o pino não localiza arquivo, palácio ou camada arqueológica",
+      "O rio Ulai é tratado somente como referência regional de Daniel 8:2, não como ponto ou curso reconstituído"
+    ],
+    "methodology": "Paráfrases originais dos livros bíblicos. Coordenadas pontuais aceitas apenas para localidades com pares numéricos sem marcadores na evidência OpenBible retida. A coordenada listada para Ulai não foi aplicada porque não sustenta a precisão do cenário literário; o lugar recebe coordinates:null e certainty debatida. As camadas são pontos nomeados e não rotas nem fronteiras."
+  }
+}

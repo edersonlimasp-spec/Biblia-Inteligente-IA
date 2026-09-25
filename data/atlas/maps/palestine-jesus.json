@@ -385,6 +385,82 @@
     36.5,
     33.7
   ],
+  "storySteps": [
+    {
+      "placeId": "nazareth",
+      "title": "Nazaré",
+      "text": "Jesus entra na sinagoga de Nazaré, a cidade onde foi criado.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 4,
+        "verseStart": 16,
+        "label": "Luke 4:16"
+      }
+    },
+    {
+      "placeId": "capernaum",
+      "title": "Cafarnaum",
+      "text": "Jesus deixa Nazaré e passa a habitar em Cafarnaum, junto ao mar da Galileia.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 4,
+        "verseStart": 13,
+        "label": "Matt 4:13"
+      }
+    },
+    {
+      "placeId": "bethany",
+      "title": "Betânia",
+      "text": "Betânia é apresentada como a aldeia de Lázaro, Marta e Maria; a faixa regional do mapa não é fronteira administrativa.",
+      "reference": {
+        "book": "John",
+        "chapter": 11,
+        "verseStart": 1,
+        "label": "John 11:1"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Nazaré é apresentada como a cidade onde Jesus foi criado.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 4,
+        "verseStart": 16,
+        "label": "Luke 4:16"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Cafarnaum é chamada de cidade de Jesus em Mateus, embora o texto também o situe em outras localidades.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 4,
+        "verseStart": 13,
+        "label": "Matt 4:13"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Betânia é identificada no Evangelho de João como a aldeia de Lázaro.",
+      "reference": {
+        "book": "John",
+        "chapter": 11,
+        "verseStart": 1,
+        "label": "John 11:1"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
   "review": {
     "date": "2026-09-24",
     "status": "needs-specialist",

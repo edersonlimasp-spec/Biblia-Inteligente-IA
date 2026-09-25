@@ -1,0 +1,451 @@
+{
+  "id": "tabernacle-temple-comparison",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo e Templo",
+  "testament": "AT",
+  "books": [
+    "Exod",
+    "1Kgs",
+    "2Chr"
+  ],
+  "characters": [
+    "Moisés",
+    "Salomão"
+  ],
+  "period": "Comparação literária entre o santuário do Êxodo e o Templo descrito em Reis e Crônicas",
+  "title": "Tabernáculo e Templo: comparação",
+  "subtitle": "Plantas internas na mesma escala; medidas tradicionais identificadas",
+  "summary": "A comparação alinha esquematicamente os recintos internos atribuídos ao Tabernáculo e as medidas do templo. Os valores tradicionais de 20×10 côvados para o Lugar Santo e 10×10 para o Santo dos Santos no Tabernáculo são inferidos a partir da disposição e medidas gerais, não cotados como quartos em versículos explícitos. Para o templo, 40 + 20 = 60 côvados de comprimento da casa (1Rs 6:2, 17–20); o pórtico, com 20 de largura × 10 de profundidade, fica à frente e fora desses 60 (1Rs 6:3).",
+  "purpose": "A comparação didática ajuda a observar mudança de escala e de instalação: o texto descreve objetos e recintos da tenda móvel no Êxodo e, em Reis e Crônicas, a construção de uma casa permanente e mobiliada. Não pressupõe que todos os objetos mantenham idêntico funcionamento.",
+  "modernSummary": "Plantas lado a lado no mesmo fator gráfico; os cálculos tradicionais do Tabernáculo são sinalizados separadamente de medidas diretas.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Tabernáculo",
+    "Templo",
+    "comparação",
+    "planta",
+    "Lugar Santo",
+    "Santo dos Santos",
+    "móvel",
+    "fixo"
+  ],
+  "section": "solomon-temple",
+  "subsection": "Comparações",
+  "order": 13,
+  "era": "Da descrição do Tabernáculo à construção atribuída a Salomão",
+  "modernOverview": "Comparação textual e diagramática; dimensões tradicionais inferidas não são apresentadas como citações numéricas explícitas do texto bíblico.",
+  "keyReferences": [
+    {
+      "book": "Exod",
+      "chapter": 26,
+      "verseStart": 31,
+      "verseEnd": 35,
+      "label": "Êx 26:31–35"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 6,
+      "verseStart": 2,
+      "verseEnd": 20,
+      "label": "1Rs 6:2, 17–20"
+    },
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 1,
+      "label": "Êx 27:1"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 23,
+      "verseEnd": 39,
+      "label": "1Rs 7:23–39"
+    }
+  ],
+  "aliases": [
+    "Tabernáculo x Templo",
+    "tabernáculo versus templo"
+  ],
+  "references": [
+    {
+      "book": "Exod",
+      "chapter": 26,
+      "verseStart": 31,
+      "verseEnd": 35,
+      "label": "Êx 26:31–35"
+    },
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 1,
+      "label": "Êx 27:1"
+    },
+    {
+      "book": "Exod",
+      "chapter": 30,
+      "verseStart": 18,
+      "verseEnd": 21,
+      "label": "Êx 30:18–21"
+    },
+    {
+      "book": "Exod",
+      "chapter": 25,
+      "verseStart": 23,
+      "verseEnd": 40,
+      "label": "Êx 25:23–40"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 6,
+      "verseStart": 2,
+      "verseEnd": 20,
+      "label": "1Rs 6:2, 17–20"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 1,
+      "label": "2Cr 4:1"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 23,
+      "verseEnd": 39,
+      "label": "1Rs 7:23–39"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 7,
+      "verseEnd": 8,
+      "label": "2Cr 4:7–8"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Texto bíblico ACF consultado em server/bible-data",
+      "url": "https://www.bible.com/pt/bible/212/EXO.26.ACF",
+      "license": "Referências e paráfrases originais; sem reprodução extensa da tradução",
+      "note": "Êx 25–27, 30; 1Rs 6–7; 2Cr 4 conferidos na ACF local. Planta e comparações próprias."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "tabernacle-plan",
+      "title": "Recintos da tenda",
+      "text": "A leitura tradicional da planta usa a divisão indicada pelo véu para distribuir os recintos; as dimensões internas de 20×10 e 10×10 não são cotadas como cômodos individuais nesses versículos.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 26,
+        "verseStart": 31,
+        "verseEnd": 35,
+        "label": "Êx 26:31–35"
+      }
+    },
+    {
+      "placeId": "temple-plan",
+      "title": "Recintos do templo",
+      "text": "Reis relata o Lugar Santo com quarenta côvados de comprimento e o debir com vinte de comprimento, largura e altura; os compartimentos internos no eixo longitudinal somam 40 + 20 = 60 côvados, conforme o comprimento geral de 1Rs 6:2.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 6,
+        "verseStart": 2,
+        "verseEnd": 20,
+        "label": "1Rs 6:2, 17–20"
+      }
+    },
+    {
+      "placeId": "comparison-table",
+      "title": "Móveis e equipamentos",
+      "text": "Crônicas registra dez candelabros e dez mesas para o templo; 2Cr 4:7–8 não fornece suas dimensões.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 7,
+        "verseEnd": 8,
+        "label": "2Cr 4:7–8"
+      }
+    },
+    {
+      "placeId": "comparison-table",
+      "title": "Altares e instalação",
+      "text": "Crônicas registra para o altar do templo vinte côvados de comprimento, vinte de largura e dez de altura; a ACF o chama de metal.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 1,
+        "label": "2Cr 4:1"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "O cômodo 10×10 do Santo dos Santos no Tabernáculo é uma reconstrução tradicional derivada da planta, não medida direta explicitada em um único versículo.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 26,
+        "verseStart": 31,
+        "verseEnd": 35,
+        "label": "Êx 26:31–35"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Em 1Rs 6:17–20, os 40 côvados do templo anterior mais 20 do debir somam 60, correspondendo ao comprimento geral de 1Rs 6:2.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 6,
+        "verseStart": 2,
+        "verseEnd": 20,
+        "label": "1Rs 6:2, 17–20"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Crônicas registra dez candelabros e dez mesas para o templo.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 7,
+        "verseEnd": 8,
+        "label": "2Cr 4:7–8"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "1Rs 7:38 registra dez pias, quarenta batos de capacidade em cada uma e a medida de quatro côvados, sem identificar o eixo medido.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 38,
+        "label": "1Rs 7:38"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Êxodo descreve varas permanentes para transportar a arca; “móvel versus fixo” é um resumo comparativo, não a redação literal desses versículos.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 25,
+        "verseStart": 13,
+        "verseEnd": 15,
+        "label": "Êx 25:13–15"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "tabernacle-temple-comparison.svg",
+    "dimensions": [
+      {
+        "label": "Tabernáculo — recintos internos (esquema tradicional)",
+        "note": "A divisão 20×10 + 10×10 é reconstrução tradicional a partir da descrição; não é cotada diretamente como duas salas em um só versículo.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 26,
+          "verseStart": 31,
+          "verseEnd": 35,
+          "label": "Êx 26:31–35"
+        }
+      },
+      {
+        "label": "Templo — comprimento do Lugar Santo",
+        "cubits": 40,
+        "note": "Medida textual em 1Rs 6:17; ≈ 18 m com côvado comum.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 6,
+          "verseStart": 17,
+          "label": "1Rs 6:17"
+        }
+      },
+      {
+        "label": "Templo — debir",
+        "cubits": 20,
+        "note": "20×20×20 côvados no texto; altura e planta explicitadas em 1Rs 6:20; ≈ 9 m por lado/alto.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 6,
+          "verseStart": 20,
+          "label": "1Rs 6:20"
+        }
+      },
+      {
+        "label": "Templo — largura da casa",
+        "cubits": 20,
+        "note": "Largura geral indicada em 1Rs 6:2 e correspondente ao debir de 20 em 6:20.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 6,
+          "verseStart": 2,
+          "label": "1Rs 6:2"
+        }
+      }
+    ],
+    "notes": [
+      "Côvado comum ≈ 0,45 m é apenas a conversão de referência; côvado longo ≈ 0,52 m é uma estimativa, e Ez 40:5 apresenta uma cana de seis côvados acrescida de um palmo. 2Cr 3:3 menciona a primeira medida antiga sem fixar equivalência métrica.",
+      "Desenho vetorial didático baseado em referências textuais; não é reconstrução arqueológica. Elementos sem medida textual são esquemáticos e não devem ser lidos em escala.",
+      "Silhueta de 1,70 m apenas como referência gráfica moderna, sem pretensão de representar uma pessoa histórica.",
+      "Plantas internas lado a lado usam o mesmo fator gráfico de escala para comparação, não representam a área externa nem espessura de paredes.",
+      "Tabernáculo: 20×10 para o Lugar Santo e 10×10 para o Santo dos Santos são dimensões tradicionais derivadas da planta geral e posição do véu; o quarto 10×10 é explicitamente uma inferência tradicional.",
+      "Templo: o hekal tem 40 côvados de comprimento e o debir 20, totalizando 60 côvados de comprimento interno (1Rs 6:2, 17–20). O pórtico mede 20×10 e tem 10 côvados de profundidade, fora dessa soma (1Rs 6:3).",
+      "Êxodo descreve varas para transportar a arca e a mesa (Êx 25:13–15, 26–28); Reis descreve a casa do templo construída (1Rs 6:2). “Móvel/fixo” resume a comparação, não é uma formulação literal de um versículo.",
+      "O texto de Êxodo descreve transporte da arca e mesa por varas; templo é chamado de casa construída. A oposição “móvel/fixo” é um resumo contextual.",
+      "Comparação de mobília: uma pia na instrução da tenda (Êx 30:18) → o mar e dez pias no templo (1Rs 7:23–39; 2Cr 4:6); um candelabro e uma mesa (Êx 25:23–40) → dez de cada (2Cr 4:7–8); altar 5×5 (Êx 27:1) → altar 20×20 (2Cr 4:1); tenda associada a transporte por varas → casa do templo construída."
+    ],
+    "relatedIds": [
+      "solomon-temple-overview",
+      "solomon-temple-lavers",
+      "solomon-temple-bronze-altar"
+    ],
+    "parts": [
+      {
+        "id": "tabernacle-plan",
+        "name": "Tabernáculo — divisões internas",
+        "description": "Esquema tradicional lado a lado na mesma escala. Lugar Santo 20×10 e Santo dos Santos 10×10 são inferências da planta, não cotas diretas de cômodos.",
+        "material": "Tenda/estrutura descrita em Êxodo",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 26,
+            "verseStart": 31,
+            "verseEnd": 35,
+            "label": "Êx 26:31–35"
+          }
+        ],
+        "highlight": {
+          "x": 25,
+          "y": 28,
+          "width": 27,
+          "height": 23
+        }
+      },
+      {
+        "id": "temple-plan",
+        "name": "Templo — divisões internas",
+        "description": "O hekal tem 40 côvados de comprimento e o debir 20, formando comprimento interno 40+20=60 côvados; o pórtico tem 10 côvados de profundidade e fica fora da soma.",
+        "material": "Pedra lavrada, cedro e ouro conforme relatos",
+        "references": [
+          {
+            "book": "1Kgs",
+            "chapter": 6,
+            "verseStart": 2,
+            "verseEnd": 20,
+            "label": "1Rs 6:2, 17–20"
+          }
+        ],
+        "highlight": {
+          "x": 36,
+          "y": 62,
+          "width": 37,
+          "height": 23
+        }
+      },
+      {
+        "id": "comparison-table",
+        "name": "Móveis e altares",
+        "description": "Tabernáculo: uma mesa, um candelabro e altar 5×5; templo: dez mesas, dez candelabros, dez pias e altar 20×20; medidas não informadas da pia da tenda permanecem ausentes.",
+        "material": "Materiais diversos; ver referências",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 1,
+            "label": "Êx 27:1"
+          },
+          {
+            "book": "2Chr",
+            "chapter": 4,
+            "verseStart": 1,
+            "label": "2Cr 4:1"
+          },
+          {
+            "book": "2Chr",
+            "chapter": 4,
+            "verseStart": 7,
+            "verseEnd": 8,
+            "label": "2Cr 4:7–8"
+          },
+          {
+            "book": "Exod",
+            "chapter": 30,
+            "verseStart": 18,
+            "verseEnd": 21,
+            "label": "Êx 30:18–21"
+          },
+          {
+            "book": "Exod",
+            "chapter": 25,
+            "verseStart": 23,
+            "verseEnd": 40,
+            "label": "Êx 25:23–40"
+          }
+        ],
+        "highlight": {
+          "x": 79,
+          "y": 31,
+          "width": 21,
+          "height": 0
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "tabernacle-temple-comparison-planta.svg"
+      },
+      {
+        "label": "Frente",
+        "svgFile": "tabernacle-temple-comparison-frente.svg"
+      },
+      {
+        "label": "Corte",
+        "svgFile": "tabernacle-temple-comparison-corte.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "tabernacle-temple-comparison-isometrica.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-16",
+    "status": "documented",
+    "verified": [
+      "Êx 25:23–40: uma mesa e um candelabro instruídos",
+      "Êx 26:31–35: véu e disposição de mesa/candelabro",
+      "Êx 27:1: altar 5×5 côvados",
+      "1Rs 6:2, 17–20: casa 60×20, hekal 40, debir 20×20×20",
+      "1Rs 7:38–39 e 2Cr 4:6–8: dez pias, dez mesas e dez candelabros"
+    ],
+    "uncertainties": [
+      "Medidas de cômodos do Tabernáculo 20×10 e 10×10 são uma reconstrução tradicional, não dimensões explicitamente fornecidas como tais no texto; 10×10 do Santo dos Santos é cálculo tradicional.",
+      "O côvado métrico e a equivalência do bato não são fixados pela comparação bíblica.",
+      "A escala dos recintos internos do Tabernáculo é derivada de leitura da estrutura e do véu; não expressa uma medição arqueológica independente."
+    ],
+    "methodology": "Êxodo, 1 Reis e 2 Crônicas foram lidos na ACF local em server/bible-data antes da redação. Desenhos mantêm escala gráfica idêntica para plantas, separam medida explícita de inferência tradicional e preservam lacunas textuais."
+  }
+}

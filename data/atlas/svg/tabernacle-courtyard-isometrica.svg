@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Vista 3/4 esquemática do pátio e do cercado">
+  <defs><filter id="shadow"><feGaussianBlur in="SourceAlpha" stdDeviation="5"/><feOffset dy="7"/><feComponentTransfer><feFuncA type="linear" slope=".3"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <rect width="800" height="520" fill="#17262a"/><path d="M112 342 392 456 693 313 410 194z" fill="#1d3032" stroke="#C9A227" stroke-width="5"/>
+  <g id="part-linen-enclosure" fill="none" stroke="#f4eee0" stroke-width="9"><path d="M112 342 410 194 693 313M112 342 392 456"/><path d="M112 342 112 298 410 151 410 194m283 119v-46l-283-119"/></g>
+  <g id="part-posts" fill="#C9A227" stroke="#f4eee0" stroke-width="2"><path d="M110 342v-52l9 4v52m56-32v-52l9 4v52m57-32v-52l9 4v52m57-32v-52l9 4v52m57-32v-52l9 4v52m57 181v-51l9 4v52m57-24v-52l9 4v52m56-33v-52l9 4v52m56-34v-52l9 4v52m56-34v-52l9 4v52"/></g>
+  <g id="part-silver-hardware" fill="#f4eee0"><circle cx="115" cy="292" r="5"/><circle cx="175" cy="262" r="5"/><circle cx="234" cy="233" r="5"/><circle cx="293" cy="204" r="5"/><circle cx="352" cy="174" r="5"/><circle cx="411" cy="155" r="5"/><circle cx="468" cy="179" r="5"/><circle cx="524" cy="203" r="5"/><circle cx="580" cy="227" r="5"/><circle cx="636" cy="251" r="5"/></g>
+  <g id="part-east-opening"><path d="M693 267v46l-55 27" fill="none" stroke="#2E4F8F" stroke-width="13"/><path d="m693 280-55 27" stroke="#6B2D5C" stroke-width="6" stroke-dasharray="7 7"/><circle cx="693" cy="269" r="8" fill="#C9A227"/><circle cx="638" cy="340" r="8" fill="#C9A227"/></g>
+</svg>

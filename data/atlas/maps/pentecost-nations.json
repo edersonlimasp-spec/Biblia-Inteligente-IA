@@ -1,0 +1,698 @@
+{
+  "id": "pentecost-nations",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Acts"
+  ],
+  "characters": [
+    "Pedro",
+    "discípulos de Jesus",
+    "peregrinos judeus e prosélitos"
+  ],
+  "period": "Pentecostes narrado em Atos; século I d.C., data exata não fixada neste mapa",
+  "title": "Pentecostes: as nações de Atos 2",
+  "subtitle": "Uma assembleia em Jerusalém descrita por origens diversas",
+  "summary": "Atos 2:5–11 descreve em Jerusalém judeus piedosos de muitas nações e enumera quinze regiões ou grupos de origem que ouviram os discípulos em suas próprias línguas. O único lugar representado por um pino é Jerusalém, a cidade da assembleia. As regiões amplas e povos da lista aparecem sem coordenadas, porque não são cidades pontuais nem o relato afirma que todos os seus representantes viajaram por um itinerário comum. Não há fronteiras, polígonos ou rotas desenhados.",
+  "modernSummary": "Jerusalém é o único ponto geográfico marcado. As quinze origens enumeradas no relato permanecem sem pinos e não representam limites políticos atuais.",
+  "certainty": "established",
+  "sample": true,
+  "keywords": [
+    "Pentecostes",
+    "Atos 2",
+    "Jerusalém",
+    "Parthos",
+    "línguas",
+    "nações",
+    "Igreja primitiva"
+  ],
+  "section": "new-testament",
+  "subsection": "Igreja primitiva",
+  "order": 7,
+  "era": "Pentecostes no século I d.C.; datação exata não especificada",
+  "modernOverview": "Jerusalém é marcada com o par numérico exato sem qualificador da evidência OpenBible retida; é um ponto representativo da cidade, não uma localização da reunião ou do Templo. Atos 2 nomeia quinze regiões e grupos, incluindo povos, áreas amplas e uma referência a residentes de Roma; nenhum desses nomes recebe coordenada própria. Não há polígono porque não se dispõe de vértices documentados e as áreas antigas não devem ser apresentadas como fronteiras exatas. O texto não afirma que os participantes percorreram rotas retas ou um mesmo trajeto até Jerusalém; por isso não são desenhadas linhas de viagem.",
+  "keyReferences": [
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 4,
+      "label": "Atos 2:1–4"
+    },
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 5,
+      "verseEnd": 11,
+      "label": "Atos 2:5–11"
+    },
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 12,
+      "verseEnd": 13,
+      "label": "Atos 2:12–13"
+    },
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 14,
+      "verseEnd": 21,
+      "label": "Atos 2:14–21"
+    },
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 37,
+      "verseEnd": 41,
+      "label": "Atos 2:37–41"
+    }
+  ],
+  "aliases": [
+    "Pentecostes",
+    "Nações de Atos 2",
+    "Peregrinos em Jerusalém",
+    "Parthos, medos e elamitas",
+    "Lista de povos de Atos 2:9–11",
+    "Igreja em Jerusalém"
+  ],
+  "references": [
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 4,
+      "label": "Atos 2:1–4"
+    },
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 5,
+      "verseEnd": 11,
+      "label": "Atos 2:5–11"
+    },
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 12,
+      "verseEnd": 21,
+      "label": "Atos 2:12–21"
+    },
+    {
+      "book": "Acts",
+      "chapter": 2,
+      "verseStart": 37,
+      "verseEnd": 41,
+      "label": "Atos 2:37–41"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info",
+      "note": "Somente o par numérico exato sem qualificador de Jerusalem foi usado como ponto de cidade: latitude 31.777444, longitude 35.234935, armazenado como [longitude, latitude]. A entrada não fornece a localização exata do evento."
+    },
+    {
+      "id": "biblical",
+      "title": "Atos dos Apóstolos 2:1–41",
+      "url": "https://ebible.org/web/ACT02.htm",
+      "license": "World English Bible (WEB), domínio público; paráfrases editoriais originais em português",
+      "note": "Atos 2:5–11 é a fonte da enumeração de povos e regiões e do contexto de Jerusalém. O relato fundamenta a lista narrativa, não limites territoriais, coordenadas dos lugares de origem ou rotas individuais."
+    }
+  ],
+  "places": [
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém; a Cidade Velha fica em Jerusalém Oriental",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "established",
+      "explanation": "Atos localiza em Jerusalém a reunião dos discípulos e a presença de judeus piedosos de muitas nações. O par OpenBible é um ponto geral da cidade; não identifica o aposento, o Templo ou o lugar preciso do acontecimento, nem decide soberania atual.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 5,
+          "label": "Atos 2:1–5"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "parthians",
+      "name": "Partos",
+      "modernName": "Pártia histórica; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Partos aparecem entre os ouvintes enumerados em Atos 2:9. O nome se refere a um povo e à sua região de origem em sentido amplo, não a uma cidade, e não recebe coordenada regional fictícia.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 9,
+          "label": "Atos 2:9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "medes",
+      "name": "Medos",
+      "modernName": "Média histórica; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Medos são mencionados na lista de Atos 2:9 como grupo de origem. O texto não indica cidade ou fronteira específica; esta referência contextual não é convertida em um ponto ou área cartográfica.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 9,
+          "label": "Atos 2:9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "elamites",
+      "name": "Elamitas",
+      "modernName": "Elão histórico; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Atos 2:9 inclui elamitas entre os presentes. Elão é uma referência regional antiga, não uma localidade pontual identificada por este texto, e nenhuma coordenada ou fronteira é proposta.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 9,
+          "label": "Atos 2:9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "mesopotamia",
+      "name": "Mesopotâmia",
+      "modernName": "Mesopotâmia histórica; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A lista nomeia moradores da Mesopotâmia, uma vasta região entre rios, sem selecionar uma cidade ou descrever limites. Não se usa um ponto arbitrário para representar toda a região.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 9,
+          "label": "Atos 2:9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "judea",
+      "name": "Judeia",
+      "modernName": "Judeia histórica; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Judeia figura na enumeração de Atos 2:9. O nome designa uma região, e o versículo não fornece vértices nem escolhe uma cidade; portanto não há ponto representativo nem fronteira desenhada.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 9,
+          "label": "Atos 2:9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "cappadocia",
+      "name": "Capadócia",
+      "modernName": "Capadócia histórica, no interior da atual Turquia; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Capadócia é uma região nomeada em Atos 2:9. Uma região extensa não é representada por coordenada pontual, e não foram inventados limites ou polígonos.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 9,
+          "label": "Atos 2:9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "pontus",
+      "name": "Ponto",
+      "modernName": "Ponto histórico, na costa norte da atual Turquia; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Ponto aparece em Atos 2:9 como origem de alguns ouvintes. O relato não identifica cidade ou ponto de origem individual, e esta região não recebe coordenada própria.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 9,
+          "label": "Atos 2:9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "asia",
+      "name": "Ásia",
+      "modernName": "Província romana da Ásia, no oeste da atual Turquia; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Em Atos 2:9, Ásia é uma designação regional antiga, não o continente inteiro no sentido moderno. O versículo não especifica cidade e nenhuma fronteira exata ou coordenada regional é afirmada.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 9,
+          "label": "Atos 2:9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "phrygia",
+      "name": "Frígia",
+      "modernName": "Frígia histórica, na Anatólia; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Frígia é uma região citada em Atos 2:10. O texto não define seus limites nem oferece uma cidade de origem; nenhuma coordenada ou polígono é desenhado.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 10,
+          "label": "Atos 2:10"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "pamphylia",
+      "name": "Panfília",
+      "modernName": "Panfília histórica, no sul da atual Turquia; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Panfília aparece em Atos 2:10 como região de origem. Não se escolhe uma cidade ou ponto para representá-la e não se inferem fronteiras exatas.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 10,
+          "label": "Atos 2:10"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "egypt",
+      "name": "Egito",
+      "modernName": "Egito histórico; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Atos 2:10 menciona moradores do Egito entre os ouvintes. O versículo não nomeia uma cidade egípcia de origem, por isso não é usado um ponto urbano como se representasse todo o país.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 10,
+          "label": "Atos 2:10"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "libya-cyrene",
+      "name": "Partes da Líbia perto de Cirene",
+      "modernName": "Área ampla da Líbia nas proximidades de Cirene; sem pino regional",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Atos 2:10 fala de partes da Líbia perto de Cirene, e não afirma que os ouvintes vieram da própria cidade de Cirene. Para não converter uma referência regional próxima a uma cidade em pino urbano ou regional indevido, a entrada permanece sem coordenadas.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 10,
+          "label": "Atos 2:10"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "rome",
+      "name": "Visitantes de Roma",
+      "modernName": "Roma, Itália; referência a visitantes, sem pino de origem individual",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Atos 2:10–11 menciona visitantes de Roma, tanto judeus como prosélitos. O trecho informa uma origem coletiva, mas não identifica indivíduos, endereços ou um ponto de partida comum; Roma não recebe pino neste mapa.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 10,
+          "verseEnd": 11,
+          "label": "Atos 2:10–11"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "cretans",
+      "name": "Cretenses",
+      "modernName": "Creta histórica; ilha/região de origem ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Cretenses são citados em Atos 2:11. O nome indica pessoas associadas a Creta, sem identificar cidade ou porto de partida; nenhum marcador é colocado na ilha.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 11,
+          "label": "Atos 2:11"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "arabs",
+      "name": "Árabes",
+      "modernName": "Origens árabes diversas; região ampla, sem pino",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Atos 2:11 cita árabes entre os ouvintes, sem nomear uma cidade ou uma região de origem delimitada. Não se inventa uma localização pontual nem uma fronteira para esse grupo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 2,
+          "verseStart": 11,
+          "label": "Atos 2:11"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "jerusalem",
+      "title": "A assembleia em Jerusalém",
+      "text": "Atos situa em Jerusalém os discípulos reunidos e a chegada de judeus piedosos de muitas nações. O ponto no mapa marca somente a cidade em termos gerais.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 5,
+        "label": "Atos 2:1–5"
+      }
+    },
+    {
+      "placeId": "parthians",
+      "title": "Partos",
+      "text": "Partos estão entre os grupos cuja presença e língua são mencionadas. Atos não identifica suas cidades de origem nem desenha sua jornada até Jerusalém.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "label": "Atos 2:9"
+      }
+    },
+    {
+      "placeId": "medes",
+      "title": "Medos",
+      "text": "Medos aparecem na enumeração de povos que ouviram os discípulos falar. O mapa preserva o nome sem convertê-lo em uma área de fronteiras exatas.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "label": "Atos 2:9"
+      }
+    },
+    {
+      "placeId": "elamites",
+      "title": "Elamitas",
+      "text": "Elamitas são incluídos na lista de Atos. O texto não atribui a cada pessoa uma cidade ou rota de viagem.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "label": "Atos 2:9"
+      }
+    },
+    {
+      "placeId": "mesopotamia",
+      "title": "Mesopotâmia",
+      "text": "A lista também identifica moradores da Mesopotâmia. Como o nome abrange uma região, não recebe um ponto cartográfico único.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "label": "Atos 2:9"
+      }
+    },
+    {
+      "placeId": "judea",
+      "title": "Judeia",
+      "text": "Judeia aparece ao lado das demais origens na lista. O relato não determina limites cartográficos para esta entrada.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "label": "Atos 2:9"
+      }
+    },
+    {
+      "placeId": "cappadocia",
+      "title": "Capadócia",
+      "text": "Capadócia é uma das regiões nomeadas por Atos. A entrada narrativa não equivale a um ponto urbano ou a um polígono territorial.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "label": "Atos 2:9"
+      }
+    },
+    {
+      "placeId": "pontus",
+      "title": "Ponto",
+      "text": "Ponto está entre os nomes da lista de Atos 2. O mapa não supõe de qual cidade vieram os ouvintes mencionados.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "label": "Atos 2:9"
+      }
+    },
+    {
+      "placeId": "asia",
+      "title": "Ásia",
+      "text": "A designação Ásia no contexto antigo não deve ser confundida automaticamente com o continente moderno inteiro. Nenhum limite exato é desenhado.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "label": "Atos 2:9"
+      }
+    },
+    {
+      "placeId": "phrygia",
+      "title": "Frígia",
+      "text": "Frígia é citada em Atos 2:10 entre as origens dos ouvintes. Não há cidade individual ou percurso fornecido no trecho.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 10,
+        "label": "Atos 2:10"
+      }
+    },
+    {
+      "placeId": "pamphylia",
+      "title": "Panfília",
+      "text": "Panfília integra a enumeração de Atos. Seu nome é mantido como referência de origem sem marcador de lugar exato.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 10,
+        "label": "Atos 2:10"
+      }
+    },
+    {
+      "placeId": "egypt",
+      "title": "Egito",
+      "text": "O texto menciona moradores do Egito, sem identificar uma cidade egípcia de onde partiram. Não se usa um ponto urbano como substituto da região.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 10,
+        "label": "Atos 2:10"
+      }
+    },
+    {
+      "placeId": "libya-cyrene",
+      "title": "Líbia perto de Cirene",
+      "text": "Atos fala de partes da Líbia perto de Cirene, não necessariamente da cidade de Cirene como origem. A formulação regional permanece sem pino.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 10,
+        "label": "Atos 2:10"
+      }
+    },
+    {
+      "placeId": "rome",
+      "title": "Visitantes de Roma",
+      "text": "A lista registra visitantes de Roma, incluindo judeus e prosélitos. Isso não comprova que cada pessoa veio diretamente de Roma em uma rota específica.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 10,
+        "verseEnd": 11,
+        "label": "Atos 2:10–11"
+      }
+    },
+    {
+      "placeId": "cretans",
+      "title": "Cretenses",
+      "text": "Cretenses são nomeados junto aos demais ouvintes. Não há cidade de partida ou rota individual indicada.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 11,
+        "label": "Atos 2:11"
+      }
+    },
+    {
+      "placeId": "arabs",
+      "title": "Árabes",
+      "text": "Árabes encerram a enumeração de origens em Atos 2:11. O termo não fixa uma região política ou um ponto de origem único.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 11,
+        "label": "Atos 2:11"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Atos 2:9–11 enumera quinze grupos ou regiões de origem, da Pártia e Média a Creta e aos árabes. A lista é preservada integralmente neste mapa e não é reduzida a cidades representativas.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 9,
+        "verseEnd": 11,
+        "label": "Atos 2:9–11"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "O texto diz que os ouvintes escutavam os discípulos em suas próprias línguas. A passagem não fornece uma rota individual nem exige que cada grupo listado corresponda a uma fronteira política precisa.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 6,
+        "verseEnd": 8,
+        "label": "Atos 2:6–8"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "A reunião é situada em Jerusalém, mas o registro geográfico da cidade não localiza o aposento ou o lugar exato do acontecimento. Por essa razão o pino significa cidade, não sítio arqueológico do Pentecostes.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 5,
+        "label": "Atos 2:1–5"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Atos distingue visitantes de Roma e menciona entre eles judeus e prosélitos. Essa referência coletiva não permite traçar uma linha reta de Roma a Jerusalém para cada ouvinte.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 2,
+        "verseStart": 10,
+        "verseEnd": 11,
+        "label": "Atos 2:10–11"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    35.234935,
+    31.777444,
+    35.234935,
+    31.777444
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "As quinze entradas de origem mencionadas em Atos 2:9–11 estão representadas individualmente: Partos, Medos, Elamitas, Mesopotâmia, Judeia, Capadócia, Ponto, Ásia, Frígia, Panfília, Egito, Líbia perto de Cirene, visitantes de Roma, Cretenses e Árabes.",
+      "Apenas Jerusalém recebe coordenadas, com par numérico exato da evidência retida e ordem [longitude, latitude].",
+      "Cada entrada de origem sem pino possui referência textual e uma etapa narrativa correspondente.",
+      "Não foram criados polígonos, fronteiras regionais ou rotas de viagem."
+    ],
+    "uncertainties": [
+      "A extensão de várias designações geográficas antigas variou no tempo e não é delimitada neste mapa.",
+      "A localização precisa da reunião em Jerusalém não é estabelecida por esta referência de cidade.",
+      "A lista de Atos não individualiza as cidades de origem ou os percursos dos ouvintes; a menção a Líbia perto de Cirene não é convertida em pino de Cirene.",
+      "A datação exata do episódio não é afirmada aqui."
+    ],
+    "methodology": "Foi usada apenas uma coordenada de cidade: o par numérico exato sem qualificador para Jerusalém na evidência OpenBible retida, armazenado como [longitude, latitude]. As quinze origens textuais foram mantidas como entradas narrativas sem pinos. Nenhum vértice documental sustenta polígonos e nenhuma rota individual está descrita; assim, não se desenham áreas ou linhas. As fronteiras não são reconstruídas nem apresentadas como fronteira exata."
+  }
+}

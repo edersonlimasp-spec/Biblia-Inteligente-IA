@@ -1,0 +1,471 @@
+{
+  "id": "jesus-birth-childhood",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Matt",
+    "Luke"
+  ],
+  "characters": [
+    "Jesus",
+    "Maria",
+    "José"
+  ],
+  "period": "Relatos do nascimento e infância de Jesus; cronologia relativa entre Mateus e Lucas não harmonizada",
+  "title": "Nascimento e infância de Jesus",
+  "subtitle": "Belém, apresentação no Templo, fuga ao Egito e retorno a Nazaré",
+  "summary": "Este mapa mantém distintos os relatos da infância em Mateus 1–2 e Lucas 1–2, sem inserir a fuga ao Egito na sequência contada por Lucas nem forçar uma cronologia harmonizada. Mateus narra a visita dos magos, a fuga para o Egito e o retorno com estabelecimento em Nazaré; Lucas descreve o nascimento em Belém, a apresentação em Jerusalém e a ida da família a Nazaré, além da visita de Jesus ao Templo aos doze anos. O destino no Egito não é nomeado, e nem a apresentação nem o episódio aos doze anos recebem um ponto preciso dentro do complexo do Templo.",
+  "modernSummary": "Belém, Jerusalém e Nazaré são localidades modernas identificáveis, mas seus pontos são referências urbanas gerais, não locais arqueológicos dos episódios. O Egito é uma região de destino sem localidade especificada no relato e fica sem pino.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "nascimento de Jesus",
+    "infância de Jesus",
+    "Belém",
+    "apresentação no Templo",
+    "fuga para o Egito",
+    "Nazaré",
+    "Mateus 2",
+    "Lucas 2"
+  ],
+  "section": "new-testament",
+  "subsection": "Vida de Jesus",
+  "order": 3,
+  "era": "Nascimento e infância de Jesus; datação absoluta discutida",
+  "modernOverview": "Belém é o lugar do nascimento no relato de Lucas e no de Mateus, enquanto Jerusalém é o cenário da apresentação de Jesus no Templo em Lucas 2:22. Mateus conta a fuga para o Egito, mas não nomeia uma cidade ou destino específico dentro do país; nenhum ponto ou rota é inventado. Lucas narra o retorno da família a Nazaré e, mais tarde, a ida anual a Jerusalém, onde Jesus aos doze anos permanece no Templo. Mateus e Lucas apresentam episódios e arranjos narrativos próprios, por isso o mapa os mantém identificados por fonte e não afirma uma cronologia harmonizada.",
+  "keyReferences": [
+    {
+      "book": "Luke",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 7,
+      "label": "Lucas 2:1–7 — nascimento em Belém"
+    },
+    {
+      "book": "Matt",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 12,
+      "label": "Mateus 2:1–12 — visita dos magos"
+    },
+    {
+      "book": "Luke",
+      "chapter": 2,
+      "verseStart": 22,
+      "verseEnd": 24,
+      "label": "Lucas 2:22–24 — apresentação em Jerusalém"
+    },
+    {
+      "book": "Matt",
+      "chapter": 2,
+      "verseStart": 13,
+      "verseEnd": 15,
+      "label": "Mateus 2:13–15 — fuga para o Egito"
+    },
+    {
+      "book": "Matt",
+      "chapter": 2,
+      "verseStart": 19,
+      "verseEnd": 23,
+      "label": "Mateus 2:19–23 — retorno e Nazaré"
+    },
+    {
+      "book": "Luke",
+      "chapter": 2,
+      "verseStart": 39,
+      "verseEnd": 40,
+      "label": "Lucas 2:39–40 — retorno a Nazaré"
+    },
+    {
+      "book": "Luke",
+      "chapter": 2,
+      "verseStart": 41,
+      "verseEnd": 51,
+      "label": "Lucas 2:41–51 — Jesus aos doze anos"
+    }
+  ],
+  "aliases": [
+    "Nascimento de Jesus",
+    "Infância de Jesus",
+    "Fuga para o Egito",
+    "Apresentação de Jesus no Templo",
+    "Jesus aos doze anos",
+    "Belém, Jerusalém e Nazaré"
+  ],
+  "references": [
+    {
+      "book": "Matt",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 23,
+      "label": "Mateus 2:1–23"
+    },
+    {
+      "book": "Luke",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 52,
+      "label": "Lucas 2:1–52"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info",
+      "note": "Usados os pares numéricos exatos sem qualificadores das chaves Bethlehem 1 (35.21026630105202, 31.70536129174666), Jerusalem (35.234935, 31.777444) e Nazareth (35.30152807767973, 32.70674542474383), convertidos para [longitude, latitude]. São pontos de referência de localidades, não coordenadas dos eventos nem de edifícios específicos."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas: Mateus 1–2 e Lucas 1–2",
+      "url": "https://ebible.org/web/MAT02.htm",
+      "license": "World English Bible (WEB), domínio público; paráfrases originais em português",
+      "note": "Referências e paráfrases editoriais para os relatos distintos de Mateus e Lucas. O texto fundamenta lugares narrados e ordem interna de cada relato, não coordenadas arqueológicas nem uma cronologia combinada."
+    },
+    {
+      "id": "editorial",
+      "title": "Seleção e apresentação cartográfica editorial",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria editorial original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "Nenhuma rota foi desenhada. Os episódios sem localidade determinada e os recintos do Templo sem coordenada própria são apresentados como paradas narrativas sem pino."
+    }
+  ],
+  "places": [
+    {
+      "id": "bethlehem",
+      "name": "Belém da Judeia",
+      "modernName": "Bayt Lahm/Belém, Cisjordânia",
+      "coordinates": [
+        35.21026630105202,
+        31.70536129174666
+      ],
+      "certainty": "probable",
+      "explanation": "Mateus e Lucas nomeiam Belém nos relatos do nascimento. Foi usado o registro OpenBible Bethlehem 1, distinto da entrada para Belém da Galileia; o ponto é representativo da cidade e não localiza uma gruta, casa ou edifício do nascimento.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 2,
+          "verseStart": 4,
+          "verseEnd": 7,
+          "label": "Lucas 2:4–7"
+        },
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Mateus 2:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século I a.C.; datação discutida"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém; ponto urbano geral, não delimita a cidade antiga",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "Lucas situa em Jerusalém a apresentação de Jesus no Templo e a visita aos doze anos. O par exato vem da chave Jerusalem da evidência retida e representa a cidade, não o recinto ou uma sala específica do Templo.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 2,
+          "verseStart": 22,
+          "verseEnd": 24,
+          "label": "Lucas 2:22–24"
+        },
+        {
+          "book": "Luke",
+          "chapter": 2,
+          "verseStart": 41,
+          "verseEnd": 46,
+          "label": "Lucas 2:41–46"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século I d.C."
+      ]
+    },
+    {
+      "id": "temple",
+      "name": "Templo de Jerusalém — parada narrativa",
+      "modernName": "Complexo do Templo em Jerusalém; ponto específico do episódio não indicado",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Lucas menciona o Templo tanto na apresentação como no episódio de Jesus aos doze anos. Para evitar sugerir precisão intramuros não fornecida pelas fontes de coordenadas retidas, esta parada ligada a Jerusalém não recebe pino independente.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 2,
+          "verseStart": 22,
+          "verseEnd": 24,
+          "label": "Lucas 2:22–24"
+        },
+        {
+          "book": "Luke",
+          "chapter": 2,
+          "verseStart": 41,
+          "verseEnd": 51,
+          "label": "Lucas 2:41–51"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ],
+      "centuries": [
+        "século I d.C."
+      ]
+    },
+    {
+      "id": "egypt",
+      "name": "Egito — destino sem cidade identificada",
+      "modernName": "Egito; localidade de permanência não especificada no relato",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Mateus narra que a família fugiu para o Egito, mas não nomeia cidade, rota ou ponto de chegada. Um marcador regional seria enganoso e a coordenada ampla de Egypt marcada como referência regional na evidência foi rejeitada.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 13,
+          "verseEnd": 15,
+          "label": "Mateus 2:13–15"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ],
+      "centuries": [
+        "século I a.C.; datação discutida"
+      ]
+    },
+    {
+      "id": "nazareth",
+      "name": "Nazaré",
+      "modernName": "An-Nasira/Nazaré, Israel",
+      "coordinates": [
+        35.30152807767973,
+        32.70674542474383
+      ],
+      "certainty": "probable",
+      "explanation": "Mateus relata o estabelecimento da família em Nazaré depois do retorno do Egito; Lucas também situa ali a vida familiar após sua narrativa de nascimento e apresentação. O ponto corresponde ao par numérico exato da chave Nazareth e não a uma casa específica.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 22,
+          "verseEnd": 23,
+          "label": "Mateus 2:22–23"
+        },
+        {
+          "book": "Luke",
+          "chapter": 2,
+          "verseStart": 39,
+          "verseEnd": 40,
+          "label": "Lucas 2:39–40"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século I d.C."
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "bethlehem",
+      "title": "Nascimento em Belém — Lucas",
+      "text": "Lucas conta que José e Maria viajaram a Belém e que Jesus nasceu ali. Este passo apresenta a sequência própria de Lucas, sem acrescentar aqui episódios narrados por Mateus.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 2,
+        "verseStart": 4,
+        "verseEnd": 7,
+        "label": "Lucas 2:4–7"
+      }
+    },
+    {
+      "placeId": "temple",
+      "title": "Apresentação no Templo",
+      "text": "Lucas narra a ida de Maria e José a Jerusalém para apresentar Jesus e cumprir o que era requerido. O ponto preciso dentro do complexo do Templo não é indicado e não recebe pino separado.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 2,
+        "verseStart": 22,
+        "verseEnd": 24,
+        "label": "Lucas 2:22–24"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Jerusalém na visita aos doze anos",
+      "text": "Lucas situa em Jerusalém a viagem anual da família e o episódio em que Jesus é encontrado no Templo. O ponto representa a cidade, sem identificar uma entrada ou posição específica no recinto.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 2,
+        "verseStart": 41,
+        "verseEnd": 46,
+        "label": "Lucas 2:41–46"
+      }
+    },
+    {
+      "placeId": "nazareth",
+      "title": "Retorno a Nazaré — Lucas",
+      "text": "Após os acontecimentos descritos em Jerusalém, Lucas diz que a família voltou para Nazaré. O mapa mantém esse relato como a sequência de Lucas e não insere nela a fuga ao Egito contada por Mateus.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 2,
+        "verseStart": 39,
+        "verseEnd": 40,
+        "label": "Lucas 2:39–40"
+      }
+    },
+    {
+      "placeId": "bethlehem",
+      "title": "Belém e a visita dos magos — Mateus",
+      "text": "Mateus situa o nascimento em Belém e conta a visita dos magos. Esta é uma sequência própria de Mateus, apresentada separadamente da narrativa de Lucas.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 12,
+        "label": "Mateus 2:1–12"
+      }
+    },
+    {
+      "placeId": "egypt",
+      "title": "Fuga para o Egito — destino não localizado",
+      "text": "No relato de Mateus, José leva Maria e Jesus ao Egito. O Evangelho não nomeia uma cidade, por isso o destino fica como parada narrativa sem pino ou rota.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 13,
+        "verseEnd": 15,
+        "label": "Mateus 2:13–15"
+      }
+    },
+    {
+      "placeId": "nazareth",
+      "title": "Retorno e estabelecimento em Nazaré — Mateus",
+      "text": "Mateus relata o retorno após a morte de Herodes e a decisão de viver em Nazaré. O retorno é mostrado na narrativa de Mateus sem tentar encaixá-lo na cronologia de Lucas.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 19,
+        "verseEnd": 23,
+        "label": "Mateus 2:19–23"
+      }
+    },
+    {
+      "placeId": "temple",
+      "title": "Jesus aos doze anos em Jerusalém",
+      "text": "Lucas conta que Jesus, aos doze anos, permaneceu no Templo durante a visita anual da família a Jerusalém. O mapa registra o local narrativo, não uma sala ou pátio preciso.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 2,
+        "verseStart": 41,
+        "verseEnd": 51,
+        "label": "Lucas 2:41–51"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Mateus e Lucas situam o nascimento em Belém, mas desenvolvem episódios distintos; este mapa preserva as narrativas sem converter suas diferenças de seleção e ordem em uma cronologia única.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 1,
+        "label": "Mateus 2:1"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "A fuga para o Egito é narrada por Mateus, mas o texto não informa a cidade de destino nem oferece um itinerário. Por isso a parada permanece sem pino e nenhuma rota é desenhada.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 13,
+        "verseEnd": 15,
+        "label": "Mateus 2:13–15"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Lucas 2:22–24 descreve a apresentação de Jesus em Jerusalém. O lugar narrado é o Templo, mas o registro geográfico retido só sustenta um ponto geral da cidade, não um pino do recinto.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 2,
+        "verseStart": 22,
+        "verseEnd": 24,
+        "label": "Lucas 2:22–24"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Lucas reserva um episódio posterior para a ida de Jesus, aos doze anos, a Jerusalém com sua família. O relato não deve ser confundido com a apresentação durante sua infância.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 2,
+        "verseStart": 41,
+        "verseEnd": 51,
+        "label": "Lucas 2:41–51"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    35.21026630105202,
+    31.70536129174666,
+    35.30152807767973,
+    32.70674542474383
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Belém, Jerusalém e Nazaré usam apenas pares numéricos explícitos e sem qualificadores da evidência OpenBible retida, armazenados como [longitude, latitude].",
+      "A Belém da Judeia foi distinguida da entrada separada Bethlehem 2 para Belém da Galileia.",
+      "Egito não recebe pino: o destino não é especificado por Mateus e a coordenada regional aproximada da fonte foi rejeitada.",
+      "Templo e episódio aos doze anos foram representados sem coordenada intramuros independente.",
+      "A fuga em Mateus não foi inserida como episódio na sequência de Lucas; nenhum itinerário combinado foi criado."
+    ],
+    "uncertainties": [
+      "A datação absoluta do nascimento e a relação cronológica entre os episódios relatados por Mateus e Lucas permanecem discutidas.",
+      "Os pinos representam cidades modernas de referência, não os locais exatos do nascimento, residência ou acontecimentos no complexo do Templo.",
+      "A identidade da localidade de destino durante a permanência no Egito é desconhecida neste relato."
+    ],
+    "methodology": "Compilação documental assistida por software. Foram aceitos somente pares numéricos exatos e sem marcadores de aproximação na evidência geográfica retida, com ordem convertida para [longitude, latitude]. Paradas narrativas sem localidade exata, como Egito e o ponto intramuros do Templo, ficam sem pino; nenhuma rota é desenhada. Relatos de Mateus e Lucas são mantidos em sequências identificadas por fonte, sem harmonização. Revisão de especialista ainda necessária."
+  }
+}

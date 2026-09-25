@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Elevação esquemática das quatro cobertas do tabernáculo">
+<rect width="800" height="520" fill="#17262a"/>
+<g id="part-linen" fill="#f4eee0" fill-opacity=".85" stroke="#BFC5CC" stroke-width="4">
+ <path d="M154 184Q399 70 646 184L646 223Q399 111 154 223z"/>
+ <path d="M245 162l16-15 16 15-16 15zm111-50 16-15 16 15-16 15zm112 12 16-15 16 15-16 15zm100 39 16-15 16 15-16 15z" fill="#2E4F8F" stroke="#6B2D5C"/>
+</g>
+<g id="part-goat-hair" fill="#8A6A43" fill-opacity=".75" stroke="#A0673A" stroke-width="4">
+ <path d="M167 234Q399 136 633 234v47Q399 183 167 281z"/>
+</g>
+<g id="part-ram-skins" fill="#9E1B32" fill-opacity=".8" stroke="#C9A227" stroke-width="3">
+ <path d="M179 290Q399 200 621 290v45Q399 247 179 335z"/>
+</g>
+<g id="part-tachash" fill="#BFC5CC" fill-opacity=".24" stroke="#BFC5CC" stroke-width="4" stroke-dasharray="13 9">
+ <path d="M191 345Q399 263 609 345v42Q399 305 191 387z"/>
+</g>
+<path d="M206 387v53m386-53v53M206 440h386" fill="none" stroke="#8A6A43" stroke-width="9"/>
+<path d="M100 450H700" stroke="#BFC5CC" stroke-width="2" opacity=".4"/>
+</svg>

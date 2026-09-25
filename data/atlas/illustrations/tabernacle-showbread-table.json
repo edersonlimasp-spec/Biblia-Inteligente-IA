@@ -1,0 +1,163 @@
+{
+  "id": "tabernacle-showbread-table",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod", "Lev"],
+  "characters": ["Moisés", "Arão"],
+  "period": "Instruções para o santuário móvel no deserto",
+  "title": "Tabernáculo: Mesa dos pães",
+  "subtitle": "Mesa revestida de ouro; doze pães dispostos em duas fileiras",
+  "summary": "A mesa é descrita como feita de madeira de acácia e revestida de ouro, com argolas, varais e utensílios. A instrução dá dois côvados de comprimento, um de largura e um e meio de altura. Levítico descreve doze pães em duas fileiras, seis em cada uma, renovados a cada sábado.",
+  "modernSummary": "A ficha apresenta as dimensões descritas em Êxodo e o arranjo litúrgico em Levítico. O desenho é um diagrama vetorial, não um objeto arqueológico recuperado.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["mesa dos pães", "pães da proposição", "doze pães", "Lugar Santo", "acácia", "ouro"],
+  "section": "tabernacle",
+  "subsection": "Mobiliário do Lugar Santo",
+  "order": 10,
+  "era": "Êxodo e deserto",
+  "modernOverview": "O mobiliário é conhecido pela descrição textual; não há aqui identificação de exemplar preservado nem extrapolação para escavação.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 25, "verseStart": 23, "verseEnd": 30, "label": "Exod 25:23–30"},
+    {"book": "Exod", "chapter": 37, "verseStart": 10, "verseEnd": 16, "label": "Exod 37:10–16"},
+    {"book": "Lev", "chapter": 24, "verseStart": 5, "verseEnd": 9, "label": "Lev 24:5–9"}
+  ],
+  "aliases": ["mesa do pão da proposição", "mesa dos pães da presença", "pães da proposição"],
+  "references": [
+    {"book": "Exod", "chapter": 25, "verseStart": 23, "verseEnd": 30, "label": "Exod 25:23–30"},
+    {"book": "Exod", "chapter": 37, "verseStart": 10, "verseEnd": 16, "label": "Exod 37:10–16"},
+    {"book": "Lev", "chapter": 24, "verseStart": 5, "verseEnd": 9, "label": "Lev 24:5–9"}
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Passagens bíblicas — texto ACF local e referências",
+      "url": "https://ebible.org/web/",
+      "license": "Paráfrases próprias; sem reprodução de trechos de tradução",
+      "note": "As referências foram conferidas no texto ACF presente em server/bible-data/exo.ts e server/bible-data/lev.ts; os desenhos são diagramas originais."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "purpose": "Servia para dispor os pães apresentados continuamente diante do Senhor e os utensílios associados ao serviço do santuário; Levítico relaciona a renovação sabática dos pães à provisão alimentar dos sacerdotes.",
+  "storySteps": [
+    {
+      "placeId": "table-body",
+      "title": "Mesa de acácia revestida de ouro",
+      "text": "O móvel tinha proporções expressas em côvados, uma moldura e elementos para transporte por varais.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 23, "verseEnd": 28, "label": "Exod 25:23–28"}
+    },
+    {
+      "placeId": "twelve-loaves",
+      "title": "Doze pães em duas fileiras",
+      "text": "Levítico especifica seis pães por fileira; a disposição em duas filas é descrita no texto e não representa uma reconstrução arqueológica.",
+      "reference": {"book": "Lev", "chapter": 24, "verseStart": 5, "verseEnd": 6, "label": "Lev 24:5–6"}
+    },
+    {
+      "placeId": "gold-vessels",
+      "title": "Utensílios e ciclo semanal",
+      "text": "Os utensílios são descritos em ouro; o texto de Levítico determina a renovação dos pães no sábado.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 29, "verseEnd": 30, "label": "Exod 25:29–30"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A dimensão informada para a mesa é 2 × 1 × 1,5 côvados; quatro dedos no texto descrevem a largura da moldura, sem equivalência métrica explícita.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 23, "verseEnd": 25, "label": "Exod 25:23–25"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "A descrição enumera pratos, colheres, cobertas e tigelas entre os utensílios de ouro puro.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 29, "label": "Exod 25:29"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Levítico apresenta doze pães, seis em cada uma de duas fileiras, e associa sua disposição à rotina de cada sábado.",
+      "reference": {"book": "Lev", "chapter": 24, "verseStart": 5, "verseEnd": 8, "label": "Lev 24:5–8"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Levítico diz que os pães eram alimento de Arão e de seus filhos no lugar santo.",
+      "reference": {"book": "Lev", "chapter": 24, "verseStart": 9, "label": "Lev 24:9"},
+      "sourceIds": ["biblical"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "tabernacle-showbread-table.svg",
+    "dimensions": [
+      {"label": "Comprimento", "cubits": 2, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 25, "verseStart": 23, "label": "Exod 25:23"}},
+      {"label": "Largura", "cubits": 1, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 25, "verseStart": 23, "label": "Exod 25:23"}},
+      {"label": "Altura", "cubits": 1.5, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 25, "verseStart": 23, "label": "Exod 25:23"}},
+      {"label": "Moldura", "note": "Largura descrita como um palmo em Exod 37:12 (Exod 25:25: quatro dedos na ACF); conversão para côvados não informada no texto.", "reference": {"book": "Exod", "chapter": 37, "verseStart": 12, "label": "Exod 37:12"}}
+    ],
+    "notes": [
+      "A planta usa uma razão proporcional 2:1 para o tampo e representa 12 pães como duas fileiras de seis.",
+      "A largura da moldura é expressa como quatro dedos em Exod 25:25 e como um palmo em Exod 37:12 na ACF. A ficha preserva as formulações sem converter o palmo em côvados.",
+      "A forma exata do pão, da moldura, das pernas e dos utensílios não é dimensionada nos versículos; seus contornos são esquemáticos."
+    ],
+    "relatedIds": ["tabernacle-overview", "tabernacle-menorah", "tabernacle-incense-altar"],
+    "views": [
+      {"label": "Planta", "svgFile": "tabernacle-showbread-table.svg"},
+      {"label": "Frente", "svgFile": "tabernacle-showbread-table-frente.svg"},
+      {"label": "Vista 3/4", "svgFile": "tabernacle-showbread-table-isometrica.svg"}
+    ],
+    "parts": [
+      {
+        "id": "table-body",
+        "name": "Tampo e estrutura da mesa",
+        "description": "Mesa de acácia revestida de ouro, com 2 côvados de comprimento, 1 de largura e 1,5 de altura.",
+        "material": "Madeira de acácia revestida de ouro puro",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 23, "verseEnd": 28, "label": "Exod 25:23–28"}],
+        "highlight": {"x": 50, "y": 46, "width": 0, "height": 0}
+      },
+      {
+        "id": "moulding",
+        "name": "Moldura e coroa",
+        "description": "Moldura descrita como tendo quatro dedos de largura no texto ACF de Exod 25:25; Exod 37:12 descreve a largura de uma mão. A imagem não fixa sua espessura.",
+        "material": "Ouro puro",
+        "references": [
+          {"book": "Exod", "chapter": 25, "verseStart": 25, "label": "Exod 25:25"},
+          {"book": "Exod", "chapter": 37, "verseStart": 12, "label": "Exod 37:12"}
+        ],
+        "highlight": {"x": 50, "y": 23, "width": 0, "height": 0}
+      },
+      {
+        "id": "twelve-loaves",
+        "name": "Doze pães",
+        "description": "Seis pães em cada uma de duas fileiras, conforme Levítico; a representação não pretende definir a forma ou o tamanho exato de cada pão.",
+        "material": "Flor de farinha",
+        "references": [{"book": "Lev", "chapter": 24, "verseStart": 5, "verseEnd": 8, "label": "Lev 24:5–8"}],
+        "highlight": {"x": 50, "y": 46, "width": 0, "height": 0}
+      },
+      {
+        "id": "rings-and-poles",
+        "name": "Argolas e varais",
+        "description": "Quatro argolas acomodavam varais de acácia revestidos de ouro para transportar a mesa.",
+        "material": "Argolas de ouro; varais de acácia revestidos de ouro",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 26, "verseEnd": 28, "label": "Exod 25:26–28"}],
+        "highlight": {"x": 50, "y": 74, "width": 0, "height": 0}
+      },
+      {
+        "id": "gold-vessels",
+        "name": "Utensílios",
+        "description": "Pratos, colheres e recipientes associados à mesa; não se afirma aqui que todas as formas desenhadas sejam descritas em detalhe.",
+        "material": "Ouro puro",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 29, "label": "Exod 25:29"}],
+        "highlight": {"x": 50, "y": 79, "width": 0, "height": 0}
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-02-20",
+    "status": "documented",
+    "verified": ["Exod 25:23–30", "Exod 37:10–16", "Lev 24:5–9; texto ACF local conferido"],
+    "uncertainties": [
+      "A largura da moldura é expressa como quatro dedos em Exod 25:25 e um palmo em Exod 37:12; sua conversão para côvados não é informada no texto.",
+      "Os textos não fornecem dimensões dos pães, formato preciso da moldura nem perfis construtivos detalhados."
+    ],
+    "methodology": "Conferência das medidas e práticas nos textos ACF locais do projeto. A escala dimensional do tampo reflete apenas as medidas textuais; formas não especificadas permanecem diagramáticas."
+  }
+}

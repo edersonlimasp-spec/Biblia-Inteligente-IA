@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Corte ilustrativo em quatro camadas das cobertas do tabernáculo">
+<rect width="800" height="520" fill="#17262a"/>
+<g id="part-linen" fill="#f4eee0" fill-opacity=".83" stroke="#BFC5CC" stroke-width="3">
+ <path d="M132 155Q395 92 668 155L630 205Q397 150 170 205z"/>
+ <path d="M203 163l22-15 22 15-22 15zm102-15 22-15 22 15-22 15zm110-15 22-15 22 15-22 15zm110 13 22-15 22 15-22 15zm90 20 22-15 22 15-22 15z" fill="#2E4F8F" stroke="#6B2D5C"/>
+</g>
+<g id="part-goat-hair" fill="#8A6A43" fill-opacity=".64" stroke="#A0673A" stroke-width="4">
+ <path d="M155 217Q396 164 648 217L622 266Q395 215 177 266z"/>
+</g>
+<g id="part-ram-skins" fill="#9E1B32" fill-opacity=".72" stroke="#C9A227" stroke-width="3">
+ <path d="M178 279Q397 231 627 279L607 326Q396 282 194 326z"/>
+</g>
+<g id="part-tachash" fill="#BFC5CC" fill-opacity=".23" stroke="#BFC5CC" stroke-width="4" stroke-dasharray="13 9">
+ <path d="M194 337Q397 293 607 337L588 382Q396 340 209 382z"/>
+</g>
+<path d="M213 390v65m374-65v65M213 455h374" fill="none" stroke="#8A6A43" stroke-width="9"/>
+<path d="M104 458H696" stroke="#BFC5CC" stroke-width="2" opacity=".4"/>
+</svg>

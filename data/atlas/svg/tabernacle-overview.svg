@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Planta esquemática do pátio e da tenda">
+  <rect width="800" height="520" fill="#17262a"/>
+  <g id="part-courtyard">
+    <rect x="96" y="110" width="520" height="260" fill="#17262a" stroke="#BFC5CC" stroke-width="3" stroke-dasharray="8 6"/>
+    <path d="M96 110h520M96 370h520M96 110v260" fill="none" stroke="#C9A227" stroke-width="8"/>
+  </g>
+  <g id="part-gate">
+    <path d="M616 110v72m0 116v72" fill="none" stroke="#BFC5CC" stroke-width="8"/>
+    <path d="M616 182v116" fill="none" stroke="#2E4F8F" stroke-width="10"/>
+    <path d="M616 182v116" fill="none" stroke="#6B2D5C" stroke-width="5" stroke-dasharray="5 8"/>
+    <circle cx="616" cy="180" r="8" fill="#A0673A"/><circle cx="616" cy="220" r="8" fill="#A0673A"/>
+    <circle cx="616" cy="260" r="8" fill="#A0673A"/><circle cx="616" cy="300" r="8" fill="#A0673A"/>
+  </g>
+  <g id="part-altar">
+    <path d="M548 214l28 12v42l-28 12-28-12v-42z" fill="#A0673A" stroke="#C9A227" stroke-width="3"/>
+    <path d="M548 214v54m-28-42 28 14 28-14" fill="none" stroke="#C9A227" stroke-width="2"/>
+    <path d="M538 210v-8m20 8v-8m-20 76v8m20-8v8" stroke="#C9A227" stroke-width="4"/>
+  </g>
+  <g id="part-laver">
+    <ellipse cx="492" cy="235" rx="14" ry="7" fill="#BFC5CC" stroke="#A0673A" stroke-width="4"/>
+    <path d="M481 237q2 17 11 18 10-1 12-18" fill="#A0673A" stroke="#BFC5CC" stroke-width="2"/>
+  </g>
+  <g id="part-tent">
+    <rect x="276" y="150" width="176" height="180" fill="#8A6A43" fill-opacity=".42" stroke="#C9A227" stroke-width="4"/>
+    <path d="M366 150v180" stroke="#6B2D5C" stroke-width="5" stroke-dasharray="7 5"/>
+  </g>
+  <g id="part-menorah">
+    <path d="M404 215v-29m0 19-14-12m14 12 14-12m-14 1-22-17m22 17 22-17" fill="none" stroke="#C9A227" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="382" cy="176" r="5" fill="#C9A227"/><circle cx="426" cy="176" r="5" fill="#C9A227"/>
+    <circle cx="390" cy="197" r="5" fill="#C9A227"/><circle cx="418" cy="197" r="5" fill="#C9A227"/>
+    <circle cx="404" cy="186" r="5" fill="#C9A227"/>
+  </g>
+  <g id="part-table">
+    <rect x="376" y="183" width="44" height="30" rx="3" fill="#8A6A43" stroke="#C9A227" stroke-width="3"/>
+    <circle cx="386" cy="194" r="3" fill="#f4eee0"/><circle cx="399" cy="194" r="3" fill="#f4eee0"/><circle cx="412" cy="194" r="3" fill="#f4eee0"/>
+    <circle cx="386" cy="204" r="3" fill="#f4eee0"/><circle cx="399" cy="204" r="3" fill="#f4eee0"/><circle cx="412" cy="204" r="3" fill="#f4eee0"/>
+  </g>
+  <g id="part-incense">
+    <rect x="379" y="274" width="34" height="34" fill="#C9A227" stroke="#f4eee0" stroke-width="2"/>
+  </g>
+  <g id="part-ark">
+    <rect x="288" y="292" width="64" height="23" rx="4" fill="#C9A227" stroke="#f4eee0" stroke-width="2"/>
+    <path d="M291 289q13-16 28 0m0 0q13-16 28 0" fill="none" stroke="#C9A227" stroke-width="4"/>
+  </g>
+</svg>

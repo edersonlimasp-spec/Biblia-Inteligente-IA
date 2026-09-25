@@ -1,0 +1,291 @@
+{
+  "id": "noah-ark-ararat",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Gen"
+  ],
+  "characters": [
+    "Noé"
+  ],
+  "period": "Narrativa primeva de Gênesis; datação histórica discutida",
+  "title": "A arca e os montes de Ararate",
+  "subtitle": "A narrativa do dilúvio e uma comparação proporcional das dimensões",
+  "summary": "Gênesis diz que a arca repousou nos montes de Ararate, expressão regional associada ao antigo Urartu, e não identifica um pico moderno como local certo. A localização permanece regional e debatida, sem pino de cume. A ilustração separada mostra apenas as dimensões textuais de 300 × 50 × 30 côvados; suas silhuetas proporcionais não são projeto nem reconstrução arqueológica da embarcação.",
+  "modernSummary": "Ararate/Urartu corresponde em termos amplos a áreas do planalto armênio, no entorno de partes da atual Turquia oriental, Armênia e regiões vizinhas. A referência bíblica não permite fixar um cume moderno.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Noé",
+    "arca",
+    "dilúvio",
+    "montes de Ararate",
+    "Urartu",
+    "dimensões bíblicas"
+  ],
+  "section": "old-testament",
+  "subsection": "Origens e patriarcas",
+  "order": 20,
+  "era": "Narrativa primeva; cronologia absoluta não estabelecida",
+  "modernOverview": "O texto localiza o repouso da arca nos montes de Ararate, não num cume nomeado. A região bíblica é associada ao antigo Urartu; essa associação não determina uma fronteira exata nem prova um ponto de desembarque. O mapa usa coordenadas nulas para a região e não marca o moderno Monte Ararat como certeza. A ilustração de dimensões é um diagrama original, não uma reconstrução histórica. Datas absolutas atribuídas ao dilúvio variam conforme modelos cronológicos e não são estabelecidas pelo mapa.",
+  "keyReferences": [
+    {
+      "book": "Gen",
+      "chapter": 6,
+      "verseStart": 13,
+      "verseEnd": 22,
+      "label": "Gen 6:13–22"
+    },
+    {
+      "book": "Gen",
+      "chapter": 7,
+      "verseStart": 17,
+      "verseEnd": 24,
+      "label": "Gen 7:17–24"
+    },
+    {
+      "book": "Gen",
+      "chapter": 8,
+      "verseStart": 1,
+      "verseEnd": 5,
+      "label": "Gen 8:1–5"
+    },
+    {
+      "book": "Gen",
+      "chapter": 9,
+      "verseStart": 8,
+      "verseEnd": 17,
+      "label": "Gen 9:8–17"
+    }
+  ],
+  "aliases": [
+    "Noé",
+    "Arca de Noé",
+    "Montes de Ararate",
+    "Urartu",
+    "Gênesis 6–9",
+    "dimensões da arca"
+  ],
+  "references": [
+    {
+      "book": "Gen",
+      "chapter": 6,
+      "verseStart": 14,
+      "verseEnd": 16,
+      "label": "Gen 6:14–16"
+    },
+    {
+      "book": "Gen",
+      "chapter": 7,
+      "verseStart": 17,
+      "verseEnd": 24,
+      "label": "Gen 7:17–24"
+    },
+    {
+      "book": "Gen",
+      "chapter": 8,
+      "verseStart": 1,
+      "verseEnd": 5,
+      "label": "Gen 8:1–5"
+    },
+    {
+      "book": "Gen",
+      "chapter": 9,
+      "verseStart": 8,
+      "verseEnd": 17,
+      "label": "Gen 9:8–17"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "A chave Ararat contém um ponto numérico, mas ele não é usado: a narrativa diz montes de Ararate e não identifica o cume moderno. Nenhuma coordenada foi atribuída à região."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "Referências conferidas em Gênesis 6–9; dimensões e sequência são paráfrases originais. O texto bíblico não fornece uma coordenada nem uma data absoluta."
+    },
+    {
+      "id": "urartu-reference",
+      "title": "Encyclopaedia Britannica — Urartu",
+      "url": "https://www.britannica.com/place/Urartu",
+      "license": "Conteúdo editorial da Britannica; usado como referência bibliográfica, sem reprodução",
+      "note": "Referência para o enquadramento histórico-geográfico amplo de Urartu. Não é evidência de que um cume moderno específico seja o local do repouso da arca."
+    },
+    {
+      "id": "illustration",
+      "title": "Diagrama original de proporções da arca",
+      "url": "https://www.fifa.com/technical/football-technology/standards",
+      "license": "Desenho original; sem material visual de terceiros",
+      "note": "O SVG compara medidas relatadas em Gen 6:15 com uma referência ilustrativa de campo de 105 × 68 m. Côvado ≈ 0,45 m é uma conversão aproximada; o desenho não reconstrói forma, materiais ou estrutura."
+    }
+  ],
+  "places": [
+    {
+      "id": "mountains-of-ararat",
+      "name": "Montes de Ararate / região de Urartu",
+      "modernName": "Região ampla do planalto armênio e áreas vizinhas; sem sítio ou cume moderno identificado",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Gênesis 8:4 situa o repouso da arca nos montes de Ararate. O nome é entendido em associação regional com Urartu; nem o texto nem a evidência geográfica retida identificam um pico moderno específico. A chave OpenBible Ararat tem ponto numérico, deliberadamente rejeitado como pino certo.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 8,
+          "verseStart": 4,
+          "label": "Gen 8:4"
+        },
+        {
+          "book": "2Kgs",
+          "chapter": 19,
+          "verseStart": 37,
+          "label": "2Kgs 19:37"
+        },
+        {
+          "book": "Jer",
+          "chapter": 51,
+          "verseStart": 27,
+          "label": "Jer 51:27"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical",
+        "urartu-reference"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "mountains-of-ararat",
+      "title": "Repouso regional, não um cume certo",
+      "text": "Depois do recuo das águas, a narrativa situa a arca nos montes de Ararate. O nome descreve um horizonte regional; não permite escolher com segurança um pico moderno.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 8,
+        "verseStart": 4,
+        "label": "Gen 8:4"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Gênesis especifica comprimento, largura e altura em côvados, mas não dá planta, formato do casco, sistema de navegação ou desenho construtivo.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 6,
+        "verseStart": 15,
+        "label": "Gen 6:15"
+      },
+      "sourceIds": [
+        "biblical",
+        "illustration"
+      ]
+    },
+    {
+      "text": "A expressão de Gênesis é “montes de Ararate”; a localização regional não constitui uma afirmação de que a arca repousou no cume do atual Monte Ararat.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 8,
+        "verseStart": 4,
+        "label": "Gen 8:4"
+      },
+      "sourceIds": [
+        "biblical",
+        "urartu-reference"
+      ]
+    },
+    {
+      "text": "Após o dilúvio, o arco nas nuvens é apresentado como sinal da aliança; essa passagem não acrescenta uma coordenada ao relato geográfico.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 9,
+        "verseStart": 12,
+        "verseEnd": 17,
+        "label": "Gen 9:12–17"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    38,
+    37,
+    47,
+    42
+  ],
+  "illustration": {
+    "svgFile": "noah-ark-proportions.svg",
+    "dimensions": [
+      {
+        "label": "Comprimento",
+        "cubits": 300,
+        "reportedValue": "300 côvados",
+        "note": "≈ 135 m usando côvado aproximado de 0,45 m; comprimento, não largura.",
+        "reference": {
+          "book": "Gen",
+          "chapter": 6,
+          "verseStart": 15,
+          "label": "Gen 6:15"
+        }
+      },
+      {
+        "label": "Largura (boca / beam)",
+        "cubits": 50,
+        "reportedValue": "50 côvados",
+        "note": "≈ 22,5 m com a mesma conversão aproximada; dimensão transversal da arca.",
+        "reference": {
+          "book": "Gen",
+          "chapter": 6,
+          "verseStart": 15,
+          "label": "Gen 6:15"
+        }
+      },
+      {
+        "label": "Altura",
+        "cubits": 30,
+        "reportedValue": "30 côvados",
+        "note": "≈ 13,5 m com a mesma conversão aproximada; altura, não profundidade longitudinal.",
+        "reference": {
+          "book": "Gen",
+          "chapter": 6,
+          "verseStart": 15,
+          "label": "Gen 6:15"
+        }
+      }
+    ],
+    "notes": [
+      "Silhuetas em escala proporcional comum: comprimento 300, largura 50 e altura 30 côvados. As vistas superior e lateral representam dimensões, não uma reconstrução da forma histórica.",
+      "Conversão ilustrativa: 1 côvado ≈ 0,45 m; portanto 300 × 50 × 30 côvados ≈ 135 × 22,5 × 13,5 m. A medida antiga não fixa um valor métrico exato.",
+      "Campo de futebol de 105 × 68 m aparece somente como comparação visual ilustrativa de referência; não é medida bíblica nem afirmação sobre a forma da arca.",
+      "No desenho, comprimento é o eixo longitudinal; largura (boca/beam) é a dimensão transversal em planta; altura é a dimensão vertical."
+    ],
+    "relatedIds": [],
+    "parts": []
+  },
+  "review": {
+    "date": "2025-03-08",
+    "status": "needs-specialist",
+    "verified": [
+      "Gen 6:15 informa as dimensões de 300 × 50 × 30 côvados.",
+      "Gen 8:4 nomeia os montes de Ararate, não um cume moderno determinado.",
+      "O ponto numérico da chave OpenBible Ararat foi rejeitado; a região não recebe coordenadas."
+    ],
+    "uncertainties": [
+      "A associação geográfica e histórica entre Ararate bíblico e Urartu é regional e não resolve limites ou um local específico.",
+      "Nenhuma data histórica absoluta para o dilúvio é estabelecida neste item; propostas cronológicas variam.",
+      "A conversão do côvado para metros é aproximada e a comparação com campo é ilustrativa."
+    ],
+    "methodology": "Referências bíblicas foram usadas para descrever a narrativa, não para derivar coordenadas. Coordenadas aproximadas ou de cume foram excluídas conforme a evidência retida. A ilustração foi desenhada originalmente em proporção às dimensões do texto e distingue diagrama de reconstrução."
+  }
+}

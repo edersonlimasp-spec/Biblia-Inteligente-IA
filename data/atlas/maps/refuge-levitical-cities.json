@@ -1,0 +1,889 @@
+{
+  "id": "refuge-levitical-cities",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Num",
+    "Deut",
+    "Josh"
+  ],
+  "characters": [
+    "Moisés",
+    "Josué"
+  ],
+  "period": "Legislação mosaica e distribuição tribal em Canaã",
+  "title": "Cidades de refúgio e levíticas",
+  "subtitle": "Nm 35; Dt 4; Js 20–21: proteção jurídica e cidades levíticas",
+  "summary": "A lei designa seis cidades de refúgio, três a oeste e três a leste do Jordão. A pessoa que causasse uma morte involuntária podia buscar proteção até o julgamento e, nos termos da lei, até a morte do sumo sacerdote. Josué 21 também enumera cidades distribuídas aos levitas entre as tribos. Os marcadores mostram somente cidades com chave e coordenada explícitas na evidência; não desenham distâncias legais, fronteiras tribais ou rotas.",
+  "modernSummary": "Os seis nomes aparecem dos dois lados do Jordão, nos atuais Israel, Cisjordânia, Líbano e Jordânia. Os pinos são referências de sítios antigos, não fronteiras modernas.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "cidades de refúgio",
+    "levitas",
+    "Levítico",
+    "Números 35",
+    "Deuteronômio 4",
+    "Josué 20",
+    "Josué 21",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Conquista e juízes",
+  "order": 11,
+  "era": "Distribuição territorial de Israel; datação histórica debatida",
+  "modernOverview": "Kedesh fica no norte do atual Israel; Siquém e Hebrom ficam na Cisjordânia. Golã e Ramote-Gileade são referências a leste do Jordão, em território hoje associado à Síria e à Jordânia, enquanto a identificação exata de Bezer é incerta. A lista de cidades levíticas se espalha por várias áreas tribais e não constitui uma fronteira contínua. Os marcadores dependem de geocódigos documentados e não decidem questões de soberania, arqueologia ou jurisdição antiga.",
+  "keyReferences": [
+    {
+      "book": "Num",
+      "chapter": 35,
+      "verseStart": 9,
+      "verseEnd": 15,
+      "label": "Num 35:9–15"
+    },
+    {
+      "book": "Num",
+      "chapter": 35,
+      "verseStart": 22,
+      "verseEnd": 34,
+      "label": "Num 35:22–34"
+    },
+    {
+      "book": "Deut",
+      "chapter": 4,
+      "verseStart": 41,
+      "verseEnd": 43,
+      "label": "Deut 4:41–43"
+    },
+    {
+      "book": "Josh",
+      "chapter": 20,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "Josh 20:1–9"
+    },
+    {
+      "book": "Josh",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 42,
+      "label": "Josh 21:1–42"
+    }
+  ],
+  "aliases": [
+    "Cidades de refúgio",
+    "Cidades levíticas",
+    "Kedesh",
+    "Quedes de Naftali",
+    "Siquém",
+    "Hebrom",
+    "Bezer",
+    "Ramote-Gileade",
+    "Golã",
+    "Anathoth",
+    "Abdon",
+    "Jokneam",
+    "Daberath",
+    "Golan"
+  ],
+  "references": [
+    {
+      "book": "Num",
+      "chapter": 35,
+      "verseStart": 9,
+      "verseEnd": 15,
+      "label": "Num 35:9–15"
+    },
+    {
+      "book": "Num",
+      "chapter": 35,
+      "verseStart": 22,
+      "verseEnd": 34,
+      "label": "Num 35:22–34"
+    },
+    {
+      "book": "Deut",
+      "chapter": 4,
+      "verseStart": 41,
+      "verseEnd": 43,
+      "label": "Deut 4:41–43"
+    },
+    {
+      "book": "Josh",
+      "chapter": 20,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "Josh 20:1–9"
+    },
+    {
+      "book": "Josh",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 42,
+      "label": "Josh 21:1–42"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Chaves e coordenadas brutas preservadas em docs/atlas/evidence/openbible-merged.txt. Pinos: Kedesh 1, Shechem, Hebron, Bezer, Golan, Anathoth, Abdon, Jokneam, Daberath, Nahalal, Kishion, Hammoth-dor, Gath-rimmon 1 e Ramoth-gilead (somente quando o par exato consta da linha)."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "Passagens conferidas no texto bíblico local; conteúdo parafraseado. A citação não garante identificação do sítio."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "Sem rotas ou polígonos de distribuição: limites tribais e jurisdição das cidades não são inferidos."
+    }
+  ],
+  "places": [
+    {
+      "id": "kedesh",
+      "name": "Quedes (Kedesh)",
+      "modernName": "Tell Qedesh, Galileia, Israel",
+      "coordinates": [
+        35.53361334150225,
+        33.11298357486105
+      ],
+      "certainty": "probable",
+      "explanation": "Uma das cidades de refúgio na região de Naftali. Coordenada da chave OpenBible Kedesh 1, sem afirmar que o marco atual coincida com cada episódio antigo.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 20,
+          "verseStart": 7,
+          "label": "Josh 20:7"
+        },
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 32,
+          "label": "Josh 21:32"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "shechem",
+      "name": "Siquém",
+      "modernName": "Tell Balata, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.2817986718367,
+        32.21369123124062
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade de refúgio na região montanhosa de Efraim. Ponto documentado na chave OpenBible Shechem.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 20,
+          "verseStart": 7,
+          "label": "Josh 20:7"
+        },
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 21,
+          "label": "Josh 21:21"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "hebron",
+      "name": "Hebrom",
+      "modernName": "Al-Khalil/Hebrom, Cisjordânia",
+      "coordinates": [
+        35.09409986578734,
+        31.53577362133176
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade de refúgio e cidade levítica na região montanhosa de Judá. Coordenada da chave OpenBible Hebron.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 20,
+          "verseStart": 7,
+          "label": "Josh 20:7"
+        },
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 11,
+          "verseEnd": 13,
+          "label": "Josh 21:11–13"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "bezer",
+      "name": "Bezer",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Bezer é nomeada cidade de refúgio em Rúben; o sítio exato não está identificado com confiança. O ponto nominal OpenBible Bezer foi rejeitado, sem pino.",
+      "references": [
+        {
+          "book": "Deut",
+          "chapter": 4,
+          "verseStart": 43,
+          "label": "Deut 4:43"
+        },
+        {
+          "book": "Josh",
+          "chapter": 20,
+          "verseStart": 8,
+          "label": "Josh 20:8"
+        },
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 36,
+          "label": "Josh 21:36"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "ramoth-gilead",
+      "name": "Ramote-Gileade",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Ramote-Gileade é cidade de refúgio em Gileade, mas a identificação do sítio é debatida. O ponto nominal OpenBible Ramoth-gilead não basta para marcar a cidade.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 20,
+          "verseStart": 8,
+          "label": "Josh 20:8"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "golan",
+      "name": "Golã",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Golã é cidade de refúgio em Basã; a identificação antiga não permite um pino confiável. O ponto nominal OpenBible Golan foi rejeitado.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 20,
+          "verseStart": 8,
+          "label": "Josh 20:8"
+        },
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 27,
+          "label": "Josh 21:27"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "anathoth",
+      "name": "Anatote",
+      "modernName": "Anata, nordeste de Jerusalém, Cisjordânia",
+      "coordinates": [
+        35.26349894226843,
+        31.81291276898118
+      ],
+      "certainty": "probable",
+      "explanation": "Uma das cidades sacerdotais atribuídas aos descendentes de Arão em Benjamim. Coordenada da chave OpenBible Anathoth.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 18,
+          "label": "Josh 21:18"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "abdon",
+      "name": "Abdom",
+      "modernName": "Galileia ocidental, Israel; identificação exata incerta",
+      "coordinates": [
+        35.146201,
+        33.047808
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade levítica atribuída à família de Gérson em Aser. Coordenada da chave OpenBible Abdon.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 30,
+          "label": "Josh 21:30"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "jokneam",
+      "name": "Jocneão",
+      "modernName": "Tell Qamon, Israel; identificação aproximada",
+      "coordinates": [
+        35.10891818863304,
+        32.66454576550823
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade levítica associada a Zebulom; coordenada reproduz a chave OpenBible Jokneam.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 34,
+          "label": "Josh 21:34"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "daberath",
+      "name": "Daberate",
+      "modernName": "Daburiyya, Galileia, Israel",
+      "coordinates": [
+        35.37171031061986,
+        32.69171267584284
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade levítica na região de Issacar, registrada entre as cidades distribuídas. Ponto da chave OpenBible Daberath.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 28,
+          "label": "Josh 21:28"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "nahalal",
+      "name": "Nahalal",
+      "modernName": "Nahalal, vale de Jezreel, Israel; identificação antiga aproximada",
+      "coordinates": [
+        35.35282,
+        32.722209
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade atribuída a Zebulom entre as localidades levíticas. Par exato da chave OpenBible Nahalal.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 35,
+          "label": "Josh 21:35"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "kishion",
+      "name": "Quisião",
+      "modernName": "Baixa Galileia, Israel; identificação incerta",
+      "coordinates": [
+        35.246206,
+        32.559061
+      ],
+      "certainty": "probable",
+      "explanation": "Uma das cidades sacerdotais de Issacar; o ponto nominal da chave OpenBible Kishion é usado apenas como referência geográfica.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 28,
+          "label": "Josh 21:28"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "hammoth-dor",
+      "name": "Hamote-Dor",
+      "modernName": "Hamat Tiberíades, Israel; correspondência antiga provável",
+      "coordinates": [
+        35.165,
+        33.125828
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade levítica em Naftali. A coordenada reproduz a chave OpenBible Hammoth-dor, vinculada à referência em Josué 21.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 32,
+          "label": "Josh 21:32"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "gath-rimmon-ephraim",
+      "name": "Gate-Rimom (Dã)",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Gate-Rimom de Josué 21:24 é atribuída a Dã; homônimos e identificação incerta impedem usar o ponto nominal OpenBible Gath-rimmon 1.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 21,
+          "verseStart": 24,
+          "label": "Josh 21:24"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "narrative": [
+    {
+      "placeId": "kedesh",
+      "explanation": "A lista de refúgio nomeia Quedes na Galileia, na região de Naftali.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 7,
+        "label": "Josh 20:7"
+      },
+      "group": "Seis cidades de refúgio"
+    },
+    {
+      "placeId": "shechem",
+      "explanation": "Siquém é a segunda cidade indicada a oeste do Jordão, na região montanhosa de Efraim.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 7,
+        "label": "Josh 20:7"
+      },
+      "group": "Seis cidades de refúgio"
+    },
+    {
+      "placeId": "hebron",
+      "explanation": "Hebrom, em Judá, completa a tríade ocidental; a cidade também aparece na lista levítica.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 7,
+        "label": "Josh 20:7"
+      },
+      "group": "Seis cidades de refúgio"
+    },
+    {
+      "placeId": "bezer",
+      "explanation": "Bezer é a cidade designada no território de Rúben, a leste do Jordão.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 8,
+        "label": "Josh 20:8"
+      },
+      "group": "Seis cidades de refúgio"
+    },
+    {
+      "placeId": "ramoth-gilead",
+      "explanation": "Ramote-Gileade é nomeada para o território de Gade, a leste do rio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 8,
+        "label": "Josh 20:8"
+      },
+      "group": "Seis cidades de refúgio"
+    },
+    {
+      "placeId": "golan",
+      "explanation": "Golã, em Basã, fecha a lista das seis cidades de refúgio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 8,
+        "label": "Josh 20:8"
+      },
+      "group": "Seis cidades de refúgio"
+    },
+    {
+      "placeId": "anathoth",
+      "explanation": "A distribuição levítica inclui Anatote entre as cidades sacerdotais de Benjamim.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 17,
+        "verseEnd": 18,
+        "label": "Josh 21:17–18"
+      },
+      "group": "Cidades levíticas"
+    },
+    {
+      "placeId": "abdon",
+      "explanation": "A lista prossegue com Abdom, atribuída à família levítica de Gérson em Aser.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 30,
+        "label": "Josh 21:30"
+      },
+      "group": "Cidades levíticas"
+    },
+    {
+      "placeId": "jokneam",
+      "explanation": "Jocneão aparece na distribuição dada aos levitas no território de Zebulom.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 34,
+        "label": "Josh 21:34"
+      },
+      "group": "Cidades levíticas"
+    },
+    {
+      "placeId": "daberath",
+      "explanation": "Daberate é registrada entre as cidades concedidas aos levitas em Issacar.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 28,
+        "label": "Josh 21:28"
+      },
+      "group": "Cidades levíticas"
+    },
+    {
+      "placeId": "nahalal",
+      "explanation": "Nahalal integra a lista de cidades levíticas associadas a Zebulom.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 35,
+        "label": "Josh 21:35"
+      },
+      "group": "Cidades levíticas"
+    },
+    {
+      "placeId": "kishion",
+      "explanation": "Quisião é outra localidade de Issacar contada na distribuição levítica.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 28,
+        "label": "Josh 21:28"
+      },
+      "group": "Cidades levíticas"
+    },
+    {
+      "placeId": "hammoth-dor",
+      "explanation": "Hamote-Dor figura entre as cidades concedidas no território de Naftali.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 32,
+        "label": "Josh 21:32"
+      },
+      "group": "Cidades levíticas"
+    },
+    {
+      "placeId": "gath-rimmon-ephraim",
+      "explanation": "Gate-Rimom é nomeada como cidade levítica na região atribuída a Dã; a identificação antiga permanece incerta.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 24,
+        "label": "Josh 21:24"
+      },
+      "group": "Cidades levíticas"
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "kedesh",
+      "title": "Quedes (Kedesh) — cidade de refúgio",
+      "text": "Josué identifica Quedes (Kedesh) entre as seis cidades de refúgio, destinadas à proteção provisória de quem causasse uma morte involuntária enquanto se examinava o caso; o pino, quando existe, não localiza o julgamento.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 7,
+        "label": "Josué 20:7"
+      }
+    },
+    {
+      "placeId": "shechem",
+      "title": "Siquém — cidade de refúgio",
+      "text": "Josué identifica Siquém entre as seis cidades de refúgio, destinadas à proteção provisória de quem causasse uma morte involuntária enquanto se examinava o caso; o pino, quando existe, não localiza o julgamento.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 7,
+        "label": "Josué 20:7"
+      }
+    },
+    {
+      "placeId": "hebron",
+      "title": "Hebrom — cidade de refúgio",
+      "text": "Josué identifica Hebrom entre as seis cidades de refúgio, destinadas à proteção provisória de quem causasse uma morte involuntária enquanto se examinava o caso; o pino, quando existe, não localiza o julgamento.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 7,
+        "label": "Josué 20:7"
+      }
+    },
+    {
+      "placeId": "bezer",
+      "title": "Bezer — cidade de refúgio",
+      "text": "Josué identifica Bezer entre as seis cidades de refúgio, destinadas à proteção provisória de quem causasse uma morte involuntária enquanto se examinava o caso; o pino, quando existe, não localiza o julgamento.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 8,
+        "label": "Josué 20:8"
+      }
+    },
+    {
+      "placeId": "ramoth-gilead",
+      "title": "Ramote-Gileade — cidade de refúgio",
+      "text": "Josué identifica Ramote-Gileade entre as seis cidades de refúgio, destinadas à proteção provisória de quem causasse uma morte involuntária enquanto se examinava o caso; o pino, quando existe, não localiza o julgamento.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 8,
+        "label": "Josué 20:8"
+      }
+    },
+    {
+      "placeId": "golan",
+      "title": "Golã — cidade de refúgio",
+      "text": "Josué identifica Golã entre as seis cidades de refúgio, destinadas à proteção provisória de quem causasse uma morte involuntária enquanto se examinava o caso; o pino, quando existe, não localiza o julgamento.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 8,
+        "label": "Josué 20:8"
+      }
+    },
+    {
+      "placeId": "anathoth",
+      "title": "Anatote — cidade levítica",
+      "text": "Josué 21 inclui Anatote na distribuição das cidades aos levitas; o registro de uma cidade não permite reconstruir os limites de sua área de pastagens.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 18,
+        "label": "Josh 21:18"
+      }
+    },
+    {
+      "placeId": "gath-rimmon-ephraim",
+      "title": "Gate-Rimom (Dã) — cidade levítica",
+      "text": "Josué 21 inclui Gate-Rimom (Dã) na distribuição das cidades aos levitas; o registro de uma cidade não permite reconstruir os limites de sua área de pastagens.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 24,
+        "label": "Josh 21:24"
+      }
+    },
+    {
+      "placeId": "kishion",
+      "title": "Quisião — cidade levítica",
+      "text": "Josué 21 inclui Quisião na distribuição das cidades aos levitas; o registro de uma cidade não permite reconstruir os limites de sua área de pastagens.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 28,
+        "label": "Josh 21:28"
+      }
+    },
+    {
+      "placeId": "daberath",
+      "title": "Daberate — cidade levítica",
+      "text": "Josué 21 inclui Daberate na distribuição das cidades aos levitas; o registro de uma cidade não permite reconstruir os limites de sua área de pastagens.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 28,
+        "label": "Josh 21:28"
+      }
+    },
+    {
+      "placeId": "abdon",
+      "title": "Abdom — cidade levítica",
+      "text": "Josué 21 inclui Abdom na distribuição das cidades aos levitas; o registro de uma cidade não permite reconstruir os limites de sua área de pastagens.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 30,
+        "label": "Josh 21:30"
+      }
+    },
+    {
+      "placeId": "hammoth-dor",
+      "title": "Hamote-Dor — cidade levítica",
+      "text": "Josué 21 inclui Hamote-Dor na distribuição das cidades aos levitas; o registro de uma cidade não permite reconstruir os limites de sua área de pastagens.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 32,
+        "label": "Josh 21:32"
+      }
+    },
+    {
+      "placeId": "jokneam",
+      "title": "Jocneão — cidade levítica",
+      "text": "Josué 21 inclui Jocneão na distribuição das cidades aos levitas; o registro de uma cidade não permite reconstruir os limites de sua área de pastagens.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 34,
+        "label": "Josh 21:34"
+      }
+    },
+    {
+      "placeId": "nahalal",
+      "title": "Nahalal — cidade levítica",
+      "text": "Josué 21 inclui Nahalal na distribuição das cidades aos levitas; o registro de uma cidade não permite reconstruir os limites de sua área de pastagens.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 35,
+        "label": "Josh 21:35"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Números descreve seis cidades no total, distribuídas em três cidades de cada lado do Jordão.",
+      "reference": {
+        "book": "Num",
+        "chapter": 35,
+        "verseStart": 13,
+        "verseEnd": 14,
+        "label": "Num 35:13–14"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "O refúgio legal dependia de investigação e julgamento comunitário; a proteção não equivale a uma absolvição automática.",
+      "reference": {
+        "book": "Num",
+        "chapter": 35,
+        "verseStart": 24,
+        "verseEnd": 25,
+        "label": "Num 35:24–25"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Josué 21 enumera cidades e pastagens dadas aos levitas em diferentes territórios, não uma faixa territorial única.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 1,
+        "verseEnd": 8,
+        "label": "Josh 21:1–8"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "A lista de cidades de refúgio em Josué inclui seis nomes; as cidades levíticas aparecem em listas adicionais, com sobreposição em alguns casos.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 20,
+        "verseStart": 7,
+        "verseEnd": 8,
+        "label": "Josh 20:7–8"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    34,
+    31,
+    37,
+    34
+  ],
+  "review": {
+    "date": "2026-06-10",
+    "status": "documented",
+    "verified": [
+      "IDs, seção, subseção e ordem conferidos no manifesto",
+      "As seis cidades de refúgio conferidas em Deuteronômio 4 e Josué 20",
+      "Coordenadas plotadas reproduzem pares numéricos literais das chaves declaradas em OpenBible"
+    ],
+    "uncertainties": [
+      "A posição precisa de vários assentamentos e a correspondência entre nomes antigos e sítios modernos são incertas",
+      "A linha OpenBible Ramoth-gilead não associa seu ponto às referências de Josué 20; usada apenas como geocódigo nominal, com certeza debatida",
+      "Gate-Rimom possui homônimos; o identificador OpenBible escolhido não prova a identidade"
+    ],
+    "methodology": "Paráfrases redigidas a partir dos textos locais; apenas coordenadas numéricas sem qualificadores da evidência OpenBible foram incluídas. Não foram inferidos limites ou trajetos."
+  }
+}

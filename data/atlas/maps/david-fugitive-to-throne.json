@@ -1,0 +1,91 @@
+{
+  "id":"david-fugitive-to-throne",
+  "version":"1",
+  "kind":"map",
+  "category":"Geografia do Antigo Testamento",
+  "testament":"AT",
+  "books":["1Sam","2Sam"],
+  "characters":["Davi","Saul","Jônatas","Abigail","Abner","Joabe"],
+  "period":"1 Samuel 17–2 Samuel 5; cronologia absoluta debatida",
+  "title":"Davi, da fuga ao trono",
+  "subtitle":"Do Vale do Elá a Hebrom e Jerusalém; localidades de fuga sem sítio certo sem pino",
+  "summary":"A sequência parte do combate no Vale do Elá e acompanha a fuga de Davi por Nobe, Gate e refúgios do deserto, incluindo Zife, Maom e En-Gedi, antes de chegar a Hebrom. O texto narra a unção de Davi como rei de Judá em Hebrom, a guerra entre as casas de Davi e Saul e, depois, a unção sobre Israel. Cavernas e localidades sem identificação geográfica segura não recebem coordenadas inferidas; cada linha é esquemática, não uma rota comprovada.",
+  "modernSummary":"Locais do sul do Levante, hoje Israel e território palestino. Desertos e refúgios são regiões, não pontos arqueológicos fixados.",
+  "certainty":"debated",
+  "sample":false,
+  "keywords":["Davi","fuga de Saul","Nobe","Maom","Ziclague","Hebrom","Jerusalém","1 Samuel","2 Samuel","atlas"],
+  "section":"old-testament",
+  "subsection":"Reino unido",
+  "order":14,
+  "era":"Início da monarquia; cronologia absoluta debatida",
+  "modernOverview":"A narrativa percorre a Sefelá, o sul montanhoso e localidades do atual Israel e da Cisjordânia. Belém, Gate, Hebrom e Jerusalém têm referências geográficas modernas, mas a identificação exata de sítios antigos não é igualmente certa. Caverna de Adulão, Nobe, Zife, Maom, Ziclague e esconderijos de En-Gedi são apresentados sem ponto de episódio quando a localização é incerta. Linhas unem localidades documentadas apenas para leitura; não representam estradas, fronteiras ou distâncias históricas.",
+  "keyReferences":[
+    {"book":"1Sam","chapter":17,"verseStart":1,"verseEnd":3,"label":"1Sam 17:1–3"},
+    {"book":"1Sam","chapter":21,"verseStart":1,"verseEnd":15,"label":"1Sam 21:1–15"},
+    {"book":"1Sam","chapter":23,"verseStart":14,"verseEnd":29,"label":"1Sam 23:14–29"},
+    {"book":"1Sam","chapter":27,"verseStart":1,"verseEnd":12,"label":"1Sam 27:1–12"},
+    {"book":"2Sam","chapter":2,"verseStart":1,"verseEnd":11,"label":"2Sam 2:1–11"},
+    {"book":"2Sam","chapter":5,"verseStart":1,"verseEnd":10,"label":"2Sam 5:1–10"}
+  ],
+  "aliases":["Davi, da fuga ao trono","Vale do Elá","Nobe","Gate","Adulão","Queila","Zife","Maom","En-Gedi","Carmelo","Ziclague","Hebrom","Jerusalém","Maanaim","Baal-Perazim"],
+  "references":[
+    {"book":"1Sam","chapter":17,"verseStart":1,"verseEnd":58,"label":"1Sam 17:1–58"},
+    {"book":"1Sam","chapter":21,"verseStart":1,"verseEnd":15,"label":"1Sam 21:1–15"},
+    {"book":"1Sam","chapter":22,"verseStart":1,"verseEnd":5,"label":"1Sam 22:1–5"},
+    {"book":"1Sam","chapter":23,"verseStart":1,"verseEnd":29,"label":"1Sam 23:1–29"},
+    {"book":"1Sam","chapter":24,"verseStart":1,"verseEnd":22,"label":"1Sam 24:1–22"},
+    {"book":"1Sam","chapter":27,"verseStart":1,"verseEnd":12,"label":"1Sam 27:1–12"},
+    {"book":"2Sam","chapter":2,"verseStart":1,"verseEnd":11,"label":"2Sam 2:1–11"},
+    {"book":"2Sam","chapter":5,"verseStart":1,"verseEnd":10,"label":"2Sam 5:1–10"}
+  ],
+  "sources":[
+    {"id":"openbible","title":"OpenBible.info — Bible Geocoding (merged, 2007)","url":"https://www.openbible.info/geo/data/merged.txt","license":"CC BY 4.0; atribuição OpenBible.info","note":"Chaves exatas plotadas: Valley of Elah; Bethlehem 1; Gath; Hebron; Jerusalem; Carmel; En-gedi; Besor. Somente linhas sem sinal de aproximação e com associação narrativa defensável têm pino. Evidência em docs/atlas/evidence/openbible-merged.txt. Nob, Adullam e Ziklag são mantidas sem coordenadas por incerteza de identificação/localização."},
+    {"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/1SA.htm","license":"WEB: domínio público; paráfrases originais","note":"Referências sustentam a ordem narrativa, não provam a localização de cavernas ou acampamentos."},
+    {"id":"editorial","title":"Geometria editorial esquemática","url":"https://www.openbible.info/geo/","license":"Desenho original; pontos de apoio OpenBible.info CC BY 4.0","note":"Linhas de leitura sem alegação de estrada, percurso real ou fronteira."}
+  ],
+  "places":[
+    {"id":"valley-elah","name":"Vale do Elá","modernName":"Sefelá, Israel","coordinates":[34.963136,31.690629],"certainty":"probable","explanation":"Evidência coordenada: chave Valley of Elah, lat. 31.690629, lon. 34.963136. É ponto regional, não posição exata do duelo.","references":[{"book":"1Sam","chapter":17,"verseStart":2,"label":"1Sam 17:2"}],"sourceIds":["openbible"]},
+    {"id":"bethlehem","name":"Belém","modernName":"Belém, Cisjordânia","coordinates":[35.21026630105202,31.70536129174666],"certainty":"probable","explanation":"A narrativa identifica Belém como cidade natal de Davi. Evidência: chave Bethlehem 1, lat. 31.70536129174666, lon. 35.21026630105202.","references":[{"book":"1Sam","chapter":17,"verseStart":12,"label":"1Sam 17:12"}],"sourceIds":["openbible"]},
+    {"id":"gath","name":"Gate","modernName":"Tell es-Safi, Israel; identificação provável","coordinates":[34.84388288576839,31.69352950368834],"certainty":"probable","explanation":"Davi foge para Gate e se apresenta diante de Aquis. Evidência: chave Gath, lat. 31.69352950368834, lon. 34.84388288576839.","references":[{"book":"1Sam","chapter":21,"verseStart":10,"label":"1Sam 21:10"}],"sourceIds":["openbible"]},
+     {"id":"nob","name":"Nobe","modernName":"Jerusalém; localização antiga debatida","coordinates":null,"certainty":"debated","explanation":"Davi visita o sacerdote Aimeleque em Nobe. A linha-fonte OpenBible rotulada Nob traz coordenadas aproximadas (~), portanto não é usada como marcador.","references":[{"book":"1Sam","chapter":21,"verseStart":1,"label":"1Sam 21:1"}],"sourceIds":["biblical","openbible"]},
+    {"id":"adullam","name":"Caverna de Adulão","modernName":"Região de Adulão, Sefelá; caverna desconhecida","coordinates":null,"certainty":"debated","explanation":"Davi se refugia na caverna de Adulão. A coordenada da localidade Adullam não é usada porque não identifica a caverna mencionada no relato.","references":[{"book":"1Sam","chapter":22,"verseStart":1,"label":"1Sam 22:1"}],"sourceIds":["biblical","openbible"]},
+    {"id":"keilah","name":"Queila","modernName":"Sefelá, Israel; identificação incerta","coordinates":null,"certainty":"debated","explanation":"Davi livra Queila dos filisteus e depois a deixa para evitar que Saul o cerque; não se marca localização sem coordenada segura e verificável.","references":[{"book":"1Sam","chapter":23,"verseStart":1,"label":"1Sam 23:1"}],"sourceIds":["biblical"]},
+    {"id":"wilderness-ziph","name":"Deserto de Zife","modernName":"Sul da Cisjordânia; área ampla, ponto desconhecido","coordinates":null,"certainty":"unknown","explanation":"O texto descreve esconderijos na região desértica de Zife, sem fixar um local único para o acampamento ou a perseguição.","references":[{"book":"1Sam","chapter":23,"verseStart":14,"label":"1Sam 23:14"}],"sourceIds":["biblical"]},
+     {"id":"maon","name":"Maom","modernName":"Sul da Cisjordânia; localização exata debatida","coordinates":null,"certainty":"debated","explanation":"Davi se encontra no deserto de Maom quando Saul o persegue; o texto também situa Nabal em Maom, com seus rebanhos em Carmelo. Não há ponto seguro adotado para esses episódios.","references":[{"book":"1Sam","chapter":23,"verseStart":24,"verseEnd":25,"label":"1Sam 23:24–25"},{"book":"1Sam","chapter":25,"verseStart":2,"label":"1Sam 25:2"}],"sourceIds":["biblical"]},
+    {"id":"en-gedi","name":"En-Gedi","modernName":"Ein Gedi, Israel","coordinates":[35.39241108242345,31.46152536164766],"certainty":"probable","explanation":"A narrativa situa a perseguição na região de En-Gedi, mas não identifica a caverna do encontro. Evidência: chave Engedi, lat. 31.46152536164766, lon. 35.39241108242345.","references":[{"book":"1Sam","chapter":24,"verseStart":1,"label":"1Sam 24:1"}],"sourceIds":["openbible"]},
+    {"id":"carmel","name":"Carmelo (Judá)","modernName":"Khirbet el-Karmil, Cisjordânia; identificação provável","coordinates":[35.13333188530802,31.43333151674604],"certainty":"probable","explanation":"Davi envia mensageiros a Nabal, cuja propriedade ficava em Carmelo. Evidência: chave Carmel, lat. 31.43333151674604, lon. 35.13333188530802; distingue-se do monte Carmelo setentrional.","references":[{"book":"1Sam","chapter":25,"verseStart":2,"label":"1Sam 25:2"}],"sourceIds":["openbible"]},
+    {"id":"ziklag","name":"Ziclague","modernName":"Sul de Israel; sítio antigo debatido","coordinates":null,"certainty":"debated","explanation":"Davi recebe Ziclague de Aquis. A localização do sítio antigo é debatida; embora haja um ponto nominal em OpenBible, ele não é considerado prova suficiente para plotar este local narrativo.","references":[{"book":"1Sam","chapter":27,"verseStart":6,"label":"1Sam 27:6"}],"sourceIds":["biblical","openbible"]},
+    {"id":"besor","name":"Ribeiro de Besor","modernName":"Wadi esh-Sheri'a, sul de Israel","coordinates":[34.436667,31.398056],"certainty":"probable","explanation":"Davi deixa parte dos homens junto ao ribeiro de Besor durante a perseguição aos amalequitas. Evidência: chave Besor, lat. 31.398056, lon. 34.436667.","references":[{"book":"1Sam","chapter":30,"verseStart":9,"label":"1Sam 30:9"}],"sourceIds":["openbible"]},
+    {"id":"hebron","name":"Hebrom","modernName":"Al-Khalil/Hebrom, Cisjordânia","coordinates":[35.09409986578734,31.53577362133176],"certainty":"probable","explanation":"Davi é ungido rei sobre Judá em Hebrom. Evidência: chave Hebron, lat. 31.53577362133176, lon. 35.09409986578734; ponto representativo da cidade.","references":[{"book":"2Sam","chapter":2,"verseStart":1,"label":"2Sam 2:1"}],"sourceIds":["openbible"]},
+    {"id":"jerusalem","name":"Jerusalém","modernName":"Jerusalém; Cidade de Davi na Jerusalém Oriental","coordinates":[35.234935,31.777444],"certainty":"probable","explanation":"Davi toma a fortaleza de Sião e estabelece Jerusalém como sua cidade. Evidência: chave Jerusalem (lat. 31.777444, lon. 35.234935); não localiza cada estrutura antiga.","references":[{"book":"2Sam","chapter":5,"verseStart":6,"label":"2Sam 5:6"}],"sourceIds":["openbible"]}
+  ],
+  "overlays":[
+    {"id":"flight-reading-line","label":"Sequência da fuga e do retorno — esquema","kind":"route","certainty":"debated","coordinates":[[34.963136,31.690629],[34.84388288576839,31.69352950368834],[35.39241108242345,31.46152536164766],[35.09409986578734,31.53577362133176],[35.234935,31.777444]],"explanation":"LINHA ESQUEMÁTICA DE LEITURA, NÃO É ESTRADA NEM PERCURSO COMPROVADO. Adulão, Queila, Zife, Ziclague e esconderijos sem sítio fixado não são conectados ou interpolados.","sourceIds":["openbible","editorial"]}
+  ],
+  "storySteps":[
+    {"placeId":"valley-elah","title":"Vale do Elá","text":"Davi chega ao acampamento e enfrenta Golias no vale entre os exércitos de Israel e dos filisteus.","reference":{"book":"1Sam","chapter":17,"verseStart":2,"label":"1Sam 17:2"}},
+    {"placeId":"bethlehem","title":"Belém","text":"Jessé envia Davi de Belém ao acampamento com provisões para os irmãos; a narrativa o identifica como filho de Jessé, o efrateu.","reference":{"book":"1Sam","chapter":17,"verseStart":12,"label":"1Sam 17:12"}},
+     {"placeId":"nob","title":"Nobe","text":"Fugindo de Saul, Davi procura Aimeleque em Nobe e recebe alimento e a espada de Golias.","reference":{"book":"1Sam","chapter":21,"verseStart":1,"label":"1Sam 21:1"}},
+    {"placeId":"gath","title":"Gate","text":"Davi vai a Gate, mas teme Aquis e finge estar fora de si para escapar.","reference":{"book":"1Sam","chapter":21,"verseStart":10,"label":"1Sam 21:10"}},
+    {"placeId":"adullam","title":"Caverna de Adulão","text":"Davi se refugia na caverna de Adulão; familiares e pessoas em dificuldade se juntam a ele.","reference":{"book":"1Sam","chapter":22,"verseStart":1,"label":"1Sam 22:1"}},
+    {"placeId":"keilah","title":"Queila","text":"Davi consulta o Senhor, socorre Queila contra os filisteus e depois sai da cidade para evitar que Saul a cerque.","reference":{"book":"1Sam","chapter":23,"verseStart":1,"label":"1Sam 23:1"}},
+    {"placeId":"wilderness-ziph","title":"Deserto de Zife","text":"Davi se esconde no deserto de Zife e muda de abrigo enquanto Saul procura cercá-lo.","reference":{"book":"1Sam","chapter":23,"verseStart":14,"label":"1Sam 23:14"}},
+     {"placeId":"maon","title":"Deserto de Maom","text":"Davi e seus homens se encontram no deserto de Maom; Saul os persegue e quase os cerca antes de receber notícia de uma incursão filisteia.","reference":{"book":"1Sam","chapter":23,"verseStart":24,"verseEnd":25,"label":"1Sam 23:24–25"}},
+    {"placeId":"en-gedi","title":"Região de En-Gedi","text":"Saul persegue Davi nas proximidades de En-Gedi; a caverna específica do encontro não pode ser marcada.","reference":{"book":"1Sam","chapter":24,"verseStart":1,"label":"1Sam 24:1"}},
+     {"placeId":"maon","title":"Maom e Carmelo","text":"O relato identifica Nabal como homem de Maom e situa seus rebanhos em Carmelo, onde Davi envia mensageiros.","reference":{"book":"1Sam","chapter":25,"verseStart":2,"label":"1Sam 25:2"}},
+    {"placeId":"carmel","title":"Carmelo de Judá","text":"Davi envia homens a Nabal, que tosquiava ovelhas em Carmelo; Abigail intervém e evita derramamento de sangue.","reference":{"book":"1Sam","chapter":25,"verseStart":2,"label":"1Sam 25:2"}},
+    {"placeId":"ziklag","title":"Ziclague","text":"Davi vive em Ziclague sob a proteção de Aquis, rei de Gate, antes de os amalequitas saquearem a cidade.","reference":{"book":"1Sam","chapter":27,"verseStart":6,"label":"1Sam 27:6"}},
+    {"placeId":"besor","title":"Ribeiro de Besor","text":"Na perseguição aos invasores de Ziclague, parte do grupo permanece junto ao ribeiro de Besor enquanto os demais avançam.","reference":{"book":"1Sam","chapter":30,"verseStart":9,"label":"1Sam 30:9"}},
+    {"placeId":"hebron","title":"Hebrom: rei de Judá","text":"Davi consulta a Deus, sobe a Hebrom e é ungido rei da casa de Judá.","reference":{"book":"2Sam","chapter":2,"verseStart":1,"label":"2Sam 2:1"}},
+    {"placeId":"hebron","title":"Hebrom: rei de Israel","text":"As tribos de Israel vêm a Hebrom e ungem Davi como rei sobre Israel.","reference":{"book":"2Sam","chapter":5,"verseStart":1,"label":"2Sam 5:1"}},
+    {"placeId":"jerusalem","title":"Jerusalém","text":"Davi e seus homens tomam a fortaleza de Sião, e Davi passa a habitar na cidade chamada Cidade de Davi.","reference":{"book":"2Sam","chapter":5,"verseStart":6,"label":"2Sam 5:6"}}
+  ],
+  "curiosities":[
+    {"text":"A fuga inclui abrigo numa caverna em Adulão, mas o texto não identifica uma caverna arqueológica específica; por isso não há pino do esconderijo.","reference":{"book":"1Sam","chapter":22,"verseStart":1,"label":"1Sam 22:1"},"sourceIds":["biblical","openbible"]},
+    {"text":"Davi recebe Ziclague de Aquis e retorna à cidade após a incursão amalequita; o mapa preserva a incerteza sobre qual sítio corresponde à Ziclague antiga.","reference":{"book":"1Sam","chapter":27,"verseStart":6,"label":"1Sam 27:6"},"sourceIds":["biblical","openbible"]},
+    {"text":"A narrativa distingue a primeira unção de Davi como rei de Judá em Hebrom da unção posterior sobre todas as tribos de Israel.","reference":{"book":"2Sam","chapter":2,"verseStart":1,"label":"2Sam 2:1"},"sourceIds":["biblical"]},
+    {"text":"A tomada da fortaleza de Sião e a escolha de Jerusalém como cidade de Davi aparecem após a unção sobre Israel.","reference":{"book":"2Sam","chapter":5,"verseStart":6,"verseEnd":10,"label":"2Sam 5:6–10"},"sourceIds":["biblical","openbible"]}
+  ],
+  "bounds":[34.2,31.2,35.8,32.7],
+  "review":{"date":"2026-09-24","status":"needs-specialist","verified":["Metadados id, seção, subseção, ordem e sample conferidos no manifesto.","Coordenadas registradas com chave de evidência e números diretos OpenBible; pontos com ~ ou sítio incerto não foram usados como posição do evento.","Story steps seguem a progressão literária de 1 Samuel 17 a 2 Samuel 5."],"uncertainties":["Caverna de Adulão, local exato de Queila e posições de acampamentos no deserto não estão localizados.","Ziclague e alguns sítios antigos possuem identificação discutida.","Linhas esquemáticas não são itinerários históricos."],"methodology":"Leitura narrativa e conferência nominal no arquivo ACF local e na evidência documental OpenBible. Coordenadas só foram mantidas quando diretamente transcritas de registro numérico sem sinais de aproximação, e a chave é declarada na explicação do lugar. Paráfrases originais; sem coordenadas inferidas para refúgios ou cavernas."}
+}

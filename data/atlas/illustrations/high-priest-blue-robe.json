@@ -1,0 +1,151 @@
+{
+  "id": "high-priest-blue-robe",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod"],
+  "characters": ["Arão", "Moisés"],
+  "period": "Instruções e execução das vestes sacerdotais no deserto",
+  "title": "Manto azul do sumo sacerdote",
+  "subtitle": "Manto tecido em azul, com abertura reforçada e borda de romãs e campainhas",
+  "summary": "Êxodo descreve para Arão um manto do éfode todo azul, com uma abertura central para a cabeça reforçada por uma borda tecida. Ao redor da barra havia romãs em azul, púrpura e carmesim, alternadas com campainhas de ouro. O texto não especifica a quantidade total de romãs ou campainhas.",
+  "purpose": "Era usado por Arão ao ministrar, ao entrar e sair do santuário. Êxodo relaciona o som das campainhas a esses movimentos durante o serviço; esta descrição histórica não acrescenta interpretações devocionais.",
+  "modernSummary": "O diagrama distingue o manto azul do éfode e mostra a abertura tecida e os elementos alternados na barra sem sugerir uma contagem total ou escala não fornecida.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["manto azul", "sumo sacerdote", "romãs", "campainhas", "éfode", "vestes sacerdotais"],
+  "section": "tabernacle",
+  "subsection": "Vestes sacerdotais",
+  "order": 16,
+  "era": "Êxodo e deserto",
+  "modernOverview": "A descrição textual identifica cor, abertura reforçada, elementos decorativos da barra e uso do manto. Não fornece medidas, quantidade total de enfeites nem corte completo da peça.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 28, "verseStart": 31, "verseEnd": 35, "label": "Exod 28:31–35"},
+    {"book": "Exod", "chapter": 39, "verseStart": 22, "verseEnd": 26, "label": "Exod 39:22–26"},
+    {"book": "Exod", "chapter": 28, "verseStart": 35, "label": "Exod 28:35"}
+  ],
+  "aliases": ["manto do éfode", "manto azul de Arão", "manto sacerdotal azul"],
+  "references": [
+    {"book": "Exod", "chapter": 28, "verseStart": 31, "verseEnd": 35, "label": "Exod 28:31–35"},
+    {"book": "Exod", "chapter": 39, "verseStart": 22, "verseEnd": 26, "label": "Exod 39:22–26"}
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Passagens bíblicas — texto ACF local e referências",
+      "url": "https://ebible.org/web/",
+      "license": "Paráfrases próprias; sem reprodução de trechos de tradução",
+      "note": "Êxodo 28:31–35 e 39:22–26 foram conferidos no arquivo ACF local server/bible-data/exo.ts. Os desenhos são diagramas vetoriais originais."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "robe-body",
+      "title": "Tecido azul",
+      "text": "O manto do éfode é descrito como inteiramente azul; seu comprimento e o desenho completo do molde não são especificados.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 31, "label": "Exod 28:31"}
+    },
+    {
+      "placeId": "woven-opening",
+      "title": "Abertura reforçada",
+      "text": "A abertura da cabeça ficava no meio e recebia uma borda tecida ao redor para evitar que o tecido se rompesse.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 32, "label": "Exod 28:32"}
+    },
+    {
+      "placeId": "pomegranates",
+      "title": "Elementos da barra",
+      "text": "Romãs de fios azuis, púrpuras e carmesins e campainhas de ouro puro eram alternadas ao redor da borda.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 24, "verseEnd": 26, "label": "Exod 39:24–26"}
+    },
+    {
+      "placeId": "bells",
+      "title": "Uso durante o serviço",
+      "text": "A instrução associa o som das campainhas ao serviço de Arão quando entrava e saía do santuário.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 35, "label": "Exod 28:35"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A instrução chama o manto de peça do éfode e o descreve todo em azul.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 31, "label": "Exod 28:31"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "A abertura central tinha uma borda tecida para resistir ao rompimento; o texto não dá seu diâmetro.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 32, "label": "Exod 28:32"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "A sequência especificada na barra é uma campainha, uma romã e novamente uma campainha e uma romã, repetidas ao redor.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 33, "verseEnd": 34, "label": "Exod 28:33–34"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "A execução confirma campainhas de ouro puro entre as romãs e liga o conjunto ao serviço sacerdotal.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 24, "verseEnd": 26, "label": "Exod 39:24–26"},
+      "sourceIds": ["biblical"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "high-priest-blue-robe.svg",
+    "dimensions": [],
+    "notes": [
+      "O texto não informa medidas do manto, da abertura ou a quantidade total de romãs e campainhas; proporções e repetição visíveis são esquemáticas.",
+      "A figura é neutra e sem rosto detalhado. A vista 3/4 e o painel da peça isolada são reconstruções gráficas, não moldes históricos.",
+      "Cores e distribuição dos elementos seguem a descrição; o desenho não fixa a densidade exata de enfeites ao redor da barra."
+    ],
+    "relatedIds": ["high-priest-turban-gold-plate", "high-priest-tunic-sash-undergarments", "common-priest-garments"],
+    "views": [
+      {"label": "Frente", "svgFile": "high-priest-blue-robe.svg"},
+      {"label": "Vista 3/4", "svgFile": "high-priest-blue-robe-vista-3-4.svg"}
+    ],
+    "parts": [
+      {
+        "id": "robe-body",
+        "name": "Manto azul",
+        "description": "Peça do éfode descrita como inteiramente azul; medidas, comprimento e corte não são especificados.",
+        "material": "Tecido azul; fibra não especificada nesta passagem",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 31, "label": "Exod 28:31"}],
+        "highlight": {"x": 50, "y": 47, "width": 0, "height": 0}
+      },
+      {
+        "id": "woven-opening",
+        "name": "Abertura tecida",
+        "description": "Abertura central para a cabeça com borda tecida ao redor para evitar que se rompesse.",
+        "material": "Tecido azul",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 32, "label": "Exod 28:32"}],
+        "highlight": {"x": 50, "y": 20, "width": 0, "height": 0}
+      },
+      {
+        "id": "pomegranates",
+        "name": "Romãs",
+        "description": "Ornamentos têxteis em azul, púrpura e carmesim, distribuídos ao redor da borda em alternância com campainhas.",
+        "material": "Fios azuis, púrpuras e carmesins",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 33, "verseEnd": 34, "label": "Exod 28:33–34"}],
+        "highlight": {"x": 50, "y": 83, "width": 0, "height": 0}
+      },
+      {
+        "id": "bells",
+        "name": "Campainhas de ouro",
+        "description": "Campainhas de ouro puro alternadas com romãs ao redor da barra; a passagem não determina a quantidade total.",
+        "material": "Ouro puro",
+        "references": [{"book": "Exod", "chapter": 39, "verseStart": 25, "verseEnd": 26, "label": "Exod 39:25–26"}],
+        "highlight": {"x": 50, "y": 88, "width": 0, "height": 0}
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-27",
+    "status": "documented",
+    "verified": ["Exod 28:31–35 conferido no ACF local", "Exod 39:22–26 conferido no ACF local"],
+    "uncertainties": [
+      "Não são informados comprimento, largura, molde completo, quantidade total de romãs ou número de campainhas.",
+      "A densidade e a escala dos motivos decorativos no desenho são ilustrativas."
+    ],
+    "methodology": "Conferido diretamente com Exod 28:31–35 e 39:22–26 em server/bible-data/exo.ts. O diagrama registra os elementos descritos e evita cotas, número total de enfeites e reconstruções têxteis não documentadas."
+  }
+}

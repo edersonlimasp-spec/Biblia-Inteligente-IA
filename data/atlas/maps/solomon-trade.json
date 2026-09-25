@@ -1,0 +1,77 @@
+{
+  "id": "solomon-trade",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": ["1Kgs", "2Chr"],
+  "characters": ["Salomão", "Hirão", "rainha de Sabá"],
+  "period": "Reinado de Salomão; cronologia convencional do século X a.C., discutida",
+  "title": "Comércio de Salomão",
+  "subtitle": "Cidades fortificadas, parceria fenícia e rotas de longa distância",
+  "summary": "O relato associa a atividade de Salomão a Jerusalém, às cidades fortificadas de Hazor, Megido e Gezer, à frota de Eziom-Geber e à cooperação com Hirão de Tiro. A visita da rainha de Sabá é narrada em Jerusalém, mas a região de Sabá não é fixada aqui por um ponto: sua representação geográfica é ampla e debatida. Ofir e Társis aparecem como destinos ou referências comerciais de localização incerta e, por isso, não recebem marcadores. Em 1 Reis 4:7–19, o texto também enumera doze distritos administrativos: Ben-Hur/Efraim; Ben-Deker/Makaz, Shaalbim, Bete-Semes e Elon-Bete-Hanã; Ben-Hesede/Arubote, Socó e Héfer; Ben-Abinadabe/Nafate-Dor; Baaná, filho de Ailude/Tanaque, Megido e Bete-Seã; Ben-Geber/Ramote-Gileade e localidades de Jair; Ainadabe/Manaim; Aimaás/Naftali; Baaná/Asser e Alote; Josafá/Issacar; Simei/Benjamim; e Geber/Gileade.",
+  "modernSummary": "Os pontos cobrem o atual Israel, Líbano e sul da Jordânia. Linhas de navegação e as áreas de Sabá, Ofir e Társis não são reconstruídas.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": ["Salomão", "comércio", "Eziom-Geber", "Tiro", "Sabá", "Ofir", "Társis", "cidades fortificadas", "atlas"],
+  "section": "old-testament",
+  "subsection": "Mapas extras",
+  "order": 26,
+  "era": "Monarquia unida; reinado de Salomão, c. século X a.C. (datação debatida)",
+  "modernOverview": "Jerusalém, Gezer, Hazor e Megido ficam no atual Israel; Tiro fica no Líbano e Eziom-Geber é associada à região de Ácaba, na Jordânia. Os marcadores representam localidades citadas, não palácios, portos antigos ou limites urbanos escavados. A extensão dos doze distritos administrativos não é reconstruída como fronteira. Sabá é tratada como região, e Ofir e Társis não têm localização segura para este mapa. Nenhuma rota marítima é traçada entre esses lugares, pois os destinos e itinerários não são demonstrados por estes pontos.",
+  "keyReferences": [
+    {"book": "1Kgs", "chapter": 4, "verseStart": 7, "verseEnd": 19, "label": "1Kgs 4:7–19"},
+    {"book": "1Kgs", "chapter": 9, "verseStart": 15, "verseEnd": 28, "label": "1Kgs 9:15–28"},
+    {"book": "1Kgs", "chapter": 10, "verseStart": 1, "verseEnd": 13, "label": "1Kgs 10:1–13"},
+    {"book": "2Chr", "chapter": 8, "verseStart": 3, "verseEnd": 18, "label": "2Chr 8:3–18"},
+    {"book": "2Chr", "chapter": 9, "verseStart": 1, "verseEnd": 12, "label": "2Chr 9:1–12"}
+  ],
+  "aliases": ["Comércio de Salomão", "Reino de Salomão", "cidades fortificadas", "Hazor", "Megido", "Gezer", "Eziom-Geber", "Tiro", "Sabá", "Ofir", "Társis", "doze distritos"],
+  "references": [
+    {"book": "1Kgs", "chapter": 4, "verseStart": 7, "verseEnd": 19, "label": "1Kgs 4:7–19"},
+    {"book": "1Kgs", "chapter": 9, "verseStart": 15, "verseEnd": 28, "label": "1Kgs 9:15–28"},
+    {"book": "1Kgs", "chapter": 10, "verseStart": 1, "verseEnd": 13, "label": "1Kgs 10:1–13"},
+    {"book": "2Chr", "chapter": 8, "verseStart": 3, "verseEnd": 18, "label": "2Chr 8:3–18"}
+  ],
+  "sources": [
+    {"id": "openbible", "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)", "url": "https://www.openbible.info/geo/data/merged.txt", "license": "CC BY 4.0; atribuição: OpenBible.info.", "note": "Cada marcador conserva como chave de evidência a entrada nominal exata de docs/atlas/evidence/openbible-merged.txt; coordenadas na ordem do mapa [longitude, latitude]. Entradas aproximadas ou regionais não foram convertidas em pinos."},
+    {"id": "biblical", "title": "Referências bíblicas (paráfrases originais)", "url": "https://ebible.org/web/", "license": "WEB: domínio público; nenhuma tradução protegida copiada.", "note": "As passagens fundamentam a associação narrativa e os distritos listados, não comprovam rotas, cronologia absoluta ou fronteiras."}
+  ],
+  "places": [
+    {"id": "jerusalem", "name": "Jerusalém", "modernName": "Jerusalém", "coordinates": [35.234935, 31.777444], "certainty": "established", "explanation": "A capital é o centro do reinado e o local da audiência da rainha de Sabá. Chave OpenBible: Jerusalem; ponto representativo da cidade, não limite urbano antigo.", "references": [{"book": "1Kgs", "chapter": 10, "verseStart": 2, "label": "1Kgs 10:2"}], "sourceIds": ["openbible"]},
+    {"id": "gezer", "name": "Gezer", "modernName": "Tel Gezer, Israel", "coordinates": [34.9225, 31.87611111111111], "certainty": "probable", "explanation": "O texto menciona Gezer entre as cidades reconstruídas e fortificadas; o ponto não identifica uma camada construtiva específica. Chave OpenBible: Gezer.", "references": [{"book": "1Kgs", "chapter": 9, "verseStart": 15, "label": "1Kgs 9:15"}], "sourceIds": ["openbible"]},
+    {"id": "megiddo", "name": "Megido", "modernName": "Tel Megiddo, Israel", "coordinates": [35.18229165870594, 32.58418313614938], "certainty": "probable", "explanation": "Megido consta da lista de cidades fortificadas atribuídas a Salomão; a associação não determina a data de cada estrutura arqueológica. Chave OpenBible: Megiddo.", "references": [{"book": "1Kgs", "chapter": 9, "verseStart": 15, "label": "1Kgs 9:15"}], "sourceIds": ["openbible"]},
+    {"id": "hazor", "name": "Hazor", "modernName": "Tel Hazor, Israel", "coordinates": [35.56804856758258, 33.01718199667929], "certainty": "probable", "explanation": "Hazor é citada no grupo de cidades fortificadas; o marcador localiza a cidade, não uma construção específica do reinado. Chave OpenBible: Hazor 1.", "references": [{"book": "1Kgs", "chapter": 9, "verseStart": 15, "label": "1Kgs 9:15"}], "sourceIds": ["openbible"]},
+    {"id": "tyre", "name": "Tiro", "modernName": "Sur/Tiro, Líbano", "coordinates": [35.19257453545583, 33.27582782266882], "certainty": "established", "explanation": "Hirão, rei de Tiro, mantém relação de cooperação com Salomão e fornece materiais e trabalhadores. Chave OpenBible: Tyre; o ponto não representa o antigo litoral ou porto.", "references": [{"book": "1Kgs", "chapter": 5, "verseStart": 1, "label": "1Kgs 5:1"}], "sourceIds": ["openbible"]},
+    {"id": "ezion-geber", "name": "Eziom-Geber", "modernName": "Região de Ácaba, Jordânia; sítio antigo não fixado", "coordinates": null, "certainty": "debated", "explanation": "O texto situa ali a frota construída para viagens marítimas, mas a evidência retida aproxima a posição com til e não identifica com certeza o porto arqueológico. Chave OpenBible: Ezion-geber; coordenadas aproximadas rejeitadas, sem marcador.", "references": [{"book": "1Kgs", "chapter": 9, "verseStart": 26, "label": "1Kgs 9:26"}], "sourceIds": ["openbible", "biblical"]},
+    {"id": "sheba", "name": "Sabá (região)", "modernName": "Sul da Península Arábica; extensão e localização no relato debatidas", "coordinates": null, "certainty": "debated", "explanation": "A fonte textual chama a visitante de rainha de Sabá, mas o registro geográfico disponível é uma região com coordenadas de envoltória, não um ponto de cidade. Por isso, não há marcador. Chave de evidência consultada: Sheba (registro regional, descartado para plotagem).", "references": [{"book": "1Kgs", "chapter": 10, "verseStart": 1, "label": "1Kgs 10:1"}], "sourceIds": ["openbible", "biblical"]},
+    {"id": "ophir", "name": "Ofir", "modernName": "Desconhecido", "coordinates": null, "certainty": "unknown", "explanation": "Ofir é citado como origem do ouro trazido pela frota, mas sua localização não é estabelecida pelo texto nem pela evidência geográfica usada. A entrada regional OpenBible Ophir/India tem coordenadas de envoltória e não é um sítio; não há marcador.", "references": [{"book": "1Kgs", "chapter": 9, "verseStart": 28, "label": "1Kgs 9:28"}], "sourceIds": ["biblical", "openbible"]},
+    {"id": "tarshish", "name": "Társis", "modernName": "Desconhecido; localização discutida", "coordinates": null, "certainty": "debated", "explanation": "Társis aparece na descrição dos navios, mas não há aqui identificação segura de destino ou rota. A entrada OpenBible não basta para resolver a localização; não há marcador.", "references": [{"book": "1Kgs", "chapter": 10, "verseStart": 22, "label": "1Kgs 10:22"}], "sourceIds": ["biblical", "openbible"]}
+  ],
+  "overlays": [],
+  "storySteps": [
+    {"placeId": "jerusalem", "title": "A corte em Jerusalém", "text": "A rainha de Sabá chega a Jerusalém para provar Salomão com perguntas; o relato descreve a visita e a troca de presentes, sem localizar Sabá por um ponto preciso.", "reference": {"book": "1Kgs", "chapter": 10, "verseStart": 1, "verseEnd": 13, "label": "1Kgs 10:1–13"}},
+    {"placeId": "tyre", "title": "A parceria com Tiro", "text": "Hirão envia emissários e, depois, materiais e artesãos para as obras de Salomão; o texto não descreve uma rota comercial completa.", "reference": {"book": "1Kgs", "chapter": 5, "verseStart": 1, "verseEnd": 12, "label": "1Kgs 5:1–12"}},
+    {"placeId": "hazor", "title": "As cidades fortificadas", "text": "Hazor, Megido e Gezer são nomeadas entre os centros reconstruídos e fortificados durante o programa real.", "reference": {"book": "1Kgs", "chapter": 9, "verseStart": 15, "verseEnd": 17, "label": "1Kgs 9:15–17"}},
+    {"placeId": "megiddo", "title": "Megido", "text": "Megido aparece na lista de cidades fortificadas; a referência textual não data por si só os vestígios escavados.", "reference": {"book": "1Kgs", "chapter": 9, "verseStart": 15, "label": "1Kgs 9:15"}},
+    {"placeId": "gezer", "title": "Gezer", "text": "O texto relata que Salomão reconstruiu Gezer, após a entrega da cidade pelo faraó como parte do dote de sua filha.", "reference": {"book": "1Kgs", "chapter": 9, "verseStart": 16, "verseEnd": 17, "label": "1Kgs 9:16–17"}},
+    {"placeId": "ezion-geber", "title": "A frota em Eziom-Geber", "text": "Salomão equipa embarcações em Eziom-Geber, junto ao golfo de Ácaba; o destino de Ofir não é assinalado no mapa.", "reference": {"book": "1Kgs", "chapter": 9, "verseStart": 26, "verseEnd": 28, "label": "1Kgs 9:26–28"}},
+    {"placeId": "sheba", "title": "Sabá sem pino", "text": "A visita é narrada como chegada da rainha de Sabá a Jerusalém, mas a identificação de uma origem geográfica exata não é fixada aqui.", "reference": {"book": "1Kgs", "chapter": 10, "verseStart": 1, "label": "1Kgs 10:1"}},
+    {"placeId": "ophir", "title": "Ofir sem pino", "text": "O nome é associado ao ouro da expedição marítima, mas as propostas de localização não permitem um marcador seguro.", "reference": {"book": "1Kgs", "chapter": 9, "verseStart": 28, "label": "1Kgs 9:28"}},
+    {"placeId": "tarshish", "title": "Társis sem pino", "text": "Társis é citada na descrição dos navios e mercadorias; o texto não permite traçar sua rota ou fixar seu sítio neste mapa.", "reference": {"book": "1Kgs", "chapter": 10, "verseStart": 22, "label": "1Kgs 10:22"}}
+  ],
+  "curiosities": [
+    {"text": "O texto lista doze responsáveis, cada qual ligado a provisões de um distrito por um mês do ano.", "reference": {"book": "1Kgs", "chapter": 4, "verseStart": 7, "verseEnd": 19, "label": "1Kgs 4:7–19"}, "sourceIds": ["biblical"]},
+    {"text": "Gezer aparece como parte da doação matrimonial do faraó e é descrita como reconstruída por Salomão.", "reference": {"book": "1Kgs", "chapter": 9, "verseStart": 16, "verseEnd": 17, "label": "1Kgs 9:16–17"}, "sourceIds": ["biblical", "openbible"]},
+    {"text": "A narrativa situa a construção da frota em Eziom-Geber, mas identifica Ofir apenas como destino, não como um local geográfico inequívoco.", "reference": {"book": "1Kgs", "chapter": 9, "verseStart": 26, "verseEnd": 28, "label": "1Kgs 9:26–28"}, "sourceIds": ["biblical", "openbible"]},
+    {"text": "A visita da rainha de Sabá inclui perguntas, presentes e uma avaliação da corte; não fornece coordenadas nem itinerário.", "reference": {"book": "1Kgs", "chapter": 10, "verseStart": 1, "verseEnd": 13, "label": "1Kgs 10:1–13"}, "sourceIds": ["biblical"]}
+  ],
+  "bounds": [28.8, 29.2, 36.0, 33.8],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": ["Metadados do manifesto: seção old-testament, subseção Mapas extras, ordem 26 e sample=false.", "As coordenadas desenhadas correspondem às chaves OpenBible indicadas nas explicações, em ordem [longitude, latitude].", "Referências foram selecionadas para os eventos e lugares narrados; textos são paráfrases originais."],
+    "uncertainties": ["Cronologia de Salomão e associação das fortificações com seu reinado são debatidas.", "Sabá é região, não um ponto de cidade; Ofir e Társis permanecem sem pino.", "Eziom-Geber tem ponto geográfico aproximado; nenhum trajeto marítimo ou distrito é desenhado como fronteira."],
+    "methodology": "Compilação documental a partir de referências bíblicas e entradas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. Foram mantidas sem pino as regiões ou identificações não confirmadas; linhas e fronteiras não foram inferidas."
+  }
+}

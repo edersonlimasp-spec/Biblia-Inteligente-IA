@@ -345,6 +345,82 @@
     47.2,
     38
   ],
+  "storySteps": [
+    {
+      "placeId": "ur",
+      "title": "Ur",
+      "text": "Terá sai de sua terra natal com Abrão e a família em direção a Canaã; o versículo registra a origem de Abrão, não a morte de Harã.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 11,
+        "verseStart": 31,
+        "label": "Gen 11:31"
+      }
+    },
+    {
+      "placeId": "haran",
+      "title": "Harã",
+      "text": "Depois da morte de Terá, Abrão deixa Harã conforme a ordem recebida e segue para Canaã.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 12,
+        "verseStart": 4,
+        "label": "Gen 12:4"
+      }
+    },
+    {
+      "placeId": "shechem",
+      "title": "Siquém",
+      "text": "Abrão atravessa Canaã e chega a Siquém, onde o texto registra a promessa da terra e a construção de um altar.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 12,
+        "verseStart": 6,
+        "verseEnd": 7,
+        "label": "Gen 12:6–7"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "O texto registra a saída de Terá de Ur em direção a Canaã, mas diz que a família parou em Harã.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 11,
+        "verseStart": 31,
+        "label": "Gen 11:31"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Siquém é a primeira localidade cananeia nomeada na chegada de Abrão.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 12,
+        "verseStart": 6,
+        "label": "Gen 12:6"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Abraão ergue um altar junto aos carvalhos de Manre, na região de Hebrom.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 13,
+        "verseStart": 18,
+        "label": "Gen 13:18"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
   "review": {
     "date": "2026-09-24",
     "status": "needs-specialist",

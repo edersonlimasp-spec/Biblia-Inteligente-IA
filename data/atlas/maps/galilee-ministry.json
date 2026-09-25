@@ -1,0 +1,685 @@
+{
+  "id": "galilee-ministry",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Matt",
+    "Mark",
+    "Luke",
+    "John"
+  ],
+  "characters": [
+    "Jesus",
+    "Pedro",
+    "André",
+    "Tiago",
+    "João"
+  ],
+  "period": "Ministério de Jesus no início do século I; ordem e cronologia dos relatos variam",
+  "title": "Ministério na Galileia",
+  "subtitle": "Cidades, lago e episódios dos Evangelhos sem harmonizar relatos distintos",
+  "summary": "O mapa relaciona lugares galileus nomeados nos Evangelhos e episódios junto ao lago. Nazaré, Cana, Cafarnaum, Betsaida, Corazim e Naim têm pontos de referência extraídos da evidência geográfica retida; não são coordenadas de cenas específicas. Magdala é mantida sem pino porque a identificação com Magadã/Dalmanuta não é segura. O local da multiplicação dos pães não é identificado com precisão, e Tabor aparece apenas como tradição debatida para a transfiguração.",
+  "modernSummary": "Os lugares se situam na Galileia histórica, no atual norte de Israel. Nomes e pinos servem como orientação e não provam a posição exata de eventos.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Galileia",
+    "ministério de Jesus",
+    "Nazaré",
+    "Cafarnaum",
+    "Betsaida",
+    "Mar da Galileia"
+  ],
+  "section": "new-testament",
+  "subsection": "Vida de Jesus",
+  "order": 4,
+  "era": "Início do século I d.C.; período do ministério de Jesus",
+  "modernOverview": "Os pinos indicam referências modernas gerais para topônimos galileus e não a localização arqueológica exata de cada episódio. O lago da Galileia é identificado como corpo d'água, sem fixar pontos de travessia ou desembarque. A identificação de Magdala com Magadã ou Dalmanuta permanece incerta, e o local da multiplicação dos pães não é precisado pelos relatos. Tabor é apresentado somente como tradição debatida para a transfiguração, não como local demonstrado. Não há linhas de viagem nem fronteiras neste mapa.",
+  "keyReferences": [
+    {
+      "book": "Matt",
+      "chapter": 4,
+      "verseStart": 12,
+      "verseEnd": 25,
+      "label": "Mateus 4:12–25"
+    },
+    {
+      "book": "Mark",
+      "chapter": 1,
+      "verseStart": 14,
+      "verseEnd": 39,
+      "label": "Marcos 1:14–39"
+    },
+    {
+      "book": "Mark",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 12,
+      "label": "Marcos 2:1–12"
+    },
+    {
+      "book": "Mark",
+      "chapter": 4,
+      "verseStart": 35,
+      "verseEnd": 41,
+      "label": "Marcos 4:35–41"
+    },
+    {
+      "book": "Mark",
+      "chapter": 6,
+      "verseStart": 30,
+      "verseEnd": 56,
+      "label": "Marcos 6:30–56"
+    },
+    {
+      "book": "Mark",
+      "chapter": 8,
+      "verseStart": 22,
+      "verseEnd": 26,
+      "label": "Marcos 8:22–26"
+    },
+    {
+      "book": "Luke",
+      "chapter": 7,
+      "verseStart": 11,
+      "verseEnd": 17,
+      "label": "Lucas 7:11–17"
+    },
+    {
+      "book": "John",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 11,
+      "label": "João 2:1–11"
+    }
+  ],
+  "aliases": [
+    "Ministério de Jesus na Galileia",
+    "Galileia nos Evangelhos",
+    "Mar da Galileia",
+    "Lago de Genesaré",
+    "Lago de Tiberíades",
+    "Cafarnaum, Kfar Nahum",
+    "Nazaré, An-Nasira",
+    "Betsaida"
+  ],
+  "references": [
+    {
+      "book": "Matt",
+      "chapter": 4,
+      "verseStart": 12,
+      "verseEnd": 25,
+      "label": "Mateus 4:12–25"
+    },
+    {
+      "book": "Mark",
+      "chapter": 1,
+      "verseStart": 14,
+      "verseEnd": 39,
+      "label": "Marcos 1:14–39"
+    },
+    {
+      "book": "Mark",
+      "chapter": 6,
+      "verseStart": 30,
+      "verseEnd": 56,
+      "label": "Marcos 6:30–56"
+    },
+    {
+      "book": "Luke",
+      "chapter": 7,
+      "verseStart": 11,
+      "verseEnd": 17,
+      "label": "Lucas 7:11–17"
+    },
+    {
+      "book": "John",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 11,
+      "label": "João 2:1–11"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. Evidência histórica retida no repositório.",
+      "note": "Pares numéricos nominais sem marcadores de aproximação foram convertidos de latitude/longitude para [longitude, latitude]. São pontos de referência do conjunto legado, não prova arqueológica nem localização precisa dos episódios."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas: Evangelhos",
+      "url": "https://ebible.org/web/",
+      "license": "World English Bible (WEB): domínio público; somente referências e paráfrases editoriais originais em português.",
+      "note": "As passagens sustentam as narrativas e nomes mencionados. Elas não certificam coordenadas, identificações arqueológicas ou uma sequência harmonizada entre os quatro Evangelhos."
+    }
+  ],
+  "places": [
+    {
+      "id": "nazareth",
+      "name": "Nazaré",
+      "modernName": "An-Nasira (Nazaré), Israel",
+      "coordinates": [
+        35.30152807767973,
+        32.70674542474383
+      ],
+      "certainty": "probable",
+      "explanation": "Nazaré é nomeada como a cidade onde Jesus foi criado e como ponto de partida para a Galileia em diferentes relatos. O par numérico corresponde à linha nominal Nazaré na evidência OpenBible retida; indica a localidade de referência, não uma casa ou cena específica.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 4,
+          "verseStart": 16,
+          "label": "Lucas 4:16"
+        },
+        {
+          "book": "Mark",
+          "chapter": 1,
+          "verseStart": 9,
+          "label": "Marcos 1:9"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "cana",
+      "name": "Caná da Galileia",
+      "modernName": "Identificação moderna debatida na Galileia, Israel",
+      "coordinates": [
+        35.33877162058164,
+        32.74701517958585
+      ],
+      "certainty": "debated",
+      "explanation": "João situa em Caná o sinal nas bodas, mas a identificação do topônimo antigo com sítios modernos não é consensual. O ponto reproduz exatamente a chave Cana do arquivo OpenBible retido e não demonstra qual proposta moderna corresponde à aldeia do relato.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 11,
+          "label": "João 2:1–11"
+        },
+        {
+          "book": "John",
+          "chapter": 4,
+          "verseStart": 46,
+          "label": "João 4:46"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "capernaum",
+      "name": "Cafarnaum",
+      "modernName": "Kfar Nahum, margem norte do lago da Galileia, Israel",
+      "coordinates": [
+        35.57515767479308,
+        32.88059412581622
+      ],
+      "certainty": "probable",
+      "explanation": "Os Evangelhos associam Cafarnaum a episódios de ensino e cura e Mateus a chama de cidade de Jesus. O ponto é o par exato da chave Capernaum na evidência retida e representa a localidade, não a posição exata de uma casa ou sinagoga.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 4,
+          "verseStart": 13,
+          "label": "Mateus 4:13"
+        },
+        {
+          "book": "Mark",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 12,
+          "label": "Marcos 2:1–12"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "bethsaida",
+      "name": "Betsaida",
+      "modernName": "Localidade antiga na região nordeste do lago da Galileia; identificação arqueológica debatida",
+      "coordinates": [
+        35.62697295608815,
+        32.90784828392077
+      ],
+      "certainty": "debated",
+      "explanation": "Betsaida é nomeada nos Evangelhos em relação a discípulos e episódios de Jesus. O ponto segue o par numérico da chave Bethsaida da evidência OpenBible retida; as propostas para identificar o sítio antigo e a localização das cenas não são resolvidas pelo mapa.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 1,
+          "verseStart": 44,
+          "label": "João 1:44"
+        },
+        {
+          "book": "Mark",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 26,
+          "label": "Marcos 8:22–26"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "chorazin",
+      "name": "Corazim",
+      "modernName": "Sítio de Khirbet Kerazeh, norte do lago da Galileia, Israel",
+      "coordinates": [
+        35.55292324144203,
+        32.90909168933021
+      ],
+      "certainty": "probable",
+      "explanation": "Corazim aparece nas advertências de Jesus junto com Betsaida. O ponto usa o par exato da chave Chorazin; associa o nome à localidade, mas não localiza uma cena particular nem certifica limites urbanos antigos.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 11,
+          "verseStart": 21,
+          "verseEnd": 22,
+          "label": "Mateus 11:21–22"
+        },
+        {
+          "book": "Luke",
+          "chapter": 10,
+          "verseStart": 13,
+          "label": "Lucas 10:13"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "magdala",
+      "name": "Magdala (identificação incerta)",
+      "modernName": "Costa ocidental do lago da Galileia; sítio exato não fixado neste mapa",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "O Novo Testamento menciona Magadã em Mateus e Dalmanuta em Marcos, enquanto a forma Magdala é uma identificação tradicional ligada à região. A evidência geográfica retida oferece ponto para Magadã, não confirmação de que ele seja Magdala; por isso nenhum desses pontos é reaproveitado como coordenada certa.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 15,
+          "verseStart": 39,
+          "label": "Mateus 15:39"
+        },
+        {
+          "book": "Mark",
+          "chapter": 8,
+          "verseStart": 10,
+          "label": "Marcos 8:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "gennesaret",
+      "name": "Genesaré",
+      "modernName": "Planície e margem noroeste do lago da Galileia, Israel",
+      "coordinates": [
+        35.50993742021974,
+        32.85935860372527
+      ],
+      "certainty": "probable",
+      "explanation": "Os relatos mencionam a região de Genesaré após uma travessia pelo lago. O par numérico vem da chave Gennesaret na evidência retida e funciona como referência regional, não como local exato de desembarque ou milagre.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 14,
+          "verseStart": 34,
+          "label": "Mateus 14:34"
+        },
+        {
+          "book": "Mark",
+          "chapter": 6,
+          "verseStart": 53,
+          "label": "Marcos 6:53"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "nain",
+      "name": "Naim",
+      "modernName": "Nain, Baixa Galileia, Israel",
+      "coordinates": [
+        35.34782689102158,
+        32.63083336680386
+      ],
+      "certainty": "probable",
+      "explanation": "Lucas situa em Naim o encontro com o cortejo fúnebre e o filho de uma viúva. O ponto segue a linha nominal Nain da evidência OpenBible retida e identifica a localidade em termos gerais, não o percurso ou local exato da cena.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 7,
+          "verseStart": 11,
+          "verseEnd": 17,
+          "label": "Lucas 7:11–17"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "mount-tabor",
+      "name": "Monte Tabor — tradição debatida",
+      "modernName": "Monte Tabor, Baixa Galileia, Israel",
+      "coordinates": [
+        35.39091304299688,
+        32.68695640243183
+      ],
+      "certainty": "debated",
+      "explanation": "A tradição cristã por vezes identifica o Tabor com o monte da transfiguração, mas os Evangelhos não nomeiam esse monte e não provam essa identificação. O par numérico exato é da chave Mount Tabor na evidência OpenBible e representa a montanha nomeada, não a localização comprovada do episódio.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 17,
+          "verseStart": 1,
+          "verseEnd": 9,
+          "label": "Mateus 17:1–9 (monte não nomeado)"
+        },
+        {
+          "book": "Josh",
+          "chapter": 19,
+          "verseStart": 22,
+          "label": "Josué 19:22"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "sea-of-galilee",
+      "name": "Mar da Galileia",
+      "modernName": "Lago de Tiberíades / lago da Galileia, Israel",
+      "coordinates": [
+        35.58936052679091,
+        32.80677585520321
+      ],
+      "certainty": "probable",
+      "explanation": "O lago é o cenário amplo de travessias, pesca e ensino em vários relatos. O ponto reproduz a coordenada numérica da chave Sea of Galilee, mas não marca um ponto de travessia, desembarque ou evento.",
+      "references": [
+        {
+          "book": "Mark",
+          "chapter": 4,
+          "verseStart": 35,
+          "verseEnd": 41,
+          "label": "Marcos 4:35–41"
+        },
+        {
+          "book": "John",
+          "chapter": 6,
+          "verseStart": 1,
+          "label": "João 6:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "feeding-site",
+      "name": "Local da multiplicação dos pães",
+      "modernName": "Local não identificado com precisão; região do lago da Galileia",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Marcos e Mateus narram a alimentação de uma multidão em lugar ermo, sem fornecer um sítio identificável com precisão. As tradições locais e a proximidade do lago não bastam para escolher uma localização; nenhum pino é atribuído ao evento.",
+      "references": [
+        {
+          "book": "Mark",
+          "chapter": 6,
+          "verseStart": 30,
+          "verseEnd": 44,
+          "label": "Marcos 6:30–44"
+        },
+        {
+          "book": "Matt",
+          "chapter": 14,
+          "verseStart": 13,
+          "verseEnd": 21,
+          "label": "Mateus 14:13–21"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "nazareth",
+      "title": "Nazaré e o início do anúncio",
+      "text": "Marcos situa Jesus na Galileia depois da prisão de João. Lucas apresenta Nazaré como a cidade onde Jesus foi criado; os relatos não são reduzidos a um único itinerário.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 4,
+        "verseStart": 16,
+        "label": "Lucas 4:16"
+      }
+    },
+    {
+      "placeId": "cana",
+      "title": "Caná no relato de João",
+      "text": "João narra em Caná o sinal nas bodas. A identificação moderna do lugar é discutida, portanto o pino representa apenas uma proposta geográfica geral.",
+      "reference": {
+        "book": "John",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 11,
+        "label": "João 2:1–11"
+      }
+    },
+    {
+      "placeId": "capernaum",
+      "title": "Cafarnaum",
+      "text": "Mateus relata que Jesus deixou Nazaré e foi morar em Cafarnaum. Outros episódios do ministério também são associados à cidade.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 4,
+        "verseStart": 13,
+        "label": "Mateus 4:13"
+      }
+    },
+    {
+      "placeId": "bethsaida",
+      "title": "Betsaida",
+      "text": "João associa Filipe, André e Pedro a Betsaida; Marcos também situa em Betsaida a cura de um cego. As identificações do sítio antigo não são resolvidas aqui.",
+      "reference": {
+        "book": "John",
+        "chapter": 1,
+        "verseStart": 44,
+        "label": "João 1:44"
+      }
+    },
+    {
+      "placeId": "chorazin",
+      "title": "Corazim nas advertências",
+      "text": "Corazim aparece junto com Betsaida na advertência sobre cidades que viram obras poderosas. O mapa não inventa uma cena localizada dentro da cidade.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 11,
+        "verseStart": 21,
+        "verseEnd": 22,
+        "label": "Mateus 11:21–22"
+      }
+    },
+    {
+      "placeId": "magdala",
+      "title": "Magadã e Dalmanuta: nomes incertos",
+      "text": "Mateus nomeia Magadã e Marcos nomeia Dalmanuta após uma travessia. A relação desses nomes com Magdala não é demonstrada pelo texto; este lugar narrativo permanece sem pino.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 8,
+        "verseStart": 10,
+        "label": "Marcos 8:10"
+      }
+    },
+    {
+      "placeId": "gennesaret",
+      "title": "A região de Genesaré",
+      "text": "Mateus e Marcos narram que o barco chegou à região de Genesaré. O nome designa uma área, e o ponto não indica o desembarque exato.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 14,
+        "verseStart": 34,
+        "label": "Mateus 14:34"
+      }
+    },
+    {
+      "placeId": "feeding-site",
+      "title": "Uma refeição sem local exato",
+      "text": "Marcos narra a alimentação de cinco mil em lugar ermo, mas não fornece coordenada nem cidade identificável. A parada é narrativa, sem pino.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 6,
+        "verseStart": 30,
+        "verseEnd": 44,
+        "label": "Marcos 6:30–44"
+      }
+    },
+    {
+      "placeId": "nain",
+      "title": "Naim",
+      "text": "Lucas situa em Naim o encontro de Jesus com o cortejo fúnebre de um jovem, filho único de uma viúva. O mapa assinala a localidade, não a posição exata do encontro.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 7,
+        "verseStart": 11,
+        "verseEnd": 17,
+        "label": "Lucas 7:11–17"
+      }
+    },
+    {
+      "placeId": "mount-tabor",
+      "title": "Tabor: tradição, não confirmação",
+      "text": "Os Evangelhos descrevem a transfiguração em um monte alto sem nomeá-lo. Tabor é uma associação tradicional posterior e não pode ser apresentado como local comprovado.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 17,
+        "verseStart": 1,
+        "verseEnd": 9,
+        "label": "Mateus 17:1–9"
+      }
+    },
+    {
+      "placeId": "sea-of-galilee",
+      "title": "O lago como cenário",
+      "text": "Os relatos descrevem travessias e episódios no lago, mas não permitem transformar uma referência ampla em rota precisa. O ponto é apenas um marcador do corpo d'água.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 4,
+        "verseStart": 35,
+        "verseEnd": 41,
+        "label": "Marcos 4:35–41"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Mateus situa Cafarnaum na margem do mar da Galileia e a apresenta como cidade de Jesus; Marcos também narra ali episódios de ensino e cura.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 4,
+        "verseStart": 13,
+        "label": "Mateus 4:13"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Os relatos usam Magadã em Mateus e Dalmanuta em Marcos após a travessia; esses nomes não bastam para provar que a parada era a Magdala identificada pela tradição.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 15,
+        "verseStart": 39,
+        "label": "Mateus 15:39"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "A transfiguração ocorre em um monte alto não nomeado nos Evangelhos. A associação com Tabor é uma tradição, não uma identificação demonstrada pelo texto.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 9,
+        "verseStart": 2,
+        "verseEnd": 8,
+        "label": "Marcos 9:2–8"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "A alimentação da multidão é narrada em lugar ermo e próximo à área do lago, sem cidade ou coordenada que permita localizar o acontecimento com segurança.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 6,
+        "verseStart": 30,
+        "verseEnd": 44,
+        "label": "Marcos 6:30–44"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    35.25,
+    32.55,
+    35.72,
+    32.98
+  ],
+  "review": {
+    "date": "2025-02-20",
+    "status": "needs-specialist",
+    "verified": [
+      "Os pares numéricos usados para Nazaré, Caná, Cafarnaum, Betsaida, Corazim, Genesaré, Naim, Tabor e o lago correspondem às entradas numéricas exatas do arquivo OpenBible retido.",
+      "As coordenadas foram armazenadas em ordem [longitude, latitude]; não foram atribuídas coordenadas ao sítio da multiplicação dos pães.",
+      "Magdala, Tabor e as cenas não identificadas com precisão são explicitamente distinguidos de certezas textuais."
+    ],
+    "uncertainties": [
+      "A localização arqueológica de Caná e Betsaida é debatida.",
+      "A relação entre Magdala, Magadã e Dalmanuta permanece incerta; nenhum ponto candidato foi promovido a localização comprovada.",
+      "A identificação tradicional de Tabor com o monte da transfiguração não é nomeada nos Evangelhos.",
+      "O lugar exato da multiplicação dos pães e os pontos exatos de travessias e desembarques não são fornecidos pelos textos."
+    ],
+    "methodology": "Foram usados somente pares numéricos nominais, sem marcadores de aproximação, presentes na evidência OpenBible retida; coordenadas regionais, candidatos ambíguos e pinos de eventos não identificados foram omitidos. As referências bíblicas sustentam o que os relatos nomeiam, não demonstram identidades arqueológicas. Não foi desenhada rota nem fronteira."
+  }
+}

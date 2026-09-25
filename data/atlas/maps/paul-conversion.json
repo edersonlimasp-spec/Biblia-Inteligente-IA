@@ -1,0 +1,507 @@
+{
+  "id": "paul-conversion",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Acts",
+    "Gal",
+    "2Cor"
+  ],
+  "characters": [
+    "Saulo/Paulo",
+    "Ananias",
+    "Barnabé"
+  ],
+  "period": "Conversão e primeiros anos de Paulo; cronologia aproximada do século I d.C.",
+  "title": "Conversão e primeiros anos de Paulo",
+  "subtitle": "De Tarso a Damasco, com estadia na Arábia e retorno",
+  "summary": "Atos 9 relata que Saulo, a caminho de Damasco, encontra Jesus, fica temporariamente sem visão e é recebido por Ananias; depois, começa a anunciar Jesus na cidade. Gálatas 1 acrescenta que Paulo foi à Arábia, voltou a Damasco e, após um intervalo de três anos, visitou Jerusalém, oferecendo um relato autobiográfico com seleção e ênfase próprias. A fuga de Damasco é narrada em Atos 9:23–25 e relembrada em 2 Coríntios 11:32–33, mas nenhum texto identifica uma rua, portão ou trecho exato de muralha. Atos 9 também relata a ida a Cesareia e Tarso, e Atos 11 a ida de Barnabé a Tarso para buscar Saulo. As sequências de Atos e Gálatas não são apresentadas como uma cronologia plenamente concordante.",
+  "modernSummary": "Damasco, Jerusalém, Cesareia e Tarso são cidades atuais identificadas por pares numéricos explícitos. A Arábia é uma região ampla, sem pino; a passagem e a fuga dentro de Damasco não têm locais exatos mapeados.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Paulo",
+    "Saulo",
+    "conversão",
+    "Damasco",
+    "Arábia",
+    "Jerusalém",
+    "Tarso",
+    "Gálatas 1"
+  ],
+  "section": "new-testament",
+  "subsection": "Igreja primitiva",
+  "order": 17,
+  "era": "Século I d.C.; sequência e intervalo cronológico discutidos",
+  "modernOverview": "Damasco, Jerusalém, Cesareia e Tarso usam pares numéricos explícitos e sem marcadores de aproximação no arquivo OpenBible retido. A menção de Arábia em Gálatas 1:17 indica uma região ampla; a entrada geográfica tem coordenadas qualificadas por sinais de região e foi rejeitada como pino. A estrada para Damasco e os lugares internos da cidade, incluindo a casa de Judas, a rua Direita e o ponto de fuga na muralha, não são localizados por coordenadas evidenciais específicas aqui. A narrativa de Atos e o relato autobiográfico de Gálatas têm seleção e cronologia debatidas; o mapa conserva essa incerteza sem impor sequência harmonizada. Os pinos são referências urbanas gerais, não locais exatos dos episódios.",
+  "keyReferences": [
+    {
+      "book": "Acts",
+      "chapter": 9,
+      "verseStart": 1,
+      "verseEnd": 19,
+      "label": "Atos 9:1–19"
+    },
+    {
+      "book": "Acts",
+      "chapter": 9,
+      "verseStart": 23,
+      "verseEnd": 30,
+      "label": "Atos 9:23–30"
+    },
+    {
+      "book": "Gal",
+      "chapter": 1,
+      "verseStart": 15,
+      "verseEnd": 24,
+      "label": "Gálatas 1:15–24"
+    },
+    {
+      "book": "Gal",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Gálatas 2:1–10"
+    },
+    {
+      "book": "2Cor",
+      "chapter": 11,
+      "verseStart": 32,
+      "verseEnd": 33,
+      "label": "2 Coríntios 11:32–33"
+    }
+  ],
+  "aliases": [
+    "Conversão de Paulo",
+    "Conversão de Saulo",
+    "Paulo em Damasco",
+    "Arábia de Gálatas 1",
+    "Fuga de Damasco",
+    "Primeiros anos de Paulo"
+  ],
+  "references": [
+    {
+      "book": "Acts",
+      "chapter": 9,
+      "verseStart": 1,
+      "verseEnd": 30,
+      "label": "Atos 9:1–30"
+    },
+    {
+      "book": "Acts",
+      "chapter": 11,
+      "verseStart": 25,
+      "verseEnd": 26,
+      "label": "Atos 11:25–26"
+    },
+    {
+      "book": "Gal",
+      "chapter": 1,
+      "verseStart": 15,
+      "verseEnd": 24,
+      "label": "Gálatas 1:15–24"
+    },
+    {
+      "book": "Gal",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Gálatas 2:1–10"
+    },
+    {
+      "book": "2Cor",
+      "chapter": 11,
+      "verseStart": 32,
+      "verseEnd": 33,
+      "label": "2 Coríntios 11:32–33"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pares numéricos sem marcadores da evidência retida, armazenados como [longitude, latitude]: Damascus (36.31344999999999, 33.519299), Jerusalem (35.234935, 31.777444), Caesarea (34.89218497556097, 32.499544608298) e Tarsus (34.89153398422567, 36.91802695356275). Arabia tem valores precedidos por > que indicam região e não foi plotada."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; paráfrases originais, sem reprodução de tradução protegida",
+      "note": "Atos, Gálatas e 2 Coríntios são apresentados separadamente como relatos bíblicos relevantes. As referências sustentam as afirmações textuais, não uma concordância cronológica completa nem coordenadas de locais não identificados."
+    }
+  ],
+  "places": [
+    {
+      "id": "tarsus",
+      "name": "Tarso",
+      "modernName": "Tarsus, Turquia",
+      "coordinates": [
+        34.89153398422567,
+        36.91802695356275
+      ],
+      "certainty": "probable",
+      "explanation": "Atos identifica Saulo como natural de Tarso e relata que foi enviado para lá após a visita a Jerusalém; Gálatas 1 não narra esse trecho. O par usa a chave Tarsus da evidência e representa a cidade, não uma casa específica de Paulo.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 9,
+          "verseStart": 30,
+          "label": "Atos 9:30"
+        },
+        {
+          "book": "Acts",
+          "chapter": 21,
+          "verseStart": 39,
+          "label": "Atos 21:39"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém, cidade atual",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 9 relata a chegada de Saulo a Jerusalém e a mediação de Barnabé; Gálatas 1:18–19 relata uma visita a Jerusalém após três anos e seu encontro com Cefas e Tiago. O pino representa a cidade, sem identificar o lugar do encontro.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 9,
+          "verseStart": 26,
+          "verseEnd": 29,
+          "label": "Atos 9:26–29"
+        },
+        {
+          "book": "Gal",
+          "chapter": 1,
+          "verseStart": 18,
+          "verseEnd": 19,
+          "label": "Gálatas 1:18–19"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "road-to-damascus",
+      "name": "Caminho para Damasco",
+      "modernName": "Trajeto não identificado entre Jerusalém e Damasco",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Atos 9 situa a experiência de Saulo quando ele se aproximava de Damasco, mas não fornece um percurso geográfico preciso nem um ponto verificável da estrada. Não se traça rota moderna nem se escolhe um local de evento por aproximação.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 9,
+          "label": "Atos 9:1–9"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "damascus",
+      "name": "Damasco",
+      "modernName": "Damasco, Síria",
+      "coordinates": [
+        36.31344999999999,
+        33.519299
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 9 situa em Damasco a chegada de Saulo, sua recepção por Ananias e sua pregação inicial. Gálatas 1:17 diz que Paulo voltou à cidade depois da Arábia; Atos e Gálatas não são forçados a uma cronologia única. Nenhum marcador indica rua, casa ou muralha específicos.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 9,
+          "verseStart": 8,
+          "verseEnd": 25,
+          "label": "Atos 9:8–25"
+        },
+        {
+          "book": "Gal",
+          "chapter": 1,
+          "verseStart": 17,
+          "label": "Gálatas 1:17"
+        },
+        {
+          "book": "2Cor",
+          "chapter": 11,
+          "verseStart": 32,
+          "verseEnd": 33,
+          "label": "2 Coríntios 11:32–33"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "arabia",
+      "name": "Arábia",
+      "modernName": "Região ampla chamada Arábia; limites e destino específico não estabelecidos",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Gálatas 1:17 afirma que Paulo foi à Arábia e voltou a Damasco, mas não nomeia cidade, fronteira ou itinerário. A evidência geográfica apresenta apenas coordenadas regionais prefixadas por >, inadequadas para um pino; nenhuma hipótese de destino é selecionada.",
+      "references": [
+        {
+          "book": "Gal",
+          "chapter": 1,
+          "verseStart": 17,
+          "label": "Gálatas 1:17"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "caesarea",
+      "name": "Cesareia",
+      "modernName": "Cesareia Marítima, Israel",
+      "coordinates": [
+        34.89218497556097,
+        32.499544608298
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 9:30 relata que os irmãos levaram Saulo a Cesareia e o enviaram a Tarso. A chave Caesarea fornece um ponto urbano geral; o texto não especifica o cais nem um local de embarque.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 9,
+          "verseStart": 30,
+          "label": "Atos 9:30"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "antioch-syria",
+      "name": "Antioquia da Síria",
+      "modernName": "Antakya, Turquia",
+      "coordinates": [
+        36.16238775165068,
+        36.20233087051257
+      ],
+      "certainty": "probable",
+      "explanation": "Atos 11:25–26 diz que Barnabé foi a Tarso buscar Saulo e o levou a Antioquia. A coordenada usa a entrada Antioch 1, distinguindo a cidade síria de Antioquia da Pisídia; não prova o itinerário entre Tarso e Antioquia.",
+      "references": [
+        {
+          "book": "Acts",
+          "chapter": 11,
+          "verseStart": 25,
+          "verseEnd": 26,
+          "label": "Atos 11:25–26"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "tarsus",
+      "title": "Saulo, natural de Tarso",
+      "text": "Atos identifica Saulo como judeu de Tarso, na Cilícia. O mapa começa por essa referência biográfica, sem propor que a narrativa de Atos descreva sua vida anterior em detalhe.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 21,
+        "verseStart": 39,
+        "label": "Atos 21:39"
+      }
+    },
+    {
+      "placeId": "road-to-damascus",
+      "title": "A caminho de Damasco",
+      "text": "Saulo viaja com autorização para prender seguidores de Jesus quando, ao se aproximar de Damasco, tem a experiência que transforma sua missão. O trecho da estrada não é localizado no mapa.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 1,
+        "verseEnd": 9,
+        "label": "Atos 9:1–9"
+      }
+    },
+    {
+      "placeId": "damascus",
+      "title": "Ananias e Saulo em Damasco",
+      "text": "Ananias procura Saulo em Damasco, e Saulo volta a enxergar; depois, ele anuncia Jesus nas sinagogas. O relato não autoriza pinos para a casa, a rua Direita ou outros locais específicos.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 10,
+        "verseEnd": 22,
+        "label": "Atos 9:10–22"
+      }
+    },
+    {
+      "placeId": "arabia",
+      "title": "A Arábia no relato de Gálatas",
+      "text": "Paulo escreve que foi à Arábia e depois voltou a Damasco. Ele não especifica uma cidade nem uma rota, e o mapa conserva a referência regional sem escolher um destino.",
+      "reference": {
+        "book": "Gal",
+        "chapter": 1,
+        "verseStart": 17,
+        "label": "Gálatas 1:17"
+      }
+    },
+    {
+      "placeId": "damascus",
+      "title": "Fuga de Damasco",
+      "text": "Atos conta que os discípulos desceram Saulo numa cesta por uma abertura na muralha; em 2 Coríntios, Paulo associa a fuga ao governador do rei Aretas. Nenhum dos relatos identifica um ponto exato da muralha.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 23,
+        "verseEnd": 25,
+        "label": "Atos 9:23–25"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Primeira visita relatada após a fuga",
+      "text": "Atos narra que Saulo chegou a Jerusalém e que Barnabé o apresentou aos apóstolos. Gálatas 1:18–19 menciona uma visita a Jerusalém após três anos; a relação cronológica entre os relatos permanece debatida.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 26,
+        "verseEnd": 29,
+        "label": "Atos 9:26–29"
+      }
+    },
+    {
+      "placeId": "caesarea",
+      "title": "De Jerusalém a Cesareia",
+      "text": "Diante da ameaça contra Saulo, os irmãos o levam a Cesareia e o enviam para Tarso. O texto nomeia as cidades, mas não detalha o trajeto nem o meio de transporte.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 30,
+        "label": "Atos 9:30"
+      }
+    },
+    {
+      "placeId": "tarsus",
+      "title": "Saulo enviado a Tarso",
+      "text": "Atos registra o envio de Saulo a Tarso, sem narrar ali atividades específicas durante o período. A visita de Barnabé mais tarde para buscá-lo aparece em Atos 11.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 30,
+        "label": "Atos 9:30"
+      }
+    },
+    {
+      "placeId": "antioch-syria",
+      "title": "Barnabé chama Saulo a Antioquia",
+      "text": "Barnabé encontra Saulo em Tarso e o leva a Antioquia, onde ambos ensinam a comunidade por um ano segundo Atos. O mapa não representa uma rota precisa entre as duas cidades.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 11,
+        "verseStart": 25,
+        "verseEnd": 26,
+        "label": "Atos 11:25–26"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Gálatas 1:17 nomeia a Arábia e o retorno a Damasco, mas não especifica cidade, duração da permanência ou percurso. As coordenadas regionais da evidência OpenBible são qualificadas e não viram pino.",
+      "reference": {
+        "book": "Gal",
+        "chapter": 1,
+        "verseStart": 17,
+        "label": "Gálatas 1:17"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Atos 9:23–25 e 2 Coríntios 11:32–33 fazem referência à fuga de Damasco, com detalhes narrativos distintos. Nenhum versículo fornece uma localização exata na muralha; o mapa não inventa uma.",
+      "reference": {
+        "book": "2Cor",
+        "chapter": 11,
+        "verseStart": 32,
+        "verseEnd": 33,
+        "label": "2 Coríntios 11:32–33"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Paulo descreve em Gálatas 1 uma visita a Jerusalém após três anos, enquanto Atos 9 organiza seu relato de modo próprio. A cronologia relativa e a concordância dos dois textos não são presumidas neste mapa.",
+      "reference": {
+        "book": "Gal",
+        "chapter": 1,
+        "verseStart": 18,
+        "verseEnd": 20,
+        "label": "Gálatas 1:18–20"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Atos 9:30 nomeia Cesareia antes de Tarso, enquanto Gálatas 1:21 resume deslocamentos para as regiões da Síria e Cilícia. Esses relatos não descrevem em detalhe o mesmo itinerário, e a referência regional de Gálatas não determina o caminho.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 9,
+        "verseStart": 30,
+        "label": "Atos 9:30"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    34.89153398422567,
+    31.777444,
+    36.31344999999999,
+    36.91802695356275
+  ],
+  "review": {
+    "date": "2025-02-20",
+    "status": "needs-specialist",
+    "verified": [
+      "Os pinos urbanos usam pares numéricos não qualificados da evidência OpenBible retida, convertidos para [longitude, latitude].",
+      "Arábia, estrada para Damasco e locais internos ou muralhas de Damasco não receberam coordenadas conjecturais.",
+      "As referências de Atos, Gálatas e 2 Coríntios são preservadas como relatos relacionados, sem afirmar concordância cronológica completa.",
+      "Antioquia da Síria usa a entrada Antioch 1, distinta de Antioquia da Pisídia."
+    ],
+    "uncertainties": [
+      "Gálatas 1 não identifica a localidade ou a extensão geográfica da ida à Arábia.",
+      "A sequência e a cronologia entre os relatos autobiográficos de Gálatas 1–2 e a narrativa de Atos 9–11 são discutidas.",
+      "O lugar exato da experiência na estrada, da fuga na muralha, da casa de Ananias e de outros eventos em Damasco não é estabelecido pelas coordenadas aceitas."
+    ],
+    "methodology": "Foram aceitos apenas pares numéricos explícitos e sem sinais de aproximação na evidência retida, convertidos para [longitude, latitude]. Regiões marcadas como área, estradas sem identificação verificável e locais de eventos dentro de cidades foram mantidos como paradas narrativas sem pino. Atos, Gálatas e 2 Coríntios são tratados como testemunhos textuais com ênfases e cronologias cuja relação permanece aberta, não como dados harmonizados."
+  }
+}

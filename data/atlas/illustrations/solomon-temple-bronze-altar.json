@@ -1,0 +1,265 @@
+{
+  "id": "solomon-temple-bronze-altar",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Templo de Salomão",
+  "testament": "AT",
+  "books": [
+    "2Chr",
+    "1Kgs"
+  ],
+  "characters": [
+    "Salomão"
+  ],
+  "period": "Templo de Salomão, segundo Crônicas",
+  "title": "Templo de Salomão: altar do pátio",
+  "subtitle": "20 × 20 × 10 côvados em 2 Crônicas 4:1",
+  "summary": "Crônicas registra um altar de vinte côvados de comprimento, vinte de largura e dez de altura. A ACF local o chama de altar “de metal”; o versículo não especifica uma liga nem usa ali a palavra bronze. O inventário de obras em 1 Reis 7 não o descreve.",
+  "purpose": "O altar integrava o pátio e o serviço cultual do templo, onde Crônicas situa sacrifícios e atividade sacerdotal. 2 Crônicas 4:1 informa dimensões e material como metal, mas não detalha sua estrutura ou o procedimento de uso.",
+  "modernSummary": "As medidas vêm de 2Cr 4:1. A descrição textual não informa forma construtiva, espessura ou liga metálica.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": [
+    "altar",
+    "pátio",
+    "metal",
+    "bronze",
+    "Templo de Salomão",
+    "2 Crônicas 4"
+  ],
+  "section": "solomon-temple",
+  "subsection": "Pátios e equipamentos",
+  "order": 11,
+  "era": "Reinado de Salomão, conforme Crônicas",
+  "modernOverview": "As dimensões do altar são explicitadas em Crônicas. A descrição em 1 Reis 7:1–51 menciona outros objetos, mas não fornece descrição deste altar.",
+  "keyReferences": [
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 1,
+      "label": "2Cr 4:1"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 1,
+      "verseEnd": 51,
+      "label": "1Rs 7:1–51"
+    }
+  ],
+  "aliases": [
+    "altar do templo",
+    "altar de metal"
+  ],
+  "references": [
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 1,
+      "label": "2Cr 4:1"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 1,
+      "verseEnd": 51,
+      "label": "1Rs 7:1–51"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Texto bíblico ACF consultado em server/bible-data",
+      "url": "https://www.bible.com/pt/bible/212/2CH.4.ACF",
+      "license": "Referências e paráfrases originais; sem reprodução extensa da tradução",
+      "note": "2Cr 4:1 e 1Rs 7:1–51 conferidos na ACF local; paráfrases originais."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "body",
+      "title": "Medidas em Crônicas",
+      "text": "O texto registra vinte côvados de comprimento e largura e dez de altura para o altar.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 1,
+        "label": "2Cr 4:1"
+      }
+    },
+    {
+      "placeId": "body",
+      "title": "Termo de material",
+      "text": "A redação ACF de 2Cr 4:1 chama o material de “metal”; não especifica ali uma liga de bronze.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 1,
+        "label": "2Cr 4:1"
+      }
+    },
+    {
+      "placeId": "body",
+      "title": "Reis e Crônicas",
+      "text": "O relato de obras em 1 Reis 7:1–51 enumera colunas e recipientes, mas não descreve este altar nem oferece medida alternativa.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 1,
+        "verseEnd": 51,
+        "label": "1Rs 7:1–51"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "As duas dimensões horizontais são iguais, formando planta quadrada de vinte por vinte côvados.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 1,
+        "label": "2Cr 4:1"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "A ACF local diz “metal” em 2Cr 4:1; a passagem não especifica uma composição metálica precisa.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 1,
+        "label": "2Cr 4:1"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "O inventário de 1Rs 7:1–51 não apresenta descrição do altar de 20×20×10; as cotas são preservadas de Crônicas.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 1,
+        "verseEnd": 51,
+        "label": "1Rs 7:1–51"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "solomon-temple-bronze-altar.svg",
+    "dimensions": [
+      {
+        "label": "Comprimento",
+        "cubits": 20,
+        "note": "Medida textual em 2Cr 4:1; ≈ 9,0 m usando o côvado comum de 0,45 m.",
+        "reference": {
+          "book": "2Chr",
+          "chapter": 4,
+          "verseStart": 1,
+          "label": "2Cr 4:1"
+        }
+      },
+      {
+        "label": "Largura",
+        "cubits": 20,
+        "note": "Medida textual em 2Cr 4:1; ≈ 9,0 m usando o côvado comum de 0,45 m.",
+        "reference": {
+          "book": "2Chr",
+          "chapter": 4,
+          "verseStart": 1,
+          "label": "2Cr 4:1"
+        }
+      },
+      {
+        "label": "Altura",
+        "cubits": 10,
+        "note": "Medida textual em 2Cr 4:1; ≈ 4,5 m usando o côvado comum de 0,45 m.",
+        "reference": {
+          "book": "2Chr",
+          "chapter": 4,
+          "verseStart": 1,
+          "label": "2Cr 4:1"
+        }
+      }
+    ],
+    "notes": [
+      "Côvado comum ≈ 0,45 m é apenas a conversão de referência; côvado longo ≈ 0,52 m é uma estimativa, e Ez 40:5 apresenta uma cana de seis côvados acrescida de um palmo. 2Cr 3:3 menciona a primeira medida antiga sem fixar equivalência métrica.",
+      "Desenho vetorial didático baseado em referências textuais; não é reconstrução arqueológica. Elementos sem medida textual são esquemáticos e não devem ser lidos em escala.",
+      "Silhueta de 1,70 m apenas como referência gráfica moderna, sem pretensão de representar uma pessoa histórica.",
+      "A fonte ACF consultada usa “metal” (2Cr 4:1); não se afirma que o versículo especifique bronze.",
+      "A planta desenha somente a face quadrada. Revestimento, cavidade, rampas, chifres ou espessuras não são adicionados, pois não constam da descrição local.",
+      "1 Reis 7:1–51 não descreve este altar; não há medida alternativa de Reis a harmonizar."
+    ],
+    "relatedIds": [
+      "solomon-temple-courts",
+      "solomon-temple-overview"
+    ],
+    "parts": [
+      {
+        "id": "body",
+        "name": "Corpo do altar",
+        "description": "Corpo quadrado com 20×20 côvados de planta e 10 côvados de altura; estrutura interna e espessura não informadas.",
+        "cubits": 20,
+        "material": "Metal (termo da ACF; liga não especificada)",
+        "references": [
+          {
+            "book": "2Chr",
+            "chapter": 4,
+            "verseStart": 1,
+            "label": "2Cr 4:1"
+          }
+        ],
+        "highlight": {
+          "x": 45,
+          "y": 56,
+          "width": 38,
+          "height": 43
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "solomon-temple-bronze-altar-planta.svg"
+      },
+      {
+        "label": "Frente",
+        "svgFile": "solomon-temple-bronze-altar-frente.svg"
+      },
+      {
+        "label": "Corte",
+        "svgFile": "solomon-temple-bronze-altar-corte.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "solomon-temple-bronze-altar-isometrica.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-16",
+    "status": "documented",
+    "verified": [
+      "2Cr 4:1: 20×20×10 côvados; ACF chama o altar de metal",
+      "1Rs 7:1–51: lista de obras consultada; não descreve este altar"
+    ],
+    "uncertainties": [
+      "A liga exata não é especificada por 2Cr 4:1; “bronze” não é afirmado como citação da ACF nesse versículo.",
+      "Não há descrição construtiva detalhada do altar na passagem citada."
+    ],
+    "methodology": "Conferido diretamente em server/bible-data/2ch.ts e 1ki.ts. Cotas atribuídas somente a 2Cr 4:1; descrição material mantida como metal conforme ACF."
+  }
+}

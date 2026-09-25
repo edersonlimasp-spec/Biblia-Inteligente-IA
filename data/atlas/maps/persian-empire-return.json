@@ -1,0 +1,595 @@
+{
+  "id": "persian-empire-return",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Ezra",
+    "Neh",
+    "Esth",
+    "Dan"
+  ],
+  "characters": [
+    "Ciro",
+    "Zorobabel",
+    "Esdras",
+    "Neemias"
+  ],
+  "period": "Império Aquemênida e retornos judaítas, c.539–432 a.C.; marcos cronológicos variam conforme a convenção adotada",
+  "title": "Império Persa e retornos",
+  "subtitle": "Susa, centros imperiais e a província de Além-do-Rio",
+  "summary": "O mapa relaciona Susa, Persépolis, Ecbátana e Babilônia aos relatos do período persa, e acompanha os retornos associados a Zorobabel, Esdras e Neemias até Jerusalém. Além-do-Rio é mostrada somente como envelope regional aproximado da satrapia, separada do alcance mais amplo do Império Persa; o desenho não reconstitui fronteiras. As datas são aproximadas: a queda da Babilônia ocorreu em 539 a.C.; o retorno inicial é situado após o decreto de Ciro, e a missão de Neemias costuma ser datada por volta de 445/444 a.C., com variação cronológica.",
+  "modernSummary": "As localidades se distribuem pelo atual Irã, Iraque e Levante. Além-do-Rio indica uma região administrativa ampla a oeste do Eufrates, não uma fronteira precisa.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Império Persa",
+    "Aquemênidas",
+    "retorno do exílio",
+    "Zorobabel",
+    "Esdras",
+    "Neemias",
+    "Além-do-Rio",
+    "Susa",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Exílio e retorno",
+  "order": 25,
+  "era": "c.539–432 a.C.; cronologia persa aproximada, com variações de datação",
+  "modernOverview": "O recorte cobre centros nomeados nos livros bíblicos e marcos ligados ao domínio aquemênida. Babilônia e Jerusalém têm pontos de referência textuais; Susa e Ecbátana têm geocódigos explícitos. Persépolis é incluída como capital histórica, mas não recebe pino por não haver coordenada numérica retida adequada para este mapa. A satrapia de Além-do-Rio não é o Império Persa inteiro: seu envelope é esquemático, aproximado, associado ao ano de referência c.539 a.C. e não é fronteira exata. O itinerário de Ahava não é marcado, pois a identificação do rio/localização é incerta. A cronologia do retorno e do governo de Neemias admite variações.",
+  "keyReferences": [
+    {
+      "book": "Ezra",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 4,
+      "label": "Edicto de Ciro e retorno — Ed 1:1–4"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Retorno com Zorobabel — Ed 2:1–2"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 7,
+      "verseStart": 6,
+      "verseEnd": 10,
+      "label": "Missão de Esdras — Ed 7:6–10"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 8,
+      "verseStart": 15,
+      "verseEnd": 31,
+      "label": "Partida de Esdras e travessia — Ed 8:15–31"
+    },
+    {
+      "book": "Neh",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "Neemias recebe autorização — Ne 2:1–9"
+    },
+    {
+      "book": "Dan",
+      "chapter": 8,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Visão em Susa — Dn 8:1–2"
+    }
+  ],
+  "aliases": [
+    "Retorno do exílio",
+    "Império Aquemênida",
+    "Susa",
+    "Susã",
+    "Ecbátana",
+    "Babilônia",
+    "Jerusalém",
+    "Além-do-Rio",
+    "Zorobabel",
+    "Esdras",
+    "Neemias"
+  ],
+  "references": [
+    {
+      "book": "Ezra",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 4,
+      "label": "Edicto de Ciro — Ed 1:1–4"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Lista dos que retornaram — Ed 2:1–2"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 4,
+      "verseStart": 6,
+      "verseEnd": 10,
+      "label": "Correspondência sob o domínio persa — Ed 4:6–10"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 7,
+      "verseStart": 6,
+      "verseEnd": 10,
+      "label": "Esdras parte da Babilônia — Ed 7:6–10"
+    },
+    {
+      "book": "Ezra",
+      "chapter": 8,
+      "verseStart": 15,
+      "verseEnd": 31,
+      "label": "A reunião junto ao rio e a jornada — Ed 8:15–31"
+    },
+    {
+      "book": "Neh",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 4,
+      "label": "Neemias em Susa — Ne 1:1–4"
+    },
+    {
+      "book": "Neh",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "Permissão real e passagem Além-do-Rio — Ne 2:1–9"
+    },
+    {
+      "book": "Dan",
+      "chapter": 8,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Susa na visão de Daniel — Dn 8:1–2"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Coordenadas plotadas na ordem [longitude, latitude], somente de pares numéricos explícitos sem marcadores de aproximação: Susa (32.18919123705116,48.25788647687722), Ecbatana (34.798311,48.514966), Babylon (32.53650368616845,44.42088287373876), Jerusalem (31.777444,35.234935), Damascus (33.519299,36.31344999999999), Hamath (35.136204,36.749488), Sidon (33.56316734135746,35.36634649354799) e Gaza (31.52481769532773,34.4333647185274). A chave Beyond the River possui coordenadas de envelope (>) e não é usada como pino."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "As referências situam somente os lugares explicitamente relacionados nos textos. Paráfrases originais; referências contextuais não são apresentadas como prova de coordenadas ou de cronologia absoluta."
+    },
+    {
+      "id": "history",
+      "title": "Encyclopaedia Iranica — Persepolis",
+      "url": "https://www.iranicaonline.org/articles/persepolis/",
+      "license": "Copyright Encyclopaedia Iranica; identificação bibliográfica e factual, sem reprodução textual",
+      "note": "A capital aquemênida Persépolis é incluída como contexto histórico. Como não há par numérico de coordenadas retido autorizado para ela, nenhum pino é atribuído. Ed 1:1 é citado apenas como contexto do edito de Ciro, não como menção bíblica a Persépolis."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "O polígono é um envelope regional esquemático para orientação, não reconstitui a satrapia, não separa jurisdições locais e não é fronteira exata. Império persa e satrapia de Além-do-Rio são conceitos distintos."
+    }
+  ],
+  "places": [
+    {
+      "id": "susa",
+      "name": "Susa (Susã)",
+      "modernName": "Shush, província do Cuzistão, Irã",
+      "coordinates": [
+        48.25788647687722,
+        32.18919123705116
+      ],
+      "certainty": "probable",
+      "explanation": "Neemias situa sua residência na cidadela de Susa, e Daniel localiza ali uma visão. O ponto reproduz exatamente a chave Susa de OpenBible; a coordenada é de referência e não identifica um edifício específico.",
+      "references": [
+        {
+          "book": "Neh",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 4,
+          "label": "Neemias em Susa — Ne 1:1–4"
+        },
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Visão de Daniel em Susa — Dn 8:1–2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "persepolis",
+      "name": "Persépolis",
+      "modernName": "Takht-e Jamshid, província de Fars, Irã",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Persépolis é incluída como centro histórico aquemênida, não como local nomeado nos relatos do retorno. Não há coordenada numérica elegível nas evidências geográficas retidas; Ed 1:1 é referência contextual ao edito de Ciro, não prova de que o edito ocorreu aqui.",
+      "references": [
+        {
+          "book": "Ezra",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 4,
+          "label": "Contexto imperial do edito de Ciro — Ed 1:1–4"
+        }
+      ],
+      "sourceIds": [
+        "history",
+        "biblical"
+      ]
+    },
+    {
+      "id": "ecbatana",
+      "name": "Ecbátana",
+      "modernName": "Hamadan, Irã",
+      "coordinates": [
+        48.514966,
+        34.798311
+      ],
+      "certainty": "probable",
+      "explanation": "Ed 6:2 identifica Ecbátana como local onde foi encontrado o registro real; o ponto usa a chave Ecbatana de OpenBible. A referência não situa ali o retorno judaíta.",
+      "references": [
+        {
+          "book": "Ezra",
+          "chapter": 6,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Busca do registro em Ecbátana — Ed 6:1–2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "babylon",
+      "name": "Babilônia",
+      "modernName": "Sítio arqueológico de Babilônia, Iraque",
+      "coordinates": [
+        44.42088287373876,
+        32.53650368616845
+      ],
+      "certainty": "probable",
+      "explanation": "Os grupos retornam da Babilônia e Esdras parte de lá. Coordenada da chave Babylon; o ponto não delimita a cidade antiga nem a extensão do cativeiro.",
+      "references": [
+        {
+          "book": "Ezra",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Retorno da Babilônia — Ed 2:1"
+        },
+        {
+          "book": "Ezra",
+          "chapter": 7,
+          "verseStart": 6,
+          "verseEnd": 9,
+          "label": "Partida de Esdras — Ed 7:6–9"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "Jerusalém é destino dos retornados e lugar da missão de reconstrução de Neemias. A coordenada é o ponto de referência da chave Jerusalem, não um marcador de um portão ou edifício particular.",
+      "references": [
+        {
+          "book": "Ezra",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Chegada dos retornados — Ed 2:1–2"
+        },
+        {
+          "book": "Neh",
+          "chapter": 2,
+          "verseStart": 11,
+          "verseEnd": 18,
+          "label": "Neemias chega a Jerusalém — Ne 2:11–18"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "ahava",
+      "name": "Rio de Ahava",
+      "modernName": "Localização e curso não identificados com segurança",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Esdras reúne o grupo junto a Ahava e dali parte, mas a identificação geográfica do rio permanece incerta. A chave OpenBible oferece um ponto sem marcador, porém não é adotada como pino por não resolver essa identificação.",
+      "references": [
+        {
+          "book": "Ezra",
+          "chapter": 8,
+          "verseStart": 15,
+          "verseEnd": 31,
+          "label": "Reunião e jornada a partir de Ahava — Ed 8:15–31"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "beyond-the-river",
+      "name": "Além-do-Rio (satrapia)",
+      "modernName": "Província persa a oeste do Eufrates; extensão aproximada",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Além-do-Rio é uma designação administrativa regional nos livros de Esdras e Neemias, aqui desenhada como envelope ilustrativo associado ao período c.539 a.C. Não é a extensão do Império Persa, não fixa limites territoriais e não é fronteira exata.",
+      "references": [
+        {
+          "book": "Ezra",
+          "chapter": 4,
+          "verseStart": 10,
+          "verseEnd": 20,
+          "label": "Correspondência de Além-do-Rio — Ed 4:10–20"
+        },
+        {
+          "book": "Neh",
+          "chapter": 2,
+          "verseStart": 7,
+          "verseEnd": 9,
+          "label": "Passagem por Além-do-Rio — Ne 2:7–9"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "editorial"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "beyond-the-river-envelope",
+      "label": "Além-do-Rio — envelope regional aproximado, referência c.539 a.C.",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.4333647185274,
+          31.52481769532773
+        ],
+        [
+          35.234935,
+          31.777444
+        ],
+        [
+          35.36634649354799,
+          33.56316734135746
+        ],
+        [
+          36.749488,
+          35.136204
+        ],
+        [
+          36.31344999999999,
+          33.519299
+        ]
+      ],
+      "explanation": "Envelope editorial muito aproximado da região de Além-do-Rio, usando apenas vértices de referência com coordenadas documentadas. Referência temporal c.539 a.C.; não é fronteira exata e não representa uma linha jurídica, linha jurídica ou reconstituição da satrapia, e não deve ser confundido com o Império Persa inteiro.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "return-from-babylon",
+      "label": "Babilônia a Jerusalém — sequência narrativa esquemática",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          44.42088287373876,
+          32.53650368616845
+        ],
+        [
+          35.234935,
+          31.777444
+        ]
+      ],
+      "explanation": "Conexão esquemática entre os topônimos de origem e destino citados no relato. Não representa estrada, itinerário reconstituído ou trajeto histórico exato.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "babylon",
+      "title": "Decreto e retorno",
+      "text": "O relato apresenta a autorização de Ciro e identifica a comunidade que parte do exílio babilônico.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 4,
+        "label": "Ed 1:1–4"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Zorobabel e os primeiros retornados",
+      "text": "A lista de retorno associa a chegada a Jerusalém a Zorobabel e Jesua; os números literários não definem por si sós uma data absoluta.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Ed 2:1–2"
+      }
+    },
+    {
+      "placeId": "susa",
+      "title": "Neemias na corte persa",
+      "text": "Neemias recebe em Susa notícias de Jerusalém e passa a pedir autorização ao rei.",
+      "reference": {
+        "book": "Neh",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 4,
+        "label": "Ne 1:1–4"
+      }
+    },
+    {
+      "placeId": "ecbatana",
+      "title": "Registro real encontrado",
+      "text": "A busca ordenada durante a reconstrução encontra um registro em Ecbátana, mencionado como arquivo real.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 6,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Ed 6:1–2"
+      }
+    },
+    {
+      "placeId": "beyond-the-river",
+      "title": "Província além do Eufrates",
+      "text": "A correspondência oficial usa o nome Além-do-Rio para uma região administrativa; o envelope do mapa não equivale ao Império Persa nem a fronteiras exatas.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 4,
+        "verseStart": 10,
+        "verseEnd": 20,
+        "label": "Ed 4:10–20"
+      }
+    },
+    {
+      "placeId": "ahava",
+      "title": "Travessia sem pino",
+      "text": "Esdras relata a reunião junto a Ahava e a partida para Jerusalém; a localização não identificada permanece sem marcador.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 8,
+        "verseStart": 15,
+        "verseEnd": 31,
+        "label": "Ed 8:15–31"
+      }
+    },
+    {
+      "placeId": "persepolis",
+      "title": "Capital aquemênida em contexto",
+      "text": "Persépolis aparece como referência histórica ao domínio aquemênida, não como cenário indicado pelo texto do retorno; por isso permanece sem pino geográfico.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 4,
+        "label": "Contexto do edito — Ed 1:1–4"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Neemias ouviu em Susa que os sobreviventes em Judá estavam em dificuldade; o início de sua missão parte de uma notícia recebida na corte, não de uma ordem inicial para reconstruir muralhas.",
+      "reference": {
+        "book": "Neh",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 4,
+        "label": "Ne 1:1–4"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "O texto localiza o registro consultado em Ecbátana e reproduz seu conteúdo em conexão com o decreto atribuído a Ciro.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 6,
+        "verseStart": 1,
+        "verseEnd": 5,
+        "label": "Ed 6:1–5"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Esdras interrompe a jornada em Ahava para reunir levitas e organizar o grupo; a fonte geográfica retida não resolve com segurança onde ficava esse rio.",
+      "reference": {
+        "book": "Ezra",
+        "chapter": 8,
+        "verseStart": 15,
+        "verseEnd": 21,
+        "label": "Ed 8:15–21"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Além-do-Rio é um rótulo provincial em documentos narrativos persas, enquanto o império aquemênida abrangia territórios muito mais extensos; este mapa separa deliberadamente os dois conceitos.",
+      "reference": {
+        "book": "Neh",
+        "chapter": 2,
+        "verseStart": 7,
+        "verseEnd": 9,
+        "label": "Ne 2:7–9"
+      },
+      "sourceIds": [
+        "biblical",
+        "editorial"
+      ]
+    }
+  ],
+  "bounds": [
+    34.4333647185274,
+    31.52481769532773,
+    48.514966,
+    35.136204
+  ],
+  "review": {
+    "date": "2026-06-10",
+    "status": "needs-specialist",
+    "verified": [
+      "Pares numéricos plotados somente para chaves documentadas e sem marcadores de aproximação no arquivo de evidências retido.",
+      "Ahava sem pino; Ecbátana, Babilônia, Jerusalém e Susa com coordenadas documentadas.",
+      "Além-do-Rio tratado como satrapia regional aproximada, separada do envelope imperial."
+    ],
+    "uncertainties": [
+      "Persépolis não dispõe de coordenada numérica elegível nas evidências geográficas retidas.",
+      "A identificação de Ahava permanece incerta.",
+      "O envelope de Além-do-Rio é ilustrativo, a referência c.539 a.C. não descreve fronteira exata e os limites provinciais variaram ao longo do período.",
+      "Datas de retornos e da missão de Neemias variam conforme reconstruções cronológicas."
+    ],
+    "methodology": "Pinos reproduzem somente pares numéricos sem marcadores de aproximação do arquivo de evidências retido; outros lugares permanecem sem coordenadas. Vértices do envelope vêm de pontos documentados e não pretendem descrever fronteiras. Referências bíblicas situam o relato sem converter narrativa em prova cartográfica."
+  }
+}

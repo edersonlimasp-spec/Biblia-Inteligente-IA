@@ -1,0 +1,316 @@
+{
+  "id": "solomon-temple-lavers",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Templo de Salomão",
+  "testament": "AT",
+  "books": [
+    "1Kgs",
+    "2Chr"
+  ],
+  "characters": [
+    "Salomão",
+    "Hirão"
+  ],
+  "period": "Equipamentos de bronze do Templo de Salomão",
+  "title": "Templo de Salomão: dez pias",
+  "subtitle": "Pias de bronze sobre bases móveis; 40 batos cada",
+  "summary": "O relato apresenta dez pias de bronze, cada uma com capacidade de quarenta batos e a medida de quatro côvados, colocadas uma por base. Crônicas informa que eram usadas para lavar o que pertencia ao holocausto. O texto não especifica em 1 Reis qual eixo recebe a medida de quatro côvados.",
+  "purpose": "Segundo Crônicas, as pias serviam para lavar os objetos relacionados às ofertas queimadas, enquanto o grande mar era usado pelos sacerdotes para se lavarem (2Cr 4:6). Essa distinção descreve o serviço cultual no antigo Israel, sem atribuir função adicional não declarada.",
+  "modernSummary": "A dimensão de quatro côvados é preservada sem supor se designa diâmetro, altura ou outra extensão.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": [
+    "pias",
+    "lavatórios",
+    "bronze",
+    "40 batos",
+    "bases",
+    "Templo de Salomão"
+  ],
+  "section": "solomon-temple",
+  "subsection": "Equipamentos de bronze",
+  "order": 10,
+  "era": "Reinado de Salomão, conforme a narrativa bíblica",
+  "modernOverview": "O texto relata quantidade, capacidade, medida de quatro côvados, material e posição sobre as bases; não identifica qual eixo mede quatro côvados.",
+  "keyReferences": [
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 38,
+      "label": "1Rs 7:38"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 6,
+      "label": "2Cr 4:6"
+    }
+  ],
+  "aliases": [
+    "lavatórios do templo",
+    "pias de bronze"
+  ],
+  "references": [
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 38,
+      "label": "1Rs 7:38"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 6,
+      "label": "2Cr 4:6"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Texto bíblico ACF consultado em server/bible-data",
+      "url": "https://www.bible.com/pt/bible/212/1KI.7.ACF",
+      "license": "Referências e paráfrases originais; sem reprodução extensa da tradução",
+      "note": "1Rs 7:38–39 e 2Cr 4:6 conferidos na ACF local; paráfrases e SVG próprios."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "basin",
+      "title": "Recipiente de bronze",
+      "text": "Cada uma das dez pias era de bronze e tinha a medida reportada de quatro côvados, sem eixo explicitado no versículo.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 38,
+        "label": "1Rs 7:38"
+      }
+    },
+    {
+      "placeId": "basin",
+      "title": "Capacidade registrada",
+      "text": "O texto atribui quarenta batos de capacidade a cada pia; não define o volume métrico do bato.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 38,
+        "label": "1Rs 7:38"
+      }
+    },
+    {
+      "placeId": "support",
+      "title": "Uma pia por base",
+      "text": "Cada recipiente era colocado sobre uma das dez bases móveis descritas no mesmo conjunto de obras.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 38,
+        "verseEnd": 39,
+        "label": "1Rs 7:38–39"
+      }
+    },
+    {
+      "placeId": "use",
+      "title": "Lavagem de peças",
+      "text": "Crônicas distingue a lavagem do que pertencia ao holocausto nas pias da lavagem sacerdotal no mar.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 6,
+        "label": "2Cr 4:6"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A capacidade indicada é quarenta batos para cada uma das dez pias; a equivalência em litros não está definida pela passagem.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 38,
+        "label": "1Rs 7:38"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "A tradução ACF registra que cada pia era “de quatro côvados”, mas não explicita a dimensão geométrica correspondente.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 38,
+        "label": "1Rs 7:38"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Crônicas diferencia a função das pias daquela do mar: peças relacionadas ao holocausto eram lavadas nas pias e os sacerdotes no mar.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 6,
+        "label": "2Cr 4:6"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "solomon-temple-lavers.svg",
+    "dimensions": [
+      {
+        "label": "Medida reportada por pia",
+        "cubits": 4,
+        "note": "O texto informa quatro côvados, mas não especifica se é altura, diâmetro ou outra dimensão; 4 côvados ≈ 1,80 m como conversão nominal.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 7,
+          "verseStart": 38,
+          "label": "1Rs 7:38"
+        }
+      },
+      {
+        "label": "Capacidade por pia",
+        "reportedValue": "40 batos",
+        "note": "Quarenta batos; a passagem não fixa conversão métrica do bato.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 7,
+          "verseStart": 38,
+          "label": "1Rs 7:38"
+        }
+      }
+    ],
+    "notes": [
+      "Côvado comum ≈ 0,45 m é apenas a conversão de referência; côvado longo ≈ 0,52 m é uma estimativa, e Ez 40:5 apresenta uma cana de seis côvados acrescida de um palmo. 2Cr 3:3 menciona a primeira medida antiga sem fixar equivalência métrica.",
+      "Desenho vetorial didático baseado em referências textuais; não é reconstrução arqueológica. Elementos sem medida textual são esquemáticos e não devem ser lidos em escala.",
+      "Silhueta de 1,70 m apenas como referência gráfica moderna, sem pretensão de representar uma pessoa histórica.",
+      "A silhueta da bacia e do suporte usa contorno tracejado; o perfil específico, o eixo associado à medida de quatro côvados e a capacidade em litros não são reconstruídos.",
+      "A imagem mostra uma unidade representativa; o total textual é dez pias, uma sobre cada uma das dez bases.",
+      "A ACF local chama as pias de “cobre” (1Rs 7:38) e descreve as bases como cobre (1Rs 7:27); “bronze” é rótulo descritivo convencional, não análise da liga."
+    ],
+    "relatedIds": [
+      "solomon-temple-wheeled-bases",
+      "solomon-temple-overview"
+    ],
+    "parts": [
+      {
+        "id": "basin",
+        "name": "Pia de bronze",
+        "description": "Uma de dez pias; quarenta batos de capacidade e medida textual de quatro côvados sem eixo especificado.",
+        "cubits": 4,
+        "material": "Bronze/cobre conforme a descrição ACF; a liga exata não é especificada.",
+        "references": [
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 38,
+            "label": "1Rs 7:38"
+          }
+        ],
+        "highlight": {
+          "x": 53,
+          "y": 44,
+          "width": 34,
+          "height": 19
+        }
+      },
+      {
+        "id": "support",
+        "name": "Base de suporte",
+        "description": "Cada pia repousava sobre uma das dez bases. Silhueta em tracejado esquemático; proporções sem cota: medida não informada no texto.",
+        "material": "Bronze/cobre conforme a descrição ACF; a liga exata não é especificada.",
+        "references": [
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 38,
+            "label": "1Rs 7:38"
+          },
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 27,
+            "verseEnd": 37,
+            "label": "1Rs 7:27–37"
+          }
+        ],
+        "highlight": {
+          "x": 46,
+          "y": 64,
+          "width": 33,
+          "height": 27
+        }
+      },
+      {
+        "id": "use",
+        "name": "Lavagem de objetos do holocausto",
+        "description": "Crônicas associa as pias à lavagem do que pertencia ao holocausto; sem detalhe sobre quais objetos.",
+        "material": "Água; recipiente de cobre/bronze conforme 1Rs 7:38",
+        "references": [
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 38,
+            "label": "1Rs 7:38"
+          },
+          {
+            "book": "2Chr",
+            "chapter": 4,
+            "verseStart": 6,
+            "label": "2Cr 4:6"
+          }
+        ],
+        "highlight": {
+          "x": 53,
+          "y": 48,
+          "width": 0,
+          "height": 0
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "solomon-temple-lavers-planta.svg"
+      },
+      {
+        "label": "Frente",
+        "svgFile": "solomon-temple-lavers-frente.svg"
+      },
+      {
+        "label": "Corte",
+        "svgFile": "solomon-temple-lavers-corte.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "solomon-temple-lavers-isometrica.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-16",
+    "status": "documented",
+    "verified": [
+      "1Rs 7:38: dez pias, quarenta batos por pia, quatro côvados, uma sobre cada base",
+      "2Cr 4:6: pias para lavar o que pertencia ao holocausto"
+    ],
+    "uncertainties": [
+      "1Rs 7:38 não explicita qual eixo da pia mede quatro côvados.",
+      "O texto não dá forma precisa da bacia, espessura ou conversão métrica do bato."
+    ],
+    "methodology": "Conferência direta de 1Rs 7:38–39 e 2Cr 4:6 na ACF local, server/bible-data/1ki.ts e 2ch.ts. Silhueta vetorial marcada como esquemática."
+  }
+}

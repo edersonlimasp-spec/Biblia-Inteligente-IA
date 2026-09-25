@@ -20,7 +20,7 @@
   "summary": "A divisão de Reis separa o reino do norte, Israel, de Judá ao sul. Siquém e depois Samaria ilustram mudanças no centro político setentrional; Jerusalém permanece central para Judá. As áreas não representam um ano preciso e não incluem todas as expansões ou perdas territoriais.",
   "modernSummary": "Recorte do sul do Levante, hoje Israel, território palestino ocupado, Jordânia e áreas vizinhas. Os nomes históricos Israel e Judá não são limites dos Estados atuais.",
   "certainty": "debated",
-  "sample": true,
+  "sample": false,
   "keywords": [
     "O reino dividido",
     "1Kgs",
@@ -360,6 +360,83 @@
     30.7,
     36.6,
     33.7
+  ],
+  "storySteps": [
+    {
+      "placeId": "shechem",
+      "title": "Siquém",
+      "text": "Roboão vai a Siquém, onde todo Israel se reúne para fazê-lo rei.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 12,
+        "verseStart": 1,
+        "label": "1Kgs 12:1"
+      }
+    },
+    {
+      "placeId": "dan",
+      "title": "Dã",
+      "text": "Jeroboão coloca um dos bezerros em Dã como centro do culto do reino do norte.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 12,
+        "verseStart": 29,
+        "label": "1Kgs 12:29"
+      }
+    },
+    {
+      "placeId": "samaria",
+      "title": "Samaria",
+      "text": "Onri compra o monte de Samaria e estabelece ali a capital do reino do norte.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 16,
+        "verseStart": 24,
+        "label": "1Kgs 16:24"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Siquém é o lugar da reunião em que Roboão responde ao povo após a morte de Salomão.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 12,
+        "verseStart": 1,
+        "verseEnd": 16,
+        "label": "1Kgs 12:1–16"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Samaria foi fundada por Onri depois da compra do monte de Semer.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 16,
+        "verseStart": 24,
+        "label": "1Kgs 16:24"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "O relato da queda de Samaria atribui a deportação ao rei da Assíria.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 6,
+        "label": "2Kgs 17:6"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
   ],
   "review": {
     "date": "2026-09-24",

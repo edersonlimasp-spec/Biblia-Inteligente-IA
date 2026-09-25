@@ -1,0 +1,96 @@
+{
+  "id":"solomon-temple-holy-place",
+  "version":"1",
+  "kind":"illustration",
+  "category":"Templo de Salomão",
+  "testament":"AT",
+  "books":["1Kgs","2Chr"],
+  "characters":["Salomão"],
+  "period":"Reinado de Salomão",
+  "title":"Templo de Salomão: Lugar Santo",
+  "subtitle":"Hekal — revestimentos, portas e mobiliário descrito",
+  "summary":"O Lugar Santo, chamado templo anterior ao oráculo em 1 Reis, tinha 40 côvados de comprimento. Cedro revestia as paredes, cipreste formava o piso e a casa era revestida de ouro. O texto também registra dez candelabros, dez mesas, altar de ouro e portas de cipreste com folhas dobráveis.",
+  "purpose":"Era o espaço de serviço sacerdotal diante do debir. O texto descreve seus acabamentos e mobiliário; a ilustração situa os objetos de maneira orientativa, sem afirmar posições detalhadas ou dimensões que as passagens não dão.",
+  "modernSummary":"O comprimento de 40 côvados é textual; planta exata, dimensões do mobiliário e muitas posições internas não são fornecidas. Elementos não cotados aparecem tracejados e esquemáticos.",
+  "certainty":"established",
+  "sample":false,
+  "keywords":["Lugar Santo","hekal","cedro","cipreste","ouro","candelabros","mesas","incenso"],
+  "section":"solomon-temple",
+  "subsection":"Templo de Salomão",
+  "order":4,
+  "era":"Monarquia unida — Salomão",
+  "modernOverview":"A descrição textual fundamenta revestimentos, piso, mobiliário e portas. O desenho distingue o comprimento do hekal e o uso do ouro dos detalhes em que o texto não fixa dimensões ou implantação precisa.",
+  "keyReferences":[
+    {"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":18,"label":"1Rs 6:15–18"},
+    {"book":"1Kgs","chapter":6,"verseStart":21,"verseEnd":22,"label":"1Rs 6:21–22"},
+    {"book":"1Kgs","chapter":6,"verseStart":33,"verseEnd":35,"label":"1Rs 6:33–35"},
+    {"book":"1Kgs","chapter":7,"verseStart":48,"verseEnd":49,"label":"1Rs 7:48–49"},
+    {"book":"2Chr","chapter":4,"verseStart":7,"verseEnd":8,"label":"2Cr 4:7–8"}
+  ],
+  "aliases":["hekal","templo anterior","santuário principal"],
+  "references":[
+    {"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":22,"label":"1Rs 6:15–22"},
+    {"book":"1Kgs","chapter":6,"verseStart":33,"verseEnd":35,"label":"1Rs 6:33–35"},
+    {"book":"1Kgs","chapter":7,"verseStart":48,"verseEnd":49,"label":"1Rs 7:48–49"},
+    {"book":"2Chr","chapter":4,"verseStart":7,"verseEnd":8,"label":"2Cr 4:7–8"}
+  ],
+  "sources":[
+    {"id":"biblical","title":"Texto bíblico ACF local e referências (paráfrases originais)","url":"https://www.bible.com/pt/bible/212/1KI.6.ACF","license":"Referências e paráfrases próprias; não reproduz texto protegido","note":"Materiais e mobiliário conferidos em 1 Reis 6–7 e 2 Crônicas 4. SVGs esquemáticos originais, sem atribuir escala a peças não mensuradas."}
+  ],
+  "places":[],
+  "overlays":[],
+  "storySteps":[
+    {"placeId":"cedar","title":"Paredes de cedro esculpido","text":"As paredes interiores eram cobertas com cedro; Reis descreve botões e flores abertas entalhados, sem determinar a quantidade ou o desenho de cada motivo.","reference":{"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":18,"label":"1Rs 6:15–18"}},
+    {"placeId":"floor","title":"Piso de cipreste e ouro","text":"O piso era feito com tábuas de cipreste; o relato acrescenta que Salomão revestiu de ouro o interior da casa, inclusive o chão.","reference":{"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":22,"label":"1Rs 6:15–22"}},
+    {"placeId":"lampstands","title":"Dez candelabros","text":"Reis registra cinco candelabros à direita e cinco à esquerda, diante do oráculo. As dimensões e as posições individuais desenhadas são esquemáticas.","reference":{"book":"1Kgs","chapter":7,"verseStart":49,"label":"1Rs 7:49"}},
+    {"placeId":"gold-altar","title":"Altar de ouro","text":"Reis menciona um altar de ouro e uma mesa de ouro; nesta passagem não identifica o altar como altar de incenso nem dá suas dimensões.","reference":{"book":"1Kgs","chapter":7,"verseStart":48,"label":"1Rs 7:48"}},
+    {"placeId":"tables","title":"Dez mesas em Crônicas","text":"Crônicas registra dez mesas no templo, cinco à direita e cinco à esquerda; 1 Reis 7:48 menciona uma mesa de ouro no singular. As passagens são apresentadas sem harmonizar essa diferença silenciosamente.","reference":{"book":"2Chr","chapter":4,"verseStart":8,"label":"2Cr 4:8"}},
+    {"placeId":"doors","title":"Portas de cipreste","text":"A entrada do templo tinha duas folhas de cipreste articuladas por dobradiças, entalhadas e revestidas de ouro. O texto não dá dimensões às folhas.","reference":{"book":"1Kgs","chapter":6,"verseStart":33,"verseEnd":35,"label":"1Rs 6:33–35"}}
+  ],
+  "curiosities":[
+    {"text":"O comprimento de quarenta côvados é dado ao templo anterior ao oráculo; o texto não fornece nesta frase as dimensões completas do mobiliário.","reference":{"book":"1Kgs","chapter":6,"verseStart":17,"label":"1Rs 6:17"},"sourceIds":["biblical"]},
+    {"text":"As paredes de cedro eram entalhadas com motivos descritos como botões e flores abertas; a passagem diz que nenhuma pedra ficava visível por dentro.","reference":{"book":"1Kgs","chapter":6,"verseStart":18,"label":"1Rs 6:18"},"sourceIds":["biblical"]},
+    {"text":"Reis registra dez candelabros de ouro, cinco de cada lado diante do oráculo; a disposição dos itens dentro do lado não é dimensionada.","reference":{"book":"1Kgs","chapter":7,"verseStart":49,"label":"1Rs 7:49"},"sourceIds":["biblical"]},
+    {"text":"Crônicas registra dez mesas no templo, cinco à direita e cinco à esquerda; 1 Reis 7:48 menciona uma mesa de ouro para os pães da proposição.","reference":{"book":"2Chr","chapter":4,"verseStart":8,"label":"2Cr 4:8"},"sourceIds":["biblical"]},
+    {"text":"A porta do templo é descrita com folhas de cipreste dobráveis e entalhes dourados; o relato não informa as dimensões das folhas.","reference":{"book":"1Kgs","chapter":6,"verseStart":33,"verseEnd":35,"label":"1Rs 6:33–35"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"solomon-temple-holy-place.svg",
+    "dimensions":[
+      {"label":"Lugar Santo (hekal) — comprimento","cubits":40,"note":"Cota do espaço anterior ao oráculo; côvado comum ≈ 0,45 m.","reference":{"book":"1Kgs","chapter":6,"verseStart":17,"label":"1Rs 6:17"}},
+      {"label":"Largura do corpo da casa","cubits":20,"note":"Cota dada para a casa em 1Rs 6:2; usada como referência do esquema, não como largura de cada móvel.","reference":{"book":"1Kgs","chapter":6,"verseStart":2,"label":"1Rs 6:2"}},
+      {"label":"Candelabros de ouro","reportedValue":"10 (5 + 5)","note":"10 unidades, cinco à direita e cinco à esquerda; dimensões individuais não informadas no texto.","reference":{"book":"1Kgs","chapter":7,"verseStart":49,"label":"1Rs 7:49"}},
+      {"label":"Mesas","reportedValue":"10 (5 + 5)","note":"10 unidades, cinco à direita e cinco à esquerda em Crônicas; medidas individuais não informadas no texto.","reference":{"book":"2Chr","chapter":4,"verseStart":8,"label":"2Cr 4:8"}},
+      {"label":"Dimensões do altar de ouro","note":"medida não informada no texto nas referências usadas para o Lugar Santo; 1Rs 7:48 identifica o altar como de ouro, sem denominá-lo aqui altar de incenso.","reference":{"book":"1Kgs","chapter":7,"verseStart":48,"label":"1Rs 7:48"}}
+    ],
+    "notes":[
+      "O hekal mede 40 côvados de comprimento; largura de referência 20 côvados é a da casa em 1Rs 6:2. Conversão aproximada: côvado comum ≈ 0,45 m.",
+      "2Cr 3:3 usa 'côvados da primeira medida' (medida antiga); Ez 40:5 descreve um côvado e um palmo adicional na cana, relacionado à estimativa longa ≈ 0,52 m. Conversões métricas não são medidas bíblicas exatas.",
+      "Móveis são mostrados em arranjo orientativo. O texto informa suas contagens e lados em passagens específicas, mas não fornece dimensões individuais para candelabros, mesas ou altar de ouro.",
+      "A silhueta de 1,70 m é referência visual humana, não dado textual; símbolos de cedro, cipreste, entalhes e ouro são representações gráficas originais."
+    ],
+    "relatedIds":["solomon-temple-overview","solomon-temple-plan"],
+    "views":[
+      {"label":"Vista 3/4","svgFile":"solomon-temple-holy-place.svg"},
+      {"label":"Planta","svgFile":"solomon-temple-holy-place-planta.svg"},
+      {"label":"Frente","svgFile":"solomon-temple-holy-place-frente.svg"},
+      {"label":"Corte","svgFile":"solomon-temple-holy-place-corte.svg"}
+    ],
+    "parts":[
+      {"id":"cedar","name":"Paredes de cedro entalhadas","description":"Revestimento interno de cedro com entalhes de botões e flores. O padrão, as dimensões e a distribuição precisa dos relevos são esquemáticos.","material":"Cedro #7A4E2D, revestido de ouro em partes descritas","references":[{"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":18,"label":"1Rs 6:15–18"}],"highlight":{"x":20.83,"y":43.13,"width":0,"height":0}},
+      {"id":"floor","name":"Piso de cipreste revestido de ouro","description":"O piso era de cipreste; o relato diz que o soalho da casa foi revestido de ouro, sem informar espessura.","material":"Cipreste e ouro","references":[{"book":"1Kgs","chapter":6,"verseStart":15,"label":"1Rs 6:15"},{"book":"1Kgs","chapter":6,"verseStart":30,"label":"1Rs 6:30"}],"highlight":{"x":28.06,"y":72.29,"width":0,"height":0}},
+      {"id":"lampstands","name":"Dez candelabros","description":"Dez peças de ouro, cinco à direita e cinco à esquerda diante do oráculo. Forma e dimensões não são dadas nas referências citadas.","material":"Ouro finíssimo","references":[{"book":"1Kgs","chapter":7,"verseStart":49,"label":"1Rs 7:49"},{"book":"2Chr","chapter":4,"verseStart":7,"label":"2Cr 4:7"}],"highlight":{"x":43.06,"y":56.25,"width":0,"height":0}},
+      {"id":"tables","name":"Dez mesas","description":"Crônicas registra dez mesas no templo, cinco de cada lado. O esquema localiza grupos sem fixar distâncias ou escala de cada mesa.","material":"Ouro na descrição do altar e da mesa em 1Rs 7:48; contagem dez em Crônicas; arranjo não mensurado","references":[{"book":"2Chr","chapter":4,"verseStart":8,"label":"2Cr 4:8"},{"book":"1Kgs","chapter":7,"verseStart":48,"label":"1Rs 7:48"}],"highlight":{"x":56.94,"y":67.5,"width":0,"height":0}},
+      {"id":"gold-altar","name":"Altar de ouro","description":"1 Reis identifica um altar de ouro no interior diante do oráculo; 1Rs 7:48 não o denomina explicitamente altar de incenso, e suas dimensões não são fornecidas nesta descrição.","material":"Ouro","references":[{"book":"1Kgs","chapter":7,"verseStart":48,"label":"1Rs 7:48"}],"highlight":{"x":67.5,"y":65.21,"width":0,"height":0}},
+      {"id":"doors","name":"Portas dobráveis de cipreste","description":"A entrada do templo tinha duas folhas de cipreste articuladas por dobradiças, entalhadas e revestidas de ouro; a descrição também registra outra porta com duas folhas articuladas.","material":"Cipreste entalhado e ouro","references":[{"book":"1Kgs","chapter":6,"verseStart":33,"verseEnd":35,"label":"1Rs 6:33–35"}],"highlight":{"x":76.53,"y":46.25,"width":0,"height":0}}
+    ]
+  },
+  "review":{
+    "date":"2026-10-18",
+    "status":"documented",
+    "verified":["1Rs 6:15–18, 21–22, 30: cedro, cipreste, entalhes e revestimento de ouro","1Rs 6:33–35: portas de cipreste dobráveis e entalhes dourados","1Rs 7:48–49 e 2Cr 4:7–8: altar, dez candelabros e dez mesas"],
+    "uncertainties":["A planta exata e a posição individual de cada peça dentro do hekal não são estabelecidas pelas referências; mobiliário é esquemático.","O dimensionamento de candelabros, mesas, altar de ouro, portas e entalhes não é fornecido nas passagens citadas.","Reis registra a mesa de ouro no singular (1Rs 7:48), enquanto Crônicas enumera dez mesas (2Cr 4:8); as duas descrições são mantidas e não harmonizadas em silêncio."],
+    "methodology":"Conferido com ACF local em server/bible-data/1ki.ts e 2ch.ts. Distinção explícita entre cotas, contagens e esquemas não dimensionados; vetores autorais."
+  }
+}

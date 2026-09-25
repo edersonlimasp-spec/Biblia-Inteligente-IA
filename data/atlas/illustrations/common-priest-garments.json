@@ -1,0 +1,179 @@
+{
+  "id": "common-priest-garments",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod", "Lev"],
+  "characters": ["Arão", "Filhos de Arão", "Moisés"],
+  "period": "Instruções e investidura sacerdotal no deserto",
+  "title": "Vestes dos sacerdotes comuns",
+  "subtitle": "Túnicas, cintos e tiaras, comparados às vestes adicionais do sumo sacerdote",
+  "summary": "As instruções para os filhos de Arão incluem túnicas, cintos e tiaras; calções de linho são requeridos para Arão e seus filhos. A execução menciona túnicas e tiaras de linho fino, calções de linho fino torcido e cinto bordado em linho, azul, púrpura e carmesim. Em comparação, as vestes do sumo sacerdote incluem ainda o manto azul do éfode, o éfode, o peitoral e a lâmina frontal de ouro.",
+  "purpose": "As peças identificavam e vestiam os sacerdotes no exercício do ofício no santuário. A comparação visual separa o conjunto descrito para os filhos de Arão das peças adicionais descritas para Arão; ela não pretende reconstruir todo o vestuário histórico.",
+  "modernSummary": "A imagem apresenta sacerdotes comuns ao lado do sumo sacerdote com um conjunto adicional distintivo, indicando apenas as peças e materiais descritos nas passagens citadas.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["sacerdotes comuns", "filhos de Arão", "túnicas", "tiaras", "calções", "sumo sacerdote"],
+  "section": "tabernacle",
+  "subsection": "Vestes sacerdotais",
+  "order": 19,
+  "era": "Êxodo e deserto",
+  "modernOverview": "Êxodo diferencia instruções para Arão e para seus filhos e descreve o conjunto de peças comuns e as vestes próprias do sumo sacerdote. Medidas, modelagem e detalhes completos não são fornecidos.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 28, "verseStart": 40, "verseEnd": 43, "label": "Exod 28:40–43"},
+    {"book": "Exod", "chapter": 29, "verseStart": 8, "verseEnd": 9, "label": "Exod 29:8–9"},
+    {"book": "Exod", "chapter": 39, "verseStart": 27, "verseEnd": 29, "label": "Exod 39:27–29"},
+    {"book": "Lev", "chapter": 8, "verseStart": 13, "label": "Lev 8:13"}
+  ],
+  "aliases": ["vestes dos filhos de Arão", "vestes sacerdotais comuns", "túnicas sacerdotais", "sacerdotes do tabernáculo"],
+  "references": [
+    {"book": "Exod", "chapter": 28, "verseStart": 40, "verseEnd": 43, "label": "Exod 28:40–43"},
+    {"book": "Exod", "chapter": 29, "verseStart": 8, "verseEnd": 9, "label": "Exod 29:8–9"},
+    {"book": "Exod", "chapter": 39, "verseStart": 27, "verseEnd": 29, "label": "Exod 39:27–29"},
+    {"book": "Lev", "chapter": 8, "verseStart": 13, "label": "Lev 8:13"}
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Passagens bíblicas — textos ACF locais e referências",
+      "url": "https://ebible.org/web/",
+      "license": "Paráfrases próprias; sem reprodução de trechos de tradução",
+      "note": "Êxodo 28–29 e 39 e Levítico 8 foram conferidos nos arquivos ACF locais server/bible-data/exo.ts e server/bible-data/lev.ts. A comparação visual não pretende completar lacunas das descrições."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "common-tunic",
+      "title": "Conjunto dos filhos de Arão",
+      "text": "As instruções enumeram túnicas, cintos e tiaras para os filhos de Arão, e calções de linho para eles e para Arão.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 40, "verseEnd": 43, "label": "Exod 28:40–43"}
+    },
+    {
+      "placeId": "common-turban",
+      "title": "Vestir e cingir",
+      "text": "No rito de investidura, os filhos receberam túnicas e cintos e tiveram as tiaras ajustadas conforme a instrução.",
+      "reference": {"book": "Exod", "chapter": 29, "verseStart": 8, "verseEnd": 9, "label": "Exod 29:8–9"}
+    },
+    {
+      "placeId": "common-tunic",
+      "title": "Materiais de linho",
+      "text": "A execução registra túnicas de linho fino, tiaras de linho fino e calções de linho fino torcido para Arão e seus filhos.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 27, "verseEnd": 28, "label": "Exod 39:27–28"}
+    },
+    {
+      "placeId": "high-priest-additional-garments",
+      "title": "Comparação com Arão",
+      "text": "Arão também usava o conjunto de vestes de linho, mas as passagens acrescentam para ele o manto azul, o éfode, o peitoral e a lâmina de ouro.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 4, "verseEnd": 5, "label": "Exod 28:4–5"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Para os filhos de Arão, a instrução enumera túnicas, cintos e tiaras; calções de linho são ordenados para eles e para Arão.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 40, "verseEnd": 42, "label": "Exod 28:40–42"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Os calções deviam cobrir dos lombos às coxas ao entrar na tenda ou chegar ao altar para ministrar.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 42, "verseEnd": 43, "label": "Exod 28:42–43"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Na investidura, Moisés vestiu os filhos de Arão com túnicas, cintos e tiaras, em uma sequência distinta da colocação das vestes de Arão.",
+      "reference": {"book": "Exod", "chapter": 29, "verseStart": 5, "verseEnd": 9, "label": "Exod 29:5–9"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "A descrição da execução especifica linho fino para túnicas e tiaras e linho fino torcido para os calções.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 27, "verseEnd": 28, "label": "Exod 39:27–28"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Em contraste, as vestes descritas para Arão incluem manto azul, éfode, peitoral e lâmina de ouro presa à mitra.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 4, "verseEnd": 5, "label": "Exod 28:4–5"},
+      "sourceIds": ["biblical"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "common-priest-garments.svg",
+    "dimensions": [],
+    "notes": [
+      "A comparação é lado a lado: à esquerda, sacerdote comum; à direita, sumo sacerdote com peças adicionais descritas para Arão.",
+      "Não há medidas, formas de corte ou dimensões corporais nas passagens; alturas e proporções são apenas composição visual.",
+      "Não se mostra peitoral detalhado, pedras com inscrições, contagens decorativas nem padrão xadrez do cinto, pois isso excederia o escopo desta comparação."
+    ],
+    "relatedIds": ["high-priest-blue-robe", "high-priest-turban-gold-plate", "high-priest-tunic-sash-undergarments"],
+    "views": [
+      {"label": "Frente", "svgFile": "common-priest-garments.svg"},
+      {"label": "Vista 3/4", "svgFile": "common-priest-garments-vista-3-4.svg"}
+    ],
+    "parts": [
+      {
+        "id": "common-tunic",
+        "name": "Túnica",
+        "description": "Túnica dos filhos de Arão; a execução a identifica como linho fino tecido, sem fornecer modelagem ou dimensões.",
+        "material": "Linho fino",
+        "references": [
+          {"book": "Exod", "chapter": 28, "verseStart": 40, "label": "Exod 28:40"},
+          {"book": "Exod", "chapter": 39, "verseStart": 27, "label": "Exod 39:27"}
+        ],
+        "highlight": {"x": 28, "y": 48, "width": 0, "height": 0}
+      },
+      {
+        "id": "common-belt",
+        "name": "Cinto",
+        "description": "Cinto para os filhos de Arão; o relato da execução descreve obra de bordador com linho fino torcido, azul, púrpura e carmesim.",
+        "material": "Linho fino torcido, azul, púrpura e carmesim",
+        "references": [
+          {"book": "Exod", "chapter": 28, "verseStart": 40, "label": "Exod 28:40"},
+          {"book": "Exod", "chapter": 39, "verseStart": 29, "label": "Exod 39:29"}
+        ],
+        "highlight": {"x": 28, "y": 49, "width": 0, "height": 0}
+      },
+      {
+        "id": "common-turban",
+        "name": "Tiara de linho",
+        "description": "Cobertura da cabeça dos filhos de Arão, chamada tiara nas instruções e feita de linho fino na descrição da execução.",
+        "material": "Linho fino",
+        "references": [
+          {"book": "Exod", "chapter": 28, "verseStart": 40, "label": "Exod 28:40"},
+          {"book": "Exod", "chapter": 39, "verseStart": 28, "label": "Exod 39:28"}
+        ],
+        "highlight": {"x": 28, "y": 19, "width": 0, "height": 0}
+      },
+      {
+        "id": "linen-breeches",
+        "name": "Calções de linho",
+        "description": "Calções para Arão e seus filhos, cobrindo dos lombos às coxas durante o serviço; corte e medidas não informados.",
+        "material": "Linho fino torcido",
+        "references": [
+          {"book": "Exod", "chapter": 28, "verseStart": 42, "verseEnd": 43, "label": "Exod 28:42–43"},
+          {"book": "Exod", "chapter": 39, "verseStart": 28, "label": "Exod 39:28"}
+        ],
+        "highlight": {"x": 28, "y": 69, "width": 0, "height": 0}
+      },
+      {
+        "id": "high-priest-additional-garments",
+        "name": "Peças adicionais de Arão",
+        "description": "Na comparação, o manto azul, éfode, peitoral e lâmina frontal diferenciam o conjunto descrito para o sumo sacerdote.",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 4, "verseEnd": 5, "label": "Exod 28:4–5"}],
+        "highlight": {"x": 72, "y": 43, "width": 0, "height": 0}
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-27",
+    "status": "documented",
+    "verified": ["Exod 28:40–43 conferido no ACF local", "Exod 29:8–9 conferido no ACF local", "Exod 39:27–29 conferido no ACF local", "Lev 8:13 conferido no ACF local"],
+    "uncertainties": [
+      "O comprimento e o corte das túnicas, cintos e tiaras, assim como medidas corporais, não são informados.",
+      "O padrão e a técnica precisos do cinto de obra de bordador permanecem incertos.",
+      "A comparação ilustra as peças distintivas citadas, não um inventário completo de todos os itens usados em todas as ocasiões."
+    ],
+    "methodology": "Êxodo 28–29 e 39 e Levítico 8 foram conferidos nos textos ACF locais em server/bible-data/exo.ts e server/bible-data/lev.ts. A comparação conserva a distinção textual entre os filhos de Arão e Arão, sem extrapolar medidas ou detalhes ausentes."
+  }
+}

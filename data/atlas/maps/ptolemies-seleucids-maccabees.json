@@ -1,0 +1,516 @@
+{
+  "id": "ptolemies-seleucids-maccabees",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do período intertestamental",
+  "testament": "AT",
+  "books": [
+    "1Macc",
+    "John"
+  ],
+  "characters": [
+    "Antíoco IV Epifânio",
+    "Matatias",
+    "Judas Macabeu",
+    "Simão",
+    "Ptolemeu"
+  ],
+  "period": "Período helenístico, especialmente a revolta macabeia e a rededicação do Templo, c. 167–164 a.C.; datas aproximadas",
+  "title": "Ptolomeus, Selêucidas e Macabeus",
+  "subtitle": "Antioquia, Jerusalém e a memória da Dedicação",
+  "summary": "O mapa situa cidades e lugares associados ao período helenístico e à revolta macabeia. Primeiro Macabeus, livro histórico deuterocanônico/apócrifo conforme a tradição cristã, narra a profanação do Templo em c. 167 a.C. e sua purificação e rededicação em c. 164 a.C.; datas são aproximadas e a cronologia pode variar. João 10:22 menciona a Festa da Dedicação e o inverno em Jerusalém, mas não relata as batalhas macabeias nem fornece as datas desses acontecimentos. Alexandria e Antioquia de Síria são contexto histórico dos reinos helenísticos, não lugares identificados por João 10:22.",
+  "modernSummary": "Os marcadores abrangem Alexandria, Antioquia de Síria e lugares da Judeia atual. Modein e Emmaus não recebem pino: identificações exatas ou a correspondência do topônimo antigo com sítios modernos são incertas.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Ptolomeus",
+    "Selêucidas",
+    "Macabeus",
+    "Antíoco IV",
+    "Jerusalém",
+    "Dedicação",
+    "Hanukkah",
+    "1 Macabeus",
+    "Emmaus",
+    "Modein"
+  ],
+  "section": "intertestamental",
+  "subsection": "Impérios helenísticos",
+  "order": 1,
+  "era": "Período helenístico; profanação c. 167 e rededicação c. 164 a.C.; cronologia aproximada",
+  "modernOverview": "Alexandria e Antioquia de Síria representam centros de reinos helenísticos distintos. Jerusalém e Lower Beth-horon têm pinos de referência baseados nas chaves OpenBible explicitamente numéricas. Modein é associada à família de Matatias, mas o local exato não está fixado; Emmaus possui homônimos e o marcador bíblico de Lucas não é automaticamente transferível para a batalha de 1 Macabeus. Por isso ambos aparecem sem ponto preciso. Primeiro Macabeus fornece a narrativa histórica dos eventos; João 10:22 atesta a Festa da Dedicação em Jerusalém, mas não menciona as batalhas nem datas c. do século II a.C. Não há fronteiras ou linhas de marcha desenhadas.",
+  "keyReferences": [
+    {
+      "book": "1Macc",
+      "chapter": 1,
+      "verseStart": 20,
+      "verseEnd": 64,
+      "label": "1Macc 1:20–64"
+    },
+    {
+      "book": "1Macc",
+      "chapter": 4,
+      "verseStart": 36,
+      "verseEnd": 59,
+      "label": "1Macc 4:36–59"
+    },
+    {
+      "book": "1Macc",
+      "chapter": 3,
+      "verseStart": 10,
+      "verseEnd": 24,
+      "label": "1Macc 3:10–24"
+    },
+    {
+      "book": "John",
+      "chapter": 10,
+      "verseStart": 22,
+      "verseEnd": 23,
+      "label": "John 10:22–23"
+    }
+  ],
+  "aliases": [
+    "revolta dos Macabeus",
+    "revolta macabeia",
+    "Ptolomeus e Selêucidas",
+    "Antíoco IV Epifânio",
+    "profanação do Templo",
+    "rededicação do Templo",
+    "Festa da Dedicação",
+    "Hanukkah",
+    "Modein",
+    "Modiin",
+    "Emmaus"
+  ],
+  "references": [
+    {
+      "book": "1Macc",
+      "chapter": 1,
+      "verseStart": 20,
+      "verseEnd": 64,
+      "label": "1Macc 1:20–64"
+    },
+    {
+      "book": "1Macc",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 70,
+      "label": "1Macc 2:1–70"
+    },
+    {
+      "book": "1Macc",
+      "chapter": 3,
+      "verseStart": 10,
+      "verseEnd": 24,
+      "label": "1Macc 3:10–24"
+    },
+    {
+      "book": "1Macc",
+      "chapter": 4,
+      "verseStart": 36,
+      "verseEnd": 59,
+      "label": "1Macc 4:36–59"
+    },
+    {
+      "book": "John",
+      "chapter": 10,
+      "verseStart": 22,
+      "verseEnd": 23,
+      "label": "John 10:22–23"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pares numéricos exatos da evidência retida em [longitude, latitude]: Alexandria (31.2278414761719,29.9569242709775), Antioch 1 (36.16238775165068,36.20233087051257), Jerusalem (35.234935,31.777444) e Beth-horon, cujo root declarado é Lower Beth-horon (35.12356744466153,31.87892595986906). Emmaus (34.9895293285359,31.83945022372554) é uma entrada ligada apenas a Luke 24:13 e não foi reutilizada para a Emmaus da batalha macabeia."
+    },
+    {
+      "id": "first-maccabees",
+      "title": "Primeiro Macabeus — World English Bible, Apocrypha",
+      "url": "https://ebible.org/web/1MA.htm",
+      "license": "World English Bible: domínio público",
+      "note": "Fonte antiga de caráter histórico para as medidas de Antíoco IV, a revolta, os episódios em Modein, Beth-horon e Emmaus, a profanação e a rededicação do Templo. É tratado aqui como fonte histórica e livro deuterocanônico/apócrifo, não como parte do cânon protestante; paráfrases são originais."
+    },
+    {
+      "id": "britannica-maccabees",
+      "title": "Encyclopaedia Britannica — Maccabean Revolt",
+      "url": "https://www.britannica.com/event/Maccabean-Revolt",
+      "license": "Conteúdo protegido; referência bibliográfica e paráfrase original",
+      "note": "Síntese histórica de consulta para a revolta, a política selêucida, a profanação e a restauração do culto no século II a.C. As datas do mapa são aproximadas; a cronologia historiográfica pode variar."
+    },
+    {
+      "id": "britannica-hellenistic",
+      "title": "Encyclopaedia Britannica — Hellenistic Age",
+      "url": "https://www.britannica.com/event/Hellenistic-Age",
+      "license": "Conteúdo protegido; referência bibliográfica e paráfrase original",
+      "note": "Contexto para os reinos helenísticos dos Ptolemeus e Selêucidas e seus centros políticos. Não é fonte de coordenadas."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas e deuterocanônicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "Primeiro Macabeus é usado como fonte narrativa antiga dos acontecimentos; João 10:22–23 é citado somente para a Festa da Dedicação em Jerusalém. João não é apresentado como relato das batalhas ou da data da rededicação."
+    }
+  ],
+  "places": [
+    {
+      "id": "alexandria",
+      "name": "Alexandria",
+      "modernName": "Alexandria, Egito",
+      "coordinates": [
+        29.9569242709775,
+        31.2278414761719
+      ],
+      "certainty": "probable",
+      "explanation": "O pino usa a chave OpenBible Alexandria e identifica a cidade egípcia, centro do reino ptolemaico. A entrada bíblica trata de Alexandria em Atos, não dos Macabeus; a relação política helenística é contexto histórico independente.",
+      "references": [
+        {
+          "book": "1Macc",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 4,
+          "label": "1Macc 1:1–4 (contexto helenístico, não nomeia Alexandria)"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "britannica-hellenistic",
+        "first-maccabees"
+      ],
+      "centuries": [
+        "séculos III–II a.C."
+      ],
+      "kingdoms": [
+        "Reino ptolemaico"
+      ]
+    },
+    {
+      "id": "antioch-syria",
+      "name": "Antioquia de Síria",
+      "modernName": "Antakya, província de Hatay, Turquia",
+      "coordinates": [
+        36.16238775165068,
+        36.20233087051257
+      ],
+      "certainty": "probable",
+      "explanation": "Usa-se explicitamente a chave OpenBible Antioch 1, associada à cidade da Síria e não Antioquia da Pisídia (Antioch 2). A cidade foi centro selêucida; seu papel político é histórico, não uma identificação em João 10.",
+      "references": [
+        {
+          "book": "1Macc",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 4,
+          "label": "1Macc 1:1–4 (contexto helenístico, não nomeia Antioquia)"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "britannica-hellenistic",
+        "first-maccabees"
+      ],
+      "centuries": [
+        "séculos III–II a.C."
+      ],
+      "kingdoms": [
+        "Império Selêucida"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "A cidade e o Templo são centrais na narrativa de 1 Macabeus 1 e 4. O par segue a chave OpenBible Jerusalem e não localiza individualmente o altar ou o santuário. João 10 situa a Festa da Dedicação em Jerusalém, sem narrar a revolta.",
+      "references": [
+        {
+          "book": "1Macc",
+          "chapter": 1,
+          "verseStart": 20,
+          "verseEnd": 64,
+          "label": "1Macc 1:20–64"
+        },
+        {
+          "book": "1Macc",
+          "chapter": 4,
+          "verseStart": 36,
+          "verseEnd": 59,
+          "label": "1Macc 4:36–59"
+        },
+        {
+          "book": "John",
+          "chapter": 10,
+          "verseStart": 22,
+          "verseEnd": 23,
+          "label": "John 10:22–23"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "first-maccabees",
+        "biblical"
+      ],
+      "centuries": [
+        "século II a.C."
+      ],
+      "kingdoms": [
+        "Império Selêucida",
+        "Judeia"
+      ]
+    },
+    {
+      "id": "modein",
+      "name": "Modein (Modiin)",
+      "modernName": "Região de Modi'in, Israel; sítio antigo exato incerto",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "1 Macabeus 2 situa Matatias em Modein e narra ali o início da revolta. O local antigo não tem par numérico geográfico retido que possa ser atribuído com segurança; não se inventa um pino nem se usa uma aproximação moderna.",
+      "references": [
+        {
+          "book": "1Macc",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 28,
+          "label": "1Macc 2:1–28"
+        }
+      ],
+      "sourceIds": [
+        "first-maccabees",
+        "britannica-maccabees"
+      ],
+      "centuries": [
+        "século II a.C."
+      ],
+      "kingdoms": [
+        "Judeia sob domínio selêucida"
+      ]
+    },
+    {
+      "id": "beth-horon",
+      "name": "Beth-horon",
+      "modernName": "Baixo Beth-Horon, Cisjordânia",
+      "coordinates": [
+        35.12356744466153,
+        31.87892595986906
+      ],
+      "certainty": "probable",
+      "explanation": "A evidência OpenBible identifica expressamente o root do topônimo Beth-horon como Lower Beth-horon e fornece um par numérico exato. O pino representa a localidade de referência, não o ponto exato da batalha; 1 Macabeus relata a ação na região e a fonte histórica antiga fundamenta a conexão.",
+      "references": [
+        {
+          "book": "1Macc",
+          "chapter": 3,
+          "verseStart": 15,
+          "verseEnd": 24,
+          "label": "1Macc 3:15–24"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "first-maccabees"
+      ],
+      "centuries": [
+        "século II a.C."
+      ],
+      "kingdoms": [
+        "Judeia sob domínio selêucida"
+      ]
+    },
+    {
+      "id": "emmaus",
+      "name": "Emmaus (Emaús)",
+      "modernName": "Identificação antiga e sítio da batalha incertos; não fixado",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "1 Macabeus 3–4 descreve operações em Emmaus, mas há mais de uma identificação moderna proposta. A coordenada OpenBible Emmaus remete a Luke 24:13, um topônimo de contexto diferente cuja identificação não se transfere automaticamente para a batalha; por isso o par é rejeitado.",
+      "references": [
+        {
+          "book": "1Macc",
+          "chapter": 3,
+          "verseStart": 38,
+          "verseEnd": 60,
+          "label": "1Macc 3:38–60"
+        },
+        {
+          "book": "1Macc",
+          "chapter": 4,
+          "verseStart": 1,
+          "verseEnd": 25,
+          "label": "1Macc 4:1–25"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "first-maccabees",
+        "britannica-maccabees"
+      ],
+      "centuries": [
+        "século II a.C."
+      ],
+      "kingdoms": [
+        "Judeia sob domínio selêucida"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "alexandria",
+      "title": "O reino ptolemaico",
+      "text": "Alexandria foi um dos grandes centros do mundo helenístico ptolemaico. Seu pino usa o topônimo geocodificado em Atos, enquanto sua função no período dos Macabeus é contexto histórico e não identificada por João 10.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 4,
+        "label": "1Macc 1:1–4 (contexto histórico)"
+      }
+    },
+    {
+      "placeId": "antioch-syria",
+      "title": "Centro selêucida na Síria",
+      "text": "Antioquia de Síria é distinta de Antioquia da Pisídia e figura como contexto político do domínio selêucida. O capítulo inicial de 1 Macabeus resume a expansão helenística, sem nomear esta cidade.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 4,
+        "label": "1Macc 1:1–4 (contexto histórico)"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Profanação e rededicação do Templo",
+      "text": "Primeiro Macabeus relata a profanação do santuário em c. 167 a.C. e a purificação e rededicação em c. 164 a.C. João 10:22–23, escrito em outro contexto, menciona a Festa da Dedicação em Jerusalém; não relata essas batalhas nem fornece suas datas.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 4,
+        "verseStart": 36,
+        "verseEnd": 59,
+        "label": "1Macc 4:36–59"
+      }
+    },
+    {
+      "placeId": "modein",
+      "title": "Matatias em Modein",
+      "text": "A narrativa de 1 Macabeus situa em Modein a família sacerdotal de Matatias e o início da resistência. O sítio exato não é localizado neste mapa porque as fontes geográficas retidas não oferecem um ponto seguro.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 28,
+        "label": "1Macc 2:1–28"
+      }
+    },
+    {
+      "placeId": "beth-horon",
+      "title": "Confronto na região de Beth-horon",
+      "text": "Primeiro Macabeus narra a marcha de Seron e o confronto associado a Beth-horon. O marcador usa o topônimo cujo ponto documentado indica Baixo Beth-Horon, sem afirmar que o combate ocorreu exatamente no pino.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 3,
+        "verseStart": 15,
+        "verseEnd": 24,
+        "label": "1Macc 3:15–24"
+      }
+    },
+    {
+      "placeId": "emmaus",
+      "title": "Batalha de Emmaus",
+      "text": "O relato de 1 Macabeus descreve a batalha e a derrota das forças selêucidas na região de Emmaus. Como a identificação exata do lugar permanece incerta, o mapa não reaproveita a coordenada de Emmaus citada em Lucas.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 4,
+        "verseStart": 1,
+        "verseEnd": 25,
+        "label": "1Macc 4:1–25"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Primeiro Macabeus descreve o altar profanado e a restauração do culto; para leitores protestantes, o livro é geralmente classificado entre os apócrifos, sem deixar de ser usado aqui como fonte histórica antiga.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 1,
+        "verseStart": 54,
+        "verseEnd": 64,
+        "label": "1Macc 1:54–64"
+      },
+      "sourceIds": [
+        "first-maccabees",
+        "britannica-maccabees"
+      ]
+    },
+    {
+      "text": "A narrativa atribui a rededicação do altar a Judas e seus companheiros; as datas c. 167–164 a.C. são cronologia histórica aproximada, não datas declaradas por João.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 4,
+        "verseStart": 52,
+        "verseEnd": 59,
+        "label": "1Macc 4:52–59"
+      },
+      "sourceIds": [
+        "first-maccabees",
+        "britannica-maccabees"
+      ]
+    },
+    {
+      "text": "João menciona que era inverno e que Jesus estava no Templo durante a Festa da Dedicação; o versículo não menciona campanhas macabeias nem fornece sua cronologia.",
+      "reference": {
+        "book": "John",
+        "chapter": 10,
+        "verseStart": 22,
+        "verseEnd": 23,
+        "label": "John 10:22–23"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Modein é central no relato do início da revolta, mas a coordenada exata é omitida: não se toma um ponto regional moderno como se fosse o sítio antigo comprovado.",
+      "reference": {
+        "book": "1Macc",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 28,
+        "label": "1Macc 2:1–28"
+      },
+      "sourceIds": [
+        "first-maccabees",
+        "britannica-maccabees"
+      ]
+    }
+  ],
+  "bounds": [
+    29.9569242709775,
+    31.2278414761719,
+    36.16238775165068,
+    36.20233087051257
+  ],
+  "review": {
+    "date": "2025-02-20",
+    "status": "needs-specialist",
+    "verified": [
+      "Pares numéricos de Alexandria, Antioch 1, Jerusalem e Beth-horon conferidos na evidência OpenBible retida; Beth-horon declara Lower Beth-horon como root.",
+      "Pinos de Antioquia da Síria e da Pisídia foram distinguidos; Emmaus de Luke 24:13 não foi usada como coordenada da batalha macabeia.",
+      "Modein e Emmaus têm coordinates null e certeza debatida por falta de identificação pontual segura.",
+      "Primeiro Macabeus 1, 2, 3 e 4 dá suporte narrativo para profanação, revolta, batalhas e rededicação; João 10:22–23 é limitado à Festa da Dedicação.",
+      "C. 167–164 a.C. aparece como cronologia aproximada, com variação possível."
+    ],
+    "uncertainties": [
+      "A identificação do local exato de Modein e da Emmaus da batalha permanece incerta.",
+      "A coordenada de Beth-horon é de referência toponímica do Baixo Beth-Horon e não identifica o local exato do combate.",
+      "Cronologia e interpretações históricas do período helenístico podem variar; João 10 não é fonte para as datas ou batalhas."
+    ],
+    "methodology": "Foram utilizados apenas pares numéricos explícitos na evidência geográfica retida e nenhuma coordenada aproximada, regional ou de homônimo foi convertida em pino. A fonte antiga 1 Macabeus sustenta a narrativa histórica; a referência a João é estritamente limitada à Festa da Dedicação. As datas são aproximadas e sítios sem identificação segura ficam sem coordenadas."
+  }
+}

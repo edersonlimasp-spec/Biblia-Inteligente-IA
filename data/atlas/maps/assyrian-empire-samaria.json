@@ -1,0 +1,715 @@
+{
+  "id": "assyrian-empire-samaria",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "2Kgs",
+    "Isa",
+    "2Chr",
+    "Gen"
+  ],
+  "characters": [
+    "Salmaneser V",
+    "Sargão II",
+    "Senaqueribe",
+    "Ezequias"
+  ],
+  "period": "Expansão e campanhas assírias; queda de Samaria c. 722/721 a.C. e campanha de Senaqueribe em Judá em 701 a.C.",
+  "title": "Império Assírio e Samaria",
+  "subtitle": "A queda do reino do norte e a campanha posterior contra Judá",
+  "summary": "O mapa relaciona localidades nomeadas nos relatos da expansão assíria, deportação após a queda de Samaria e invasão de Judá por Senaqueribe. A queda de Samaria é convencionalmente datada de c. 722/721 a.C.; a campanha de Senaqueribe contra Judá e o cerco de Laquis pertencem a 701 a.C., quase duas décadas depois. Os episódios não são o mesmo evento. As datas absolutas e a atribuição da captura final de Samaria variam nas reconstruções históricas; os marcadores indicam topônimos, não posições exatas de exércitos.",
+  "modernSummary": "As localidades se espalham pelo atual Iraque, Síria, Turquia, Israel e áreas a leste. Hala, Assur (a cidade), e as cidades dos medos não recebem pinos por falta de coordenada segura na evidência retida.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Assíria",
+    "Samaria",
+    "Senaqueribe",
+    "Laquis",
+    "deportação",
+    "722 a.C.",
+    "701 a.C.",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Reinos de Israel e Judá",
+  "order": 23,
+  "era": "Império Neoassírio; séculos VIII–VII a.C.; episódios c. 722/721 e 701 a.C.",
+  "modernOverview": "Os topônimos com pontos documentados abrangem desde Carquemis, no sul da atual Turquia, até Samaria e Laquis, no Levante, e os centros assírios de Calá e Nínive, no atual Iraque. Habor recebe apenas um ponto representativo de uma entrada geográfica que o descreve como rio; Hala e as cidades dos medos não têm pinos confiáveis. Assur, a antiga cidade, é distinta de Assíria como reino e não recebe coordenada neste mapa. O polígono é um envelope editorial aproximado das localidades representadas para c. 722 a.C.; não é fronteira exata, não define soberania nem reconstitui estradas ou o alcance político em uma data precisa. A campanha de 701 a.C. em Laquis aparece separada da queda de Samaria, usualmente datada c. 722/721 a.C.",
+  "keyReferences": [
+    {
+      "book": "2Kgs",
+      "chapter": 17,
+      "verseStart": 5,
+      "verseEnd": 6,
+      "label": "2Kgs 17:5–6"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 18,
+      "verseStart": 9,
+      "verseEnd": 12,
+      "label": "2Kgs 18:9–12"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 18,
+      "verseStart": 13,
+      "verseEnd": 17,
+      "label": "2Kgs 18:13–17"
+    },
+    {
+      "book": "Isa",
+      "chapter": 36,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Isa 36:1–2"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 32,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "2Chr 32:1–9"
+    }
+  ],
+  "aliases": [
+    "Império Neoassírio",
+    "Queda de Samaria",
+    "Sargão II",
+    "Salmaneser V",
+    "Senaqueribe",
+    "Cerco de Laquis",
+    "cidades dos medos"
+  ],
+  "references": [
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 11,
+      "verseEnd": 12,
+      "label": "Gen 10:11–12"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 17,
+      "verseStart": 3,
+      "verseEnd": 6,
+      "label": "2Kgs 17:3–6"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 17,
+      "verseStart": 23,
+      "verseEnd": 28,
+      "label": "2Kgs 17:23–28"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 18,
+      "verseStart": 9,
+      "verseEnd": 17,
+      "label": "2Kgs 18:9–17"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 19,
+      "verseStart": 8,
+      "verseEnd": 9,
+      "label": "2Kgs 19:8–9"
+    },
+    {
+      "book": "Isa",
+      "chapter": 10,
+      "verseStart": 5,
+      "verseEnd": 12,
+      "label": "Isa 10:5–12"
+    },
+    {
+      "book": "Isa",
+      "chapter": 36,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Isa 36:1–2"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 32,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "2Chr 32:1–9"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pares numéricos sem marcas de aproximação foram plotados na ordem [longitude, latitude]. Chaves usadas: Calah (36.142884,43.312178); Carchemish (36.82928161099629,38.01576051001015); Habor (36.344972,40.789333; entrada identificada como rio); Lachish (31.56485056116292,34.8467256730566); Nineveh (36.359410,43.152887); Samaria (32.28023100000001,35.19792900000002); Gath-hepher (32.73918470119603,35.32822661816711); Joppa (32.05351968494696,34.75042606009946). Halah usa coordenadas aproximadas herdadas de Habor e foi rejeitada; Asshur/Assyria indicam região junto a Nínive, não a cidade de Assur; nenhuma das duas entradas foi usada como pino."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; paráfrases originais, sem reprodução de tradução protegida",
+      "note": "Referências foram conferidas para topônimos, deportação e campanhas. A Bíblia é fonte da narrativa e não é tratada como prova isolada de coordenadas ou da datação absoluta."
+    },
+    {
+      "id": "britannica",
+      "title": "Encyclopaedia Britannica — Sennacherib; Nineveh",
+      "url": "https://www.britannica.com/biography/Sennacherib",
+      "license": "Conteúdo factual resumido em paráfrase original; direitos do editor permanecem reservados",
+      "note": "Consulta para contextualizar a campanha de Senaqueribe e a cronologia convencional de 701 a.C.; não foi usada como fonte de coordenadas."
+    },
+    {
+      "id": "british-museum-lachish-relief",
+      "title": "British Museum — Relevo de Laquis de Senaqueribe",
+      "url": "https://www.britishmuseum.org/collection/object/W_1856-0909-45",
+      "license": "Metadados de catálogo em paráfrase original; direitos do editor permanecem reservados; imagens não reproduzidas",
+      "note": "Referência institucional para o relevo assírio de Laquis; usada apenas para contextualização histórica, sem reutilização de imagem ou coordenada."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "O envelope serve somente de orientação visual para localidades citadas em torno de c. 722 a.C. Não é fronteira exata nem afirma limite territorial. Não há rota ou estrada reconstruída; a sequência de 701 a.C. é representada por narrativa e pins."
+    }
+  ],
+  "places": [
+    {
+      "id": "samaria",
+      "name": "Samaria",
+      "modernName": "Sebastia, Cisjordânia",
+      "coordinates": [
+        35.19792900000002,
+        32.28023100000001
+      ],
+      "certainty": "probable",
+      "explanation": "A cidade é associada ao cerco e à queda do reino do norte, c. 722/721 a.C. (a cronologia varia). O ponto é a chave Samaria da evidência OpenBible, não a posição exata do cerco nem uma camada arqueológica datada.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 17,
+          "verseStart": 5,
+          "verseEnd": 6,
+          "label": "2Kgs 17:5–6"
+        },
+        {
+          "book": "2Kgs",
+          "chapter": 18,
+          "verseStart": 9,
+          "verseEnd": 12,
+          "label": "2Kgs 18:9–12"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Israel",
+        "Assíria"
+      ]
+    },
+    {
+      "id": "nineveh",
+      "name": "Nínive",
+      "modernName": "Kuyunjik e área de Nínive, perto de Mossul, Iraque",
+      "coordinates": [
+        43.152887,
+        36.35941
+      ],
+      "certainty": "probable",
+      "explanation": "Nínive é mencionada como destino de retorno do rei assírio e como centro imperial em outras tradições bíblicas. O marcador usa a coordenada numérica exata da chave Nineveh; representa o topônimo e não o perímetro urbano antigo.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 19,
+          "verseStart": 36,
+          "label": "2Kgs 19:36"
+        },
+        {
+          "book": "Isa",
+          "chapter": 37,
+          "verseStart": 37,
+          "label": "Isa 37:37"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical",
+        "britannica"
+      ],
+      "centuries": [
+        "VIII–VII a.C."
+      ],
+      "kingdoms": [
+        "Assíria"
+      ]
+    },
+    {
+      "id": "assur-city",
+      "name": "Assur",
+      "modernName": "Qal'at Sherqat, Iraque; identificação da antiga cidade",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A antiga cidade de Assur é distinta do nome bíblico Assur/Assíria usado para povos ou região. As coordenadas retidas para Asshur e Assyria apontam para Nínive com sinal regional, não para esta cidade; por isso não há pino. 2Kgs 17:6 oferece contexto assírio, sem nomear a cidade de Assur.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 17,
+          "verseStart": 6,
+          "label": "2Kgs 17:6"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "britannica"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Assíria"
+      ]
+    },
+    {
+      "id": "calah",
+      "name": "Calá",
+      "modernName": "Nimrud, Iraque",
+      "coordinates": [
+        43.312178,
+        36.142884
+      ],
+      "certainty": "probable",
+      "explanation": "Gênesis 10:11–12 inclui Calá no relato das cidades assírias. A evidência OpenBible fornece um par numérico exato, embora a identificação arqueológica individualizada do nome antigo permaneça menos segura que o ponto cartográfico sugere.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 11,
+          "verseEnd": 12,
+          "label": "Gen 10:11–12"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Assíria"
+      ]
+    },
+    {
+      "id": "lachish",
+      "name": "Laquis",
+      "modernName": "Tell ed-Duweir, Israel",
+      "coordinates": [
+        34.8467256730566,
+        31.56485056116292
+      ],
+      "certainty": "probable",
+      "explanation": "2Kgs 18:13–17 situa Laquis na campanha de Senaqueribe contra Judá, c. 701 a.C., distinta da queda de Samaria c. 722/721 a.C. O ponto reproduz a chave Lachish; não localiza o acampamento, o cerco ou uma fase arqueológica exata.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 18,
+          "verseStart": 13,
+          "verseEnd": 17,
+          "label": "2Kgs 18:13–17"
+        },
+        {
+          "book": "2Kgs",
+          "chapter": 19,
+          "verseStart": 8,
+          "label": "2Kgs 19:8"
+        },
+        {
+          "book": "Isa",
+          "chapter": 36,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Isa 36:1–2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical",
+        "britannica"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Judá",
+        "Assíria"
+      ]
+    },
+    {
+      "id": "hala",
+      "name": "Hala",
+      "modernName": "Localização desconhecida; região de deportação assíria",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "2Kgs 17:6 enumera Hala entre os destinos dos deportados. A entrada OpenBible Halah herda de Habor um par com sinais de aproximação; esse valor foi rejeitado e não se usa como pino.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 17,
+          "verseStart": 6,
+          "label": "2Kgs 17:6"
+        },
+        {
+          "book": "2Kgs",
+          "chapter": 18,
+          "verseStart": 11,
+          "label": "2Kgs 18:11"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Assíria"
+      ]
+    },
+    {
+      "id": "habor",
+      "name": "Habor",
+      "modernName": "Rio Khabur, nordeste da Síria; ponto representativo incerto",
+      "coordinates": [
+        40.789333,
+        36.344972
+      ],
+      "certainty": "debated",
+      "explanation": "Habor é nomeado como destino de deportação e a fonte geográfica o classifica como rio. O marcador é somente o par numérico exato da entrada Habor; não representa o curso do rio, a extensão da região nem o local de assentamento dos deportados.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 17,
+          "verseStart": 6,
+          "label": "2Kgs 17:6"
+        },
+        {
+          "book": "2Kgs",
+          "chapter": 18,
+          "verseStart": 11,
+          "label": "2Kgs 18:11"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Assíria"
+      ]
+    },
+    {
+      "id": "cities-of-medes",
+      "name": "Cidades dos medos",
+      "modernName": "Média, região do atual noroeste do Irã; cidades específicas não identificadas",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "2Kgs 17:6 diz que os deportados foram levados às cidades dos medos, sem nomear assentamentos. A coordenada OpenBible de Media usa Ecbátana como ponto regional com marcador de área, portanto não foi convertida em pino para as cidades mencionadas.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 17,
+          "verseStart": 6,
+          "label": "2Kgs 17:6"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Assíria",
+        "Média"
+      ]
+    },
+    {
+      "id": "carchemish",
+      "name": "Carquemis",
+      "modernName": "Carchemish, fronteira atual entre Turquia e Síria",
+      "coordinates": [
+        38.01576051001015,
+        36.82928161099629
+      ],
+      "certainty": "probable",
+      "explanation": "Isaías 10:9 cita Carquemis em uma enumeração de conquistas assírias. A localização usa exatamente a coordenada numérica da chave Carchemish; o pino não delimita domínio imperial nem data por si só a conquista.",
+      "references": [
+        {
+          "book": "Isa",
+          "chapter": 10,
+          "verseStart": 9,
+          "label": "Isa 10:9"
+        },
+        {
+          "book": "2Chr",
+          "chapter": 35,
+          "verseStart": 20,
+          "label": "2Chr 35:20"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII–VII a.C."
+      ],
+      "kingdoms": [
+        "Assíria"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "assyrian-reference-envelope",
+      "label": "Envelope aproximado de localidades citadas — referência c. 722 a.C.",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          38.01576051001015,
+          36.82928161099629
+        ],
+        [
+          43.312178,
+          36.142884
+        ],
+        [
+          43.152887,
+          36.35941
+        ],
+        [
+          40.789333,
+          36.344972
+        ],
+        [
+          35.19792900000002,
+          32.28023100000001
+        ],
+        [
+          34.8467256730566,
+          31.56485056116292
+        ],
+        [
+          38.01576051001015,
+          36.82928161099629
+        ]
+      ],
+      "explanation": "Polígono editorial para orientar a leitura das localidades citadas, com referência cronológica c. 722 a.C. É envelope aproximado; não é fronteira exata, não representa território soberano nem extensão medida do Império Assírio. Os vértices reutilizam coordenadas documentadas de Carquemis, Calá, Nínive, Habor, Samaria e Laquis. Laquis integra a sequência posterior de 701 a.C. e não converte os dois eventos em um só.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "calah",
+      "title": "Cidades assírias no relato das origens",
+      "text": "Gênesis 10 inclui Calá na lista de cidades associadas à Assíria; esta referência antiga não determina a extensão territorial do império do século VIII a.C.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 11,
+        "verseEnd": 12,
+        "label": "Gen 10:11–12"
+      }
+    },
+    {
+      "placeId": "carchemish",
+      "title": "Carquemis na enumeração de Isaías",
+      "text": "Isaías menciona Carquemis como exemplo de cidades que a Assíria dizia ter conquistado; a passagem não fornece uma fronteira cartográfica.",
+      "reference": {
+        "book": "Isa",
+        "chapter": 10,
+        "verseStart": 9,
+        "label": "Isa 10:9"
+      }
+    },
+    {
+      "placeId": "samaria",
+      "title": "Queda de Samaria",
+      "text": "O relato descreve o cerco e a captura de Samaria pelo rei assírio. A data histórica costuma ser situada em c. 722/721 a.C., com variações cronológicas e de atribuição.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 5,
+        "verseEnd": 6,
+        "label": "2Kgs 17:5–6"
+      }
+    },
+    {
+      "placeId": "hala",
+      "title": "Hala entre os destinos de deportação",
+      "text": "A lista de 2 Reis nomeia Hala, mas sua localização permanece incerta; o registro aproximado herdado de Habor foi deliberadamente descartado.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 6,
+        "label": "2Kgs 17:6"
+      }
+    },
+    {
+      "placeId": "habor",
+      "title": "Habor",
+      "text": "Habor aparece na lista de destinos dos exilados. O pino somente identifica um ponto de referência da entrada geográfica do rio, não a localização individual dos deportados.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 6,
+        "label": "2Kgs 17:6"
+      }
+    },
+    {
+      "placeId": "cities-of-medes",
+      "title": "Cidades dos medos",
+      "text": "O texto menciona cidades dos medos sem especificá-las; por isso a região não é reduzida ao pino de Ecbátana nem a uma única cidade.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 6,
+        "label": "2Kgs 17:6"
+      }
+    },
+    {
+      "placeId": "nineveh",
+      "title": "Nínive e o retorno do rei",
+      "text": "O relato diz que Senaqueribe retornou a Nínive depois da campanha em Judá; não confunde a capital assíria com o lugar do cerco de Laquis.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 19,
+        "verseStart": 36,
+        "label": "2Kgs 19:36"
+      }
+    },
+    {
+      "placeId": "lachish",
+      "title": "Laquis na campanha de 701 a.C.",
+      "text": "2 Reis 18:13–17 situa Senaqueribe em Laquis durante a invasão de Judá. A campanha é convencionalmente datada de 701 a.C., não do cerco de Samaria c. 722/721 a.C.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 18,
+        "verseStart": 13,
+        "verseEnd": 17,
+        "label": "2Kgs 18:13–17"
+      }
+    },
+    {
+      "placeId": "assur-city",
+      "title": "Assur, cidade distinta",
+      "text": "O nome Assur é tratado aqui como a cidade antiga, não como sinônimo cartográfico de toda a Assíria. A passagem contextual não a nomeia e não há ponto seguro retido para plotar.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 6,
+        "label": "2Kgs 17:6"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A queda de Samaria é frequentemente datada c. 722/721 a.C.; 2 Reis associa a captura ao período de Salmaneser, enquanto a identificação do rei que concluiu a conquista é discutida. As cronologias não são idênticas.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 3,
+        "verseEnd": 6,
+        "label": "2Kgs 17:3–6"
+      },
+      "sourceIds": [
+        "biblical",
+        "britannica"
+      ]
+    },
+    {
+      "text": "O episódio de Laquis pertence à campanha de Senaqueribe em 701 a.C.; o relevo assírio de Laquis preservado no Museu Britânico oferece um testemunho histórico externo, e não um segundo relato da queda de Samaria.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 18,
+        "verseStart": 13,
+        "verseEnd": 17,
+        "label": "2Kgs 18:13–17"
+      },
+      "sourceIds": [
+        "biblical",
+        "britannica",
+        "british-museum-lachish-relief"
+      ]
+    },
+    {
+      "text": "A lista de deportação nomeia três destinos — Hala, Habor e cidades dos medos — mas não identifica cidades específicas para todos eles. Os nomes não autorizam pontos inventados nem uma rota precisa.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 6,
+        "label": "2Kgs 17:6"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Assur, a cidade antiga, não deve ser confundida com Assíria, uma designação de reino e região: a evidência retida para Asshur/Assyria usa um ponto regional junto a Nínive e não sustenta um pino para a cidade de Assur.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 17,
+        "verseStart": 6,
+        "label": "2Kgs 17:6"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible",
+        "britannica"
+      ]
+    }
+  ],
+  "bounds": [
+    34.8467256730566,
+    31.56485056116292,
+    43.312178,
+    36.82928161099629
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Coordenadas numéricas sem marcadores de aproximação foram transcritas das chaves geográficas documentadas; longitude e latitude seguem a ordem do schema.",
+      "Hala, cidade de Assur e cidades dos medos permanecem sem pinos quando a evidência retida não fornece coordenada confiável.",
+      "Samaria c. 722/721 a.C. e Laquis em 701 a.C. são episódios explicitamente separados."
+    ],
+    "uncertainties": [
+      "A data e a sequência exatas da queda de Samaria e a atribuição da captura final variam entre reconstruções cronológicas.",
+      "O ponto de Habor é somente uma referência de uma entrada identificada como rio; a localização histórica exata do destino de deportação não é demonstrada.",
+      "Assur como cidade não possui par numérico de coordenadas na evidência permitida.",
+      "O envelope representa localidades de referência e não é fronteira exata nem reconstrução territorial."
+    ],
+    "methodology": "Pinos aceitos somente quando a evidência OpenBible retida fornece pares numéricos sem símbolos de aproximação, incerteza ou relação regional imprópria. Nomes homônimos e pontos regionais não foram reaproveitados como cidades. Datas são convencionais e expressas como c.; o envelope usa somente vértices documentados e é explicitamente não fronteiriço."
+  }
+}

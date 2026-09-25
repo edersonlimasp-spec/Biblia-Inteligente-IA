@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { atlasItemSchema, atlasContextSchema, ATLAS_CUBIT_NOTE, cubitsToMeters, type AtlasItem, type AtlasSummary } from "../../shared/atlas";
+import { atlasBookLabel, formatAtlasReference } from "../../shared/atlasBooks";
 
 const roots = [
   path.resolve(process.cwd(), "data/atlas"),
@@ -61,12 +62,14 @@ export async function getAtlasItem(id: string, fullAccess: boolean): Promise<Atl
   return item;
 }
 
-export async function readAtlasSvg(id: string, fullAccess: boolean): Promise<string> {
+export async function readAtlasSvg(id: string, fullAccess: boolean, view?: string): Promise<string> {
   const item = await getAtlasItem(id, fullAccess);
-  if (item.kind !== "illustration" || !item.illustration) throw new AtlasError(404, "Ilustração não encontrada.", "ATLAS_NOT_FOUND");
+  if (!item.illustration) throw new AtlasError(404, "Ilustração não encontrada.", "ATLAS_NOT_FOUND");
+  const svgFile = view === undefined ? item.illustration.svgFile : item.illustration.views?.find(candidate => candidate.label === view)?.svgFile;
+  if (!svgFile) throw new AtlasError(404, "Vista não encontrada.", "ATLAS_NOT_FOUND");
   for (const candidate of roots) {
     try {
-      return await fs.readFile(path.join(candidate, "svg", item.illustration.svgFile), "utf8");
+      return await fs.readFile(path.join(candidate, "svg", svgFile), "utf8");
     } catch (error: any) {
       if (error?.code !== "ENOENT") throw error;
     }
@@ -84,18 +87,27 @@ export async function buildAtlasContext(input: unknown, fullAccess: boolean): Pr
   if (request.selectedPlaceId !== undefined && !selected) throw new AtlasError(400, "Local selecionado não pertence ao item.", "ATLAS_INVALID_PLACE");
   const context = JSON.stringify({
     id: item.id, version: item.version, title: item.title, mode: request.mode,
-    summary: item.summary, modernSummary: item.modernSummary, period: item.period,
+    summary: item.summary, purpose: item.purpose, modernSummary: item.modernSummary, period: item.period,
     section: item.section, subsection: item.subsection, order: item.order, era: item.era,
     modernOverview: item.modernOverview, keyReferences: item.keyReferences, aliases: item.aliases,
     certainty: item.certainty, references: item.references, sources: item.sources,
     places: selected ? [selected] : item.places, overlays: item.overlays,
     review: item.review,
+    storySteps: selected ? item.storySteps?.filter(step => step.placeId === selected.id) : item.storySteps,
+    curiosities: item.curiosities,
     illustration: item.illustration && {
       notes: item.illustration.notes, cubitNote: ATLAS_CUBIT_NOTE,
+      parts: item.illustration.parts,
       dimensions: item.illustration.dimensions.map(dimension => ({
         ...dimension, approximateMeters: dimension.cubits === undefined ? undefined : cubitsToMeters(dimension.cubits),
       })),
     },
+  }, (_key, value) => {
+    if (value && typeof value === "object" && typeof value.book === "string" &&
+        typeof value.chapter === "number" && typeof value.verseStart === "number") {
+      return { ...value, book: atlasBookLabel(value.book), label: formatAtlasReference(value) };
+    }
+    return value;
   });
   // Never silently truncate references or uncertainty; fail explicitly instead.
   if (context.length > 40000) throw new AtlasError(413, "Contexto do Atlas muito extenso; selecione um local.", "ATLAS_CONTEXT_TOO_LARGE");

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Planta esquemática do pátio do tabernáculo">
+  <rect width="800" height="520" fill="#17262a"/>
+  <g id="part-linen-enclosure">
+    <path d="M112 118h540M112 368h540M112 118v250" fill="none" stroke="#f4eee0" stroke-width="8"/>
+    <path d="M112 118h540M112 368h540M112 118v250" fill="none" stroke="#BFC5CC" stroke-width="2" stroke-dasharray="4 5"/>
+  </g>
+  <g id="part-posts">
+    <g fill="#A0673A" stroke="#C9A227" stroke-width="2">
+      <circle cx="112" cy="118" r="7"/><circle cx="140" cy="118" r="7"/><circle cx="168" cy="118" r="7"/><circle cx="196" cy="118" r="7"/><circle cx="224" cy="118" r="7"/><circle cx="252" cy="118" r="7"/><circle cx="280" cy="118" r="7"/><circle cx="308" cy="118" r="7"/><circle cx="336" cy="118" r="7"/><circle cx="364" cy="118" r="7"/><circle cx="392" cy="118" r="7"/><circle cx="420" cy="118" r="7"/><circle cx="448" cy="118" r="7"/><circle cx="476" cy="118" r="7"/><circle cx="504" cy="118" r="7"/><circle cx="532" cy="118" r="7"/><circle cx="560" cy="118" r="7"/><circle cx="588" cy="118" r="7"/><circle cx="620" cy="118" r="7"/><circle cx="652" cy="118" r="7"/>
+      <circle cx="112" cy="368" r="7"/><circle cx="140" cy="368" r="7"/><circle cx="168" cy="368" r="7"/><circle cx="196" cy="368" r="7"/><circle cx="224" cy="368" r="7"/><circle cx="252" cy="368" r="7"/><circle cx="280" cy="368" r="7"/><circle cx="308" cy="368" r="7"/><circle cx="336" cy="368" r="7"/><circle cx="364" cy="368" r="7"/><circle cx="392" cy="368" r="7"/><circle cx="420" cy="368" r="7"/><circle cx="448" cy="368" r="7"/><circle cx="476" cy="368" r="7"/><circle cx="504" cy="368" r="7"/><circle cx="532" cy="368" r="7"/><circle cx="560" cy="368" r="7"/><circle cx="588" cy="368" r="7"/><circle cx="620" cy="368" r="7"/><circle cx="652" cy="368" r="7"/>
+      <circle cx="112" cy="145" r="7"/><circle cx="112" cy="173" r="7"/><circle cx="112" cy="201" r="7"/><circle cx="112" cy="229" r="7"/><circle cx="112" cy="257" r="7"/><circle cx="112" cy="285" r="7"/><circle cx="112" cy="313" r="7"/><circle cx="112" cy="341" r="7"/>
+      <circle cx="652" cy="145" r="7"/><circle cx="652" cy="173" r="7"/><circle cx="652" cy="201" r="7"/><circle cx="652" cy="229" r="7"/><circle cx="652" cy="257" r="7"/><circle cx="652" cy="285" r="7"/><circle cx="652" cy="313" r="7"/><circle cx="652" cy="341" r="7"/>
+    </g>
+  </g>
+  <g id="part-silver-hardware" fill="#C9A227" stroke="#BFC5CC" stroke-width="2">
+    <circle cx="112" cy="118" r="3"/><circle cx="140" cy="118" r="3"/><circle cx="168" cy="118" r="3"/><circle cx="196" cy="118" r="3"/><circle cx="224" cy="118" r="3"/><circle cx="252" cy="118" r="3"/><circle cx="280" cy="118" r="3"/><circle cx="308" cy="118" r="3"/><circle cx="336" cy="118" r="3"/><circle cx="364" cy="118" r="3"/><circle cx="392" cy="118" r="3"/><circle cx="420" cy="118" r="3"/><circle cx="448" cy="118" r="3"/><circle cx="476" cy="118" r="3"/><circle cx="504" cy="118" r="3"/><circle cx="532" cy="118" r="3"/><circle cx="560" cy="118" r="3"/><circle cx="588" cy="118" r="3"/><circle cx="620" cy="118" r="3"/><circle cx="652" cy="118" r="3"/>
+  </g>
+  <g id="part-east-opening">
+    <path d="M652 118v74m0 102v74" fill="none" stroke="#f4eee0" stroke-width="8"/>
+    <path d="M652 192v102" fill="none" stroke="#2E4F8F" stroke-width="10"/>
+    <path d="M652 192v102" fill="none" stroke="#6B2D5C" stroke-width="5" stroke-dasharray="6 8"/>
+    <circle cx="652" cy="192" r="8" fill="#A0673A"/><circle cx="652" cy="226" r="8" fill="#A0673A"/><circle cx="652" cy="260" r="8" fill="#A0673A"/><circle cx="652" cy="294" r="8" fill="#A0673A"/>
+  </g>
+</svg>

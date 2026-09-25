@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Elevação esquemática das cortinas e colunas do pátio">
+  <rect width="800" height="520" fill="#17262a"/>
+  <g id="part-linen-enclosure" fill="none" stroke="#f4eee0" stroke-width="8">
+    <path d="M108 376V210H665V376"/>
+    <path d="M108 210H665" stroke="#BFC5CC" stroke-width="2" stroke-dasharray="7 6"/>
+  </g>
+  <g id="part-posts" stroke="#A0673A" stroke-width="13">
+    <path d="M108 376V200M137 376V200M166 376V200M195 376V200M224 376V200M253 376V200M282 376V200M311 376V200M340 376V200M369 376V200M398 376V200M427 376V200M456 376V200M485 376V200M514 376V200M543 376V200M572 376V200M601 376V200M630 376V200M665 376V200"/>
+  </g>
+  <g id="part-silver-hardware" fill="#C9A227" stroke="#BFC5CC" stroke-width="2">
+    <circle cx="108" cy="204" r="7"/><circle cx="137" cy="204" r="7"/><circle cx="166" cy="204" r="7"/><circle cx="195" cy="204" r="7"/><circle cx="224" cy="204" r="7"/><circle cx="253" cy="204" r="7"/><circle cx="282" cy="204" r="7"/><circle cx="311" cy="204" r="7"/><circle cx="340" cy="204" r="7"/><circle cx="369" cy="204" r="7"/><circle cx="398" cy="204" r="7"/><circle cx="427" cy="204" r="7"/><circle cx="456" cy="204" r="7"/><circle cx="485" cy="204" r="7"/><circle cx="514" cy="204" r="7"/><circle cx="543" cy="204" r="7"/><circle cx="572" cy="204" r="7"/><circle cx="601" cy="204" r="7"/><circle cx="630" cy="204" r="7"/><circle cx="665" cy="204" r="7"/>
+  </g>
+  <g id="part-east-opening">
+    <path d="M665 210v68m0 45v53" stroke="#BFC5CC" stroke-width="8"/>
+    <path d="M665 278v45" stroke="#2E4F8F" stroke-width="12"/>
+    <path d="M665 278v45" stroke="#9E1B32" stroke-width="4" stroke-dasharray="6 6"/>
+    <circle cx="665" cy="278" r="8" fill="#A0673A"/><circle cx="665" cy="293" r="8" fill="#A0673A"/><circle cx="665" cy="308" r="8" fill="#A0673A"/><circle cx="665" cy="323" r="8" fill="#A0673A"/>
+  </g>
+</svg>

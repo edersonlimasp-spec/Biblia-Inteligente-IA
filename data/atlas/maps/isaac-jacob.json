@@ -1,0 +1,840 @@
+{
+  "id": "isaac-jacob",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Gen"
+  ],
+  "characters": [
+    "Isaque",
+    "Jacó",
+    "Labão"
+  ],
+  "period": "Horizonte patriarcal; datação histórica não demonstrada",
+  "title": "Isaque e Jacó",
+  "subtitle": "Gn 26–35: locais textuais, retornos e travessias incertas",
+  "summary": "O recorte começa com Isaque em Gerar e acompanha Jacó desde Berseba: Betel, Harã e o retorno por Gileade, Maanaim, Peniel, Sucote, Siquém, Betel, Efrata e Hebrom. Lugares sem sítio ou travessia identificável permanecem sem pino; as conexões desenhadas são apenas esquemas parciais.",
+  "modernSummary": "O recorte abrange o sul de Israel, a Cisjordânia, a Jordânia e o sudeste da Turquia. Nem todos os locais do texto são identificáveis hoje.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Isaque e Jacó",
+    "Padã-Arã",
+    "Jaboque",
+    "Efrata",
+    "Maanaim",
+    "Peniel",
+    "Gen",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Origens e patriarcas",
+  "order": 4,
+  "era": "Origens e patriarcas",
+  "modernOverview": "Berseba e o candidato a Gerar ficam no sul de Israel. Betel, Siquém, Belém e Hebrom ficam na Cisjordânia. Harã fica na Turquia; o vale do Jaboque e a região de Sucote ficam na Jordânia. Maanaim, o acampamento de Gileade e o vau do Jaboque não possuem ponto confiável nesta compilação.",
+  "keyReferences": [
+    {
+      "book": "Gen",
+      "chapter": 26,
+      "verseStart": 1,
+      "verseEnd": 6,
+      "label": "Gen 26:1–6"
+    },
+    {
+      "book": "Gen",
+      "chapter": 28,
+      "verseStart": 10,
+      "verseEnd": 19,
+      "label": "Gen 28:10–19"
+    },
+    {
+      "book": "Gen",
+      "chapter": 29,
+      "verseStart": 4,
+      "label": "Gen 29:4"
+    },
+    {
+      "book": "Gen",
+      "chapter": 31,
+      "verseStart": 21,
+      "label": "Gen 31:21"
+    },
+    {
+      "book": "Gen",
+      "chapter": 32,
+      "verseStart": 2,
+      "verseEnd": 31,
+      "label": "Gen 32:2–31"
+    },
+    {
+      "book": "Gen",
+      "chapter": 33,
+      "verseStart": 17,
+      "verseEnd": 18,
+      "label": "Gen 33:17–18"
+    },
+    {
+      "book": "Gen",
+      "chapter": 35,
+      "verseStart": 6,
+      "verseEnd": 27,
+      "label": "Gen 35:6–27"
+    }
+  ],
+  "aliases": [
+    "Isaque e Jacó",
+    "Padã-Arã",
+    "Jaboque",
+    "Efrata",
+    "Maanaim",
+    "Peniel",
+    "Berseba",
+    "Gerar",
+    "Betel",
+    "Harã (Padã-Arã)",
+    "Gileade",
+    "Peniel/Penuel",
+    "Vau do Jaboque",
+    "Sucote (leste do Jordão)",
+    "Siquém",
+    "Belém/Efrata",
+    "Hebrom"
+  ],
+  "references": [
+    {
+      "book": "Gen",
+      "chapter": 26,
+      "verseStart": 1,
+      "verseEnd": 6,
+      "label": "Gen 26:1–6"
+    },
+    {
+      "book": "Gen",
+      "chapter": 28,
+      "verseStart": 10,
+      "verseEnd": 19,
+      "label": "Gen 28:10–19"
+    },
+    {
+      "book": "Gen",
+      "chapter": 29,
+      "verseStart": 4,
+      "label": "Gen 29:4"
+    },
+    {
+      "book": "Gen",
+      "chapter": 31,
+      "verseStart": 21,
+      "label": "Gen 31:21"
+    },
+    {
+      "book": "Gen",
+      "chapter": 32,
+      "verseStart": 2,
+      "verseEnd": 31,
+      "label": "Gen 32:2–31"
+    },
+    {
+      "book": "Gen",
+      "chapter": 33,
+      "verseStart": 17,
+      "verseEnd": 18,
+      "label": "Gen 33:17–18"
+    },
+    {
+      "book": "Gen",
+      "chapter": 35,
+      "verseStart": 6,
+      "verseEnd": 27,
+      "label": "Gen 35:6–27"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Chave, coordenadas brutas e passagens preservadas em docs/atlas/evidence/openbible-merged.txt. Identificações debatidas não são confirmação arqueológica."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "A referência fundamenta a sequência textual, não demonstra a localização de um evento."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "As linhas unem somente pontos de fonte, não registram estradas nem distâncias percorridas. Não são fronteiras antigas."
+    }
+  ],
+  "places": [
+    {
+      "id": "beersheba",
+      "name": "Berseba",
+      "modernName": "Tel Be'er Sheva, perto de Be'er Sheva, Israel",
+      "coordinates": [
+        34.8408885849849,
+        31.24495217357714
+      ],
+      "certainty": "probable",
+      "explanation": "Partida de Jacó; o sítio antigo não é a casa individual de Isaque. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 28,
+          "verseStart": 10,
+          "label": "Gen 28:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "gerar",
+      "name": "Gerar",
+      "modernName": "Região de Tel Haror, sul de Israel; identificação discutida",
+      "coordinates": [
+        34.56057015639144,
+        31.39129109635703
+      ],
+      "certainty": "debated",
+      "explanation": "Local de Isaque na narrativa; associação do sítio é debatida. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 26,
+          "verseStart": 1,
+          "label": "Gen 26:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "bethel",
+      "name": "Betel",
+      "modernName": "Área de Beitin, Cisjordânia; identificação provável",
+      "coordinates": [
+        35.22103274923676,
+        31.93053920580005
+      ],
+      "certainty": "probable",
+      "explanation": "Identificação de Betel com Beitin é comum, não prova a pedra do relato. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 28,
+          "verseStart": 19,
+          "label": "Gen 28:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "haran",
+      "name": "Harã (Padã-Arã)",
+      "modernName": "Harran, Turquia",
+      "coordinates": [
+        39.03219672227345,
+        36.86386407659651
+      ],
+      "certainty": "probable",
+      "explanation": "A cidade de Harã representa a região de Padã-Arã; não identifica a casa de Labão. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 29,
+          "verseStart": 4,
+          "label": "Gen 29:4"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "gilead",
+      "name": "Gileade",
+      "modernName": "Região a leste do Jordão, sobretudo Jordânia; ponto exato desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "O geocódigo Gilead aponta para um ponto genérico de região (>), não para o acampamento de Jacó.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 31,
+          "verseStart": 21,
+          "label": "Gen 31:21"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "mahanaim",
+      "name": "Maanaim",
+      "modernName": "Transjordânia, Jordânia; localização debatida",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "OpenBible sinaliza seu ponto com '?'; não usar esse candidato como localização comprovada.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 32,
+          "verseStart": 2,
+          "label": "Gen 32:2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "peniel",
+      "name": "Peniel/Penuel",
+      "modernName": "Vale do Jaboque, Jordânia; sítio debatido",
+      "coordinates": [
+        35.70287002746794,
+        32.1843727808126
+      ],
+      "certainty": "debated",
+      "explanation": "O ponto de Penuel é um candidato; não localiza o encontro noturno com precisão. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 32,
+          "verseStart": 30,
+          "label": "Gen 32:30"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "jabbok-ford",
+      "name": "Vau do Jaboque",
+      "modernName": "Rio Zarqa, Jordânia; vau exato desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A fonte geocodifica o rio Jaboque, não o vau atravessado por Jacó. Não substituir a travessia pelo ponto do rio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 32,
+          "verseStart": 22,
+          "label": "Gen 32:22"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "succoth",
+      "name": "Sucote (leste do Jordão)",
+      "modernName": "Vale do Jordão oriental, Jordânia; sítio debatido",
+      "coordinates": [
+        35.63331303389634,
+        32.19998298531073
+      ],
+      "certainty": "debated",
+      "explanation": "Distinta de Sucote do Egito. O sítio específico é discutido. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 33,
+          "verseStart": 17,
+          "label": "Gen 33:17"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "shechem",
+      "name": "Siquém",
+      "modernName": "Tell Balata, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.2817986718367,
+        32.21369123124062
+      ],
+      "certainty": "probable",
+      "explanation": "Localidade da narrativa de retorno. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 33,
+          "verseStart": 18,
+          "label": "Gen 33:18"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "bethlehem",
+      "name": "Belém/Efrata",
+      "modernName": "Belém, Cisjordânia",
+      "coordinates": [
+        35.21026630105202,
+        31.70536129174666
+      ],
+      "certainty": "probable",
+      "explanation": "Localidade ligada ao sepultamento de Raquel; não localiza o túmulo com exatidão. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 35,
+          "verseStart": 19,
+          "label": "Gen 35:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "hebron",
+      "name": "Hebrom",
+      "modernName": "Al-Khalil/Hebrom, Cisjordânia",
+      "coordinates": [
+        35.09409986578734,
+        31.53577362133176
+      ],
+      "certainty": "probable",
+      "explanation": "Chegada à região onde Isaque viveu, sem identificar sua residência. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 35,
+          "verseStart": 27,
+          "label": "Gen 35:27"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "departure",
+      "label": "Berseba → Betel → Harã",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.8408885849849,
+          31.24495217357714
+        ],
+        [
+          35.22103274923676,
+          31.93053920580005
+        ],
+        [
+          39.03219672227345,
+          36.86386407659651
+        ]
+      ],
+      "explanation": "ESQUEMÁTICA; NÃO É ESTRADA OU PERCURSO COMPROVADO. Ordem de Gênesis 28–29; não representa estrada.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "return-south",
+      "label": "Peniel → Sucote → Siquém → Betel → Belém → Hebrom",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.70287002746794,
+          32.1843727808126
+        ],
+        [
+          35.63331303389634,
+          32.19998298531073
+        ],
+        [
+          35.2817986718367,
+          32.21369123124062
+        ],
+        [
+          35.22103274923676,
+          31.93053920580005
+        ],
+        [
+          35.21026630105202,
+          31.70536129174666
+        ],
+        [
+          35.09409986578734,
+          31.53577362133176
+        ]
+      ],
+      "explanation": "ESQUEMÁTICA; NÃO É ESTRADA OU PERCURSO COMPROVADO. Trecho final de Gênesis 32–35; a lacuna Harã–Peniel fica sem linha porque Gileade e Maanaim não têm geocódigos aceitos.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    }
+  ],
+  "narrative": [
+    {
+      "placeId": "gerar",
+      "explanation": "Isaque permanece na região de Gerar, sem que seu acampamento seja identificável.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 26,
+        "verseStart": 6,
+        "label": "Gen 26:6"
+      }
+    },
+    {
+      "placeId": "beersheba",
+      "explanation": "Jacó parte de Berseba em direção a Harã.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 28,
+        "verseStart": 10,
+        "label": "Gen 28:10"
+      }
+    },
+    {
+      "placeId": "bethel",
+      "explanation": "Jacó chama o lugar de Betel depois do sonho.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 28,
+        "verseStart": 19,
+        "label": "Gen 28:19"
+      }
+    },
+    {
+      "placeId": "haran",
+      "explanation": "Jacó chega à região de Harã; Padã-Arã não é uma cidade distinta.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 29,
+        "verseStart": 4,
+        "label": "Gen 29:4"
+      }
+    },
+    {
+      "placeId": "gilead",
+      "explanation": "Na volta, Jacó atravessa a região de Gileade; seu acampamento não é conhecido.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 31,
+        "verseStart": 21,
+        "label": "Gen 31:21"
+      }
+    },
+    {
+      "placeId": "mahanaim",
+      "explanation": "O relato nomeia Maanaim, mas a localização do sítio é debatida.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 32,
+        "verseStart": 2,
+        "label": "Gen 32:2"
+      }
+    },
+    {
+      "placeId": "jabbok-ford",
+      "explanation": "O texto menciona o vau do Jaboque, não um ponto de travessia recuperável.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 32,
+        "verseStart": 22,
+        "label": "Gen 32:22"
+      }
+    },
+    {
+      "placeId": "peniel",
+      "explanation": "Peniel é um candidato regional, não a posição exata do encontro.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 32,
+        "verseStart": 30,
+        "label": "Gen 32:30"
+      }
+    },
+    {
+      "placeId": "succoth",
+      "explanation": "Jacó ergue uma casa em Sucote, a leste do Jordão.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 33,
+        "verseStart": 17,
+        "label": "Gen 33:17"
+      }
+    },
+    {
+      "placeId": "shechem",
+      "explanation": "Depois chega à região de Siquém.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 33,
+        "verseStart": 18,
+        "label": "Gen 33:18"
+      }
+    },
+    {
+      "placeId": "bethel",
+      "explanation": "O retorno a Betel ocorre em Gênesis 35.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 35,
+        "verseStart": 6,
+        "label": "Gen 35:6"
+      }
+    },
+    {
+      "placeId": "bethlehem",
+      "explanation": "A narrativa segue pela região de Efrata, identificada com Belém.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 35,
+        "verseStart": 19,
+        "label": "Gen 35:19"
+      }
+    },
+    {
+      "placeId": "hebron",
+      "explanation": "Jacó chega a Isaque na região de Hebrom.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 35,
+        "verseStart": 27,
+        "label": "Gen 35:27"
+      }
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "gerar",
+      "title": "Gerar",
+      "text": "Isaque permanece na região de Gerar, sem que seu acampamento seja identificável.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 26,
+        "verseStart": 6,
+        "label": "Gen 26:6"
+      }
+    },
+    {
+      "placeId": "beersheba",
+      "title": "Berseba",
+      "text": "Jacó parte de Berseba em direção a Harã.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 28,
+        "verseStart": 10,
+        "label": "Gen 28:10"
+      }
+    },
+    {
+      "placeId": "bethel",
+      "title": "Betel",
+      "text": "Jacó chama o lugar de Betel depois do sonho.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 28,
+        "verseStart": 19,
+        "label": "Gen 28:19"
+      }
+    },
+    {
+      "placeId": "haran",
+      "title": "Harã",
+      "text": "Jacó chega à região de Harã; Padã-Arã não é uma cidade distinta.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 29,
+        "verseStart": 4,
+        "label": "Gen 29:4"
+      }
+    },
+    {
+      "placeId": "gilead",
+      "title": "Gileade",
+      "text": "Na volta, Jacó atravessa a região de Gileade; seu acampamento não é conhecido.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 31,
+        "verseStart": 21,
+        "label": "Gen 31:21"
+      }
+    },
+    {
+      "placeId": "mahanaim",
+      "title": "Maanaim",
+      "text": "O relato nomeia Maanaim, mas a localização do sítio é debatida.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 32,
+        "verseStart": 2,
+        "label": "Gen 32:2"
+      }
+    },
+    {
+      "placeId": "jabbok-ford",
+      "title": "Vau do Jaboque",
+      "text": "O texto menciona o vau do Jaboque, não um ponto de travessia recuperável.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 32,
+        "verseStart": 22,
+        "label": "Gen 32:22"
+      }
+    },
+    {
+      "placeId": "peniel",
+      "title": "Peniel/Penuel",
+      "text": "Peniel é um candidato regional, não a posição exata do encontro.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 32,
+        "verseStart": 30,
+        "label": "Gen 32:30"
+      }
+    },
+    {
+      "placeId": "succoth",
+      "title": "Sucote",
+      "text": "Jacó ergue uma casa em Sucote, a leste do Jordão.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 33,
+        "verseStart": 17,
+        "label": "Gen 33:17"
+      }
+    },
+    {
+      "placeId": "shechem",
+      "title": "Siquém",
+      "text": "Depois chega à região de Siquém.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 33,
+        "verseStart": 18,
+        "label": "Gen 33:18"
+      }
+    },
+    {
+      "placeId": "bethel",
+      "title": "Betel",
+      "text": "O retorno a Betel ocorre em Gênesis 35.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 35,
+        "verseStart": 6,
+        "label": "Gen 35:6"
+      }
+    },
+    {
+      "placeId": "bethlehem",
+      "title": "Belém/Efrata",
+      "text": "A narrativa segue pela região de Efrata, identificada com Belém.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 35,
+        "verseStart": 19,
+        "label": "Gen 35:19"
+      }
+    },
+    {
+      "placeId": "hebron",
+      "title": "Hebrom",
+      "text": "Jacó chega a Isaque na região de Hebrom.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 35,
+        "verseStart": 27,
+        "label": "Gen 35:27"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Gerar é o cenário da permanência de Isaque entre os filisteus; o ponto moderno é uma identificação debatida.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 26,
+        "verseStart": 1,
+        "verseEnd": 6,
+        "label": "Gen 26:1–6"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Jacó recebe o nome Betel para o lugar onde teve o sonho durante a viagem a Harã.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 28,
+        "verseStart": 19,
+        "label": "Gen 28:19"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Em Sucote, Jacó constrói uma casa e faz abrigos para o rebanho antes de chegar a Siquém.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 33,
+        "verseStart": 17,
+        "verseEnd": 18,
+        "label": "Gen 33:17–18"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    34.56057015639144,
+    31.24495217357714,
+    39.03219672227345,
+    36.86386407659651
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Coordenadas não nulas transcritas de chaves exatas do OpenBible retido; localizações incertas não recebem pino.",
+      "Referências, sequência narrativa e limites compilados editorialmente; nenhuma revisão especializada afirmada."
+    ],
+    "uncertainties": [
+      "Gn 26–35: locais textuais, retornos e travessias incertas",
+      "Pontuação do geocodificador não comprova o episódio, o trajeto ou a época; as alternativas estão anotadas em cada local e na revisão."
+    ],
+    "methodology": "Compilação editorial reprodutível a partir do OpenBible legado preservado. Linhas unicamente entre pontos documentados, sempre esquemáticas; não representam caminhos reais. Locais sem identificação confiável permanecem sem coordenada."
+  }
+}

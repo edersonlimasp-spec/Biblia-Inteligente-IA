@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Elevação esquemática da cortina bordada e suas colunas">
+  <rect width="800" height="520" fill="#17262a"/>
+  <g id="part-side-curtains">
+    <path d="M102 364V242H311M489 242H698V364" fill="none" stroke="#f4eee0" stroke-width="9"/>
+    <path d="M102 242H311M489 242H698" fill="none" stroke="#BFC5CC" stroke-width="3" stroke-dasharray="6 5"/>
+    <path d="M102 242v122M206 242v122M311 242v122M489 242v122M594 242v122M698 242v122" stroke="#A0673A" stroke-width="10"/>
+  </g>
+  <g id="part-gate-curtain">
+    <path d="M311 242H489V364H311z" fill="#2E4F8F" fill-opacity=".75" stroke="#C9A227" stroke-width="4"/>
+    <path d="M311 242v122m45-122v122m44-122v122m45-122v122m44-122v122" stroke="#6B2D5C" stroke-width="5"/>
+    <path d="M311 284h178" stroke="#9E1B32" stroke-width="12"/>
+    <path d="M320 251h160v102H320z" fill="none" stroke="#f4eee0" stroke-width="2" stroke-dasharray="5 6"/>
+  </g>
+  <g id="part-columns" stroke="#A0673A" stroke-width="14">
+    <path d="M311 366V232M370 366V232M430 366V232M489 366V232"/>
+  </g>
+  <g id="part-materials" fill="#C9A227" stroke="#BFC5CC" stroke-width="2">
+    <circle cx="311" cy="233" r="8"/><circle cx="370" cy="233" r="8"/><circle cx="430" cy="233" r="8"/><circle cx="489" cy="233" r="8"/>
+    <path d="M304 366h14m49 0h14m45 0h14m45 0h14" stroke-width="10"/>
+  </g>
+</svg>

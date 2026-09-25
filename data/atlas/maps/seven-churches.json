@@ -332,6 +332,86 @@
     29.7,
     39.6
   ],
+  "storySteps": [
+    {
+      "placeId": "ephesus",
+      "title": "Éfeso",
+      "text": "A primeira mensagem do Apocalipse é dirigida à comunidade de Éfeso.",
+      "reference": {
+        "book": "Rev",
+        "chapter": 2,
+        "verseStart": 1,
+        "label": "Rev 2:1"
+      }
+    },
+    {
+      "placeId": "thyatira",
+      "title": "Tiatira",
+      "text": "A mensagem a Tiatira elogia obras, amor, fé, serviço e perseverança, mas censura a tolerância a Jezabel.",
+      "reference": {
+        "book": "Rev",
+        "chapter": 2,
+        "verseStart": 18,
+        "verseEnd": 20,
+        "label": "Rev 2:18–20"
+      }
+    },
+    {
+      "placeId": "laodicea",
+      "title": "Laodiceia",
+      "text": "O ciclo termina com Laodiceia; a ordem textual das mensagens não prova o trajeto físico de João.",
+      "reference": {
+        "book": "Rev",
+        "chapter": 3,
+        "verseStart": 14,
+        "verseEnd": 16,
+        "label": "Rev 3:14–16"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "As sete cidades são nomeadas como destinatárias de mensagens, não como pontos de uma fronteira política.",
+      "reference": {
+        "book": "Rev",
+        "chapter": 1,
+        "verseStart": 11,
+        "label": "Rev 1:11"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "A mensagem a Esmirna inclui a promessa da coroa da vida aos fiéis.",
+      "reference": {
+        "book": "Rev",
+        "chapter": 2,
+        "verseStart": 8,
+        "verseEnd": 10,
+        "label": "Rev 2:8–10"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Laodiceia aparece por último na sequência e é repreendida por sua mornidão.",
+      "reference": {
+        "book": "Rev",
+        "chapter": 3,
+        "verseStart": 14,
+        "verseEnd": 16,
+        "label": "Rev 3:14–16"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
   "review": {
     "date": "2026-09-24",
     "status": "documented",

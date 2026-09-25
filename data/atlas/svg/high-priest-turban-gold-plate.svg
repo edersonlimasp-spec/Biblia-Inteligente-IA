@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" role="img" aria-label="Mitra de linho fino do sumo sacerdote com lâmina frontal de ouro puro e cordão azul">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#152830"/><stop offset="1" stop-color="#0d1c23"/></linearGradient>
+    <linearGradient id="linen" x2="1" y2="1"><stop stop-color="#f0e8cf"/><stop offset=".52" stop-color="#cfc4a8"/><stop offset="1" stop-color="#938b7b"/></linearGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#ffeb9a"/><stop offset=".44" stop-color="#dfb947"/><stop offset="1" stop-color="#986a24"/></linearGradient>
+    <linearGradient id="skin" x2="1" y2="1"><stop stop-color="#d5a981"/><stop offset="1" stop-color="#946b50"/></linearGradient>
+    <pattern id="linenWeave" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 2h10M2 0v10" stroke="#725f45" stroke-opacity=".14"/></pattern>
+    <filter id="shadow" x="-.3" y="-.3" width="1.7" height="1.7"><feDropShadow dx="0" dy="9" stdDeviation="10" flood-color="#02080b" flood-opacity=".5"/></filter>
+  </defs>
+  <rect width="960" height="680" rx="28" fill="url(#bg)"/>
+  <path d="M36 105h888" stroke="#87a5aa" stroke-opacity=".2"/>
+  <text x="54" y="58" fill="#f4eee1" font-family="Georgia,serif" font-size="28">Mitra e lâmina de ouro</text>
+  <text x="56" y="84" fill="#9eb7b9" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">SUMO SACERDOTE · DETALHE FRONTAL</text>
+  <rect x="38" y="127" width="532" height="500" rx="22" fill="#192f38" stroke="#45616a" stroke-opacity=".52"/>
+  <ellipse cx="303" cy="572" rx="155" ry="14" fill="#071116" opacity=".65"/>
+  <g filter="url(#shadow)">
+    <path d="M204 447q9-81 36-124 10-15 16-43h96q6 28 16 43 27 43 36 124l-17 85H221z" fill="#35454a" stroke="#697a76" stroke-width="2"/>
+    <path d="M249 334q54 22 108 0l26 207H224z" fill="#e3dac0" stroke="#f0e8cf" stroke-opacity=".6" stroke-width="2"/>
+    <path d="M249 334q54 22 108 0l26 207H224z" fill="url(#linenWeave)"/>
+    <path d="M226 537q75 19 154 0" fill="none" stroke="#c6b98f" stroke-width="8"/>
+    <path d="M255 296q0-62 49-80 52 13 48 80l-10 56q-38 27-78 0z" fill="url(#skin)" stroke="#ecc7a3" stroke-opacity=".45" stroke-width="2"/>
+    <g id="part-linen-mitre">
+      <path d="M237 255q3-73 67-81 70 10 72 80l-21 67H257z" fill="url(#linen)" stroke="#fff4d9" stroke-opacity=".7" stroke-width="3"/>
+      <path d="M237 255q3-73 67-81 70 10 72 80l-21 67H257z" fill="url(#linenWeave)"/>
+      <path d="M244 237q37-49 114-34m-115 57q57-26 119-7m-103 31q43-19 94-7" fill="none" stroke="#8a806c" stroke-opacity=".38" stroke-width="9"/>
+    </g>
+    <path d="M237 263q61 16 137-1" fill="none" stroke="#15557f" stroke-width="7"/>
+  </g>
+  <g id="part-blue-cord">
+    <path d="M237 263q61 16 137-1" fill="none" stroke="#55a9cf" stroke-width="3"/>
+  </g>
+  <g id="part-gold-plate">
+    <path d="M256 249q51 11 99 0l-8 41q-43 9-84 0z" fill="url(#gold)" stroke="#fff0ad" stroke-width="2"/>
+    <path d="M264 255q42 7 82 0" fill="none" stroke="#fff4c8" stroke-opacity=".7" stroke-width="1"/>
+  </g>
+  <text x="276" y="275" fill="#513817" font-family="Georgia,serif" font-size="10" font-weight="bold" text-anchor="middle">SANTIDADE</text>
+  <text x="305" y="286" fill="#513817" font-family="Georgia,serif" font-size="8" font-weight="bold" text-anchor="middle">AO SENHOR</text>
+  <rect x="593" y="127" width="329" height="500" rx="22" fill="#1a3038" stroke="#45616a" stroke-opacity=".52"/>
+  <text x="620" y="166" fill="#c3d3ce" font-family="Arial,sans-serif" font-size="13" letter-spacing="1.5">PEÇA ISOLADA · ESQUEMA</text>
+  <g transform="translate(628 206)" filter="url(#shadow)">
+    <path d="M44 146q7-80 75-94 68 10 75 94l-21 43H65z" fill="url(#linen)" stroke="#fff0d0" stroke-width="2"/>
+    <path d="M44 146q7-80 75-94 68 10 75 94l-21 43H65z" fill="url(#linenWeave)"/>
+    <path d="M54 120q58-26 130-5m-115 30q55-21 109-8" fill="none" stroke="#8a806c" stroke-opacity=".42" stroke-width="10"/>
+    <path d="M46 151q56 14 116 1" fill="none" stroke="#2477a3" stroke-width="8"/>
+    <path d="M55 142q53 13 110 0l-5 38q-50 10-100 0z" fill="url(#gold)" stroke="#fff0ad" stroke-width="2"/>
+    <text x="107" y="159" fill="#513817" font-family="Georgia,serif" font-size="9" font-weight="bold" text-anchor="middle">SANTIDADE AO SENHOR</text>
+  </g>
+  <path d="M620 426h275" stroke="#8aa2a3" stroke-opacity=".2"/>
+  <g font-family="Arial,sans-serif">
+    <circle cx="635" cy="459" r="6" fill="#d8cfb2"/><text x="651" y="464" fill="#dce3d9" font-size="14">Mitra de linho fino</text>
+    <circle cx="635" cy="498" r="6" fill="#d2a63c"/><text x="651" y="503" fill="#dce3d9" font-size="14">Lâmina de ouro puro</text>
+    <circle cx="635" cy="537" r="6" fill="#2878a1"/><text x="651" y="542" fill="#dce3d9" font-size="14">Atada com cordão azul</text>
+  </g>
+  <text x="620" y="579" fill="#92aaa9" font-family="Arial,sans-serif" font-size="12">Inscrição gravada · dimensões não informadas.</text>
+  <text x="54" y="654" fill="#66878c" font-family="Arial,sans-serif" font-size="11" letter-spacing="1">ÊXODO 28:36–39 · 39:30–31 · LEVÍTICO 8:9</text>
+</svg>

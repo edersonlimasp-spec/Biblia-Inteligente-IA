@@ -1,0 +1,1017 @@
+{
+  "id": "tribes-camp",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Num"
+  ],
+  "characters": [
+    "Moisés",
+    "Arão"
+  ],
+  "period": "Organização do acampamento conforme Números 2–3",
+  "title": "Acampamento das tribos ao redor do Tabernáculo",
+  "subtitle": "Nm 2–3: diagrama de orientação, não mapa geográfico nem planta em escala",
+  "summary": "O Tabernáculo aparece no centro do diagrama textual. Leste: Judá, Issacar e Zebulom; sul: Rúben, Simeão e Gade; oeste: Efraim, Manassés e Benjamim; norte: Dã, Aser e Naftali. A disposição das famílias levíticas é indicada no círculo interno; Números não fornece distâncias nem desenho em escala.",
+  "modernSummary": "Este é um diagrama de orientação textual, não um local identificável no mapa de hoje. Nenhum acampamento foi localizado por coordenadas.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Acampamento das tribos ao redor do Tabernáculo",
+    "Números 2",
+    "Números 3",
+    "tribos",
+    "levitas",
+    "orientação",
+    "censo",
+    "Num",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Êxodo e deserto",
+  "order": 8,
+  "era": "Êxodo e deserto",
+  "modernOverview": "O diagrama não corresponde a um país, cidade ou sítio moderno identificado. As posições cardinais vêm de Números 2–3, não de escavação de um acampamento específico. Os números são os totais de homens recenseados em Números 2, não populações completas. Não há no texto distância entre tribos ou planta em escala.",
+  "keyReferences": [
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 2,
+      "label": "Num 2:2"
+    },
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 3,
+      "verseEnd": 9,
+      "label": "Num 2:3–9"
+    },
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 10,
+      "verseEnd": 16,
+      "label": "Num 2:10–16"
+    },
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 18,
+      "verseEnd": 24,
+      "label": "Num 2:18–24"
+    },
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 25,
+      "verseEnd": 31,
+      "label": "Num 2:25–31"
+    },
+    {
+      "book": "Num",
+      "chapter": 3,
+      "verseStart": 23,
+      "label": "Num 3:23"
+    },
+    {
+      "book": "Num",
+      "chapter": 3,
+      "verseStart": 29,
+      "label": "Num 3:29"
+    },
+    {
+      "book": "Num",
+      "chapter": 3,
+      "verseStart": 35,
+      "label": "Num 3:35"
+    }
+  ],
+  "aliases": [
+    "Acampamento das tribos ao redor do Tabernáculo",
+    "Números 2",
+    "Números 3",
+    "tribos",
+    "levitas",
+    "orientação",
+    "censo",
+    "Judá — 74.600",
+    "Issacar — 54.400",
+    "Zebulom — 57.400",
+    "Rúben — 46.500",
+    "Simeão — 59.300",
+    "Gade — 45.650",
+    "Efraim — 40.500",
+    "Manassés — 32.200",
+    "Benjamim — 35.400",
+    "Dã — 62.700",
+    "Aser — 41.500",
+    "Naftali — 53.400",
+    "Moisés, Arão e sacerdotes",
+    "Gersonitas",
+    "Coatitas",
+    "Meraritas",
+    "Tabernáculo"
+  ],
+  "references": [
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 2,
+      "label": "Num 2:2"
+    },
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 3,
+      "verseEnd": 9,
+      "label": "Num 2:3–9"
+    },
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 10,
+      "verseEnd": 16,
+      "label": "Num 2:10–16"
+    },
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 18,
+      "verseEnd": 24,
+      "label": "Num 2:18–24"
+    },
+    {
+      "book": "Num",
+      "chapter": 2,
+      "verseStart": 25,
+      "verseEnd": 31,
+      "label": "Num 2:25–31"
+    },
+    {
+      "book": "Num",
+      "chapter": 3,
+      "verseStart": 23,
+      "label": "Num 3:23"
+    },
+    {
+      "book": "Num",
+      "chapter": 3,
+      "verseStart": 29,
+      "label": "Num 3:29"
+    },
+    {
+      "book": "Num",
+      "chapter": 3,
+      "verseStart": 35,
+      "label": "Num 3:35"
+    }
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "A referência fundamenta a sequência textual, não demonstra a localização de um evento."
+    }
+  ],
+  "places": [
+    {
+      "id": "judah",
+      "name": "Judá — 74.600",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 3,
+          "label": "Num 2:3"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "issachar",
+      "name": "Issacar — 54.400",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 5,
+          "label": "Num 2:5"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "zebulun",
+      "name": "Zebulom — 57.400",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 7,
+          "label": "Num 2:7"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "reuben",
+      "name": "Rúben — 46.500",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 10,
+          "label": "Num 2:10"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "simeon",
+      "name": "Simeão — 59.300",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 12,
+          "label": "Num 2:12"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "gad",
+      "name": "Gade — 45.650",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 14,
+          "label": "Num 2:14"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "ephraim",
+      "name": "Efraim — 40.500",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 18,
+          "label": "Num 2:18"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "manasseh",
+      "name": "Manassés — 32.200",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 20,
+          "label": "Num 2:20"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "benjamin",
+      "name": "Benjamim — 35.400",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 22,
+          "label": "Num 2:22"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "dan",
+      "name": "Dã — 62.700",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 25,
+          "label": "Num 2:25"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "asher",
+      "name": "Aser — 41.500",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 27,
+          "label": "Num 2:27"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "naphtali",
+      "name": "Naftali — 53.400",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 29,
+          "label": "Num 2:29"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "priests",
+      "name": "Moisés, Arão e sacerdotes",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 3 situa este grupo no leste do Tabernáculo, sem medidas ou contorno.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 3,
+          "verseStart": 38,
+          "label": "Num 3:38"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "gershon",
+      "name": "Gersonitas",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 3 situa este grupo no oeste do Tabernáculo, sem medidas ou contorno.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 3,
+          "verseStart": 23,
+          "label": "Num 3:23"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "kohath",
+      "name": "Coatitas",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 3 situa este grupo no sul do Tabernáculo, sem medidas ou contorno.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 3,
+          "verseStart": 29,
+          "label": "Num 3:29"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "merari",
+      "name": "Meraritas",
+      "modernName": "Acampamento textual; local geográfico desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Números 3 situa este grupo no norte do Tabernáculo, sem medidas ou contorno.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 3,
+          "verseStart": 35,
+          "label": "Num 3:35"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "tabernacle",
+      "name": "Tabernáculo",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Centro do arranjo textual; não é localização geográfica recuperável.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 2,
+          "verseStart": 2,
+          "label": "Num 2:2"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "narrative": [
+    {
+      "placeId": "tabernacle",
+      "explanation": "O Tabernáculo ocupa o centro do arranjo descrito, sem sítio geográfico fixado.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 2,
+        "label": "Num 2:2"
+      }
+    },
+    {
+      "placeId": "judah",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 3,
+        "label": "Num 2:3"
+      }
+    },
+    {
+      "placeId": "issachar",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 5,
+        "label": "Num 2:5"
+      }
+    },
+    {
+      "placeId": "zebulun",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 7,
+        "label": "Num 2:7"
+      }
+    },
+    {
+      "placeId": "reuben",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 10,
+        "label": "Num 2:10"
+      }
+    },
+    {
+      "placeId": "simeon",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 12,
+        "label": "Num 2:12"
+      }
+    },
+    {
+      "placeId": "gad",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 14,
+        "label": "Num 2:14"
+      }
+    },
+    {
+      "placeId": "ephraim",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 18,
+        "label": "Num 2:18"
+      }
+    },
+    {
+      "placeId": "manasseh",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 20,
+        "label": "Num 2:20"
+      }
+    },
+    {
+      "placeId": "benjamin",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 22,
+        "label": "Num 2:22"
+      }
+    },
+    {
+      "placeId": "dan",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 25,
+        "label": "Num 2:25"
+      }
+    },
+    {
+      "placeId": "asher",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 27,
+        "label": "Num 2:27"
+      }
+    },
+    {
+      "placeId": "naphtali",
+      "explanation": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 29,
+        "label": "Num 2:29"
+      }
+    },
+    {
+      "placeId": "priests",
+      "explanation": "Números 3 situa este grupo no leste do Tabernáculo, sem medidas ou contorno.",
+      "reference": {
+        "book": "Num",
+        "chapter": 3,
+        "verseStart": 38,
+        "label": "Num 3:38"
+      }
+    },
+    {
+      "placeId": "gershon",
+      "explanation": "Números 3 situa este grupo no oeste do Tabernáculo, sem medidas ou contorno.",
+      "reference": {
+        "book": "Num",
+        "chapter": 3,
+        "verseStart": 23,
+        "label": "Num 3:23"
+      }
+    },
+    {
+      "placeId": "kohath",
+      "explanation": "Números 3 situa este grupo no sul do Tabernáculo, sem medidas ou contorno.",
+      "reference": {
+        "book": "Num",
+        "chapter": 3,
+        "verseStart": 29,
+        "label": "Num 3:29"
+      }
+    },
+    {
+      "placeId": "merari",
+      "explanation": "Números 3 situa este grupo no norte do Tabernáculo, sem medidas ou contorno.",
+      "reference": {
+        "book": "Num",
+        "chapter": 3,
+        "verseStart": 35,
+        "label": "Num 3:35"
+      }
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "tabernacle",
+      "title": "Tabernáculo",
+      "text": "O Tabernáculo ocupa o centro do arranjo descrito, sem sítio geográfico fixado.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 2,
+        "label": "Num 2:2"
+      }
+    },
+    {
+      "placeId": "judah",
+      "title": "Judá",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 3,
+        "label": "Num 2:3"
+      }
+    },
+    {
+      "placeId": "issachar",
+      "title": "Issacar",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 5,
+        "label": "Num 2:5"
+      }
+    },
+    {
+      "placeId": "zebulun",
+      "title": "Zebulom",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 7,
+        "label": "Num 2:7"
+      }
+    },
+    {
+      "placeId": "reuben",
+      "title": "Rúben",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 10,
+        "label": "Num 2:10"
+      }
+    },
+    {
+      "placeId": "simeon",
+      "title": "Simeão",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 12,
+        "label": "Num 2:12"
+      }
+    },
+    {
+      "placeId": "gad",
+      "title": "Gade",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 14,
+        "label": "Num 2:14"
+      }
+    },
+    {
+      "placeId": "ephraim",
+      "title": "Efraim",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 18,
+        "label": "Num 2:18"
+      }
+    },
+    {
+      "placeId": "manasseh",
+      "title": "Manassés",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 20,
+        "label": "Num 2:20"
+      }
+    },
+    {
+      "placeId": "benjamin",
+      "title": "Benjamim",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 22,
+        "label": "Num 2:22"
+      }
+    },
+    {
+      "placeId": "dan",
+      "title": "Dã",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 25,
+        "label": "Num 2:25"
+      }
+    },
+    {
+      "placeId": "asher",
+      "title": "Aser",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 27,
+        "label": "Num 2:27"
+      }
+    },
+    {
+      "placeId": "naphtali",
+      "title": "Naftali",
+      "text": "Números 2 informa a posição cardinal e o censo, não distâncias, forma geométrica ou localização arqueológica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 29,
+        "label": "Num 2:29"
+      }
+    },
+    {
+      "placeId": "priests",
+      "title": "Moisés, Arão e sacerdotes",
+      "text": "Números 3 situa este grupo no leste do Tabernáculo, sem medidas ou contorno.",
+      "reference": {
+        "book": "Num",
+        "chapter": 3,
+        "verseStart": 38,
+        "label": "Num 3:38"
+      }
+    },
+    {
+      "placeId": "gershon",
+      "title": "Gersonitas",
+      "text": "Números 3 situa este grupo no oeste do Tabernáculo, sem medidas ou contorno.",
+      "reference": {
+        "book": "Num",
+        "chapter": 3,
+        "verseStart": 23,
+        "label": "Num 3:23"
+      }
+    },
+    {
+      "placeId": "kohath",
+      "title": "Coatitas",
+      "text": "Números 3 situa este grupo no sul do Tabernáculo, sem medidas ou contorno.",
+      "reference": {
+        "book": "Num",
+        "chapter": 3,
+        "verseStart": 29,
+        "label": "Num 3:29"
+      }
+    },
+    {
+      "placeId": "merari",
+      "title": "Meraritas",
+      "text": "Números 3 situa este grupo no norte do Tabernáculo, sem medidas ou contorno.",
+      "reference": {
+        "book": "Num",
+        "chapter": 3,
+        "verseStart": 35,
+        "label": "Num 3:35"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Judá, Issacar e Zebulom formam o grupo que acampa ao leste do Tabernáculo.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 3,
+        "verseEnd": 9,
+        "label": "Num 2:3–9"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Rúben, Simeão e Gade ficam ao sul do acampamento; Números 3:29 coloca os coatitas ao sul do Tabernáculo.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 10,
+        "verseEnd": 16,
+        "label": "Num 2:10–16"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Dã, Aser e Naftali ficam ao norte; os números são homens recenseados, não a população total.",
+      "reference": {
+        "book": "Num",
+        "chapter": 2,
+        "verseStart": 25,
+        "verseEnd": 31,
+        "label": "Num 2:25–31"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "tribes-camp.svg",
+    "dimensions": [],
+    "notes": [
+      "Diagrama original, não mapa nem planta em escala.",
+      "Os totais são os do censo de Números 2; não há distância ou formato exato no texto."
+    ],
+    "relatedIds": [
+      "exodus-hypotheses",
+      "wilderness-kadesh"
+    ],
+    "parts": [
+      {
+        "id": "east",
+        "name": "Leste",
+        "description": "Judá, Issacar e Zebulom; sacerdotes a leste do Tabernáculo.",
+        "references": [
+          {
+            "book": "Num",
+            "chapter": 2,
+            "verseStart": 3,
+            "label": "Num 2:3"
+          },
+          {
+            "book": "Num",
+            "chapter": 3,
+            "verseStart": 38,
+            "label": "Num 3:38"
+          }
+        ]
+      },
+      {
+        "id": "south",
+        "name": "Sul",
+        "description": "Rúben, Simeão e Gade; coatitas ao sul do Tabernáculo.",
+        "references": [
+          {
+            "book": "Num",
+            "chapter": 2,
+            "verseStart": 10,
+            "label": "Num 2:10"
+          },
+          {
+            "book": "Num",
+            "chapter": 3,
+            "verseStart": 29,
+            "label": "Num 3:29"
+          }
+        ]
+      },
+      {
+        "id": "west",
+        "name": "Oeste",
+        "description": "Efraim, Manassés e Benjamim; gersonitas a oeste do Tabernáculo.",
+        "references": [
+          {
+            "book": "Num",
+            "chapter": 2,
+            "verseStart": 18,
+            "label": "Num 2:18"
+          },
+          {
+            "book": "Num",
+            "chapter": 3,
+            "verseStart": 23,
+            "label": "Num 3:23"
+          }
+        ]
+      },
+      {
+        "id": "north",
+        "name": "Norte",
+        "description": "Dã, Aser e Naftali; meraritas ao norte do Tabernáculo.",
+        "references": [
+          {
+            "book": "Num",
+            "chapter": 2,
+            "verseStart": 25,
+            "label": "Num 2:25"
+          },
+          {
+            "book": "Num",
+            "chapter": 3,
+            "verseStart": 35,
+            "label": "Num 3:35"
+          }
+        ]
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Coordenadas não nulas transcritas de chaves exatas do OpenBible retido; localizações incertas não recebem pino.",
+      "Referências, sequência narrativa e limites compilados editorialmente; nenhuma revisão especializada afirmada."
+    ],
+    "uncertainties": [
+      "Nm 2–3: diagrama de orientação, não mapa geográfico nem planta em escala",
+      "Pontuação do geocodificador não comprova o episódio, o trajeto ou a época; as alternativas estão anotadas em cada local e na revisão."
+    ],
+    "methodology": "Compilação editorial reprodutível a partir do OpenBible legado preservado. Linhas unicamente entre pontos documentados, sempre esquemáticas; não representam caminhos reais. Locais sem identificação confiável permanecem sem coordenada."
+  }
+}

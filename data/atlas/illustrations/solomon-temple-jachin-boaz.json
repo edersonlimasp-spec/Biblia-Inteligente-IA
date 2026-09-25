@@ -1,0 +1,89 @@
+{
+  "id":"solomon-temple-jachin-boaz",
+  "version":"1",
+  "kind":"illustration",
+  "category":"Templo de Salomão",
+  "testament":"AT",
+  "books":["1Kgs","2Chr","2Kgs","Jer"],
+  "characters":["Salomão","Hirão"],
+  "period":"Templo de Jerusalém atribuído ao reinado de Salomão; inventário do saque de Jerusalém",
+  "title":"Templo de Salomão: colunas Jaquim e Boaz",
+  "subtitle":"Duas colunas de bronze com capitéis; as fontes divergem em algumas cotas",
+  "summary":"As colunas de bronze ficavam diante do templo. 1 Reis e 2 Reis informam altura de 18 côvados; 2 Crônicas 3:15 registra 35 côvados: divergência textual, apresentada sem escolha silenciosa. Circunferência de 12 côvados e espessura de quatro dedos com interior oco são reportadas em Jeremias. Há medidas distintas dos capitéis e contagens de romãs entre os relatos.",
+  "purpose":"As colunas eram elementos monumentais colocados diante da casa. O texto nomeia a coluna à direita Jaquim e a da esquerda Boaz, e descreve capitéis, redes e romãs ornamentais. Não fornece uma função estrutural precisa nem resolve as diferenças entre inventários e relatos.",
+  "modernSummary":"As duas colunas são identificadas no texto como Jaquim, à direita/sul, e Boaz, à esquerda/norte. Alturas, capitéis e romãs têm variações registradas em fontes diferentes; as duas formas são preservadas nos dados e nas legendas.",
+  "certainty":"debated",
+  "sample":false,
+  "keywords":["Jaquim","Boaz","colunas","bronze","capitéis","romãs","redes"],
+  "section":"solomon-temple",
+  "subsection":"Elementos diante do templo",
+  "order":7,
+  "era":"Reinado de Salomão; descrição retrospectiva em relatos do exílio",
+  "modernOverview":"Divergência textual: 1Rs 7:15 relata 18 côvados por coluna; 2Cr 3:15 relata 35; 2Rs 25:17 volta a indicar 18. Para os capitéis, 1Rs 7:16 registra 5 côvados e 2Rs 25:17 registra 3. Contagens de romãs também variam conforme a passagem e o modo de contar.",
+  "keyReferences":[
+    {"book":"1Kgs","chapter":7,"verseStart":15,"verseEnd":22,"label":"1Rs 7:15–22"},
+    {"book":"2Chr","chapter":3,"verseStart":15,"verseEnd":17,"label":"2Cr 3:15–17"},
+    {"book":"2Kgs","chapter":25,"verseStart":17,"label":"2Rs 25:17"},
+    {"book":"Jer","chapter":52,"verseStart":21,"verseEnd":23,"label":"Jr 52:21–23"}
+  ],
+  "aliases":["Jaquim e Boaz","colunas do pórtico","colunas de bronze"],
+  "references":[
+    {"book":"1Kgs","chapter":7,"verseStart":15,"verseEnd":22,"label":"1Rs 7:15–22"},
+    {"book":"2Chr","chapter":3,"verseStart":15,"verseEnd":17,"label":"2Cr 3:15–17"},
+    {"book":"2Kgs","chapter":25,"verseStart":17,"label":"2Rs 25:17"},
+    {"book":"Jer","chapter":52,"verseStart":21,"verseEnd":23,"label":"Jr 52:21–23"}
+  ],
+  "sources":[
+    {"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/","license":"Referência textual; paráfrases originais, sem reprodução de tradução protegida","note":"Conferido nos textos ACF locais server/bible-data/1ki.ts, 2ch.ts, 2ki.ts e jer.ts. Variações são citadas por passagem sem harmonização."}
+  ],
+  "places":[],
+  "overlays":[],
+  "storySteps":[
+    {"placeId":"jachin","title":"Jaquim · direita/sul","text":"Diante do templo, a coluna de Jaquim ficava à direita. 1 Reis e 2 Reis registram 18 côvados para as colunas; 2 Crônicas dá 35 côvados — divergência textual preservada.","reference":{"book":"1Kgs","chapter":7,"verseStart":15,"verseEnd":21,"label":"1Rs 7:15–21"}},
+    {"placeId":"boaz","title":"Boaz · esquerda/norte","text":"A outra coluna recebeu o nome Boaz e ficava à esquerda; 2 Crônicas também registra as duas posições diante do templo.","reference":{"book":"2Chr","chapter":3,"verseStart":15,"verseEnd":17,"label":"2Cr 3:15–17"}},
+    {"placeId":"capitals","title":"Capitéis e ornamentos","text":"Os relatos descrevem redes e romãs de bronze. Altura de capitel: 5 côvados em 1 Reis e 3 em 2 Reis; a diferença é indicada, não resolvida.","reference":{"book":"2Kgs","chapter":25,"verseStart":17,"label":"2Rs 25:17"}}
+  ],
+  "curiosities":[
+    {"text":"A altura registrada é de 18 côvados em 1Rs 7:15 e 2Rs 25:17, contra 35 côvados em 2Cr 3:15; divergência textual, sem harmonização.","reference":{"book":"2Chr","chapter":3,"verseStart":15,"label":"2Cr 3:15"},"sourceIds":["biblical"]},
+    {"text":"Os capitéis têm 5 côvados em 1Rs 7:16, mas 3 côvados no relato de 2Rs 25:17; divergência textual. 1Rs 7:19 ainda descreve uma parte ornamental em forma de lírios com 4 côvados.","reference":{"book":"1Kgs","chapter":7,"verseStart":16,"verseEnd":19,"label":"1Rs 7:16–19"},"sourceIds":["biblical"]},
+    {"text":"1Rs 7:20 menciona 200 romãs em fileiras; 2Cr 3:16 registra 100 entre as correntes; Jr 52:23 fala em 96 de cada lado e 100 ao redor da rede.","reference":{"book":"Jer","chapter":52,"verseStart":23,"label":"Jr 52:23"},"sourceIds":["biblical"]},
+    {"text":"Jr 52:21 descreve as colunas ocas e com espessura de quatro dedos; a unidade não é convertida em medida métrica exata.","reference":{"book":"Jer","chapter":52,"verseStart":21,"label":"Jr 52:21"},"sourceIds":["biblical"]},
+    {"text":"A direita é chamada Jaquim e a esquerda Boaz; 2Cr 3:17 explicita que uma estava à direita e outra à esquerda diante do templo.","reference":{"book":"2Chr","chapter":3,"verseStart":17,"label":"2Cr 3:17"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"solomon-temple-jachin-boaz.svg",
+    "dimensions":[
+      {"label":"Altura das colunas — 1Rs 7:15; 2Rs 25:17","cubits":18,"note":"Medida textual ≈ 8,10 m usando côvado comum aproximado de 0,45 m.","reference":{"book":"1Kgs","chapter":7,"verseStart":15,"label":"1Rs 7:15"}},
+      {"label":"Altura das colunas — 2Cr 3:15 (divergência textual)","cubits":35,"note":"Medida textual distinta, ≈ 15,75 m pela mesma conversão; não substituir silenciosamente os 18 côvados de 1Rs 7:15 e 2Rs 25:17.","reference":{"book":"2Chr","chapter":3,"verseStart":15,"label":"2Cr 3:15"}},
+      {"label":"Circunferência","cubits":12,"note":"Medida textual ≈ 5,40 m; referência descreve um cordão/fio ao redor da coluna.","reference":{"book":"Jer","chapter":52,"verseStart":21,"label":"Jr 52:21"}},
+      {"label":"Altura do capitel — 1Rs 7:16","cubits":5,"note":"Medida textual ≈ 2,25 m; 2Rs 25:17 traz 3 côvados: divergência textual.","reference":{"book":"1Kgs","chapter":7,"verseStart":16,"label":"1Rs 7:16"}},
+      {"label":"Altura do capitel — 2Cr 3:15","cubits":5,"note":"O relato paralelo também indica 5 côvados; Jr 52:22 igualmente registra 5. 2Rs 25:17 informa 3 côvados (divergência textual).","reference":{"book":"2Chr","chapter":3,"verseStart":15,"label":"2Cr 3:15"}},
+      {"label":"Altura do capitel — 2Rs 25:17","cubits":3,"note":"Medida textual ≈ 1,35 m; 1Rs 7:16 traz 5 côvados: divergência textual.","reference":{"book":"2Kgs","chapter":25,"verseStart":17,"label":"2Rs 25:17"}},
+      {"label":"Trabalho em forma de lírios no capitel","cubits":4,"note":"1Rs 7:19 associa 4 côvados à obra de lírios do capitel; o versículo não esclarece como essa parte se relaciona com a altura total do capitel.","reference":{"book":"1Kgs","chapter":7,"verseStart":19,"label":"1Rs 7:19"}},
+      {"label":"Espessura da parede","reportedValue":"4 dedos","note":"medida não informada no texto em côvados; Jr 52:21 dá quatro dedos. Perfil desenhado sem conversão exata.","reference":{"book":"Jer","chapter":52,"verseStart":21,"label":"Jr 52:21"}},
+      {"label":"Contagem de romãs (Jr 52:23)","reportedValue":"96 + 100","note":"Jr 52:23 fala em 96 de um lado e 100 ao redor; 1Rs 7:20 fala em 200 e 2Cr 3:16 em 100: divergência textual, não um total harmonizado.","reference":{"book":"Jer","chapter":52,"verseStart":23,"label":"Jr 52:23"}}
+    ],
+    "notes":[
+      "Divergência textual de altura das colunas: 18 côvados em 1Rs 7:15 e 2Rs 25:17; 35 côvados em 2Cr 3:15. Os desenhos esquemáticos exibem duas marcas de altura e não elegem um valor como solução.",
+      "Divergência textual dos capitéis: 5 côvados em 1Rs 7:16 e 2Cr 3:15; 3 côvados em 2Rs 25:17. O trecho ornamental em lírios de 1Rs 7:19 recebe cota própria de 4 côvados e não é tratado como medida substituta do capitel inteiro.",
+      "Contagens de romãs não são fundidas: 200 em 1Rs 7:20; 100 em 2Cr 3:16; em Jr 52:23, 96 em cada lado e 100 ao redor da rede.",
+      "A silhueta de 1,70 m é uma referência visual moderna. Proporção aparente dos fustes, coroas e ornamentos é esquemática e não mede elementos sem cota.",
+      "Conversão aproximada: côvado comum ≈ 0,45 m. Ez 40:5 descreve uma cana com côvado e palmo adicionais (côvado longo estimado ≈ 0,52 m); 2Cr 3:3 menciona a medida antiga sem equivalência métrica exata."
+    ],
+    "relatedIds":["solomon-temple-overview","solomon-temple-porch"],
+    "views":[
+      {"label":"Planta","svgFile":"solomon-temple-jachin-boaz-planta.svg"},
+      {"label":"Frente","svgFile":"solomon-temple-jachin-boaz-frente.svg"},
+      {"label":"Corte","svgFile":"solomon-temple-jachin-boaz-corte.svg"},
+      {"label":"Vista 3/4","svgFile":"solomon-temple-jachin-boaz.svg"}
+    ],
+    "parts":[
+      {"id":"jachin","name":"Jaquim","description":"Coluna direita (sul), segundo 1Rs 7:21. 18 côvados em 1Rs 7:15 e 2Rs 25:17; 35 em 2Cr 3:15 (divergência textual).","material":"Bronze","references":[{"book":"1Kgs","chapter":7,"verseStart":15,"verseEnd":21,"label":"1Rs 7:15–21"},{"book":"2Chr","chapter":3,"verseStart":15,"verseEnd":17,"label":"2Cr 3:15–17"},{"book":"2Kgs","chapter":25,"verseStart":17,"label":"2Rs 25:17"}],"highlight":{"x":62,"y":54,"width":18,"height":46}},
+      {"id":"boaz","name":"Boaz","description":"Coluna esquerda (norte), segundo 1Rs 7:21. A altura varia por testemunho: 18 em 1Rs/2Rs e 35 em 2Cr (divergência textual).","material":"Bronze","references":[{"book":"1Kgs","chapter":7,"verseStart":15,"verseEnd":21,"label":"1Rs 7:15–21"},{"book":"2Chr","chapter":3,"verseStart":15,"verseEnd":17,"label":"2Cr 3:15–17"},{"book":"2Kgs","chapter":25,"verseStart":17,"label":"2Rs 25:17"}],"highlight":{"x":36,"y":54,"width":18,"height":46}},
+      {"id":"capitals","name":"Capitéis","description":"Bronze fundido com redes e ornamentação. 1Rs 7:16, 2Cr 3:15 e Jr 52:22 registram 5 côvados; 2Rs 25:17 registra 3 (divergência textual). 1Rs 7:19 identifica trecho ornamental de lírios com 4 côvados.","material":"Bronze","references":[{"book":"1Kgs","chapter":7,"verseStart":16,"verseEnd":20,"label":"1Rs 7:16–20"},{"book":"2Chr","chapter":3,"verseStart":15,"label":"2Cr 3:15"},{"book":"2Kgs","chapter":25,"verseStart":17,"label":"2Rs 25:17"},{"book":"Jer","chapter":52,"verseStart":22,"label":"Jr 52:22"}],"highlight":{"x":36,"y":35,"width":46,"height":20}},
+      {"id":"networks-pomegranates","name":"Redes e romãs","description":"Redes e romãs são mencionadas em torno dos capitéis. Contagens variam: 200 (1Rs 7:20), 100 entre as correntes (2Cr 3:16) e 96 de cada lado/100 ao redor da rede (Jr 52:23).","material":"Bronze","references":[{"book":"1Kgs","chapter":7,"verseStart":17,"verseEnd":20,"label":"1Rs 7:17–20"},{"book":"2Chr","chapter":3,"verseStart":16,"label":"2Cr 3:16"},{"book":"Jer","chapter":52,"verseStart":23,"label":"Jr 52:23"}],"highlight":{"x":60,"y":35,"width":40,"height":12}}
+    ]
+  },
+  "review":{"date":"2026-09-24","status":"documented","verified":["1Rs 7:15–22: 18 côvados, circunferência de 12, capitéis de 5, detalhe de lírios de 4, nomes e romãs","2Cr 3:15–17: altura 35, capitéis 5, 100 romãs e posição relativa","2Rs 25:17: coluna 18 e capitel 3 côvados","Jr 52:21–23: circunferência 12, oca, quatro dedos, capitel 5, 96 por lado e 100 ao redor"],"uncertainties":["Divergência textual na altura do fuste (18 em 1Rs/2Rs; 35 em 2Cr) mantida sem harmonização.","Divergência textual na altura dos capitéis (5 em 1Rs; 3 em 2Rs).","Contagens de romãs registram recortes e modos de contagem diferentes; o total harmonizado permanece incerto.","A interpretação da forma, proporção e função construtiva das colunas não é estabelecida pelo desenho."],"methodology":"Conferido nos textos ACF locais server/bible-data/1ki.ts, 2ch.ts, 2ki.ts e jer.ts. Variantes são mantidas lado a lado, com a sua própria referência; cota métrica é conversão aproximada."}
+}

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Diagrama técnico esquemático de um candelabro de sete lâmpadas">
+  <defs>
+    <linearGradient id="gold" x2="0" y2="1">
+      <stop offset="0" stop-color="#C9A227"/>
+      <stop offset=".42" stop-color="#C9A227"/>
+      <stop offset="1" stop-color="#A0673A"/>
+    </linearGradient>
+    <linearGradient id="ground" x2="0" y2="1">
+      <stop stop-color="#17262a"/>
+      <stop offset="1" stop-color="#17262a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="520" fill="url(#ground)"/>
+  <path d="M190 440H610" stroke="#BFC5CC" stroke-opacity=".24" stroke-width="2"/>
+  <g id="part-schematic-boundary" fill="none" stroke="#BFC5CC" stroke-opacity=".5" stroke-width="2" stroke-dasharray="8 8">
+    <rect x="275" y="70" width="250" height="370" rx="120"/>
+  </g>
+  <g id="part-base">
+    <path d="M400 421v-23m-66 23h132l-13 12h-106z" fill="url(#gold)" stroke="#C9A227" stroke-width="2"/>
+    <path d="M353 420h94" stroke="#17262a" stroke-opacity=".45" stroke-width="3"/>
+  </g>
+  <g id="part-central-shaft" fill="none" stroke="url(#gold)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M400 398V142"/>
+    <path d="M385 355h30"/>
+    <path d="M386 279h28"/>
+    <path d="M386 204h28"/>
+  </g>
+  <g id="part-six-branches" fill="none" stroke="url(#gold)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M394 359c-53-1-74-14-77-48-2-20 3-43-6-59-6-10-17-15-33-16"/>
+    <path d="M394 359c-39-1-53-11-56-36-2-19 3-36-4-52-5-11-16-16-32-18"/>
+    <path d="M394 359c-26-1-35-11-37-32-1-16 2-30-4-42-5-10-14-15-27-17"/>
+    <path d="M406 359c53-1 74-14 77-48 2-20-3-43 6-59 6-10 17-15 33-16"/>
+    <path d="M406 359c39-1 53-11 56-36 2-19-3-36 4-52 5-11 16-16 32-18"/>
+    <path d="M406 359c26-1 35-11 37-32 1-16-2-30 4-42 5-10 14-15 27-17"/>
+  </g>
+  <g id="part-almond-ornament" fill="url(#gold)" stroke="#C9A227" stroke-width="1.5">
+    <g transform="translate(280 235)"><path d="M0-19c17 12 17 26 0 38-17-12-17-26 0-38z"/><circle cy="22" r="5"/><path d="M-9 27h18v7h-18z"/></g>
+    <g transform="translate(306 258)"><path d="M0-18c16 11 16 25 0 36-16-11-16-25 0-36z"/><circle cy="20" r="4.5"/><path d="M-8 25h16v6H-8z"/></g>
+    <g transform="translate(326 280)"><path d="M0-17c15 10 15 24 0 34-15-10-15-24 0-34z"/><circle cy="19" r="4"/><path d="M-7 23h14v6H-7z"/></g>
+    <g transform="translate(520 235)"><path d="M0-19c17 12 17 26 0 38-17-12-17-26 0-38z"/><circle cy="22" r="5"/><path d="M-9 27h18v7h-18z"/></g>
+    <g transform="translate(494 258)"><path d="M0-18c16 11 16 25 0 36-16-11-16-25 0-36z"/><circle cy="20" r="4.5"/><path d="M-8 25h16v6H-8z"/></g>
+    <g transform="translate(474 280)"><path d="M0-17c15 10 15 24 0 34-15-10-15-24 0-34z"/><circle cy="19" r="4"/><path d="M-7 23h14v6H-7z"/></g>
+    <g transform="translate(400 170)"><path d="M0-21c18 12 18 28 0 42-18-14-18-30 0-42z"/><circle cy="26" r="5.5"/><path d="M-10 32h20v7h-20z"/></g>
+  </g>
+  <g id="part-seven-lamps">
+    <g fill="#9E1B32" stroke="#C9A227" stroke-width="2">
+      <path d="M260 204h28l-3 14h-22z"/><path d="M286 227h27l-3 14h-21z"/>
+      <path d="M307 249h26l-3 14h-20z"/><path d="M387 126h26l-3 14h-20z"/>
+      <path d="M467 204h28l-3 14h-22z"/><path d="M487 227h27l-3 14h-21z"/>
+      <path d="M467 249h26l-3 14h-20z"/>
+    </g>
+    <g fill="#C9A227" opacity=".82">
+      <path d="M265 201q9-18 18 0z"/><path d="M291 224q9-17 17 0z"/>
+      <path d="M312 246q8-16 16 0z"/><path d="M391 123q9-19 18 0z"/>
+      <path d="M472 201q9-18 18 0z"/><path d="M492 224q9-17 17 0z"/>
+      <path d="M472 246q8-16 16 0z"/>
+    </g>
+  </g>
+  <g id="part-service-tools" fill="none" stroke="#BFC5CC" stroke-width="3">
+    <path d="M136 386l8-42 8 42m-15-19h14"/>
+    <path d="M158 386v-26q8-10 16 0v26m-18 0h20"/>
+    <path d="M647 386l8-42 8 42m-15-19h14"/>
+    <path d="M669 386v-26q8-10 16 0v26m-18 0h20"/>
+  </g>
+</svg>

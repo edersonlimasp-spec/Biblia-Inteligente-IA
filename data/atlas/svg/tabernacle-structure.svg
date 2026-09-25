@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Planta esquemática da estrutura do tabernáculo">
+<rect width="800" height="520" fill="#17262a"/>
+<g id="part-derived-room">
+ <rect x="184" y="141" width="432" height="247" rx="4" fill="#8A6A43" fill-opacity=".08" stroke="#BFC5CC" stroke-width="3" stroke-dasharray="12 9"/>
+ <path d="M184 388H616M184 141V388M616 141V388" fill="none" stroke="#8A6A43" stroke-width="4" opacity=".75"/>
+</g>
+<g id="part-boards" fill="#8A6A43" fill-opacity=".5" stroke="#C9A227" stroke-width="2">
+ <rect x="190" y="145" width="422" height="28"/>
+ <path d="M211 145v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28"/>
+ <rect x="190" y="356" width="422" height="28"/>
+ <path d="M211 356v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28m21-28v28"/>
+ <path d="M190 184h28v20h-28zm0 28h28v20h-28zm0 28h28v20h-28zm0 28h28v20h-28zm0 28h28v20h-28zm0 28h28v20h-28zm0-168h28v20h-28zm0 196h28v20h-28z"/>
+</g>
+<g id="part-bars" fill="none" stroke="#C9A227" stroke-width="3">
+ <path d="M194 149h414M194 155h414M194 161h414M194 167h414M194 173h414"/>
+ <path d="M194 360h414M194 366h414M194 372h414M194 378h414M194 384h414"/>
+ <path d="M194 188v184m6-184v184m6-184v184m6-184v184m6-184v184"/>
+</g>
+<g id="part-sockets" fill="#BFC5CC">
+ <rect x="201" y="378" width="17" height="8"/><rect x="236" y="378" width="17" height="8"/><rect x="271" y="378" width="17" height="8"/><rect x="306" y="378" width="17" height="8"/><rect x="341" y="378" width="17" height="8"/><rect x="376" y="378" width="17" height="8"/><rect x="411" y="378" width="17" height="8"/><rect x="446" y="378" width="17" height="8"/><rect x="481" y="378" width="17" height="8"/><rect x="516" y="378" width="17" height="8"/><rect x="551" y="378" width="17" height="8"/><rect x="586" y="378" width="17" height="8"/>
+ <rect x="172" y="188" width="8" height="18"/><rect x="172" y="232" width="8" height="18"/><rect x="172" y="276" width="8" height="18"/><rect x="172" y="320" width="8" height="18"/>
+ <rect x="620" y="188" width="8" height="18"/><rect x="620" y="232" width="8" height="18"/><rect x="620" y="276" width="8" height="18"/><rect x="620" y="320" width="8" height="18"/>
+</g>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-label="Planta esquemática do Lugar Santo com mobiliário não dimensionado">
+ <rect width="720" height="480" fill="#14231f"/><text x="24" y="34" fill="#f4ead3" font-family="sans-serif" font-size="22" font-weight="700">PLANTA DO HEKAL · MOBILIÁRIO SEM ESCALA</text>
+ <g id="part-cedar"><rect x="142" y="111" width="423" height="234" fill="#7A4E2D" stroke="#c79f69" stroke-width="4"/></g>
+ <g id="part-floor"><rect x="157" y="127" width="392" height="204" fill="#4a674e" stroke="#e6dbbd" stroke-width="2"/><path d="M177 127v204m43-204v204m43-204v204m43-204v204m43-204v204m43-204v204m43-204v204m43-204v204m43-204v204" stroke="#7d9876" stroke-width="2"/></g>
+ <g id="part-tables" fill="#ae8c49" stroke="#f1d67f" stroke-width="2"><rect x="198" y="178" width="57" height="27" rx="3"/><rect x="198" y="238" width="57" height="27" rx="3"/><rect x="451" y="178" width="57" height="27" rx="3"/><rect x="451" y="238" width="57" height="27" rx="3"/></g>
+ <g id="part-lampstands" fill="#e3c75c" stroke="#fff0a4" stroke-width="2"><path d="M285 187v-38m0 14l-13-12m13 12l13-12m-13-7l-8-9m8 9l8-9"/><path d="M344 187v-38m0 14l-13-12m13 12l13-12m-13-7l-8-9m8 9l8-9"/><path d="M403 187v-38m0 14l-13-12m13 12l13-12m-13-7l-8-9m8 9l8-9"/></g>
+ <g id="part-gold-altar"><rect x="335" y="276" width="48" height="33" fill="#d4b54d" stroke="#ffe790" stroke-width="2"/></g>
+ <g id="part-doors"><path d="M549 127V330" stroke="#f1d67f" stroke-width="4"/><path d="M535 149H561M535 310H561" stroke="#f1d67f" stroke-width="3"/></g>
+ <g stroke="#e7d5a2" stroke-width="2" fill="none"><path d="M157 88H549M157 82V94M549 82V94"/><path d="M581 127V331M574 127H588M574 331H588"/></g>
+ <g fill="#f4ead3" font-family="sans-serif" font-size="14"><text x="280" y="77">40 côv. ≈ 18 m</text><text x="595" y="228">20 côv.</text><text x="205" y="294">mesas*</text><text x="284" y="223">candelabros*</text><text x="326" y="326">altar</text></g>
+ <text x="24" y="386" fill="#f2d68c" font-family="sans-serif" font-size="14">O texto cita 5 candelabros de cada lado e 5 mesas de cada lado.</text>
+ <text x="24" y="414" fill="#c5cfbf" font-family="sans-serif" font-size="13">A planta mostra apenas símbolos exemplares; escala/posição de cada peça não informadas.</text>
+ <text x="24" y="446" fill="#c5cfbf" font-family="sans-serif" font-size="13">Largura da casa: 20 côv. ≈ 9 m (1Rs 6:2); paredes e altura interna esquemáticas.</text>
+</svg>

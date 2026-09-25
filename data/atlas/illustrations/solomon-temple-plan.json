@@ -1,0 +1,89 @@
+{
+  "id":"solomon-temple-plan",
+  "version":"1",
+  "kind":"illustration",
+  "category":"Templo de Salomão",
+  "testament":"AT",
+  "books":["1Kgs"],
+  "characters":["Salomão"],
+  "period":"Reinado de Salomão",
+  "title":"Templo de Salomão: planta",
+  "subtitle":"Pórtico, Lugar Santo, debir e câmaras laterais",
+  "summary":"A planta distingue o pórtico (20 × 10 côvados), o Lugar Santo (40 côvados de comprimento) e o Santo dos Santos (20 × 20 × 20). Câmaras laterais rodeiam os espaços descritos. Os contornos mostram relações textuais; paredes e detalhes sem cotas não estão em escala.",
+  "purpose":"Organizar a sequência espacial das dependências da casa descrita em Reis e tornar legível como o pórtico se projeta diante do corpo principal. A planta é um esquema de leitura, não um levantamento arqueológico.",
+  "modernSummary":"A soma axial dos três espaços nomeados na planta é 10 + 40 + 20 côvados; a casa principal soma 40 + 20 = 60 côvados, à parte do pórtico. Espessuras de parede não foram informadas.",
+  "certainty":"established",
+  "sample":false,
+  "keywords":["planta","pórtico","ulam","Lugar Santo","hekal","debir","câmaras laterais"],
+  "section":"solomon-temple",
+  "subsection":"Templo de Salomão",
+  "order":2,
+  "era":"Monarquia unida — Salomão",
+  "modernOverview":"Cotas internas e posição em sequência derivam de 1 Reis 6:3, 5–6, 17 e 20. O pórtico é anterior ao corpo da casa e não deve ser somado como se fosse parte dos 60 côvados longitudinais do corpo.",
+  "keyReferences":[
+    {"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"},
+    {"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":8,"label":"1Rs 6:5–8"},
+    {"book":"1Kgs","chapter":6,"verseStart":17,"verseEnd":20,"label":"1Rs 6:17–20"}
+  ],
+  "aliases":["planta do templo","hekal","debir","oráculo"],
+  "references":[
+    {"book":"1Kgs","chapter":6,"verseStart":3,"verseEnd":8,"label":"1Rs 6:3–8"},
+    {"book":"1Kgs","chapter":6,"verseStart":17,"verseEnd":20,"label":"1Rs 6:17–20"}
+  ],
+  "sources":[
+    {"id":"biblical","title":"Texto bíblico ACF local e referências (paráfrases originais)","url":"https://www.bible.com/pt/bible/212/1KI.6.ACF","license":"Referências e paráfrases próprias; não reproduz texto protegido","note":"Cotas e relações espaciais verificadas em 1 Reis 6. A forma das paredes, corredores e detalhes não mensurados é uma planta esquemática original."}
+  ],
+  "places":[],
+  "overlays":[],
+  "storySteps":[
+    {"placeId":"porch","title":"Pórtico","text":"O pórtico diante da casa mede 20 côvados na largura e 10 côvados de profundidade segundo a descrição de Reis.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}},
+    {"placeId":"hekal","title":"Lugar Santo","text":"A descrição chama de templo anterior o espaço com 40 côvados de comprimento, adiante do oráculo de vinte côvados.","reference":{"book":"1Kgs","chapter":6,"verseStart":17,"label":"1Rs 6:17"}},
+    {"placeId":"debir","title":"Santo dos Santos, ou oráculo","text":"O espaço mais interno, destinado à arca, é descrito como um cubo de 20 côvados por lado.","reference":{"book":"1Kgs","chapter":6,"verseStart":19,"verseEnd":20,"label":"1Rs 6:19–20"}},
+    {"placeId":"side-chambers","title":"Câmaras ao redor","text":"Câmaras laterais circundavam o templo e o oráculo; o desenho mostra sua posição como esquema, não como planta cotada completa.","reference":{"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":6,"label":"1Rs 6:5–6"}}
+  ],
+  "curiosities":[
+    {"text":"O corpo principal resulta em 40 côvados do espaço anterior mais 20 do oráculo; o pórtico de dez côvados de profundidade avança à frente separadamente.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"verseEnd":20,"label":"1Rs 6:3, 17–20"},"sourceIds":["biblical"]},
+    {"text":"A largura e o comprimento do oráculo são ambos de vinte côvados; o texto também explicita vinte côvados de altura.","reference":{"book":"1Kgs","chapter":6,"verseStart":20,"label":"1Rs 6:20"},"sourceIds":["biblical"]},
+    {"text":"As câmaras laterais circundam tanto o templo como o oráculo, com larguras em três níveis indicadas em 1 Reis 6:6.","reference":{"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":6,"label":"1Rs 6:5–6"},"sourceIds":["biblical"]},
+    {"text":"O texto menciona uma subida em caracol entre os níveis das câmaras; a tradução e interpretação do termo são debatidas.","reference":{"book":"1Kgs","chapter":6,"verseStart":8,"label":"1Rs 6:8"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"solomon-temple-plan.svg",
+    "dimensions":[
+      {"label":"Pórtico — largura","cubits":20,"note":"Cota textual; côvado comum ≈ 0,45 m, conversão aproximada.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}},
+      {"label":"Pórtico — profundidade","cubits":10,"note":"Cota textual; côvado comum ≈ 0,45 m, conversão aproximada.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}},
+      {"label":"Corpo da casa — largura","cubits":20,"note":"Cota textual da casa; o traçado das câmaras não integra esta largura cotada.","reference":{"book":"1Kgs","chapter":6,"verseStart":2,"label":"1Rs 6:2"}},
+      {"label":"Lugar Santo — comprimento","cubits":40,"note":"Cota textual para o templo anterior ao oráculo.","reference":{"book":"1Kgs","chapter":6,"verseStart":17,"label":"1Rs 6:17"}},
+      {"label":"Santo dos Santos — comprimento, largura e altura","cubits":20,"note":"20 × 20 × 20 côvados, medida expressa no texto.","reference":{"book":"1Kgs","chapter":6,"verseStart":20,"label":"1Rs 6:20"}},
+      {"label":"Câmaras — larguras nos três níveis","reportedValue":"5 / 6 / 7 côvados","note":"5, 6 e 7 côvados de largura, de baixo para cima (≈ 2,25 / 2,7 / 3,15 m pelo côvado comum); a planta das câmaras ao redor é esquemática.","reference":{"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":6,"label":"1Rs 6:5–6"}},
+      {"label":"Espessura das paredes e largura total das câmaras","note":"medida não informada no texto","reference":{"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":6,"label":"1Rs 6:5–6"}}
+    ],
+    "notes":[
+      "Sequência axial representada: pórtico 10 + Lugar Santo 40 + debir 20 = 70 côvados no esquema, antes de considerar espessuras de parede. Os 60 côvados citados em 1Rs 6:2 correspondem ao corpo principal: 40 + 20; o pórtico se projeta à frente.",
+      "Não se deve chamar a soma 70 de dimensão externa medida: larguras de parede e projeção estrutural não estão informadas. As cotas de cada cômodo têm referência textual própria.",
+      "As cotas dos três compartimentos usam côvado comum ≈ 0,45 m. 2Cr 3:3 menciona a medida antiga; Ez 40:5 descreve côvado e palmo em uma cana, associados à estimativa longa ≈ 0,52 m, não a equivalência métrica exata.",
+      "Retângulos tracejados para câmaras e paredes sem dimensão são apenas indicadores esquemáticos."
+    ],
+    "relatedIds":["solomon-temple-overview","solomon-temple-porch","solomon-temple-holy-place"],
+    "views":[
+      {"label":"Planta","svgFile":"solomon-temple-plan.svg"},
+      {"label":"Frente","svgFile":"solomon-temple-plan-frente.svg"},
+      {"label":"Corte","svgFile":"solomon-temple-plan-corte.svg"},
+      {"label":"Vista 3/4","svgFile":"solomon-temple-plan-isometrica.svg"}
+    ],
+    "parts":[
+      {"id":"porch","name":"Pórtico (ulam)","description":"Antecâmara diante da casa, 20 côvados de largura e 10 de profundidade. O desenho separa sua projeção do corpo principal.","cubits":10,"material":"Pedra lavrada clara; revestimento descrito em Crônicas","references":[{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}],"highlight":{"x":80.56,"y":36.67,"width":0,"height":0}},
+      {"id":"hekal","name":"Lugar Santo (hekal)","description":"Espaço anterior de 40 côvados de comprimento; sua largura de 20 acompanha a casa descrita em 1Rs 6:2. Parede e espessura esquematizadas.","cubits":40,"material":"Cedro, piso de cipreste, revestimento de ouro","references":[{"book":"1Kgs","chapter":6,"verseStart":2,"verseEnd":3,"label":"1Rs 6:2–3"},{"book":"1Kgs","chapter":6,"verseStart":17,"label":"1Rs 6:17"}],"highlight":{"x":56.94,"y":55.21,"width":0,"height":0}},
+      {"id":"debir","name":"Santo dos Santos (debir/oráculo)","description":"Compartimento interno descrito como 20 × 20 × 20 côvados. Seu trecho axial de 20 soma-se aos 40 do Lugar Santo dentro do corpo principal de 60 côvados.","cubits":20,"material":"Cedro e ouro puro","references":[{"book":"1Kgs","chapter":6,"verseStart":19,"verseEnd":20,"label":"1Rs 6:19–20"}],"highlight":{"x":25.69,"y":55.21,"width":0,"height":0}},
+      {"id":"side-chambers","name":"Câmaras laterais","description":"Câmaras em torno do templo e oráculo. As larguras textuais por nível são 5, 6 e 7 côvados; espessura e projeção externa são desconhecidas.","material":"Cedro; apoio por recuos na parede","references":[{"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":6,"label":"1Rs 6:5–6"},{"book":"1Kgs","chapter":6,"verseStart":10,"label":"1Rs 6:10"}],"highlight":{"x":17.36,"y":27.29,"width":0,"height":0}}
+    ]
+  },
+  "review":{
+    "date":"2026-10-18",
+    "status":"documented",
+    "verified":["1Rs 6:2–3: largura da casa e medidas do pórtico","1Rs 6:5–8, 10: câmaras, recuos, níveis, altura e acesso em caracol","1Rs 6:17–20: comprimento de quarenta do hekal e medidas cúbicas do debir"],
+    "uncertainties":["As dimensões internas do hekal usam a largura de 20 da casa como referência; espessura das paredes não foi dada.","A soma axial esquemática pórtico + hekal + debir é 70 côvados; não se apresenta como cota exterior medida, pois paredes e projeções não foram cotadas.","A tradução do acesso em caracol de 1Rs 6:8 é debatida; a representação não fixa arquitetura precisa das escadas."],
+    "methodology":"Conferido com o texto ACF em server/bible-data/1ki.ts. A planta separa as cotas expressas das dimensões esquemáticas e não confunde a projeção do pórtico com os 60 côvados do corpo da casa."
+  }
+}

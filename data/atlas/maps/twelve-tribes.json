@@ -17,7 +17,7 @@
   "summary": "Leitura de Josué 13–21: Efraim e Manassés figuram separadamente; Levi não recebe território contínuo e Simeão é descrito dentro de Judá. Manassés tem duas porções. Os treze envelopes não são um cadastro territorial e podem sobrepor-se; Dã aparece também como localidade setentrional da tradição de migração.",
   "modernSummary": "A região corresponde hoje sobretudo a Israel, Cisjordânia, Jordânia e sul do Líbano. Os polígonos não legitimam reivindicações territoriais modernas.",
   "certainty": "debated",
-  "sample": true,
+  "sample": false,
   "keywords": [
     "As doze tribos: distribuição literária",
     "Josh",
@@ -729,6 +729,84 @@
     30.7,
     36.6,
     33.6
+  ],
+  "storySteps": [
+    {
+      "placeId": "shiloh",
+      "title": "Siló",
+      "text": "Josué reúne a comunidade em Siló, onde a tenda da reunião está instalada para a distribuição restante.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 18,
+        "verseStart": 1,
+        "label": "Josh 18:1"
+      }
+    },
+    {
+      "placeId": "jericho",
+      "title": "Jericó",
+      "text": "Jericó aparece entre as cidades do território de Benjamim; o envelope do mapa é somente orientação.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 18,
+        "verseStart": 21,
+        "label": "Josh 18:21"
+      }
+    },
+    {
+      "placeId": "beersheba",
+      "title": "Berseba",
+      "text": "A lista de cidades de Simeão inclui Berseba dentro da herança atribuída a Judá.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 19,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Josh 19:1–2"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A tenda da reunião é montada em Siló antes da distribuição restante da terra.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 18,
+        "verseStart": 1,
+        "label": "Josh 18:1"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Simeão recebe cidades dentro da herança de Judá, em vez de um bloco independente equivalente.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 19,
+        "verseStart": 1,
+        "label": "Josh 19:1"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Josué 21 descreve cidades levíticas espalhadas entre as outras tribos.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 21,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Josh 21:1–3"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
   ],
   "review": {
     "date": "2026-09-24",

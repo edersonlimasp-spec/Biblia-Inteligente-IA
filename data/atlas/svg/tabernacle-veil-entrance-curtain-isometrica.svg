@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Vista 3/4 esquemática do véu e cortina da entrada">
+  <defs><filter id="shadow"><feGaussianBlur in="SourceAlpha" stdDeviation="4"/><feOffset dy="6"/><feComponentTransfer><feFuncA type="linear" slope=".3"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <rect width="800" height="520" fill="#17262a"/><path d="M125 365 404 458 680 322" fill="none" stroke="#17262a" stroke-opacity=".72" stroke-width="14"/>
+  <g id="part-entrance" filter="url(#shadow)"><path d="M184 193 490 308v106L184 303z" fill="#2E4F8F" stroke="#C9A227" stroke-width="4"/><path d="M184 223 490 338" stroke="#6B2D5C" stroke-width="18"/><path d="M184 253 490 368" stroke="#9E1B32" stroke-width="11"/><path d="M202 201v111m70-85v111m70-85v111m70-85v111m70-85v111" stroke="#f4eee0" stroke-width="4"/><path d="M177 189 486 305" stroke="#f4eee0" stroke-width="5"/></g>
+  <g id="part-veil"><path d="M286 336 572 444V483L286 376z" fill="#6B2D5C" stroke="#C9A227" stroke-width="4"/><path d="M286 350 572 458" stroke="#2E4F8F" stroke-width="10"/><path d="M294 338v45m68-19v45m68-19v45m68-19v45" stroke="#f4eee0" stroke-width="4"/><path d="M286 336 572 444" stroke="#9E1B32" stroke-width="5"/></g>
+  <g id="part-boundary" fill="none" stroke="#f4eee0" stroke-width="3" stroke-dasharray="8 7"><path d="M184 320 286 360"/></g>
+</svg>

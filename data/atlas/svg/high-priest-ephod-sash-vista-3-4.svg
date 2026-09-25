@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Vista em três quartos do éfode sacerdotal e seu cinto">
+  <defs>
+    <linearGradient id="cloth" x2="1" y2="1"><stop stop-color="#607da0"/><stop offset=".55" stop-color="#603b70"/><stop offset="1" stop-color="#193951"/></linearGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#ffebaa"/><stop offset=".5" stop-color="#ce9b29"/><stop offset="1" stop-color="#79500e"/></linearGradient>
+    <pattern id="woven" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 0h14M0 7h14M0 0v14M7 0v14" stroke="#fff0c5" stroke-opacity=".2"/><path d="M0 3.5h14M3.5 0v14" stroke="#d1a13e" stroke-opacity=".27"/></pattern>
+    <filter id="shadow"><feDropShadow dx="4" dy="9" stdDeviation="8" flood-color="#050d14" flood-opacity=".65"/></filter>
+  </defs>
+  <rect width="800" height="600" fill="#142331"/><ellipse cx="420" cy="532" rx="193" ry="22" fill="#08131b"/>
+  <g filter="url(#shadow)">
+    <g id="part-ephod-body">
+      <path d="M336 132q67-31 116 4l65 71 39 108-69 52-77-118-5 154-186-5 12-170 39-74z" fill="url(#cloth)" stroke="#d8aa4d" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M336 132q67-31 116 4l65 71 39 108-69 52-77-118-5 154-186-5 12-170 39-74z" fill="url(#woven)" opacity=".77"/>
+      <path d="M336 132q63 44 116 4M219 228l-12 170m310-191 39 108-69 52" fill="none" stroke="#e2c06a" stroke-width="5"/>
+      <path d="M296 240q87 21 166 2" fill="none" stroke="#dbad4a" stroke-width="4"/>
+    </g>
+    <g id="part-shoulder-stones">
+      <path d="M283 158q23-20 43-2l-1 49q-21 12-43 0z" fill="url(#gold)" stroke="#ffe7a5" stroke-width="4"/>
+      <path d="M291 167l27 1-1 30-27-1z" fill="#788e7d" stroke="#33464b" stroke-width="3"/>
+      <path d="M294 174h20m-20 7h20m-20 7h20" stroke="#f1e1b5" stroke-width="1.5"/>
+      <path d="M297 167l12 30" stroke="#364a43" stroke-width="2"/>
+    </g>
+    <g id="part-gold-chains" fill="none" stroke="url(#gold)" stroke-width="7">
+      <path d="M301 158q-7-39 28-51l36 35M300 159q-4-35 28-48l38 34"/>
+      <circle cx="329" cy="108" r="9" fill="url(#gold)" stroke="#ffe6a0" stroke-width="3"/>
+    </g>
+    <g id="part-woven-sash">
+      <path d="M222 355q135 24 291-7l15 52q-150 46-304 11z" fill="url(#gold)" stroke="#ffe7a4" stroke-width="5"/>
+      <path d="M222 355q135 24 291-7l15 52q-150 46-304 11z" fill="url(#woven)" opacity=".83"/>
+      <path d="M424 367q60 23 94 78l-26 21q-37-44-82-58z" fill="#bd8c2a" stroke="#f3d477" stroke-width="3"/>
+    </g>
+  </g>
+  <text x="400" y="565" text-anchor="middle" fill="#e9e2d1" font-family="system-ui,sans-serif" font-size="16" letter-spacing="2">VISTA 3/4 · TECELAGEM ESQUEMÁTICA</text>
+</svg>

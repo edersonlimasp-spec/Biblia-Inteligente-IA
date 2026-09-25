@@ -1,0 +1,77 @@
+{
+  "id":"david-battles",
+  "version":"1",
+  "kind":"map",
+  "category":"Geografia do Antigo Testamento",
+  "testament":"AT",
+  "books":["2Sam"],
+  "characters":["Davi","Joabe","Abisai","Urias","Hanum"],
+  "period":"Reinado de Davi; episódios de 2 Samuel 5, 8 e 11–12",
+  "title":"Batalhas de Davi",
+  "subtitle":"Filisteus, Moabe, Edom, Aram-Zobá e a guerra contra Amom",
+  "summary":"O mapa reúne os conflitos narrados em 2 Samuel: ataques filisteus no Vale de Refaim, campanhas contra Moabe e Edom, combate com Aram-Zobá e a guerra contra os amonitas em torno de Rabbá. Pinos são usados apenas onde a fonte documental fornece coordenadas numéricas diretas; extensões territoriais e locais sem precisão adequada permanecem sem marcador. A área editorial é um envelope de alcance aproximado, não um limite do reino.",
+  "modernSummary":"Área histórica do sul do Levante e Transjordânia, abrangendo referências no atual Israel, Cisjordânia, Jordânia e Síria.",
+  "certainty":"debated",
+  "sample":false,
+  "keywords":["Davi","batalhas","filisteus","Moabe","Edom","Aram-Zobá","Rabbá","Amom","2 Samuel","atlas"],
+  "section":"old-testament",
+  "subsection":"Mapas extras",
+  "order":25,
+  "era":"Reinado de Davi; cronologia absoluta debatida",
+  "modernOverview":"Os episódios se referem ao sul do Levante, à Transjordânia e a uma campanha ao norte contra Aram-Zobá. As localizações atuais ajudam a orientar o leitor, mas não reproduzem fronteiras antigas nem resolvem a extensão de cada campanha. Rabbá é associada à atual Amã; o território de Moabe, Edom e Aram-Zobá é mostrado apenas por localidades textuais disponíveis, sem polígonos de fronteira. O envelope editorial representa alcance geográfico aproximado e não reivindica precisão política ou militar.",
+  "keyReferences":[
+    {"book":"2Sam","chapter":5,"verseStart":17,"verseEnd":25,"label":"2Sam 5:17–25"},
+    {"book":"2Sam","chapter":8,"verseStart":1,"verseEnd":14,"label":"2Sam 8:1–14"},
+    {"book":"2Sam","chapter":10,"verseStart":1,"verseEnd":19,"label":"2Sam 10:1–19"},
+    {"book":"2Sam","chapter":11,"verseStart":1,"verseEnd":27,"label":"2Sam 11:1–27"},
+    {"book":"2Sam","chapter":12,"verseStart":26,"verseEnd":31,"label":"2Sam 12:26–31"}
+  ],
+  "aliases":["Batalhas de Davi","Baal-Perazim","Vale de Refaim","Filístia","Moabe","Edom","Aram-Zobá","Rabbá","Amom","Jerusalém","Gezer"],
+  "references":[
+    {"book":"2Sam","chapter":5,"verseStart":17,"verseEnd":25,"label":"2Sam 5:17–25"},
+    {"book":"2Sam","chapter":8,"verseStart":1,"verseEnd":14,"label":"2Sam 8:1–14"},
+    {"book":"2Sam","chapter":10,"verseStart":1,"verseEnd":19,"label":"2Sam 10:1–19"},
+    {"book":"2Sam","chapter":11,"verseStart":1,"verseEnd":27,"label":"2Sam 11:1–27"},
+    {"book":"2Sam","chapter":12,"verseStart":26,"verseEnd":31,"label":"2Sam 12:26–31"}
+  ],
+  "sources":[
+    {"id":"openbible","title":"OpenBible.info — Bible Geocoding (merged, 2007)","url":"https://www.openbible.info/geo/data/merged.txt","license":"CC BY 4.0; atribuição OpenBible.info","note":"Pinos usam as chaves exatas e numéricas Jerusalem; Gezer; Rabbah; Gath. Coordenadas diretas são citadas nas explicações; regiões e itens marcados ~ ou > são deliberadamente sem pino. Evidência retida em docs/atlas/evidence/openbible-merged.txt."},
+    {"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/2SA.htm","license":"WEB: domínio público; paráfrases originais","note":"A narrativa fundamenta os acontecimentos e nomes, não confirma extensão de domínio nem ponto geográfico exato."},
+    {"id":"editorial","title":"Geometria editorial esquemática","url":"https://www.openbible.info/geo/","license":"Desenho original; coordenadas de pontos OpenBible.info CC BY 4.0","note":"Área é envelope gráfico aproximado com vértices em lugares documentados, não fronteira do reino ou rota de guerra."}
+  ],
+  "places":[
+    {"id":"jerusalem","name":"Jerusalém","modernName":"Jerusalém; Cidade de Davi na Jerusalém Oriental","coordinates":[35.234935,31.777444],"certainty":"probable","explanation":"Base real da narrativa e ponto de partida da defesa contra os filisteus. Evidência: chave Jerusalem, lat. 31.777444, lon. 35.234935; não localiza cada batalha.","references":[{"book":"2Sam","chapter":5,"verseStart":17,"label":"2Sam 5:17"}],"sourceIds":["openbible"]},
+    {"id":"baal-perazim","name":"Baal-Perazim","modernName":"Vale dos Refains, Jerusalém; localização do sítio debatida","coordinates":null,"certainty":"debated","explanation":"Davi vence os filisteus em Baal-Perazim; coordenada da fonte associa o nome ao Vale dos Refains com marcador ~ e é excluída.","references":[{"book":"2Sam","chapter":5,"verseStart":20,"label":"2Sam 5:20"}],"sourceIds":["biblical","openbible"]},
+     {"id":"valley-rephaim","name":"Vale de Refaim","modernName":"Vale a sudoeste de Jerusalém; localização exata do episódio não fixada","coordinates":null,"certainty":"debated","explanation":"O relato situa os acampamentos filisteus no Vale de Refaim nas duas investidas. Não há coordenada exata e confiável adotada para este episódio, por isso o vale é descrito como região e não recebe marcador.","references":[{"book":"2Sam","chapter":5,"verseStart":18,"label":"2Sam 5:18"},{"book":"2Sam","chapter":5,"verseStart":22,"label":"2Sam 5:22"}],"sourceIds":["biblical"]},
+    {"id":"gezer","name":"Gezer","modernName":"Tel Gezer, Israel","coordinates":[34.9225,31.876111111111113],"certainty":"probable","explanation":"O texto registra que Davi derrota os filisteus de Geba até Gezer. Evidência: chave Gezer, lat. 31.876111111111113, lon. 34.9225; ponto de cidade, não extensão do confronto.","references":[{"book":"2Sam","chapter":5,"verseStart":25,"label":"2Sam 5:25"}],"sourceIds":["openbible"]},
+    {"id":"moab","name":"Moabe","modernName":"Região histórica a leste do mar Morto; território sem fronteira fixada","coordinates":null,"certainty":"debated","explanation":"A guerra é atribuída a Moabe, uma região histórica ampla. O ponto de Dibon é uma localidade nominal da fonte, não limite nem centro comprovado do episódio, por isso o reino não recebe pino.","references":[{"book":"2Sam","chapter":8,"verseStart":2,"label":"2Sam 8:2"}],"sourceIds":["biblical"]},
+    {"id":"edom","name":"Edom","modernName":"Sul da Jordânia e Arabá; região histórica sem fronteira fixa","coordinates":null,"certainty":"debated","explanation":"O relato associa a campanha ao vale do Sal e a Edom; os registros regionais de Edom trazem coordenadas de área (>), não adequadas a um marcador pontual.","references":[{"book":"2Sam","chapter":8,"verseStart":13,"label":"2Sam 8:13"}],"sourceIds":["biblical","openbible"]},
+    {"id":"aram-zobah","name":"Aram-Zobá","modernName":"Síria histórica; extensão e capital incertas","coordinates":null,"certainty":"debated","explanation":"Aram-Zobá aparece como potência ao norte, mas o registro OpenBible fornece ponto aproximado (~) associado a Damasco, não localização exata de Zobá; não se plota.","references":[{"book":"2Sam","chapter":8,"verseStart":3,"label":"2Sam 8:3"}],"sourceIds":["biblical","openbible"]},
+    {"id":"rabbah","name":"Rabbá dos amonitas","modernName":"Amã, Jordânia","coordinates":[35.92413135872749,31.95018855468469],"certainty":"probable","explanation":"Rabbá é o centro amonita cercado no relato. Evidência: chave Rabbah, lat. 31.95018855468469, lon. 35.92413135872749; ponto representativo da cidade, não localização de máquinas ou portões.","references":[{"book":"2Sam","chapter":11,"verseStart":1,"label":"2Sam 11:1"},{"book":"2Sam","chapter":12,"verseStart":26,"label":"2Sam 12:26"}],"sourceIds":["openbible"]},
+    {"id":"gath","name":"Gate","modernName":"Tell es-Safi, Israel; identificação provável","coordinates":[34.84388288576839,31.69352950368834],"certainty":"probable","explanation":"Gate figura entre as cidades filisteias e nos relatos de campanhas. Evidência: chave Gath, lat. 31.69352950368834, lon. 34.84388288576839.","references":[{"book":"2Sam","chapter":8,"verseStart":1,"label":"2Sam 8:1"}],"sourceIds":["openbible"]}
+  ],
+  "overlays":[
+    {"id":"united-reign-envelope","label":"Reino atribuído a Davi — envelope territorial aproximado","kind":"area","certainty":"debated","coordinates":[[34.84388288576839,31.69352950368834],[34.9225,31.876111111111113],[35.92413135872749,31.95018855468469],[35.234935,31.777444],[34.84388288576839,31.69352950368834]],"explanation":"ENVELOPE EDITORIAL MUITO APROXIMADO; NÃO É FRONTEIRA DO REINO, POSSE CONTÍNUA OU MAPA DE SOBERANIA. Os vértices são pontos de localidades citadas cuja evidência numérica é retida; territórios de Moabe, Edom e Aram-Zobá variaram e não são delimitados por este polígono.","sourceIds":["openbible","editorial","biblical"]}
+  ],
+  "storySteps":[
+    {"placeId":"jerusalem","title":"Ataque filisteu contra Davi","text":"Ao saberem que Davi foi ungido rei, os filisteus sobem contra ele; Davi consulta a Deus e os enfrenta.","reference":{"book":"2Sam","chapter":5,"verseStart":17,"label":"2Sam 5:17"}},
+     {"placeId":"valley-rephaim","title":"Vale de Refaim","text":"Os filisteus se espalham pelo Vale de Refaim na primeira investida contra Davi; o ponto do episódio não é localizado.","reference":{"book":"2Sam","chapter":5,"verseStart":18,"label":"2Sam 5:18"}},
+    {"placeId":"baal-perazim","title":"Baal-Perazim","text":"Davi derrota os filisteus em Baal-Perazim e interpreta a vitória como uma ruptura contra o inimigo; o ponto exato não é marcado.","reference":{"book":"2Sam","chapter":5,"verseStart":20,"label":"2Sam 5:20"}},
+     {"placeId":"valley-rephaim","title":"Nova investida no Vale de Refaim","text":"Os filisteus voltam a se espalhar pelo vale; Davi consulta a Deus e recebe instruções para o segundo confronto.","reference":{"book":"2Sam","chapter":5,"verseStart":22,"label":"2Sam 5:22"}},
+    {"placeId":"gezer","title":"De Geba a Gezer","text":"Davi segue a orientação recebida e derrota os filisteus desde Geba até Gezer, sem que o texto trace um caminho detalhado.","reference":{"book":"2Sam","chapter":5,"verseStart":25,"label":"2Sam 5:25"}},
+    {"placeId":"gath","title":"Filístia","text":"O resumo das campanhas afirma que Davi subjugou os filisteus e tomou controle de Metegue-Amá; a passagem não descreve uma linha precisa de fronteira.","reference":{"book":"2Sam","chapter":8,"verseStart":1,"label":"2Sam 8:1"}},
+    {"placeId":"moab","title":"Moabe","text":"Davi derrota Moabe e submete os sobreviventes, segundo o resumo de suas campanhas; nenhuma extensão territorial é desenhada como fronteira.","reference":{"book":"2Sam","chapter":8,"verseStart":2,"label":"2Sam 8:2"}},
+    {"placeId":"aram-zobah","title":"Aram-Zobá","text":"Davi enfrenta Hadadezer, rei de Zobá, quando este parte para restabelecer seu domínio junto ao Eufrates.","reference":{"book":"2Sam","chapter":8,"verseStart":3,"label":"2Sam 8:3"}},
+    {"placeId":"edom","title":"Edom","text":"Após a batalha no vale do Sal, a narrativa relata guarnições em Edom; não atribui uma fronteira precisa à região dominada.","reference":{"book":"2Sam","chapter":8,"verseStart":13,"label":"2Sam 8:13"}},
+    {"placeId":"rabbah","title":"Rabbá: cerco amonita","text":"Joabe combate contra Rabbá enquanto Davi permanece em Jerusalém; Urias morre durante o cerco.","reference":{"book":"2Sam","chapter":11,"verseStart":1,"label":"2Sam 11:1"}},
+    {"placeId":"rabbah","title":"Rabbá tomada","text":"Joabe captura a cidade das águas e chama Davi para liderar a etapa final da tomada de Rabbá.","reference":{"book":"2Sam","chapter":12,"verseStart":26,"label":"2Sam 12:26"}}
+  ],
+  "curiosities":[
+    {"text":"A narrativa de 2 Samuel 5 descreve duas investidas filisteias, mas não fornece coordenadas exatas para Baal-Perazim nem uma rota completa entre as batalhas.","reference":{"book":"2Sam","chapter":5,"verseStart":17,"verseEnd":25,"label":"2Sam 5:17–25"},"sourceIds":["biblical","openbible"]},
+    {"text":"O resumo de 2 Samuel 8 menciona sucessivamente filisteus, Moabe, Aram-Zobá, Aram e Edom; o mapa não transforma essa enumeração em fronteiras estáveis.","reference":{"book":"2Sam","chapter":8,"verseStart":1,"verseEnd":14,"label":"2Sam 8:1–14"},"sourceIds":["biblical","editorial"]},
+    {"text":"A guerra contra Amom se concentra no cerco de Rabbá, enquanto o episódio de Urias se desenrola no mesmo contexto militar.","reference":{"book":"2Sam","chapter":11,"verseStart":1,"verseEnd":27,"label":"2Sam 11:1–27"},"sourceIds":["biblical","openbible"]},
+    {"text":"O próprio relato separa a captura da cidade das águas por Joabe da entrada final de Davi em Rabbá.","reference":{"book":"2Sam","chapter":12,"verseStart":26,"verseEnd":31,"label":"2Sam 12:26–31"},"sourceIds":["biblical","openbible"]}
+  ],
+  "bounds":[34.2,30.9,36.2,32.2],
+  "review":{"date":"2026-09-24","status":"needs-specialist","verified":["ID, seção, subseção, order e sample conferidos contra o manifesto.","Todas as coordenadas de pontos e do envelope correspondem a registros OpenBible numéricos diretos sem marcador, com evidência declarada.","Territórios amplos e sítios sem coordenada precisa não recebem pinos; envelope rotulado como não-fronteira."],"uncertainties":["Alcance temporal e territorial das campanhas varia conforme a interpretação do texto.","Aram-Zobá não é localizada pela coordenada aproximada associada a Damasco.","Envelope é um recurso editorial, não reconstrução de soberania."],"methodology":"Paráfrases originais da sequência de 2 Samuel 5, 8 e 11–12; coordenadas copiadas somente de entradas OpenBible exatas e numéricas. O envelope conecta referências pontuais documentadas e é explicitamente aproximado, sem representar fronteiras históricas. Regiões cujos registros são aproximados ou não descrevem a localidade do episódio ficam sem coordenada."}
+}

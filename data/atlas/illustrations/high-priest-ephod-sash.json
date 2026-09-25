@@ -1,0 +1,151 @@
+{
+  "id": "high-priest-ephod-sash",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod"],
+  "characters": ["Arão"],
+  "period": "Tabernáculo do deserto, conforme Êxodo",
+  "title": "Éfode e cinto do sumo sacerdote",
+  "subtitle": "Vista isolada frontal e 3/4; ombreiras com pedras de memória",
+  "summary": "O éfode é descrito como trabalho esmerado de ouro, azul, púrpura, carmesim e linho fino torcido. Possui duas ombreiras unidas, cada uma com uma pedra de ônix gravada com seis nomes dos filhos de Israel, e um cinto tecido da mesma obra. Duas correntes de ouro puro ligam-se aos engastes nas ombreiras.",
+  "modernSummary": "Diagrama vetorial original da peça, baseado no texto bíblico; não é objeto arqueológico preservado.",
+  "purpose": "Distinguir visualmente o corpo do éfode, seu cinto, ombreiras, engastes e correntes, sem atribuir medidas ou ordem nominal não informadas.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["éfode", "cinto do éfode", "Arão", "pedras de ônix", "vestes sacerdotais"],
+  "section": "tabernacle",
+  "subsection": "Vestuário sacerdotal",
+  "order": 14,
+  "era": "Êxodo e deserto",
+  "modernOverview": "Esquema vetorial de uma peça do vestuário descrita em Êxodo; cores, textura e forma são representações didáticas.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 28, "verseStart": 6, "verseEnd": 8, "label": "Exod 28:6–8"},
+    {"book": "Exod", "chapter": 28, "verseStart": 9, "verseEnd": 14, "label": "Exod 28:9–14"},
+    {"book": "Exod", "chapter": 39, "verseStart": 2, "verseEnd": 7, "label": "Exod 39:2–7"}
+  ],
+  "aliases": ["éfode sacerdotal", "cinto do éfode"],
+  "references": [
+    {"book": "Exod", "chapter": 28, "verseStart": 6, "verseEnd": 14, "label": "Exod 28:6–14"},
+    {"book": "Exod", "chapter": 39, "verseStart": 2, "verseEnd": 7, "label": "Exod 39:2–7"}
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Êxodo — texto bíblico ACF local consultado",
+      "url": "https://www.bible.com/pt/bible/212/EXO.28.ACF",
+      "license": "Referências e paráfrases próprias; não reproduz texto protegido",
+      "note": "Conferidos os trechos locais ACF em Êxodo 28:6–14 e 39:2–7; SVG original esquemático."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "ephod-body",
+      "title": "Trabalho tecido",
+      "text": "O éfode é feito em obra esmerada de ouro, fios azuis, púrpura, carmesim e linho fino torcido.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 6, "verseEnd": 8, "label": "Exod 28:6–8"}
+    },
+    {
+      "placeId": "shoulder-stones",
+      "title": "Pedras nos ombros",
+      "text": "Duas pedras de ônix engastadas em ouro levam seis nomes cada, distribuídos conforme as gerações ou ordem de nascimento.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 9, "verseEnd": 12, "label": "Exod 28:9–12"}
+    },
+    {
+      "placeId": "gold-chains",
+      "title": "Correntes de ouro",
+      "text": "Correntes de ouro puro ligam os engastes das pedras à parte superior do conjunto do éfode.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 13, "verseEnd": 14, "label": "Exod 28:13–14"}
+    },
+    {
+      "placeId": "woven-sash",
+      "title": "Cinto da mesma obra",
+      "text": "O cinto esmerado é feito dos mesmos materiais e em obra semelhante à peça do éfode.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 8, "label": "Exod 28:8"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Êxodo determina seis nomes em cada pedra de ombro, segundo as gerações; essa instrução não equivale a uma lista gráfica com nomes legíveis no desenho.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 9, "verseEnd": 12, "label": "Exod 28:9–12"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "O relato de execução confirma os fios de ouro entrelaçados com azul, púrpura, carmesim e linho, além das pedras gravadas e engastadas.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 2, "verseEnd": 7, "label": "Exod 39:2–7"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "A passagem não informa as dimensões do éfode, das pedras, do cinto ou das correntes; tamanhos e proporções do desenho são apenas esquemáticos.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 6, "verseEnd": 14, "label": "Exod 28:6–14"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "O texto identifica as pedras como ônix, mas não descreve sua tonalidade, lapidação moderna ou aparência mineral exata.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 9, "verseEnd": 11, "label": "Exod 28:9–11"},
+      "sourceIds": ["bible"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "high-priest-ephod-sash.svg",
+    "dimensions": [],
+    "notes": [
+      "Êxodo não fornece cotas do éfode, do cinto, das ombreiras, pedras ou correntes; a representação não está em escala.",
+      "A divisão visual de cores, o padrão de tecelagem, a forma das pedras e os engastes são convenções esquemáticas.",
+      "As pedras de ônix são apresentadas sem inscrições legíveis para não inventar nomes, grafia ou distribuição além da instrução de seis nomes em cada."
+    ],
+    "relatedIds": ["high-priest-garments", "high-priest-breastpiece"],
+    "parts": [
+      {
+        "id": "ephod-body",
+        "name": "Corpo tecido do éfode",
+        "description": "Painel e ombreiras unidos em tecido multicolorido com fios de ouro; desenho sem escala.",
+        "material": "Ouro, azul, púrpura, carmesim e linho fino torcido",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 6, "verseEnd": 8, "label": "Exod 28:6–8"}],
+        "highlight": {"x": 50, "y": 50, "width": 50, "height": 50}
+      },
+      {
+        "id": "shoulder-stones",
+        "name": "Pedras de ônix",
+        "description": "Duas pedras gravadas com seis nomes cada; a disposição concreta dos nomes no desenho não é especificada.",
+        "material": "Ônix e engastes de ouro",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 9, "verseEnd": 13, "label": "Exod 28:9–13"}],
+        "highlight": {"x": 27, "y": 20, "width": 12, "height": 11}
+      },
+      {
+        "id": "gold-chains",
+        "name": "Correntes e engastes",
+        "description": "Correntes de ouro puro e engastes associados às pedras dos ombros.",
+        "material": "Ouro puro",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 13, "verseEnd": 14, "label": "Exod 28:13–14"}],
+        "highlight": {"x": 50, "y": 25, "width": 35, "height": 21}
+      },
+      {
+        "id": "woven-sash",
+        "name": "Cinto do éfode",
+        "description": "Cinto de obra esmerada, tecido como parte do conjunto e com os mesmos materiais.",
+        "material": "Ouro, azul, púrpura, carmesim e linho fino torcido",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 8, "label": "Exod 28:8"}],
+        "highlight": {"x": 50, "y": 73, "width": 45, "height": 13}
+      }
+    ],
+    "views": [
+      {"label": "Frente", "svgFile": "high-priest-ephod-sash.svg"},
+      {"label": "Vista 3/4", "svgFile": "high-priest-ephod-sash-vista-3-4.svg"}
+    ]
+  },
+  "review": {
+    "date": "2026-09-24",
+    "status": "documented",
+    "verified": ["Êxodo 28:6–14", "Êxodo 39:2–7"],
+    "uncertainties": [
+      "O texto não fixa as proporções, o molde, a aparência mineral exata do ônix nem detalhes de fabricação não descritos.",
+      "Apenas a quantidade de nomes por pedra e sua relação com as gerações são indicadas; não se infere uma ordem adicional no desenho."
+    ],
+    "methodology": "Conferência direta do texto ACF local em Êxodo 28 e 39; ilustração original esquemática, sem medidas inferidas."
+  }
+}

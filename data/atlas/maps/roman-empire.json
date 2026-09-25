@@ -375,6 +375,87 @@
     46,
     57
   ],
+  "storySteps": [
+    {
+      "placeId": "athens",
+      "title": "Atenas",
+      "text": "Paulo discursa no Areópago depois de observar os objetos de culto da cidade.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 17,
+        "verseStart": 16,
+        "verseEnd": 22,
+        "label": "Acts 17:16–22"
+      }
+    },
+    {
+      "placeId": "corinth",
+      "title": "Corinto",
+      "text": "Paulo chega a Corinto e trabalha com Áquila e Priscila.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 18,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Acts 18:1–3"
+      }
+    },
+    {
+      "placeId": "rome",
+      "title": "Roma",
+      "text": "Atos termina com Paulo em Roma, pregando com liberdade sob custódia.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 28,
+        "verseStart": 16,
+        "verseEnd": 31,
+        "label": "Acts 28:16–31"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Atenas é o cenário do discurso de Paulo no Areópago.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 17,
+        "verseStart": 16,
+        "verseEnd": 22,
+        "label": "Acts 17:16–22"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Paulo trabalha em Corinto com Áquila e Priscila antes de seguir viagem.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 18,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Acts 18:1–3"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Roma aparece como destino da chegada de Paulo sob custódia, não como limite do império no mapa.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 28,
+        "verseStart": 16,
+        "label": "Acts 28:16"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
   "review": {
     "date": "2026-09-24",
     "status": "needs-specialist",

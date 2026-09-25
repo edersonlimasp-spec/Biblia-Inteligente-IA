@@ -1,0 +1,70 @@
+{
+  "id": "josiah-megiddo",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": ["2Kgs", "2Chr", "Jer"],
+  "characters": ["Josias", "Neco", "Jeremias"],
+  "period": "Reinado de Josias; final do século VII a.C.",
+  "title": "Josias e Megido",
+  "subtitle": "Reforma em Judá e a morte do rei no encontro com Neco",
+  "summary": "Josias reúne o povo em Jerusalém e renova o compromisso com a aliança. Durante a reforma, o relato registra a destruição do altar de Betel e a retirada dos santuários das cidades de Samaria. Anos depois, o faraó Neco marcha para combater em Carquemis, e Josias sai ao seu encontro; a narrativa situa a morte do rei em Megido. Jeremias 46:2 associa a batalha de Carquemis ao confronto entre os exércitos egípcio e babilônico, não fornece um itinerário de Josias.",
+  "modernSummary": "Jerusalém, Betel e Megido estão no atual Israel e na Cisjordânia; Carquemis fica na atual Turquia. Os pontos localizam cidades citadas, sem reconstituir uma rota militar.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": ["Josias", "Megido", "Carquemis", "Neco", "Betel", "reforma", "2 Reis 23", "2 Crônicas 35", "Jeremias 46", "atlas"],
+  "section": "old-testament",
+  "subsection": "Mapas extras",
+  "order": 27,
+  "era": "Reinado de Josias, c. 640–609 a.C.; cronologia convencional",
+  "modernOverview": "Jerusalém fica na atual área metropolitana de Jerusalém; Betel é usualmente associada à área de Beitin, e Megido ao sítio de Tel Megiddo. Carquemis situa-se junto ao Eufrates, na atual Turquia. Os marcadores são pontos de referência e não identificam os locais exatos dos confrontos ou cerimônias. A narrativa de Crônicas diz que Neco seguia para a batalha em Carquemis, mas não documenta a rota seguida por Josias. Nenhuma linha une as cidades, evitando sugerir um deslocamento que as fontes não registram.",
+  "keyReferences": [
+    {"book": "2Kgs", "chapter": 22, "verseStart": 1, "verseEnd": 2, "label": "2Kgs 22:1–2"},
+    {"book": "2Kgs", "chapter": 23, "verseStart": 1, "verseEnd": 3, "label": "2Kgs 23:1–3"},
+    {"book": "2Kgs", "chapter": 23, "verseStart": 15, "verseEnd": 20, "label": "2Kgs 23:15–20"},
+    {"book": "2Kgs", "chapter": 23, "verseStart": 29, "verseEnd": 30, "label": "2Kgs 23:29–30"},
+    {"book": "2Chr", "chapter": 35, "verseStart": 20, "verseEnd": 24, "label": "2Chr 35:20–24"},
+    {"book": "Jer", "chapter": 46, "verseStart": 2, "label": "Jer 46:2"}
+  ],
+  "aliases": ["Josias e Megido", "Josias", "Megido", "Carquemis", "Neco", "Betel", "reforma de Josias", "2 Reis 23", "2 Crônicas 35", "Jeremias 46"],
+  "references": [
+    {"book": "2Kgs", "chapter": 22, "verseStart": 1, "verseEnd": 2, "label": "2Kgs 22:1–2"},
+    {"book": "2Kgs", "chapter": 23, "verseStart": 1, "verseEnd": 3, "label": "2Kgs 23:1–3"},
+    {"book": "2Kgs", "chapter": 23, "verseStart": 15, "verseEnd": 20, "label": "2Kgs 23:15–20"},
+    {"book": "2Kgs", "chapter": 23, "verseStart": 29, "verseEnd": 30, "label": "2Kgs 23:29–30"},
+    {"book": "2Chr", "chapter": 35, "verseStart": 20, "verseEnd": 24, "label": "2Chr 35:20–24"},
+    {"book": "Jer", "chapter": 46, "verseStart": 2, "label": "Jer 46:2"}
+  ],
+  "sources": [
+    {"id": "openbible", "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)", "url": "https://www.openbible.info/geo/data/merged.txt", "license": "CC BY 4.0; atribuição: OpenBible.info.", "note": "Chaves exatas das entradas usadas para coordenadas são indicadas nas explicações dos lugares. Coordenadas na ordem [longitude, latitude]; pontos não determinam a localização exata dos episódios."},
+    {"id": "biblical", "title": "Referências bíblicas (paráfrases originais)", "url": "https://ebible.org/web/", "license": "WEB: domínio público; nenhuma tradução protegida copiada.", "note": "As referências registram a narrativa e sua ordem, não comprovam itinerários militares ou a identificação de vestígios."}
+  ],
+  "places": [
+    {"id": "jerusalem", "name": "Jerusalém", "modernName": "Jerusalém", "coordinates": [35.234935, 31.777444], "certainty": "established", "explanation": "Josias reúne os habitantes de Judá e Jerusalém para a leitura do livro e a renovação da aliança. Chave OpenBible: Jerusalem; ponto representativo, não limite urbano antigo.", "references": [{"book": "2Kgs", "chapter": 23, "verseStart": 1, "label": "2Kgs 23:1"}], "sourceIds": ["openbible"]},
+    {"id": "bethel", "name": "Betel", "modernName": "Área de Beitin, Cisjordânia", "coordinates": [35.22103274923676, 31.93053920580005], "certainty": "probable", "explanation": "O rei destrói o altar de Betel e remove seus objetos de culto; o ponto é representativo da antiga localidade. Chave OpenBible: Bethel 1.", "references": [{"book": "2Kgs", "chapter": 23, "verseStart": 15, "label": "2Kgs 23:15"}], "sourceIds": ["openbible"]},
+    {"id": "carchemish", "name": "Carquemis", "modernName": "Karkamış, Turquia, junto ao Eufrates", "coordinates": [38.01576051001015, 36.82928161099629], "certainty": "probable", "explanation": "Crônicas diz que Neco marchava para combater em Carquemis; Jeremias identifica a batalha pelo nome da cidade. Chave OpenBible: Carchemish; o marcador não representa a posição de cada exército.", "references": [{"book": "2Chr", "chapter": 35, "verseStart": 20, "label": "2Chr 35:20"}, {"book": "Jer", "chapter": 46, "verseStart": 2, "label": "Jer 46:2"}], "sourceIds": ["openbible"]},
+    {"id": "megiddo", "name": "Megido", "modernName": "Tel Megiddo, Israel", "coordinates": [35.18229165870594, 32.58418313614938], "certainty": "probable", "explanation": "As narrativas de Reis e Crônicas situam em Megido o encontro de Josias com Neco e a morte do rei. Chave OpenBible: Megiddo; o ponto não fixa o campo de batalha.", "references": [{"book": "2Kgs", "chapter": 23, "verseStart": 29, "verseEnd": 30, "label": "2Kgs 23:29–30"}, {"book": "2Chr", "chapter": 35, "verseStart": 22, "label": "2Chr 35:22"}], "sourceIds": ["openbible"]}
+  ],
+  "overlays": [],
+  "storySteps": [
+    {"placeId": "jerusalem", "title": "A aliança em Jerusalém", "text": "Josias reúne o povo no templo, manda ler o livro encontrado e faz uma aliança pública para seguir os mandamentos.", "reference": {"book": "2Kgs", "chapter": 23, "verseStart": 1, "verseEnd": 3, "label": "2Kgs 23:1–3"}},
+    {"placeId": "bethel", "title": "A reforma em Betel", "text": "O relato descreve a destruição do altar de Betel e a remoção de objetos e sacerdotes dos santuários da região de Samaria.", "reference": {"book": "2Kgs", "chapter": 23, "verseStart": 15, "verseEnd": 20, "label": "2Kgs 23:15–20"}},
+    {"placeId": "carchemish", "title": "Neco segue para Carquemis", "text": "Crônicas situa a marcha de Neco em direção à batalha de Carquemis; Jeremias nomeia depois o confronto entre o Egito e a Babilônia. O texto não afirma que Josias chegou à cidade.", "reference": {"book": "2Chr", "chapter": 35, "verseStart": 20, "label": "2Chr 35:20"}},
+    {"placeId": "megiddo", "title": "A morte de Josias em Megido", "text": "Josias sai ao encontro de Neco em Megido, é ferido e levado a Jerusalém, onde morre. O ponto do mapa marca a cidade citada, não um campo de batalha identificado.", "reference": {"book": "2Kgs", "chapter": 23, "verseStart": 29, "verseEnd": 30, "label": "2Kgs 23:29–30"}}
+  ],
+  "curiosities": [
+    {"text": "Reis registra a renovação da aliança em Jerusalém antes de relatar a reforma dos lugares de culto.", "reference": {"book": "2Kgs", "chapter": 23, "verseStart": 1, "verseEnd": 3, "label": "2Kgs 23:1–3"}, "sourceIds": ["biblical", "openbible"]},
+    {"text": "A narrativa da reforma destaca Betel e relata ações em outras cidades de Samaria; o mapa não desenha uma fronteira territorial.", "reference": {"book": "2Kgs", "chapter": 23, "verseStart": 15, "verseEnd": 20, "label": "2Kgs 23:15–20"}, "sourceIds": ["biblical", "openbible"]},
+    {"text": "Crônicas diz que Neco se dirigia à batalha em Carquemis; Jeremias 46:2 a associa ao quarto ano de Jeoaquim, não ao reinado de Josias.", "reference": {"book": "Jer", "chapter": 46, "verseStart": 2, "label": "Jer 46:2"}, "sourceIds": ["biblical", "openbible"]},
+    {"text": "Reis e Crônicas concordam em colocar a morte de Josias em Megido, embora suas narrativas apresentem detalhes diferentes.", "reference": {"book": "2Chr", "chapter": 35, "verseStart": 22, "verseEnd": 24, "label": "2Chr 35:22–24"}, "sourceIds": ["biblical", "openbible"]}
+  ],
+  "bounds": [34.5, 31.2, 39.0, 37.2],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": ["Metadados do manifesto: seção old-testament, subseção Mapas extras, ordem 27 e sample=false.", "As quatro coordenadas são entradas OpenBible numéricas e exatas, indicadas por suas chaves nas explicações.", "Referências incluem 2 Reis 23, 2 Crônicas 35 e Jeremias 46; as paráfrases não reproduzem tradução."],
+    "uncertainties": ["Cronologia exata do episódio e sincronização dos relatos requerem análise especializada.", "A localização precisa dos combates em torno de Megido não é identificada por um ponto textual.", "Carquemis é o destino da marcha de Neco no relato de Crônicas; nenhuma linha de percurso é desenhada."],
+    "methodology": "Compilação documental com as referências bíblicas e as entradas nominais preservadas em docs/atlas/evidence/openbible-merged.txt. Os pontos localizam localidades, sem inferir percursos ou sítios de combate. Datas convencionais são contextualização, não resolução cronológica."
+  }
+}

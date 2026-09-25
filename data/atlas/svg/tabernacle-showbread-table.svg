@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Planta técnica da mesa dos pães e doze pães em duas fileiras">
+  <defs>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#C9A227"/><stop offset=".48" stop-color="#C9A227"/><stop offset="1" stop-color="#A0673A"/></linearGradient>
+    <linearGradient id="linen" x2="0" y2="1"><stop stop-color="#f4eee0"/><stop offset="1" stop-color="#f4eee0"/></linearGradient>
+  </defs>
+  <rect width="800" height="520" fill="#17262a"/>
+  <path d="M130 420h540" stroke="#BFC5CC" stroke-opacity=".26" stroke-width="2"/>
+  <g id="part-table-body">
+    <rect x="176" y="126" width="448" height="224" rx="15" fill="url(#gold)" stroke="#C9A227" stroke-width="4"/>
+    <rect x="192" y="142" width="416" height="192" rx="8" fill="#17262a" stroke="#A0673A" stroke-width="3"/>
+    <path d="M199 149h402v8H199z" fill="#C9A227" opacity=".5"/>
+  </g>
+  <g id="part-twelve-loaves" fill="url(#linen)" stroke="#C9A227" stroke-width="2">
+    <g>
+      <path d="M204 198q4-14 23-14t23 14v24h-46z"/><path d="M265 198q4-14 23-14t23 14v24h-46z"/>
+      <path d="M326 198q4-14 23-14t23 14v24h-46z"/><path d="M387 198q4-14 23-14t23 14v24h-46z"/>
+      <path d="M448 198q4-14 23-14t23 14v24h-46z"/><path d="M509 198q4-14 23-14t23 14v24h-46z"/>
+      <path d="M204 264q4-14 23-14t23 14v24h-46z"/><path d="M265 264q4-14 23-14t23 14v24h-46z"/>
+      <path d="M326 264q4-14 23-14t23 14v24h-46z"/><path d="M387 264q4-14 23-14t23 14v24h-46z"/>
+      <path d="M448 264q4-14 23-14t23 14v24h-46z"/><path d="M509 264q4-14 23-14t23 14v24h-46z"/>
+    </g>
+    <path d="M209 203q18-12 36 0m25 0q18-12 36 0m25 0q18-12 36 0m25 0q18-12 36 0m25 0q18-12 36 0m25 0q18-12 36 0M209 269q18-12 36 0m25 0q18-12 36 0m25 0q18-12 36 0m25 0q18-12 36 0m25 0q18-12 36 0m25 0q18-12 36 0" fill="none" stroke="#A0673A" stroke-width="2" opacity=".65"/>
+  </g>
+  <g id="part-moulding" fill="none" stroke="#C9A227">
+    <rect x="169" y="119" width="462" height="238" rx="18" stroke-width="5"/>
+    <path d="M177 112h446M180 365h440" stroke="#C9A227" stroke-width="3"/>
+  </g>
+  <g id="part-rings-and-poles" fill="none" stroke="#C9A227" stroke-width="5">
+    <path d="M220 391h360"/>
+    <circle cx="239" cy="380" r="10"/><circle cx="561" cy="380" r="10"/>
+  </g>
+  <g id="part-gold-vessels" fill="url(#gold)" stroke="#C9A227" stroke-width="2">
+    <path d="M264 405q22-26 44 0l-8 18h-28z"/><path d="M373 405q22-26 44 0l-8 18h-28z"/><path d="M492 405q22-26 44 0l-8 18h-28z"/>
+    <path d="M236 411v-15q12-13 24 0v15m-27 0h30M540 411v-15q12-13 24 0v15m-27 0h30"/>
+  </g>
+</svg>

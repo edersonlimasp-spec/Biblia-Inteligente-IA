@@ -1,0 +1,56 @@
+{
+  "id":"tabernacle-coverings","version":"1","kind":"illustration","category":"Tabernáculo","testament":"AT","books":["Exod"],"characters":["Moisés"],"period":"Descrição do Tabernáculo no deserto",
+  "title":"Tabernáculo: As quatro cobertas","subtitle":"Corte esquemático das camadas têxteis e das cobertas externas",
+  "summary":"Êxodo descreve quatro camadas: dez cortinas de linho fino com azul, púrpura, carmesim e querubins; onze cortinas de pelo de cabra; uma cobertura de peles de carneiro tingidas de vermelho; e uma cobertura superior chamada tachash em hebraico. As duas primeiras têm dimensões e colchetes especificados; o texto não apresenta medidas para as duas cobertas de pele.",
+  "purpose":"As cobertas formavam a cobertura da tenda do santuário. A primeira camada, de tecido colorido bordado, ficava sobre o recinto; a camada de pelo de cabra era chamada tenda e cobria a primeira, e peles constituíam as duas camadas externas. O texto descreve montagem e materiais, mas não autoriza determinar com certeza a identificação zoológica do tachash.",
+  "modernSummary":"As duas camadas têxteis internas têm dimensões informadas. A identificação do termo hebraico tachash varia entre traduções; não se pode afirmar com segurança que a camada externa era de uma espécie específica.",
+  "certainty":"established","sample":false,"keywords":["cobertas","linho","querubins","pelo de cabra","carneiro","tachash","tenda","camadas"],
+  "section":"tabernacle","subsection":"Estrutura e móveis","order":7,"era":"Êxodo e deserto",
+  "modernOverview":"Êxodo 26:1–14 especifica tecidos, contagens e medidas das duas camadas internas e lista as duas cobertas externas sem dimensões. A identificação de tachash é lexicalmente debatida.",
+  "keyReferences":[
+    {"book":"Exod","chapter":26,"verseStart":1,"verseEnd":6,"label":"Exod 26:1–6"},
+    {"book":"Exod","chapter":26,"verseStart":7,"verseEnd":14,"label":"Exod 26:7–14"},
+    {"book":"Exod","chapter":36,"verseStart":8,"verseEnd":19,"label":"Exod 36:8–19"}
+  ],
+  "aliases":["coberturas do tabernáculo","cortinas do tabernáculo","tenda de pelo de cabra"],
+  "references":[
+    {"book":"Exod","chapter":26,"verseStart":1,"verseEnd":14,"label":"Exod 26:1–14"},
+    {"book":"Exod","chapter":36,"verseStart":8,"verseEnd":19,"label":"Exod 36:8–19"}
+  ],
+  "sources":[{"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/","license":"Referência textual; paráfrases originais, sem reprodução de tradução protegida","note":"Êxodo 26 e 36 descreve os conjuntos de cortinas e cobertas. A identificação de tachash é debatida e não é resolvida pelo desenho."}],
+  "places":[],"overlays":[],
+  "storySteps":[
+    {"placeId":"linen","title":"Cortinas internas","text":"Dez cortinas de linho fino com azul, púrpura, carmesim e querubins mediam 28 por quatro côvados cada.","reference":{"book":"Exod","chapter":26,"verseStart":1,"verseEnd":6,"label":"Exod 26:1–6"}},
+    {"placeId":"goat-hair","title":"Tenda de pelo de cabra","text":"Onze cortinas de pelo de cabra, de 30 por quatro côvados cada, formavam a camada chamada tenda sobre as cortinas internas.","reference":{"book":"Exod","chapter":26,"verseStart":7,"verseEnd":13,"label":"Exod 26:7–13"}},
+    {"placeId":"ram-skins","title":"Peles de carneiro","text":"Uma coberta de peles de carneiro tingidas de vermelho aparece sobre a tenda, sem medida informada.","reference":{"book":"Exod","chapter":26,"verseStart":14,"label":"Exod 26:14"}},
+    {"placeId":"tachash","title":"Coberta superior de tachash","text":"O texto menciona uma coberta superior chamada tachash; a identificação do material e espécie permanece debatida entre as traduções.","reference":{"book":"Exod","chapter":26,"verseStart":14,"label":"Exod 26:14"}}
+  ],
+  "curiosities":[
+    {"text":"A primeira camada reunia dez cortinas de 28 por quatro côvados, unidas em dois conjuntos de cinco.","reference":{"book":"Exod","chapter":26,"verseStart":1,"verseEnd":3,"label":"Exod 26:1–3"},"sourceIds":["biblical"]},
+    {"text":"Nas cortinas de linho, o texto ordena cinquenta laçadas em cada borda de junção e cinquenta colchetes de ouro.","reference":{"book":"Exod","chapter":26,"verseStart":4,"verseEnd":6,"label":"Exod 26:4–6"},"sourceIds":["biblical"]},
+    {"text":"A cobertura de pelo de cabra tinha onze peças, cada uma com 30 por quatro côvados, e colchetes de bronze.","reference":{"book":"Exod","chapter":26,"verseStart":7,"verseEnd":11,"label":"Exod 26:7–11"},"sourceIds":["biblical"]},
+    {"text":"A sexta cortina de pelo de cabra era dobrada na frente; partes excedentes também pendiam pelas costas e pelos lados.","reference":{"book":"Exod","chapter":26,"verseStart":9,"verseEnd":13,"label":"Exod 26:9–13"},"sourceIds":["biblical"]},
+    {"text":"O hebraico tachash da cobertura externa recebe traduções diferentes; a espécie ou o material exato não é certo.","reference":{"book":"Exod","chapter":26,"verseStart":14,"label":"Exod 26:14"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"tabernacle-coverings.svg",
+    "dimensions":[
+      {"label":"Cada cortina de linho","cubits":28,"note":"Comprimento; largura de quatro côvados conforme o mesmo versículo","reference":{"book":"Exod","chapter":26,"verseStart":2,"label":"Exod 26:2"}},
+      {"label":"Largura de cada cortina de linho","cubits":4,"note":"Largura; comprimento de 28 côvados conforme o mesmo versículo","reference":{"book":"Exod","chapter":26,"verseStart":2,"label":"Exod 26:2"}},
+      {"label":"Cada cortina de pelo de cabra","cubits":30,"note":"Comprimento; largura de quatro côvados conforme o mesmo versículo","reference":{"book":"Exod","chapter":26,"verseStart":8,"label":"Exod 26:8"}},
+      {"label":"Largura de cada cortina de pelo de cabra","cubits":4,"note":"Largura; comprimento de 30 côvados conforme o mesmo versículo","reference":{"book":"Exod","chapter":26,"verseStart":8,"label":"Exod 26:8"}},
+      {"label":"Peles de carneiro e cobertura de tachash","note":"medida não informada no texto","reference":{"book":"Exod","chapter":26,"verseStart":14,"label":"Exod 26:14"}}
+    ],
+    "notes":["Corte em camadas deliberadamente esquemático, sem pretensão de reproduzir escala ou espessura histórica; a camada externa sem cota recebe o selo proporção ilustrativa.","A primeira junção da cobertura de linho reúne cinquenta laçadas em cada borda correspondente e cinquenta colchetes de ouro (Ex 26:4–6).","A junção das cortinas de pelo de cabra também tem cinquenta laçadas em cada borda correspondente e cinquenta colchetes de bronze (Ex 26:10–11).","As cobertas de peles de carneiro tingidas de vermelho e de tachash não têm medidas no texto.","Convenção de conversão: côvado comum ≈ 0,45 m; côvado longo/real ≈ 0,52 m é uma estimativa. Ez 40:5 menciona côvado e palmo adicionais, sem estabelecer equivalência métrica fixa.","Tachash: tradução debatida; não atribuir espécie animal certa."],
+    "relatedIds":["tabernacle-structure","tabernacle-overview"],
+    "views":[{"label":"Corte","svgFile":"tabernacle-coverings.svg"},{"label":"Frente","svgFile":"tabernacle-coverings-frente.svg"},{"label":"Vista 3/4","svgFile":"tabernacle-coverings-isometrica.svg"}],
+    "parts":[
+      {"id":"linen","name":"Linho fino bordado","description":"Dez cortinas de 28 × 4 côvados, em linho fino torcido, azul, púrpura e carmesim, com querubins; juntadas por laçadas e cinquenta colchetes de ouro.","material":"Linho fino, azul, púrpura, carmesim; colchetes de ouro","references":[{"book":"Exod","chapter":26,"verseStart":1,"verseEnd":6,"label":"Exod 26:1–6"}],"highlight":{"x":50,"y":28.6,"width":0,"height":0}},
+      {"id":"goat-hair","name":"Pelo de cabra","description":"Onze cortinas de 30 × 4 côvados formavam a tenda sobre a cobertura de linho. A junção usava colchetes de bronze.","material":"Pelo de cabra; colchetes de bronze","references":[{"book":"Exod","chapter":26,"verseStart":7,"verseEnd":13,"label":"Exod 26:7–13"}],"highlight":{"x":50,"y":41.3,"width":0,"height":0}},
+      {"id":"ram-skins","name":"Peles de carneiro tingidas de vermelho","description":"Coberta externa de peles de carneiro tintas de vermelho. Medida e espessura não informadas; contorno ilustrativo.","material":"Peles de carneiro tingidas de vermelho","references":[{"book":"Exod","chapter":26,"verseStart":14,"label":"Exod 26:14"}],"highlight":{"x":50,"y":53.6,"width":0,"height":0}},
+      {"id":"tachash","name":"Coberta de tachash","description":"Coberta superior citada em hebraico como tachash. Tradução e identificação do material são debatidas; medida não informada e contorno esquemático.","material":"Material indicado pelo termo hebraico tachash; identificação incerta","references":[{"book":"Exod","chapter":26,"verseStart":14,"label":"Exod 26:14"}],"highlight":{"x":50,"y":64.9,"width":0,"height":0}}
+    ]
+  },
+  "review":{"date":"2026-10-15","status":"documented","verified":["Ex 26:1–6: dez cortinas, 28 × 4 côvados, laçadas e cinquenta colchetes de ouro","Ex 26:7–13: onze cortinas, 30 × 4 côvados, laçadas, colchetes de bronze e excedentes","Ex 26:14: peles de carneiro tintas de vermelho e camada de tachash"],"uncertainties":["A identificação lexical e zoológica de tachash é debatida.","Medidas das duas camadas de pele e espessuras de todas as camadas não são informadas.","Diagramas de seção ilustram ordem de camadas; não determinam a aparência ou escala exata."],"methodology":"Conferido com o texto ACF local em server/bible-data/exo.ts, capítulos 26 e 36. As contagens de laçadas são expressas por borda de junção conforme os versículos; o SVG original representa quatro faixas esquemáticas."}
+}

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 760" role="img" aria-labelledby="title desc">
+  <title id="title">Diagrama proporcional das dimensões da arca de Noé</title>
+  <desc id="desc">Silhuetas originais em escala comum para comprimento, largura e altura de 300 por 50 por 30 côvados, com comparação ilustrativa de um campo de futebol de 105 por 68 metros. Não é uma reconstrução histórica.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f4ed; }
+      .ink { fill: #243447; }
+      .muted { fill: #536577; }
+      .line { stroke: #243447; stroke-width: 2; fill: none; }
+      .dim { stroke: #b45336; stroke-width: 2; fill: none; }
+      .ark { fill: #c58b52; stroke: #69492e; stroke-width: 3; }
+      .pitch { fill: #e3eadb; stroke: #54734b; stroke-width: 3; }
+      .pitchline { fill: none; stroke: #719166; stroke-width: 2; }
+      .panel { fill: #fffdf8; stroke: #ded7c9; stroke-width: 2; }
+      text { font-family: system-ui, sans-serif; fill: #243447; }
+      .heading { font-size: 24px; font-weight: 700; }
+      .label { font-size: 17px; font-weight: 600; }
+      .small { font-size: 14px; fill: #536577; }
+      .measure { font-size: 15px; font-weight: 700; fill: #9c3e26; }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="#b45336"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1120" height="760" rx="18"/>
+  <text x="40" y="48" class="heading">Dimensões textuais — diagrama, não reconstrução</text>
+  <text x="40" y="76" class="small">Gen 6:15 · proporção comum nas silhuetas · côvado ≈ 0,45 m</text>
+
+  <rect class="panel" x="32" y="102" width="1056" height="252" rx="12"/>
+  <text x="56" y="136" class="label">Vista lateral · comprimento × altura</text>
+  <path class="ark" d="M160 240 L460 240 L450 260 Q430 270 190 270 Q170 264 160 240 Z"/>
+  <line class="dim" x1="160" y1="214" x2="460" y2="214" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <line class="dim" x1="490" y1="240" x2="490" y2="270" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <text x="310" y="204" text-anchor="middle" class="measure">Comprimento: 300 côvados ≈ 135 m</text>
+  <text x="508" y="254" class="measure" transform="rotate(90 508 254)">Altura: 30 côvados ≈ 13,5 m</text>
+  <text x="560" y="340" text-anchor="middle" class="small">Proporção 300:30; forma esquemática, sem proposta de casco ou construção.</text>
+
+  <rect class="panel" x="32" y="372" width="652" height="342" rx="12"/>
+  <text x="56" y="407" class="label">Vista superior · comprimento × largura</text>
+  <rect class="ark" x="140" y="488" width="300" height="50" rx="16"/>
+  <line class="dim" x1="140" y1="464" x2="440" y2="464" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <line class="dim" x1="466" y1="488" x2="466" y2="538" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <text x="290" y="454" text-anchor="middle" class="measure">Comprimento: 300 côvados ≈ 135 m</text>
+  <text x="486" y="500" class="measure" transform="rotate(90 486 500)">Largura (boca): 50 côvados ≈ 22,5 m</text>
+  <text x="82" y="602" class="small">Na planta, a dimensão transversal é a largura (boca/beam), não profundidade.</text>
+  <text x="82" y="628" class="small">Proporção 300:50; o diagrama não reconstrói uma planta construtiva.</text>
+
+  <rect class="panel" x="704" y="372" width="384" height="342" rx="12"/>
+  <text x="728" y="407" class="label">Referência de escala ilustrativa</text>
+  <rect class="pitch" x="760" y="466" width="233" height="151"/>
+  <line class="pitchline" x1="876.5" y1="466" x2="876.5" y2="617"/>
+  <circle class="pitchline" cx="876.5" cy="541.5" r="20"/>
+  <rect class="pitchline" x="760" y="496" width="28" height="91"/>
+  <rect class="pitchline" x="965" y="496" width="28" height="91"/>
+  <line class="dim" x1="760" y1="444" x2="993" y2="444" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <line class="dim" x1="1015" y1="466" x2="1015" y2="617" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <text x="876.5" y="434" text-anchor="middle" class="measure">105 m</text>
+  <text x="1034" y="520" class="measure" transform="rotate(90 1034 520)">68 m</text>
+  <text x="728" y="642" class="small">Campo de referência: 105 × 68 m</text>
+  <text x="728" y="664" class="small">Mesmo fator gráfico; comparação apenas ilustrativa.</text>
+  <text x="40" y="742" class="small">Comparação métrica aproximada: côvado ≈ 0,45 m. O campo de 105 m é somente referência ilustrativa.</text>
+</svg>

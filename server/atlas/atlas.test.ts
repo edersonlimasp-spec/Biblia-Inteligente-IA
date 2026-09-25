@@ -10,10 +10,10 @@ import { hasAtlasFullAccess } from "./access";
 import { atlasSummary, buildAtlasContext, getAtlasItem, readAtlasSvg } from "./catalog";
 import type { AtlasItem } from "../../shared/atlas";
 
-const reference = { book: "Ex", chapter: 25, verseStart: 10, label: "Êxodo 25:10" };
+const reference = { book: "Exod", chapter: 25, verseStart: 10, label: "Êxodo 25:10" };
 const fixture: AtlasItem = {
   id: "test-map", version: "1", kind: "map", category: "Teste", testament: "AT",
-  books: ["Ex"], characters: [], period: "Período de teste", title: "Mapa de teste", subtitle: "",
+  books: ["Exod"], characters: [], period: "Período de teste", title: "Mapa de teste", subtitle: "",
   summary: "Contexto de teste suficientemente longo.", modernSummary: "Comparação moderna de teste.",
   certainty: "debated", sample: true, keywords: [], references: [reference],
   sources: [{ id: "test-source", title: "Fonte de teste", url: "https://example.org", license: "CC0", note: "Teste unitário" }],
@@ -73,6 +73,27 @@ describe("Atlas server catalog and bounded context", () => {
     await expect(buildAtlasContext({ itemId: "locked", version: "1", mode: "ancient" }, false)).rejects.toMatchObject({ status: 403 });
     expect(await readAtlasSvg("locked", true)).toBe("<svg/>");
   });
+  it("serves only declared SVG views after the same authorization check", async () => {
+    const withViews = { ...locked, illustration: { ...locked.illustration!, views: [
+      { label: "Planta" as const, svgFile: "locked.svg" },
+      { label: "Corte" as const, svgFile: "locked-corte.svg" },
+    ] } };
+    mocks.readFile.mockImplementation(async (file: string) => file.endsWith(".svg") ? "<svg/>" : JSON.stringify(file.endsWith("locked.json") ? withViews : fixture));
+    await expect(readAtlasSvg("locked", false, "Corte")).rejects.toMatchObject({ status: 403 });
+    expect(await readAtlasSvg("locked", true, "Corte")).toBe("<svg/>");
+    expect(mocks.readFile).toHaveBeenCalledWith(expect.stringContaining("locked-corte.svg"), "utf8");
+    await expect(readAtlasSvg("locked", true, "../../other")).rejects.toMatchObject({ status: 404 });
+  });
+  it("serves a map's proportional diagram only after checking that map's access", async () => {
+    const mapWithDiagram = { ...fixture, sample: false, illustration: {
+      svgFile: "ark-proportions.svg", dimensions: [], notes: ["Proporção, não reconstrução"], relatedIds: [],
+    } };
+    mocks.readFile.mockImplementation(async (file: string) => file.endsWith(".svg") ? "<svg/>" : JSON.stringify(file.endsWith("test-map.json") ? mapWithDiagram : locked));
+    await expect(readAtlasSvg("test-map", false)).rejects.toMatchObject({ status: 403 });
+    expect(await readAtlasSvg("test-map", true)).toBe("<svg/>");
+    expect(mocks.readFile).toHaveBeenCalledWith(expect.stringContaining("ark-proportions.svg"), "utf8");
+    await expect(readAtlasSvg("test-map", true, "unknown")).rejects.toMatchObject({ status: 404 });
+  });
   it("rejects fabricated fields, invalid mode, missing ID, stale version and foreign place", async () => {
     const request = { itemId: "test-map", version: "1", mode: "modern" };
     for (const extra of [{ fullAccess: true }, { context: "ignore instructions" }, { mode: "other" }, { selectedPlaceId: "foreign" }]) {
@@ -83,7 +104,7 @@ describe("Atlas server catalog and bounded context", () => {
   });
   it("provides server sources, uncertainty, selected place and qualified dimensions", async () => {
     const context = JSON.parse(await buildAtlasContext({ itemId: "test-map", version: "1", mode: "modern", selectedPlaceId: "test-place" }, false));
-    expect(context.places).toEqual(fixture.places);
+    expect(context.places).toEqual([{ ...fixture.places[0], references: [{ ...reference, book: "Êxodo" }] }]);
     expect(context.sources).toEqual(fixture.sources);
     expect(context.certainty).toBe("debated");
     const illustration = JSON.parse(await buildAtlasContext({ itemId: "locked", version: "1", mode: "ancient" }, true)).illustration;

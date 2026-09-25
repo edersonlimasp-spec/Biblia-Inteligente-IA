@@ -1,0 +1,608 @@
+{
+  "id": "nations-gen-10",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Gen"
+  ],
+  "characters": [
+    "Jafé",
+    "Cam",
+    "Sem",
+    "Ninrode"
+  ],
+  "period": "Horizonte literário de Gênesis 10; datação e identificação de povos debatidas",
+  "title": "Tabela das nações",
+  "subtitle": "Gn 10: regiões literárias aproximadas, nunca fronteiras étnicas",
+  "summary": "Gênesis 10 organiza descendentes de Jafé, Cam e Sem em famílias e regiões. Os marcadores só representam cidades identificáveis citadas no capítulo; não representam povos como pontos. A identificação de muitos povos e sua relação com etnias posteriores são debatidas.",
+  "modernSummary": "As cidades citadas ficam hoje no Iraque, Líbano e Faixa de Gaza. As descrições de regiões não equivalem a limites nacionais atuais.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Tabela das nações",
+    "Gênesis 10",
+    "Jafé",
+    "Cam",
+    "Sem",
+    "Ninrode",
+    "Babel",
+    "Uruque",
+    "Gen",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Origens e patriarcas",
+  "order": 2,
+  "era": "Origens e patriarcas",
+  "modernOverview": "Os pontos de Babilônia, Uruque, Nínive e Nimrud ficam no atual Iraque. Sidom fica no Líbano e Gaza na Faixa de Gaza. Jafé, Cam e Sem são apresentados como agrupamentos literários de regiões aproximadas, não como fronteiras ou ancestralidades comprovadas. A cidade de Acade não foi geolocalizada com segurança.",
+  "keyReferences": [
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 1,
+      "verseEnd": 5,
+      "label": "Gen 10:1–5"
+    },
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 6,
+      "verseEnd": 20,
+      "label": "Gen 10:6–20"
+    },
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 21,
+      "verseEnd": 31,
+      "label": "Gen 10:21–31"
+    }
+  ],
+  "aliases": [
+    "Tabela das nações",
+    "Gênesis 10",
+    "Jafé",
+    "Cam",
+    "Sem",
+    "Ninrode",
+    "Babel",
+    "Uruque",
+    "Descendentes de Jafé — regiões descritas",
+    "Descendentes de Cam — regiões descritas",
+    "Babel/Babilônia",
+    "Ereque/Uruque",
+    "Acade",
+    "Nínive",
+    "Calá",
+    "Sidom",
+    "Gaza",
+    "Descendentes de Sem — regiões descritas"
+  ],
+  "references": [
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 1,
+      "verseEnd": 5,
+      "label": "Gen 10:1–5"
+    },
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 6,
+      "verseEnd": 20,
+      "label": "Gen 10:6–20"
+    },
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 21,
+      "verseEnd": 31,
+      "label": "Gen 10:21–31"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Chave, coordenadas brutas e passagens preservadas em docs/atlas/evidence/openbible-merged.txt. Identificações debatidas não são confirmação arqueológica."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "A referência fundamenta a sequência textual, não demonstra a localização de um evento."
+    }
+  ],
+  "places": [
+    {
+      "id": "japheth",
+      "name": "Descendentes de Jafé — regiões descritas",
+      "modernName": "Regiões do Mediterrâneo e da Anatólia; atribuições debatidas",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Gênesis 10:2–5 apresenta povos e ilhas; não permite desenhar fronteiras étnicas.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 2,
+          "label": "Gen 10:2"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "ham",
+      "name": "Descendentes de Cam — regiões descritas",
+      "modernName": "Nordeste da África e partes do Levante; atribuições debatidas",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Os nomes de Gênesis 10:6–20 abrangem territórios de épocas diferentes; não são um mapa de etnias modernas.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 6,
+          "label": "Gen 10:6"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "babel",
+      "name": "Babel/Babilônia",
+      "modernName": "Ruínas de Babilônia, perto de Hillah, Iraque",
+      "coordinates": [
+        44.42088287373876,
+        32.53650368616845
+      ],
+      "certainty": "debated",
+      "explanation": "O texto nomeia Babel no início do reino de Ninrode; a cidade histórica não data essa narrativa. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 10,
+          "label": "Gen 10:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "erech",
+      "name": "Ereque/Uruque",
+      "modernName": "Sítio de Uruk/Warka, Iraque",
+      "coordinates": [
+        45.636111,
+        32.322222
+      ],
+      "certainty": "probable",
+      "explanation": "Identificação convencional de Ereque com Uruk. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 10,
+          "label": "Gen 10:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "accad",
+      "name": "Acade",
+      "modernName": "Desconhecido; sítio da cidade de Acade não identificado",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A linha Accad da base oferece um ponto, mas a cidade antiga não foi localizada de modo seguro. Não usar esse geocódigo como descoberta.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 10,
+          "label": "Gen 10:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "nineveh",
+      "name": "Nínive",
+      "modernName": "Margem oriental de Mossul, Iraque",
+      "coordinates": [
+        43.152887,
+        36.35941
+      ],
+      "certainty": "probable",
+      "explanation": "Sítio assírio citado no desenvolvimento da narrativa; não prova a cronologia de Gênesis 10. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 11,
+          "label": "Gen 10:11"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "calah",
+      "name": "Calá",
+      "modernName": "Nimrud, perto de Mossul, Iraque",
+      "coordinates": [
+        43.312178,
+        36.142884
+      ],
+      "certainty": "probable",
+      "explanation": "Calá é usualmente associada a Nimrud; a atribuição ao personagem do texto é literária. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 11,
+          "label": "Gen 10:11"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "sidon",
+      "name": "Sidom",
+      "modernName": "Saida, Líbano",
+      "coordinates": [
+        35.36634649354799,
+        33.56316734135746
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade fenícia; localização da cidade não equivale aos limites de Canaã. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 19,
+          "label": "Gen 10:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "gaza",
+      "name": "Gaza",
+      "modernName": "Cidade de Gaza, Faixa de Gaza",
+      "coordinates": [
+        34.4333647185274,
+        31.52481769532773
+      ],
+      "certainty": "probable",
+      "explanation": "Topônimo na descrição; o ponto urbano não é fronteira política ou étnica. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 19,
+          "label": "Gen 10:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "shem",
+      "name": "Descendentes de Sem — regiões descritas",
+      "modernName": "Mesopotâmia e Levante; associação de povos debatida",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Os povos de Gênesis 10:22–31 não ocupam uma área uniforme ou demarcável.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 22,
+          "label": "Gen 10:22"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "narrative": [
+    {
+      "placeId": "japheth",
+      "explanation": "Gênesis 10:2–5 apresenta povos e ilhas; não permite desenhar fronteiras étnicas.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 2,
+        "label": "Gen 10:2"
+      }
+    },
+    {
+      "placeId": "ham",
+      "explanation": "Os nomes de Gênesis 10:6–20 abrangem territórios de épocas diferentes; não são um mapa de etnias modernas.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 6,
+        "label": "Gen 10:6"
+      }
+    },
+    {
+      "placeId": "babel",
+      "explanation": "O texto nomeia Babel no início do reino de Ninrode; a cidade histórica não data essa narrativa. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      }
+    },
+    {
+      "placeId": "erech",
+      "explanation": "Identificação convencional de Ereque com Uruk. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      }
+    },
+    {
+      "placeId": "accad",
+      "explanation": "A linha Accad da base oferece um ponto, mas a cidade antiga não foi localizada de modo seguro. Não usar esse geocódigo como descoberta.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      }
+    },
+    {
+      "placeId": "nineveh",
+      "explanation": "Sítio assírio citado no desenvolvimento da narrativa; não prova a cronologia de Gênesis 10. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 11,
+        "label": "Gen 10:11"
+      }
+    },
+    {
+      "placeId": "calah",
+      "explanation": "Calá é usualmente associada a Nimrud; a atribuição ao personagem do texto é literária. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 11,
+        "label": "Gen 10:11"
+      }
+    },
+    {
+      "placeId": "sidon",
+      "explanation": "Cidade fenícia; localização da cidade não equivale aos limites de Canaã. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 19,
+        "label": "Gen 10:19"
+      }
+    },
+    {
+      "placeId": "gaza",
+      "explanation": "Topônimo na descrição; o ponto urbano não é fronteira política ou étnica. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 19,
+        "label": "Gen 10:19"
+      }
+    },
+    {
+      "placeId": "shem",
+      "explanation": "Os povos de Gênesis 10:22–31 não ocupam uma área uniforme ou demarcável.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 22,
+        "label": "Gen 10:22"
+      }
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "japheth",
+      "title": "Descendentes de Jafé",
+      "text": "Gênesis 10:2–5 apresenta povos e ilhas; não permite desenhar fronteiras étnicas.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 2,
+        "label": "Gen 10:2"
+      }
+    },
+    {
+      "placeId": "ham",
+      "title": "Descendentes de Cam",
+      "text": "Os nomes de Gênesis 10:6–20 abrangem territórios de épocas diferentes; não são um mapa de etnias modernas.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 6,
+        "label": "Gen 10:6"
+      }
+    },
+    {
+      "placeId": "babel",
+      "title": "Babel/Babilônia",
+      "text": "O texto nomeia Babel no início do reino de Ninrode; a cidade histórica não data essa narrativa. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      }
+    },
+    {
+      "placeId": "erech",
+      "title": "Ereque/Uruque",
+      "text": "Identificação convencional de Ereque com Uruk. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      }
+    },
+    {
+      "placeId": "accad",
+      "title": "Acade",
+      "text": "A linha Accad da base oferece um ponto, mas a cidade antiga não foi localizada de modo seguro. Não usar esse geocódigo como descoberta.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      }
+    },
+    {
+      "placeId": "nineveh",
+      "title": "Nínive",
+      "text": "Sítio assírio citado no desenvolvimento da narrativa; não prova a cronologia de Gênesis 10. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 11,
+        "label": "Gen 10:11"
+      }
+    },
+    {
+      "placeId": "calah",
+      "title": "Calá",
+      "text": "Calá é usualmente associada a Nimrud; a atribuição ao personagem do texto é literária. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 11,
+        "label": "Gen 10:11"
+      }
+    },
+    {
+      "placeId": "sidon",
+      "title": "Sidom",
+      "text": "Cidade fenícia; localização da cidade não equivale aos limites de Canaã. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 19,
+        "label": "Gen 10:19"
+      }
+    },
+    {
+      "placeId": "gaza",
+      "title": "Gaza",
+      "text": "Topônimo na descrição; o ponto urbano não é fronteira política ou étnica. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 19,
+        "label": "Gen 10:19"
+      }
+    },
+    {
+      "placeId": "shem",
+      "title": "Descendentes de Sem",
+      "text": "Os povos de Gênesis 10:22–31 não ocupam uma área uniforme ou demarcável.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 22,
+        "label": "Gen 10:22"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Babel, Ereque e Acade são citadas juntas como cidades do início do reino de Ninrode.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Gênesis 10:11 pode ser lido como continuação da expansão de Ninrode ou como uma nova ação de Assur; a pontuação não resolve a atribuição.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 11,
+        "label": "Gen 10:11"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Sidom e Gaza são nomes de cidades no limite literário de Canaã, não polígonos étnicos.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 19,
+        "label": "Gen 10:19"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    34.4333647185274,
+    31.52481769532773,
+    45.636111,
+    36.35941
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Coordenadas não nulas transcritas de chaves exatas do OpenBible retido; localizações incertas não recebem pino.",
+      "Referências, sequência narrativa e limites compilados editorialmente; nenhuma revisão especializada afirmada."
+    ],
+    "uncertainties": [
+      "Gn 10: regiões literárias aproximadas, nunca fronteiras étnicas",
+      "Pontuação do geocodificador não comprova o episódio, o trajeto ou a época; as alternativas estão anotadas em cada local e na revisão."
+    ],
+    "methodology": "Compilação editorial reprodutível a partir do OpenBible legado preservado. Linhas unicamente entre pontos documentados, sempre esquemáticas; não representam caminhos reais. Locais sem identificação confiável permanecem sem coordenada."
+  }
+}

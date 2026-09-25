@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 720" role="img" aria-label="Figura esquemática neutra das vestes do sumo sacerdote, vista de frente">
+  <defs>
+    <linearGradient id="linen" x2="0" y2="1"><stop stop-color="#fff8e7"/><stop offset="1" stop-color="#d9cdb1"/></linearGradient>
+    <linearGradient id="blue" x2="0" y2="1"><stop stop-color="#317da0"/><stop offset="1" stop-color="#123f61"/></linearGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#ffe59a"/><stop offset=".45" stop-color="#d4a82d"/><stop offset="1" stop-color="#875b15"/></linearGradient>
+    <linearGradient id="purple" x2="1" y2="1"><stop stop-color="#71417e"/><stop offset="1" stop-color="#43274f"/></linearGradient>
+    <pattern id="woven" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 0h14M0 7h14M0 0v14M7 0v14" stroke="#fff4cf" stroke-opacity=".17" stroke-width="1"/><path d="M0 3.5h14M3.5 0v14" stroke="#d5a532" stroke-opacity=".18"/></pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#080f17" flood-opacity=".6"/></filter>
+  </defs>
+  <rect width="800" height="720" fill="#142331"/>
+  <path d="M0 640h800" stroke="#2c4352" stroke-width="3"/>
+  <ellipse cx="400" cy="651" rx="183" ry="23" fill="#08131d" opacity=".66"/>
+  <g filter="url(#shadow)">
+    <g id="part-linen-tunic">
+      <path d="M344 187h112l39 69 48 290-57 82H314l-57-82 48-290z" fill="url(#linen)" stroke="#f4e7c9" stroke-width="5"/>
+      <path d="M314 280q86 32 172 0M288 478q112 45 224 0" fill="none" stroke="#b8aa8a" stroke-width="3" opacity=".6"/>
+      <path d="M344 187h112l39 69 48 290-57 82H314l-57-82 48-290z" fill="url(#woven)" opacity=".45"/>
+    </g>
+    <g id="part-robe">
+      <path d="M350 173h100l76 67 58 293-69 67h-39l19-170-49-116h-90l-49 116 19 170h-39l-69-67 58-293z" fill="url(#blue)" stroke="#69b8ca" stroke-width="5"/>
+      <path d="M350 174h100l76 67 58 293-69 67h-39l19-170-49-116h-90l-49 116 19 170h-39l-69-67 58-293z" fill="url(#woven)" opacity=".36"/>
+      <path d="M300 570q100 34 200 0" fill="none" stroke="#e0bf65" stroke-width="5" opacity=".8"/>
+    </g>
+    <g id="part-belt">
+      <path d="M310 389q90 24 180 0l5 22q-95 28-190 0z" fill="url(#linen)" stroke="#fff0cc" stroke-width="3"/>
+      <path d="M310 389q90 24 180 0l5 22q-95 28-190 0z" fill="url(#woven)" opacity=".48"/>
+    </g>
+    <g id="part-ephod">
+      <path d="M350 194 307 218l-38 106 42 38 42-85h94l42 85 42-38-38-106-43-24-18 63h-70z" fill="url(#purple)" stroke="#e6bf63" stroke-width="5"/>
+      <path d="M307 218q93 47 186 0M269 324l42 38M531 362l42-38" fill="none" stroke="#c99732" stroke-width="5"/>
+      <path d="M350 194 307 218l-38 106 42 38 42-85h94l42 85 42-38-38-106-43-24-18 63h-70z" fill="url(#woven)" opacity=".7"/>
+      <g id="part-sash">
+        <path d="M299 408q101 30 202 0l9 44q-110 37-220 0z" fill="url(#gold)" stroke="#ffe69a" stroke-width="4"/>
+        <path d="M299 408q101 30 202 0l9 44q-110 37-220 0z" fill="url(#woven)" opacity=".8"/>
+        <path d="M400 430q46 22 73 81l-27 16q-26-47-69-59z" fill="#c79b34" stroke="#f1d277" stroke-width="3"/>
+      </g>
+      <g id="part-shoulder-stones">
+        <rect x="278" y="237" width="48" height="39" rx="10" fill="url(#gold)" stroke="#ffe3a0" stroke-width="3"/>
+        <rect x="474" y="237" width="48" height="39" rx="10" fill="url(#gold)" stroke="#ffe3a0" stroke-width="3"/>
+        <path d="M285 243h34v26h-34zM481 243h34v26h-34z" fill="#728e83" stroke="#263b43" stroke-width="3"/>
+        <path d="M289 250h25m-25 7h25m-25 7h25M485 250h25m-25 7h25m-25 7h25" stroke="#e7dba9" stroke-width="1.6" opacity=".9"/>
+      </g>
+      <g id="part-breastpiece">
+        <path d="M350 293q50-16 100 0v113q-50 18-100 0z" fill="url(#gold)" stroke="#ffe7a1" stroke-width="5"/>
+        <path d="M358 301q42-12 84 0v97q-42 14-84 0z" fill="#27566a" stroke="#462b4c" stroke-width="5"/>
+        <g stroke="#f7dfa0" stroke-width="2">
+          <path d="M358 325h84M358 349h84M358 373h84"/><path d="M386 301v97M414 301v97"/>
+        </g>
+        <g stroke="#fff0c5" stroke-width="2">
+          <circle cx="372" cy="313" r="8" fill="#bb514e"/><circle cx="400" cy="313" r="8" fill="#d6b458"/><circle cx="428" cy="313" r="8" fill="#6a9b8e"/>
+          <circle cx="372" cy="337" r="8" fill="#7b7db2"/><circle cx="400" cy="337" r="8" fill="#b85f8c"/><circle cx="428" cy="337" r="8" fill="#6eacc0"/>
+          <circle cx="372" cy="361" r="8" fill="#b78546"/><circle cx="400" cy="361" r="8" fill="#7b9d58"/><circle cx="428" cy="361" r="8" fill="#bd6158"/>
+          <circle cx="372" cy="385" r="8" fill="#81a9a1"/><circle cx="400" cy="385" r="8" fill="#c5a85b"/><circle cx="428" cy="385" r="8" fill="#8e759f"/>
+        </g>
+      </g>
+    </g>
+    <g id="part-mitre">
+      <path d="M349 174q4-73 51-82 48 9 51 82l-12 16h-78z" fill="url(#linen)" stroke="#f4e3bc" stroke-width="5"/>
+      <path d="M352 162q48 18 96 0" fill="none" stroke="#bb9c62" stroke-width="4"/>
+    </g>
+    <g id="part-forehead-plate">
+      <path d="M382 177h36l-3 14h-30z" fill="url(#gold)" stroke="#ffe59a" stroke-width="3"/>
+    </g>
+  </g>
+  <g fill="#e9e2d1" font-family="system-ui,sans-serif" text-anchor="middle">
+    <text x="400" y="696" font-size="16" letter-spacing="2">VESTES SACERDOTAIS · ESQUEMA FRONTAL</text>
+    <text x="400" y="112" font-size="11" fill="#aebdc5">figura neutra · sem retrato facial</text>
+  </g>
+</svg>

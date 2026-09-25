@@ -1,0 +1,87 @@
+{
+  "id": "solomon-temple-holy-of-holies",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Templo de Salomão",
+  "testament": "AT",
+  "books": ["1Kgs", "2Chr"],
+  "characters": ["Salomão"],
+  "period": "Templo de Jerusalém atribuído ao reinado de Salomão",
+  "title": "Templo de Salomão: Santo dos Santos (debir)",
+  "subtitle": "Recinto cúbico, querubins de oliveira e arca",
+  "summary": "O relato de 1 Reis descreve o debir como espaço de 20 × 20 × 20 côvados, com interior em cedro e revestimento de ouro puro. Dois querubins de oliveira, também dourados, tinham 10 côvados de altura; cada asa media 5 côvados, e as asas estendidas iam de parede a parede. A arca foi colocada sob as asas. A planta e as proporções sem medida textual são esquemáticas.",
+  "purpose": "Era o recinto mais interno do templo, preparado para receber a arca da aliança. Os relatos situam ali querubins monumentais e descrevem madeira, ouro e portas; a ficha apresenta esses elementos como parte da arquitetura e das práticas do santuário no antigo Israel, sem interpretação devocional.",
+  "modernSummary": "As dimensões internas do debir e dos querubins são textuais. Espessura das paredes, mobiliário além da arca e a explicação arquitetônica para a diferença entre a altura da casa (30 côvados) e a do debir (20) não são especificados.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["debir", "oráculo", "Santo dos Santos", "querubins", "oliveira", "arca", "ouro"],
+  "section": "solomon-temple",
+  "subsection": "Espaços internos",
+  "order": 5,
+  "era": "Reinado de Salomão, segundo 1 Reis e 2 Crônicas",
+  "modernOverview": "A leitura dimensional segue 1 Reis 6:20 e 6:23–28; 2 Crônicas 3:8–13 também registra as medidas do recinto e a envergadura conjunta das asas. A explicação da diferença entre a altura de 30 côvados da casa e os 20 do debir permanece debatida.",
+  "keyReferences": [
+    {"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":22,"label":"1Rs 6:15–22"},
+    {"book":"1Kgs","chapter":6,"verseStart":19,"verseEnd":30,"label":"1Rs 6:19–30"},
+    {"book":"1Kgs","chapter":6,"verseStart":30,"label":"1Rs 6:30"},
+    {"book":"1Kgs","chapter":6,"verseStart":31,"verseEnd":32,"label":"1Rs 6:31–32"},
+    {"book":"1Kgs","chapter":8,"verseStart":6,"verseEnd":7,"label":"1Rs 8:6–7"},
+    {"book":"2Chr","chapter":3,"verseStart":8,"verseEnd":13,"label":"2Cr 3:8–13"}
+  ],
+  "aliases": ["debir", "oráculo", "recinto mais interno"],
+  "references": [
+    {"book":"1Kgs","chapter":6,"verseStart":19,"verseEnd":32,"label":"1Rs 6:19–32"},
+    {"book":"1Kgs","chapter":8,"verseStart":6,"verseEnd":7,"label":"1Rs 8:6–7"},
+    {"book":"2Chr","chapter":3,"verseStart":8,"verseEnd":13,"label":"2Cr 3:8–13"}
+  ],
+  "sources": [
+    {"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/","license":"Referência textual; paráfrases originais, sem reprodução de tradução protegida","note":"Conferido nos textos ACF locais server/bible-data/1ki.ts e server/bible-data/2ch.ts; referências indicadas em cada afirmação."}
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {"placeId":"debir","title":"Recinto cúbico","text":"O espaço mais interno é descrito com 20 côvados em cada uma das três dimensões. O templo tem cedro por dentro e é revestido de ouro puro.","reference":{"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":22,"label":"1Rs 6:15–22"}},
+    {"placeId":"cherubim","title":"Querubins de oliveira","text":"Duas figuras de madeira de oliveira, revestidas de ouro, ficavam no interior; cada uma tinha 10 côvados de altura.","reference":{"book":"1Kgs","chapter":6,"verseStart":23,"verseEnd":28,"label":"1Rs 6:23–28"}},
+    {"placeId":"ark","title":"Arca sob as asas","text":"Na instalação, os sacerdotes colocaram a arca da aliança sob as asas estendidas dos querubins.","reference":{"book":"1Kgs","chapter":8,"verseStart":6,"verseEnd":7,"label":"1Rs 8:6–7"}}
+  ],
+  "curiosities": [
+    {"text":"O debir é descrito como 20 × 20 × 20 côvados, com o interior em cedro revestido de ouro puro; as cotas referem-se ao recinto, não à espessura das paredes.","reference":{"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":22,"label":"1Rs 6:15–22"},"sourceIds":["biblical"]},
+    {"text":"As quatro asas medem 5 côvados cada no relato de Crônicas; em conjunto, elas se estendem por 20 côvados de parede a parede.","reference":{"book":"2Chr","chapter":3,"verseStart":11,"verseEnd":13,"label":"2Cr 3:11–13"},"sourceIds":["biblical"]},
+    {"text":"A madeira dos dois querubins é identificada como oliveira e cada figura tem 10 côvados de altura; a forma anatômica não é descrita.","reference":{"book":"1Kgs","chapter":6,"verseStart":23,"verseEnd":26,"label":"1Rs 6:23–26"},"sourceIds":["biblical"]},
+    {"text":"A arca foi levada para dentro e colocada sob as asas; a passagem situa o objeto no recinto sem fornecer dimensões desse espaço adicional de instalação.","reference":{"book":"1Kgs","chapter":8,"verseStart":6,"verseEnd":7,"label":"1Rs 8:6–7"},"sourceIds":["biblical"]},
+    {"text":"A casa mede 30 côvados de altura e o debir 20; as fontes citadas não explicam a diferença, cuja interpretação arquitetônica é debatida.","reference":{"book":"1Kgs","chapter":6,"verseStart":2,"verseEnd":20,"label":"1Rs 6:2, 20"},"sourceIds":["biblical"]}
+  ],
+  "bounds": [0,0,0,0],
+  "illustration": {
+    "svgFile":"solomon-temple-holy-of-holies.svg",
+    "dimensions":[
+      {"label":"Comprimento interno do debir","cubits":20,"note":"Medida textual ≈ 9,0 m pelo côvado comum aproximado de 0,45 m; não inclui espessura de paredes.","reference":{"book":"1Kgs","chapter":6,"verseStart":20,"label":"1Rs 6:20"}},
+      {"label":"Largura interna do debir","cubits":20,"note":"Medida textual ≈ 9,0 m pelo côvado comum aproximado de 0,45 m; não inclui espessura de paredes.","reference":{"book":"1Kgs","chapter":6,"verseStart":20,"label":"1Rs 6:20"}},
+      {"label":"Altura do debir","cubits":20,"note":"Medida textual ≈ 9,0 m pelo côvado comum aproximado de 0,45 m.","reference":{"book":"1Kgs","chapter":6,"verseStart":20,"label":"1Rs 6:20"}},
+      {"label":"Altura de cada querubim","cubits":10,"note":"Medida textual ≈ 4,5 m pelo côvado comum aproximado de 0,45 m.","reference":{"book":"1Kgs","chapter":6,"verseStart":23,"label":"1Rs 6:23"}},
+      {"label":"Envergadura de cada querubim","cubits":10,"note":"Duas asas de 5 côvados cada; ≈ 4,5 m no total para cada figura.","reference":{"book":"1Kgs","chapter":6,"verseStart":24,"label":"1Rs 6:24"}},
+      {"label":"Espessura das paredes, altura da porta e proporção das folhas","note":"medida não informada no texto; contorno tracejado ou esquemático, sem escala dimensional","reference":{"book":"1Kgs","chapter":6,"verseStart":20,"verseEnd":32,"label":"1Rs 6:20–32"}}
+    ],
+    "notes":[
+      "As cotas do recinto e dos querubins acompanham 1Rs 6:20, 23–28; a soma das quatro asas estendidas cobrindo 20 côvados é descrita também em 2Cr 3:11–13. As dimensões indicadas são medidas textuais.",
+      "As formas, proporções de planta, espessura de paredes, desenho anatômico das figuras e moldura de portas sem cota são esquemáticos; contornos tracejados indicam medida não informada no texto.",
+      "A silhueta de 1,70 m serve apenas de referência visual moderna, não representa pessoa identificada nem medida antiga.",
+      "Conversão: côvado comum ≈ 0,45 m. Ez 40:5 descreve a cana com côvado e palmo adicionais (estimativa usual do côvado longo ≈ 0,52 m); 2Cr 3:3 menciona a medida antiga sem equivalência métrica exata.",
+      "A casa tem 30 côvados de altura em 1Rs 6:2 e o debir 20 em 6:20; explicações para essa diferença de nível são debatidas e não são afirmadas no desenho."
+    ],
+    "relatedIds":["solomon-temple-overview","solomon-temple-plan"],
+    "views":[
+      {"label":"Planta","svgFile":"solomon-temple-holy-of-holies-planta.svg"},
+      {"label":"Frente","svgFile":"solomon-temple-holy-of-holies-frente.svg"},
+      {"label":"Corte","svgFile":"solomon-temple-holy-of-holies-corte.svg"},
+      {"label":"Vista 3/4","svgFile":"solomon-temple-holy-of-holies.svg"}
+    ],
+    "parts":[
+      {"id":"debir","name":"Debir","description":"Recinto interno medindo 20 × 20 × 20 côvados conforme 1Rs 6:20. O interior da casa é revestido de cedro e ouro; a estrutura das paredes não é especificada nessa cota.","cubits":20,"material":"Cedro no interior, revestido de ouro puro","references":[{"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":22,"label":"1Rs 6:15–22"},{"book":"1Kgs","chapter":6,"verseStart":30,"label":"1Rs 6:30"}],"highlight":{"x":50,"y":48,"width":28,"height":24}},
+      {"id":"cherubim","name":"Querubins de oliveira","description":"Dois querubins com 10 côvados de altura cada, madeira de oliveira revestida de ouro; as quatro asas estendidas ocupavam os 20 côvados entre paredes.","cubits":10,"material":"Oliveira revestida de ouro","references":[{"book":"1Kgs","chapter":6,"verseStart":23,"verseEnd":28,"label":"1Rs 6:23–28"},{"book":"2Chr","chapter":3,"verseStart":11,"verseEnd":13,"label":"2Cr 3:11–13"}],"highlight":{"x":42,"y":37,"width":38,"height":24}},
+      {"id":"ark","name":"Arca da aliança","description":"Levado à parte mais interna do templo e posto sob as asas estendidas dos querubins; estas passagens não repetem as dimensões da arca.","material":"Não especificado nestes relatos do templo","references":[{"book":"1Kgs","chapter":8,"verseStart":6,"verseEnd":7,"label":"1Rs 8:6–7"}],"highlight":{"x":49,"y":70,"width":20,"height":8}},
+      {"id":"doors","name":"Portas de oliveira","description":"A entrada do debir tinha portas de oliveira entalhadas com querubins, palmas e flores; tamanho e proporção das folhas não são dados.","material":"Madeira de oliveira, ornamentação com revestimento de ouro","references":[{"book":"1Kgs","chapter":6,"verseStart":31,"verseEnd":32,"label":"1Rs 6:31–32"}],"highlight":{"x":31,"y":54,"width":12,"height":26}}
+    ]
+  },
+  "review":{"date":"2026-09-24","status":"documented","verified":["1Rs 6:15–22, 30: cedro no interior e revestimento de ouro","1Rs 6:20: medidas 20 × 20 × 20","1Rs 6:23–28: madeira de oliveira, altura 10 e asas de 5 côvados","2Cr 3:11–13: quatro asas cobrindo 20 côvados","1Rs 8:6–7: arca sob as asas"],"uncertainties":["A diferença entre a altura da casa (30 côvados) e a do debir (20) tem explicações arquitetônicas debatidas.","Espessura das paredes, proporções da porta, forma dos querubins e localização precisa da arca dentro do recinto não são dimensionadas.","A vista é esquemática; apenas cotas indicadas como medidas textuais devem ser lidas como tais."],"methodology":"Conferido nos textos ACF locais server/bible-data/1ki.ts e server/bible-data/2ch.ts. Medidas textuais foram separadas das proporções esquemáticas; conversões são aproximadas."}
+}

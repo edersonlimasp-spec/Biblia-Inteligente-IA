@@ -32,7 +32,7 @@ export function registerAtlasRoutes(app: Express): void {
   });
   app.get("/api/atlas/items/:id/svg", optionalAuth, async (req: AuthRequest, res) => {
     try {
-      const svg = await readAtlasSvg(req.params.id, await hasAtlasFullAccess(req));
+      const svg = await readAtlasSvg(req.params.id, await hasAtlasFullAccess(req), typeof req.query.view === "string" ? req.query.view : undefined);
       res.setHeader("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox");
       res.setHeader("X-Content-Type-Options", "nosniff");
       res.type("image/svg+xml").send(svg);

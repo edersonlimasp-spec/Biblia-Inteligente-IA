@@ -1,0 +1,67 @@
+{
+  "id": "tabernacle-bronze-laver",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod"],
+  "characters": ["Moisés", "Arão"],
+  "period": "Descrição do Tabernáculo no deserto",
+  "title": "Tabernáculo: Pia de bronze",
+  "subtitle": "Objeto de lavagem ritual; dimensões não dadas no texto",
+  "summary": "A pia de bronze e sua base ficavam entre a tenda da congregação e o altar. O texto associa sua fabricação aos espelhos das mulheres reunidas para servir à entrada da tenda e descreve sacerdotes lavando mãos e pés. Nenhuma medida ou forma detalhada é fornecida.",
+  "purpose": "Servia para a lavagem das mãos e dos pés de Arão e de seus filhos antes de entrar na tenda ou de se aproximar do altar. No contexto ritual do antigo Israel, a lavagem marcava a preparação corporal prescrita para o serviço sacerdotal; o texto não descreve uma prática cotidiana de higiene nem informa o tamanho do recipiente.",
+  "modernSummary": "Não há dimensões nem um exemplar arqueológico identificado como esta pia. O desenho é esquemático, não uma reconstrução em escala.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["pia", "bacia", "bronze", "espelhos", "lavagem", "sacerdotes", "tabernáculo"],
+  "section": "tabernacle",
+  "subsection": "Estrutura e móveis",
+  "order": 5,
+  "era": "Êxodo e deserto",
+  "modernOverview": "A localização entre a tenda e o altar e o uso ritual da água são explicitados em Êxodo. Medidas, perfil e capacidade não são informados.",
+  "keyReferences": [
+    {"book":"Exod","chapter":30,"verseStart":18,"verseEnd":21,"label":"Exod 30:18–21"},
+    {"book":"Exod","chapter":38,"verseStart":8,"label":"Exod 38:8"},
+    {"book":"Exod","chapter":40,"verseStart":30,"verseEnd":32,"label":"Exod 40:30–32"}
+  ],
+  "aliases": ["pia de cobre", "lavatório", "bacia de bronze"],
+  "references": [
+    {"book":"Exod","chapter":30,"verseStart":17,"verseEnd":21,"label":"Exod 30:17–21"},
+    {"book":"Exod","chapter":38,"verseStart":8,"label":"Exod 38:8"},
+    {"book":"Exod","chapter":40,"verseStart":30,"verseEnd":32,"label":"Exod 40:30–32"}
+  ],
+  "sources": [
+    {"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/","license":"Referência textual; paráfrases originais, sem reprodução de tradução protegida","note":"Êxodo 30:17–21; 38:8; 40:30–32. O texto informa função, posição e material, mas não dimensões nem formato detalhado."}
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {"placeId":"laver","title":"Pia e base","text":"A pia e sua base ficavam entre a tenda da congregação e o altar; o relato não informa suas dimensões.","reference":{"book":"Exod","chapter":30,"verseStart":18,"verseEnd":19,"label":"Exod 30:18–19"}},
+    {"placeId":"basin","title":"Lavagem sacerdotal","text":"Arão e seus filhos lavavam mãos e pés ao entrar na tenda ou ao chegar ao altar para ministrar.","reference":{"book":"Exod","chapter":30,"verseStart":19,"verseEnd":21,"label":"Exod 30:19–21"}},
+    {"placeId":"mirrors","title":"Espelhos de bronze","text":"A descrição da execução diz que a pia de bronze foi feita dos espelhos das mulheres reunidas para servir à entrada da tenda.","reference":{"book":"Exod","chapter":38,"verseStart":8,"label":"Exod 38:8"}}
+  ],
+  "curiosities": [
+    {"text":"O texto situa a pia entre a tenda e o altar, mas não fornece côvados, altura, largura ou capacidade.","reference":{"book":"Exod","chapter":30,"verseStart":18,"label":"Exod 30:18"},"sourceIds":["biblical"]},
+    {"text":"A pia e sua base são ambas descritas como feitas de bronze, termo que traduções antigas também vertem como cobre.","reference":{"book":"Exod","chapter":30,"verseStart":18,"label":"Exod 30:18"},"sourceIds":["biblical"]},
+    {"text":"A descrição da construção associa a pia aos espelhos das mulheres reunidas para servir à entrada da tenda.","reference":{"book":"Exod","chapter":38,"verseStart":8,"label":"Exod 38:8"},"sourceIds":["biblical"]},
+    {"text":"A narrativa de instalação repete a posição entre a tenda e o altar e menciona água para a lavagem.","reference":{"book":"Exod","chapter":40,"verseStart":30,"verseEnd":32,"label":"Exod 40:30–32"},"sourceIds":["biblical"]}
+  ],
+  "bounds": [0,0,0,0],
+  "illustration": {
+    "svgFile":"tabernacle-bronze-laver.svg",
+    "dimensions":[
+      {"label":"Dimensões da pia","note":"medida não informada no texto","reference":{"book":"Exod","chapter":30,"verseStart":18,"label":"Exod 30:18"}},
+      {"label":"Posição entre a tenda e o altar","note":"Relação espacial descrita; não é cota dimensional","reference":{"book":"Exod","chapter":30,"verseStart":18,"label":"Exod 30:18"}}
+    ],
+    "notes":["A silhueta é um esquema de identificação, não uma forma ou proporção arqueológica estabelecida.","O texto não informa dimensões, perfil, formato, altura ou capacidade. A linha tracejada recebe o selo proporção ilustrativa e não representa uma forma exata.","Convenção para eventuais conversões: côvado comum ≈ 0,45 m; côvado longo/real ≈ 0,52 m é uma estimativa. Ez 40:5 menciona côvado e palmo adicionais, sem estabelecer equivalência métrica fixa.","Êxodo 38:8 menciona espelhos de bronze; o texto não especifica técnica de reaproveitamento ou ornamentação."],
+    "relatedIds":["tabernacle-overview","tabernacle-burnt-offering-altar"],
+    "views":[{"label":"Planta","svgFile":"tabernacle-bronze-laver.svg"},{"label":"Frente","svgFile":"tabernacle-bronze-laver-frente.svg"},{"label":"Vista 3/4","svgFile":"tabernacle-bronze-laver-isometrica.svg"}],
+    "parts":[
+      {"id":"laver","name":"Pia","description":"Recipiente de bronze usado com água na lavagem sacerdotal. Sua silhueta tracejada é ilustrativa: forma e dimensões não são dadas.","material":"Bronze; feito dos espelhos descritos em Ex 38:8","references":[{"book":"Exod","chapter":30,"verseStart":18,"verseEnd":21,"label":"Exod 30:18–21"},{"book":"Exod","chapter":38,"verseStart":8,"label":"Exod 38:8"}],"highlight":{"x":62,"y":57.7,"width":0,"height":0}},
+      {"id":"basin","name":"Base","description":"Base de bronze da pia. O texto nomeia a base, mas não fornece dimensões ou um perfil preciso.","material":"Bronze","references":[{"book":"Exod","chapter":30,"verseStart":18,"label":"Exod 30:18"},{"book":"Exod","chapter":40,"verseStart":30,"label":"Exod 40:30"}],"highlight":{"x":62,"y":71.6,"width":0,"height":0}},
+      {"id":"mirrors","name":"Espelhos reaproveitados","description":"A execução é associada aos espelhos das mulheres reunidas para servir à entrada da tenda; quantidade e formato dos espelhos não são especificados.","material":"Bronze","references":[{"book":"Exod","chapter":38,"verseStart":8,"label":"Exod 38:8"}],"highlight":{"x":32.75,"y":61.9,"width":0,"height":0}}
+    ]
+  },
+  "review":{"date":"2026-10-15","status":"documented","verified":["Ex 30:17–21: bronze, posição e lavagem de mãos e pés","Ex 38:8: espelhos das mulheres que serviam à entrada","Ex 40:30–32: posição e uso durante a instalação"],"uncertainties":["Medidas, perfil, capacidade e dimensões da base não são informados no texto.","A aparência desenhada não deve ser tomada como reconstrução histórica exata."],"methodology":"Conferido com o texto ACF local em server/bible-data/exo.ts, capítulos 30, 38 e 40; desenho vetorial esquemático original e sem escala. Não há inferência métrica."}
+}

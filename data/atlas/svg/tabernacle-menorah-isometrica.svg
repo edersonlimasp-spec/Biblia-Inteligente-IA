@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Vista 3/4 esquemática do candelabro de sete lâmpadas">
+  <defs><filter id="shadow"><feGaussianBlur in="SourceAlpha" stdDeviation="5"/><feOffset dy="6"/><feComponentTransfer><feFuncA type="linear" slope=".3"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <rect width="800" height="520" fill="#17262a"/><ellipse cx="404" cy="453" rx="105" ry="19" fill="#17262a" opacity=".65"/>
+  <g id="part-base" filter="url(#shadow)"><path d="M350 426 405 401 459 425 404 451z" fill="#C9A227" stroke="#f4eee0" stroke-width="3"/><path d="M350 426v14l54 25v-14z" fill="#A88728"/><path d="M404 451v14l55-25v-15z" fill="#6B2D5C"/></g>
+  <g id="part-central-shaft" fill="none" stroke="#C9A227" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"><path d="M404 423V231m0 138-91-64v-52m91 116 91-64v-52m-91 24-66-45v-50m66 95 66-45v-50"/></g>
+  <g id="part-six-branches" fill="none" stroke="#f4eee0" stroke-opacity=".55" stroke-width="3"><path d="M314 296v-52m181 52v-52m-157 7v-50m132 50v-50"/></g>
+  <g id="part-almond-ornament" fill="#6B2D5C" stroke="#C9A227" stroke-width="2"><path d="M397 365q7-14 14 0l-7 14z"/><path d="M350 338q7-14 14 0l-7 14zm95 0q7-14 14 0l-7 14z"/><circle cx="404" cy="310" r="8"/><circle cx="357" cy="287" r="7"/><circle cx="452" cy="287" r="7"/><circle cx="334" cy="247" r="7"/><circle cx="475" cy="247" r="7"/></g>
+  <g id="part-seven-lamps" fill="#C9A227" stroke="#f4eee0" stroke-width="2"><path d="M298 230q16-17 32 0v11h-32zm49-48q16-17 32 0v11h-32zm41-27q16-17 32 0v11h-32zm32 0q16-17 32 0v11h-32zm41 27q16-17 32 0v11h-32zm49 48q16-17 32 0v11h-32z"/><path d="M394 206q10-17 20 0v11h-20z"/></g>
+  <g id="part-service-tools" fill="none" stroke="#C9A227" stroke-width="5"><path d="M541 320v80m-10-80 10 16 10-16m18 0v80"/></g>
+</svg>

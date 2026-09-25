@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-label="Elevação do interior do Lugar Santo com acabamentos e silhueta de referência">
+ <rect width="720" height="480" fill="#14231f"/><text x="24" y="34" fill="#f4ead3" font-family="sans-serif" font-size="22" font-weight="700">HEKAL · ELEVAÇÃO INTERIOR ESQUEMÁTICA</text>
+ <g id="part-cedar"><path d="M100 349V144H620V349Z" fill="#7A4E2D" stroke="#cba06b" stroke-width="4"/><path d="M100 144H620" stroke="#e3c55b" stroke-width="8"/><path d="M132 176H588M132 222H588M132 268H588M132 314H588" stroke="#c18f56" stroke-width="2"/></g>
+ <g id="part-floor"><path d="M100 349H620" stroke="#608063" stroke-width="9"/><path d="M123 349v12m57-12v12m57-12v12m57-12v12m57-12v12m57-12v12m57-12v12m57-12v12" stroke="#9db28c" stroke-width="2"/></g>
+ <g id="part-lampstands" stroke="#ecd15d" stroke-width="4" fill="none"><path d="M211 338V270m0 23l-20-17m20 17l20-17m-20-18l-14-17m14 17l14-17"/><path d="M287 338V270m0 23l-20-17m20 17l20-17m-20-18l-14-17m14 17l14-17"/><path d="M363 338V270m0 23l-20-17m20 17l20-17m-20-18l-14-17m14 17l14-17"/></g>
+ <g id="part-tables" fill="#9e7944" stroke="#f0d583" stroke-width="2"><path d="M420 339v-46l54-19v65zm72 0v-46l54-19v65z"/></g>
+ <g id="part-gold-altar" fill="#d6b952"><rect x="363" y="305" width="29" height="37" stroke="#f6dc88" stroke-width="2"/></g>
+ <g id="part-doors" stroke="#e1c36a" stroke-width="5"><path d="M591 161V348M608 161V348"/></g>
+ <g id="part-human-scale" fill="#d9dfd1"><circle cx="660" cy="286" r="8"/><path d="M654 296h12l5 27h-5l-2-18-2 36h-4l-1-31-3 31h-4l3-27z"/></g>
+ <text x="628" y="374" fill="#c5cfbf" font-family="sans-serif" font-size="12">1,70 m</text>
+ <g stroke="#e7d5a2" stroke-width="2" fill="none"><path d="M100 387H620M100 381V393M620 381V393"/></g><text x="305" y="415" fill="#f4ead3" font-family="sans-serif" font-size="15">40 côv. ≈ 18 m</text>
+ <text x="24" y="454" fill="#f2d68c" font-family="sans-serif" font-size="13">Altura do hekal, tamanho dos móveis e posições individuais: medida não informada no texto.</text>
+</svg>

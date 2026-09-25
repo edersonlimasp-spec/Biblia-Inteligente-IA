@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Planta e alçado esquemáticos da porta oriental">
+  <rect width="800" height="520" fill="#17262a"/>
+  <g id="part-side-curtains">
+    <path d="M118 140h238M446 140h238" stroke="#f4eee0" stroke-width="12" stroke-dasharray="3 3"/>
+    <path d="M118 140h238M446 140h238" stroke="#BFC5CC" stroke-width="2"/>
+    <path d="M118 129v22M237 129v22M356 129v22M446 129v22M565 129v22M684 129v22" stroke="#A0673A" stroke-width="7"/>
+  </g>
+  <g id="part-gate-curtain">
+    <path d="M356 140h90v180h-90z" fill="#2E4F8F" fill-opacity=".72" stroke="#C9A227" stroke-width="4"/>
+    <path d="M356 140v180m30-180v180m30-180v180m30-180v180" stroke="#6B2D5C" stroke-width="4"/>
+    <path d="M356 230h90" stroke="#9E1B32" stroke-width="10"/>
+    <path d="M366 150h70v160h-70z" fill="none" stroke="#f4eee0" stroke-width="2" stroke-dasharray="5 7"/>
+  </g>
+  <g id="part-columns">
+    <path d="M356 131v198M386 131v198M416 131v198M446 131v198" stroke="#A0673A" stroke-width="12"/>
+    <path d="M350 324h12m18 0h12m18 0h12m18 0h12" stroke="#C9A227" stroke-width="8"/>
+  </g>
+  <g id="part-materials">
+    <path d="M118 140h238M446 140h238" stroke="#f4eee0" stroke-width="6"/>
+    <path d="M356 144h90" stroke="#2E4F8F" stroke-width="6"/>
+    <path d="M356 151h90" stroke="#6B2D5C" stroke-width="6"/>
+    <path d="M356 158h90" stroke="#9E1B32" stroke-width="6"/>
+    <path d="M356 165h90" stroke="#f4eee0" stroke-width="5"/>
+  </g>
+</svg>

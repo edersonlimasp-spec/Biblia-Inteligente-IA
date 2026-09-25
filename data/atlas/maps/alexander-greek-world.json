@@ -1,0 +1,479 @@
+{
+  "id": "alexander-greek-world",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do período intertestamental",
+  "testament": "AT",
+  "books": [
+    "Dan"
+  ],
+  "characters": [
+    "Alexandre, o Grande",
+    "Antígono",
+    "Ptolemeu",
+    "Seleuco"
+  ],
+  "period": "Conquistas de Alexandre e sucessão de seus generais, c. 334–301 a.C.; datas aproximadas",
+  "title": "Alexandre e o mundo grego",
+  "subtitle": "Da Macedônia ao Egito e à Babilônia; leitura tradicional de Daniel 8",
+  "summary": "Este mapa reúne lugares documentados da campanha de Alexandre e a divisão posterior de seu império entre sucessores. A tradição interpretativa cristã judaico-cristã relaciona o bode de Daniel 8:5–8, 21–22 à Grécia/Alexandre; essa é uma leitura tradicional do texto, não uma demonstração cartográfica de profecia histórica. Daniel não nomeia Tyre, Gaza, Alexandria ou Babilônia como paradas da campanha: esses sítios e eventos são apresentados como contexto histórico e identificados por fonte histórica independente. As datas são aproximadas e a cronologia dos sucessores varia conforme recortes e marcos adotados.",
+  "modernSummary": "Os locais marcados situam-se nos atuais Grécia, Líbano, Faixa de Gaza, Egito e Iraque. Macedônia e o Grande Mar são regiões ou referências amplas e não recebem pino.",
+  "certainty": "debated",
+  "sample": true,
+  "keywords": [
+    "Alexandre",
+    "Macedônia",
+    "Daniel 8",
+    "Tyre",
+    "Gaza",
+    "Alexandria",
+    "Babilônia",
+    "sucessores",
+    "helenismo"
+  ],
+  "section": "intertestamental",
+  "subsection": "Impérios helenísticos",
+  "order": 2,
+  "era": "Período helenístico inicial; c. 334–301 a.C., cronologia aproximada",
+  "modernOverview": "Os pinos de Tyre, Gaza, Alexandria e Babilônia usam as chaves geográficas explicitamente numéricas da evidência OpenBible e apontam para cidades modernas ou seus sítios gerais, não para a posição exata de acampamentos, cercos ou acontecimentos. A Macedônia e o Grande Mar são regiões: a evidência disponível traz apenas coordenadas de referência aproximadas para elas, por isso não foram plotadas. Os acontecimentos históricos e as datas c. são contextualizados por fonte histórica; Daniel 8 oferece uma associação interpretativa tradicional com Alexandre, sem citar estas cidades nem provar historicamente a profecia. A divisão dos territórios entre generais foi dinâmica, não uma fronteira fixa retratada aqui.",
+  "keyReferences": [
+    {
+      "book": "Dan",
+      "chapter": 8,
+      "verseStart": 5,
+      "verseEnd": 8,
+      "label": "Dan 8:5–8"
+    },
+    {
+      "book": "Dan",
+      "chapter": 8,
+      "verseStart": 20,
+      "verseEnd": 22,
+      "label": "Dan 8:20–22"
+    },
+    {
+      "book": "Zech",
+      "chapter": 9,
+      "verseStart": 2,
+      "verseEnd": 5,
+      "label": "Zech 9:2–5"
+    }
+  ],
+  "aliases": [
+    "Alexandre, o Grande",
+    "Alexandre III da Macedônia",
+    "conquistas de Alexandre",
+    "bode de Daniel 8",
+    "império de Alexandre",
+    "Macedônia",
+    "Tyre",
+    "Gaza",
+    "Alexandria",
+    "Babilônia",
+    "divisão dos generais"
+  ],
+  "references": [
+    {
+      "book": "Dan",
+      "chapter": 8,
+      "verseStart": 5,
+      "verseEnd": 8,
+      "label": "Dan 8:5–8"
+    },
+    {
+      "book": "Dan",
+      "chapter": 8,
+      "verseStart": 20,
+      "verseEnd": 22,
+      "label": "Dan 8:20–22"
+    },
+    {
+      "book": "Zech",
+      "chapter": 9,
+      "verseStart": 2,
+      "verseEnd": 5,
+      "label": "Zech 9:2–5"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pares numéricos exatos da evidência retida, convertidos para [longitude, latitude]: Tyre (33.27582782266882,35.19257453545583), Gaza (31.52481769532773,34.4333647185274), Alexandria (31.2278414761719,29.9569242709775) e Babylon (32.53650368616845,44.42088287373876). As entradas Macedonia e Great Sea usam > como coordenadas de região/referência e foram rejeitadas para pinos."
+    },
+    {
+      "id": "britannica-alexander",
+      "title": "Encyclopaedia Britannica — Alexander the Great",
+      "url": "https://www.britannica.com/biography/Alexander-the-Great",
+      "license": "Conteúdo protegido; referência bibliográfica e paráfrase original",
+      "note": "Fonte histórica de consulta para a campanha, o cerco de Tyre em 332 a.C., a passagem pelo Egito, a tomada de Babilônia e a morte de Alexandre em 323 a.C. Datas indicadas como c. quando apropriado. Não é fonte de coordenadas."
+    },
+    {
+      "id": "britannica-hellenistic",
+      "title": "Encyclopaedia Britannica — Hellenistic Age",
+      "url": "https://www.britannica.com/event/Hellenistic-Age",
+      "license": "Conteúdo protegido; referência bibliográfica e paráfrase original",
+      "note": "Contexto histórico para a era helenística e a fragmentação do império entre os sucessores. As divisões foram disputadas e mutáveis; nenhuma fronteira territorial é desenhada."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "Daniel 8:5–8 e 20–22 são o contexto da leitura tradicional que relaciona o bode à Grécia e ao grande chifre a Alexandre. As cidades e episódios históricos neste mapa não são apresentados como nomes ou itinerário fornecidos por Daniel."
+    }
+  ],
+  "places": [
+    {
+      "id": "macedonia",
+      "name": "Macedônia",
+      "modernName": "Região histórica do norte da Grécia e áreas balcânicas adjacentes; extensão variável",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Daniel 8:21 chama o bode de rei da Grécia na leitura tradicional, mas não nomeia a Macedônia nem fixa sua extensão. A entrada OpenBible para Macedonia traz apenas ponto regional marcado >, inadequado como pino; este nome e seu contexto vêm da fonte histórica.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 21,
+          "verseEnd": 22,
+          "label": "Dan 8:21–22 (contexto interpretativo)"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "britannica-alexander",
+        "biblical"
+      ],
+      "centuries": [
+        "século IV a.C."
+      ],
+      "kingdoms": [
+        "Macedônia"
+      ]
+    },
+    {
+      "id": "great-sea",
+      "name": "Grande Mar",
+      "modernName": "Mar Mediterrâneo; referência regional ampla",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "O nome bíblico Grande Mar designa o Mediterrâneo em outros contextos, mas não é um ponto de campanha de Alexandre. A entrada OpenBible fornece coordenadas > de referência, não um sítio; nenhuma geografia de Daniel 8 é usada para fixar aqui um ponto do mar.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 5,
+          "label": "Dan 8:5 (contexto interpretativo, não identificação do mar)"
+        },
+        {
+          "book": "Josh",
+          "chapter": 1,
+          "verseStart": 4,
+          "label": "Josh 1:4"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "tyre",
+      "name": "Tyre (Tiro)",
+      "modernName": "Tiro, Líbano",
+      "coordinates": [
+        35.19257453545583,
+        33.27582782266882
+      ],
+      "certainty": "probable",
+      "explanation": "O ponto reproduz a chave OpenBible Tyre e localiza a cidade histórica em termos gerais. O cerco de Alexandre, c. 332 a.C., é informação histórica da Britannica; Daniel 8 não menciona Tyre nem afirma que seu cerco ocorreu como prova de profecia.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 5,
+          "verseEnd": 8,
+          "label": "Dan 8:5–8 (contexto interpretativo, não nomeia Tyre)"
+        },
+        {
+          "book": "Zech",
+          "chapter": 9,
+          "verseStart": 2,
+          "verseEnd": 3,
+          "label": "Zech 9:2–3"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "britannica-alexander",
+        "biblical"
+      ],
+      "centuries": [
+        "século IV a.C."
+      ],
+      "kingdoms": [
+        "Macedônia",
+        "Império Aquemênida"
+      ]
+    },
+    {
+      "id": "gaza",
+      "name": "Gaza",
+      "modernName": "Gaza, Faixa de Gaza",
+      "coordinates": [
+        34.4333647185274,
+        31.52481769532773
+      ],
+      "certainty": "probable",
+      "explanation": "O par numérico usa a chave OpenBible Gaza, sem reivindicar posição de acampamento ou fortificação específica. A campanha e a tomada da cidade por Alexandre em 332 a.C. são contexto da fonte histórica; Daniel 8 não identifica Gaza nem relata essa batalha.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 5,
+          "verseEnd": 8,
+          "label": "Dan 8:5–8 (contexto interpretativo, não nomeia Gaza)"
+        },
+        {
+          "book": "Zech",
+          "chapter": 9,
+          "verseStart": 5,
+          "label": "Zech 9:5"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "britannica-alexander",
+        "biblical"
+      ],
+      "centuries": [
+        "século IV a.C."
+      ],
+      "kingdoms": [
+        "Macedônia",
+        "Império Aquemênida"
+      ]
+    },
+    {
+      "id": "alexandria",
+      "name": "Alexandria",
+      "modernName": "Alexandria, Egito",
+      "coordinates": [
+        29.9569242709775,
+        31.2278414761719
+      ],
+      "certainty": "probable",
+      "explanation": "O pino segue a chave OpenBible Alexandria, referindo-se à cidade egípcia, não a outras localidades homônimas. A fundação associada a Alexandre em 331 a.C. é informação histórica independente; a cidade não é identificada por nome em Daniel 8.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 5,
+          "verseEnd": 8,
+          "label": "Dan 8:5–8 (contexto interpretativo, não nomeia Alexandria)"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "britannica-alexander",
+        "biblical"
+      ],
+      "centuries": [
+        "século IV a.C."
+      ],
+      "kingdoms": [
+        "Macedônia",
+        "Egito"
+      ]
+    },
+    {
+      "id": "babylon",
+      "name": "Babilônia",
+      "modernName": "Sítio da antiga Babilônia, perto de Hillah, Iraque",
+      "coordinates": [
+        44.42088287373876,
+        32.53650368616845
+      ],
+      "certainty": "probable",
+      "explanation": "O marcador corresponde à chave OpenBible Babylon/Babel e aponta para o sítio da cidade, sem precisar um edifício ou local da morte. Alexandre entrou em Babilônia e morreu ali em 323 a.C. segundo a fonte histórica; Daniel 8 não descreve essa etapa de sua vida.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 8,
+          "verseStart": 8,
+          "label": "Dan 8:8 (contexto interpretativo, não relata a morte em Babilônia)"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "britannica-alexander",
+        "biblical"
+      ],
+      "centuries": [
+        "século IV a.C."
+      ],
+      "kingdoms": [
+        "Império Aquemênida",
+        "Império de Alexandre"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "macedonia",
+      "title": "A tradição associa a Grécia ao bode",
+      "text": "Daniel 8:21 chama o bode de rei da Grécia; identificar o símbolo com Alexandre é uma leitura tradicional. Esse vínculo interpretativo não é prova histórica produzida pelo mapa.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 21,
+        "verseEnd": 22,
+        "label": "Dan 8:21–22"
+      }
+    },
+    {
+      "placeId": "great-sea",
+      "title": "A imagem do bode vem do ocidente",
+      "text": "O texto descreve o bode vindo do ocidente, sem nomear o Mediterrâneo como marco cartográfico da campanha. Esta referência ao mar é apenas orientação geográfica ampla.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 5,
+        "verseEnd": 8,
+        "label": "Dan 8:5–8"
+      }
+    },
+    {
+      "placeId": "tyre",
+      "title": "Cerco de Tyre, c. 332 a.C.",
+      "text": "A cidade costeira foi cercada por Alexandre durante a campanha contra o Império Aquemênida. Tyre não aparece em Daniel 8: sua presença e a data aproximada vêm da síntese histórica da Britannica.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 5,
+        "verseEnd": 8,
+        "label": "Dan 8:5–8 (referência contextual, não relato do cerco)"
+      }
+    },
+    {
+      "placeId": "gaza",
+      "title": "Passagem pelo sul do Levante",
+      "text": "A tomada de Gaza integra a campanha histórica de Alexandre em 332 a.C. O pino marca a cidade, não um acampamento; a narrativa de Daniel não cita Gaza nem descreve esta batalha.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 5,
+        "verseEnd": 8,
+        "label": "Dan 8:5–8 (referência contextual, não relato da batalha)"
+      }
+    },
+    {
+      "placeId": "alexandria",
+      "title": "Fundação de Alexandria",
+      "text": "A fundação da cidade egípcia é associada a Alexandre em c. 331 a.C. A informação e a data vêm da fonte histórica citada; Daniel 8 não nomeia Alexandria.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 21,
+        "verseEnd": 22,
+        "label": "Dan 8:21–22 (contexto interpretativo, não nomeia Alexandria)"
+      }
+    },
+    {
+      "placeId": "babylon",
+      "title": "Babilônia e a morte de Alexandre",
+      "text": "A fonte histórica situa a morte de Alexandre em Babilônia, em 323 a.C. Depois de sua morte, generais disputaram e dividiram territórios ao longo de décadas; este mapa não desenha fronteiras permanentes.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 8,
+        "verseEnd": 22,
+        "label": "Dan 8:8, 20–22 (contexto interpretativo, não relata Babilônia)"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A leitura tradicional vê o bode como representação da Grécia e o grande chifre como seu primeiro rei; o próprio texto não escreve o nome Alexandre.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 21,
+        "verseEnd": 22,
+        "label": "Dan 8:21–22"
+      },
+      "sourceIds": [
+        "biblical",
+        "britannica-alexander"
+      ]
+    },
+    {
+      "text": "O cerco de Tyre é historicamente datado em c. 332 a.C.; essa informação provém da história de Alexandre, não de uma identificação de cidade em Daniel 8.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 5,
+        "verseEnd": 8,
+        "label": "Dan 8:5–8 (contextual)"
+      },
+      "sourceIds": [
+        "britannica-alexander",
+        "biblical"
+      ]
+    },
+    {
+      "text": "Daniel descreve o bode como vindo do ocidente e avançando sem tocar o chão; a linguagem é visionária, não um itinerário medido nem uma rota para os sítios deste mapa.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 5,
+        "verseEnd": 7,
+        "label": "Dan 8:5–7"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "A divisão do império começou após a morte de Alexandre em 323 a.C. e permaneceu conflituosa; nomes de sucessores não correspondem a fronteiras fixas neste mapa.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 8,
+        "verseStart": 8,
+        "label": "Dan 8:8 (contexto interpretativo)"
+      },
+      "sourceIds": [
+        "britannica-alexander",
+        "britannica-hellenistic",
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    29.9569242709775,
+    31.2278414761719,
+    44.42088287373876,
+    33.27582782266882
+  ],
+  "review": {
+    "date": "2025-02-20",
+    "status": "needs-specialist",
+    "verified": [
+      "Pares numéricos para Tyre, Gaza, Alexandria e Babylon conferidos na evidência OpenBible retida; coordenadas armazenadas como [longitude, latitude].",
+      "Coordenadas regionais marcadas > para Macedonia e Great Sea foram rejeitadas como pinos.",
+      "Daniel 8 distingue o bode e o rei da Grécia; associação com Alexandre é rotulada como leitura tradicional.",
+      "Cerco de Tyre c. 332 a.C., fundação de Alexandria c. 331 a.C., morte em Babilônia em 323 a.C. e sucessão consultados na Britannica.",
+      "Nenhuma fronteira histórica ou rota de campanha é desenhada."
+    ],
+    "uncertainties": [
+      "A relação entre a visão de Daniel 8 e os eventos helenísticos é interpretação teológica e cronológica debatida, não prova cartográfica.",
+      "Coordenadas OpenBible são referências de topônimos, não coordenadas arqueológicas específicas de cercos ou acampamentos.",
+      "Cronologia dos episódios e dos acordos entre sucessores varia; datas c. são aproximadas."
+    ],
+    "methodology": "Foram usados apenas pares coordenados numericamente explícitos na evidência geográfica retida; aproximações com sinais foram excluídas. As fontes históricas são citadas separadamente das referências bíblicas. Locais históricos ausentes do texto bíblico recebem apenas referência contextual a Daniel 8 e explicação explícita de sua origem independente."
+  }
+}

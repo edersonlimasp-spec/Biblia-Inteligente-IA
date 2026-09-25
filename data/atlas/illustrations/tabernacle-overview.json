@@ -1,0 +1,518 @@
+{
+  "id": "tabernacle-overview",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": [
+    "Exod"
+  ],
+  "characters": [
+    "Moisés",
+    "Arão"
+  ],
+  "period": "Tabernáculo do deserto, conforme Êxodo",
+  "title": "Tabernáculo: Visão geral",
+  "subtitle": "Planta e vista 3/4 esquemáticas; não são reconstruções arqueológicas",
+  "summary": "Diagrama da área sagrada descrita em Êxodo: o pátio retangular abre-se a leste; o altar e a pia precedem a tenda, onde a sequência interna conduz ao véu e à arca. A disposição ajuda a acompanhar a ordem textual, mas não reconstrói detalhes sem medida declarada.",
+  "modernSummary": "Não se identifica um edifício preservado nem uma localização arqueológica para esta planta textual.",
+  "purpose": "Reunir em uma planta de orientação os recintos e objetos móveis descritos em Êxodo, permitindo ler as relações espaciais sem sugerir uma reconstrução arqueológica exata.",
+  "certainty": "established",
+  "sample": true,
+  "keywords": [
+    "tabernáculo",
+    "visão geral",
+    "pátio",
+    "tenda",
+    "Êxodo"
+  ],
+  "section": "tabernacle",
+  "subsection": "Tabernáculo",
+  "order": 1,
+  "era": "Êxodo e deserto",
+  "modernOverview": "O desenho é uma síntese esquemática das instruções literárias em Êxodo; não é uma planta arqueológica nem fornece escala para as peças sem medidas textuais.",
+  "keyReferences": [
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 9,
+      "verseEnd": 18,
+      "label": "Exod 27:9–18"
+    },
+    {
+      "book": "Exod",
+      "chapter": 26,
+      "verseStart": 31,
+      "verseEnd": 37,
+      "label": "Exod 26:31–37"
+    },
+    {
+      "book": "Exod",
+      "chapter": 30,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Exod 30:1–10"
+    },
+    {
+      "book": "Exod",
+      "chapter": 25,
+      "verseStart": 10,
+      "verseEnd": 22,
+      "label": "Exod 25:10–22"
+    }
+  ],
+  "aliases": [
+    "tenda da congregação",
+    "tenda do testemunho"
+  ],
+  "references": [
+    {
+      "book": "Exod",
+      "chapter": 25,
+      "verseStart": 10,
+      "verseEnd": 22,
+      "label": "Exod 25:10–22"
+    },
+    {
+      "book": "Exod",
+      "chapter": 26,
+      "verseStart": 1,
+      "verseEnd": 37,
+      "label": "Exod 26:1–37"
+    },
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 1,
+      "verseEnd": 19,
+      "label": "Exod 27:1–19"
+    },
+    {
+      "book": "Exod",
+      "chapter": 30,
+      "verseStart": 1,
+      "verseEnd": 21,
+      "label": "Exod 30:1–21"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 1,
+      "verseEnd": 20,
+      "label": "Exod 38:1–20"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Êxodo — texto bíblico ACF consultado",
+      "url": "https://www.bible.com/pt/bible/212/EXO.27.ACF",
+      "license": "Referências e paráfrases próprias; não reproduz texto protegido",
+      "note": "Conferência das referências no texto bíblico ACF por consulta ao endpoint bíblico disponível; desenho e paráfrases originais."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "gate",
+      "title": "Porta a leste",
+      "text": "A entrada do pátio fica no lado oriental; esta orientação estabelece o começo do percurso esquemático.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 13,
+        "verseEnd": 16,
+        "label": "Exod 27:13–16"
+      }
+    },
+    {
+      "placeId": "altar",
+      "title": "Altar do holocausto",
+      "text": "O altar é descrito no pátio, junto à entrada; suas dimensões textuais são cinco por cinco por três côvados.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 1,
+        "verseEnd": 8,
+        "label": "Exod 27:1–8"
+      }
+    },
+    {
+      "placeId": "laver",
+      "title": "Pia",
+      "text": "Êxodo situa a pia entre a tenda e o altar; suas medidas não são dadas no texto.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 30,
+        "verseStart": 17,
+        "verseEnd": 21,
+        "label": "Exod 30:17–21"
+      }
+    },
+    {
+      "placeId": "menorah",
+      "title": "Candelabro no Lugar Santo",
+      "text": "A descrição posiciona o candelabro dentro da tenda, ao lado sul; a representação não fixa dimensões ausentes.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 26,
+        "verseStart": 35,
+        "label": "Exod 26:35"
+      }
+    },
+    {
+      "placeId": "table",
+      "title": "Mesa no Lugar Santo",
+      "text": "A mesa fica ao lado norte, diante do candelabro, fora do véu, conforme as instruções da tenda.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 26,
+        "verseStart": 35,
+        "label": "Exod 26:35"
+      }
+    },
+    {
+      "placeId": "incense",
+      "title": "Altar do incenso",
+      "text": "O pequeno altar de incenso é posto diante do véu, em frente à arca do testemunho.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 30,
+        "verseStart": 6,
+        "label": "Exod 30:6"
+      }
+    },
+    {
+      "placeId": "tent",
+      "title": "Véu",
+      "text": "O véu separa o santuário do Lugar Santíssimo; a linha tracejada no diagrama apenas marca essa separação.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 26,
+        "verseStart": 31,
+        "verseEnd": 33,
+        "label": "Exod 26:31–33"
+      }
+    },
+    {
+      "placeId": "ark",
+      "title": "Arca no Lugar Santíssimo",
+      "text": "A arca é colocada do lado de dentro do véu; a planta representa sua posição textual sem pretender uma escala exata.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 26,
+        "verseStart": 33,
+        "verseEnd": 34,
+        "label": "Exod 26:33–34"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "O lado leste do pátio inclui uma abertura central de vinte côvados para a cortina da porta.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 13,
+        "verseEnd": 16,
+        "label": "Exod 27:13–16"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "A pia é situada entre a tenda da congregação e o altar, mas o texto não lhe atribui dimensões.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 30,
+        "verseStart": 18,
+        "label": "Exod 30:18"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Êxodo coloca a mesa ao norte e o candelabro ao sul da tenda, ambos fora do véu.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 26,
+        "verseStart": 35,
+        "label": "Exod 26:35"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "tabernacle-overview.svg",
+    "dimensions": [
+      {
+        "label": "Pátio — comprimento",
+        "cubits": 100,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 18,
+          "label": "Exod 27:18"
+        }
+      },
+      {
+        "label": "Pátio — largura",
+        "cubits": 50,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 18,
+          "label": "Exod 27:18"
+        }
+      },
+      {
+        "label": "Cortina do pátio — altura",
+        "cubits": 5,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 18,
+          "label": "Exod 27:18"
+        }
+      }
+    ],
+    "notes": [
+      "Planta esquemática: somente contorno do pátio e cortinas explicitam medidas do texto; símbolos e posição das peças não estão em escala.",
+      "A sequência visual sintetiza referências distintas; não representa reconstrução arqueológica.",
+      "Dimensões em côvados; conversão usual 1 côvado ≈ 0,45 m. Côvado longo ≈ 0,52 m é aproximação alternativa, não usado na planta."
+    ],
+    "relatedIds": [],
+    "parts": [
+      {
+        "id": "courtyard",
+        "name": "Pátio e cercado",
+        "description": "Retângulo do pátio com a entrada no lado leste; o desenho não expressa escala métrica.",
+        "material": "Linho fino torcido; colunas e bases de bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 9,
+            "verseEnd": 18,
+            "label": "Exod 27:9–18"
+          }
+        ],
+        "highlight": {
+          "x": 44.5,
+          "y": 46.2,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "gate",
+        "name": "Porta a leste",
+        "description": "Abertura oriental central, com cortina bordada; comprimento textual de vinte côvados.",
+        "cubits": 20,
+        "material": "Linho fino torcido, azul, púrpura e carmesim",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 13,
+            "verseEnd": 16,
+            "label": "Exod 27:13–16"
+          }
+        ],
+        "highlight": {
+          "x": 77,
+          "y": 46.2,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "altar",
+        "name": "Altar do holocausto",
+        "description": "Altar quadrado e oco de tábuas, com quatro chifres, grelha, argolas e varas.",
+        "material": "Madeira de acácia revestida de bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 1,
+            "verseEnd": 8,
+            "label": "Exod 27:1–8"
+          }
+        ],
+        "highlight": {
+          "x": 68.5,
+          "y": 46.2,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "laver",
+        "name": "Pia de bronze",
+        "description": "Pia com base situada entre a tenda e o altar; medidas não informadas no texto.",
+        "material": "Bronze; feita dos espelhos das mulheres servidoras à entrada da tenda",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 30,
+            "verseStart": 17,
+            "verseEnd": 21,
+            "label": "Exod 30:17–21"
+          }
+        ],
+        "highlight": {
+          "x": 61.5,
+          "y": 45.2,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "tent",
+        "name": "Tenda e véu",
+        "description": "Tenda retangular com o véu separando o Santo dos Santos; proporções da planta interna são esquemáticas.",
+        "material": "Tábuas de acácia revestidas de ouro e tecidos",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 26,
+            "verseStart": 15,
+            "verseEnd": 37,
+            "label": "Exod 26:15–37"
+          }
+        ],
+        "highlight": {
+          "x": 45.5,
+          "y": 46.2,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "menorah",
+        "name": "Candelabro",
+        "description": "Peça de sete lâmpadas posicionada no lado sul do Lugar Santo; medida não informada no texto.",
+        "material": "Ouro puro batido",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 25,
+            "verseStart": 31,
+            "verseEnd": 40,
+            "label": "Exod 25:31–40"
+          }
+        ],
+        "highlight": {
+          "x": 50.5,
+          "y": 37.9,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "table",
+        "name": "Mesa dos pães",
+        "description": "Mesa ao lado norte do Lugar Santo; o desenho esquemático não fixa posição exata.",
+        "material": "Madeira de acácia revestida de ouro",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 25,
+            "verseStart": 23,
+            "verseEnd": 30,
+            "label": "Exod 25:23–30"
+          }
+        ],
+        "highlight": {
+          "x": 49.9,
+          "y": 38.1,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "incense",
+        "name": "Altar do incenso",
+        "description": "Altar de ouro colocado diante do véu; não está representado em escala.",
+        "material": "Madeira de acácia revestida de ouro",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 30,
+            "verseStart": 1,
+            "verseEnd": 10,
+            "label": "Exod 30:1–10"
+          }
+        ],
+        "highlight": {
+          "x": 49.5,
+          "y": 56,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "ark",
+        "name": "Arca e propiciatório",
+        "description": "Arca no Santo dos Santos, com propiciatório e querubins; peça representada esquematicamente.",
+        "material": "Madeira de acácia revestida de ouro; propiciatório e querubins de ouro puro",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 25,
+            "verseStart": 10,
+            "verseEnd": 22,
+            "label": "Exod 25:10–22"
+          }
+        ],
+        "highlight": {
+          "x": 40,
+          "y": 58.3,
+          "width": 0,
+          "height": 0
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "tabernacle-overview.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "tabernacle-overview-isometrica.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-09-24",
+    "status": "documented",
+    "verified": [
+      "Êxodo 25:10–22",
+      "Êxodo 26:31–37",
+      "Êxodo 27:1–19",
+      "Êxodo 30:1–21",
+      "Êxodo 38:1–20"
+    ],
+    "uncertainties": [
+      "Posição e dimensão dos objetos sem medida foram ilustradas sem escala.",
+      "A orientação do percurso é síntese de várias passagens; a sequência desenhada não declara distâncias internas."
+    ],
+    "methodology": "Leitura das passagens indicadas e representação vetorial autoral em vista esquemática, distinguindo dados explícitos de arranjo ilustrativo."
+  }
+}

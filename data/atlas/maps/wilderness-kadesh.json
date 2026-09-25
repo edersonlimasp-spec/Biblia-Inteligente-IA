@@ -1,0 +1,1675 @@
+{
+  "id": "wilderness-kadesh",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Exod",
+    "Num",
+    "Deut"
+  ],
+  "characters": [
+    "Moisés",
+    "Arão"
+  ],
+  "period": "Narrativa do deserto; datação e itinerário histórico debatidos",
+  "title": "Peregrinação no deserto",
+  "subtitle": "Êx 15–19, Nm 10–21 e 33, Dt 1–2: estações incertas; sem rota inventada",
+  "summary": "As estações citadas nos textos não permitem reconstituir uma trilha. O candidato meridional tradicional para o Sinai e as propostas do norte do Sinai/noroeste da Arábia são famílias de hipóteses, não trajetos equivalentes comprovados. A maioria das estações de Números 33 permanece sem coordenada.",
+  "modernSummary": "As propostas se distribuem pelo Egito, península do Sinai, sul do Levante e Jordânia. Nenhuma estrada do deserto é reconstruída.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Peregrinação no deserto",
+    "Mara",
+    "Elim",
+    "Refidim",
+    "Sinai",
+    "Cades-Barneia",
+    "Moabe",
+    "Nebo",
+    "Números 33",
+    "Exod",
+    "Num",
+    "Deut",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Êxodo e deserto",
+  "order": 7,
+  "era": "Êxodo e deserto",
+  "modernOverview": "Mara, Elim e o candidato Jebel Musa estão na atual península do Sinai, Egito. Cades-Barneia é frequentemente proposta no nordeste do Sinai; Eziom-Geber se associa ao golfo de Aqaba. As planícies de Moabe e o monte Nebo ficam na atual Jordânia. As propostas setentrionais para o Sinai alcançam o norte da península ou o noroeste da Arábia, mas não há localização ou rota consensual.",
+  "keyReferences": [
+    {
+      "book": "Exod",
+      "chapter": 15,
+      "verseStart": 23,
+      "verseEnd": 27,
+      "label": "Exod 15:23–27"
+    },
+    {
+      "book": "Exod",
+      "chapter": 16,
+      "verseStart": 1,
+      "label": "Exod 16:1"
+    },
+    {
+      "book": "Exod",
+      "chapter": 17,
+      "verseStart": 1,
+      "label": "Exod 17:1"
+    },
+    {
+      "book": "Exod",
+      "chapter": 19,
+      "verseStart": 1,
+      "label": "Exod 19:1"
+    },
+    {
+      "book": "Num",
+      "chapter": 20,
+      "verseStart": 22,
+      "label": "Num 20:22"
+    },
+    {
+      "book": "Num",
+      "chapter": 33,
+      "verseStart": 1,
+      "verseEnd": 49,
+      "label": "Num 33:1–49"
+    },
+    {
+      "book": "Deut",
+      "chapter": 1,
+      "verseStart": 19,
+      "label": "Deut 1:19"
+    },
+    {
+      "book": "Deut",
+      "chapter": 34,
+      "verseStart": 1,
+      "label": "Deut 34:1"
+    }
+  ],
+  "aliases": [
+    "Peregrinação no deserto",
+    "Mara",
+    "Elim",
+    "Refidim",
+    "Sinai",
+    "Cades-Barneia",
+    "Moabe",
+    "Nebo",
+    "Números 33",
+    "Deserto de Sim",
+    "Sinai — candidato meridional tradicional",
+    "Sinai — outras hipóteses",
+    "Eziom-Geber",
+    "Monte Hor",
+    "Planícies de Moabe",
+    "Monte Nebo",
+    "Dofca",
+    "Alus",
+    "Ritma",
+    "Rimom-Perez",
+    "Libna (estação)",
+    "Rissa",
+    "Queelata",
+    "Harada",
+    "Maquelote",
+    "Taate",
+    "Tara",
+    "Mitca",
+    "Hasmona",
+    "Moserote",
+    "Bene-Jaacã",
+    "Hor-Hagidgade",
+    "Jotbatá",
+    "Abrona",
+    "Zalmona",
+    "Punom",
+    "Obote",
+    "Ijé-Abarim",
+    "Dibom-Gade",
+    "Almom-Diblataim"
+  ],
+  "references": [
+    {
+      "book": "Exod",
+      "chapter": 15,
+      "verseStart": 23,
+      "verseEnd": 27,
+      "label": "Exod 15:23–27"
+    },
+    {
+      "book": "Exod",
+      "chapter": 16,
+      "verseStart": 1,
+      "label": "Exod 16:1"
+    },
+    {
+      "book": "Exod",
+      "chapter": 17,
+      "verseStart": 1,
+      "label": "Exod 17:1"
+    },
+    {
+      "book": "Exod",
+      "chapter": 19,
+      "verseStart": 1,
+      "label": "Exod 19:1"
+    },
+    {
+      "book": "Num",
+      "chapter": 20,
+      "verseStart": 22,
+      "label": "Num 20:22"
+    },
+    {
+      "book": "Num",
+      "chapter": 33,
+      "verseStart": 1,
+      "verseEnd": 49,
+      "label": "Num 33:1–49"
+    },
+    {
+      "book": "Deut",
+      "chapter": 1,
+      "verseStart": 19,
+      "label": "Deut 1:19"
+    },
+    {
+      "book": "Deut",
+      "chapter": 34,
+      "verseStart": 1,
+      "label": "Deut 34:1"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Chave, coordenadas brutas e passagens preservadas em docs/atlas/evidence/openbible-merged.txt. Identificações debatidas não são confirmação arqueológica."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "A referência fundamenta a sequência textual, não demonstra a localização de um evento."
+    }
+  ],
+  "places": [
+    {
+      "id": "marah",
+      "name": "Mara",
+      "modernName": "Península do Sinai, Egito; identificação tradicional debatida",
+      "coordinates": [
+        32.933333,
+        29.35
+      ],
+      "certainty": "debated",
+      "explanation": "A identidade da fonte de água não está demonstrada. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 15,
+          "verseStart": 23,
+          "label": "Exod 15:23"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "elim",
+      "name": "Elim",
+      "modernName": "Península do Sinai, Egito; identificação tradicional debatida",
+      "coordinates": [
+        32.980924,
+        29.306194
+      ],
+      "certainty": "debated",
+      "explanation": "Não comprova as doze fontes e setenta palmeiras. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 15,
+          "verseStart": 27,
+          "label": "Exod 15:27"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "sin-wilderness",
+      "name": "Deserto de Sim",
+      "modernName": "Península do Sinai, Egito; extensão desconhecida",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A linha 'Sin' usa um ponto regional com '>'; não localiza um acampamento.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 16,
+          "verseStart": 1,
+          "label": "Exod 16:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "rephidim",
+      "name": "Refidim",
+      "modernName": "Península do Sinai, Egito; sítio debatido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A base propõe um ponto, mas a estação não tem identificação arqueológica segura.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 17,
+          "verseStart": 1,
+          "label": "Exod 17:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "sinai",
+      "name": "Sinai — candidato meridional tradicional",
+      "modernName": "Jebel Musa, península do Sinai, Egito",
+      "coordinates": [
+        33.973333,
+        28.539722
+      ],
+      "certainty": "debated",
+      "explanation": "Jebel Musa é candidato tradicional debatido, não identificação do monte bíblico demonstrada. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 19,
+          "verseStart": 1,
+          "label": "Exod 19:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "other-sinai",
+      "name": "Sinai — outras hipóteses",
+      "modernName": "Norte do Sinai ou noroeste da Arábia; monte desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Segunda família de propostas mencionada no mapa do Êxodo; não se escolhe um monte nem se desenha rota.",
+      "references": [
+        {
+          "book": "Exod",
+          "chapter": 19,
+          "verseStart": 1,
+          "label": "Exod 19:1"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "kadesh",
+      "name": "Cades-Barneia",
+      "modernName": "Região de Tell el-Qudeirat, nordeste do Sinai, Egito",
+      "coordinates": [
+        34.49479554246946,
+        30.68771281376111
+      ],
+      "certainty": "debated",
+      "explanation": "Candidato habitual; correspondência narrativa não é comprovada. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Deut",
+          "chapter": 1,
+          "verseStart": 19,
+          "label": "Deut 1:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "ezion",
+      "name": "Eziom-Geber",
+      "modernName": "Região de Eilat/Aqaba, golfo de Aqaba; sítio debatido",
+      "coordinates": [
+        35.0306017443078,
+        29.75804307645581
+      ],
+      "certainty": "debated",
+      "explanation": "Geocódigo candidato, sem comprovar a estação da peregrinação. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 35,
+          "label": "Num 33:35"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "hor",
+      "name": "Monte Hor",
+      "modernName": "Sul da Jordânia; identificação do monte debatida",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "O ponto Mount Hor 1 é candidato tradicional; o monte da morte de Arão não foi localizado com segurança.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 20,
+          "verseStart": 22,
+          "label": "Num 20:22"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "moab-plains",
+      "name": "Planícies de Moabe",
+      "modernName": "Leste do Jordão, na atual Jordânia; acampamento exato desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "O ponto genérico da região Moab usa '>' e não localiza as planícies nem o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 48,
+          "label": "Num 33:48"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "nebo",
+      "name": "Monte Nebo",
+      "modernName": "Jabal Nībū, Jordânia",
+      "coordinates": [
+        35.74614824478083,
+        31.76135780447535
+      ],
+      "certainty": "probable",
+      "explanation": "Monte tradicionalmente identificado; o texto não indica um ponto específico da vista. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Deut",
+          "chapter": 34,
+          "verseStart": 1,
+          "label": "Deut 34:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "dophkah",
+      "name": "Dofca",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 12,
+          "label": "Num 33:12"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "alush",
+      "name": "Alus",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 13,
+          "label": "Num 33:13"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "rithmah",
+      "name": "Ritma",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 18,
+          "label": "Num 33:18"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "rimmon-perez",
+      "name": "Rimom-Perez",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 19,
+          "label": "Num 33:19"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "libnah-station",
+      "name": "Libna (estação)",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 20,
+          "label": "Num 33:20"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "rissah",
+      "name": "Rissa",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 21,
+          "label": "Num 33:21"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "kehelathah",
+      "name": "Queelata",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 22,
+          "label": "Num 33:22"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "haradah",
+      "name": "Harada",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 24,
+          "label": "Num 33:24"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "makheloth",
+      "name": "Maquelote",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 25,
+          "label": "Num 33:25"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "tahath",
+      "name": "Taate",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 26,
+          "label": "Num 33:26"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "terah",
+      "name": "Tara",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 27,
+          "label": "Num 33:27"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "mithkah",
+      "name": "Mitca",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 28,
+          "label": "Num 33:28"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "hashmonah",
+      "name": "Hasmona",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 29,
+          "label": "Num 33:29"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "moseroth",
+      "name": "Moserote",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 30,
+          "label": "Num 33:30"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "bene-jaakan",
+      "name": "Bene-Jaacã",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 31,
+          "label": "Num 33:31"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "hor-haggidgad",
+      "name": "Hor-Hagidgade",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 32,
+          "label": "Num 33:32"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "jotbathah",
+      "name": "Jotbatá",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 33,
+          "label": "Num 33:33"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "abronah",
+      "name": "Abrona",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 34,
+          "label": "Num 33:34"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "zalmonah",
+      "name": "Zalmona",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 41,
+          "label": "Num 33:41"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "punon",
+      "name": "Punom",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 42,
+          "label": "Num 33:42"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "oboth",
+      "name": "Obote",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 43,
+          "label": "Num 33:43"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "iye-abarim",
+      "name": "Ijé-Abarim",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 44,
+          "label": "Num 33:44"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "dibon-gad",
+      "name": "Dibom-Gade",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 45,
+          "label": "Num 33:45"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "almon-diblathaim",
+      "name": "Almom-Diblataim",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "A estação é nomeada em Números 33, mas esta compilação não dispõe de geocódigo confiável para o acampamento.",
+      "references": [
+        {
+          "book": "Num",
+          "chapter": 33,
+          "verseStart": 46,
+          "label": "Num 33:46"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "narrative": [
+    {
+      "placeId": "marah",
+      "explanation": "A identidade da fonte de água não está demonstrada. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 15,
+        "verseStart": 23,
+        "label": "Exod 15:23"
+      }
+    },
+    {
+      "placeId": "elim",
+      "explanation": "Não comprova as doze fontes e setenta palmeiras. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 15,
+        "verseStart": 27,
+        "label": "Exod 15:27"
+      }
+    },
+    {
+      "placeId": "sin-wilderness",
+      "explanation": "A linha 'Sin' usa um ponto regional com '>'; não localiza um acampamento.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 16,
+        "verseStart": 1,
+        "label": "Exod 16:1"
+      }
+    },
+    {
+      "placeId": "dophkah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 12,
+        "label": "Num 33:12"
+      }
+    },
+    {
+      "placeId": "alush",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 13,
+        "label": "Num 33:13"
+      }
+    },
+    {
+      "placeId": "rephidim",
+      "explanation": "A base propõe um ponto, mas a estação não tem identificação arqueológica segura.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 17,
+        "verseStart": 1,
+        "label": "Exod 17:1"
+      }
+    },
+    {
+      "placeId": "sinai",
+      "explanation": "Jebel Musa é candidato tradicional debatido, não identificação do monte bíblico demonstrada. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 19,
+        "verseStart": 1,
+        "label": "Exod 19:1"
+      }
+    },
+    {
+      "placeId": "rithmah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 18,
+        "label": "Num 33:18"
+      }
+    },
+    {
+      "placeId": "rimmon-perez",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 19,
+        "label": "Num 33:19"
+      }
+    },
+    {
+      "placeId": "libnah-station",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 20,
+        "label": "Num 33:20"
+      }
+    },
+    {
+      "placeId": "rissah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 21,
+        "label": "Num 33:21"
+      }
+    },
+    {
+      "placeId": "kehelathah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 22,
+        "label": "Num 33:22"
+      }
+    },
+    {
+      "placeId": "haradah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 24,
+        "label": "Num 33:24"
+      }
+    },
+    {
+      "placeId": "makheloth",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 25,
+        "label": "Num 33:25"
+      }
+    },
+    {
+      "placeId": "tahath",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 26,
+        "label": "Num 33:26"
+      }
+    },
+    {
+      "placeId": "terah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 27,
+        "label": "Num 33:27"
+      }
+    },
+    {
+      "placeId": "mithkah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 28,
+        "label": "Num 33:28"
+      }
+    },
+    {
+      "placeId": "hashmonah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 29,
+        "label": "Num 33:29"
+      }
+    },
+    {
+      "placeId": "moseroth",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 30,
+        "label": "Num 33:30"
+      }
+    },
+    {
+      "placeId": "bene-jaakan",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 31,
+        "label": "Num 33:31"
+      }
+    },
+    {
+      "placeId": "hor-haggidgad",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 32,
+        "label": "Num 33:32"
+      }
+    },
+    {
+      "placeId": "jotbathah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 33,
+        "label": "Num 33:33"
+      }
+    },
+    {
+      "placeId": "abronah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 34,
+        "label": "Num 33:34"
+      }
+    },
+    {
+      "placeId": "ezion",
+      "explanation": "Geocódigo candidato, sem comprovar a estação da peregrinação. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 35,
+        "label": "Num 33:35"
+      }
+    },
+    {
+      "placeId": "kadesh",
+      "explanation": "Após Eziom-Geber, a lista de estações registra Cades; usa-se aqui a referência posterior de Nm 33, não a recapitulação de Dt 1.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 36,
+        "label": "Num 33:36"
+      }
+    },
+    {
+      "placeId": "hor",
+      "explanation": "O ponto Mount Hor 1 é candidato tradicional; o monte da morte de Arão não foi localizado com segurança.",
+      "reference": {
+        "book": "Num",
+        "chapter": 20,
+        "verseStart": 22,
+        "label": "Num 20:22"
+      }
+    },
+    {
+      "placeId": "zalmonah",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 41,
+        "label": "Num 33:41"
+      }
+    },
+    {
+      "placeId": "punon",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 42,
+        "label": "Num 33:42"
+      }
+    },
+    {
+      "placeId": "oboth",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 43,
+        "label": "Num 33:43"
+      }
+    },
+    {
+      "placeId": "iye-abarim",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 44,
+        "label": "Num 33:44"
+      }
+    },
+    {
+      "placeId": "dibon-gad",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 45,
+        "label": "Num 33:45"
+      }
+    },
+    {
+      "placeId": "almon-diblathaim",
+      "explanation": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 46,
+        "label": "Num 33:46"
+      }
+    },
+    {
+      "placeId": "moab-plains",
+      "explanation": "O ponto genérico da região Moab usa '>' e não localiza as planícies nem o acampamento.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 48,
+        "label": "Num 33:48"
+      }
+    },
+    {
+      "placeId": "nebo",
+      "explanation": "Monte tradicionalmente identificado; o texto não indica um ponto específico da vista. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Deut",
+        "chapter": 34,
+        "verseStart": 1,
+        "label": "Deut 34:1"
+      }
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "marah",
+      "title": "Mara",
+      "text": "A identidade da fonte de água não está demonstrada. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 15,
+        "verseStart": 23,
+        "label": "Exod 15:23"
+      }
+    },
+    {
+      "placeId": "elim",
+      "title": "Elim",
+      "text": "Não comprova as doze fontes e setenta palmeiras. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 15,
+        "verseStart": 27,
+        "label": "Exod 15:27"
+      }
+    },
+    {
+      "placeId": "sin-wilderness",
+      "title": "Deserto de Sim",
+      "text": "A linha 'Sin' usa um ponto regional com '>'; não localiza um acampamento.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 16,
+        "verseStart": 1,
+        "label": "Exod 16:1"
+      }
+    },
+    {
+      "placeId": "dophkah",
+      "title": "Dofca",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 12,
+        "label": "Num 33:12"
+      }
+    },
+    {
+      "placeId": "alush",
+      "title": "Alus",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 13,
+        "label": "Num 33:13"
+      }
+    },
+    {
+      "placeId": "rephidim",
+      "title": "Refidim",
+      "text": "A base propõe um ponto, mas a estação não tem identificação arqueológica segura.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 17,
+        "verseStart": 1,
+        "label": "Exod 17:1"
+      }
+    },
+    {
+      "placeId": "sinai",
+      "title": "Sinai",
+      "text": "Jebel Musa é candidato tradicional debatido, não identificação do monte bíblico demonstrada. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 19,
+        "verseStart": 1,
+        "label": "Exod 19:1"
+      }
+    },
+    {
+      "placeId": "rithmah",
+      "title": "Ritma",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 18,
+        "label": "Num 33:18"
+      }
+    },
+    {
+      "placeId": "rimmon-perez",
+      "title": "Rimom-Perez",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 19,
+        "label": "Num 33:19"
+      }
+    },
+    {
+      "placeId": "libnah-station",
+      "title": "Libna",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 20,
+        "label": "Num 33:20"
+      }
+    },
+    {
+      "placeId": "rissah",
+      "title": "Rissa",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 21,
+        "label": "Num 33:21"
+      }
+    },
+    {
+      "placeId": "kehelathah",
+      "title": "Queelata",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 22,
+        "label": "Num 33:22"
+      }
+    },
+    {
+      "placeId": "haradah",
+      "title": "Harada",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 24,
+        "label": "Num 33:24"
+      }
+    },
+    {
+      "placeId": "makheloth",
+      "title": "Maquelote",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 25,
+        "label": "Num 33:25"
+      }
+    },
+    {
+      "placeId": "tahath",
+      "title": "Taate",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 26,
+        "label": "Num 33:26"
+      }
+    },
+    {
+      "placeId": "terah",
+      "title": "Tara",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 27,
+        "label": "Num 33:27"
+      }
+    },
+    {
+      "placeId": "mithkah",
+      "title": "Mitca",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 28,
+        "label": "Num 33:28"
+      }
+    },
+    {
+      "placeId": "hashmonah",
+      "title": "Hasmona",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 29,
+        "label": "Num 33:29"
+      }
+    },
+    {
+      "placeId": "moseroth",
+      "title": "Moserote",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 30,
+        "label": "Num 33:30"
+      }
+    },
+    {
+      "placeId": "bene-jaakan",
+      "title": "Bene-Jaacã",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 31,
+        "label": "Num 33:31"
+      }
+    },
+    {
+      "placeId": "hor-haggidgad",
+      "title": "Hor-Hagidgade",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 32,
+        "label": "Num 33:32"
+      }
+    },
+    {
+      "placeId": "jotbathah",
+      "title": "Jotbatá",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 33,
+        "label": "Num 33:33"
+      }
+    },
+    {
+      "placeId": "abronah",
+      "title": "Abrona",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 34,
+        "label": "Num 33:34"
+      }
+    },
+    {
+      "placeId": "ezion",
+      "title": "Eziom-Geber",
+      "text": "Geocódigo candidato, sem comprovar a estação da peregrinação. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 35,
+        "label": "Num 33:35"
+      }
+    },
+    {
+      "placeId": "kadesh",
+      "title": "Cades-Barneia",
+      "text": "Após Eziom-Geber, a lista de estações registra Cades; usa-se aqui a referência posterior de Nm 33, não a recapitulação de Dt 1.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 36,
+        "label": "Num 33:36"
+      }
+    },
+    {
+      "placeId": "hor",
+      "title": "Monte Hor",
+      "text": "O ponto Mount Hor 1 é candidato tradicional; o monte da morte de Arão não foi localizado com segurança.",
+      "reference": {
+        "book": "Num",
+        "chapter": 20,
+        "verseStart": 22,
+        "label": "Num 20:22"
+      }
+    },
+    {
+      "placeId": "zalmonah",
+      "title": "Zalmona",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 41,
+        "label": "Num 33:41"
+      }
+    },
+    {
+      "placeId": "punon",
+      "title": "Punom",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 42,
+        "label": "Num 33:42"
+      }
+    },
+    {
+      "placeId": "oboth",
+      "title": "Obote",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 43,
+        "label": "Num 33:43"
+      }
+    },
+    {
+      "placeId": "iye-abarim",
+      "title": "Ijé-Abarim",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 44,
+        "label": "Num 33:44"
+      }
+    },
+    {
+      "placeId": "dibon-gad",
+      "title": "Dibom-Gade",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 45,
+        "label": "Num 33:45"
+      }
+    },
+    {
+      "placeId": "almon-diblathaim",
+      "title": "Almom-Diblataim",
+      "text": "Estação textual de Números 33, sem localização confiável nesta compilação.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 46,
+        "label": "Num 33:46"
+      }
+    },
+    {
+      "placeId": "moab-plains",
+      "title": "Planícies de Moabe",
+      "text": "O ponto genérico da região Moab usa '>' e não localiza as planícies nem o acampamento.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 48,
+        "label": "Num 33:48"
+      }
+    },
+    {
+      "placeId": "nebo",
+      "title": "Monte Nebo",
+      "text": "Monte tradicionalmente identificado; o texto não indica um ponto específico da vista. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Deut",
+        "chapter": 34,
+        "verseStart": 1,
+        "label": "Deut 34:1"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Mara e Elim são estações consecutivas: em Mara a água é amarga, e em Elim há fontes e palmeiras.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 15,
+        "verseStart": 23,
+        "verseEnd": 27,
+        "label": "Exod 15:23–27"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "O texto associa Refidim à falta de água e ao confronto com Amaleque.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 17,
+        "verseStart": 1,
+        "verseEnd": 8,
+        "label": "Exod 17:1–8"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Números 33 preserva uma lista de estações, mas não fornece coordenadas para a maioria delas.",
+      "reference": {
+        "book": "Num",
+        "chapter": 33,
+        "verseStart": 1,
+        "verseEnd": 49,
+        "label": "Num 33:1–49"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    32.933333,
+    28.539722,
+    35.74614824478083,
+    31.76135780447535
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Coordenadas não nulas transcritas de chaves exatas do OpenBible retido; localizações incertas não recebem pino.",
+      "Referências, sequência narrativa e limites compilados editorialmente; nenhuma revisão especializada afirmada."
+    ],
+    "uncertainties": [
+      "Êx 15–19, Nm 10–21 e 33, Dt 1–2: estações incertas; sem rota inventada",
+      "Pontuação do geocodificador não comprova o episódio, o trajeto ou a época; as alternativas estão anotadas em cada local e na revisão."
+    ],
+    "methodology": "Compilação editorial reprodutível a partir do OpenBible legado preservado. Linhas unicamente entre pontos documentados, sempre esquemáticas; não representam caminhos reais. Locais sem identificação confiável permanecem sem coordenada."
+  }
+}

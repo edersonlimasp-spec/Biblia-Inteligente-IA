@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-label="Vista 3/4 em corte esquemático do Lugar Santo e seus acabamentos">
+ <rect width="720" height="480" fill="#14231f"/><text x="24" y="34" fill="#f4ead3" font-family="sans-serif" font-size="22" font-weight="700">VISTA 3/4 EM CORTE · HEKAL</text>
+ <g id="part-floor"><path d="M114 360L452 360L574 289L236 289Z" fill="#557459" stroke="#c9bb82" stroke-width="3"/><path d="M156 359L278 289M210 360L332 289M264 360L386 289M318 360L440 289M372 360L494 289" stroke="#97af88" stroke-width="2"/></g>
+ <g id="part-cedar"><path d="M114 360V170L236 99V289Z" fill="#7A4E2D" stroke="#bc925e" stroke-width="3"/><path d="M114 170L452 170L574 99L236 99Z" fill="#c7a64d" stroke="#f0d985" stroke-width="4"/><path d="M452 360V170L574 99V289Z" fill="#68472f" stroke="#bc925e" stroke-width="3"/><path d="M140 200L212 158M140 244L212 202M140 288L212 246M140 330L212 288" stroke="#d9b17b" stroke-width="2"/></g>
+ <g id="part-lampstands" stroke="#eed366" stroke-width="4" fill="none"><path d="M272 311V244m0 22l-15-13m15 13l15-13m-15-18l-10-13m10 13l10-13"/><path d="M328 329V262m0 22l-15-13m15 13l15-13m-15-18l-10-13m10 13l10-13"/><path d="M384 347V280m0 22l-15-13m15 13l15-13m-15-18l-10-13m10 13l10-13"/></g>
+ <g id="part-tables" fill="#a78349" stroke="#edd88b" stroke-width="2"><path d="M246 347l39-23 32 9-39 23z"/><path d="M411 356l39-23 30 8-38 23z"/></g>
+ <g id="part-gold-altar" fill="#d6b950" stroke="#f2de8f" stroke-width="2"><path d="M456 330l30-18 22 7-31 18z"/></g>
+ <g id="part-doors" stroke="#ddc16a" stroke-width="4"><path d="M535 215V335M552 205V325"/></g>
+ <text x="256" y="395" fill="#f4ead3" font-family="sans-serif" font-size="14">hekal: 40 côv. ≈ 18 m</text><text x="24" y="438" fill="#c5cfbf" font-family="sans-serif" font-size="13">Cedro, cipreste e ouro conforme o relato; mobiliário esquemático e não cotado.</text>
+</svg>

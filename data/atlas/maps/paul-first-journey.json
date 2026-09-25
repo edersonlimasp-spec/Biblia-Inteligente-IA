@@ -453,6 +453,86 @@
     37,
     39
   ],
+  "storySteps": [
+    {
+      "placeId": "antioch",
+      "title": "Antioquia",
+      "text": "A igreja de Antioquia separa Barnabé e Saulo para a obra e os envia.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 13,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Acts 13:1–3"
+      }
+    },
+    {
+      "placeId": "salamis",
+      "title": "Salamina",
+      "text": "Barnabé e Saulo chegam a Salamina e anunciam a palavra nas sinagogas.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 13,
+        "verseStart": 5,
+        "label": "Acts 13:5"
+      }
+    },
+    {
+      "placeId": "derbe",
+      "title": "Derbe",
+      "text": "Depois de Listra, os missionários chegam a Derbe e fazem muitos discípulos antes de iniciar o retorno.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 14,
+        "verseStart": 20,
+        "verseEnd": 21,
+        "label": "Acts 14:20–21"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "João Marcos deixa a equipe em Perge, um detalhe que distingue ida e retorno.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 13,
+        "verseStart": 13,
+        "label": "Acts 13:13"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Em Listra, Paulo é apedrejado e depois retorna à cidade para fortalecer os discípulos.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 14,
+        "verseStart": 19,
+        "verseEnd": 21,
+        "label": "Acts 14:19–21"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Atália é o porto usado na volta antes da navegação para Antioquia da Síria.",
+      "reference": {
+        "book": "Acts",
+        "chapter": 14,
+        "verseStart": 25,
+        "verseEnd": 26,
+        "label": "Acts 14:25–26"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
   "review": {
     "date": "2026-09-24",
     "status": "needs-specialist",

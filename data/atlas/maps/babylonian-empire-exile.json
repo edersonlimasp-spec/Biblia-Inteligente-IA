@@ -1,0 +1,852 @@
+{
+  "id": "babylonian-empire-exile",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "2Kgs",
+    "Jer",
+    "Dan",
+    "Ezek"
+  ],
+  "characters": [
+    "Nabucodonosor II",
+    "Joaquim",
+    "Zedequias",
+    "Jeremias",
+    "Daniel",
+    "Ezequiel"
+  ],
+  "period": "Campanhas babilônicas e deportações judaítas, c. 605–586 a.C.; datas e correlações cronológicas discutidas",
+  "title": "Babilônia e o exílio de Judá",
+  "subtitle": "Deportações, queda de Jerusalém e a viagem de Jeremias ao Egito",
+  "summary": "O mapa reúne a Babilônia, o canal de Quebar, localidades citadas na campanha final contra Judá e os destinos egípcios relacionados à ida de Jeremias. As camadas de deportação em c. 605, 597 e 586 a.C. distinguem episódios textuais: c. 605 deriva da leitura de Daniel 1 e da cronologia histórica convencional; 597 a.C. está ligado a 2 Reis 24; e a queda final é datada em 587/586 a.C. conforme convenções cronológicas diferentes. Pinos são apenas os pares numéricos exatos retidos na evidência OpenBible; regiões ou sítios sem localização segura não recebem coordenadas.",
+  "modernSummary": "A narrativa cruza o atual Iraque, a Síria, Israel/Cisjordânia e o Egito. Alguns marcos são localizáveis, mas o Quebar, Migdol e a extensão da autoridade babilônica não têm pino ou limite histórico preciso neste mapa.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Babilônia",
+    "exílio",
+    "Judá",
+    "Jeremias",
+    "Nabucodonosor",
+    "Jerusalém",
+    "deportação"
+  ],
+  "section": "old-testament",
+  "subsection": "Reino dividido e exílio",
+  "order": 29,
+  "era": "Fim do reino de Judá; c. 605–586 a.C., com variação de c. 587/586 para a queda de Jerusalém",
+  "modernOverview": "Os lugares identificados incluem Babilônia, no atual Iraque; Ribla, na Síria; Jerusalém, Laquis e Azeca, em Israel/Cisjordânia; e Nof/Mênfis e Tafnes no Egito. O canal de Quebar é associado de forma provável à região de Nipur, sem coordenada numérica confiável. Migdol também permanece sem pino. O envelope regional de c. 586 a.C. é apenas aproximado e não é fronteira exata nem reconstituição das fronteiras políticas do império.",
+  "keyReferences": [
+    {
+      "book": "Dan",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 7,
+      "label": "Dn 1:1–7"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 24,
+      "verseStart": 10,
+      "verseEnd": 17,
+      "label": "2Rs 24:10–17"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 25,
+      "verseStart": 1,
+      "verseEnd": 21,
+      "label": "2Rs 25:1–21"
+    },
+    {
+      "book": "Jer",
+      "chapter": 39,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Jr 39:1–10"
+    },
+    {
+      "book": "Jer",
+      "chapter": 43,
+      "verseStart": 1,
+      "verseEnd": 13,
+      "label": "Jr 43:1–13"
+    },
+    {
+      "book": "Jer",
+      "chapter": 52,
+      "verseStart": 12,
+      "verseEnd": 16,
+      "label": "Jr 52:12–16"
+    },
+    {
+      "book": "Ezek",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Ez 1:1–3"
+    }
+  ],
+  "aliases": [
+    "Cativeiro babilônico",
+    "Exílio de Judá",
+    "Deportações para a Babilônia",
+    "Queda de Jerusalém",
+    "Jeremias no Egito"
+  ],
+  "references": [
+    {
+      "book": "Dan",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 7,
+      "label": "Dn 1:1–7"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 24,
+      "verseStart": 1,
+      "verseEnd": 17,
+      "label": "2Rs 24:1–17"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 25,
+      "verseStart": 1,
+      "verseEnd": 21,
+      "label": "2Rs 25:1–21"
+    },
+    {
+      "book": "Jer",
+      "chapter": 34,
+      "verseStart": 6,
+      "verseEnd": 7,
+      "label": "Jr 34:6–7"
+    },
+    {
+      "book": "Jer",
+      "chapter": 39,
+      "verseStart": 1,
+      "verseEnd": 10,
+      "label": "Jr 39:1–10"
+    },
+    {
+      "book": "Jer",
+      "chapter": 43,
+      "verseStart": 1,
+      "verseEnd": 13,
+      "label": "Jr 43:1–13"
+    },
+    {
+      "book": "Jer",
+      "chapter": 44,
+      "verseStart": 1,
+      "verseEnd": 30,
+      "label": "Jr 44:1–30"
+    },
+    {
+      "book": "Jer",
+      "chapter": 52,
+      "verseStart": 12,
+      "verseEnd": 16,
+      "label": "Jr 52:12–16"
+    },
+    {
+      "book": "Ezek",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Ez 1:1–3"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pinos em ordem [longitude, latitude], usando somente pares numéricos sem marcas de aproximação: Babylon (32.53650368616845,44.42088287373876), Riblah 1 (36.545259,34.431703), Jerusalem (31.777444,35.234935), Lachish (31.56485056116292,34.8467256730566), Azekah (31.70063856043753,34.93618589974822), Tahpanhes (30.860556,32.171389), Memphis/Noph (29.849632,31.253958). Chebar está marcado como aproximado na evidência e não foi convertido em coordenada; Migdol traz interrogação e também foi rejeitado."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "Referências foram conferidas para a sequência narrativa. As datas absolutas não são afirmadas pelo texto bíblico como uma cronologia moderna precisa."
+    },
+    {
+      "id": "chronology",
+      "title": "The Encyclopaedia Britannica — Nebuchadnezzar II",
+      "url": "https://www.britannica.com/biography/Nebuchadnezzar-II",
+      "license": "Direitos reservados; fatos históricos resumidos, sem reprodução textual",
+      "note": "Referência geral para o contexto histórico e a cronologia convencional do reinado de Nabucodonosor II. Datas de episódios bíblicos específicos e sua correlação com reinados podem variar entre sistemas."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "A única área é envelope aproximado para c. 586 a.C., composto por vértices de localidades documentadas. Não descreve fronteira histórica exata; camadas cronológicas não são linhas de marcha."
+    }
+  ],
+  "places": [
+    {
+      "id": "babylon",
+      "name": "Babilônia",
+      "modernName": "Sítio da antiga Babilônia, perto de Hillah, Iraque",
+      "coordinates": [
+        44.42088287373876,
+        32.53650368616845
+      ],
+      "certainty": "probable",
+      "explanation": "Daniel e os relatos régios situam deportados e governantes na Babilônia. O pino repete o par numérico da chave OpenBible Babylon; não representa a extensão da cidade antiga.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 7,
+          "label": "Dn 1:1–7"
+        },
+        {
+          "book": "2Kgs",
+          "chapter": 24,
+          "verseStart": 10,
+          "verseEnd": 16,
+          "label": "2Rs 24:10–16"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Império Neobabilônico"
+      ]
+    },
+    {
+      "id": "chebar",
+      "name": "Canal de Quebar",
+      "modernName": "Canal ou curso fluvial na região da Babilônia; associação provável com a região de Nipur, Iraque",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Ezequiel situa exilados junto ao Quebar. A identificação regional com um canal próximo de Nipur é provável, mas a evidência retida oferece para Quebar apenas uma posição aproximada associada a Nehardea, não um ponto numérico seguro; nenhum pino é usado.",
+      "references": [
+        {
+          "book": "Ezek",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3,
+          "label": "Ez 1:1–3"
+        },
+        {
+          "book": "Ezek",
+          "chapter": 3,
+          "verseStart": 15,
+          "label": "Ez 3:15"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Império Neobabilônico"
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "A cidade é sitiada e destruída no relato de 2 Reis 25 e Jeremias 39. O pino usa o par exato da chave OpenBible Jerusalem, sem posicionar cada evento dentro da cidade.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 25,
+          "verseStart": 1,
+          "verseEnd": 12,
+          "label": "2Rs 25:1–12"
+        },
+        {
+          "book": "Jer",
+          "chapter": 39,
+          "verseStart": 1,
+          "verseEnd": 10,
+          "label": "Jr 39:1–10"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Reino de Judá",
+        "Império Neobabilônico"
+      ]
+    },
+    {
+      "id": "riblah",
+      "name": "Ribla",
+      "modernName": "Ribleh, oeste da Síria",
+      "coordinates": [
+        36.545259,
+        34.431703
+      ],
+      "certainty": "probable",
+      "explanation": "Zedequias é levado a Ribla, onde o rei da Babilônia pronuncia a sentença. O par corresponde à chave OpenBible Riblah 1, distinguida de Riblah 2, que tem coordenadas aproximadas e foi rejeitada.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 25,
+          "verseStart": 6,
+          "verseEnd": 7,
+          "label": "2Rs 25:6–7"
+        },
+        {
+          "book": "Jer",
+          "chapter": 39,
+          "verseStart": 5,
+          "verseEnd": 7,
+          "label": "Jr 39:5–7"
+        },
+        {
+          "book": "Jer",
+          "chapter": 52,
+          "verseStart": 9,
+          "verseEnd": 11,
+          "label": "Jr 52:9–11"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Império Neobabilônico"
+      ]
+    },
+    {
+      "id": "lachish",
+      "name": "Laquis",
+      "modernName": "Tel Lachish, Israel",
+      "coordinates": [
+        34.8467256730566,
+        31.56485056116292
+      ],
+      "certainty": "probable",
+      "explanation": "Jeremias cita Laquis entre as cidades fortificadas de Judá sob ataque. O marcador usa a coordenada exata da chave OpenBible Lachish e não define a extensão do sítio arqueológico.",
+      "references": [
+        {
+          "book": "Jer",
+          "chapter": 34,
+          "verseStart": 6,
+          "verseEnd": 7,
+          "label": "Jr 34:6–7"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Reino de Judá"
+      ]
+    },
+    {
+      "id": "azekah",
+      "name": "Azeca",
+      "modernName": "Tel Azekah, Israel",
+      "coordinates": [
+        34.93618589974822,
+        31.70063856043753
+      ],
+      "certainty": "probable",
+      "explanation": "Azeca é mencionada junto de Laquis como uma das cidades fortificadas de Judá. O pino reproduz o par numérico exato da chave OpenBible Azekah.",
+      "references": [
+        {
+          "book": "Jer",
+          "chapter": 34,
+          "verseStart": 6,
+          "verseEnd": 7,
+          "label": "Jr 34:6–7"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Reino de Judá"
+      ]
+    },
+    {
+      "id": "migdol",
+      "name": "Migdol",
+      "modernName": "Norte do Egito; localização exata desconhecida",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Migdol aparece na lista dos judaítas no Egito, mas a posição não é segura. A evidência geográfica retida registra interrogações nas coordenadas, portanto não se usa um marcador.",
+      "references": [
+        {
+          "book": "Jer",
+          "chapter": 44,
+          "verseStart": 1,
+          "label": "Jr 44:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Egito"
+      ]
+    },
+    {
+      "id": "tahpanhes",
+      "name": "Tafnes",
+      "modernName": "Tell Defenneh, Egito",
+      "coordinates": [
+        32.171389,
+        30.860556
+      ],
+      "certainty": "probable",
+      "explanation": "Jeremias e o grupo que o acompanha chegam a Tafnes. O ponto repete os valores numéricos da chave OpenBible Tahpanhes; não fixa a posição de cada acampamento narrado.",
+      "references": [
+        {
+          "book": "Jer",
+          "chapter": 43,
+          "verseStart": 7,
+          "verseEnd": 9,
+          "label": "Jr 43:7–9"
+        },
+        {
+          "book": "Jer",
+          "chapter": 44,
+          "verseStart": 1,
+          "label": "Jr 44:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Egito"
+      ]
+    },
+    {
+      "id": "noph",
+      "name": "Nof (Mênfis)",
+      "modernName": "Memphis, região de Mit Rahina, Egito",
+      "coordinates": [
+        31.253958,
+        29.849632
+      ],
+      "certainty": "probable",
+      "explanation": "Nof é nomeada entre as localidades egípcias com judaítas em Jeremias 44. A coordenada deriva da chave OpenBible Memphis, correspondente à identificação convencional com Mênfis.",
+      "references": [
+        {
+          "book": "Jer",
+          "chapter": 44,
+          "verseStart": 1,
+          "label": "Jr 44:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século VI a.C."
+      ],
+      "kingdoms": [
+        "Egito"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "deportation-route-605",
+      "label": "Deportação c. 605 a.C. — esquema",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          44.42088287373876,
+          32.53650368616845
+        ],
+        [
+          35.234935,
+          31.777444
+        ]
+      ],
+      "explanation": "Conexão esquemática entre Babilônia e Jerusalém para situar a deportação associada a Daniel 1. A data c. 605 a.C. deriva de correlação cronológica debatida, e a linha não é uma rota histórica reconstruída nem estrada literal.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "deportation-route-597",
+      "label": "Deportação c. 597 a.C. — esquema",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          44.42088287373876,
+          32.53650368616845
+        ],
+        [
+          36.545259,
+          34.431703
+        ],
+        [
+          35.234935,
+          31.777444
+        ]
+      ],
+      "explanation": "Conexão esquemática entre Babilônia, Ribla e Jerusalém para orientar a leitura de 2 Reis 24. Não reconstitui o itinerário da deportação, não é estrada literal e não resolve variações de calendários antigos.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "deportation-route-586",
+      "label": "Deportação c. 586 a.C. — esquema",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          44.42088287373876,
+          32.53650368616845
+        ],
+        [
+          36.545259,
+          34.431703
+        ],
+        [
+          35.234935,
+          31.777444
+        ]
+      ],
+      "explanation": "Conexão esquemática entre Babilônia, Ribla e Jerusalém para o episódio final. A data convencional c. 586 a.C. também é frequentemente expressa como 587/586 conforme a cronologia adotada; a linha não é rota histórica reconstruída nem estrada literal.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "babylonian-reach-envelope-586",
+      "label": "Alcance babilônico documentado — envelope esquemático, c. 586 a.C.",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          44.42088287373876,
+          32.53650368616845
+        ],
+        [
+          36.545259,
+          34.431703
+        ],
+        [
+          35.234935,
+          31.777444
+        ],
+        [
+          34.8467256730566,
+          31.56485056116292
+        ],
+        [
+          34.93618589974822,
+          31.70063856043753
+        ],
+        [
+          35.234935,
+          31.777444
+        ],
+        [
+          44.42088287373876,
+          32.53650368616845
+        ]
+      ],
+      "explanation": "Envelope cartográfico editorial para relacionar os pontos nomeados Babilônia, Ribla, Jerusalém, Laquis e Azeca no contexto c. 586 a.C. Mostra somente o alcance narrativo apoiado por essas cidades documentadas: não representa o império inteiro, não é fronteira exata nem limite administrativo histórico.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "judah-envelope-586",
+      "label": "Judá — envelope regional aproximado, c. 586 a.C.",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.234935,
+          31.777444
+        ],
+        [
+          34.93618589974822,
+          31.70063856043753
+        ],
+        [
+          34.8467256730566,
+          31.56485056116292
+        ],
+        [
+          35.234935,
+          31.777444
+        ]
+      ],
+      "explanation": "Envelope editorial e aproximado para orientar a leitura das referências a Jerusalém, Azeca e Laquis em torno de c. 586 a.C.; não é fronteira exata, limite administrativo histórico nem reconstituição territorial. Cada vértice é um pino documentado, não um marco de fronteira.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "babylon",
+      "title": "Primeira deportação — c. 605 a.C.",
+      "text": "Daniel 1 abre com a chegada de Nabucodonosor a Jerusalém e a deportação de jovens para Babilônia. A data c. 605 a.C. é uma correlação convencional da narrativa com a cronologia histórica; não é uma data expressa no versículo e depende de como se harmonizam os sistemas de contagem régia.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 7,
+        "label": "Dn 1:1–7"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Deportação no reinado de Joaquim — 597 a.C.",
+      "text": "2 Reis 24 descreve a rendição de Joaquim, a remoção de pessoas e tesouros e a instalação de Zedequias. A data histórica usual é 597 a.C.; a passagem bíblica organiza os reinados e eventos sem oferecer uma conversão uniforme entre calendários.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 24,
+        "verseStart": 10,
+        "verseEnd": 17,
+        "label": "2Rs 24:10–17"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Cerco e queda — c. 587/586 a.C.",
+      "text": "O cerco termina com a tomada da cidade e a deportação descrita em 2 Reis 25. A queda é colocada em 587 ou 586 a.C. conforme as convenções cronológicas adotadas; o mapa registra c. 586 como referência editorial, não como precisão anual incontroversa.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 25,
+        "verseStart": 1,
+        "verseEnd": 21,
+        "label": "2Rs 25:1–21"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Jeremias também registra a queda",
+      "text": "Jeremias 52 apresenta outro relato da tomada e destruição da cidade. Sua cronologia, comparada com 2 Reis 25, participa das discussões que situam a queda em 587 ou 586 a.C.; ambas as datas são preservadas como variantes de cronologia histórica.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 52,
+        "verseStart": 12,
+        "verseEnd": 16,
+        "label": "Jr 52:12–16"
+      }
+    },
+    {
+      "placeId": "riblah",
+      "title": "Zedequias é levado a Ribla",
+      "text": "Depois da captura, Zedequias é conduzido ao rei da Babilônia em Ribla. O topônimo é associado ao ponto numérico Riblah 1 da evidência; a entrada distinta Riblah 2, marcada com aproximações, não é usada.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 25,
+        "verseStart": 6,
+        "verseEnd": 7,
+        "label": "2Rs 25:6–7"
+      }
+    },
+    {
+      "placeId": "chebar",
+      "title": "Comunidade exilada junto ao Quebar",
+      "text": "Ezequiel situa o profeta entre deportados junto ao Quebar. A associação regional com a área de Nipur é provável, mas a localização precisa do canal permanece debatida e o mapa deliberadamente não põe um ponto.",
+      "reference": {
+        "book": "Ezek",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Ez 1:1–3"
+      }
+    },
+    {
+      "placeId": "lachish",
+      "title": "Laquis e Azeca sob ataque",
+      "text": "Jeremias menciona Laquis e Azeca como as cidades fortificadas de Judá que ainda resistiam. A referência não fornece uma linha de frente nem define as fronteiras políticas do reino.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 34,
+        "verseStart": 6,
+        "verseEnd": 7,
+        "label": "Jr 34:6–7"
+      }
+    },
+    {
+      "placeId": "azekah",
+      "title": "Azeca ainda resistia",
+      "text": "Azeca é citada junto de Laquis como cidade fortificada ainda sob controle de Judá. O versículo não delimita suas muralhas, seu território ou a linha precisa dos combates.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 34,
+        "verseStart": 7,
+        "label": "Jr 34:7"
+      }
+    },
+    {
+      "placeId": "tahpanhes",
+      "title": "Jeremias levado ao Egito",
+      "text": "Após a queda de Jerusalém, Jeremias é levado com o grupo judaíta ao Egito e chega a Tafnes. Migdol, Tafnes e Nof aparecem na lista de localidades com judaítas, mas não se inventa um pino para Migdol.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 43,
+        "verseStart": 7,
+        "verseEnd": 9,
+        "label": "Jr 43:7–9"
+      }
+    },
+    {
+      "placeId": "migdol",
+      "title": "Judaítas em Migdol",
+      "text": "A lista de Jeremias 44 nomeia Migdol entre os lugares do Egito onde viviam judaítas. Sua localização é incerta e a evidência de coordenadas contém interrogações, por isso não há marcador.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 44,
+        "verseStart": 1,
+        "label": "Jr 44:1"
+      }
+    },
+    {
+      "placeId": "noph",
+      "title": "Nof na lista do Egito",
+      "text": "Nof, identificada convencionalmente com Mênfis, também aparece na enumeração de Jeremias. O ponto geográfico é o par numérico da entrada Memphis, sem alegar que a lista descreva uma rota sequencial.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 44,
+        "verseStart": 1,
+        "label": "Jr 44:1"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "O relato de Jeremias nomeia Laquis e Azeca lado a lado como cidades fortificadas ainda resistentes; isso não equivale a um mapa de fronteira ou de todo o sistema militar de Judá.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 34,
+        "verseStart": 6,
+        "verseEnd": 7,
+        "label": "Jr 34:6–7"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "2 Reis e Jeremias descrevem a queda e as deportações em relatos paralelos; historiadores frequentemente datam a queda em 587 ou 586 a.C., e a escolha entre essas datas depende da cronologia régia e de sua harmonização.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 25,
+        "verseStart": 1,
+        "verseEnd": 21,
+        "label": "2Rs 25:1–21"
+      },
+      "sourceIds": [
+        "biblical",
+        "chronology"
+      ]
+    },
+    {
+      "text": "O canal de Quebar é cenário recorrente de Ezequiel, mas o marcador aproximado da evidência geográfica foi recusado: uma associação toponímica incerta não sustenta coordenada precisa nem prova a localização do canal.",
+      "reference": {
+        "book": "Ezek",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Ez 1:1–3"
+      },
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "text": "Jeremias 44 agrupa Migdol, Tafnes e Nof em uma lista de assentamentos judaítas no Egito; a ordem da enumeração não comprova uma rota percorrida por Jeremias.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 44,
+        "verseStart": 1,
+        "label": "Jr 44:1"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    29.849632,
+    29.849632,
+    44.42088287373876,
+    34.431703
+  ],
+  "review": {
+    "date": "2026-06-10",
+    "status": "needs-specialist",
+    "verified": [
+      "Referências usam códigos de livro válidos e os eventos citados têm capítulo e versículo",
+      "Pinos numéricos transcritos de chaves exatas da evidência OpenBible retida",
+      "Chebar e Migdol sem pino; nenhum valor aproximado ou com interrogação foi convertido em coordenada",
+      "Envelope regional identificado como aproximado para c. 586 a.C. e não como fronteira exata"
+    ],
+    "uncertainties": [
+      "A data c. 605 a.C. é uma correlação histórica convencional baseada em Daniel 1 e em cronologia régia, não uma data expressa pelo texto",
+      "A deportação de 597 a.C. e a queda em 587/586 a.C. dependem de calendários e convenções de cronologia antiga",
+      "A identificação do canal de Quebar perto da região de Nipur é provável, mas não estabelece ponto cartográfico seguro",
+      "A extensão do território babilônico e as fronteiras de Judá em c. 586 a.C. não são reconstituídas pelo envelope"
+    ],
+    "methodology": "Conteúdo narrativo em paráfrases originais. Coordenadas foram aceitas apenas quando o arquivo de evidências retido apresenta valores numéricos sem marcas ~, <, > ou ?. Homônimos e geocódigos aproximados foram rejeitados; regiões e sítios incertos permanecem sem pino. A camada de área é um envelope didático com vértices documentados, não uma fronteira histórica. A cronologia distingue datas convencionais de afirmações explícitas do texto."
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id":"solomon-temple-porch",
+  "version":"1",
+  "kind":"illustration",
+  "category":"Templo de Salomão",
+  "testament":"AT",
+  "books":["1Kgs","2Chr"],
+  "characters":["Salomão"],
+  "period":"Reinado de Salomão",
+  "title":"Templo de Salomão: pórtico",
+  "subtitle":"Ulam — dimensões e cota de altura em Crônicas sob debate",
+  "summary":"1 Reis informa que o espaço diante da casa tinha 20 côvados de largura por 10 de profundidade, sem dar sua altura. A ACF chama de “pátio” o espaço da frente em 2 Crônicas 3:4, identificado aqui como pórtico/ulam; o texto registra 120 côvados, cifra debatida e não adotada como elevação certa.",
+  "purpose":"O pórtico formava a entrada monumental do edifício principal. Sua função espacial era marcar a transição exterior-interior; a ilustração distingue as dimensões informadas em Reis da altura registrada apenas em Crônicas.",
+  "modernSummary":"A largura e a profundidade são cotas claras de Reis. A altura de 120 côvados é relatada em 2Cr 3:4 e precisa ser identificada como divergência/problema textual debatido, não como medida estabelecida.",
+  "certainty":"debated",
+  "sample":false,
+  "keywords":["pórtico","ulam","entrada","120 côvados","divergência textual","Templo"],
+  "section":"solomon-temple",
+  "subsection":"Templo de Salomão",
+  "order":3,
+  "era":"Monarquia unida — Salomão",
+  "modernOverview":"Vista e planta identificam a profundidade e largura de 1Rs 6:3. Um marcador tracejado separado mostra a cifra 120 côvados de 2Cr 3:4 junto da indicação explícita de que Reis não informa a altura e de que a cifra é textualmente debatida.",
+  "keyReferences":[
+    {"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"},
+    {"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"}
+  ],
+  "aliases":["ulam","pórtico do templo","vestíbulo do templo"],
+  "references":[
+    {"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"},
+    {"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"}
+  ],
+  "sources":[
+    {"id":"biblical","title":"Texto bíblico ACF local e referências (paráfrases originais)","url":"https://www.bible.com/pt/bible/212/1KI.6.ACF","license":"Referências e paráfrases próprias; não reproduz texto protegido","note":"Conferido em 1 Reis 6:3 e 2 Crônicas 3:4. As duas referências e o debate da altura são apresentados explicitamente; SVG original."}
+  ],
+  "places":[],
+  "overlays":[],
+  "storySteps":[
+    {"placeId":"portico","title":"Largura do pórtico","text":"Reis relaciona a largura do pórtico à largura da casa: vinte côvados. A medida equivale aproximadamente a nove metros pelo côvado comum.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}},
+    {"placeId":"portico","title":"Profundidade","text":"O pórtico projeta-se diante da casa por dez côvados segundo Reis; seu perfil e suas espessuras não são descritos numericamente.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}},
+    {"placeId":"height-marker","title":"Altura mencionada em Crônicas","text":"2 Crônicas dá uma altura de cento e vinte côvados, mas o número é um problema textual debatido; 1 Reis descreve largura e profundidade, sem indicar altura.","reference":{"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"}}
+  ],
+  "curiosities":[
+    {"text":"1 Reis dá duas cotas do pórtico: vinte côvados de largura e dez de profundidade; não informa sua altura.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"},"sourceIds":["biblical"]},
+    {"text":"2 Crônicas registra 120 côvados de altura para o pórtico; estudiosos tratam a cifra como problema textual debatido, não como consenso seguro.","reference":{"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"},"sourceIds":["biblical"]},
+    {"text":"A ACF chama o espaço diante da casa de “pátio”; aqui ele é identificado como pórtico/vestíbulo. 2Cr 3:4 dá vinte côvados na frente da largura da casa e menciona ouro no interior, mas não resolve a leitura da altura.","reference":{"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"},"sourceIds":["biblical"]},
+    {"text":"O pórtico é descrito à frente da casa; a figura separa visualmente essa projeção dos 60 côvados do corpo principal.","reference":{"book":"1Kgs","chapter":6,"verseStart":2,"verseEnd":3,"label":"1Rs 6:2–3"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"solomon-temple-porch.svg",
+    "dimensions":[
+      {"label":"Pórtico — largura","cubits":20,"note":"Medida textual em 1Rs 6:3; côvado comum ≈ 0,45 m, conversão aproximada.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}},
+      {"label":"Pórtico — profundidade","cubits":10,"note":"Medida textual em 1Rs 6:3; côvado comum ≈ 0,45 m, conversão aproximada.","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}},
+      {"label":"Registro de Crônicas (divergência textual)","cubits":120,"note":"2Cr 3:4 registra 120 côvados para a altura; divergência textual/problema debatido. 1Rs 6:3 não informa a altura. Não é cota vertical adotada no desenho.","reference":{"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"}},
+      {"label":"Altura conforme 1 Reis","note":"medida não informada no texto de Reis","reference":{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}}
+    ],
+    "notes":[
+      "Divergência textual: 2Cr 3:4 registra 120 côvados para a altura do pórtico; 1Rs 6:3 registra largura e profundidade, sem fornecer altura. O problema textual é debatido e a vista não desenha uma torre com essa cota.",
+      "As linhas de cota para largura e profundidade são dimensionais; chamada tracejada de 120 é nota sobre leitura textual, não afirmação de altura arquitetônica reconstruída.",
+      "Conversão aproximada: côvado comum ≈ 0,45 m. 2Cr 3:3 menciona a medida antiga, e Ez 40:5 descreve côvado mais palmo para côvado longo estimado em ≈ 0,52 m.",
+      "A silhueta de 1,70 m é referência gráfica; as proporções do capitel/colunas do pórtico são esquemáticas e não recebem cotas inventadas."
+    ],
+    "relatedIds":["solomon-temple-overview","solomon-temple-plan"],
+    "views":[
+      {"label":"Vista 3/4","svgFile":"solomon-temple-porch.svg"},
+      {"label":"Planta","svgFile":"solomon-temple-porch-planta.svg"},
+      {"label":"Frente","svgFile":"solomon-temple-porch-frente.svg"},
+      {"label":"Corte","svgFile":"solomon-temple-porch-corte.svg"}
+    ],
+    "parts":[
+      {"id":"portico","name":"Pórtico (ulam)","description":"Entrada diante da casa, 20 côvados de largura e 10 de profundidade. Contorno vertical tracejado assinala que a altura não é informada por Reis e que a cifra de Crônicas é debatida.","material":"Pedra lavrada clara e revestimento de ouro descrito em Crônicas","references":[{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"},{"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"}],"highlight":{"x":38.89,"y":50.42,"width":0,"height":0}},
+      {"id":"height-marker","name":"Cota de altura em 2Cr 3:4","description":"Chamada textual com 120 côvados, identificada como divergência textual/problema debatido; Reis não dá altura. O marcador não determina o perfil real do pórtico.","cubits":120,"material":"Cota anotada, não elemento construtivo desenhado","references":[{"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"},{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}],"highlight":{"x":72.5,"y":33.13,"width":0,"height":0}},
+      {"id":"human-scale","name":"Silhueta de 1,70 m","description":"Figura esquemática para leitura de escala, sem atribuição ao texto bíblico.","material":"Referência gráfica","references":[{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"}],"highlight":{"x":89.03,"y":62.08,"width":0,"height":0}}
+    ]
+  },
+  "review":{
+    "date":"2026-10-18",
+    "status":"needs-specialist",
+    "verified":["1Rs 6:3: pórtico de 20 côvados de largura por 10 de profundidade, sem altura expressa","2Cr 3:4: registro ACF local de 120 côvados para altura"],
+    "uncertainties":["A altura de 120 côvados em 2Cr 3:4 é problema textual debatido; não há medida de altura correspondente em 1Rs 6:3.","A relação arquitetônica precisa das cotas do pórtico com a cobertura não pode ser reconstruída a partir destes versículos."],
+    "methodology":"Versículos conferidos em server/bible-data/1ki.ts e 2ch.ts (ACF local). Mantida a leitura de ambas as fontes sem harmonização silenciosa; cota controversa visualmente separada das dimensões seguras."
+  }
+}

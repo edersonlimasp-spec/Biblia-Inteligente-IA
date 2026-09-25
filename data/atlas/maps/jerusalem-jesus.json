@@ -265,6 +265,81 @@
     35.28,
     31.8
   ],
+  "storySteps": [
+    {
+      "placeId": "bethany",
+      "title": "Betânia",
+      "text": "Jesus chega à região de Betfagé e Betânia antes de entrar em Jerusalém.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 11,
+        "verseStart": 1,
+        "label": "Mark 11:1"
+      }
+    },
+    {
+      "placeId": "olives",
+      "title": "Monte das Oliveiras",
+      "text": "A descida do monte das Oliveiras acompanha a aclamação da multidão na aproximação de Jerusalém.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 19,
+        "verseStart": 37,
+        "label": "Luke 19:37"
+      }
+    },
+    {
+      "placeId": "gethsemane",
+      "title": "Getsêmani",
+      "text": "Depois da ceia, Jesus vai ao Getsêmani para orar; este mapa não atribui coordenada ao jardim.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 26,
+        "verseStart": 36,
+        "label": "Matt 26:36"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A entrada de Jesus é descrita a partir de Betfagé e Betânia, no monte das Oliveiras.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 11,
+        "verseStart": 1,
+        "label": "Mark 11:1"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Lucas associa a aclamação da multidão à descida do monte das Oliveiras.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 19,
+        "verseStart": 37,
+        "label": "Luke 19:37"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Getsêmani é o lugar para onde Jesus vai com os discípulos depois da ceia.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 26,
+        "verseStart": 36,
+        "label": "Matt 26:36"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
   "review": {
     "date": "2026-09-24",
     "status": "needs-specialist",

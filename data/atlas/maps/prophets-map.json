@@ -1,0 +1,809 @@
+{
+  "id": "prophets-map",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Amos",
+    "Hos",
+    "Isa",
+    "Jer",
+    "Mic",
+    "Ezek",
+    "Dan",
+    "Nah",
+    "Jonah",
+    "1Kgs",
+    "2Kgs"
+  ],
+  "characters": [
+    "Amós",
+    "Oseias",
+    "Isaías",
+    "Jeremias",
+    "Miqueias",
+    "Ezequiel",
+    "Daniel",
+    "Naum",
+    "Jonas",
+    "Elias",
+    "Eliseu"
+  ],
+  "period": "Profetas do reino dividido ao exílio; datas aproximadas entre os séculos IX e VI a.C.",
+  "title": "Profetas e lugares",
+  "subtitle": "Origens indicadas pelo texto, ministérios e referências narrativas",
+  "summary": "O mapa reúne lugares explicitamente associados a profetas, sem transformar toda referência de ministério em local de nascimento. Amós é de Tecoa; Oseias é associado ao Norte, mas o texto não informa sua cidade natal; Isaías e Jeremias têm entradas próprias para Jerusalém, e Jeremias também para Anatote. As localizações de Moresete, do canal Quebar junto à região de Nipur e de Elkosh são tratadas com cautela, sem pinos derivados de pares aproximados ou incertos. Elias e Eliseu são vinculados ao mapa narrativo próprio. Cada profeta tem entradas separadas para permitir filtros individuais por século e reino.",
+  "modernSummary": "Os lugares abrangem áreas dos atuais Israel, Cisjordânia e Iraque. Localidades com identificação discutida, como Elkosh e o canal Quebar, ficam sem pino.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "profetas",
+    "Amós",
+    "Oseias",
+    "Isaías",
+    "Jeremias",
+    "Miqueias",
+    "Ezequiel",
+    "Daniel",
+    "Naum",
+    "Jonas",
+    "Elias",
+    "Eliseu",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Profetas",
+  "order": 26,
+  "era": "Séculos IX–VI a.C.; cronologia profética aproximada",
+  "modernOverview": "As entradas são individualizadas por profeta para que filtros de século e reino possam distinguir pessoas ligadas à mesma cidade; as datas são convenções aproximadas: Amós, Oseias, Isaías, Miqueias e Jonas são associados sobretudo ao século VIII a.C.; Naum ao VII; Jeremias atravessa o fim do VII e início do VI; Ezequiel e Daniel ao VI; Elias e Eliseu ao IX. Os rótulos Israel, Judá e Exílio descrevem contextos narrativos amplos, não fronteiras modernas. A Bíblia chama Oseias profeta de Israel, mas não identifica sua cidade de origem. Anatote é a cidade de Jeremias conforme Jr 1:1; Jerusalém é local de seu ministério, não uma afirmação de nascimento. Moresete (Mq 1:1), Quebar (Ez 1:1) e Elkosh (Na 1:1) não recebem pinos quando a fonte retida contém aproximação ou não permite identificação segura. O mapa narrativo de Elias e Eliseu oferece as rotas e demais cenas sem afirmar origens não documentadas.",
+  "keyReferences": [
+    {
+      "book": "Amos",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Amós, de Tecoa — Am 1:1"
+    },
+    {
+      "book": "Hos",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Oseias no contexto de Israel — Os 1:1"
+    },
+    {
+      "book": "Isa",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Isaías e Jerusalém — Is 1:1"
+    },
+    {
+      "book": "Jer",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Jeremias, Anatote e Judá — Jr 1:1–3"
+    },
+    {
+      "book": "Mic",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Miqueias de Moresete — Mq 1:1"
+    },
+    {
+      "book": "Ezek",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Ezequiel junto ao Quebar — Ez 1:1–3"
+    },
+    {
+      "book": "Dan",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 6,
+      "label": "Daniel levado à Babilônia — Dn 1:1–6"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Jonas, filho de Amitai — Jn 1:1"
+    }
+  ],
+  "aliases": [
+    "mapa dos profetas",
+    "profetas de Israel",
+    "profetas de Judá",
+    "profetas do exílio",
+    "Tecoa",
+    "Anatote",
+    "Jerusalém",
+    "Moresete",
+    "Quebar",
+    "Babilônia",
+    "Elkosh",
+    "Gate-Hefer",
+    "Elias",
+    "Eliseu"
+  ],
+  "references": [
+    {
+      "book": "Amos",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Am 1:1"
+    },
+    {
+      "book": "Hos",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Os 1:1–2"
+    },
+    {
+      "book": "Isa",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Is 1:1"
+    },
+    {
+      "book": "Jer",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Jr 1:1–3"
+    },
+    {
+      "book": "Mic",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Mq 1:1–2"
+    },
+    {
+      "book": "Ezek",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Ez 1:1–3"
+    },
+    {
+      "book": "Dan",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 6,
+      "label": "Dn 1:1–6"
+    },
+    {
+      "book": "Nah",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Nah 1:1"
+    },
+    {
+      "book": "Jonah",
+      "chapter": 1,
+      "verseStart": 1,
+      "label": "Jn 1:1"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 17,
+      "verseStart": 1,
+      "label": "1Rs 17:1"
+    },
+    {
+      "book": "2Kgs",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 15,
+      "label": "2Rs 2:1–15"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Coordenadas plotadas na ordem [longitude, latitude] somente para pares numéricos explícitos sem ~, <, > ou ?: Tekoa (31.63622127191993,35.21407721824517), Jerusalem (31.777444,35.234935), Anathoth (31.81291276898118,35.26349894226843), Gath-hepher (32.73918470119603,35.32822661816711), Babylon (32.53650368616845,44.42088287373876) e Abel-meholah (32.356010,35.536929). Moresheth tem par marcado ~; Chebar tem identificação regional aproximada; Elkosh não tem coordenada. Esses três pares não são plotados."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "As referências textuais distinguem origem declarada, local de ministério e contexto de exílio. Paráfrases originais; não se deduz cidade natal quando o texto não a informa."
+    },
+    {
+      "id": "editorial",
+      "title": "Organização editorial por profeta, século e reino",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho e organização originais; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "Categorias de século são aproximações cronológicas para filtragem, não datas precisas. Entradas partilhando cidades mantêm IDs distintos. O mapa narrativo elijah-elisha.json complementa, sem duplicar itinerários."
+    }
+  ],
+  "places": [
+    {
+      "id": "amos-tekoa",
+      "name": "Amós — Tecoa",
+      "modernName": "Khirbet Tekua, área de Belém, Cisjordânia",
+      "coordinates": [
+        35.21407721824517,
+        31.63622127191993
+      ],
+      "certainty": "probable",
+      "explanation": "Amós 1:1 o identifica como alguém de Tecoa. O pino corresponde à chave Tekoa da fonte geográfica, sem afirmar uma residência ou cenário preciso da composição.",
+      "references": [
+        {
+          "book": "Amos",
+          "chapter": 1,
+          "verseStart": 1,
+          "label": "Origem de Amós — Am 1:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Judá",
+        "Israel"
+      ]
+    },
+    {
+      "id": "hosea-north",
+      "name": "Oseias — contexto do Norte",
+      "modernName": "Reino do Norte de Israel; cidade de origem não indicada",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "O cabeçalho situa a atuação de Oseias nos dias dos reis de Israel e Judá, mas não identifica cidade natal nem localidade específica no Norte. Não se atribui a Oseias uma origem geográfica conhecida.",
+      "references": [
+        {
+          "book": "Hos",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Cabeçalho e início do livro — Os 1:1–2"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Israel"
+      ]
+    },
+    {
+      "id": "isaiah-jerusalem",
+      "name": "Isaías — Jerusalém",
+      "modernName": "Jerusalém",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "Isaías 1:1 associa suas visões a Judá e Jerusalém. A entrada representa esse contexto de ministério, não afirma que Jerusalém fosse sua cidade natal.",
+      "references": [
+        {
+          "book": "Isa",
+          "chapter": 1,
+          "verseStart": 1,
+          "label": "Visões concernentes a Judá e Jerusalém — Is 1:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Judá"
+      ]
+    },
+    {
+      "id": "jeremiah-jerusalem",
+      "name": "Jeremias — Jerusalém",
+      "modernName": "Jerusalém",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "Jeremias profetiza durante crises de Judá e a queda de Jerusalém; o ponto identifica a cidade mencionada, não uma casa ou o lugar de nascimento do profeta.",
+      "references": [
+        {
+          "book": "Jer",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3,
+          "label": "Chamado de Jeremias no contexto de Judá — Jr 1:1–3"
+        },
+        {
+          "book": "Jer",
+          "chapter": 37,
+          "verseStart": 11,
+          "verseEnd": 12,
+          "label": "Jeremias em Jerusalém — Jr 37:11–12"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VII a.C.",
+        "VI a.C."
+      ],
+      "kingdoms": [
+        "Judá",
+        "Exílio"
+      ]
+    },
+    {
+      "id": "jeremiah-anathoth",
+      "name": "Jeremias — Anatote",
+      "modernName": "Anata, nordeste de Jerusalém",
+      "coordinates": [
+        35.26349894226843,
+        31.81291276898118
+      ],
+      "certainty": "probable",
+      "explanation": "Jeremias 1:1 chama o profeta de filho de Hilquias, dos sacerdotes em Anatote, na terra de Benjamim. A localidade é apresentada como sua origem familiar conforme o texto, não como lugar de atividade profética.",
+      "references": [
+        {
+          "book": "Jer",
+          "chapter": 1,
+          "verseStart": 1,
+          "label": "Jeremias de Anatote — Jr 1:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VII a.C.",
+        "VI a.C."
+      ],
+      "kingdoms": [
+        "Judá",
+        "Exílio"
+      ]
+    },
+    {
+      "id": "micah-moresheth",
+      "name": "Miqueias — Moresete",
+      "modernName": "Sefelá de Judá; sítio de Moresete não fixado aqui",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Miqueias 1:1 o identifica como morastita, mas o par geográfico retido para Moresheth traz marcador de aproximação e aponta a associação Mareshah. O pino aproximado é rejeitado; Moresete não é confundida com a cidade Maressa.",
+      "references": [
+        {
+          "book": "Mic",
+          "chapter": 1,
+          "verseStart": 1,
+          "label": "Miqueias, o morastita — Mq 1:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Judá"
+      ]
+    },
+    {
+      "id": "ezekiel-chebar",
+      "name": "Ezequiel — canal Quebar",
+      "modernName": "Região da Babilônia, provavelmente perto de Nipur; localização do canal debatida",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Ezequiel 1:1–3 situa o profeta entre os exilados junto ao canal Quebar. A associação regional com a área de Nipur é provável, mas a evidência geográfica retida marca o ponto como aproximado; não se plota esse ponto como local exato.",
+      "references": [
+        {
+          "book": "Ezek",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3,
+          "label": "Ezequiel junto ao Quebar — Ez 1:1–3"
+        },
+        {
+          "book": "Ezek",
+          "chapter": 3,
+          "verseStart": 15,
+          "label": "Comunidade exilada em Tel-Abibe — Ez 3:15"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VI a.C."
+      ],
+      "kingdoms": [
+        "Exílio"
+      ]
+    },
+    {
+      "id": "daniel-babylon",
+      "name": "Daniel — Babilônia",
+      "modernName": "Sítio arqueológico de Babilônia, Iraque",
+      "coordinates": [
+        44.42088287373876,
+        32.53650368616845
+      ],
+      "certainty": "probable",
+      "explanation": "Daniel 1 narra a deportação para Babilônia e sua formação na corte. O ponto usa a chave Babylon e não representa um palácio ou residência individual.",
+      "references": [
+        {
+          "book": "Dan",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 6,
+          "label": "Daniel levado a Babilônia — Dn 1:1–6"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VI a.C."
+      ],
+      "kingdoms": [
+        "Exílio"
+      ]
+    },
+    {
+      "id": "nahum-elkosh",
+      "name": "Naum — Elkosh",
+      "modernName": "Localização desconhecida",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Naum 1:1 identifica o profeta como elkoshita, mas Elkosh não pode ser localizado com segurança. Nenhum ponto ou identificação homônima é adotado.",
+      "references": [
+        {
+          "book": "Nah",
+          "chapter": 1,
+          "verseStart": 1,
+          "label": "Nah 1:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VII a.C."
+      ],
+      "kingdoms": [
+        "Judá"
+      ]
+    },
+    {
+      "id": "jonah-gath-hepher",
+      "name": "Jonas — Gate-Hefer",
+      "modernName": "Moshav Gittit, Galileia, Israel",
+      "coordinates": [
+        35.32822661816711,
+        32.73918470119603
+      ],
+      "certainty": "probable",
+      "explanation": "2 Reis 14:25 chama Jonas de filho de Amitai, de Gate-Hefer. A coordenada corresponde à chave Gath-hepher; a narrativa de Jonas não é usada para afirmar outras origens.",
+      "references": [
+        {
+          "book": "2Kgs",
+          "chapter": 14,
+          "verseStart": 25,
+          "label": "Jonas de Gate-Hefer — 2Rs 14:25"
+        },
+        {
+          "book": "Jonah",
+          "chapter": 1,
+          "verseStart": 1,
+          "label": "Chamado de Jonas — Jn 1:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "VIII a.C."
+      ],
+      "kingdoms": [
+        "Israel"
+      ]
+    },
+    {
+      "id": "elijah-tishbe",
+      "name": "Elias — Tisbe (referência narrativa)",
+      "modernName": "Região de Gileade; identificação de Tisbe incerta",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "1 Reis 17:1 chama Elias de tesbita e o associa a Gileade, mas não localiza Tisbe com segurança. Esta entrada remete ao mapa narrativo elijah-elisha.json e não afirma uma localização precisa.",
+      "references": [
+        {
+          "book": "1Kgs",
+          "chapter": 17,
+          "verseStart": 1,
+          "label": "Elias, o tesbita — 1Rs 17:1"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "editorial"
+      ],
+      "centuries": [
+        "IX a.C."
+      ],
+      "kingdoms": [
+        "Israel"
+      ]
+    },
+    {
+      "id": "elisha-abel-meholah",
+      "name": "Eliseu — Abel-Meolá (referência narrativa)",
+      "modernName": "Área do vale do Jordão, Israel; sítio antigo não fixado",
+      "coordinates": [
+        35.536929,
+        32.35601
+      ],
+      "certainty": "probable",
+      "explanation": "Elias encontra Eliseu arando em Abel-Meolá. O pino reproduz a chave Abel-meholah e serve como referência narrativa, não como confirmação do ponto exato da propriedade ou do chamado. Ver o mapa narrativo elijah-elisha.json.",
+      "references": [
+        {
+          "book": "1Kgs",
+          "chapter": 19,
+          "verseStart": 16,
+          "verseEnd": 19,
+          "label": "Chamado de Eliseu em Abel-Meolá — 1Rs 19:16–19"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical",
+        "editorial"
+      ],
+      "centuries": [
+        "IX a.C."
+      ],
+      "kingdoms": [
+        "Israel"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "amos-tekoa",
+      "title": "Amós de Tecoa",
+      "text": "O cabeçalho do livro identifica o profeta por sua origem em Tecoa e situa suas visões nos dias de Uzias e Jeroboão II.",
+      "reference": {
+        "book": "Amos",
+        "chapter": 1,
+        "verseStart": 1,
+        "label": "Am 1:1"
+      }
+    },
+    {
+      "placeId": "hosea-north",
+      "title": "Oseias no reino do Norte",
+      "text": "O contexto régio de Oseias cobre Israel e Judá, mas não informa uma cidade de nascimento para o profeta.",
+      "reference": {
+        "book": "Hos",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Os 1:1–2"
+      }
+    },
+    {
+      "placeId": "isaiah-jerusalem",
+      "title": "Isaías e Jerusalém",
+      "text": "Isaías apresenta suas visões concernentes a Judá e Jerusalém, sem declarar que a cidade seja sua terra natal.",
+      "reference": {
+        "book": "Isa",
+        "chapter": 1,
+        "verseStart": 1,
+        "label": "Is 1:1"
+      }
+    },
+    {
+      "placeId": "jeremiah-anathoth",
+      "title": "Jeremias de Anatote",
+      "text": "O início do livro identifica Jeremias como sacerdote de Anatote, localidade benjaminita.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 1,
+        "verseStart": 1,
+        "label": "Jr 1:1"
+      }
+    },
+    {
+      "placeId": "jeremiah-jerusalem",
+      "title": "Jeremias em Jerusalém",
+      "text": "O ministério de Jeremias também se desenrola em Jerusalém durante a crise final de Judá; esta é uma entrada separada da origem em Anatote.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 37,
+        "verseStart": 11,
+        "verseEnd": 12,
+        "label": "Jr 37:11–12"
+      }
+    },
+    {
+      "placeId": "micah-moresheth",
+      "title": "Miqueias, o morastita",
+      "text": "O título associa Miqueias a Moresete, mas a coordenada aproximada da fonte geográfica é recusada e não aparece como pino.",
+      "reference": {
+        "book": "Mic",
+        "chapter": 1,
+        "verseStart": 1,
+        "label": "Mq 1:1"
+      }
+    },
+    {
+      "placeId": "ezekiel-chebar",
+      "title": "Ezequiel entre os exilados",
+      "text": "A visão inaugural situa Ezequiel junto ao canal Quebar, no cenário do exílio babilônico; a identificação regional próxima a Nipur permanece provável, sem ponto preciso.",
+      "reference": {
+        "book": "Ezek",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Ez 1:1–3"
+      }
+    },
+    {
+      "placeId": "daniel-babylon",
+      "title": "Daniel levado à Babilônia",
+      "text": "Daniel e outros jovens de Judá são levados à Babilônia e integrados à formação da corte.",
+      "reference": {
+        "book": "Dan",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 6,
+        "label": "Dn 1:1–6"
+      }
+    },
+    {
+      "placeId": "nahum-elkosh",
+      "title": "Naum, o elkoshita",
+      "text": "O cabeçalho preserva o gentílico do profeta, mas não permite localizar Elkosh com segurança.",
+      "reference": {
+        "book": "Nah",
+        "chapter": 1,
+        "verseStart": 1,
+        "label": "Nah 1:1"
+      }
+    },
+    {
+      "placeId": "jonah-gath-hepher",
+      "title": "Jonas de Gate-Hefer",
+      "text": "O livro de Reis oferece a ligação textual explícita de Jonas com Gate-Hefer, na Galileia.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 14,
+        "verseStart": 25,
+        "label": "2Rs 14:25"
+      }
+    },
+    {
+      "placeId": "elijah-tishbe",
+      "title": "Elias, o tesbita",
+      "text": "A narrativa de Elias continua no mapa elijah-elisha.json; Tisbe permanece sem localização precisa nesta camada.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 17,
+        "verseStart": 1,
+        "label": "1Rs 17:1"
+      }
+    },
+    {
+      "placeId": "elisha-abel-meholah",
+      "title": "Eliseu chamado em Abel-Meolá",
+      "text": "A narrativa compartilhada de Elias e Eliseu inclui o chamado em Abel-Meolá; consulte elijah-elisha.json para o desenvolvimento dos episódios.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 19,
+        "verseStart": 16,
+        "verseEnd": 19,
+        "label": "1Rs 19:16–19"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "O texto apresenta Amós como alguém de Tecoa, embora sua mensagem se dirija também ao reino do Norte; lugar de origem e audiência profética não são a mesma coisa.",
+      "reference": {
+        "book": "Amos",
+        "chapter": 1,
+        "verseStart": 1,
+        "label": "Am 1:1"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Jeremias é chamado de sacerdote de Anatote, enquanto suas profecias também o situam em Jerusalém; por isso as duas localidades têm entradas independentes para o mesmo profeta.",
+      "reference": {
+        "book": "Jer",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Jr 1:1–3"
+      },
+      "sourceIds": [
+        "biblical",
+        "editorial"
+      ]
+    },
+    {
+      "text": "A designação de Ezequiel como sacerdote e a localização junto ao Quebar aparecem no cabeçalho de sua visão; o nome do canal não basta para fixar um ponto preciso no terreno.",
+      "reference": {
+        "book": "Ezek",
+        "chapter": 1,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Ez 1:1–3"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "O livro de Reis identifica Jonas como originário de Gate-Hefer ao resumir uma profecia sobre a restauração de território israelita.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 14,
+        "verseStart": 25,
+        "label": "2Rs 14:25"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    35.21407721824517,
+    31.63622127191993,
+    44.42088287373876,
+    32.73918470119603
+  ],
+  "review": {
+    "date": "2026-06-10",
+    "status": "needs-specialist",
+    "verified": [
+      "Cada pessoa tem uma entrada independente mesmo quando compartilha Jerusalém.",
+      "Campos centuries e kingdoms estão presentes em todas as entradas para filtros editoriais.",
+      "Oseias não recebe cidade natal inventada; Ahava não se aplica a este mapa.",
+      "Moresete e o Quebar não usam coordenadas marcadas como aproximadas; Elkosh não recebe pino."
+    ],
+    "uncertainties": [
+      "A cronologia de vários profetas é aproximada e os limites entre séculos dependem de convenções historiográficas.",
+      "A cidade de origem de Oseias não é indicada no texto.",
+      "A localização de Moresete é debatida; o ponto OpenBible disponível é aproximado e foi rejeitado.",
+      "A região do canal Quebar, possivelmente próxima a Nipur, não é um ponto preciso; a coordenada aproximada foi rejeitada.",
+      "Elkosh e Tisbe não estão identificados com segurança.",
+      "O pino de Abel-Meolá indica somente o ponto de referência da chave OpenBible."
+    ],
+    "methodology": "Pinos usam apenas pares numéricos explícitos e sem marcadores de aproximação no arquivo de evidências retido; não se adotam pontos aproximados, desconhecidos ou de homônimos indevidos. Toda localidade tem referência textual e história narrativa correspondente. Os campos de século e reino são categorias aproximadas para filtros, não alegações de cronologia exata ou fronteira."
+  }
+}

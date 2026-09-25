@@ -1,0 +1,515 @@
+{
+  "id": "joseph-egypt",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Gen"
+  ],
+  "characters": [
+    "José",
+    "Jacó",
+    "Faraó"
+  ],
+  "period": "Horizonte patriarcal; datação histórica não demonstrada",
+  "title": "José e a ida de Israel ao Egito",
+  "subtitle": "Gn 37–50: localidades citadas e região de Gósen sem ponto inventado",
+  "summary": "José sai da região de Hebrom, procura os irmãos em Siquém e chega a Dotã antes de ser levado ao Egito. On/Heliópolis é citada pela família de Asenate; o texto não dá a residência de José. Gósen é uma região associada à família de Jacó, não uma cidade geocodificada com segurança.",
+  "modernSummary": "Hebrom, Siquém e Dotã ficam na Cisjordânia. On/Heliópolis fica no Cairo atual e Gósen é geralmente situada no delta oriental do Nilo, Egito.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "José e a ida de Israel ao Egito",
+    "Dotã",
+    "Gósen",
+    "Heliópolis",
+    "On",
+    "Jacó no Egito",
+    "Gen",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Origens e patriarcas",
+  "order": 5,
+  "era": "Origens e patriarcas",
+  "modernOverview": "Hebrom, Siquém e Dotã ficam hoje na Cisjordânia. A narrativa segue para o Egito sem especificar a casa ou cidade de José. On/Heliópolis está na área do Cairo. Gósen é associada ao delta oriental do Nilo, mas seus limites e centro não são identificados com segurança.",
+  "keyReferences": [
+    {
+      "book": "Gen",
+      "chapter": 37,
+      "verseStart": 14,
+      "verseEnd": 17,
+      "label": "Gen 37:14–17"
+    },
+    {
+      "book": "Gen",
+      "chapter": 37,
+      "verseStart": 28,
+      "label": "Gen 37:28"
+    },
+    {
+      "book": "Gen",
+      "chapter": 39,
+      "verseStart": 1,
+      "label": "Gen 39:1"
+    },
+    {
+      "book": "Gen",
+      "chapter": 41,
+      "verseStart": 45,
+      "label": "Gen 41:45"
+    },
+    {
+      "book": "Gen",
+      "chapter": 45,
+      "verseStart": 10,
+      "label": "Gen 45:10"
+    },
+    {
+      "book": "Gen",
+      "chapter": 46,
+      "verseStart": 28,
+      "label": "Gen 46:28"
+    },
+    {
+      "book": "Gen",
+      "chapter": 47,
+      "verseStart": 1,
+      "verseEnd": 6,
+      "label": "Gen 47:1–6"
+    }
+  ],
+  "aliases": [
+    "José e a ida de Israel ao Egito",
+    "Dotã",
+    "Gósen",
+    "Heliópolis",
+    "On",
+    "Jacó no Egito",
+    "Hebrom",
+    "Siquém",
+    "Egito — chegada de José",
+    "On/Heliópolis",
+    "Terra de Gósen"
+  ],
+  "references": [
+    {
+      "book": "Gen",
+      "chapter": 37,
+      "verseStart": 14,
+      "verseEnd": 17,
+      "label": "Gen 37:14–17"
+    },
+    {
+      "book": "Gen",
+      "chapter": 37,
+      "verseStart": 28,
+      "label": "Gen 37:28"
+    },
+    {
+      "book": "Gen",
+      "chapter": 39,
+      "verseStart": 1,
+      "label": "Gen 39:1"
+    },
+    {
+      "book": "Gen",
+      "chapter": 41,
+      "verseStart": 45,
+      "label": "Gen 41:45"
+    },
+    {
+      "book": "Gen",
+      "chapter": 45,
+      "verseStart": 10,
+      "label": "Gen 45:10"
+    },
+    {
+      "book": "Gen",
+      "chapter": 46,
+      "verseStart": 28,
+      "label": "Gen 46:28"
+    },
+    {
+      "book": "Gen",
+      "chapter": 47,
+      "verseStart": 1,
+      "verseEnd": 6,
+      "label": "Gen 47:1–6"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Chave, coordenadas brutas e passagens preservadas em docs/atlas/evidence/openbible-merged.txt. Identificações debatidas não são confirmação arqueológica."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "A referência fundamenta a sequência textual, não demonstra a localização de um evento."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "As linhas unem somente pontos de fonte, não registram estradas nem distâncias percorridas. Não são fronteiras antigas."
+    }
+  ],
+  "places": [
+    {
+      "id": "hebron",
+      "name": "Hebrom",
+      "modernName": "Al-Khalil/Hebrom, Cisjordânia",
+      "coordinates": [
+        35.09409986578734,
+        31.53577362133176
+      ],
+      "certainty": "probable",
+      "explanation": "Ponto urbano próximo da residência familiar; não identifica a residência de José. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 37,
+          "verseStart": 14,
+          "label": "Gen 37:14"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "shechem",
+      "name": "Siquém",
+      "modernName": "Tell Balata, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.2817986718367,
+        32.21369123124062
+      ],
+      "certainty": "probable",
+      "explanation": "José procura os irmãos na região. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 37,
+          "verseStart": 13,
+          "label": "Gen 37:13"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "dothan",
+      "name": "Dotã",
+      "modernName": "Tell Dothan, Cisjordânia",
+      "coordinates": [
+        35.18019829952955,
+        32.42064338380848
+      ],
+      "certainty": "probable",
+      "explanation": "O texto situa os irmãos em Dotã; não localiza a cisterna. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 37,
+          "verseStart": 17,
+          "label": "Gen 37:17"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "egypt",
+      "name": "Egito — chegada de José",
+      "modernName": "Egito; residência de José desconhecida",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "O texto não identifica a casa de Potifar, o cárcere nem uma residência de José por coordenada.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 39,
+          "verseStart": 1,
+          "label": "Gen 39:1"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "on",
+      "name": "On/Heliópolis",
+      "modernName": "Sítio de Heliópolis, Cairo, Egito",
+      "coordinates": [
+        31.33822,
+        30.108086
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade de origem da esposa de José; não se afirma que ele tenha morado aqui. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 41,
+          "verseStart": 45,
+          "label": "Gen 41:45"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "goshen",
+      "name": "Terra de Gósen",
+      "modernName": "Delta oriental do Nilo, Egito; limites e centro desconhecidos",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A base fornece um ponto para Goshen 1, mas a passagem fala de uma região, não de uma cidade no ponto. Nenhum centro ou fronteira é comprovado.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 47,
+          "verseStart": 1,
+          "label": "Gen 47:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "brothers",
+      "label": "Hebrom → Siquém → Dotã",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.09409986578734,
+          31.53577362133176
+        ],
+        [
+          35.2817986718367,
+          32.21369123124062
+        ],
+        [
+          35.18019829952955,
+          32.42064338380848
+        ]
+      ],
+      "explanation": "ESQUEMÁTICA; NÃO É ESTRADA OU PERCURSO COMPROVADO. Sequência de Gênesis 37:14–17; não se desenha o itinerário de Dotã ao Egito nem a ida de Jacó a Gósen.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    }
+  ],
+  "narrative": [
+    {
+      "placeId": "hebron",
+      "explanation": "José parte do vale de Hebrom a pedido de Jacó para procurar os irmãos.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 37,
+        "verseStart": 14,
+        "label": "Gen 37:14"
+      }
+    },
+    {
+      "placeId": "shechem",
+      "explanation": "José chega à região de Siquém e recebe de um homem a informação de que seus irmãos seguiram adiante.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 37,
+        "verseStart": 15,
+        "verseEnd": 16,
+        "label": "Gen 37:15–16"
+      }
+    },
+    {
+      "placeId": "dothan",
+      "explanation": "José prossegue até Dotã, onde encontra os irmãos.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 37,
+        "verseStart": 17,
+        "label": "Gen 37:17"
+      }
+    },
+    {
+      "placeId": "egypt",
+      "explanation": "José é levado ao Egito; Gênesis não informa sua residência com coordenada.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 39,
+        "verseStart": 1,
+        "label": "Gen 39:1"
+      }
+    },
+    {
+      "placeId": "on",
+      "explanation": "On é citada como origem de Asenate, não como residência atribuída a José.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 41,
+        "verseStart": 45,
+        "label": "Gen 41:45"
+      }
+    },
+    {
+      "placeId": "goshen",
+      "explanation": "A família de Jacó se estabelece na terra de Gósen, cuja extensão continua debatida.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 47,
+        "verseStart": 1,
+        "label": "Gen 47:1"
+      }
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "hebron",
+      "title": "Hebrom",
+      "text": "José parte do vale de Hebrom a pedido de Jacó para procurar os irmãos.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 37,
+        "verseStart": 14,
+        "label": "Gen 37:14"
+      }
+    },
+    {
+      "placeId": "shechem",
+      "title": "Siquém",
+      "text": "José chega à região de Siquém e recebe de um homem a informação de que seus irmãos seguiram adiante.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 37,
+        "verseStart": 15,
+        "verseEnd": 16,
+        "label": "Gen 37:15–16"
+      }
+    },
+    {
+      "placeId": "dothan",
+      "title": "Dotã",
+      "text": "José prossegue até Dotã, onde encontra os irmãos.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 37,
+        "verseStart": 17,
+        "label": "Gen 37:17"
+      }
+    },
+    {
+      "placeId": "egypt",
+      "title": "Egito",
+      "text": "José é levado ao Egito; Gênesis não informa sua residência com coordenada.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 39,
+        "verseStart": 1,
+        "label": "Gen 39:1"
+      }
+    },
+    {
+      "placeId": "on",
+      "title": "On/Heliópolis",
+      "text": "On é citada como origem de Asenate, não como residência atribuída a José.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 41,
+        "verseStart": 45,
+        "label": "Gen 41:45"
+      }
+    },
+    {
+      "placeId": "goshen",
+      "title": "Terra de Gósen",
+      "text": "A família de Jacó se estabelece na terra de Gósen, cuja extensão continua debatida.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 47,
+        "verseStart": 1,
+        "label": "Gen 47:1"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "José procura os irmãos primeiro em Siquém e só depois os encontra em Dotã.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 37,
+        "verseStart": 13,
+        "verseEnd": 17,
+        "label": "Gen 37:13–17"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "On é citada como a cidade de origem de Asenate, não como a residência de José.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 41,
+        "verseStart": 45,
+        "label": "Gen 41:45"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Jacó pede para a família morar em Gósen, uma região cuja extensão não é delimitada no texto.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 47,
+        "verseStart": 1,
+        "verseEnd": 6,
+        "label": "Gen 47:1–6"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    31.33822,
+    30.108086,
+    35.2817986718367,
+    32.42064338380848
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Coordenadas não nulas transcritas de chaves exatas do OpenBible retido; localizações incertas não recebem pino.",
+      "Referências, sequência narrativa e limites compilados editorialmente; nenhuma revisão especializada afirmada."
+    ],
+    "uncertainties": [
+      "Gn 37–50: localidades citadas e região de Gósen sem ponto inventado",
+      "Pontuação do geocodificador não comprova o episódio, o trajeto ou a época; as alternativas estão anotadas em cada local e na revisão."
+    ],
+    "methodology": "Compilação editorial reprodutível a partir do OpenBible legado preservado. Linhas unicamente entre pontos documentados, sempre esquemáticas; não representam caminhos reais. Locais sem identificação confiável permanecem sem coordenada."
+  }
+}

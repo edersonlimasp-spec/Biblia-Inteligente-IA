@@ -26,7 +26,7 @@
   "summary": "Cidades ajudam a distinguir contextos egípcio, arameu, assírio, babilônico e persa. Esses poderes não atingiram seus apogeus simultaneamente. As faixas ilustram grandes regiões físicas, não limites de impérios. O Éden permanece sem coordenada.",
   "modernSummary": "O recorte inclui Egito, Israel, território palestino ocupado, Jordânia, Líbano, Síria, Turquia, Iraque e Irã. Divisões modernas são apenas orientação geográfica e não reproduzem identidades antigas.",
   "certainty": "debated",
-  "sample": true,
+  "sample": false,
   "keywords": [
     "Antigo Oriente Próximo",
     "Gen",
@@ -460,6 +460,82 @@
     24,
     51,
     40
+  ],
+  "storySteps": [
+    {
+      "placeId": "babylon",
+      "title": "Babilônia",
+      "text": "Babilônia aparece como centro do reino de Ninrode no início da lista de suas cidades.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      }
+    },
+    {
+      "placeId": "nineveh",
+      "title": "Nínive",
+      "text": "Nínive é nomeada como a grande cidade para a qual Jonas é enviado.",
+      "reference": {
+        "book": "Jonah",
+        "chapter": 1,
+        "verseStart": 2,
+        "label": "Jonah 1:2"
+      }
+    },
+    {
+      "placeId": "susa",
+      "title": "Susã",
+      "text": "Susã aparece como residência real no início do relato de Ester.",
+      "reference": {
+        "book": "Esth",
+        "chapter": 1,
+        "verseStart": 2,
+        "label": "Esth 1:2"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Gênesis descreve quatro rios saindo do Éden, mas não identifica o local com uma cidade moderna.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 2,
+        "verseStart": 10,
+        "verseEnd": 14,
+        "label": "Gen 2:10–14"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Nínive é nomeada como cidade assíria na oração do rei Ezequias.",
+      "reference": {
+        "book": "2Kgs",
+        "chapter": 19,
+        "verseStart": 36,
+        "label": "2Kgs 19:36"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Susã aparece como residência real no livro de Ester, não como parte do mesmo império babilônico.",
+      "reference": {
+        "book": "Esth",
+        "chapter": 1,
+        "verseStart": 2,
+        "label": "Esth 1:2"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
   ],
   "review": {
     "date": "2026-09-24",

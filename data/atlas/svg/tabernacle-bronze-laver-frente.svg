@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Vista frontal esquemática da pia de bronze, proporção ilustrativa">
+<rect width="800" height="520" fill="#17262a"/>
+<path d="M140 425H660" stroke="#BFC5CC" stroke-width="2" opacity=".38"/>
+<g id="part-mirrors" fill="none" stroke="#C9A227" stroke-width="5">
+ <path d="M208 316h78v66h-78z"/><path d="M225 333h44v32h-44z"/><path d="M223 316v-15m48 15v-15"/>
+</g>
+<g id="part-laver" fill="none" stroke="#A0673A" stroke-width="7" stroke-dasharray="13 10">
+ <path d="M343 217Q488 254 633 217L610 344Q488 405 366 344z"/>
+ <ellipse cx="488" cy="219" rx="145" ry="36"/><path d="M360 254Q488 291 616 254M368 299Q488 337 608 299"/>
+</g>
+<g id="part-basin" fill="none" stroke="#BFC5CC" stroke-width="7" stroke-dasharray="11 9">
+ <path d="M372 362h232l-18 45H390z"/><path d="M414 407v18m74-18v18m74-18v18"/>
+</g>
+</svg>

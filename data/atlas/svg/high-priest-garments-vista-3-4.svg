@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 720" role="img" aria-label="Vista esquemática em três quartos das vestes do sumo sacerdote">
+  <defs>
+    <linearGradient id="cloth" x2="1" y2="1"><stop stop-color="#f9f0dc"/><stop offset="1" stop-color="#cbbd9e"/></linearGradient>
+    <linearGradient id="blue" x2="1" y2="1"><stop stop-color="#3283a4"/><stop offset="1" stop-color="#12354d"/></linearGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#ffe39a"/><stop offset=".5" stop-color="#c69729"/><stop offset="1" stop-color="#805515"/></linearGradient>
+    <linearGradient id="purple" x2="1" y2="1"><stop stop-color="#81518d"/><stop offset="1" stop-color="#392546"/></linearGradient>
+    <pattern id="thread" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 0h12M0 6h12M0 0v12M6 0v12" stroke="#f7e7bc" stroke-opacity=".2"/></pattern>
+    <filter id="shade"><feDropShadow dx="5" dy="10" stdDeviation="8" flood-color="#07121b" flood-opacity=".65"/></filter>
+  </defs>
+  <rect width="800" height="720" fill="#142331"/><ellipse cx="420" cy="643" rx="175" ry="23" fill="#09131b" opacity=".7"/>
+  <g filter="url(#shade)">
+    <g id="part-linen-tunic">
+      <path d="M377 183q54-18 97 17l43 63 36 284-67 60-154-8-31-71 33-247z" fill="url(#cloth)" stroke="#f1e2c2" stroke-width="5"/>
+      <path d="M377 183q54-18 97 17l43 63 36 284-67 60-154-8-31-71 33-247z" fill="url(#thread)" opacity=".55"/>
+    </g>
+    <g id="part-robe">
+      <path d="M385 178q52-18 88 16l70 69 43 274-72 67-42-6 25-176-70-101-79 83 27 183-45 12-65-76 45-269z" fill="url(#blue)" stroke="#62acc0" stroke-width="5"/>
+      <path d="M385 178q52-18 88 16l70 69 43 274-72 67-42-6 25-176-70-101-79 83 27 183-45 12-65-76 45-269z" fill="url(#thread)" opacity=".5"/>
+    </g>
+    <g id="part-belt">
+      <path d="M302 378q96 18 192-8l7 21q-98 32-197 9z" fill="url(#cloth)" stroke="#f5e8c7" stroke-width="3"/>
+      <path d="M302 378q96 18 192-8l7 21q-98 32-197 9z" fill="url(#thread)" opacity=".6"/>
+    </g>
+    <g id="part-ephod">
+      <path d="M385 193q52-36 89 5l55 66-31 39-54-45-29 62-92-5-12-65z" fill="url(#purple)" stroke="#dcb554" stroke-width="5"/>
+      <path d="M385 193q52-36 89 5l55 66-31 39-54-45-29 62-92-5-12-65z" fill="url(#thread)" opacity=".8"/>
+      <path d="M384 203q68 36 132 68" fill="none" stroke="#d5a43a" stroke-width="5"/>
+      <g id="part-shoulder-stones">
+        <rect x="460" y="223" width="41" height="34" rx="9" transform="rotate(24 480 240)" fill="url(#gold)" stroke="#ffe6a1" stroke-width="3"/>
+        <path d="M469 232l26 12-10 18-26-12z" fill="#718b7f" stroke="#34444a" stroke-width="2"/>
+        <path d="M472 236l18 9m-21-3 18 9m-21-3 18 9" stroke="#f1e4bc" stroke-width="1.4"/>
+      </g>
+      <g id="part-sash">
+        <path d="M328 400q102 29 207-5l12 41q-105 39-211 6z" fill="url(#gold)" stroke="#ffe5a0" stroke-width="4"/>
+        <path d="M328 400q102 29 207-5l12 41q-105 39-211 6z" fill="url(#thread)" opacity=".8"/>
+      </g>
+      <g id="part-breastpiece">
+        <path d="M378 286q39-15 78 4l18 100q-42 19-84 3z" fill="url(#gold)" stroke="#ffe49a" stroke-width="4"/>
+        <path d="M385 296q32-12 62 3l13 85q-33 13-66 2z" fill="#274f61" stroke="#432b4b" stroke-width="4"/>
+        <g stroke="#fff0c8" stroke-width="2">
+          <circle cx="402" cy="311" r="7" fill="#bb514e"/><circle cx="430" cy="314" r="7" fill="#d6b458"/><circle cx="405" cy="335" r="7" fill="#789d8c"/>
+          <circle cx="433" cy="338" r="7" fill="#7b7db2"/><circle cx="408" cy="359" r="7" fill="#b85f8c"/><circle cx="437" cy="362" r="7" fill="#6eacc0"/>
+        </g>
+        <path d="M389 322l10 52m37-47 8 51" stroke="#e5c875" stroke-width="2" opacity=".8"/>
+      </g>
+    </g>
+    <g id="part-mitre">
+      <path d="M393 176q-3-63 42-81 50 9 51 77l-10 18-78 4z" fill="url(#cloth)" stroke="#f5e5c3" stroke-width="5"/>
+      <path d="M396 162q40 14 87-1" fill="none" stroke="#bc9c60" stroke-width="4"/>
+    </g>
+    <g id="part-forehead-plate">
+      <path d="M423 175h34l-1 13-30 1z" fill="url(#gold)" stroke="#ffe39a" stroke-width="3"/>
+    </g>
+  </g>
+  <text x="400" y="694" text-anchor="middle" fill="#e9e2d1" font-family="system-ui,sans-serif" font-size="16" letter-spacing="2">VISTA 3/4 · VOLUMES ESQUEMÁTICOS</text>
+</svg>

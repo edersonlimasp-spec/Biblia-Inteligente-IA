@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-label="Corte do Lugar Santo destacando piso de cipreste, cedro e ouro">
+ <rect width="720" height="480" fill="#14231f"/><text x="24" y="34" fill="#f4ead3" font-family="sans-serif" font-size="22" font-weight="700">CORTE DO HEKAL · MATERIAIS E MOBILIÁRIO</text>
+ <g id="part-cedar"><path d="M104 142H588V352H104Z" fill="#7A4E2D" stroke="#bc925e" stroke-width="4"/><path d="M104 142H588" stroke="#dfc257" stroke-width="10"/><path d="M130 187H561M130 232H561M130 277H561" stroke="#c18f56" stroke-width="2"/></g>
+ <g id="part-floor"><path d="M104 341H588" stroke="#67886a" stroke-width="12"/><path d="M126 338v10m52-10v10m52-10v10m52-10v10m52-10v10m52-10v10m52-10v10m52-10v10" stroke="#b0c296" stroke-width="2"/></g>
+ <g id="part-lampstands" stroke="#efd56d" stroke-width="4" fill="none"><path d="M214 335V273m0 20l-16-14m16 14l16-14m-16-18l-11-14m11 14l11-14"/><path d="M287 335V273m0 20l-16-14m16 14l16-14m-16-18l-11-14m11 14l11-14"/></g>
+ <g id="part-tables" fill="#ae894c" stroke="#f3dc8f" stroke-width="2"><rect x="376" y="294" width="55" height="11"/><path d="M382 305v35m43-35v35"/><rect x="466" y="294" width="55" height="11"/><path d="M472 305v35m43-35v35"/></g>
+ <g id="part-gold-altar" fill="#d9bb50" stroke="#f4df89" stroke-width="2"><rect x="331" y="300" width="31" height="40"/></g>
+ <g id="part-doors" stroke="#e1c36a" stroke-width="5"><path d="M563 163V340M578 163V340"/></g>
+ <g stroke="#e7d5a2" stroke-width="2" fill="none"><path d="M104 381H588M104 375V387M588 375V387"/></g><text x="276" y="408" fill="#f4ead3" font-family="sans-serif" font-size="15">40 côv. ≈ 18 m</text>
+ <rect x="24" y="426" width="672" height="35" rx="5" fill="#263930" stroke="#d7bd70" stroke-dasharray="6 4"/><text x="37" y="449" fill="#f2d68c" font-family="sans-serif" font-size="13">Altura e espessura do espaço não cotadas; peças mostradas sem escala.</text>
+</svg>

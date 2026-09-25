@@ -1,0 +1,147 @@
+{
+  "id": "high-priest-turban-gold-plate",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod", "Lev"],
+  "characters": ["Arão", "Moisés"],
+  "period": "Instruções e execução das vestes sacerdotais no deserto",
+  "title": "Mitra e lâmina de ouro do sumo sacerdote",
+  "subtitle": "Mitra de linho fino com lâmina frontal presa por cordão azul",
+  "summary": "A mitra de Arão era de linho fino. Uma lâmina de ouro puro, gravada com as palavras “SANTIDADE AO SENHOR”, era presa à parte dianteira com um cordão azul. Êxodo e Levítico situam a lâmina na parte frontal da mitra e a descrevem como a coroa da santidade.",
+  "purpose": "A peça fazia parte das vestes usadas por Arão no ofício sacerdotal. Êxodo associa a lâmina à responsabilidade ritual descrita para as ofertas santas; a ficha registra esse uso no contexto histórico sem interpretação devocional.",
+  "modernSummary": "A imagem distingue o tecido de linho da mitra, o cordão azul e a lâmina de ouro, sem atribuir dimensões ou reconstruir uma forma exata de enrolamento.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["mitra", "lâmina de ouro", "Santidade ao Senhor", "cordão azul", "Arão", "vestes sacerdotais"],
+  "section": "tabernacle",
+  "subsection": "Vestes sacerdotais",
+  "order": 17,
+  "era": "Êxodo e deserto",
+  "modernOverview": "O texto informa material da mitra, material e posição da lâmina, inscrição e modo de fixação. Não fornece dimensões da mitra ou da lâmina.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 28, "verseStart": 36, "verseEnd": 39, "label": "Exod 28:36–39"},
+    {"book": "Exod", "chapter": 39, "verseStart": 30, "verseEnd": 31, "label": "Exod 39:30–31"},
+    {"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"}
+  ],
+  "aliases": ["turbante do sumo sacerdote", "coroa da santidade", "lâmina Santidade ao Senhor", "mitra de Arão"],
+  "references": [
+    {"book": "Exod", "chapter": 28, "verseStart": 36, "verseEnd": 39, "label": "Exod 28:36–39"},
+    {"book": "Exod", "chapter": 39, "verseStart": 28, "verseEnd": 31, "label": "Exod 39:28–31"},
+    {"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"}
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Passagens bíblicas — textos ACF locais e referências",
+      "url": "https://ebible.org/web/",
+      "license": "Paráfrases próprias; sem reprodução de trechos de tradução",
+      "note": "Êxodo 28:36–39, 39:28–31 e Levítico 8:9 foram conferidos nos arquivos ACF locais server/bible-data/exo.ts e server/bible-data/lev.ts. Desenhos originais."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "linen-mitre",
+      "title": "Mitra de linho fino",
+      "text": "A instrução descreve a mitra como feita de linho fino, mas não especifica as dimensões ou o método de enrolamento.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 39, "label": "Exod 28:39"}
+    },
+    {
+      "placeId": "gold-plate",
+      "title": "Lâmina frontal",
+      "text": "Uma lâmina de ouro puro recebia uma inscrição gravada e ficava na parte dianteira da mitra.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 36, "verseEnd": 37, "label": "Exod 28:36–37"}
+    },
+    {
+      "placeId": "blue-cord",
+      "title": "Cordão azul",
+      "text": "A lâmina era amarrada à mitra com um cordão azul; a execução confirma a fixação na parte superior.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 30, "verseEnd": 31, "label": "Exod 39:30–31"}
+    },
+    {
+      "placeId": "gold-plate",
+      "title": "Colocação na investidura",
+      "text": "No relato da investidura, Moisés colocou a mitra em Arão e a lâmina de ouro na parte dianteira.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A inscrição da lâmina é dada como “SANTIDADE AO SENHOR” e é descrita como gravação de selo.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 36, "label": "Exod 28:36"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "A lâmina era feita de ouro puro e fixada com um cordão azul à frente da mitra.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 37, "label": "Exod 28:37"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "A execução descreve o cordão azul prendendo a lâmina à parte superior da mitra.",
+      "reference": {"book": "Exod", "chapter": 39, "verseStart": 30, "verseEnd": 31, "label": "Exod 39:30–31"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Levítico narra a colocação da mitra e, em sua parte dianteira, da lâmina de ouro durante a investidura de Arão.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"},
+      "sourceIds": ["biblical"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "high-priest-turban-gold-plate.svg",
+    "dimensions": [],
+    "notes": [
+      "Nenhuma dimensão da mitra, da lâmina ou do cordão é fornecida nas passagens citadas.",
+      "A forma de cobertura da cabeça e a curvatura da lâmina são esquemáticas; a inscrição está representada como rótulo gráfico legível.",
+      "A vista 3/4 mostra a fixação de modo diagramático e não define a técnica histórica de amarração."
+    ],
+    "relatedIds": ["high-priest-blue-robe", "high-priest-tunic-sash-undergarments", "common-priest-garments"],
+    "views": [
+      {"label": "Frente", "svgFile": "high-priest-turban-gold-plate.svg"},
+      {"label": "Vista 3/4", "svgFile": "high-priest-turban-gold-plate-vista-3-4.svg"}
+    ],
+    "parts": [
+      {
+        "id": "linen-mitre",
+        "name": "Mitra de linho",
+        "description": "Cobertura da cabeça de Arão feita de linho fino; formato e dimensões não são informados.",
+        "material": "Linho fino",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 39, "label": "Exod 28:39"}],
+        "highlight": {"x": 50, "y": 20, "width": 0, "height": 0}
+      },
+      {
+        "id": "gold-plate",
+        "name": "Lâmina de ouro puro",
+        "description": "Peça frontal com inscrição gravada “SANTIDADE AO SENHOR”; dimensão e perfil não especificados.",
+        "material": "Ouro puro",
+        "references": [
+          {"book": "Exod", "chapter": 28, "verseStart": 36, "verseEnd": 38, "label": "Exod 28:36–38"},
+          {"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"}
+        ],
+        "highlight": {"x": 50, "y": 31, "width": 0, "height": 0}
+      },
+      {
+        "id": "blue-cord",
+        "name": "Cordão azul",
+        "description": "Cordão azul usado para prender a lâmina na parte dianteira da mitra.",
+        "material": "Cordão azul",
+        "references": [{"book": "Exod", "chapter": 39, "verseStart": 30, "verseEnd": 31, "label": "Exod 39:30–31"}],
+        "highlight": {"x": 50, "y": 35, "width": 0, "height": 0}
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-27",
+    "status": "documented",
+    "verified": ["Exod 28:36–39 conferido no ACF local", "Exod 39:28–31 conferido no ACF local", "Lev 8:9 conferido no ACF local"],
+    "uncertainties": [
+      "As dimensões e o perfil da lâmina não são informados.",
+      "A forma de enrolamento da mitra e a construção do cordão não são detalhadas."
+    ],
+    "methodology": "Conferido nos textos locais ACF em server/bible-data/exo.ts e server/bible-data/lev.ts. Materiais, inscrição e posição seguem as passagens; o desenho não atribui cotas nem uma forma histórica precisa."
+  }
+}

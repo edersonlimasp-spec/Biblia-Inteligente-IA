@@ -1,0 +1,358 @@
+{
+  "id": "tabernacle-courtyard-gate",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": [
+    "Exod"
+  ],
+  "characters": [
+    "Moisés"
+  ],
+  "period": "Tabernáculo do deserto, conforme Êxodo",
+  "title": "Tabernáculo: Porta do pátio",
+  "subtitle": "Abertura oriental bordada; vista esquemática",
+  "summary": "A porta do pátio é uma cortina bordada de vinte côvados, sustentada por quatro colunas. O texto também descreve quinze côvados de cortinas com três colunas em cada trecho lateral. Esta ficha destaca a abertura na fachada oriental sem inventar uma altura independente para a porta.",
+  "modernSummary": "Diagrama textual; não há base para atribuí-lo a um portal arqueológico preservado.",
+  "purpose": "Detalhar a abertura oriental do pátio e diferenciar a cortina da porta dos trechos laterais do cercado.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": [
+    "porta do pátio",
+    "entrada leste",
+    "cortina bordada",
+    "Êxodo 27:16"
+  ],
+  "section": "tabernacle",
+  "subsection": "Tabernáculo",
+  "order": 3,
+  "era": "Êxodo e deserto",
+  "modernOverview": "A representação esquemática sintetiza medidas e materiais de Êxodo 27 e 38; não presume a construção ou a aparência exata do bordado.",
+  "keyReferences": [
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 13,
+      "verseEnd": 16,
+      "label": "Exod 27:13–16"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 14,
+      "verseEnd": 19,
+      "label": "Exod 38:14–19"
+    },
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 18,
+      "label": "Exod 27:18"
+    }
+  ],
+  "aliases": [
+    "porta do átrio",
+    "cortina da porta do pátio"
+  ],
+  "references": [
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 13,
+      "verseEnd": 16,
+      "label": "Exod 27:13–16"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 14,
+      "verseEnd": 19,
+      "label": "Exod 38:14–19"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Êxodo — texto bíblico ACF consultado",
+      "url": "https://www.bible.com/pt/bible/212/EXO.27.ACF",
+      "license": "Referências e paráfrases próprias; não reproduz texto protegido",
+      "note": "Êxodo 27:13–16 e 38:14–19 conferidos em ACF; diagrama e representações de tecido originais."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "side-curtains",
+      "title": "Cortinas laterais",
+      "text": "Em cada extremidade da abertura oriental, o texto menciona quinze côvados de cortina e três colunas.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 14,
+        "verseEnd": 15,
+        "label": "Exod 27:14–15"
+      }
+    },
+    {
+      "placeId": "gate-curtain",
+      "title": "Cortina da porta",
+      "text": "A cortina da porta mede vinte côvados de comprimento e usa azul, púrpura, carmesim e linho fino torcido.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 16,
+        "label": "Exod 27:16"
+      }
+    },
+    {
+      "placeId": "columns",
+      "title": "Quatro colunas",
+      "text": "A cortina central é descrita sobre quatro colunas e quatro bases; o desenho não fixa uma altura independente para esta peça.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 16,
+        "label": "Exod 27:16"
+      }
+    },
+    {
+      "placeId": "materials",
+      "title": "Bordado e metais",
+      "text": "Êxodo chama o trabalho da cortina de obra de bordador e atribui às colunas ganchos e faixas de prata.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 38,
+        "verseStart": 17,
+        "verseEnd": 19,
+        "label": "Exod 38:17–19"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Os dois trechos laterais somam trinta côvados, além dos vinte côvados centrais da cortina da porta.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 14,
+        "verseEnd": 16,
+        "label": "Exod 27:14–16"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "As cores nomeadas no texto são azul, púrpura e carmesim, junto ao linho fino torcido.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 16,
+        "label": "Exod 27:16"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "Êxodo 38:18 declara explicitamente cinco côvados de altura para a cortina da porta; Êxodo 27:16 informa seu comprimento de vinte côvados.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 38,
+        "verseStart": 18,
+        "label": "Exod 38:18"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "tabernacle-courtyard-gate.svg",
+    "dimensions": [
+      {
+        "label": "Cortina da porta — comprimento",
+        "cubits": 20,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 16,
+          "label": "Exod 27:16"
+        }
+      },
+      {
+        "label": "Cortinas laterais — cada trecho",
+        "cubits": 15,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 14,
+          "verseEnd": 15,
+          "label": "Exod 27:14–15"
+        }
+      },
+      {
+        "label": "Cortina da porta — altura",
+        "cubits": 5,
+        "note": "Medida explícita em Êxodo 38:18; côvado comum ≈ 0,45 m. Êxodo 27:16 informa o comprimento de vinte côvados.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 38,
+          "verseStart": 18,
+          "label": "Exod 38:18"
+        }
+      }
+    ],
+    "notes": [
+      "As dimensões são côvados do texto; conversão aproximada pelo côvado comum ≈ 0,45 m; o côvado longo ≈ 0,52 m não foi aplicado.",
+      "Êxodo 38:18 explicita altura de cinco côvados para a cortina, embora Êxodo 27:16 não a repita.",
+      "O desenho não tenta reproduzir o bordado histórico nem os espaçamentos das colunas em escala."
+    ],
+    "relatedIds": [
+      "tabernacle-overview",
+      "tabernacle-courtyard"
+    ],
+    "parts": [
+      {
+        "id": "side-curtains",
+        "name": "Cortinas laterais",
+        "description": "Dois trechos laterais, cada um com quinze côvados e três colunas; juntos completam os cinquenta côvados do lado leste com a abertura.",
+        "cubits": 15,
+        "material": "Linho fino torcido",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 14,
+            "verseEnd": 15,
+            "label": "Exod 27:14–15"
+          }
+        ],
+        "highlight": {
+          "x": 29.6,
+          "y": 26.9,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "gate-curtain",
+        "name": "Cortina bordada da porta",
+        "description": "Cortina central de vinte côvados, em azul, púrpura, carmesim e linho fino torcido, feita como obra de bordador.",
+        "cubits": 20,
+        "material": "Linho fino torcido, azul, púrpura e carmesim",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 16,
+            "label": "Exod 27:16"
+          },
+          {
+            "book": "Exod",
+            "chapter": 38,
+            "verseStart": 18,
+            "label": "Exod 38:18"
+          }
+        ],
+        "highlight": {
+          "x": 50.1,
+          "y": 44.2,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "columns",
+        "name": "Quatro colunas da porta",
+        "description": "Quatro colunas e quatro bases sustentam a cortina; a altura individual não é informada no texto.",
+        "material": "Madeira de acácia; bases de bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 16,
+            "label": "Exod 27:16"
+          },
+          {
+            "book": "Exod",
+            "chapter": 38,
+            "verseStart": 19,
+            "label": "Exod 38:19"
+          }
+        ],
+        "highlight": {
+          "x": 44.5,
+          "y": 44.2,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "materials",
+        "name": "Materiais e trabalho bordado",
+        "description": "Azul, púrpura, carmesim e linho fino em trabalho de bordador; ferragens e faixas das colunas em prata.",
+        "material": "Linho e fios coloridos; prata",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 16,
+            "verseEnd": 17,
+            "label": "Exod 27:16–17"
+          },
+          {
+            "book": "Exod",
+            "chapter": 38,
+            "verseStart": 18,
+            "verseEnd": 19,
+            "label": "Exod 38:18–19"
+          }
+        ],
+        "highlight": {
+          "x": 50.1,
+          "y": 29.6,
+          "width": 0,
+          "height": 0
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "tabernacle-courtyard-gate.svg"
+      },
+      {
+        "label": "Frente",
+        "svgFile": "tabernacle-courtyard-gate-frente.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "tabernacle-courtyard-gate-isometrica.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-09-24",
+    "status": "documented",
+    "verified": [
+      "Êxodo 27:13–16",
+      "Êxodo 38:14–19"
+    ],
+    "uncertainties": [
+      "Êxodo 27:16 nomeia quatro colunas; Êxodo 38:19 confirma quatro bases, mas a passagem não especifica detalhes construtivos do espaçamento.",
+      "A altura de cinco côvados consta em Êxodo 38:18, não em 27:16; usada com a referência explícita."
+    ],
+    "methodology": "Leitura cruzada da descrição em Êxodo 27 com a enumeração dos materiais e medidas da obra em Êxodo 38."
+  }
+}

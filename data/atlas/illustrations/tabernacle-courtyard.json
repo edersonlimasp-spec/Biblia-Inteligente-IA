@@ -1,0 +1,340 @@
+{
+  "id": "tabernacle-courtyard",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": [
+    "Exod"
+  ],
+  "characters": [
+    "Moisés"
+  ],
+  "period": "Tabernáculo do deserto, conforme Êxodo",
+  "title": "Tabernáculo: Pátio e cercado",
+  "subtitle": "Planta e elevação esquemáticas; medidas textuais em côvados",
+  "summary": "O pátio é descrito como um retângulo de cem por cinquenta côvados, cercado por cortinas de linho fino com cinco côvados de altura. O desenho mostra a abertura no lado oriental e representa as colunas de forma diagramática, sem afirmar espaçamentos construtivos além do que o texto informa.",
+  "modernSummary": "Não é uma estrutura arqueologicamente identificada; trata-se de esquema derivado das instruções de Êxodo.",
+  "purpose": "Mostrar o contorno têxtil e a disposição geral das colunas e bases que delimitavam o pátio do tabernáculo.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": [
+    "pátio",
+    "cercado",
+    "cortina de linho",
+    "colunas",
+    "Êxodo 27"
+  ],
+  "section": "tabernacle",
+  "subsection": "Tabernáculo",
+  "order": 2,
+  "era": "Êxodo e deserto",
+  "modernOverview": "O desenho deriva do texto bíblico e não corresponde a ruínas identificadas; os intervalos gráficos entre colunas são esquemáticos.",
+  "keyReferences": [
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 9,
+      "verseEnd": 18,
+      "label": "Exod 27:9–18"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 9,
+      "verseEnd": 20,
+      "label": "Exod 38:9–20"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 17,
+      "label": "Exod 38:17"
+    }
+  ],
+  "aliases": [
+    "pátio do tabernáculo",
+    "cortinas do átrio"
+  ],
+  "references": [
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 9,
+      "verseEnd": 18,
+      "label": "Exod 27:9–18"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 9,
+      "verseEnd": 20,
+      "label": "Exod 38:9–20"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Êxodo — texto bíblico ACF consultado",
+      "url": "https://www.bible.com/pt/bible/212/EXO.27.ACF",
+      "license": "Referências e paráfrases próprias; não reproduz texto protegido",
+      "note": "Êxodo 27 e 38 consultados em ACF; desenho autoral e contagem de elementos conferida com o texto."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "linen-enclosure",
+      "title": "Cortinas de linho",
+      "text": "As cortinas de linho fino formam o limite do pátio e têm altura indicada de cinco côvados.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 18,
+        "label": "Exod 27:18"
+      }
+    },
+    {
+      "placeId": "posts",
+      "title": "Colunas e bases",
+      "text": "As contagens descritas são vinte colunas nos lados norte e sul e dez em cada lado curto; a representação dos pontos não fixa intervalos construtivos.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 10,
+        "verseEnd": 16,
+        "label": "Exod 27:10–16"
+      }
+    },
+    {
+      "placeId": "silver-hardware",
+      "title": "Ganchos e faixas",
+      "text": "O texto atribui ganchos e faixas às colunas em prata e descreve as bases do cercado como bronze.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 17,
+        "verseEnd": 18,
+        "label": "Exod 27:17–18"
+      }
+    },
+    {
+      "placeId": "east-opening",
+      "title": "Abertura oriental",
+      "text": "O lado oriental tem cinquenta côvados no total: cortinas laterais de quinze côvados e uma abertura central de vinte côvados.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 13,
+        "verseEnd": 16,
+        "label": "Exod 27:13–16"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "O comprimento dos lados norte e sul é descrito como cem côvados em cada lado.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 9,
+        "verseEnd": 11,
+        "label": "Exod 27:9–11"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "No oeste, o texto menciona cortinas de cinquenta côvados, dez colunas e dez bases.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 12,
+        "label": "Exod 27:12"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "A altura de cinco côvados é atribuída às cortinas do pátio; o texto não determina graficamente os vãos entre cada coluna.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 18,
+        "label": "Exod 27:18"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "tabernacle-courtyard.svg",
+    "dimensions": [
+      {
+        "label": "Pátio — comprimento",
+        "cubits": 100,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 18,
+          "label": "Exod 27:18"
+        }
+      },
+      {
+        "label": "Pátio — largura",
+        "cubits": 50,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 18,
+          "label": "Exod 27:18"
+        }
+      },
+      {
+        "label": "Cortinas do pátio — altura",
+        "cubits": 5,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 18,
+          "label": "Exod 27:18"
+        }
+      }
+    ],
+    "notes": [
+      "O côvado comum foi convertido em aproximadamente 0,45 m; a estimativa alternativa do côvado longo é ≈ 0,52 m e não foi aplicada às cotas.",
+      "Os lados longos e curtos representam a proporção textual 100:50; os intervalos gráficos das colunas e o traçado da elevação são esquemáticos.",
+      "A porta ocupa vinte côvados do lado leste; os trechos laterais ocupam quinze côvados cada."
+    ],
+    "relatedIds": [
+      "tabernacle-overview",
+      "tabernacle-courtyard-gate"
+    ],
+    "parts": [
+      {
+        "id": "linen-enclosure",
+        "name": "Cortinas de linho fino",
+        "description": "Cortinas circundantes de linho fino torcido, com altura declarada de cinco côvados.",
+        "material": "Linho fino torcido",
+        "cubits": 5,
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 18,
+            "label": "Exod 27:18"
+          }
+        ],
+        "highlight": {
+          "x": 47.8,
+          "y": 22.7,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "posts",
+        "name": "Colunas e bases de bronze",
+        "description": "Vinte colunas nos lados norte e sul, dez no oeste e dez no leste; o esquema não representa com precisão as distâncias entre elas.",
+        "material": "Colunas e bases de bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 10,
+            "verseEnd": 16,
+            "label": "Exod 27:10–16"
+          }
+        ],
+        "highlight": {
+          "x": 49,
+          "y": 22.7,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "silver-hardware",
+        "name": "Ganchos e faixas de prata",
+        "description": "Acessórios das colunas mencionados como prata; a ilustração os indica por pontos, sem inferir desenho da ferragem.",
+        "material": "Prata",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 17,
+            "label": "Exod 27:17"
+          }
+        ],
+        "highlight": {
+          "x": 78,
+          "y": 22.7,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "east-opening",
+        "name": "Abertura do lado leste",
+        "description": "A cortina de vinte côvados abre-se entre dois trechos laterais de quinze côvados.",
+        "cubits": 20,
+        "material": "Linho fino torcido, azul, púrpura e carmesim",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 13,
+            "verseEnd": 16,
+            "label": "Exod 27:13–16"
+          }
+        ],
+        "highlight": {
+          "x": 81.5,
+          "y": 50,
+          "width": 0,
+          "height": 0
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "tabernacle-courtyard.svg"
+      },
+      {
+        "label": "Frente",
+        "svgFile": "tabernacle-courtyard-frente.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "tabernacle-courtyard-isometrica.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-09-24",
+    "status": "documented",
+    "verified": [
+      "Êxodo 27:9–18",
+      "Êxodo 38:9–20"
+    ],
+    "uncertainties": [
+      "Não há orientação detalhada de todas as colunas no texto além da contagem por lado; posições em planta são esquemáticas.",
+      "Cortinas são descritas com material e dimensões, sem especificar como representação arquitetônica gráfica."
+    ],
+    "methodology": "Conferência de comprimentos, alturas e totais por lado no texto; esquema vetorial original sem escala construtiva adicional."
+  }
+}

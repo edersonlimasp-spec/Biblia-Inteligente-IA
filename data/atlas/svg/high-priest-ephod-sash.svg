@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Éfode sacerdotal isolado com cinto, pedras nos ombros e correntes de ouro">
+  <defs>
+    <linearGradient id="fabric" x2="1" y2="1"><stop stop-color="#426b91"/><stop offset=".48" stop-color="#6c3e78"/><stop offset="1" stop-color="#173b58"/></linearGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#ffe7a5"/><stop offset=".42" stop-color="#d3a02a"/><stop offset="1" stop-color="#80520e"/></linearGradient>
+    <pattern id="weave" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M0 0h16M0 8h16M0 0v16M8 0v16" stroke="#fff1c8" stroke-opacity=".23" stroke-width="1.3"/><path d="M0 4h16M4 0v16" stroke="#d4a137" stroke-opacity=".25"/></pattern>
+    <filter id="drop"><feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#060e15" flood-opacity=".6"/></filter>
+  </defs>
+  <rect width="800" height="600" fill="#142331"/>
+  <ellipse cx="400" cy="531" rx="190" ry="20" fill="#09141d" opacity=".7"/>
+  <g filter="url(#drop)">
+    <g id="part-ephod-body">
+      <path d="M302 139 245 174l-62 131 78 65 54-93 45 109 40-16 40 16 45-109 54 93 78-65-62-131-57-35-34 77h-128z" fill="url(#fabric)" stroke="#d9ad50" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M302 139 245 174l-62 131 78 65 54-93 45 109 40-16 40 16 45-109 54 93 78-65-62-131-57-35-34 77h-128z" fill="url(#weave)" opacity=".72"/>
+      <path d="M302 139q98 64 196 0M183 305l78 65m356-65-78 65" fill="none" stroke="#e3c16e" stroke-width="5"/>
+      <path d="M321 211h158l30 101H291z" fill="#274c62" opacity=".45"/>
+    </g>
+    <g id="part-shoulder-stones">
+      <path d="M253 179q24-20 46 0l-5 55q-22 11-44-3zM501 179q23-20 46 0l3 52q-21 14-44 3z" fill="url(#gold)" stroke="#ffe7a7" stroke-width="4"/>
+      <path d="M261 188h29v37h-29zM510 188h29v37h-29z" rx="6" fill="#738e82" stroke="#283b41" stroke-width="3"/>
+      <path d="M265 197h21m-21 8h21m-21 8h21m228-16h21m-21 8h21m-21 8h21" stroke="#f2e4bc" stroke-width="1.5"/>
+      <path d="M269 190l13 33m243-33 13 33" stroke="#40534d" stroke-width="2"/>
+    </g>
+    <g id="part-gold-chains" fill="none" stroke="url(#gold)" stroke-width="7">
+      <path d="M267 179q-10-47 24-52l45 38M533 179q10-47-24-52l-45 38"/>
+      <path d="M265 180q-8-43 25-50l45 38M535 180q8-43-25-50l-45 38" stroke="#ffe7a0" stroke-width="2"/>
+      <circle cx="290" cy="127" r="10" fill="url(#gold)" stroke="#ffe9aa" stroke-width="3"/>
+      <circle cx="510" cy="127" r="10" fill="url(#gold)" stroke="#ffe9aa" stroke-width="3"/>
+    </g>
+    <g id="part-woven-sash">
+      <path d="M238 359q162 43 324 0l11 57q-172 53-346 0z" fill="url(#gold)" stroke="#ffe6a1" stroke-width="5"/>
+      <path d="M238 359q162 43 324 0l11 57q-172 53-346 0z" fill="url(#weave)" opacity=".82"/>
+      <path d="M399 387q58 25 83 91l-30 18q-30-52-78-66z" fill="#bd8a25" stroke="#f2d275" stroke-width="4"/>
+      <path d="M399 387q58 25 83 91" fill="none" stroke="#fff0b8" stroke-width="2"/>
+    </g>
+  </g>
+  <g font-family="system-ui,sans-serif" text-anchor="middle" fill="#e9e2d1">
+    <text x="400" y="565" font-size="16" letter-spacing="2">ÉFODE E CINTO · VISTA FRONTAL ISOLADA</text>
+    <text x="400" y="88" font-size="12" fill="#aebdc5">seis nomes por pedra conforme a descrição · sem inscrições inventadas</text>
+  </g>
+</svg>

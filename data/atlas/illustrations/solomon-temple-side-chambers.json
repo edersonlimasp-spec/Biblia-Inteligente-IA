@@ -1,0 +1,81 @@
+{
+  "id":"solomon-temple-side-chambers",
+  "version":"1",
+  "kind":"illustration",
+  "category":"Templo de Salomão",
+  "testament":"AT",
+  "books":["1Kgs"],
+  "characters":["Salomão"],
+  "period":"Templo de Jerusalém atribuído ao reinado de Salomão",
+  "title":"Templo de Salomão: câmaras laterais",
+  "subtitle":"Três níveis escalonados ao redor do edifício",
+  "summary":"O texto descreve câmaras laterais ao redor do templo e do debir. A largura cresce de 5 côvados no nível inferior a 6 no intermediário e 7 no superior; a altura indicada é 5 côvados. Recuos na face externa evitavam apoiar as vigas nas paredes principais. A subida é descrita por uma palavra traduzida como escada em caracol, cuja interpretação é debatida.",
+  "purpose":"As câmaras formavam espaços anexos ao redor da estrutura principal. O texto descreve a relação dos apoios de madeira com a parede e o acesso entre pisos, mas não explica a utilização de cada cômodo; não se atribui armazenamento ou uso específico sem evidência textual.",
+  "modernSummary":"As larguras e alturas atribuídas às câmaras são medidas textuais. Comprimento ao redor, divisão interna, profundidade total do conjunto, portas secundárias e geometria exata da escada não são informados.",
+  "certainty":"established",
+  "sample":false,
+  "keywords":["câmaras laterais","salas","recuos","vigas","cedro","escada em caracol"],
+  "section":"solomon-temple",
+  "subsection":"Estrutura externa",
+  "order":6,
+  "era":"Reinado de Salomão, segundo 1 Reis",
+  "modernOverview":"A descrição distingue os três níveis por largura e registra altura de cinco côvados. O desenho explicita os recuos de apoio, mas apresenta o comprimento e a escada sem proporção afirmada.",
+  "keyReferences":[
+    {"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":10,"label":"1Rs 6:5–10"},
+    {"book":"1Kgs","chapter":6,"verseStart":8,"label":"1Rs 6:8"}
+  ],
+  "aliases":["câmaras do templo","salas laterais","câmaras em volta"],
+  "references":[
+    {"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":10,"label":"1Rs 6:5–10"}
+  ],
+  "sources":[
+    {"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/","license":"Referência textual; paráfrases originais, sem reprodução de tradução protegida","note":"Conferido no texto ACF local server/bible-data/1ki.ts; referências indicadas junto a medidas e afirmações."}
+  ],
+  "places":[],
+  "overlays":[],
+  "storySteps":[
+    {"placeId":"lower","title":"Nível inferior","text":"A câmara inferior tinha largura de 5 côvados; um recuo na parede externa sustentava a estrutura sem apoiar as vigas na parede principal.","reference":{"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":6,"label":"1Rs 6:5–6"}},
+    {"placeId":"middle","title":"Nível intermediário","text":"A câmara do meio tinha 6 côvados de largura e cinco côvados de altura.","reference":{"book":"1Kgs","chapter":6,"verseStart":6,"verseEnd":10,"label":"1Rs 6:6, 10"}},
+    {"placeId":"upper","title":"Terceiro nível","text":"A câmara superior tinha 7 côvados de largura; o relato atribui cinco côvados de altura às câmaras.","reference":{"book":"1Kgs","chapter":6,"verseStart":6,"verseEnd":10,"label":"1Rs 6:6, 10"}},
+    {"placeId":"stair","title":"Acesso","text":"A subida entre o nível inferior, o intermediário e o terceiro é descrita por uma expressão traduzida como escada em caracol; a forma exata da circulação é debatida.","reference":{"book":"1Kgs","chapter":6,"verseStart":8,"label":"1Rs 6:8"}}
+  ],
+  "curiosities":[
+    {"text":"As larguras descritas aumentam em cada pavimento: 5 côvados embaixo, 6 no meio e 7 no terceiro nível.","reference":{"book":"1Kgs","chapter":6,"verseStart":6,"label":"1Rs 6:6"},"sourceIds":["biblical"]},
+    {"text":"O texto associa a variação dos apoios a recuos externos, para que as vigas não se apoiassem nas paredes da casa.","reference":{"book":"1Kgs","chapter":6,"verseStart":6,"label":"1Rs 6:6"},"sourceIds":["biblical"]},
+    {"text":"A altura indicada para as câmaras ao redor é de cinco côvados; o versículo não reparte essa altura entre elementos de cobertura.","reference":{"book":"1Kgs","chapter":6,"verseStart":10,"label":"1Rs 6:10"},"sourceIds":["biblical"]},
+    {"text":"O acesso do lado direito e a subida entre os níveis são citados, mas o termo associado à escada em caracol e a sua forma exata admitem debate de tradução.","reference":{"book":"1Kgs","chapter":6,"verseStart":8,"label":"1Rs 6:8"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"solomon-temple-side-chambers.svg",
+    "dimensions":[
+      {"label":"Largura da câmara inferior","cubits":5,"note":"Medida textual ≈ 2,25 m pelo côvado comum aproximado de 0,45 m.","reference":{"book":"1Kgs","chapter":6,"verseStart":6,"label":"1Rs 6:6"}},
+      {"label":"Largura da câmara intermediária","cubits":6,"note":"Medida textual ≈ 2,70 m pelo côvado comum aproximado de 0,45 m.","reference":{"book":"1Kgs","chapter":6,"verseStart":6,"label":"1Rs 6:6"}},
+      {"label":"Largura da câmara superior","cubits":7,"note":"Medida textual ≈ 3,15 m pelo côvado comum aproximado de 0,45 m.","reference":{"book":"1Kgs","chapter":6,"verseStart":6,"label":"1Rs 6:6"}},
+      {"label":"Altura das câmaras","cubits":5,"note":"O texto informa cinco côvados para a altura das câmaras; ≈ 2,25 m pela convenção comum.","reference":{"book":"1Kgs","chapter":6,"verseStart":10,"label":"1Rs 6:10"}},
+      {"label":"Comprimento, profundidade do anexo e espessura das paredes","note":"medida não informada no texto; contorno tracejado, esquema sem escala","reference":{"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":10,"label":"1Rs 6:5–10"}}
+    ],
+    "notes":[
+      "Larguras de 5, 6 e 7 côvados e altura de 5 côvados são dados textuais (1Rs 6:6, 10). As demais proporções da imagem não representam cotas.",
+      "A geometria dos recuos está esquematizada para tornar visível o princípio descrito; distância de cada recuo e espessura da parede não são informadas.",
+      "A silhueta de 1,70 m é referência visual moderna sem pretensão de representar uma pessoa ou medida antiga.",
+      "A expressão traduzida como subida por caracóis/escada em caracol (1Rs 6:8) é debatida; a forma desenhada é esquemática e não resolve a tradução.",
+      "Conversão aproximada: côvado comum ≈ 0,45 m; Ez 40:5 descreve cana de côvado e palmo adicionais, frequentemente estimada em côvado longo ≈ 0,52 m. 2Cr 3:3 menciona a medida antiga sem valor métrico exato."
+    ],
+    "relatedIds":["solomon-temple-overview","solomon-temple-plan"],
+    "views":[
+      {"label":"Planta","svgFile":"solomon-temple-side-chambers-planta.svg"},
+      {"label":"Frente","svgFile":"solomon-temple-side-chambers-frente.svg"},
+      {"label":"Corte","svgFile":"solomon-temple-side-chambers-corte.svg"},
+      {"label":"Vista 3/4","svgFile":"solomon-temple-side-chambers.svg"}
+    ],
+    "parts":[
+      {"id":"lower","name":"Câmaras inferiores","description":"Pavimento inferior com largura textual de 5 côvados. O esquema destaca o apoio em recuo externo, sem ancorar vigas na parede principal.","cubits":5,"material":"Vigas de cedro são citadas; os demais materiais das câmaras não são discriminados","references":[{"book":"1Kgs","chapter":6,"verseStart":5,"verseEnd":6,"label":"1Rs 6:5–6"},{"book":"1Kgs","chapter":6,"verseStart":10,"label":"1Rs 6:10"}],"highlight":{"x":34,"y":80,"width":40,"height":14}},
+      {"id":"middle","name":"Câmaras intermediárias","description":"Nível intermediário com largura de 6 côvados e altura textual de 5 côvados.","cubits":6,"material":"Vigas de cedro","references":[{"book":"1Kgs","chapter":6,"verseStart":6,"verseEnd":10,"label":"1Rs 6:6–10"}],"highlight":{"x":34,"y":68,"width":44,"height":14}},
+      {"id":"upper","name":"Câmaras superiores","description":"Terceiro nível com largura textual de 7 côvados e altura textual de 5 côvados.","cubits":7,"material":"Vigas de cedro","references":[{"book":"1Kgs","chapter":6,"verseStart":6,"verseEnd":10,"label":"1Rs 6:6–10"}],"highlight":{"x":34,"y":54,"width":48,"height":14}},
+      {"id":"wall-offset","name":"Recuos da parede externa","description":"Os recuos distribuíam o apoio para as vigas não se apoiarem nas paredes da casa. A profundidade dos recuos não é cotada.","material":"Parede de pedra; viga de cedro","references":[{"book":"1Kgs","chapter":6,"verseStart":6,"label":"1Rs 6:6"}],"highlight":{"x":53,"y":67,"width":18,"height":33}},
+      {"id":"stair","name":"Subida entre pavimentos","description":"A passagem descreve subida em caracóis; termo e desenho preciso do acesso são debatidos.","references":[{"book":"1Kgs","chapter":6,"verseStart":8,"label":"1Rs 6:8"}],"highlight":{"x":16,"y":60,"width":17,"height":40}}
+    ]
+  },
+  "review":{"date":"2026-09-24","status":"documented","verified":["1Rs 6:5: câmaras laterais ao redor do templo e do oráculo","1Rs 6:6: larguras 5, 6 e 7 côvados e recuos para vigas","1Rs 6:8: acesso descrito em termos de caracóis","1Rs 6:10: altura de cinco côvados e ligação em cedro"],"uncertainties":["A tradução e geometria da subida descrita em 1Rs 6:8 são debatidas.","Comprimento, divisão, espessuras, número de cômodos e profundidade dos recuos não são informados.","Não se atribui função específica a cada câmara."],"methodology":"Conferido no texto ACF local server/bible-data/1ki.ts. Cotas textuais são separadas dos contornos e da geometria esquemática; medidas métricas são conversões aproximadas."}
+}

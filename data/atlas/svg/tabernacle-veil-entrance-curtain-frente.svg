@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Elevação esquemática da cortina da entrada e do véu interno">
+<rect width="800" height="520" fill="#17262a"/>
+<g id="part-entrance">
+ <path d="M155 173h490v140H155z" fill="#f4eee0" fill-opacity=".13" stroke="#9E1B32" stroke-width="5" stroke-dasharray="15 10"/>
+ <path d="M155 220h490m0 45H155" stroke="#2E4F8F" stroke-width="7" opacity=".88"/>
+ <path d="M175 173v140m110-140v140m110-140v140m110-140v140m110-140v140" stroke="#C9A227" stroke-width="8"/>
+ <path d="M175 319h22m88-0h22m88 0h22m88 0h22m88 0h22" stroke="#A0673A" stroke-width="14"/>
+</g>
+<g id="part-veil">
+ <path d="M200 365h400v94H200z" fill="#f4eee0" fill-opacity=".1" stroke="#6B2D5C" stroke-width="5" stroke-dasharray="15 10"/>
+ <path d="M200 397h400m0 33H200" stroke="#2E4F8F" stroke-width="7"/>
+ <path d="M210 365v94m120-94v94m120-94v94m120-94v94" stroke="#C9A227" stroke-width="8"/>
+ <path d="M210 465h22m98 0h22m98 0h22m98 0h22" stroke="#BFC5CC" stroke-width="14"/>
+</g>
+<g id="part-boundary">
+ <path d="M180 344H620" fill="none" stroke="#BFC5CC" stroke-width="3" stroke-dasharray="8 8"/>
+</g>
+</svg>

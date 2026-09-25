@@ -1,0 +1,165 @@
+{
+  "id": "tabernacle-menorah",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod", "Lev"],
+  "characters": ["Moisés", "Arão"],
+  "period": "Instruções para o santuário móvel no deserto",
+  "title": "Tabernáculo: Candelabro",
+  "subtitle": "Menorá de ouro batido; forma esquemática, sem escala dimensional",
+  "summary": "O candelabro descrito em Êxodo tem uma haste central, seis braços laterais e sete lâmpadas. Copos em forma de amêndoa, botões e flores compõem sua ornamentação; os apagadores e espevitadores também são mencionados. O texto não informa sua altura nem largura.",
+  "modernSummary": "Trata-se de uma peça do santuário portátil descrito nos textos, não de um objeto preservado com dimensões arqueológicas conhecidas.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["candelabro", "menorá", "lâmpadas", "ouro batido", "Lugar Santo"],
+  "section": "tabernacle",
+  "subsection": "Mobiliário do Lugar Santo",
+  "order": 9,
+  "era": "Êxodo e deserto",
+  "modernOverview": "A ficha representa a descrição textual do candelabro; não identifica um exemplar arqueológico nem estabelece sua escala física.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 25, "verseStart": 31, "verseEnd": 40, "label": "Exod 25:31–40"},
+    {"book": "Exod", "chapter": 37, "verseStart": 17, "verseEnd": 24, "label": "Exod 37:17–24"},
+    {"book": "Lev", "chapter": 24, "verseStart": 2, "verseEnd": 4, "label": "Lev 24:2–4"}
+  ],
+  "aliases": ["menorá", "candelabro de ouro", "candelabro de sete braços"],
+  "references": [
+    {"book": "Exod", "chapter": 25, "verseStart": 31, "verseEnd": 40, "label": "Exod 25:31–40"},
+    {"book": "Exod", "chapter": 37, "verseStart": 17, "verseEnd": 24, "label": "Exod 37:17–24"},
+    {"book": "Lev", "chapter": 24, "verseStart": 2, "verseEnd": 4, "label": "Lev 24:2–4"}
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Passagens bíblicas — texto ACF local e referências",
+      "url": "https://ebible.org/web/",
+      "license": "Paráfrases próprias; sem reprodução de trechos de tradução",
+      "note": "As referências foram conferidas no texto ACF presente em server/bible-data/exo.ts e server/bible-data/lev.ts; o desenho esquemático não atesta escala arqueológica."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "purpose": "Servia para manter a iluminação ritual no espaço interno do Tabernáculo; Levítico menciona o cuidado contínuo das lâmpadas e o azeite usado.",
+  "storySteps": [
+    {
+      "placeId": "central-shaft",
+      "title": "Haste central e seis braços",
+      "text": "A descrição distingue a haste principal de três braços que saem de cada lado, formando sete pontos de luz.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 31, "verseEnd": 37, "label": "Exod 25:31–37"}
+    },
+    {
+      "placeId": "almond-ornament",
+      "title": "Ornamentação vegetal",
+      "text": "Copos semelhantes a flores de amêndoa, botões e flores integram a peça; texto não fixa suas proporções.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 33, "verseEnd": 36, "label": "Exod 25:33–36"}
+    },
+    {
+      "placeId": "seven-lamps",
+      "title": "Sete lâmpadas",
+      "text": "As sete lâmpadas eram dispostas para iluminar à frente do candelabro, com rotina de manutenção descrita em Levítico.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 37, "verseEnd": 39, "label": "Exod 25:37–39"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Os seis braços laterais são descritos como três de cada lado da haste central.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 31, "verseEnd": 32, "label": "Exod 25:31–32"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "O texto repete o motivo de copos em forma de amêndoa, botões e flores ao detalhar braços e haste central.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 33, "verseEnd": 36, "label": "Exod 25:33–36"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Êxodo associa um talento de ouro puro ao candelabro e a seus utensílios; não informa altura nem largura.",
+      "reference": {"book": "Exod", "chapter": 37, "verseStart": 23, "verseEnd": 24, "label": "Exod 37:23–24"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Levítico descreve lâmpadas mantidas acesas e cuidadas diante do Senhor; o azeite é mencionado separadamente.",
+      "reference": {"book": "Lev", "chapter": 24, "verseStart": 2, "verseEnd": 4, "label": "Lev 24:2–4"},
+      "sourceIds": ["biblical"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "tabernacle-menorah.svg",
+    "dimensions": [
+      {"label": "Altura", "note": "medida não informada no texto; contorno tracejado e proporção ilustrativa, sem escala dimensional", "reference": {"book": "Exod", "chapter": 25, "verseStart": 31, "verseEnd": 40, "label": "Exod 25:31–40"}},
+      {"label": "Largura", "note": "medida não informada no texto; contorno tracejado e proporção ilustrativa, sem escala dimensional", "reference": {"book": "Exod", "chapter": 25, "verseStart": 31, "verseEnd": 40, "label": "Exod 25:31–40"}}
+    ],
+    "notes": [
+      "Desenho vetorial original em forma esquemática; a silhueta externa tracejada assinala proporção ilustrativa, não dimensão medida.",
+      "A haste central, os seis braços, sete lâmpadas e motivos vegetais são descritos no texto; altura e largura não são informadas.",
+      "O peso de um talento é associado ao candelabro e a todos os seus utensílios (Exod 37:23–24); a ficha não converte essa unidade de massa em comprimento."
+    ],
+    "relatedIds": ["tabernacle-overview", "tabernacle-showbread-table", "tabernacle-incense-altar"],
+    "views": [
+      {"label": "Frente", "svgFile": "tabernacle-menorah.svg"},
+      {"label": "Vista 3/4", "svgFile": "tabernacle-menorah-isometrica.svg"}
+    ],
+    "parts": [
+      {
+        "id": "base",
+        "name": "Base",
+        "description": "Pedestal descrito como parte da peça; o texto não fornece seu perfil, espessura nem dimensões.",
+        "material": "Ouro puro batido",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 31, "label": "Exod 25:31"}],
+        "highlight": {"x": 50, "y": 81, "width": 0, "height": 0}
+      },
+      {
+        "id": "central-shaft",
+        "name": "Haste central",
+        "description": "Haste central com ornamentação e sete lâmpadas na composição geral; desenhada sem escala porque suas dimensões não são fornecidas.",
+        "material": "Ouro puro batido",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 31, "verseEnd": 37, "label": "Exod 25:31–37"}],
+        "highlight": {"x": 50, "y": 52, "width": 0, "height": 0}
+      },
+      {
+        "id": "six-branches",
+        "name": "Seis braços",
+        "description": "Três braços saem de cada lado da haste central. O contorno externo pontilhado informa que a proporção geral é ilustrativa.",
+        "material": "Ouro puro batido",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 32, "verseEnd": 36, "label": "Exod 25:32–36"}],
+        "highlight": {"x": 50, "y": 47, "width": 0, "height": 0}
+      },
+      {
+        "id": "almond-ornament",
+        "name": "Copos, botões e flores",
+        "description": "Ornamentação botânica em forma de copos semelhantes a amêndoas, botões e flores descritos no texto.",
+        "material": "Ouro puro batido",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 33, "verseEnd": 36, "label": "Exod 25:33–36"}],
+        "highlight": {"x": 50, "y": 49, "width": 0, "height": 0}
+      },
+      {
+        "id": "seven-lamps",
+        "name": "Sete lâmpadas",
+        "description": "Sete recipientes de luz orientados para iluminar à frente; o desenho não define formato ou tamanho exato.",
+        "material": "Ouro puro",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 37, "verseEnd": 39, "label": "Exod 25:37–39"}],
+        "highlight": {"x": 50, "y": 39, "width": 0, "height": 0}
+      },
+      {
+        "id": "service-tools",
+        "name": "Utensílios de serviço",
+        "description": "Espevitadores e apagadores, também incluídos na descrição do conjunto.",
+        "material": "Ouro puro",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 38, "verseEnd": 39, "label": "Exod 25:38–39"}],
+        "highlight": {"x": 82, "y": 74, "width": 0, "height": 0}
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-02-20",
+    "status": "documented",
+    "verified": ["Exod 25:31–40", "Exod 37:17–24", "Lev 24:2–4; texto ACF local conferido"],
+    "uncertainties": [
+      "A altura, largura, espaçamento e perfil exatos não são informados; a composição gráfica é ilustrativa.",
+      "O texto atribui um talento ao candelabro e seus utensílios, sem fornecer massa individual das peças."
+    ],
+    "methodology": "Descrição e referências conferidas no texto ACF local do projeto. O SVG é uma representação didática vetorial, com contorno tracejado para proporção sem escala e sem alegação de reconstrução arqueológica."
+  }
+}

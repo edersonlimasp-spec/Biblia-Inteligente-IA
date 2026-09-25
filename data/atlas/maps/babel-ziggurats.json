@@ -1,0 +1,393 @@
+{
+  "id": "babel-ziggurats",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Gen"
+  ],
+  "characters": [
+    "Nimrode",
+    "Abraão"
+  ],
+  "period": "Narrativa primeva de Gênesis; sítios mesopotâmicos com histórias arqueológicas próprias",
+  "title": "Shinar, Babel e zigurates da Mesopotâmia",
+  "subtitle": "Contexto geográfico e cultural — nenhuma ruína é identificada como a Torre de Babel",
+  "summary": "Gênesis 11:2 localiza a narrativa da cidade e torre na terra de Shinar. O mapa aproxima esse quadro da Babilônia histórica, onde ficava o complexo de templos de Esagila e o zigurate Etemenanki, e inclui o zigurate escavado de Ur como contexto cultural distinto. A Bíblia não identifica Etemenanki nem o zigurate de Ur como a Torre de Babel; Shinar é representada sem pino de região e as cidades usam apenas pontos documentados, sem sugerir precisão de estruturas arqueológicas.",
+  "modernSummary": "O mapa abrange o sul da Mesopotâmia, no atual Iraque. Babilônia e Ur são localizações de cidades antigas; seus pinos não localizam com precisão edifícios individuais. Shinar permanece uma região ampla, sem coordenadas pontuais.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Shinar",
+    "Babel",
+    "Babilônia",
+    "Etemenanki",
+    "Ur",
+    "zigurate",
+    "Mesopotâmia"
+  ],
+  "section": "old-testament",
+  "subsection": "Origens e patriarcas",
+  "order": 21,
+  "era": "Narrativa primeva; sítios arqueológicos com cronologias próprias e variáveis",
+  "modernOverview": "Shinar é uma designação regional no relato de Gênesis 11:2, não um ponto urbano nem uma fronteira moderna. O ponto da chave OpenBible Babel é usado apenas para a cidade antiga da Babilônia, não para Etemenanki ou a torre narrada. Ur (Tell el-Muqayyar) é apresentada como contexto arqueológico independente; seu ponto identifica a referência geográfica da cidade, não a posição exata do zigurate. As identificações entre relato e sítios continuam debatidas. Datas de fases construtivas variam entre cronologias e publicações; este mapa não sincroniza sua construção com a narrativa bíblica.",
+  "keyReferences": [
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 10,
+      "label": "Gen 10:10"
+    },
+    {
+      "book": "Gen",
+      "chapter": 11,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "Gen 11:1–9"
+    },
+    {
+      "book": "Gen",
+      "chapter": 11,
+      "verseStart": 27,
+      "verseEnd": 32,
+      "label": "Gen 11:27–32"
+    },
+    {
+      "book": "Gen",
+      "chapter": 15,
+      "verseStart": 7,
+      "label": "Gen 15:7"
+    },
+    {
+      "book": "Dan",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Dan 1:1–2"
+    }
+  ],
+  "aliases": [
+    "Torre de Babel",
+    "Shinar",
+    "Babel",
+    "Babilônia",
+    "Etemenanki",
+    "Ur dos caldeus",
+    "zigurates mesopotâmicos"
+  ],
+  "references": [
+    {
+      "book": "Gen",
+      "chapter": 10,
+      "verseStart": 10,
+      "label": "Gen 10:10"
+    },
+    {
+      "book": "Gen",
+      "chapter": 11,
+      "verseStart": 1,
+      "verseEnd": 9,
+      "label": "Gen 11:1–9"
+    },
+    {
+      "book": "Gen",
+      "chapter": 11,
+      "verseStart": 27,
+      "verseEnd": 32,
+      "label": "Gen 11:27–32"
+    },
+    {
+      "book": "Gen",
+      "chapter": 15,
+      "verseStart": 7,
+      "label": "Gen 15:7"
+    },
+    {
+      "book": "Dan",
+      "chapter": 1,
+      "verseStart": 1,
+      "verseEnd": 2,
+      "label": "Dan 1:1–2"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Pinos são pares exatos retidos: Babel (32.53650368616845, 44.42088287373876), Ur (30.9620520474569, 46.10374195774169). Na ordem do mapa [longitude, latitude]. As entradas regionais marcadas > para Shinar foram rejeitadas como coordenadas pontuais."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "Gênesis 11:2 é referência contextual para Shinar e para a narrativa da torre; não nomeia Etemenanki nem o zigurate de Ur. Gen 11:9 relaciona Babel à narrativa, sem identificar qualquer ruína arqueológica."
+    },
+    {
+      "id": "herodotus",
+      "title": "Heródoto, Histórias 1.181–183 — descrição do recinto sagrado de Babilônia",
+      "url": "https://www.perseus.tufts.edu/hopper/text?doc=Hdt.+1.181&fromdoc=Perseus%3Atext%3A1999.01.0126",
+      "license": "Texto antigo em domínio público; tradução/perseus indicada na página",
+      "note": "Fonte antiga para a tradição sobre os templos e a torre em Babilônia. É evidência sobre Babilônia histórica, não prova de que Etemenanki seja a torre de Gênesis 11."
+    },
+    {
+      "id": "babylonian-topography",
+      "title": "Andrew R. George, Babylonian Topographical Texts (1992)",
+      "url": "https://books.google.com/books?q=Andrew+R.+George+Babylonian+Topographical+Texts",
+      "license": "Referência bibliográfica; publicação protegida, sem reprodução",
+      "note": "Estudo de fontes topográficas cuneiformes, incluindo o contexto de templos e Etemenanki em Babilônia. Identificação arqueológica e histórica independente da narrativa bíblica."
+    },
+    {
+      "id": "ur-excavations",
+      "title": "C. Leonard Woolley, Ur Excavations, Volume V: The Ziggurat and its Surroundings (1939)",
+      "url": "https://archive.org/search?query=title%3A%28Ur+Excavations%29+AND+creator%3A%28Woolley%29",
+      "license": "Publicação histórica; direitos conforme edição e repositório",
+      "note": "Relatório de escavação do zigurate e arredores de Ur. A referência a Gen 11:2 neste mapa é somente contextual; Gênesis não nomeia o zigurate de Ur."
+    },
+    {
+      "id": "editorial",
+      "title": "Camada editorial de contexto arqueológico",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Texto original; pontos geográficos OpenBible.info CC BY 4.0",
+      "note": "Os marcadores são cidades de referência documentadas, não coordenadas de edifícios. Não há área delimitando Shinar nem linha de fronteira histórica."
+    }
+  ],
+  "places": [
+    {
+      "id": "shinar",
+      "name": "Terra de Shinar",
+      "modernName": "Designação regional da baixa Mesopotâmia; extensão exata debatida",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Gênesis 11:2 situa os viajantes na terra de Shinar. A geocodificação OpenBible registra apenas um ponto envolvente com marca >, que não é coordenada pontual confiável e foi rejeitada. A região não recebe pino nem fronteira desenhada.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 11,
+          "verseStart": 2,
+          "label": "Gen 11:2"
+        },
+        {
+          "book": "Gen",
+          "chapter": 14,
+          "verseStart": 1,
+          "label": "Gen 14:1"
+        },
+        {
+          "book": "Dan",
+          "chapter": 1,
+          "verseStart": 2,
+          "label": "Dan 1:2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "babylon-etemenanki",
+      "name": "Babilônia e Etemenanki",
+      "modernName": "Ruínas da antiga Babilônia, perto de Hillah, Iraque; ponto da cidade, não do edifício",
+      "coordinates": [
+        44.42088287373876,
+        32.53650368616845
+      ],
+      "certainty": "probable",
+      "explanation": "O pino reproduz a chave OpenBible Babel para a cidade antiga, não a localização precisa do zigurate Etemenanki. Etemenanki pertence ao contexto histórico e arqueológico de Babilônia; não há identificação bíblica que o declare a Torre de Babel.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 11,
+          "verseStart": 2,
+          "verseEnd": 9,
+          "label": "Gen 11:2–9 (contexto narrativo; não identifica Etemenanki)"
+        },
+        {
+          "book": "Gen",
+          "chapter": 10,
+          "verseStart": 10,
+          "label": "Gen 10:10"
+        },
+        {
+          "book": "Dan",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 2,
+          "label": "Dan 1:1–2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical",
+        "herodotus",
+        "babylonian-topography"
+      ],
+      "centuries": [
+        "I milênio a.C.; fases e reconstruções do complexo variam conforme a fonte"
+      ],
+      "kingdoms": [
+        "Babilônia"
+      ]
+    },
+    {
+      "id": "ur-ziggurat",
+      "name": "Ur e seu zigurate",
+      "modernName": "Tell el-Muqayyar, sul do Iraque",
+      "coordinates": [
+        46.10374195774169,
+        30.9620520474569
+      ],
+      "certainty": "probable",
+      "explanation": "O ponto é a chave OpenBible Ur, que identifica a cidade associada à tradição de Ur dos caldeus; não é um levantamento do edifício. O zigurate de Ur é contexto arqueológico independente. Gênesis 11:2 é citado somente como contexto regional/narrativo e não menciona Ur nem seu zigurate.",
+      "references": [
+        {
+          "book": "Gen",
+          "chapter": 11,
+          "verseStart": 2,
+          "label": "Gen 11:2 (contexto regional apenas; não menciona Ur)"
+        },
+        {
+          "book": "Gen",
+          "chapter": 11,
+          "verseStart": 28,
+          "label": "Gen 11:28"
+        },
+        {
+          "book": "Gen",
+          "chapter": 15,
+          "verseStart": 7,
+          "label": "Gen 15:7"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical",
+        "ur-excavations"
+      ],
+      "centuries": [
+        "III milênio a.C.; datas absolutas da fase monumental variam entre cronologias"
+      ],
+      "kingdoms": [
+        "Ur III"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "shinar",
+      "title": "Shinar na narrativa",
+      "text": "Gênesis localiza o episódio da cidade e da torre na terra de Shinar. O nome é regional, não um sítio arqueológico nem um limite cartográfico preciso.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 11,
+        "verseStart": 1,
+        "verseEnd": 4,
+        "label": "Gen 11:1–4"
+      }
+    },
+    {
+      "placeId": "babylon-etemenanki",
+      "title": "Babilônia e Etemenanki",
+      "text": "Babilônia oferece contexto histórico para a arquitetura monumental mesopotâmica. Etemenanki é um zigurate de Babilônia, mas nem Gênesis nem a arqueologia aqui citada o identificam como a torre da narrativa.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 11,
+        "verseStart": 2,
+        "verseEnd": 9,
+        "label": "Gen 11:2–9 (somente contexto; não identifica Etemenanki)"
+      }
+    },
+    {
+      "placeId": "ur-ziggurat",
+      "title": "Ur: um paralelo arqueológico, não uma identificação",
+      "text": "O zigurate escavado de Ur ilustra a tradição mesopotâmica de templos em plataformas elevadas. É um sítio distinto e não é identificado como a Torre de Babel; a referência bíblica indicada serve somente como contexto.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 11,
+        "verseStart": 2,
+        "label": "Gen 11:2 (contexto regional apenas)"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Gênesis situa a narrativa na terra de Shinar, mas não oferece contorno regional nem coordenada; o ponto envolvente de uma gazetteer não deve ser lido como cidade.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 11,
+        "verseStart": 2,
+        "label": "Gen 11:2"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Heródoto descreve uma torre e um recinto sagrado em Babilônia. Seu testemunho antigo informa o contexto da cidade, mas não demonstra que Etemenanki seja a Torre de Babel.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 11,
+        "verseStart": 4,
+        "label": "Gen 11:4 (contexto comparativo; não identifica a torre histórica)"
+      },
+      "sourceIds": [
+        "herodotus",
+        "babylonian-topography",
+        "biblical"
+      ]
+    },
+    {
+      "text": "O zigurate de Ur foi documentado por escavações arqueológicas próprias. Gênesis 11:2 é usado aqui apenas como contexto mesopotâmico e não nomeia Ur ou seu zigurate.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 11,
+        "verseStart": 2,
+        "label": "Gen 11:2 (contexto apenas; Ur não é mencionada)"
+      },
+      "sourceIds": [
+        "ur-excavations",
+        "biblical"
+      ]
+    },
+    {
+      "text": "A tabela das nações associa Babel às cidades de Nimrode, e a narrativa da torre termina com a explicação literária do nome Babel; isso não identifica uma ruína específica.",
+      "reference": {
+        "book": "Gen",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Gen 10:10"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    43.8,
+    30.5,
+    46.6,
+    33
+  ],
+  "review": {
+    "date": "2025-03-08",
+    "status": "needs-specialist",
+    "verified": [
+      "Shinar é região sem pino: entrada OpenBible marcada > foi rejeitada.",
+      "Pino de Babilônia/Babel usa o par numérico exato da chave OpenBible Babel.",
+      "Pino de Ur usa o par numérico exato da chave OpenBible Ur.",
+      "Etemenanki e o zigurate de Ur são apresentados como contextos arqueológicos independentes, nunca como identificação certa da torre bíblica."
+    ],
+    "uncertainties": [
+      "A extensão de Shinar e sua correspondência com divisões geográficas modernas são aproximadas e debatidas.",
+      "Os pinos da cidade não identificam coordenadas exatas dos edifícios Etemenanki ou do zigurate de Ur.",
+      "Fases de reconstrução e cronologias de sítios mesopotâmicos variam; a narrativa bíblica não fornece uma data absoluta sincronizada com essas fases."
+    ],
+    "methodology": "Foram usados somente pares numéricos sem marcas de aproximação na evidência OpenBible retida. O ponto envolvente de Shinar foi excluído. As referências bíblicas para Ur e os zigurates são explicitamente contextuais quando o local não é nomeado pelo versículo. Fontes antigas e arqueológicas são citadas como evidência histórica independente, não como prova de identificação bíblica."
+  }
+}

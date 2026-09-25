@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Vista frontal esquemática do candelabro">
+  <defs>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#C9A227"/><stop offset=".5" stop-color="#C9A227"/><stop offset="1" stop-color="#A0673A"/></linearGradient>
+  </defs>
+  <rect width="800" height="520" fill="#17262a"/>
+  <path d="M185 442h430" stroke="#BFC5CC" stroke-opacity=".28" stroke-width="2"/>
+  <g id="part-menorah-outline" fill="none" stroke="#BFC5CC" stroke-opacity=".46" stroke-width="2" stroke-dasharray="8 8">
+    <rect x="274" y="58" width="252" height="384" rx="116"/>
+  </g>
+  <g id="part-base">
+    <path d="M400 410v17m-70 0h140l-12 14h-116z" fill="url(#gold)" stroke="#C9A227" stroke-width="2"/>
+  </g>
+  <g id="part-stem-and-arms" fill="none" stroke="url(#gold)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M400 410V137M392 360c-58 0-81-13-82-48-1-19 3-40-7-54-8-11-20-16-39-16M392 358c-40 0-54-10-55-35-1-17 3-34-5-49-6-10-18-16-34-17M392 356c-26-1-35-11-36-31-1-14 2-28-5-40-5-9-14-14-25-16M408 360c58 0 81-13 82-48 1-19-3-40 7-54 8-11 20-16 39-16M408 358c40 0 54-10 55-35 1-17-3-34 5-49 6-10 18-16 34-17M408 356c26-1 35-11 36-31 1-14-2-28 5-40 5-9 14-14 25-16"/>
+  </g>
+  <g id="part-floral-cups" fill="url(#gold)" stroke="#C9A227" stroke-width="1.5">
+    <g transform="translate(264 229)"><path d="M0-20q25 20 0 40-25-20 0-40z"/><circle cy="22" r="5"/><path d="M-9 27h18v7H-9z"/></g>
+    <g transform="translate(297 252)"><path d="M0-18q22 18 0 36-22-18 0-36z"/><circle cy="20" r="4.5"/><path d="M-8 25h16v6H-8z"/></g>
+    <g transform="translate(326 276)"><path d="M0-17q20 17 0 34-20-17 0-34z"/><circle cy="19" r="4"/><path d="M-7 24h14v6H-7z"/></g>
+    <g transform="translate(400 164)"><path d="M0-21q26 21 0 42-26-21 0-42z"/><circle cy="25" r="5"/><path d="M-9 30h18v7H-9z"/></g>
+    <g transform="translate(536 229)"><path d="M0-20q25 20 0 40-25-20 0-40z"/><circle cy="22" r="5"/><path d="M-9 27h18v7H-9z"/></g>
+    <g transform="translate(503 252)"><path d="M0-18q22 18 0 36-22-18 0-36z"/><circle cy="20" r="4.5"/><path d="M-8 25h16v6h-16z"/></g>
+    <g transform="translate(474 276)"><path d="M0-17q20 17 0 34-20-17 0-34z"/><circle cy="19" r="4"/><path d="M-7 24h14v6h-14z"/></g>
+  </g>
+  <g id="part-lamps" fill="#9E1B32" stroke="#C9A227" stroke-width="2">
+    <path d="M250 196h28l-3 14h-22z"/><path d="M283 219h28l-3 14h-22z"/><path d="M313 243h27l-3 14h-21z"/>
+    <path d="M386 119h28l-3 14h-22z"/><path d="M522 196h28l-3 14h-22z"/><path d="M489 219h28l-3 14h-22z"/><path d="M460 243h27l-3 14h-21z"/>
+  </g>
+  <g id="part-tools" fill="none" stroke="#BFC5CC" stroke-width="3">
+    <path d="M112 388l9-45 9 45m-16-18h14m24 18v-26q9-10 18 0v26m-20 0h22"/>
+    <path d="M630 388l9-45 9 45m-16-18h14m24 18v-26q9-10 18 0v26m-20 0h22"/>
+  </g>
+</svg>

@@ -3,8 +3,8 @@ import type { AtlasContextRequest } from "@shared/atlas";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiRequest, ApiError } from "@/lib/queryClient";
 
-export function AtlasAssistant({ context, onLogin, onSubscribe }: {
-  context: AtlasContextRequest; onLogin: () => void; onSubscribe: () => void;
+export function AtlasAssistant({ context, onLogin, onSubscribe, suggestions = [] }: {
+  context: AtlasContextRequest; onLogin: () => void; onSubscribe: () => void; suggestions?: string[];
 }) {
   const { user } = useAuth();
   const [question, setQuestion] = useState("");
@@ -45,6 +45,9 @@ export function AtlasAssistant({ context, onLogin, onSubscribe }: {
     <section className="atlas-assistant">
       <strong>Pergunte ao assistente sobre esta ficha</strong>
       <p>Peça contexto, compare hipóteses ou esclareça referências. O assistente responde em texto; não gera imagens.</p>
+      {suggestions.length > 0 && <div className="atlas-assistant-suggestions" aria-label="Perguntas sugeridas">
+        {suggestions.slice(0, 3).map(suggestion => <button type="button" key={suggestion} onClick={() => setQuestion(suggestion)}>{suggestion}</button>)}
+      </div>}
       <form onSubmit={ask}>
         <input value={question} onChange={event => setQuestion(event.target.value)} placeholder="Por que esta localização é debatida?" aria-label="Pergunta ao assistente" maxLength={4000} />
         <button className="atlas-button" disabled={asking || !question.trim()}>{asking ? "Consultando…" : "Perguntar"}</button>

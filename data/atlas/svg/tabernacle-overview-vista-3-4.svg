@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Vista tridimensional esquemática do pátio e da tenda">
+  <rect width="800" height="520" fill="#17262a"/>
+  <g id="part-courtyard">
+    <path d="M128 325 400 190 680 310 405 450z" fill="#17262a" stroke="#C9A227" stroke-width="6" stroke-dasharray="10 7"/>
+    <path d="M128 325 405 450 405 420 128 295zM400 190 680 310 680 280 400 160z" fill="#f4eee0" fill-opacity=".12" stroke="#BFC5CC" stroke-width="2"/>
+  </g>
+  <g id="part-gate">
+    <path d="M680 280v30M680 310 405 450v-30" fill="none" stroke="#BFC5CC" stroke-width="5"/>
+    <path d="M680 310 625 334" stroke="#2E4F8F" stroke-width="8"/>
+    <path d="M625 334 570 362" stroke="#9E1B32" stroke-width="8"/>
+    <path d="M570 362 515 390" stroke="#6B2D5C" stroke-width="8"/>
+  </g>
+  <g id="part-altar">
+    <path d="M585 334 615 320 644 334 615 350z" fill="#C9A227" stroke="#f4eee0" stroke-width="2"/>
+    <path d="M585 334v27l30 16v-27m29-16v27l-29 16" fill="#A0673A" stroke="#C9A227" stroke-width="3"/>
+  </g>
+  <g id="part-laver">
+    <ellipse cx="542" cy="357" rx="13" ry="7" fill="#BFC5CC" stroke="#A0673A" stroke-width="4"/>
+    <path d="M532 358q2 15 10 15 9-1 11-15" fill="#A0673A" stroke="#BFC5CC" stroke-width="2"/>
+  </g>
+  <g id="part-tent">
+    <path d="M312 250 420 200 530 250v130l-110 54-108-54z" fill="#8A6A43" fill-opacity=".45" stroke="#C9A227" stroke-width="4"/>
+    <path d="M420 200v252m-108-82 108 52 110-52m-110 52v122" fill="none" stroke="#C9A227" stroke-width="3"/>
+    <path d="M420 254v155" stroke="#6B2D5C" stroke-width="5" stroke-dasharray="7 5"/>
+  </g>
+  <g id="part-menorah">
+    <path d="M478 320v-25m0 17-12-12m12 12 12-12m-12-3-17-14m17 14 17-14" fill="none" stroke="#C9A227" stroke-width="4"/>
+    <circle cx="461" cy="280" r="4" fill="#C9A227"/><circle cx="495" cy="280" r="4" fill="#C9A227"/>
+    <circle cx="466" cy="300" r="4" fill="#C9A227"/><circle cx="490" cy="300" r="4" fill="#C9A227"/><circle cx="478" cy="295" r="4" fill="#C9A227"/>
+  </g>
+  <g id="part-table">
+    <path d="M448 278 484 261 507 273 471 292z" fill="#8A6A43" stroke="#C9A227" stroke-width="3"/>
+    <path d="M456 283v22m38-38v22" stroke="#C9A227" stroke-width="3"/>
+    <circle cx="467" cy="274" r="3" fill="#f4eee0"/><circle cx="477" cy="269" r="3" fill="#f4eee0"/><circle cx="487" cy="274" r="3" fill="#f4eee0"/>
+    <circle cx="472" cy="280" r="3" fill="#f4eee0"/><circle cx="482" cy="276" r="3" fill="#f4eee0"/><circle cx="492" cy="281" r="3" fill="#f4eee0"/>
+  </g>
+  <g id="part-incense">
+    <path d="M424 344 444 334 463 344 443 355z" fill="#C9A227"/>
+    <path d="M424 344v18l19 11v-18m20-11v18l-20 11" fill="#A0673A" stroke="#C9A227" stroke-width="2"/>
+  </g>
+  <g id="part-ark">
+    <path d="M337 384 365 371 393 384 365 398z" fill="#C9A227" stroke="#f4eee0" stroke-width="2"/>
+    <path d="M337 384v16l28 15v-17m28-14v16l-28 15" fill="#A0673A" stroke="#C9A227" stroke-width="2"/>
+    <path d="M342 381q9-13 23 0m0 0q14-13 24 0" fill="none" stroke="#C9A227" stroke-width="3"/>
+  </g>
+</svg>

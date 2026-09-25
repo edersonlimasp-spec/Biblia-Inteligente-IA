@@ -1,0 +1,1219 @@
+{
+  "id": "conquest-canaan",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Josh"
+  ],
+  "characters": [
+    "Josué"
+  ],
+  "period": "Narrativa de Josué 1–12; data e extensão histórica debatidas",
+  "title": "Conquista de Canaã",
+  "subtitle": "Js 1–12: campanhas central, sul e norte; escala e datas debatidas",
+  "summary": "Três camadas separam a sequência central (Sitim até os montes Ebal e Gerizim), a campanha do sul (Gibeão a Debir) e a do norte (Merom e Hazor). Siquém é mantida apenas como referência posterior de Josué 24. Cada linha é apenas conexão esquemática entre pontos citados, nunca caminho militar reconstruído. Ai e vários centros do sul têm identificação debatida; a data e a escala histórica da conquista também são discutidas.",
+  "modernSummary": "A região apresentada ocupa hoje Israel, a Cisjordânia e a margem oriental do Jordão, na Jordânia. Sítios antigos e cidades atuais não coincidem sempre.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Conquista de Canaã",
+    "Sitim",
+    "Ai",
+    "et-Tell",
+    "Jericó",
+    "Merom",
+    "Hazor",
+    "Gibeão",
+    "campanha central",
+    "campanha sul",
+    "campanha norte",
+    "Josh",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Conquista e juízes",
+  "order": 9,
+  "era": "Conquista e juízes",
+  "modernOverview": "Sitim é situada na atual Jordânia; Jericó, Betel, os montes de Ebal e Gerizim, Gibeão e Hebrom ficam na Cisjordânia. Azeca, Laquis e Hazor ficam no atual Israel. O ponto exato de travessia do Jordão, as águas de Merom e muitos sítios do sul permanecem discutidos. Os marcadores atuais orientam o leitor, sem fixar datas, fronteiras ou a escala histórica das campanhas.",
+  "keyReferences": [
+    {
+      "book": "Josh",
+      "chapter": 3,
+      "verseStart": 1,
+      "verseEnd": 17,
+      "label": "Josh 3:1–17"
+    },
+    {
+      "book": "Josh",
+      "chapter": 4,
+      "verseStart": 19,
+      "label": "Josh 4:19"
+    },
+    {
+      "book": "Josh",
+      "chapter": 6,
+      "verseStart": 1,
+      "label": "Josh 6:1"
+    },
+    {
+      "book": "Josh",
+      "chapter": 7,
+      "verseStart": 2,
+      "label": "Josh 7:2"
+    },
+    {
+      "book": "Josh",
+      "chapter": 8,
+      "verseStart": 30,
+      "verseEnd": 35,
+      "label": "Josh 8:30–35"
+    },
+    {
+      "book": "Josh",
+      "chapter": 10,
+      "verseStart": 6,
+      "verseEnd": 42,
+      "label": "Josh 10:6–42"
+    },
+    {
+      "book": "Josh",
+      "chapter": 11,
+      "verseStart": 5,
+      "verseEnd": 13,
+      "label": "Josh 11:5–13"
+    },
+    {
+      "book": "Josh",
+      "chapter": 12,
+      "verseStart": 16,
+      "label": "Josh 12:16"
+    }
+  ],
+  "aliases": [
+    "Conquista de Canaã",
+    "Sitim",
+    "Ai",
+    "et-Tell",
+    "Jericó",
+    "Merom",
+    "Hazor",
+    "Gibeão",
+    "campanha central",
+    "campanha sul",
+    "campanha norte",
+    "Travessia do Jordão",
+    "Gilgal",
+    "Ai — candidato et-Tell",
+    "Betel",
+    "Monte Ebal",
+    "Monte Gerizim",
+    "Siquém",
+    "Bete-Horom",
+    "Azeca",
+    "Maquedá",
+    "Libna",
+    "Laquis",
+    "Eglom",
+    "Hebrom",
+    "Debir",
+    "Águas de Merom"
+  ],
+  "references": [
+    {
+      "book": "Josh",
+      "chapter": 3,
+      "verseStart": 1,
+      "verseEnd": 17,
+      "label": "Josh 3:1–17"
+    },
+    {
+      "book": "Josh",
+      "chapter": 4,
+      "verseStart": 19,
+      "label": "Josh 4:19"
+    },
+    {
+      "book": "Josh",
+      "chapter": 6,
+      "verseStart": 1,
+      "label": "Josh 6:1"
+    },
+    {
+      "book": "Josh",
+      "chapter": 7,
+      "verseStart": 2,
+      "label": "Josh 7:2"
+    },
+    {
+      "book": "Josh",
+      "chapter": 8,
+      "verseStart": 30,
+      "verseEnd": 35,
+      "label": "Josh 8:30–35"
+    },
+    {
+      "book": "Josh",
+      "chapter": 10,
+      "verseStart": 6,
+      "verseEnd": 42,
+      "label": "Josh 10:6–42"
+    },
+    {
+      "book": "Josh",
+      "chapter": 11,
+      "verseStart": 5,
+      "verseEnd": 13,
+      "label": "Josh 11:5–13"
+    },
+    {
+      "book": "Josh",
+      "chapter": 12,
+      "verseStart": 16,
+      "label": "Josh 12:16"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Chave, coordenadas brutas e passagens preservadas em docs/atlas/evidence/openbible-merged.txt. Identificações debatidas não são confirmação arqueológica."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "A referência fundamenta a sequência textual, não demonstra a localização de um evento."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "As linhas unem somente pontos de fonte, não registram estradas nem distâncias percorridas. Não são fronteiras antigas."
+    }
+  ],
+  "places": [
+    {
+      "id": "shittim",
+      "name": "Sitim",
+      "modernName": "Vale do Jordão, atual Jordânia",
+      "coordinates": [
+        35.64156652792805,
+        31.85826217905818
+      ],
+      "certainty": "probable",
+      "explanation": "Local de partida da travessia; não fixa o vau do Jordão. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 3,
+          "verseStart": 1,
+          "label": "Josh 3:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "jordan-crossing",
+      "name": "Travessia do Jordão",
+      "modernName": "Rio Jordão; vau exato desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "O rio é identificável, mas o ponto de travessia descrito não foi estabelecido.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 3,
+          "verseStart": 14,
+          "label": "Josh 3:14"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "gilgal",
+      "name": "Gilgal",
+      "modernName": "Região de Jericó, Cisjordânia; identificação debatida",
+      "coordinates": [
+        35.51854651224448,
+        31.86378328132916
+      ],
+      "certainty": "debated",
+      "explanation": "O sítio do primeiro acampamento após o Jordão não é comprovado. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 4,
+          "verseStart": 19,
+          "label": "Josh 4:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "jericho",
+      "name": "Jericó",
+      "modernName": "Tell es-Sultan, Ariha/Jericó, Cisjordânia",
+      "coordinates": [
+        35.44386371224434,
+        31.87060143818292
+      ],
+      "certainty": "probable",
+      "explanation": "Tell es-Sultan é sítio antigo de Jericó; data e escala do episódio são debatidas. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 6,
+          "verseStart": 1,
+          "label": "Josh 6:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "Ai — candidato et-Tell",
+      "modernName": "Região de et-Tell, Cisjordânia; alternativas discutidas",
+      "coordinates": [
+        35.26122639380886,
+        31.91697811712517
+      ],
+      "certainty": "debated",
+      "explanation": "Identificação com et-Tell é debatida e há alternativas; o ponto não comprova a destruição descrita. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 7,
+          "verseStart": 2,
+          "label": "Josh 7:2"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "bethel",
+      "name": "Betel",
+      "modernName": "Área de Beitin, Cisjordânia",
+      "coordinates": [
+        35.22103274923676,
+        31.93053920580005
+      ],
+      "certainty": "probable",
+      "explanation": "Os habitantes de Betel são mencionados junto aos de Ai; não se afirma uma escala militar comprovada. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 8,
+          "verseStart": 17,
+          "label": "Josh 8:17"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "ebal",
+      "name": "Monte Ebal",
+      "modernName": "Monte Ebal, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.27304180036391,
+        32.23293813761263
+      ],
+      "certainty": "probable",
+      "explanation": "Elevação da cerimônia textual, sem localização de altar. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 8,
+          "verseStart": 30,
+          "label": "Josh 8:30"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "gerizim",
+      "name": "Monte Gerizim",
+      "modernName": "Monte Gerizim, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.27285228460234,
+        32.19956174365378
+      ],
+      "certainty": "probable",
+      "explanation": "Elevação citada com o Ebal. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 8,
+          "verseStart": 33,
+          "label": "Josh 8:33"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "shechem",
+      "name": "Siquém",
+      "modernName": "Tell Balata, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.2817986718367,
+        32.21369123124062
+      ],
+      "certainty": "probable",
+      "explanation": "Referência regional para os montes Ebal e Gerizim. Siquém é nomeada na reunião posterior de Josué 24, não em Josué 8:33. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 24,
+          "verseStart": 1,
+          "label": "Josh 24:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "gibeon",
+      "name": "Gibeão",
+      "modernName": "Al-Jib, Cisjordânia",
+      "coordinates": [
+        35.18491237777512,
+        31.84684772753698
+      ],
+      "certainty": "probable",
+      "explanation": "Localidade da aliança e da campanha meridional. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 6,
+          "label": "Josh 10:6"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "beth-horon",
+      "name": "Bete-Horom",
+      "modernName": "Passagem de Bete-Horom, Cisjordânia",
+      "coordinates": [
+        35.12356744466153,
+        31.87892595986906
+      ],
+      "certainty": "probable",
+      "explanation": "A fonte aponta Bete-Horom inferior; o texto descreve a descida, não um ponto único. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 10,
+          "label": "Josh 10:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "azekah",
+      "name": "Azeca",
+      "modernName": "Tel Azekah, Israel",
+      "coordinates": [
+        34.93618589974822,
+        31.70063856043753
+      ],
+      "certainty": "probable",
+      "explanation": "Extensão da perseguição descrita no texto. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 11,
+          "label": "Josh 10:11"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "makkedah",
+      "name": "Maquedá",
+      "modernName": "Sefelá, Israel; sítio exato debatido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Há candidatos para Maquedá; o ponto do OpenBible não basta para fixar a caverna ou cidade.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 16,
+          "label": "Josh 10:16"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "libnah",
+      "name": "Libna",
+      "modernName": "Sefelá, Israel; sítio exato desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A linha Libnah 1 usa o ponto de Laquis com til (~); rejeitada para não marcar Libna como Laquis.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 29,
+          "label": "Josh 10:29"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "lachish",
+      "name": "Laquis",
+      "modernName": "Tel Lachish, Israel",
+      "coordinates": [
+        34.8467256730566,
+        31.56485056116292
+      ],
+      "certainty": "probable",
+      "explanation": "Sítio de Laquis; não estabelece a cronologia da campanha. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 31,
+          "label": "Josh 10:31"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "eglon",
+      "name": "Eglom",
+      "modernName": "Sefelá, Israel; identificação debatida",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A geocodificação de Eglom é candidato não corroborado aqui.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 34,
+          "label": "Josh 10:34"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "hebron",
+      "name": "Hebrom",
+      "modernName": "Al-Khalil/Hebrom, Cisjordânia",
+      "coordinates": [
+        35.09409986578734,
+        31.53577362133176
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade do relato meridional, sem confirmar o ano da campanha. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 36,
+          "label": "Josh 10:36"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    },
+    {
+      "id": "debir",
+      "name": "Debir",
+      "modernName": "Sul do Levante; identificação debatida",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "O geocódigo Debir 1 é candidato disputado; não se usa como local confirmado.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 10,
+          "verseStart": 38,
+          "label": "Josh 10:38"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "merom",
+      "name": "Águas de Merom",
+      "modernName": "Norte de Israel; localização das águas debatida",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "A linha Merom oferece ponto candidato, mas o corpo de água da batalha não tem identificação conclusiva.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 11,
+          "verseStart": 5,
+          "label": "Josh 11:5"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "hazor",
+      "name": "Hazor",
+      "modernName": "Tel Hazor, Israel",
+      "coordinates": [
+        35.56804856758258,
+        33.01718199667929
+      ],
+      "certainty": "probable",
+      "explanation": "Cidade bem identificada; atribuir uma camada arqueológica específica a Josué 11 requer pesquisa. Ponto da fonte, não posição exata do episódio.",
+      "references": [
+        {
+          "book": "Josh",
+          "chapter": 11,
+          "verseStart": 10,
+          "label": "Josh 11:10"
+        }
+      ],
+      "sourceIds": [
+        "openbible"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "central",
+      "label": "Campanha central — trechos com ponto documentado",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.64156652792805,
+          31.85826217905818
+        ],
+        [
+          35.51854651224448,
+          31.86378328132916
+        ],
+        [
+          35.44386371224434,
+          31.87060143818292
+        ],
+        [
+          35.26122639380886,
+          31.91697811712517
+        ],
+        [
+          35.22103274923676,
+          31.93053920580005
+        ],
+        [
+          35.27304180036391,
+          32.23293813761263
+        ],
+        [
+          35.27285228460234,
+          32.19956174365378
+        ]
+      ],
+      "explanation": "ESQUEMÁTICA; NÃO É ESTRADA OU PERCURSO COMPROVADO. O vau do Jordão não é desenhado; Betel é citada com Ai em Josué 8:17 e Siquém fica fora desta campanha.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "south",
+      "label": "Campanha sul — trecho inicial",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.18491237777512,
+          31.84684772753698
+        ],
+        [
+          35.12356744466153,
+          31.87892595986906
+        ],
+        [
+          34.93618589974822,
+          31.70063856043753
+        ]
+      ],
+      "explanation": "ESQUEMÁTICA; NÃO É ESTRADA OU PERCURSO COMPROVADO. Maquedá e Libna não recebem linha por não terem sítio aceito aqui.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "north",
+      "label": "Campanha norte — Hazor (Merom sem pino)",
+      "kind": "point",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.56804856758258,
+          33.01718199667929
+        ]
+      ],
+      "explanation": "Marcador editorial de campanha, não área de ocupação ou fronteira. A batalha junto às águas de Merom não é colocada no mapa.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    }
+  ],
+  "narrative": [
+    {
+      "placeId": "shittim",
+      "explanation": "Local de partida da travessia; não fixa o vau do Jordão. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 3,
+        "verseStart": 1,
+        "label": "Josh 3:1"
+      },
+      "group": "Campanha central"
+    },
+    {
+      "placeId": "jordan-crossing",
+      "explanation": "O rio é identificável, mas o ponto de travessia descrito não foi estabelecido.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 3,
+        "verseStart": 14,
+        "label": "Josh 3:14"
+      },
+      "group": "Campanha central"
+    },
+    {
+      "placeId": "gilgal",
+      "explanation": "O sítio do primeiro acampamento após o Jordão não é comprovado. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 4,
+        "verseStart": 19,
+        "label": "Josh 4:19"
+      },
+      "group": "Campanha central"
+    },
+    {
+      "placeId": "jericho",
+      "explanation": "Tell es-Sultan é sítio antigo de Jericó; data e escala do episódio são debatidas. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 6,
+        "verseStart": 1,
+        "label": "Josh 6:1"
+      },
+      "group": "Campanha central"
+    },
+    {
+      "placeId": "ai",
+      "explanation": "Identificação com et-Tell é debatida e há alternativas; o ponto não comprova a destruição descrita. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 7,
+        "verseStart": 2,
+        "label": "Josh 7:2"
+      },
+      "group": "Campanha central"
+    },
+    {
+      "placeId": "bethel",
+      "explanation": "Os habitantes de Betel são mencionados junto aos de Ai; não se afirma uma escala militar comprovada. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 8,
+        "verseStart": 17,
+        "label": "Josh 8:17"
+      },
+      "group": "Campanha central"
+    },
+    {
+      "placeId": "ebal",
+      "explanation": "Elevação da cerimônia textual, sem localização de altar. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 8,
+        "verseStart": 30,
+        "label": "Josh 8:30"
+      },
+      "group": "Campanha central"
+    },
+    {
+      "placeId": "gerizim",
+      "explanation": "Elevação citada com o Ebal. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 8,
+        "verseStart": 33,
+        "label": "Josh 8:33"
+      },
+      "group": "Campanha central"
+    },
+    {
+      "placeId": "gibeon",
+      "explanation": "Localidade da aliança e da campanha meridional. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 6,
+        "label": "Josh 10:6"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "beth-horon",
+      "explanation": "A fonte aponta Bete-Horom inferior; o texto descreve a descida, não um ponto único. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Josh 10:10"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "azekah",
+      "explanation": "Extensão da perseguição descrita no texto. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 11,
+        "label": "Josh 10:11"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "makkedah",
+      "explanation": "Há candidatos para Maquedá; o ponto do OpenBible não basta para fixar a caverna ou cidade.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 16,
+        "label": "Josh 10:16"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "libnah",
+      "explanation": "A linha Libnah 1 usa o ponto de Laquis com til (~); rejeitada para não marcar Libna como Laquis.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 29,
+        "label": "Josh 10:29"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "lachish",
+      "explanation": "Sítio de Laquis; não estabelece a cronologia da campanha. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 31,
+        "label": "Josh 10:31"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "eglon",
+      "explanation": "A geocodificação de Eglom é candidato não corroborado aqui.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 34,
+        "label": "Josh 10:34"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "hebron",
+      "explanation": "Cidade do relato meridional, sem confirmar o ano da campanha. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 36,
+        "label": "Josh 10:36"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "debir",
+      "explanation": "O geocódigo Debir 1 é candidato disputado; não se usa como local confirmado.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 38,
+        "label": "Josh 10:38"
+      },
+      "group": "Campanha sul"
+    },
+    {
+      "placeId": "merom",
+      "explanation": "A linha Merom oferece ponto candidato, mas o corpo de água da batalha não tem identificação conclusiva.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 11,
+        "verseStart": 5,
+        "label": "Josh 11:5"
+      },
+      "group": "Campanha norte"
+    },
+    {
+      "placeId": "hazor",
+      "explanation": "Cidade bem identificada; atribuir uma camada arqueológica específica a Josué 11 requer pesquisa. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 11,
+        "verseStart": 10,
+        "label": "Josh 11:10"
+      },
+      "group": "Campanha norte"
+    },
+    {
+      "placeId": "shechem",
+      "explanation": "Siquém é registrada aqui como referência contextual posterior, na assembleia de Josué 24; não integra a campanha de Josué 1–12.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 24,
+        "verseStart": 1,
+        "label": "Josh 24:1"
+      },
+      "group": "Contexto posterior"
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "shittim",
+      "title": "Sitim",
+      "text": "Local de partida da travessia; não fixa o vau do Jordão. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 3,
+        "verseStart": 1,
+        "label": "Josh 3:1"
+      }
+    },
+    {
+      "placeId": "jordan-crossing",
+      "title": "Travessia do Jordão",
+      "text": "O rio é identificável, mas o ponto de travessia descrito não foi estabelecido.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 3,
+        "verseStart": 14,
+        "label": "Josh 3:14"
+      }
+    },
+    {
+      "placeId": "gilgal",
+      "title": "Gilgal",
+      "text": "O sítio do primeiro acampamento após o Jordão não é comprovado. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 4,
+        "verseStart": 19,
+        "label": "Josh 4:19"
+      }
+    },
+    {
+      "placeId": "jericho",
+      "title": "Jericó",
+      "text": "Tell es-Sultan é sítio antigo de Jericó; data e escala do episódio são debatidas. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 6,
+        "verseStart": 1,
+        "label": "Josh 6:1"
+      }
+    },
+    {
+      "placeId": "ai",
+      "title": "Ai",
+      "text": "Identificação com et-Tell é debatida e há alternativas; o ponto não comprova a destruição descrita. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 7,
+        "verseStart": 2,
+        "label": "Josh 7:2"
+      }
+    },
+    {
+      "placeId": "bethel",
+      "title": "Betel",
+      "text": "Os habitantes de Betel são mencionados junto aos de Ai; não se afirma uma escala militar comprovada. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 8,
+        "verseStart": 17,
+        "label": "Josh 8:17"
+      }
+    },
+    {
+      "placeId": "ebal",
+      "title": "Monte Ebal",
+      "text": "Elevação da cerimônia textual, sem localização de altar. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 8,
+        "verseStart": 30,
+        "label": "Josh 8:30"
+      }
+    },
+    {
+      "placeId": "gerizim",
+      "title": "Monte Gerizim",
+      "text": "Elevação citada com o Ebal. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 8,
+        "verseStart": 33,
+        "label": "Josh 8:33"
+      }
+    },
+    {
+      "placeId": "gibeon",
+      "title": "Gibeão",
+      "text": "Localidade da aliança e da campanha meridional. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 6,
+        "label": "Josh 10:6"
+      }
+    },
+    {
+      "placeId": "beth-horon",
+      "title": "Bete-Horom",
+      "text": "A fonte aponta Bete-Horom inferior; o texto descreve a descida, não um ponto único. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 10,
+        "label": "Josh 10:10"
+      }
+    },
+    {
+      "placeId": "azekah",
+      "title": "Azeca",
+      "text": "Extensão da perseguição descrita no texto. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 11,
+        "label": "Josh 10:11"
+      }
+    },
+    {
+      "placeId": "makkedah",
+      "title": "Maquedá",
+      "text": "Há candidatos para Maquedá; o ponto do OpenBible não basta para fixar a caverna ou cidade.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 16,
+        "label": "Josh 10:16"
+      }
+    },
+    {
+      "placeId": "libnah",
+      "title": "Libna",
+      "text": "A linha Libnah 1 usa o ponto de Laquis com til (~); rejeitada para não marcar Libna como Laquis.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 29,
+        "label": "Josh 10:29"
+      }
+    },
+    {
+      "placeId": "lachish",
+      "title": "Laquis",
+      "text": "Sítio de Laquis; não estabelece a cronologia da campanha. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 31,
+        "label": "Josh 10:31"
+      }
+    },
+    {
+      "placeId": "eglon",
+      "title": "Eglom",
+      "text": "A geocodificação de Eglom é candidato não corroborado aqui.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 34,
+        "label": "Josh 10:34"
+      }
+    },
+    {
+      "placeId": "hebron",
+      "title": "Hebrom",
+      "text": "Cidade do relato meridional, sem confirmar o ano da campanha. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 36,
+        "label": "Josh 10:36"
+      }
+    },
+    {
+      "placeId": "debir",
+      "title": "Debir",
+      "text": "O geocódigo Debir 1 é candidato disputado; não se usa como local confirmado.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 38,
+        "label": "Josh 10:38"
+      }
+    },
+    {
+      "placeId": "merom",
+      "title": "Águas de Merom",
+      "text": "A linha Merom oferece ponto candidato, mas o corpo de água da batalha não tem identificação conclusiva.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 11,
+        "verseStart": 5,
+        "label": "Josh 11:5"
+      }
+    },
+    {
+      "placeId": "hazor",
+      "title": "Hazor",
+      "text": "Cidade bem identificada; atribuir uma camada arqueológica específica a Josué 11 requer pesquisa. Ponto da fonte, não posição exata do episódio.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 11,
+        "verseStart": 10,
+        "label": "Josh 11:10"
+      }
+    },
+    {
+      "placeId": "shechem",
+      "title": "Siquém",
+      "text": "Siquém é registrada aqui como referência contextual posterior, na assembleia de Josué 24; não integra a campanha de Josué 1–12.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 24,
+        "verseStart": 1,
+        "label": "Josh 24:1"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Após a travessia, Gilgal é descrita como o primeiro acampamento em Canaã.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 4,
+        "verseStart": 19,
+        "label": "Josh 4:19"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "A campanha do sul inclui a descida de Bete-Horom e a perseguição até Azeca.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 10,
+        "verseStart": 10,
+        "verseEnd": 11,
+        "label": "Josh 10:10–11"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Josué 24 reúne o povo em Siquém depois das campanhas; por isso Siquém não é desenhada como etapa de Josué 1–12.",
+      "reference": {
+        "book": "Josh",
+        "chapter": 24,
+        "verseStart": 1,
+        "label": "Josh 24:1"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    34.8467256730566,
+    31.53577362133176,
+    35.64156652792805,
+    33.01718199667929
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Coordenadas não nulas transcritas de chaves exatas do OpenBible retido; localizações incertas não recebem pino.",
+      "Referências, sequência narrativa e limites compilados editorialmente; nenhuma revisão especializada afirmada."
+    ],
+    "uncertainties": [
+      "Js 1–12: campanhas central, sul e norte; escala e datas debatidas",
+      "Pontuação do geocodificador não comprova o episódio, o trajeto ou a época; as alternativas estão anotadas em cada local e na revisão."
+    ],
+    "methodology": "Compilação editorial reprodutível a partir do OpenBible legado preservado. Linhas unicamente entre pontos documentados, sempre esquemáticas; não representam caminhos reais. Locais sem identificação confiável permanecem sem coordenada."
+  }
+}

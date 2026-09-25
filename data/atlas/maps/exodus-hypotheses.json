@@ -321,6 +321,83 @@
     37,
     32.8
   ],
+  "storySteps": [
+    {
+      "placeId": "rameses",
+      "title": "Ramessés",
+      "text": "Israel parte de Ramessés no início da saída do Egito; a estação seguinte é Sucote.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 12,
+        "verseStart": 37,
+        "label": "Exod 12:37"
+      }
+    },
+    {
+      "placeId": "succoth",
+      "title": "Sucote",
+      "text": "O povo parte de Sucote e acampa em Etã, antes da travessia cuja localização não é resolvida neste mapa.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 13,
+        "verseStart": 20,
+        "label": "Exod 13:20"
+      }
+    },
+    {
+      "placeId": "sinai",
+      "title": "Sinai",
+      "text": "Israel chega ao deserto do Sinai no terceiro mês; o candidato moderno exibido não é uma identificação demonstrada.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 19,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Exod 19:1–2"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Ramessés e Sucote aparecem como os primeiros acampamentos da lista de saída.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 12,
+        "verseStart": 37,
+        "label": "Exod 12:37"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "O texto diz que Israel chegou ao Sinai no terceiro mês, sem indicar qual monte moderno corresponde ao nome.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 19,
+        "verseStart": 1,
+        "label": "Exod 19:1"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Cades-Barneia funciona como ponto de envio dos espias na narrativa, não apenas como parada geográfica.",
+      "reference": {
+        "book": "Num",
+        "chapter": 13,
+        "verseStart": 26,
+        "label": "Num 13:26"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
   "review": {
     "date": "2026-09-24",
     "status": "needs-specialist",

@@ -1,0 +1,211 @@
+{
+  "id": "high-priest-garments",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod", "Lev"],
+  "characters": ["Arão", "Moisés"],
+  "period": "Tabernáculo do deserto, conforme Êxodo e Levítico",
+  "title": "Vestes do sumo sacerdote",
+  "subtitle": "Conjunto esquemático em vista frontal e 3/4; ordem da investidura narrada em Levítico 8",
+  "summary": "Êxodo descreve vestes sagradas para Arão, incluindo túnica, manto, éfode, cinto, peitoral e cobertura da cabeça. Em Levítico 8:7–9, Moisés veste Arão na ordem narrada e põe Urim e Tumim no peitoral. A figura é esquemática e não pretende reconstituir um molde histórico.",
+  "modernSummary": "Reconstrução gráfica didática baseada nas descrições textuais; não é retrato arqueológico nem representa uma peça preservada.",
+  "purpose": "Mostrar a sequência de vestir Arão registrada em Levítico 8:7–9 e identificar as peças nomeadas nessa passagem sem inferir medidas ou moldes não descritos.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["sumo sacerdote", "Arão", "vestes sacerdotais", "éfode", "peitoral", "Dia da Expiação"],
+  "section": "tabernacle",
+  "subsection": "Vestuário sacerdotal",
+  "order": 13,
+  "era": "Êxodo e deserto",
+  "modernOverview": "Ilustração vetorial esquemática das vestes descritas em Êxodo; cores, proporções e detalhes não especificados são escolhas de visualização, não evidência arqueológica.",
+  "keyReferences": [
+    {"book": "Lev", "chapter": 8, "verseStart": 7, "verseEnd": 9, "label": "Lev 8:7–9"},
+    {"book": "Exod", "chapter": 28, "verseStart": 2, "verseEnd": 5, "label": "Exod 28:2–5"},
+    {"book": "Exod", "chapter": 28, "verseStart": 6, "verseEnd": 14, "label": "Exod 28:6–14"},
+    {"book": "Lev", "chapter": 16, "verseStart": 4, "label": "Lev 16:4"},
+    {"book": "Lev", "chapter": 16, "verseStart": 23, "verseEnd": 24, "label": "Lev 16:23–24"}
+  ],
+  "aliases": ["vestes de Arão", "vestes sacerdotais"],
+  "references": [
+    {"book": "Exod", "chapter": 28, "verseStart": 1, "verseEnd": 5, "label": "Exod 28:1–5"},
+    {"book": "Exod", "chapter": 28, "verseStart": 6, "verseEnd": 43, "label": "Exod 28:6–43"},
+    {"book": "Lev", "chapter": 8, "verseStart": 7, "verseEnd": 9, "label": "Lev 8:7–9"},
+    {"book": "Lev", "chapter": 16, "verseStart": 4, "verseEnd": 4, "label": "Lev 16:4"},
+    {"book": "Lev", "chapter": 16, "verseStart": 23, "verseEnd": 24, "label": "Lev 16:23–24"}
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Êxodo e Levítico — texto bíblico ACF local consultado",
+      "url": "https://www.bible.com/pt/bible/212/EXO.28.ACF",
+      "license": "Referências e paráfrases próprias; não reproduz texto protegido",
+      "note": "Conferidos os trechos locais ACF em Êxodo 28:1–43, Levítico 8:7–9 e 16:4, 23–24; composição vetorial original e esquemática."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "linen-tunic",
+      "title": "Túnica",
+      "text": "Moisés veste Arão com a túnica como primeiro passo da sequência descrita para a investidura.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 7, "label": "Lev 8:7"}
+    },
+    {
+      "placeId": "belt",
+      "title": "Cinto",
+      "text": "Depois da túnica, Moisés cinge Arão com o cinto mencionado na sequência.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 7, "label": "Lev 8:7"}
+    },
+    {
+      "placeId": "robe",
+      "title": "Manto",
+      "text": "O manto é posto sobre Arão após o cinto; Levítico 8:7 não especifica sua cor ou material.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 7, "label": "Lev 8:7"}
+    },
+    {
+      "placeId": "ephod",
+      "title": "Éfode",
+      "text": "Depois do manto, Moisés põe o éfode sobre Arão.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 7, "label": "Lev 8:7"}
+    },
+    {
+      "placeId": "sash",
+      "title": "Cinto de obra esmerada do éfode",
+      "text": "Moisés cinge o éfode com seu cinto de obra esmerada e o aperta, conforme a ordem narrada.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 7, "label": "Lev 8:7"}
+    },
+    {
+      "placeId": "breastpiece",
+      "title": "Peitoral com Urim e Tumim",
+      "text": "Em seguida, Moisés põe o peitoral e coloca nele Urim e Tumim.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 8, "label": "Lev 8:8"}
+    },
+    {
+      "placeId": "mitre",
+      "title": "Mitra",
+      "text": "Moisés põe a mitra sobre a cabeça de Arão após o peitoral.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"}
+    },
+    {
+      "placeId": "forehead-plate",
+      "title": "Lâmina de ouro",
+      "text": "Por último na sequência, Moisés coloca na parte dianteira da mitra a lâmina de ouro, a coroa da santidade.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Na investidura narrada, Moisés põe primeiro a túnica, cinto e manto; depois o éfode, seu cinto, o peitoral com Urim e Tumim e, por fim, a mitra e a lâmina.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 7, "verseEnd": 9, "label": "Lev 8:7–9"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "O traje ornamentado de Êxodo 28 e a roupa de linho prescrita para a entrada ritual em Levítico 16 são descrições de contextos diferentes.",
+      "reference": {"book": "Lev", "chapter": 16, "verseStart": 4, "verseEnd": 4, "label": "Lev 16:4"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "Êxodo lista ouro, azul, púrpura, carmesim e linho fino entre os materiais das vestes; a imagem usa essas cores como convenção visual, não como prova de tonalidades históricas exatas.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 5, "verseEnd": 6, "label": "Exod 28:5–6"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "A descrição textual não fixa corte, proporções corporais nem a aparência facial; o desenho neutro evita atribuir identidade visual específica a Arão.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 2, "verseEnd": 4, "label": "Exod 28:2–4"},
+      "sourceIds": ["bible"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "high-priest-garments.svg",
+    "dimensions": [],
+    "notes": [
+      "Sem cotas corporais ou medidas das peças do vestuário: contornos, escala e caimento são esquemáticos.",
+      "A figura combina peças descritas em Êxodo 28 e a ordem de Levítico 8:7–9 para tornar o conjunto legível; não é reconstrução arqueológica.",
+      "Cores, textura, posição das peças e aparência sem detalhes faciais são escolhas de ilustração; não constituem reconstrução arqueológica."
+    ],
+    "relatedIds": ["high-priest-ephod-sash", "high-priest-breastpiece"],
+    "parts": [
+      {
+        "id": "linen-tunic",
+        "name": "Túnica de linho",
+        "description": "Camada interna de linho; o texto não fornece medidas nem um molde.",
+        "material": "Linho fino",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 39, "verseEnd": 42, "label": "Exod 28:39–42"}],
+        "highlight": {"x": 50, "y": 77, "width": 21, "height": 23}
+      },
+      {
+        "id": "belt",
+        "name": "Cinto",
+        "description": "Cinto com que Moisés cinge Arão antes de pôr o manto; Levítico 8:7 não especifica seu material ou medida.",
+        "references": [{"book": "Lev", "chapter": 8, "verseStart": 7, "label": "Lev 8:7"}],
+        "highlight": {"x": 50, "y": 58, "width": 34, "height": 6}
+      },
+      {
+        "id": "robe",
+        "name": "Manto azul",
+        "description": "Manto descrito como inteiramente azul; seu comprimento e corte não são cotados.",
+        "material": "Tecido azul",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 31, "verseEnd": 35, "label": "Exod 28:31–35"}],
+        "highlight": {"x": 50, "y": 61, "width": 41, "height": 39}
+      },
+      {
+        "id": "ephod",
+        "name": "Éfode e ombreiras",
+        "description": "Peça tecida com ombreiras unidas e pedras de ônix gravadas; o desenho de corte é esquemático.",
+        "material": "Ouro, azul, púrpura, carmesim e linho fino torcido",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 6, "verseEnd": 14, "label": "Exod 28:6–14"}],
+        "highlight": {"x": 50, "y": 40, "width": 39, "height": 44}
+      },
+      {
+        "id": "sash",
+        "name": "Cinto de obra esmerada",
+        "description": "Cinto do éfode tecido com os mesmos materiais e obra; sem dimensões textuais.",
+        "material": "Ouro, azul, púrpura, carmesim e linho fino torcido",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 8, "label": "Exod 28:8"}],
+        "highlight": {"x": 50, "y": 59, "width": 29, "height": 9}
+      },
+      {
+        "id": "breastpiece",
+        "name": "Peitoral do juízo",
+        "description": "Peça quadrada e dupla com doze pedras e Urim e Tumim; dimensões aproximadas em palmos descritas em sua ficha própria.",
+        "material": "Ouro, azul, púrpura, carmesim, linho fino torcido e engastes de ouro",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 15, "verseEnd": 30, "label": "Exod 28:15–30"}],
+        "highlight": {"x": 50, "y": 43, "width": 23, "height": 22}
+      },
+      {
+        "id": "mitre",
+        "name": "Mitra",
+        "description": "Cobertura da cabeça de Arão; Levítico 8:9 não descreve sua forma ou material.",
+        "references": [{"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"}],
+        "highlight": {"x": 50, "y": 13, "width": 25, "height": 16}
+      },
+      {
+        "id": "forehead-plate",
+        "name": "Lâmina de ouro, coroa da santidade",
+        "description": "Peça de ouro posta na parte dianteira da mitra na sequência da investidura.",
+        "material": "Ouro",
+        "references": [{"book": "Lev", "chapter": 8, "verseStart": 9, "label": "Lev 8:9"}],
+        "highlight": {"x": 50, "y": 13, "width": 25, "height": 16}
+      }
+    ],
+    "views": [
+      {"label": "Frente", "svgFile": "high-priest-garments.svg"},
+      {"label": "Vista 3/4", "svgFile": "high-priest-garments-vista-3-4.svg"}
+    ]
+  },
+  "review": {
+    "date": "2026-09-24",
+    "status": "documented",
+    "verified": ["Êxodo 28:1–43", "Levítico 8:7–9", "Levítico 16:4", "Levítico 16:23–24"],
+    "uncertainties": [
+      "A passagem não determina corte, proporções e caimento das peças; esses aspectos são esquemáticos.",
+      "O traje ornamentado de Êxodo 28 não deve ser confundido com as vestes de linho de Levítico 16:4.",
+      "A aparência facial e a identidade visual de Arão não são especificadas."
+    ],
+    "methodology": "Conferência direta do texto ACF local em Êxodo 28 e Levítico 8 e 16; ilustração original, sem alegar reconstrução arqueológica."
+  }
+}

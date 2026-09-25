@@ -1,0 +1,88 @@
+{
+  "id": "solomon-temple-overview",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Templo de Salomão",
+  "testament": "AT",
+  "books": ["1Kgs", "2Chr"],
+  "characters": ["Salomão", "Ornã"],
+  "period": "Reinado de Salomão",
+  "title": "Templo de Salomão: visão geral",
+  "subtitle": "Síntese dimensional textual; volume e acabamentos diagramáticos",
+  "summary": "1 Reis descreve a casa com 60 côvados de comprimento, 20 de largura e 30 de altura. Crônicas situa a construção em Jerusalém, no monte Moriá, na eira de Ornã. A vista 3/4 distingue o corpo principal do pórtico e marca os volumes sem proporção conhecida como esquemáticos.",
+  "purpose": "A casa centralizava o culto público ligado à monarquia e aos sacerdotes no reino de Judá. A narrativa apresenta a obra régia e seus materiais; a ilustração contextualiza sua escala declarada sem reconstruir detalhes arqueológicos.",
+  "modernSummary": "As cotas do corpo principal vêm de 1 Reis 6:2; a elevação ilustrada e os elementos sem medida são esquemáticos, não levantamento arqueológico.",
+  "certainty": "established",
+  "sample": true,
+  "keywords": ["templo", "Salomão", "Moriá", "Ornã", "visão geral", "casa"],
+  "section": "solomon-temple",
+  "subsection": "Templo de Salomão",
+  "order": 1,
+  "era": "Monarquia unida — Salomão",
+  "modernOverview": "A representação reúne as cotas expressas para o corpo da casa em 1 Reis 6:2. O pórtico se projeta à frente; detalhes de cobertura, paredes, implantação e acabamentos não são todos mensurados no texto.",
+  "keyReferences": [
+    {"book":"1Kgs","chapter":6,"verseStart":1,"verseEnd":2,"label":"1Rs 6:1–2"},
+    {"book":"2Chr","chapter":3,"verseStart":1,"verseEnd":3,"label":"2Cr 3:1–3"},
+    {"book":"1Kgs","chapter":6,"verseStart":7,"label":"1Rs 6:7"},
+    {"book":"1Kgs","chapter":6,"verseStart":38,"label":"1Rs 6:38"}
+  ],
+  "aliases": ["casa do Senhor", "casa de Deus", "templo de Salomão"],
+  "references": [
+    {"book":"1Kgs","chapter":6,"verseStart":1,"verseEnd":7,"label":"1Rs 6:1–7"},
+    {"book":"1Kgs","chapter":6,"verseStart":38,"label":"1Rs 6:38"},
+    {"book":"2Chr","chapter":3,"verseStart":1,"verseEnd":3,"label":"2Cr 3:1–3"}
+  ],
+  "sources": [
+    {"id":"biblical","title":"Texto bíblico ACF local e referências (paráfrases originais)","url":"https://www.bible.com/pt/bible/212/1KI.6.ACF","license":"Referências e paráfrases próprias; não reproduz texto protegido","note":"Conferido nos capítulos locais de 1 Reis 6 e 2 Crônicas 3. Medidas e cronologia são apresentadas segundo as referências citadas; arte vetorial original."}
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {"placeId":"main-house","title":"Moriá e a eira de Ornã","text":"Crônicas situa a obra em Jerusalém, no monte Moriá, no local da eira de Ornã que Davi havia preparado.","reference":{"book":"2Chr","chapter":3,"verseStart":1,"label":"2Cr 3:1"}},
+    {"placeId":"main-house","title":"Corpo principal","text":"O texto de Reis dá ao corpo da casa 60 côvados de comprimento, 20 de largura e 30 de altura; a silhueta mostra apenas essa escala geral.","reference":{"book":"1Kgs","chapter":6,"verseStart":2,"label":"1Rs 6:2"}},
+    {"placeId":"prepared-stone","title":"Pedras preparadas fora do local","text":"As pedras chegavam preparadas; Reis relata que ferramentas de ferro não foram ouvidas no canteiro durante a construção.","reference":{"book":"1Kgs","chapter":6,"verseStart":7,"label":"1Rs 6:7"}},
+    {"placeId":"main-house","title":"Cronologia registrada","text":"Reis associa o início ao quarto ano de Salomão e a 480 anos após a saída do Egito; informa que a obra levou sete anos.","reference":{"book":"1Kgs","chapter":6,"verseStart":1,"verseEnd":38,"label":"1Rs 6:1, 38"}}
+  ],
+  "curiosities": [
+    {"text":"O texto associa a construção ao quarto ano de Salomão e a 480 anos depois da saída do Egito; ambas as marcas pertencem à cronologia narrada.","reference":{"book":"1Kgs","chapter":6,"verseStart":1,"label":"1Rs 6:1"},"sourceIds":["biblical"]},
+    {"text":"Crônicas nomeia o monte Moriá e a eira de Ornã como local preparado por Davi para a obra.","reference":{"book":"2Chr","chapter":3,"verseStart":1,"label":"2Cr 3:1"},"sourceIds":["biblical"]},
+    {"text":"O relato diz que as pedras eram preparadas antes de chegar ao canteiro, onde não se ouvia ferramenta de ferro durante a construção.","reference":{"book":"1Kgs","chapter":6,"verseStart":7,"label":"1Rs 6:7"},"sourceIds":["biblical"]},
+    {"text":"1 Reis atribui sete anos à construção da casa; o desenho não representa duração de fases ou ritmo de trabalho.","reference":{"book":"1Kgs","chapter":6,"verseStart":38,"label":"1Rs 6:38"},"sourceIds":["biblical"]}
+  ],
+  "bounds": [0,0,0,0],
+  "illustration": {
+    "svgFile":"solomon-temple-overview.svg",
+    "dimensions":[
+      {"label":"Corpo da casa — comprimento","cubits":60,"note":"Cota textual de 1Rs 6:2; côvado comum ≈ 0,45 m, conversão aproximada.","reference":{"book":"1Kgs","chapter":6,"verseStart":2,"label":"1Rs 6:2"}},
+      {"label":"Corpo da casa — largura","cubits":20,"note":"Cota textual de 1Rs 6:2; côvado comum ≈ 0,45 m, conversão aproximada.","reference":{"book":"1Kgs","chapter":6,"verseStart":2,"label":"1Rs 6:2"}},
+      {"label":"Corpo da casa — altura","cubits":30,"note":"Cota textual de 1Rs 6:2; côvado comum ≈ 0,45 m, conversão aproximada.","reference":{"book":"1Kgs","chapter":6,"verseStart":2,"label":"1Rs 6:2"}},
+      {"label":"Pórtico — altura","note":"medida não informada no texto de Reis; a proposta de 120 côvados em 2Cr 3:4 tem problema textual e debate interpretativo.","reference":{"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"}}
+    ],
+    "notes":[
+      "As cotas em côvados são textuais; equivalência ilustrativa: 1 côvado comum ≈ 0,45 m. 2Cr 3:3 usa a expressão 'primeira medida' (medida antiga); Ez 40:5 descreve a cana com côvado e palmo, relacionada à estimativa de côvado longo ≈ 0,52 m, sem fixar equivalência universal.",
+      "A figura da silhueta indica 1,70 m apenas como escala gráfica humana, não como dado bíblico.",
+      "O volume do pórtico projeta-se à frente do corpo da casa; o desenho não o soma às cotas longitudinais de 60 côvados do corpo principal.",
+      "Cobertura, espessuras, fundações e proporções das partes sem medida declarada são esquemáticas; contornos tracejados sinalizam dimensões não informadas."
+    ],
+    "relatedIds":[],
+    "views":[
+      {"label":"Vista 3/4","svgFile":"solomon-temple-overview.svg"},
+      {"label":"Planta","svgFile":"solomon-temple-overview-planta.svg"},
+      {"label":"Frente","svgFile":"solomon-temple-overview-frente.svg"},
+      {"label":"Corte","svgFile":"solomon-temple-overview-corte.svg"}
+    ],
+    "parts":[
+      {"id":"main-house","name":"Corpo principal da casa","description":"O corpo principal mede 60 × 20 × 30 côvados no texto de Reis. As cotas não incluem o pórtico que avança diante da casa; espessuras e pormenores da massa não estão cotados.","cubits":60,"material":"Pedra lavrada clara, revestimento de cedro e ouro em partes descritas","references":[{"book":"1Kgs","chapter":6,"verseStart":2,"label":"1Rs 6:2"},{"book":"1Kgs","chapter":6,"verseStart":15,"verseEnd":22,"label":"1Rs 6:15–22"}],"highlight":{"x":59.72,"y":51.04,"width":0,"height":0}},
+      {"id":"porch","name":"Pórtico diante da casa","description":"Pórtico de 20 côvados de largura por 10 de profundidade. Sua altura não é dada em Reis; 2Cr 3:4 conserva a cifra de 120 côvados, cuja leitura é debatida.","material":"Pedra clara, revestimento dourado descrito em Crônicas","references":[{"book":"1Kgs","chapter":6,"verseStart":3,"label":"1Rs 6:3"},{"book":"2Chr","chapter":3,"verseStart":4,"label":"2Cr 3:4"}],"highlight":{"x":26.67,"y":59.58,"width":0,"height":0}},
+      {"id":"prepared-stone","name":"Pedras preparadas","description":"Pedras eram preparadas antes de chegar ao canteiro; o texto relata ausência de ruído de ferramentas de ferro no local durante a construção.","material":"Pedra lavrada clara","references":[{"book":"1Kgs","chapter":6,"verseStart":7,"label":"1Rs 6:7"}],"highlight":{"x":15,"y":77.08,"width":0,"height":0}},
+      {"id":"silhouette","name":"Silhueta de referência","description":"Silhueta humana convencional de 1,70 m para comparar visualmente a escala; não é uma medida textual.","material":"Silhueta esquemática","references":[{"book":"1Kgs","chapter":6,"verseStart":2,"label":"1Rs 6:2"}],"highlight":{"x":88.19,"y":61.46,"width":0,"height":0}}
+    ]
+  },
+  "review":{
+    "date":"2026-10-18",
+    "status":"documented",
+    "verified":["1Rs 6:1–3, 7, 38: cronologia, corpo da casa, pórtico, pedras e duração","2Cr 3:1–4: local, medida da casa em côvados da primeira medida e cota do pórtico em Crônicas","Ez 40:5: descrição do côvado e palmo adicionais na cana"],
+    "uncertainties":["A cifra de 120 côvados para a altura do pórtico aparece em 2Cr 3:4, mas é um problema textual debatido; 1Rs 6:3 não informa altura.","A conversão do côvado para metros é aproximada; o texto não define um padrão métrico moderno.","A silhueta e as partes sem dimensão textual são esquemáticas, sem pretensão arqueológica."],
+    "methodology":"Conferido com os versículos ACF locais em server/bible-data/1ki.ts, 2ch.ts e ezk.ts. As cotas textuais são separadas das formas esquemáticas; SVGs autorais sem dependências externas."
+  }
+}

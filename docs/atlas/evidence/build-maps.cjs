@@ -30,6 +30,84 @@ const beth = () => p("Bethlehem 1","bethlehem","Belém","Bayt Lahm/Belém, Cisjo
 const ant = () => p("Antioch 1","antioch","Antioquia da Síria","Antakya, província de Hatay, Turquia",[r("Acts",13,1),r("Acts",14,26)],"Cidade de partida e retorno de Paulo e Barnabé; 'da Síria' é a designação histórica, não o país atual.");
 const ephesus = () => pleiades("599612","ephesus","Éfeso","Sítio de Efes, perto de Selçuk, Turquia",[r("Rev",2,1),r("Acts",19,1)],"Metrópole da província romana da Ásia. O ponto difere do geocódigo legado do OpenBible porque cada base escolhe um representante do sítio.");
 const maps = [];
+const atlasManifest = JSON.parse(fs.readFileSync("data/atlas/manifest.json", "utf8"));
+const sampleFor = id => {
+ const entry = atlasManifest.items.find(item => item.id === id);
+ if (!entry) throw new Error(`Manifest entry missing for generated Atlas item: ${id}`);
+ return entry.sample;
+};
+const ptRef = (book, chapter, verseStart, verseEnd) => ref(book, chapter, verseStart, verseEnd);
+const authored = (text, reference, sourceIds = ["biblical"]) => ({ text, reference, sourceIds });
+const authoredStep = (index, title, text, reference) => ({ index, title, text, reference });
+const authoredContent = {
+ "ancient-near-east": {
+  steps:[authoredStep(1,"Babilônia","Babilônia aparece como centro do reino de Ninrode no início da lista de suas cidades.",ptRef("Gen",10,10)),authoredStep(0,"Nínive","Nínive é nomeada como a grande cidade para a qual Jonas é enviado.",ptRef("Jonah",1,2)),authoredStep(2,"Susã","Susã aparece como residência real no início do relato de Ester.",ptRef("Esth",1,2))],
+  curiosities:[authored("Gênesis descreve quatro rios saindo do Éden, mas não identifica o local com uma cidade moderna.",ptRef("Gen",2,10,14)),authored("Nínive é nomeada como cidade assíria na oração do rei Ezequias.",ptRef("2Kgs",19,36),["biblical","openbible"]),authored("Susã aparece como residência real no livro de Ester, não como parte do mesmo império babilônico.",ptRef("Esth",1,2),["biblical","openbible"])]
+ },
+ "abraham-journeys": {
+  steps:[authoredStep(0,"Ur","Terá sai de sua terra natal com Abrão e a família em direção a Canaã; o versículo registra a origem de Abrão, não a morte de Harã.",ptRef("Gen",11,31)),authoredStep(1,"Harã","Depois da morte de Terá, Abrão deixa Harã conforme a ordem recebida e segue para Canaã.",ptRef("Gen",12,4)),authoredStep(2,"Siquém","Abrão atravessa Canaã e chega a Siquém, onde o texto registra a promessa da terra e a construção de um altar.",ptRef("Gen",12,6,7))],
+  curiosities:[authored("O texto registra a saída de Terá de Ur em direção a Canaã, mas diz que a família parou em Harã.",ptRef("Gen",11,31)),authored("Siquém é a primeira localidade cananeia nomeada na chegada de Abrão.",ptRef("Gen",12,6),["biblical","openbible"]),authored("Abraão ergue um altar junto aos carvalhos de Manre, na região de Hebrom.",ptRef("Gen",13,18),["biblical","openbible"])]
+ },
+ "isaac-jacob": {
+  steps:[authoredStep(1,"Gerar","Isaque permanece em Gerar durante a fome, e o texto o identifica como estrangeiro entre os filisteus.",ptRef("Gen",26,1,6)),authoredStep(2,"Betel","Jacó chama Betel ao lugar em que teve o sonho e reconhece a presença de Deus ali.",ptRef("Gen",28,19)),authoredStep(3,"Harã","Jacó chega à região de Harã e encontra pastores junto ao poço.",ptRef("Gen",29,4,10))],
+  curiosities:[authored("Isaque permanece em Gerar durante a fome, mas o texto não transforma o ponto moderno em prova do acampamento.",ptRef("Gen",26,1,6),["biblical","openbible"]),authored("Jacó dá ao lugar do sonho o nome Betel, que significa casa de Deus.",ptRef("Gen",28,19),["biblical","openbible"]),authored("Jacó encontra Raquel junto ao poço quando chega à região de Harã.",ptRef("Gen",29,9),["biblical","openbible"])]
+ },
+ "joseph-egypt": {
+  steps:[authoredStep(1,"Siquém","José é enviado para procurar os irmãos na região de Siquém.",ptRef("Gen",37,13)),authoredStep(0,"Hebrom","José parte do vale de Hebrom obedecendo ao pedido de Jacó.",ptRef("Gen",37,14)),authoredStep(2,"Dotã","Um homem informa a José que os irmãos seguiram de Siquém para Dotã.",ptRef("Gen",37,17))],
+  curiosities:[authored("José procura os irmãos primeiro em Siquém e só depois os encontra em Dotã.",ptRef("Gen",37,13,17),["biblical","openbible"]),authored("On é citada como a cidade de origem de Asenate, não como a residência de José.",ptRef("Gen",41,45),["biblical","openbible"]),authored("Jacó pede para a família morar em Gósen, uma região cuja extensão não é delimitada no texto.",ptRef("Gen",47,1,6),["biblical","openbible"])]
+ },
+ "nations-gen-10": {
+  steps:[authoredStep(0,"Jafé","Gênesis apresenta os descendentes de Jafé e suas terras e ilhas por seus clãs; não é uma fronteira moderna.",ptRef("Gen",10,2,5)),authoredStep(1,"Cam","A lista de Cam reúne povos e cidades de regiões diferentes, sem desenhar uma área étnica uniforme.",ptRef("Gen",10,6,20)),authoredStep(2,"Babel","Babel, Ereque e Acade são citadas no início do reino de Ninrode.",ptRef("Gen",10,10))],
+  curiosities:[authored("Gênesis 10 organiza povos por famílias e línguas, não por fronteiras nacionais atuais.",ptRef("Gen",10,5,20),["biblical"]),authored("Babel, Ereque e Acade são citadas juntas como cidades do início do reino de Ninrode.",ptRef("Gen",10,10),["biblical","openbible"]),authored("Gênesis 10:11 pode ser lido como continuação da expansão de Ninrode ou como nova ação de Assur; a pontuação não resolve a atribuição.",ptRef("Gen",10,11),["biblical","openbible"])]
+ },
+ "exodus-hypotheses": {
+  steps:[authoredStep(0,"Ramessés","Israel parte de Ramessés no início da saída do Egito; a estação seguinte é Sucote.",ptRef("Exod",12,37)),authoredStep(1,"Sucote","O povo parte de Sucote e acampa em Etã, antes da travessia cuja localização não é resolvida neste mapa.",ptRef("Exod",13,20)),authoredStep(2,"Sinai","Israel chega ao deserto do Sinai no terceiro mês; o candidato moderno exibido não é uma identificação demonstrada.",ptRef("Exod",19,1,2))],
+  curiosities:[authored("Ramessés e Sucote aparecem como os primeiros acampamentos da lista de saída.",ptRef("Exod",12,37),["biblical","openbible"]),authored("O texto diz que Israel chegou ao Sinai no terceiro mês, sem indicar qual monte moderno corresponde ao nome.",ptRef("Exod",19,1),["biblical","openbible"]),authored("Cades-Barneia funciona como ponto de envio dos espias na narrativa, não apenas como parada geográfica.",ptRef("Num",13,26),["biblical","openbible"])]
+ },
+ "twelve-tribes": {
+  steps:[authoredStep(3,"Siló","Josué reúne a comunidade em Siló, onde a tenda da reunião está instalada para a distribuição restante.",ptRef("Josh",18,1)),authoredStep(5,"Jericó","Jericó aparece entre as cidades do território de Benjamim; o envelope do mapa é somente orientação.",ptRef("Josh",18,21)),authoredStep(4,"Berseba","A lista de cidades de Simeão inclui Berseba dentro da herança atribuída a Judá.",ptRef("Josh",19,1,2))],
+  curiosities:[authored("A tenda da reunião é montada em Siló antes da distribuição restante da terra.",ptRef("Josh",18,1),["biblical","openbible"]),authored("Simeão recebe cidades dentro da herança de Judá, em vez de um bloco independente equivalente.",ptRef("Josh",19,1),["biblical","openbible"]),authored("Josué 21 descreve cidades levíticas espalhadas entre as outras tribos.",ptRef("Josh",21,1,3),["biblical","openbible"])]
+ },
+ "divided-kingdom": {
+  steps:[authoredStep(1,"Siquém","Roboão vai a Siquém, onde todo Israel se reúne para fazê-lo rei.",ptRef("1Kgs",12,1)),authoredStep(3,"Dã","Jeroboão coloca um dos bezerros em Dã como centro do culto do reino do norte.",ptRef("1Kgs",12,29)),authoredStep(2,"Samaria","Onri compra o monte de Samaria e estabelece ali a capital do reino do norte.",ptRef("1Kgs",16,24))],
+  curiosities:[authored("Siquém é o lugar da reunião em que Roboão responde ao povo após a morte de Salomão.",ptRef("1Kgs",12,1,16),["biblical","openbible"]),authored("Samaria foi fundada por Onri depois da compra do monte de Semer.",ptRef("1Kgs",16,24),["biblical","openbible"]),authored("O relato da queda de Samaria atribui a deportação ao rei da Assíria.",ptRef("2Kgs",17,6),["biblical","openbible"])]
+ },
+ "jerusalem-jesus": {
+  steps:[authoredStep(2,"Betânia","Jesus chega à região de Betfagé e Betânia antes de entrar em Jerusalém.",ptRef("Mark",11,1)),authoredStep(1,"Monte das Oliveiras","A descida do monte das Oliveiras acompanha a aclamação da multidão na aproximação de Jerusalém.",ptRef("Luke",19,37)),authoredStep(3,"Getsêmani","Depois da ceia, Jesus vai ao Getsêmani para orar; este mapa não atribui coordenada ao jardim.",ptRef("Matt",26,36))],
+  curiosities:[authored("A entrada de Jesus é descrita a partir de Betfagé e Betânia, no monte das Oliveiras.",ptRef("Mark",11,1),["biblical","openbible"]),authored("Lucas associa a aclamação da multidão à descida do monte das Oliveiras.",ptRef("Luke",19,37),["biblical","openbible"]),authored("Getsêmani é o lugar para onde Jesus vai com os discípulos depois da ceia.",ptRef("Matt",26,36),["biblical"])]
+ },
+ "palestine-jesus": {
+  steps:[authoredStep(0,"Nazaré","Jesus entra na sinagoga de Nazaré, a cidade onde foi criado.",ptRef("Luke",4,16)),authoredStep(1,"Cafarnaum","Jesus deixa Nazaré e passa a habitar em Cafarnaum, junto ao mar da Galileia.",ptRef("Matt",4,13)),authoredStep(5,"Betânia","Betânia é apresentada como a aldeia de Lázaro, Marta e Maria; a faixa regional do mapa não é fronteira administrativa.",ptRef("John",11,1))],
+  curiosities:[authored("Nazaré é apresentada como a cidade onde Jesus foi criado.",ptRef("Luke",4,16),["biblical","openbible"]),authored("Cafarnaum é chamada de cidade de Jesus em Mateus, embora o texto também o situe em outras localidades.",ptRef("Matt",4,13),["biblical","openbible"]),authored("Betânia é identificada no Evangelho de João como a aldeia de Lázaro.",ptRef("John",11,1),["biblical","openbible"])]
+ },
+ "paul-first-journey": {
+  steps:[authoredStep(0,"Antioquia","A igreja de Antioquia separa Barnabé e Saulo para a obra e os envia.",ptRef("Acts",13,1,3)),authoredStep(2,"Salamina","Barnabé e Saulo chegam a Salamina e anunciam a palavra nas sinagogas.",ptRef("Acts",13,5)),authoredStep(8,"Derbe","Depois de Listra, os missionários chegam a Derbe e fazem muitos discípulos antes de iniciar o retorno.",ptRef("Acts",14,20,21))],
+  curiosities:[authored("João Marcos deixa a equipe em Perge, um detalhe que distingue ida e retorno.",ptRef("Acts",13,13),["biblical","openbible"]),authored("Em Listra, Paulo é apedrejado e depois retorna à cidade para fortalecer os discípulos.",ptRef("Acts",14,19,21),["biblical","openbible"]),authored("Atália é o porto usado na volta antes da navegação para Antioquia da Síria.",ptRef("Acts",14,25,26),["biblical","openbible"])]
+ },
+ "seven-churches": {
+  steps:[authoredStep(0,"Éfeso","A primeira mensagem do Apocalipse é dirigida à comunidade de Éfeso.",ptRef("Rev",2,1)),authoredStep(3,"Tiatira","A mensagem a Tiatira elogia obras, amor, fé, serviço e perseverança, mas censura a tolerância a Jezabel.",ptRef("Rev",2,18,20)),authoredStep(6,"Laodiceia","O ciclo termina com Laodiceia; a ordem textual das mensagens não prova o trajeto físico de João.",ptRef("Rev",3,14,16))],
+  curiosities:[authored("As sete cidades são nomeadas como destinatárias de mensagens, não como pontos de uma fronteira política.",ptRef("Rev",1,11),["biblical","openbible"]),authored("A mensagem a Esmirna inclui a promessa da coroa da vida aos fiéis.",ptRef("Rev",2,8,10),["biblical","openbible"]),authored("Laodiceia aparece por último na sequência e é repreendida por sua mornidão.",ptRef("Rev",3,14,16),["biblical","openbible"])]
+ },
+ "roman-empire": {
+  steps:[authoredStep(2,"Atenas","Paulo discursa no Areópago depois de observar os objetos de culto da cidade.",ptRef("Acts",17,16,22)),authoredStep(1,"Corinto","Paulo chega a Corinto e trabalha com Áquila e Priscila.",ptRef("Acts",18,1,3)),authoredStep(0,"Roma","Atos termina com Paulo em Roma, pregando com liberdade sob custódia.",ptRef("Acts",28,16,31))],
+  curiosities:[authored("Atenas é o cenário do discurso de Paulo no Areópago.",ptRef("Acts",17,16,22),["biblical","openbible"]),authored("Paulo trabalha em Corinto com Áquila e Priscila antes de seguir viagem.",ptRef("Acts",18,1,3),["biblical","openbible"]),authored("Roma aparece como destino da chegada de Paulo sob custódia, não como limite do império no mapa.",ptRef("Acts",28,16),["biblical","openbible"])]
+ }
+};
+// These fields are generated here rather than hand-edited in JSON so that every
+// available item keeps the same auditable shape when the source compiler runs.
+const storyStepsFor = (places) => places
+ .map(place => ({ place, reference: place.references[0] }))
+ .sort((a,b) => a.reference.chapter - b.reference.chapter || a.reference.verseStart - b.reference.verseStart)
+ .map(({place, reference}) => ({
+   placeId: place.id, title: place.name,
+   text: `${place.name} é citado no recorte bíblico. ${place.explanation}`,
+   reference,
+ }));
+const curiositiesFor = (places) => places.filter(place => place.references[0]).slice(0, 4).map(place => ({
+ text: `A narrativa menciona ${place.name} em ${place.references[0].label}; o ponto apresentado é apenas uma referência documental.`,
+ reference: place.references[0],
+ sourceIds: [...new Set(["biblical", ...place.sourceIds])],
+}));
 const organization = {
  "ancient-near-east":["old-testament","Origens e patriarcas",1],
  "abraham-journeys":["old-testament","Origens e patriarcas",2],
@@ -49,7 +127,7 @@ const shortEras = {
  "palestine-jesus":"c. 6 a.C.–30 d.C.", "paul-first-journey":"c. 46–48 d.C.",
  "seven-churches":"c. 90–96 d.C.", "roman-empire":"Século I d.C.",
 };
-function add(id,title,subtitle,testament,books,characters,period,bounds,summary,modernSummary,places,overlays,references,uncertainties,status="needs-specialist") {
+function add(id,title,subtitle,testament,books,characters,period,bounds,summary,modernSummary,places,overlays,references,uncertainties,status="needs-specialist",storySteps,curiosities) {
   const [section, subsection, order] = organization[id] || [testament === "AT" ? "old-testament" : "new-testament", undefined, 99];
   const keyReferences = [...references];
   for (const place of places) for (const candidate of place.references) {
@@ -57,7 +135,8 @@ function add(id,title,subtitle,testament,books,characters,period,bounds,summary,
     if (!keyReferences.some(existing => existing.label === candidate.label)) keyReferences.push(candidate);
   }
   const aliases = [...new Set([title, ...characters, ...places.flatMap(place => [place.name, place.modernName])])];
-  maps.push({id,version:"1",kind:"map",category:testament==="AT"?"Geografia do Antigo Testamento":"Geografia do Novo Testamento",testament,books,characters,period,title,subtitle,summary,modernSummary,certainty:status==="documented"?"established":"debated",sample:true,keywords:[title,...books,...characters,"atlas","amostra","geografia histórica"],section,subsection,order,era:shortEras[id] || period.split(";")[0],modernOverview:`${modernSummary} As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.`,keyReferences:keyReferences.slice(0,8),aliases,references,sources:[],places,overlays,bounds,review:{date,status,verified:["Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].","Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.","Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."],uncertainties,methodology:"Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."}});
+  const authoredMap = authoredContent[id];
+  maps.push({id,version:"1",kind:"map",category:testament==="AT"?"Geografia do Antigo Testamento":"Geografia do Novo Testamento",testament,books,characters,period,title,subtitle,summary,modernSummary,certainty:status==="documented"?"established":"debated",sample:sampleFor(id),keywords:[title,...books,...characters,"atlas","amostra","geografia histórica"],section,subsection,order,era:shortEras[id] || period.split(";")[0],modernOverview:`${modernSummary} As fronteiras e os nomes atuais são exibidos apenas como orientação geográfica. Cidades modernas são pontos de referência aproximados e não provam a localização de eventos antigos.`,keyReferences:keyReferences.slice(0,8),aliases,references,sources:[],places,overlays,bounds,storySteps:storySteps || (authoredMap?.steps?.map(s => { const place = places[s.index] || places[0]; return { placeId: place.id, title: s.title, text: s.text, reference: s.reference }; })) || storyStepsFor(places),curiosities:curiosities || authoredMap?.curiosities || curiositiesFor(places),review:{date,status,verified:["Pontos transcritos de registros públicos retidos no repositório; latitude/longitude convertidas para [longitude, latitude].","Referências bíblicas associadas à narrativa ou à localidade, não usadas como prova arqueológica.","Desenhos originais identificados explicitamente como esquemáticos; nenhuma imagem de terceiros."],uncertainties,methodology:"Compilação documental assistida por software: extração nominal do OpenBible e leitura de reprPoint do Pleiades; seleção editorial das referências e explicações. Não houve aprovação humana ou revisão por especialista. 'documented' indica rastreabilidade documental, não certificação histórica."}});
 }
 const route = (id,label,places,explanation,certainty="probable") => ({id,label,kind:"route",certainty,coordinates:places.map(p=>p.coordinates),explanation:`ESQUEMÁTICO, NÃO EXATO. ${explanation} Segmentos retos indicam relações entre localidades; não são estradas identificadas, distâncias percorridas nem trilhas GPS.`,sourceIds:[...new Set(["editorial",...places.flatMap(p=>p.sourceIds)])]});
 const area = (id,label,coordinates,explanation) => ({id,label,kind:"area",certainty:"debated",coordinates,explanation:`POLÍGONO EDITORIAL ESQUEMÁTICO, NÃO FRONTEIRA EXATA. ${explanation} Não delimita cidades antigas, soberania atual ou propriedades.`,sourceIds:["editorial","biblical"]});
@@ -215,7 +294,7 @@ for (const map of maps) {
   } else review+=`  - Método: local citado na narrativa, sem geocódigo aceito. Nenhuma consulta foi inventada; a ausência de uma identificação suficiente é explicitada, e coordinates=null impede falsa precisão. Fonte textual: ${place.references.map(x=>x.label).join("; ")}.\n`;
   review+=`  - Limite interpretativo: ${place.explanation}\n`;
  }
- review+=`\nGeometrias: ${map.overlays.map(x=>`${x.label} (${x.certainty}; ${x.kind}; original)`).join("; ")}.\n\nIncertezas e cobertura: ${map.review.uncertainties.join(" ")}\n`;
+ review+=`\nPassos narrativos: ${map.storySteps.length}; cada passo preserva lugar, título curto, texto editorial e referência na ordem textual compilada. Curiosidades: ${map.curiosities.length}; cada uma preserva versículo e sourceIds.\n\nGeometrias: ${map.overlays.map(x=>`${x.label} (${x.certainty}; ${x.kind}; original)`).join("; ")}.\n\nIncertezas e cobertura: ${map.review.uncertainties.join(" ")}\n`;
  const output={...map,places:map.places.map(({_key,_pleiades,...place})=>place)};
  for(const place of output.places) if(place.coordinates) {
   const [x,y]=place.coordinates,[w,s,e,n]=map.bounds;

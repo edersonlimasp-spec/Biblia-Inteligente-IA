@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" role="img" aria-label="Vista 3/4 esquemática da túnica, cinto e calções de linho sacerdotais">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#152830"/><stop offset="1" stop-color="#0d1c23"/></linearGradient>
+    <linearGradient id="linen" x2="1" y2="1"><stop stop-color="#f0e9d5"/><stop offset=".53" stop-color="#d4c9ad"/><stop offset="1" stop-color="#928a79"/></linearGradient>
+    <linearGradient id="skin" x2="1" y2="1"><stop stop-color="#d7ad84"/><stop offset="1" stop-color="#987052"/></linearGradient>
+    <linearGradient id="blue" x2="1"><stop stop-color="#255f81"/><stop offset=".5" stop-color="#3e829d"/><stop offset="1" stop-color="#552e63"/></linearGradient>
+    <pattern id="weave" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 2h10M2 0v10" stroke="#705d43" stroke-opacity=".13"/></pattern>
+    <pattern id="sashPattern" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M0 0l18 18M18 0L0 18" stroke="#e2c278" stroke-opacity=".55" stroke-width="2"/><path d="M9 0v18M0 9h18" stroke="#b94f55" stroke-opacity=".55" stroke-width="2"/></pattern>
+    <filter id="shadow" x="-.3" y="-.3" width="1.7" height="1.7"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#02080b" flood-opacity=".5"/></filter>
+  </defs>
+  <rect width="960" height="680" rx="28" fill="url(#bg)"/>
+  <path d="M36 105h888" stroke="#87a5aa" stroke-opacity=".2"/>
+  <text x="54" y="58" fill="#f4eee1" font-family="Georgia,serif" font-size="28">Túnica e cinto · vista 3/4</text>
+  <text x="56" y="84" fill="#9eb7b9" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">VOLUME ESQUEMÁTICO · SEM MEDIDAS</text>
+  <rect x="38" y="127" width="532" height="500" rx="22" fill="#192f38" stroke="#45616a" stroke-opacity=".52"/>
+  <ellipse cx="302" cy="589" rx="155" ry="13" fill="#071116" opacity=".65"/>
+  <g filter="url(#shadow)">
+    <path d="M268 181q44-14 82 5l42 57 57 117-43 22-51-86 28 246q-93 29-180 3l24-238-51 80-40-23 59-120z" fill="url(#linen)" stroke="#f4e8c7" stroke-opacity=".65" stroke-width="2"/>
+    <path d="M268 181q44-14 82 5l42 57 57 117-43 22-51-86 28 246q-93 29-180 3l24-238-51 80-40-23 59-120z" fill="url(#weave)"/>
+    <path d="M269 204q42 30 83 7m-75 27q-13 109-7 265m93-255q40 104 49 226m-171-184-43 65" fill="none" stroke="#897e68" stroke-opacity=".26" stroke-width="4"/>
+    <path d="M263 150q42-14 77 5l-6 34q-34 21-70 0z" fill="url(#skin)"/>
+    <path d="M248 150q52-27 103 0" fill="none" stroke="#d6bd81" stroke-width="8" stroke-opacity=".8"/>
+  </g>
+  <path d="M244 362q64 18 121-1l2 31q-61 19-127 0z" fill="url(#blue)" stroke="#e3c982" stroke-width="2"/>
+  <path d="M244 362q64 18 121-1l2 31q-61 19-127 0z" fill="url(#sashPattern)"/>
+  <path d="M279 391q-6 50 7 96l20-9q6-54-3-89" fill="url(#blue)" stroke="#e3c982" stroke-width="2"/>
+  <path d="M279 391q-6 50 7 96l20-9q6-54-3-89" fill="url(#sashPattern)"/>
+  <path d="M248 493h99l2 69q-22 9-45 3l-9-42-15 43-41-3z" fill="url(#linen)" stroke="#f1e7ce" stroke-width="2"/>
+  <path d="M248 493h99l2 69q-22 9-45 3l-9-42-15 43-41-3z" fill="url(#weave)"/>
+  <rect x="593" y="127" width="329" height="500" rx="22" fill="#1a3038" stroke="#45616a" stroke-opacity=".52"/>
+  <text x="620" y="166" fill="#c3d3ce" font-family="Arial,sans-serif" font-size="13" letter-spacing="1.5">PEÇA ISOLADA</text>
+  <path d="M681 243q48-18 102 0l11 45 30 80-26 11-25-53 7 131h-91l7-131-25 53-26-11 30-80z" fill="url(#linen)" stroke="#f4e8c7" stroke-width="2"/>
+  <path d="M681 243q48-18 102 0l11 45 30 80-26 11-25-53 7 131h-91l7-131-25 53-26-11 30-80z" fill="url(#weave)"/>
+  <path d="M671 322q55 16 118-2l2 23q-61 19-127 0z" fill="url(#blue)" stroke="#e3c982" stroke-width="2"/>
+  <path d="M671 322q55 16 118-2l2 23q-61 19-127 0z" fill="url(#sashPattern)"/>
+  <path d="M620 489h275" stroke="#8aa2a3" stroke-opacity=".2"/>
+  <text x="620" y="522" fill="#dce3d9" font-family="Arial,sans-serif" font-size="14">Tecido e bordado esquemáticos</text>
+  <text x="620" y="553" fill="#92aaa9" font-family="Arial,sans-serif" font-size="12">O padrão exato do cinto não é certo.</text>
+  <text x="54" y="654" fill="#66878c" font-family="Arial,sans-serif" font-size="11" letter-spacing="1">ÊXODO 28:39, 42–43 · 39:27–29</text>
+</svg>

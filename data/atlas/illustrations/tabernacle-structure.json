@@ -1,0 +1,58 @@
+{
+  "id":"tabernacle-structure","version":"1","kind":"illustration","category":"Tabernáculo","testament":"AT","books":["Exod"],"characters":["Moisés"],"period":"Descrição do Tabernáculo no deserto",
+  "title":"Tabernáculo: Tábuas, bases e travessas","subtitle":"Estrutura de madeira de acácia com encaixes, revestimento e barras",
+  "summary":"O santuário é descrito com tábuas verticais de acácia revestidas de ouro, apoiadas em bases de prata e unidas por travessas. São descritas 20 tábuas para cada lado comprido e oito para o lado oeste, incluindo duas de canto: 48 no total. A contagem textual das bases de prata é 96 para as tábuas e quatro para as colunas do véu, totalizando 100.",
+  "purpose":"A estrutura desmontável sustentava a tenda do santuário e oferecia armação às cobertas. Encaixes, bases e travessas uniam as tábuas para formar o recinto. O texto apresenta instruções de montagem para uma construção transportável no contexto do deserto.",
+  "modernSummary":"O texto prescreve contagens e dimensões das tábuas e enumera bases e travessas. A planta interna usual de 30 × 10 × 10 côvados é um cálculo tradicional derivado do arranjo, não uma cota expressa em um único versículo.",
+  "certainty":"established","sample":false,"keywords":["estrutura","tábuas","acácia","prata","ouro","travessas","bases","santuário"],
+  "section":"tabernacle","subsection":"Estrutura e móveis","order":6,"era":"Êxodo e deserto",
+  "modernOverview":"Contagens e medidas das tábuas constam de Êxodo. As dimensões totais e as divisões internas comuns são inferidas a partir da disposição proposta das peças e devem ser identificadas como cálculo tradicional.",
+  "keyReferences":[
+    {"book":"Exod","chapter":26,"verseStart":15,"verseEnd":30,"label":"Exod 26:15–30"},
+    {"book":"Exod","chapter":36,"verseStart":20,"verseEnd":34,"label":"Exod 36:20–34"},
+    {"book":"Exod","chapter":38,"verseStart":27,"label":"Exod 38:27"}
+  ],
+  "aliases":["armação do tabernáculo","tábuas do tabernáculo","bases de prata","travessas"],
+  "references":[
+    {"book":"Exod","chapter":26,"verseStart":15,"verseEnd":30,"label":"Exod 26:15–30"},
+    {"book":"Exod","chapter":36,"verseStart":20,"verseEnd":34,"label":"Exod 36:20–34"},
+    {"book":"Exod","chapter":38,"verseStart":27,"label":"Exod 38:27"}
+  ],
+  "sources":[{"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/","license":"Referência textual; paráfrases originais, sem reprodução de tradução protegida","note":"Êxodo 26, 36 e 38: instruções e execução da estrutura. A geometria total tradicional é derivada, não uma dimensão direta do texto."}],
+  "places":[],"overlays":[],
+  "storySteps":[
+    {"placeId":"boards","title":"Tábuas de acácia","text":"Tábuas verticais de acácia, cada uma com dez côvados de comprimento e um côvado e meio de largura, formavam as laterais e o lado oeste.","reference":{"book":"Exod","chapter":26,"verseStart":15,"verseEnd":25,"label":"Exod 26:15–25"}},
+    {"placeId":"sockets","title":"Bases de prata","text":"Duas bases de prata sustentavam cada tábua; o registro de materiais contabiliza cem bases de um talento cada.","reference":{"book":"Exod","chapter":26,"verseStart":19,"verseEnd":25,"label":"Exod 26:19–25"}},
+    {"placeId":"bars","title":"Travessas","text":"Travessas de acácia uniam as tábuas; a travessa central seguia de uma extremidade à outra de cada lado.","reference":{"book":"Exod","chapter":26,"verseStart":26,"verseEnd":29,"label":"Exod 26:26–29"}},
+    {"placeId":"derived-room","title":"Espaço interno calculado","text":"A configuração interna usual de trinta por dez por dez côvados é uma reconstrução tradicional calculada a partir das tábuas, não uma cota direta isolada.","reference":{"book":"Exod","chapter":26,"verseStart":15,"verseEnd":30,"label":"Exod 26:15–30"}}
+  ],
+  "curiosities":[
+    {"text":"A largura textual de cada tábua é um côvado e meio, e seu comprimento é de dez côvados.","reference":{"book":"Exod","chapter":26,"verseStart":16,"label":"Exod 26:16"},"sourceIds":["biblical"]},
+    {"text":"O lado oeste combina seis tábuas com duas tábuas de canto; o próprio texto totaliza oito tábuas nesse lado.","reference":{"book":"Exod","chapter":26,"verseStart":22,"verseEnd":25,"label":"Exod 26:22–25"},"sourceIds":["biblical"]},
+    {"text":"Êxodo 38:27 contabiliza cem bases de prata, com um talento de prata para cada base.","reference":{"book":"Exod","chapter":38,"verseStart":27,"label":"Exod 38:27"},"sourceIds":["biblical"]},
+    {"text":"Das cem bases, 96 correspondem às 48 tábuas; as outras quatro sustentam as colunas do véu.","reference":{"book":"Exod","chapter":26,"verseStart":19,"verseEnd":25,"label":"Exod 26:19–25"},"sourceIds":["biblical"]},
+    {"text":"A travessa central é descrita como contínua de uma extremidade à outra; o texto não determina aqui seu comprimento numérico.","reference":{"book":"Exod","chapter":26,"verseStart":26,"verseEnd":29,"label":"Exod 26:26–29"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"tabernacle-structure.svg",
+    "dimensions":[
+      {"label":"Comprimento de cada tábua","cubits":10,"note":"Medida indicada para cada tábua vertical","reference":{"book":"Exod","chapter":26,"verseStart":16,"label":"Exod 26:16"}},
+      {"label":"Largura de cada tábua","cubits":1.5,"note":"Medida indicada para cada tábua vertical","reference":{"book":"Exod","chapter":26,"verseStart":16,"label":"Exod 26:16"}},
+      {"label":"Total de tábuas","note":"48 tábuas: 20 no sul, 20 no norte, seis no oeste e duas de canto","reference":{"book":"Exod","chapter":26,"verseStart":18,"verseEnd":25,"label":"Exod 26:18–25"}},
+      {"label":"Bases de prata","note":"96 bases para as tábuas, mais quatro bases das colunas do véu; total de 100, cada uma de um talento","reference":{"book":"Exod","chapter":38,"verseStart":27,"label":"Exod 38:27"}},
+      {"label":"Dimensão interna tradicional","note":"cálculo tradicional derivado do arranjo; não é cota explícita única no texto","reference":{"book":"Exod","chapter":26,"verseStart":15,"verseEnd":30,"label":"Exod 26:15–30"}},
+      {"label":"Côvado comum para conversões","note":"≈ 0,45 m; valor de conversão aproximado, não outra cota bíblica","reference":{"book":"Exod","chapter":26,"verseStart":16,"label":"Exod 26:16"}}
+    ],
+    "notes":["48 tábuas: vinte no sul, vinte no norte e oito no oeste (seis mais duas de canto).","96 bases de prata das tábuas mais quatro das colunas do véu = 100 bases; as cinco bases da cortina de entrada são de bronze e não entram nessa soma.","A divisão usual 20 × 10 côvados para o Lugar Santo e 10 × 10 × 10 para o Santo dos Santos, e o recinto total de 30 × 10 × 10, são cálculo tradicional, não dimensões enunciadas diretamente como tal. O contorno do recinto recebe o selo proporção ilustrativa.","Convenção de conversão: côvado comum ≈ 0,45 m; côvado longo/real ≈ 0,52 m é uma estimativa. Ez 40:5 menciona côvado e palmo adicionais, sem estabelecer equivalência métrica fixa.","As plantas são diagramáticas; posição exata de todos os encaixes e vista do conjunto não constitui levantamento arqueológico."],
+    "relatedIds":["tabernacle-overview","tabernacle-coverings","tabernacle-veil-entrance-curtain"],
+    "views":[{"label":"Planta","svgFile":"tabernacle-structure.svg"},{"label":"Frente","svgFile":"tabernacle-structure-frente.svg"},{"label":"Vista 3/4","svgFile":"tabernacle-structure-isometrica.svg"}],
+    "parts":[
+      {"id":"boards","name":"Tábuas de acácia revestidas de ouro","description":"48 tábuas verticais: 20 no sul, 20 no norte e oito no lado oeste, incluindo duas de canto. Cada tábua mede 10 × 1,5 côvados.","material":"Madeira de acácia revestida de ouro","references":[{"book":"Exod","chapter":26,"verseStart":15,"verseEnd":25,"label":"Exod 26:15–25"}],"highlight":{"x":37.5,"y":30.4,"width":0,"height":0}},
+      {"id":"sockets","name":"Bases de prata","description":"96 bases para as 48 tábuas e quatro bases para as quatro colunas do véu: cem bases de prata ao todo, cada uma de um talento. As bases da cortina de entrada são de bronze e distintas.","material":"Prata","references":[{"book":"Exod","chapter":26,"verseStart":19,"verseEnd":25,"label":"Exod 26:19–25"},{"book":"Exod","chapter":38,"verseStart":27,"label":"Exod 38:27"}],"highlight":{"x":37.5,"y":73.5,"width":0,"height":0}},
+      {"id":"bars","name":"Travessas de acácia","description":"Cinco travessas por lado; a central atravessa de uma extremidade à outra. A configuração mostra as travessas em esquema, não em escala.","material":"Acácia revestida de ouro","references":[{"book":"Exod","chapter":26,"verseStart":26,"verseEnd":29,"label":"Exod 26:26–29"}],"highlight":{"x":50,"y":31,"width":0,"height":0}},
+      {"id":"derived-room","name":"Vão interior (cálculo tradicional)","description":"A planta usual deriva o recinto de 30 × 10 côvados e a altura de dez côvados da disposição das tábuas; divisões de 20 e 10 côvados são cálculo tradicional, não cotas diretas explícitas.","references":[{"book":"Exod","chapter":26,"verseStart":15,"verseEnd":30,"label":"Exod 26:15–30"}],"highlight":{"x":50,"y":27.1,"width":0,"height":0}}
+    ]
+  },
+  "review":{"date":"2026-10-15","status":"documented","verified":["Ex 26:15–30: dimensões e distribuição das tábuas, bases, travessas, ouro e véu","Ex 36:20–34: relato de execução da estrutura e bases","Ex 38:27: cem bases de prata, um talento cada"],"uncertainties":["30 × 10 × 10 côvados e os recintos internos são cálculo tradicional a partir do arranjo, não cotas explícitas como conjunto.","Número 100 das bases é um total; discriminação de 96 bases para tábuas e quatro para pilares do véu resulta das instruções detalhadas.","A planta gráfica é esquemática e não pretende representar tolerâncias construtivas reais."],"methodology":"Conferido com o texto ACF local em server/bible-data/exo.ts, capítulos 26, 36 e 38. Contagens recompostas pelas instruções; o desenho distingue as dimensões textuais das dimensões internas tradicionalmente derivadas."}
+}

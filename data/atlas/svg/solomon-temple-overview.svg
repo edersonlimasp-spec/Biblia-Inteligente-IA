@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-label="Templo de Salomão, vista isométrica esquemática com dimensões textuais">
+ <rect width="720" height="480" fill="#14231f"/>
+ <text x="24" y="34" fill="#f4ead3" font-family="sans-serif" font-size="22" font-weight="700">CASA · VISTA 3/4 ESQUEMÁTICA</text>
+ <text x="24" y="58" fill="#c5cfbf" font-family="sans-serif" font-size="14">Pedra clara · cedro #7A4E2D · cipreste · ouro</text>
+ <g stroke="#a8b4a5" stroke-width="2" fill="none"><path d="M115 366L465 366L574 302"/><path d="M115 366L115 182L465 182L574 118L574 302"/><path d="M465 366V182"/></g>
+ <g id="part-main-house">
+  <path d="M133 194L455 194L546 141L224 141Z" fill="#a8a28d" stroke="#ddd4bd" stroke-width="3"/>
+  <path d="M133 194V344L455 344V194" fill="#d4cbb3" stroke="#eee2c5" stroke-width="3"/>
+  <path d="M455 194L546 141V291L455 344Z" fill="#b9b19a" stroke="#eee2c5" stroke-width="3"/>
+  <path d="M151 212H438M151 241H438M151 270H438M151 299H438M151 328H438" stroke="#84785f" stroke-width="2" opacity=".55"/>
+  <path d="M455 215L530 172M455 245L530 202M455 275L530 232M455 305L530 262" stroke="#84785f" stroke-width="2" opacity=".55"/>
+  <path d="M133 194L455 194L546 141" fill="none" stroke="#c9a84a" stroke-width="4"/>
+ </g>
+ <g id="part-porch">
+  <path d="M133 344L230 344L266 323L170 323Z" fill="#c8bc9e" stroke="#e6dbc0" stroke-width="2"/>
+  <path d="M133 344V263L170 244V323M230 344V263L266 244V323" fill="#d8cfb9" stroke="#eee2c5" stroke-width="3"/>
+  <path d="M133 263L230 263L266 244L170 244Z" fill="#b9984d" stroke="#f1d579" stroke-width="3"/>
+  <path d="M148 273V326M215 273V326M159 268V326M226 268V326" stroke="#8b6b33" stroke-width="3"/>
+  <path d="M170 323L266 323" stroke="#c9a84a" stroke-width="3"/>
+ </g>
+ <g id="part-prepared-stone" fill="#faf3e3"><path d="M98 368h20v10H98zM120 368h13v10h-13zM77 368h17v10H77z"/></g>
+ <g stroke="#e7d5a2" stroke-width="2" fill="none"><path d="M133 388H455M133 381V395M455 381V395"/><path d="M470 371L574 311M463 365L476 377M568 305L581 317"/><path d="M594 344V194M587 344H601M587 194H601"/></g>
+ <g fill="#f4ead3" font-family="sans-serif" font-size="14"><text x="248" y="414">60 côv. ≈ 27,0 m</text><text x="508" y="374">20 côv. ≈ 9,0 m</text><text x="604" y="274">30 côv.</text><text x="604" y="293">≈ 13,5 m</text></g>
+ <g id="part-silhouette" fill="#d8ddd1" stroke="#14231f" stroke-width="1"><circle cx="635" cy="295" r="8"/><path d="M629 305h12l5 28h-5l-2-17-2 25h-4l-1-22-3 22h-4l3-28z"/></g>
+ <text x="602" y="363" fill="#c5cfbf" font-family="sans-serif" font-size="13">silhueta 1,70 m</text>
+ <g fill="#14231f" stroke="#f5dc8b" stroke-width="2" font-family="sans-serif" text-anchor="middle" font-weight="700" font-size="13"><circle cx="430" cy="245" r="12"/><circle cx="192" cy="286" r="12"/><circle cx="108" cy="370" r="12"/><circle cx="635" cy="295" r="12"/><text x="430" y="250" fill="#fff0bd" stroke="none">1</text><text x="192" y="291" fill="#fff0bd" stroke="none">2</text><text x="108" y="375" fill="#fff0bd" stroke="none">3</text><text x="635" y="300" fill="#fff0bd" stroke="none">4</text></g>
+ <rect x="24" y="438" width="672" height="26" rx="6" fill="#263930" stroke="#9d8160" stroke-dasharray="5 4"/>
+ <text x="36" y="456" fill="#f2d68c" font-family="sans-serif" font-size="13">O pórtico avança à frente; as cotas 60 × 20 × 30 referem-se ao corpo da casa.</text>
+</svg>

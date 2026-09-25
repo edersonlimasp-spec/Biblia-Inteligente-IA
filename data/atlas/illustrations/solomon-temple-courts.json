@@ -1,0 +1,330 @@
+{
+  "id": "solomon-temple-courts",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Templo de Salomão",
+  "testament": "AT",
+  "books": [
+    "1Kgs",
+    "2Chr"
+  ],
+  "characters": [
+    "Salomão"
+  ],
+  "period": "Complexo do Templo de Salomão, conforme Reis e Crônicas",
+  "title": "Templo de Salomão: pátios",
+  "subtitle": "Alvenaria e cedro; contornos esquemáticos sem dimensões",
+  "summary": "Reis descreve o pátio interior com três ordens de pedras lavradas e uma ordem de vigas de cedro, e associa arranjo semelhante ao pórtico. Crônicas menciona o pátio dos sacerdotes, o grande átrio e portas revestidas de cobre. Nenhum dos trechos consultados fornece dimensões dos pátios; os limites são tracejados.",
+  "purpose": "Os pátios separavam e organizavam áreas de acesso e serviço do complexo do templo. Crônicas os nomeia como pátio dos sacerdotes e grande átrio e menciona portas revestidas de cobre, sem dimensionar seus perímetros ou descrever todos os regimes de acesso.",
+  "modernSummary": "Diagrama de relações textuais entre pátio interior, pórtico e áreas nomeadas em Crônicas; não é planta em escala.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": [
+    "pátio interior",
+    "grande átrio",
+    "pátio dos sacerdotes",
+    "cedro",
+    "pedra lavrada",
+    "portas de cobre"
+  ],
+  "section": "solomon-temple",
+  "subsection": "Pátios e equipamentos",
+  "order": 12,
+  "era": "Reinado de Salomão, conforme a narrativa bíblica",
+  "modernOverview": "Fontes textuais nomeiam áreas e materiais de construção, mas não informam dimensões dos pátios.",
+  "keyReferences": [
+    {
+      "book": "1Kgs",
+      "chapter": 6,
+      "verseStart": 36,
+      "label": "1Rs 6:36"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 12,
+      "label": "1Rs 7:12"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 9,
+      "label": "2Cr 4:9"
+    }
+  ],
+  "aliases": [
+    "pátios do templo",
+    "grande átrio",
+    "pátio dos sacerdotes"
+  ],
+  "references": [
+    {
+      "book": "1Kgs",
+      "chapter": 6,
+      "verseStart": 36,
+      "label": "1Rs 6:36"
+    },
+    {
+      "book": "1Kgs",
+      "chapter": 7,
+      "verseStart": 12,
+      "label": "1Rs 7:12"
+    },
+    {
+      "book": "2Chr",
+      "chapter": 4,
+      "verseStart": 9,
+      "label": "2Cr 4:9"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Texto bíblico ACF consultado em server/bible-data",
+      "url": "https://www.bible.com/pt/bible/212/1KI.6.ACF",
+      "license": "Referências e paráfrases originais; sem reprodução extensa da tradução",
+      "note": "1Rs 6:36; 7:12 e 2Cr 4:9 conferidos na ACF local; desenho e paráfrases originais."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "inner",
+      "title": "Pátio interior",
+      "text": "Reis descreve três ordens de pedras lavradas e uma ordem de vigas de cedro no pátio interior da casa.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 6,
+        "verseStart": 36,
+        "label": "1Rs 6:36"
+      }
+    },
+    {
+      "placeId": "inner",
+      "title": "Pórtico da casa",
+      "text": "O relato de 1Rs 7:12 afirma que o pórtico tinha arranjo de três ordens de pedras e uma ordem de vigas de cedro semelhante.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 12,
+        "label": "1Rs 7:12"
+      }
+    },
+    {
+      "placeId": "great",
+      "title": "Pátios nomeados",
+      "text": "Crônicas registra o pátio dos sacerdotes e o grande átrio, mas não dá dimensões nem limites cartográficos.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 9,
+        "label": "2Cr 4:9"
+      }
+    },
+    {
+      "placeId": "gates",
+      "title": "Portas revestidas",
+      "text": "Crônicas também diz que as portas do pátio eram revestidas de cobre; o desenho não propõe quantidade nem tamanho.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 9,
+        "label": "2Cr 4:9"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "1Rs 6:36 especifica três ordens de pedras lavradas e uma ordem de vigas de cedro para o pátio interior.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 6,
+        "verseStart": 36,
+        "label": "1Rs 6:36"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "1Rs 7:12 aproxima o arranjo de pedras e vigas do pórtico ao do pátio interior.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 7,
+        "verseStart": 12,
+        "label": "1Rs 7:12"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "2Cr 4:9 nomeia tanto o pátio dos sacerdotes quanto o grande átrio e cita portas revestidas de cobre.",
+      "reference": {
+        "book": "2Chr",
+        "chapter": 4,
+        "verseStart": 9,
+        "label": "2Cr 4:9"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "As passagens sobre pátios consultadas não informam comprimento ou largura; perímetros do desenho são esquemáticos.",
+      "reference": {
+        "book": "1Kgs",
+        "chapter": 6,
+        "verseStart": 36,
+        "label": "1Rs 6:36"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "solomon-temple-courts.svg",
+    "dimensions": [
+      {
+        "label": "Pátio interior — perímetro",
+        "note": "medida não informada no texto; linha tracejada é esquemática, sem escala.",
+        "reference": {
+          "book": "1Kgs",
+          "chapter": 6,
+          "verseStart": 36,
+          "label": "1Rs 6:36"
+        }
+      },
+      {
+        "label": "Grande átrio — perímetro",
+        "note": "medida não informada no texto; linha tracejada é esquemática, sem escala.",
+        "reference": {
+          "book": "2Chr",
+          "chapter": 4,
+          "verseStart": 9,
+          "label": "2Cr 4:9"
+        }
+      }
+    ],
+    "notes": [
+      "Côvado comum ≈ 0,45 m é apenas a conversão de referência; côvado longo ≈ 0,52 m é uma estimativa, e Ez 40:5 apresenta uma cana de seis côvados acrescida de um palmo. 2Cr 3:3 menciona a primeira medida antiga sem fixar equivalência métrica.",
+      "Desenho vetorial didático baseado em referências textuais; não é reconstrução arqueológica. Elementos sem medida textual são esquemáticos e não devem ser lidos em escala.",
+      "Silhueta de 1,70 m apenas como referência gráfica moderna, sem pretensão de representar uma pessoa histórica.",
+      "Contornos tracejados indicam somente recintos nomeados, não forma, área ou limites arquitetônicos conhecidos.",
+      "A composição espacial é esquemática; não posiciona pórtico, pátio sacerdotal e grande átrio em escala relativa.",
+      "O termo da ACF para portas em 2Cr 4:9 é cobre; não se infere espessura nem cobertura superficial."
+    ],
+    "relatedIds": [
+      "solomon-temple-overview",
+      "solomon-temple-bronze-altar"
+    ],
+    "parts": [
+      {
+        "id": "inner",
+        "name": "Pátio interior",
+        "description": "Recinto nomeado em Reis, com três ordens de pedras lavradas e uma de vigas de cedro. Perímetro: medida não informada no texto.",
+        "material": "Pedra lavrada clara e cedro #7A4E2D",
+        "references": [
+          {
+            "book": "1Kgs",
+            "chapter": 6,
+            "verseStart": 36,
+            "label": "1Rs 6:36"
+          },
+          {
+            "book": "1Kgs",
+            "chapter": 7,
+            "verseStart": 12,
+            "label": "1Rs 7:12"
+          }
+        ],
+        "highlight": {
+          "x": 43,
+          "y": 42,
+          "width": 57,
+          "height": 37
+        }
+      },
+      {
+        "id": "great",
+        "name": "Grande átrio e pátio dos sacerdotes",
+        "description": "Áreas nomeadas em Crônicas. Limites e relação dimensional: medida não informada no texto.",
+        "material": "Pedra lavrada; detalhes sem material especificado",
+        "references": [
+          {
+            "book": "2Chr",
+            "chapter": 4,
+            "verseStart": 9,
+            "label": "2Cr 4:9"
+          }
+        ],
+        "highlight": {
+          "x": 35,
+          "y": 36,
+          "width": 65,
+          "height": 21
+        }
+      },
+      {
+        "id": "gates",
+        "name": "Portas do pátio",
+        "description": "Portas revestidas de cobre segundo Crônicas; quantidade e dimensões não informadas.",
+        "material": "Cobre (termo da ACF)",
+        "references": [
+          {
+            "book": "2Chr",
+            "chapter": 4,
+            "verseStart": 9,
+            "label": "2Cr 4:9"
+          }
+        ],
+        "highlight": {
+          "x": 81,
+          "y": 49,
+          "width": 0,
+          "height": 0
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "solomon-temple-courts-planta.svg"
+      },
+      {
+        "label": "Frente",
+        "svgFile": "solomon-temple-courts-frente.svg"
+      },
+      {
+        "label": "Corte",
+        "svgFile": "solomon-temple-courts-corte.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "solomon-temple-courts-isometrica.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-10-16",
+    "status": "documented",
+    "verified": [
+      "1Rs 6:36: três ordens de pedra e uma de vigas de cedro no pátio interior",
+      "1Rs 7:12: disposição similar no pórtico",
+      "2Cr 4:9: pátio dos sacerdotes, grande átrio e portas revestidas de cobre"
+    ],
+    "uncertainties": [
+      "Nenhuma dimensão dos pátios é informada nas passagens consultadas.",
+      "Geometria, tamanho relativo e posição precisa dos recintos não definidos por estes versículos."
+    ],
+    "methodology": "Referências conferidas em server/bible-data/1ki.ts e 2ch.ts antes da redação. Perímetros e relação gráfica são deliberadamente tracejados e não métricos."
+  }
+}

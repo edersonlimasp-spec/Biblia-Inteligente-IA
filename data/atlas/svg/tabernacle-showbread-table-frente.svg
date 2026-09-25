@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Vista frontal esquemática da mesa dos pães">
+  <defs><linearGradient id="gold" x2="0" y2="1"><stop stop-color="#C9A227"/><stop offset=".5" stop-color="#C9A227"/><stop offset="1" stop-color="#A0673A"/></linearGradient><linearGradient id="linen" x2="0" y2="1"><stop stop-color="#f4eee0"/><stop offset="1" stop-color="#f4eee0"/></linearGradient></defs>
+  <rect width="800" height="520" fill="#17262a"/>
+  <path d="M135 433h530" stroke="#BFC5CC" stroke-opacity=".28" stroke-width="2"/>
+  <g id="part-table-body">
+    <path d="M197 183h406v45H197z" fill="url(#gold)" stroke="#C9A227" stroke-width="3"/>
+    <path d="M215 228h24v175h-24zm346 0h24v175h-24z" fill="url(#gold)" stroke="#C9A227" stroke-width="3"/>
+    <path d="M205 403h45v13h-45zm345 0h45v13h-45z" fill="#A0673A" stroke="#C9A227" stroke-width="2"/>
+  </g>
+  <g id="part-moulding">
+    <path d="M188 174h424v11H188zM190 232h420v9H190z" fill="#C9A227" stroke="#C9A227" stroke-width="2"/>
+  </g>
+  <g id="part-twelve-loaves" fill="url(#linen)" stroke="#C9A227" stroke-width="2">
+    <path d="M194 151q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44z"/>
+    <path d="M194 124q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44zm64 0q4-13 22-13t22 13v21h-44z"/>
+  </g>
+  <g id="part-carrying-rings-and-poles" fill="none" stroke="#C9A227" stroke-width="6">
+    <path d="M190 218v34m420-34v34M174 250h452"/>
+  </g>
+  <g id="part-vessels" fill="url(#gold)" stroke="#C9A227" stroke-width="2">
+    <path d="M282 276q22-23 44 0l-8 16h-28zM374 276q22-23 44 0l-8 16h-28zM466 276q22-23 44 0l-8 16h-28z"/>
+    <path d="M260 321v-14q12-12 24 0v14m-27 0h30m227 0v-14q12-12 24 0v14m-27 0h30"/>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-label="Corte do pórtico com projeção de dez côvados e altura desconhecida">
+ <rect width="720" height="480" fill="#14231f"/><text x="24" y="34" fill="#f4ead3" font-family="sans-serif" font-size="22" font-weight="700">CORTE DO PÓRTICO · DIMENSÕES TEXTUAIS</text>
+ <g id="part-portico"><path d="M185 344V158H467V344Z" fill="#c8bea6" stroke="#eee2c5" stroke-width="4"/><path d="M185 158H467" stroke="#d2b35c" stroke-width="8"/><path d="M208 184V343M443 184V343" stroke="#90703c" stroke-width="8"/><path d="M237 193V344M414 193V344" stroke="#987b49" stroke-width="5"/></g>
+ <g id="part-height-marker"><path d="M497 342V121" stroke="#e2bc61" stroke-width="3" stroke-dasharray="9 7"/><path d="M488 342H506M488 121H506" stroke="#e2bc61" stroke-width="2" stroke-dasharray="5 4"/></g>
+ <g stroke="#e7d5a2" stroke-width="2" fill="none"><path d="M185 377H467M185 371V383M467 371V383"/></g>
+ <g fill="#f4ead3" font-family="sans-serif" font-size="14"><text x="253" y="403">20 côv. largura</text><text x="512" y="189" fill="#f2d68c">120 côv.</text><text x="512" y="210" fill="#f2d68c">apenas 2Cr 3:4;</text><text x="512" y="231">altura debatida</text></g>
+ <rect x="24" y="427" width="672" height="33" rx="5" fill="#263930" stroke="#e2bc61" stroke-dasharray="6 5"/><text x="37" y="449" fill="#f2d68c" font-family="sans-serif" font-size="13">Cota segura de projeção em planta: 10 côv. ≈ 4,5 m (1Rs 6:3).</text>
+</svg>

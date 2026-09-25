@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" role="img" aria-label="Elevação esquemática do debir e querubins">
+<rect width="800" height="560" fill="#17262a"/><text x="28" y="38" fill="#f4ead9" font-family="sans-serif" font-size="23">DEBIR · frente</text>
+<path d="M173 428V140H625V428" fill="#dfd1b5" stroke="#d2ad49" stroke-width="7"/><path d="M215 398V171H584V398" fill="#7A4E2D" stroke="#c49a35" stroke-width="6"/><path d="M215 398h369" stroke="#d2ad49" stroke-width="8"/>
+<g fill="#c6a03d" stroke="#806022" stroke-width="3"><path d="M303 371V215l22-42 22 42v156z"/><path d="M455 371V215l22-42 22 42v156z"/><path d="M308 222q-50-58-102-35 39 48 98 52m22-17q48-54 100-33-36 48-98 50m128-35q-51-58-102-35 39 48 99 52m22-17q48-54 100-33-36 48-98 50"/></g>
+<path d="M341 383h100v25H341z" fill="#99703e" stroke="#d2ad49" stroke-width="3"/>
+<g stroke="#e3d9c7" stroke-width="2" fill="none"><path d="M173 450v24m452-24v24m-440 0h428"/><path d="M143 140h-22m22 288h-22m-5-278v268"/></g>
+<g fill="#f4ead9" font-family="sans-serif" font-size="16"><text x="295" y="515">20 côvados ≈ 9,0 m · 1Rs 6:20</text><text x="85" y="322" transform="rotate(-90 85 322)">20 côvados ≈ 9,0 m</text><text x="293" y="156" fill="#ddbe6b">querubins: 10 côvados · 1Rs 6:23</text><text x="320" y="429">arca sob as asas · 1Rs 8:6–7</text></g>
+<g fill="#fff" font-family="sans-serif" font-size="13"><path d="M695 468v-35m-8 9q8-14 16 0v12h-5v14h-6v-14h-5z"/><text x="635" y="494">1,70 m</text></g><path d="M158 120h482v326H158z" fill="none" stroke="#c6b99f" stroke-dasharray="9 8" stroke-width="2"/><text x="464" y="118" fill="#f4ead9" font-family="sans-serif" font-size="13">topo das paredes: perfil esquemático</text>
+</svg>

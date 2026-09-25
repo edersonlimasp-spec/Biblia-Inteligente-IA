@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Elevação esquemática de tábuas, travessas e bases do tabernáculo">
+<rect width="800" height="520" fill="#17262a"/>
+<path d="M110 427H690" stroke="#BFC5CC" stroke-width="2" opacity=".38"/>
+<defs>
+ <pattern id="planks" width="21" height="278" patternUnits="userSpaceOnUse">
+  <rect width="15" height="278" fill="#8A6A43" fill-opacity=".48" stroke="#C9A227" stroke-width="2"/>
+ </pattern>
+</defs>
+<g id="part-derived-room">
+ <rect x="171" y="96" width="458" height="312" fill="none" stroke="#BFC5CC" stroke-width="3" stroke-dasharray="12 9"/>
+</g>
+<g id="part-boards">
+ <rect x="190" y="125" width="420" height="278" fill="url(#planks)" stroke="#C9A227" stroke-width="2"/>
+</g>
+<g id="part-bars" fill="none" stroke="#C9A227" stroke-width="7">
+ <path d="M184 155h432M184 210h432M184 265h432M184 320h432M184 375h432"/>
+</g>
+<g id="part-sockets" fill="#BFC5CC">
+ <path d="M190 405h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37zm38 0h37v13h-37z"/>
+</g>
+</svg>

@@ -6,126 +6,147 @@ id = "vUooGEGQlm12V-G7sUbak"
 uri = "file://public/biblia-store-icon-512.png"
 type = "image"
 title = "Ícone Google Play 512x512 (Bíblia Inteligente IA)"
+logical_id = "f34ea104-80a6-49b7-ae0b-052ed05da9e8"
 
 [[outputs]]
 id = "rsCVzzRFuz-9pbWfYIanr"
 uri = "file://public/bibliainteligente-v1.0.22.zip"
 type = "unspecified"
 title = "Bíblia Inteligente v1.0.22 — AAB assinado (versionCode 22)"
+logical_id = "c1b71e81-75df-4964-9030-336ec2299456"
 
 [[outputs]]
 id = "FGFoEd_u3CrTj6Uhj78Wp"
 uri = "file://screenshots/appstore-1-home.jpg"
 type = "image"
 title = "Screenshot 1 — Tela Inicial"
+logical_id = "54d55517-95ac-4a3d-adf1-48fc07371903"
 
 [[outputs]]
 id = "DePXnMWQRfv3AiPR9uTUf"
 uri = "file://screenshots/appstore-2-strongs.jpg"
 type = "image"
 title = "Screenshot 2 — Dicionário Strong's (1284×2778px)"
+logical_id = "2e05841f-0f0e-432a-9cd5-76095fedfc05"
 
 [[outputs]]
 id = "Ate8uN2WhONqQfx14TL3h"
 uri = "file://screenshots/appstore-3-ia.jpg"
 type = "image"
 title = "Screenshot 3 — Professor IA (1284×2778px)"
+logical_id = "a4f2e9c5-2e70-43f1-b8b9-302f65c6c072"
 
 [[outputs]]
 id = "W88GPDPkIqLDzYjYfrT4K"
 uri = "file://screenshots/appstore-2-biblia.jpg"
 type = "image"
 title = "Screenshot 2 — Bíblia (Gênesis 1)"
+logical_id = "d7a2bfa6-e742-4943-9d26-391d50fbf49b"
 
 [[outputs]]
 id = "sePACQx6pCZwzuNb3TWKo"
 uri = "file://screenshots/appstore-3-professor.jpg"
 type = "image"
 title = "Screenshot 3 — Professor IA"
+logical_id = "e48082bd-217b-4ea6-a020-b60f084e759d"
 
 [[outputs]]
 id = "9snrshOLpH0JKp0LMT4YL"
 uri = "file://screenshots/appstore-4-modos-ia.jpg"
 type = "image"
 title = "Screenshot 4 — Modos IA Premium"
+logical_id = "e09895bc-0d69-4cb7-9f8b-01a5dc93dd65"
 
 [[outputs]]
 id = "lpHspSkM6qaJ2gcDQ72tL"
 uri = "file://screenshots/appstore-5-progresso.jpg"
 type = "image"
 title = "Screenshot 5 — Planos & Progresso"
+logical_id = "1e72e0f5-847f-413e-83f6-91b2fcbbbc28"
 
 [[outputs]]
 id = "MRt636OPzi3mPVnC_dsMu"
 uri = "file://screenshots/appstore-6-jogos.jpg"
 type = "image"
 title = "Screenshot 6 — Mini-Jogos"
+logical_id = "d3ea2389-6664-4c83-85dd-de9669bc961f"
 
 [[outputs]]
 id = "NgWYJ1Kr5queJ0w5CM1-U"
 uri = "file://screenshots/ipad-1.jpg"
 type = "image"
 title = "iPad 1 — Tela Inicial (2048×2732px)"
+logical_id = "515f9fd3-e3bb-4340-909c-db5d814c1a04"
 
 [[outputs]]
 id = "rfuRC6_kP7QlVR4NZXt3P"
 uri = "file://screenshots/ipad-2.jpg"
 type = "image"
 title = "iPad 2 — Bíblia (2048×2732px)"
+logical_id = "6adbbaca-db48-4e1c-8569-472ee1efcf79"
 
 [[outputs]]
 id = "py2W_gwSvuz59oXfeTE3k"
 uri = "file://screenshots/ipad-3.jpg"
 type = "image"
 title = "iPad 3 — Professor IA (2048×2732px)"
+logical_id = "82fb592f-18f9-4f58-a5ed-fed5642a9601"
 
 [[outputs]]
 id = "DFLWnvO2OuqN1nuUksvU-"
 uri = "file://screenshots/ipad-4.jpg"
 type = "image"
 title = "iPad 4 — Modos IA Premium (2048×2732px)"
+logical_id = "0b77c59b-c416-4ab6-8287-b6ff7b230587"
 
 [[outputs]]
 id = "vSBSOPu5l-_M076KEvQh2"
 uri = "file://screenshots/ipad-5.jpg"
 type = "image"
 title = "iPad 5 — Planos & Progresso (2048×2732px)"
+logical_id = "f4a0c6be-7d24-4333-a378-97e8327d065b"
 
 [[outputs]]
 id = "vRl8oD3YHh6bYV9CRKU9z"
 uri = "file://screenshots/ipad-6.jpg"
 type = "image"
 title = "iPad 6 — Mini-Jogos (2048×2732px)"
+logical_id = "d24f4d87-d4e9-48d5-bee9-e6d0abb5ca14"
 
 [[outputs]]
 id = "ZyvK0a0ux0SoGA5CuyaRq"
 uri = "file://.local/tmp/profile_base64.txt"
 type = "text"
 title = "Base64 do Provisioning Profile (cole no GitHub)"
+logical_id = "0b570b72-aac6-4872-8b3b-e15665b91aa4"
 
 [[outputs]]
 id = "3NSfHeVL5moARDzww83Z6"
 uri = "file://.local/out/IOS_PROVISIONING_PROFILE_BASE64.txt"
 type = "text"
 title = "IOS_PROVISIONING_PROFILE_BASE64 (cole no GitHub Secret)"
+logical_id = "899e4e4b-d62e-4e8d-b997-8f2dd52ce56d"
 
 [[outputs]]
 id = "iPUJXCIepMZ6Rt_Ke9fgi"
 uri = "file://attached_assets/iap_screenshots/strong_lifetime.png"
 type = "image"
 title = "Strong Vitalício (com.bibliainteligente.strong.lifetime)"
+logical_id = "e5e9c0db-040b-4fb9-8b59-dd4109160dfa"
 
 [[outputs]]
 id = "hwdSYev6wh_ecET4N7Syj"
 uri = "file://attached_assets/iap_screenshots/gold_monthly.png"
 type = "image"
 title = "Gold Mensal (com.bibliainteligente.gold.monthly)"
+logical_id = "806168bb-178d-4862-8a39-d79709b5b35e"
 
 [[outputs]]
 id = "jsU_f7OfUyaWf75WWgcTx"
 uri = "file://attached_assets/iap_screenshots/gold_yearly.png"
 type = "image"
 title = "Gold Anual (com.bibliainteligente.gold.yearly)"
+logical_id = "e7b2d21f-e34d-4da9-9366-f408a48ec00c"
 
 [[outputs]]
 id = "kdRHxBRQG6WO-iZndk3Kr"
@@ -133,18 +154,21 @@ uri = "file://attached_assets/iap_screenshots/premium_monthly.png"
 type = "image"
 title = "Screenshot Premium Mensal (App Review)"
 description = "Captura 1024×1024 para o campo de screenshot de revisão da assinatura Premium Mensal no App Store Connect."
+logical_id = "426ea916-f618-4e53-a84c-ac027bf95f44"
 
 [[outputs]]
 id = "2qpFkSaVvca3R-1yGNhvs"
 uri = "file://attached_assets/iap_screenshots/premium_yearly.png"
 type = "image"
 title = "Premium Anual (com.bibliainteligente.premium.yearly)"
+logical_id = "c5c8ae43-3853-4794-9f03-78c562707dbf"
 
 [[outputs]]
 id = "drRYLEGV7FBtI9ZzVxsex"
 uri = "file://releases/biblia-inteligente-1.0.49.aab"
 type = "unspecified"
 title = "Bíblia Inteligente 1.0.49 — Google Play (AAB)"
+logical_id = "3d9e60dd-140c-47d6-821b-5cd9f36e4a62"
 
 [[outputs]]
 id = "LN_mqv2TEN3ZSuTd3ihnQ"
@@ -152,6 +176,7 @@ uri = "file://releases/biblia-inteligente-1.0.50.aab"
 type = "unspecified"
 title = "Bíblia Inteligente v1.0.50 (Google Play)"
 description = "Arquivo AAB assinado com a chave de upload, pronto para enviar no Play Console (versionCode 50)."
+logical_id = "abc2a052-d160-4603-8ba6-3af274e2af5c"
 
 [[outputs]]
 id = "9cIxAZjK5YOv4V3dRu7i4"
@@ -159,6 +184,7 @@ uri = "file://screenshots/dashboard-desktop-fixed.jpg"
 type = "image"
 title = "Dashboard corrigido — desktop"
 description = "Prévia pós-restart em 1280×720, com o cabeçalho encostado no topo e sem faixa branca."
+logical_id = "cb153ab2-af48-48cf-88aa-4d192753e161"
 
 [[outputs]]
 id = "agYpto39zn3jaVU2QUt9W"
@@ -166,6 +192,7 @@ uri = "file://screenshots/dashboard-mobile-fixed.png"
 type = "image"
 title = "Dashboard corrigido — mobile"
 description = "Prévia pós-restart em 390×844, validada com elementsFromPoint em Y=10, 20, 40, 60 e 80."
+logical_id = "4818612f-128a-4dec-9997-f4e018cf79a0"
 
 [[outputs]]
 id = "4TlEw6U1Na4bKGoUV6rcN"
@@ -173,3 +200,172 @@ uri = "file://android/app/build/outputs/bundle/release/app-release.aab"
 type = "unspecified"
 title = "Bíblia Inteligente Android 1.0.51 (51)"
 description = "App Bundle Android de release assinado, pronto para upload manual no Google Play Console."
+logical_id = "c3a2df62-0d58-4715-868d-fbb1b3fab488"
+
+[[outputs]]
+id = "RvFPX-wWPudZEvLqVXhgF"
+uri = "file://screenshots/atlas-stage2/contato-mobile.png"
+type = "image"
+title = "Atlas — capturas em 390 px"
+description = "Home, grade de pastas, pasta, Como era, Hoje, Comparar, narrativa e painel."
+logical_id = "a658c96d-023a-4a8f-9737-0ebad899be6d"
+content_hash = "sha256:aa1d8997cac2f920de3ba42782684d1521b190020a2aa9e18f88cb7ca6d231a2"
+size = 3284661
+mtime_ms = 1790265035771
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/a658c96d-023a-4a8f-9737-0ebad899be6d/87e3889e-e488-44fe-8054-72a6641963de"
+storage_version_token = "1790265064220517"
+content_type = "image/png"
+
+[[outputs]]
+id = "uxvU4Ckqh1-XN-dVVQUBN"
+uri = "file://screenshots/atlas-stage2/contato-desktop.png"
+type = "image"
+title = "Atlas — capturas no desktop"
+description = "Home, grade de pastas, pasta, três modos do mapa, narrativa e painel."
+logical_id = "456c6502-b192-4c64-b55f-ad0875753b27"
+content_hash = "sha256:6217269ca4a186617a72fca0cd854709811ba5871b68705249447b540e14f3d1"
+size = 4981192
+mtime_ms = 1790265039226
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/456c6502-b192-4c64-b55f-ad0875753b27/50a98208-6979-4619-93bb-6ecd63b0b44a"
+storage_version_token = "1790265065215474"
+content_type = "image/png"
+
+[[outputs]]
+id = "GqWjlnyUsfM0XywMbQw4E"
+uri = "file://screenshots/atlas-tabernacle-overview-mobile.png"
+type = "image"
+title = "Tabernáculo — visão geral no celular"
+description = "Captura real da ficha gratuita no app em largura de 390 px."
+logical_id = "4dd01df9-b3cc-4eaf-9cf5-526acb664239"
+content_hash = "sha256:7af9fa08481d29ca68a0a5f252cae31535a54125e0b695843d089aeb18d1df44"
+size = 82421
+mtime_ms = 1790274781821
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/4dd01df9-b3cc-4eaf-9cf5-526acb664239/30c1ded4-755b-49ca-baa6-1e1e20b7f30d"
+storage_version_token = "1790274802787219"
+content_type = "image/png"
+
+[[outputs]]
+id = "6HCaVmugcCc7N90-cDwNW"
+uri = "file://screenshots/atlas-tabernacle-altar-mobile.png"
+type = "image"
+title = "Altar do holocausto — prancha no celular"
+description = "Captura isolada do SVG original em vista frontal; a ficha no app permanece protegida pela assinatura."
+logical_id = "4f720a8a-4253-4f7c-8c45-ce5ac65bd3f8"
+content_hash = "sha256:a087967a7736ccbb572a6650484f39b6f3642e304de071756d52b210e15a9237"
+size = 38883
+mtime_ms = 1790274615021
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/4f720a8a-4253-4f7c-8c45-ce5ac65bd3f8/643998e6-8da2-44ac-844b-15d7df36409b"
+storage_version_token = "1790274803793201"
+content_type = "image/png"
+
+[[outputs]]
+id = "e03kwhObBLPqX_-EgcNzv"
+uri = "file://screenshots/atlas-stage6-altar-mobile.png"
+type = "image"
+title = "Altar do holocausto — vista 3/4 no celular"
+description = "Prancha isolada do SVG original com cotas e silhueta; a ficha continua paga no app."
+logical_id = "a4270e0c-d575-4881-b481-31142802e3ca"
+content_hash = "sha256:50467f8480e5d756257e79980e3b222df0d21e160e0345595c1e3b50aa8f4db4"
+size = 61470
+mtime_ms = 1790275978737
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/a4270e0c-d575-4881-b481-31142802e3ca/b1fa3379-109a-451d-8646-70a62b12472e"
+storage_version_token = "1790276199242273"
+content_type = "image/png"
+
+[[outputs]]
+id = "cPIg2p7c0GgPPCcPlJfZm"
+uri = "file://screenshots/atlas-stage6-vestes-mobile.png"
+type = "image"
+title = "Vestes do sumo sacerdote — conjunto no celular"
+description = "Prancha isolada do SVG original; a ficha continua paga no app."
+logical_id = "3af6ba25-7015-4b4b-b3be-1c1589af72fe"
+content_hash = "sha256:d8f96bc85ffbf764417d08070fd68f4bbf3bd5e5984681379c39e647ef4b801c"
+size = 86351
+mtime_ms = 1790275879637
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/3af6ba25-7015-4b4b-b3be-1c1589af72fe/2316a56e-7c1f-4498-9ed7-7a6999a1519b"
+storage_version_token = "1790276200011469"
+content_type = "image/png"
+
+[[outputs]]
+id = "Fu2rW3DUaoQ4GfosBtBpx"
+uri = "file://screenshots/atlas-stage6-peitoral-mobile.png"
+type = "image"
+title = "Peitoral do juízo — vista frontal no celular"
+description = "Prancha isolada do SVG original; a ficha continua paga no app."
+logical_id = "b634122e-83a9-42eb-a054-ca48875e30fa"
+content_hash = "sha256:fc8d4bbd282e3a25d5c7d6aeb74791827ed46066a14cc7042b16bcf3cc123742"
+size = 76855
+mtime_ms = 1790275880529
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/b634122e-83a9-42eb-a054-ca48875e30fa/275e9362-6eca-4f8f-a3ad-1b048b367df4"
+storage_version_token = "1790276200947829"
+content_type = "image/png"
+
+[[outputs]]
+id = "b3OVO3_1uB_umMAdqxjXL"
+uri = "file://screenshots/atlas-stage7-templo-geral-mobile.png"
+type = "image"
+title = "Templo: visão geral (celular)"
+description = "Captura da ficha gratuita em execução, 390 × 844."
+logical_id = "07b7467c-3f28-45dd-8eca-ff4fa93079af"
+content_hash = "sha256:d93bb4f2c51129e69f0e754c33ed3e69ad647b335a58fa372195427a57378cb5"
+size = 84566
+mtime_ms = 1790280451296
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/07b7467c-3f28-45dd-8eca-ff4fa93079af/47e493df-8e2e-4ac9-bf11-6395c02934ad"
+storage_version_token = "1790280666051310"
+content_type = "image/png"
+
+[[outputs]]
+id = "ydquKvonbz64ahyrJaJWd"
+uri = "file://screenshots/atlas-stage7-mar-de-fundicao-mobile.png"
+type = "image"
+title = "Mar de fundição (celular)"
+description = "Prancha isolada do SVG original; a ficha Premium não foi aberta."
+logical_id = "769af35f-e9d9-4ce2-8d41-996aa25dc31e"
+content_hash = "sha256:97ad6855b1e378efc573e4340bf0615e4457e9912fc97667d9031423b26f036c"
+size = 48038
+mtime_ms = 1790280542584
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/769af35f-e9d9-4ce2-8d41-996aa25dc31e/f615822b-a8a9-40a4-a37f-9cba94183c64"
+storage_version_token = "1790280667250479"
+content_type = "image/png"
+
+[[outputs]]
+id = "nClckxLoDtvPkn7nPrtGC"
+uri = "file://screenshots/atlas-stage7-bases-com-rodas-mobile.png"
+type = "image"
+title = "Bases com rodas (celular)"
+description = "Prancha isolada da vista explodida; a ficha Premium não foi aberta."
+logical_id = "ca49dfb4-a474-42d9-8569-0f18febbbc29"
+content_hash = "sha256:3ccf0b0d4b4c71528b4cb72d12faba793d45e17d83a6d837a2b58e973bb74de1"
+size = 42341
+mtime_ms = 1790280543184
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/ca49dfb4-a474-42d9-8569-0f18febbbc29/37602d7e-95a2-46fd-8361-94252085d4c7"
+storage_version_token = "1790280668411503"
+content_type = "image/png"
+
+[[outputs]]
+id = "yjp6OpdRmmylGRHq5QqCF"
+uri = "file://screenshots/atlas-stage7-comparacao-mobile.png"
+type = "image"
+title = "Comparação: plantas (celular)"
+description = "Captura da ficha gratuita com os dois esquemas na mesma escala."
+logical_id = "0aa8ec0e-5397-407b-aa2c-d6658bf14c24"
+content_hash = "sha256:8da1e43b8639d4707ec01444bbd7046a2fed7422cc6098240b41cffa12394b6f"
+size = 90246
+mtime_ms = 1790280473871
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/0aa8ec0e-5397-407b-aa2c-d6658bf14c24/76ab493c-e3ba-45c3-98d4-a179edf97236"
+storage_version_token = "1790280669207104"
+content_type = "image/png"
+
+[[outputs]]
+id = "fDXnnL-BJsymi1pqTpAkY"
+uri = "file://screenshots/atlas-stage7-comparacao-tabela-mobile.png"
+type = "image"
+title = "Comparação: tabela (celular)"
+description = "Captura complementar da tabela Tabernáculo × Templo."
+logical_id = "874a0f93-b5b0-4c83-9b47-10da86248443"
+content_hash = "sha256:12f08a33e93fbf185a395ebee028088f1d3d5a01058f15dd610600675d64f158"
+size = 79229
+mtime_ms = 1790280577424
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/874a0f93-b5b0-4c83-9b47-10da86248443/ed8a90d4-4ee6-4718-a818-608eb8bc80da"
+storage_version_token = "1790280670018006"
+content_type = "image/png"

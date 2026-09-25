@@ -20,4 +20,8 @@
 - [Reset de senha nativo via e-mail](native-password-reset-links.md) — links de recuperação do login local abrem no navegador; não deixar a rota web do Clerk interceptar o formulário local.
 - [Clerk no appPreview local](clerk-app-preview-loopback.md) — appPreview em 127.0.0.1 pode gerar falso erro de proxy em dev; valide o build isolado em modo produção antes de mexer no Clerk.
 - [Posicionamento da campanha](offer-copy-positioning.md) — público cristão: IA como apoio ao aprofundamento, nunca autoridade espiritual; mudança de copy não autoriza renomear recursos do app.
-- [MapLibre offline em WebView](maplibre-offline-labels.md) — rótulos symbol exigem glifos locais; sem fonte empacotada, use rótulos DOM a partir da base local para evitar requisições externas.
+- [MapLibre offline e worker Vite](maplibre-offline-labels.md) — rótulos symbol exigem glifos locais; prebundle do Vite pode omitir o worker, embora o mapa compile.
+- [Schema Atlas em desenvolvimento](atlas-dev-schema-restart.md) — o processo do servidor pode manter schema antigo após editar shared; reiniciar antes de diagnosticar JSON rejeitado.
+- [Fichas Atlas legíveis](atlas-readable-json.md) — não comprimir fichas em uma linha: revisão geográfica e correções pontuais exigem JSON formatado desde a criação.
+- [Fontes históricas do Atlas](atlas-historical-citations.md) — citar textos fora do cânon do leitor como fontes históricas externas, sem enviá-los à navegação bíblica de 66 livros.
+- [Capturas do Atlas Premium](atlas-premium-captures.md) — para prévias visuais sem assinatura, usar pranchas SVG isoladas e rotuladas, nunca contornar a autorização da ficha.

@@ -1,0 +1,402 @@
+{
+  "id": "tabernacle-burnt-offering-altar",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": [
+    "Exod"
+  ],
+  "characters": [
+    "Moisés",
+    "Arão"
+  ],
+  "period": "Tabernáculo do deserto, conforme Êxodo",
+  "title": "Tabernáculo: Altar do holocausto",
+  "subtitle": "Planta e elevação esquemáticas; cotas textuais em côvados",
+  "summary": "Êxodo descreve um altar quadrado, de três côvados de altura, feito de tábuas de acácia e revestido de bronze. O texto inclui quatro chifres, grelha, argolas e varas de transporte, além de utensílios de bronze. A representação distingue esses componentes sem inventar medidas para a grelha, argolas, varas ou utensílios.",
+  "modernSummary": "Diagrama textual do objeto descrito em Êxodo; não é peça arqueológica identificada.",
+  "purpose": "Documentar a construção e os componentes de transporte e serviço do altar do holocausto do pátio.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": [
+    "altar do holocausto",
+    "altar de bronze",
+    "chifres",
+    "grelha",
+    "Êxodo 27"
+  ],
+  "section": "tabernacle",
+  "subsection": "Tabernáculo",
+  "order": 4,
+  "era": "Êxodo e deserto",
+  "modernOverview": "O desenho vetorial original segue a descrição textual, não uma escavação nem uma peça material preservada.",
+  "keyReferences": [
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 1,
+      "verseEnd": 8,
+      "label": "Exod 27:1–8"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 1,
+      "verseEnd": 7,
+      "label": "Exod 38:1–7"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 3,
+      "label": "Exod 38:3"
+    }
+  ],
+  "aliases": [
+    "altar de bronze",
+    "altar do pátio"
+  ],
+  "references": [
+    {
+      "book": "Exod",
+      "chapter": 27,
+      "verseStart": 1,
+      "verseEnd": 8,
+      "label": "Exod 27:1–8"
+    },
+    {
+      "book": "Exod",
+      "chapter": 38,
+      "verseStart": 1,
+      "verseEnd": 7,
+      "label": "Exod 38:1–7"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Êxodo — texto bíblico ACF consultado",
+      "url": "https://www.bible.com/pt/bible/212/EXO.27.ACF",
+      "license": "Referências e paráfrases próprias; não reproduz texto protegido",
+      "note": "Êxodo 27:1–8 e Êxodo 38:1–7 conferidos em ACF; SVG original esquemático."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "altar-body",
+      "title": "Corpo do altar",
+      "text": "O corpo oco de tábuas mede cinco por cinco côvados e tem três côvados de altura.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 1,
+        "verseEnd": 8,
+        "label": "Exod 27:1–8"
+      }
+    },
+    {
+      "placeId": "horns",
+      "title": "Quatro chifres",
+      "text": "Quatro pontas, feitas da mesma peça nos cantos, pertencem ao corpo do altar; o texto não dá medidas próprias para elas.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 2,
+        "label": "Exod 27:2"
+      }
+    },
+    {
+      "placeId": "bronze-grate",
+      "title": "Grelha de bronze",
+      "text": "A grelha em forma de rede chega até o meio do altar; não há medida individual para a grelha no texto.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 4,
+        "verseEnd": 5,
+        "label": "Exod 27:4–5"
+      }
+    },
+    {
+      "placeId": "rings",
+      "title": "Argolas",
+      "text": "Quatro argolas posicionam-se nos cantos da grelha para receber os varais de transporte.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 4,
+        "label": "Exod 27:4"
+      }
+    },
+    {
+      "placeId": "poles",
+      "title": "Varas de acácia",
+      "text": "Varas revestidas de bronze passam pelas argolas para que o altar possa ser carregado.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 6,
+        "verseEnd": 7,
+        "label": "Exod 27:6–7"
+      }
+    },
+    {
+      "placeId": "utensils",
+      "title": "Utensílios",
+      "text": "Cinzeiros, pás, bacias, garfos e braseiros para o serviço são descritos como de bronze.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 3,
+        "label": "Exod 27:3"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Êxodo chama o altar de oco e feito de tábuas, em vez de especificar uma massa sólida.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 8,
+        "label": "Exod 27:8"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "A grelha chega até a metade do altar, enquanto quatro argolas nos seus cantos acomodam as varas.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 4,
+        "verseEnd": 5,
+        "label": "Exod 27:4–5"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    },
+    {
+      "text": "A enumeração de Êxodo 27:3 nomeia cinzeiros, pás, bacias, garfos e braseiros como utensílios de bronze.",
+      "reference": {
+        "book": "Exod",
+        "chapter": 27,
+        "verseStart": 3,
+        "label": "Exod 27:3"
+      },
+      "sourceIds": [
+        "bible"
+      ]
+    }
+  ],
+  "bounds": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "illustration": {
+    "svgFile": "tabernacle-burnt-offering-altar.svg",
+    "dimensions": [
+      {
+        "label": "Comprimento",
+        "cubits": 5,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 1,
+          "label": "Exod 27:1"
+        }
+      },
+      {
+        "label": "Largura",
+        "cubits": 5,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 1,
+          "label": "Exod 27:1"
+        }
+      },
+      {
+        "label": "Altura",
+        "cubits": 3,
+        "note": "Medida textual; côvado comum ≈ 0,45 m.",
+        "reference": {
+          "book": "Exod",
+          "chapter": 27,
+          "verseStart": 1,
+          "label": "Exod 27:1"
+        }
+      }
+    ],
+    "notes": [
+      "O côvado comum ≈ 0,45 m é a conversão adotada; côvado longo ≈ 0,52 m é uma estimativa alternativa e não altera os valores textuais.",
+      "O tamanho dos chifres, da grelha, das argolas, varas e utensílios não é informado no texto; seus contornos são esquemáticos e sem escala.",
+      "Êxodo 27:8 descreve construção oca, de tábuas; o desenho não infere espessura de parede."
+    ],
+    "relatedIds": [
+      "tabernacle-overview"
+    ],
+    "parts": [
+      {
+        "id": "altar-body",
+        "name": "Corpo oco do altar",
+        "description": "Altar quadrado, de tábuas ocas, com cinco côvados de comprimento e largura e três côvados de altura.",
+        "cubits": 5,
+        "material": "Madeira de acácia revestida de bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 1,
+            "verseEnd": 8,
+            "label": "Exod 27:1–8"
+          }
+        ],
+        "highlight": {
+          "x": 52,
+          "y": 51.7,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "horns",
+        "name": "Quatro chifres",
+        "description": "Projeções nos quatro cantos, feitas da mesma peça que o altar; medida não informada no texto.",
+        "material": "Bronze sobre o corpo revestido",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 2,
+            "label": "Exod 27:2"
+          }
+        ],
+        "highlight": {
+          "x": 52.1,
+          "y": 16.3,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "bronze-grate",
+        "name": "Grelha de bronze",
+        "description": "Grelha em forma de rede, posicionada até o meio do altar; sua dimensão específica não é informada no texto.",
+        "material": "Bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 4,
+            "verseEnd": 5,
+            "label": "Exod 27:4–5"
+          }
+        ],
+        "highlight": {
+          "x": 52,
+          "y": 57.7,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "rings",
+        "name": "Argolas de transporte",
+        "description": "Quatro argolas nos cantos da grelha destinadas aos varais; medida não informada no texto.",
+        "material": "Bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 4,
+            "label": "Exod 27:4"
+          }
+        ],
+        "highlight": {
+          "x": 38,
+          "y": 54.8,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "poles",
+        "name": "Varas de transporte",
+        "description": "Varas de madeira de acácia revestidas de bronze e inseridas nas argolas; medida não informada no texto.",
+        "material": "Madeira de acácia revestida de bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 6,
+            "verseEnd": 7,
+            "label": "Exod 27:6–7"
+          }
+        ],
+        "highlight": {
+          "x": 23.5,
+          "y": 48.5,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "id": "utensils",
+        "name": "Utensílios de bronze",
+        "description": "Recipientes para cinza, pás, bacias, garfos e braseiros; medidas não informadas no texto.",
+        "material": "Bronze",
+        "references": [
+          {
+            "book": "Exod",
+            "chapter": 27,
+            "verseStart": 3,
+            "label": "Exod 27:3"
+          }
+        ],
+        "highlight": {
+          "x": 21.5,
+          "y": 73,
+          "width": 0,
+          "height": 0
+        }
+      }
+    ],
+    "views": [
+      {
+        "label": "Planta",
+        "svgFile": "tabernacle-burnt-offering-altar.svg"
+      },
+      {
+        "label": "Frente",
+        "svgFile": "tabernacle-burnt-offering-altar-frente.svg"
+      },
+      {
+        "label": "Vista 3/4",
+        "svgFile": "tabernacle-burnt-offering-altar-isometrica.svg"
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-09-24",
+    "status": "documented",
+    "verified": [
+      "Êxodo 27:1–8",
+      "Êxodo 38:1–7"
+    ],
+    "uncertainties": [
+      "Nenhuma medida individual é dada para grelha, chifres, varas, argolas e utensílios.",
+      "A descrição não define todas as proporções gráficas ou detalhes visuais dos componentes."
+    ],
+    "methodology": "Conferência direta dos trechos de fabricação em Êxodo 27 e 38 com esquema vetorial não arqueológico."
+  }
+}

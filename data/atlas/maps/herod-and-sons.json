@@ -1,0 +1,653 @@
+{
+  "id": "herod-and-sons",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Matt",
+    "Luke"
+  ],
+  "characters": [
+    "Herodes, o Grande",
+    "Arquelau",
+    "Herodes Antipas",
+    "Filipe, o tetrarca"
+  ],
+  "period": "Reinado de Herodes, o Grande, até a divisão de seus domínios após sua morte; c. 40 a.C.–30 d.C.",
+  "title": "Reino de Herodes e divisão entre os filhos",
+  "subtitle": "Herodes, o Grande, e os domínios posteriores de Arquelau, Antipas e Filipe",
+  "summary": "O mapa distingue o reino de Herodes, o Grande, da divisão posterior entre seus herdeiros. Mateus associa a Judeia a Arquelau após a morte de Herodes; Lucas situa o governo de Antipas na Galileia e o de Filipe em Itureia e Traconítide. Josefo é citado separadamente como fonte histórica para a sucessão e o contexto monumental de Cesareia Marítima, Jericó, Masada e Heródio; esses dados não são atribuídos a um versículo evangélico. As áreas são envelopes didáticos de leitura e não reconstituições de fronteiras ou posses em um ano preciso.",
+  "modernSummary": "Os lugares localizáveis ficam nos atuais Israel e território palestino ocupado; nomes e fronteiras atuais não são projetados sobre o período antigo. Cesareia Marítima, Masada e Heródio não recebem pinos por falta de pares de coordenadas aceitos para essas identificações específicas.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Herodes, o Grande",
+    "Arquelau",
+    "Herodes Antipas",
+    "Filipe, o tetrarca",
+    "Judeia",
+    "Samaria",
+    "Idumeia",
+    "Galileia",
+    "Pereia",
+    "Itureia",
+    "Traconítide",
+    "Josefo"
+  ],
+  "section": "new-testament",
+  "subsection": "Vida de Jesus",
+  "order": 1,
+  "era": "Final do século I a.C. e início do século I d.C.; sucessão após a morte de Herodes, c. 4 a.C.",
+  "modernOverview": "A narrativa de Mateus menciona Herodes, o Grande, em Belém e Jerusalém, e diz que José temeu voltar à Judeia quando Arquelau governava. Lucas 3:1 nomeia Antipas como tetrarca da Galileia e Filipe como tetrarca de Itureia e Traconítide; o próprio versículo não enumera toda a extensão de seus territórios. A tradição histórica sobre a repartição dos domínios e os monumentos herodianos é apresentada com referência a Josefo, não como informação provada por esses versículos. Os polígonos do reino de Herodes, de Judeia ampliada e da Galileia são envelopes esquemáticos feitos com pontos documentados de localidades, não fronteiras administrativas antigas. Pereia, Itureia e Traconítide ficam como referências narrativas sem área desenhada porque a evidência retida não fornece vértices numéricos adequados e inequívocos.",
+  "keyReferences": [
+    {
+      "book": "Matt",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 3,
+      "label": "Mateus 2:1–3 — Herodes e Jerusalém"
+    },
+    {
+      "book": "Matt",
+      "chapter": 2,
+      "verseStart": 16,
+      "verseEnd": 18,
+      "label": "Mateus 2:16–18 — ordem de Herodes"
+    },
+    {
+      "book": "Matt",
+      "chapter": 2,
+      "verseStart": 19,
+      "verseEnd": 23,
+      "label": "Mateus 2:19–23 — retorno e Arquelau"
+    },
+    {
+      "book": "Luke",
+      "chapter": 3,
+      "verseStart": 1,
+      "label": "Lucas 3:1 — tetrarcas e regiões"
+    }
+  ],
+  "aliases": [
+    "Herodes, o Grande",
+    "Reino de Herodes",
+    "Herodes e seus filhos",
+    "Arquelau",
+    "Herodes Antipas",
+    "Filipe, o tetrarca",
+    "Judeia, Samaria e Idumeia",
+    "Galileia e Pereia",
+    "Itureia e Traconítide"
+  ],
+  "references": [
+    {
+      "book": "Matt",
+      "chapter": 2,
+      "verseStart": 1,
+      "verseEnd": 23,
+      "label": "Mateus 2:1–23"
+    },
+    {
+      "book": "Luke",
+      "chapter": 3,
+      "verseStart": 1,
+      "label": "Lucas 3:1"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info",
+      "note": "Foram aceitos somente pares numéricos explícitos sem marcadores de aproximação ou região, convertidos de latitude/longitude para [longitude, latitude]. Usados: Jerusalem (35.234935, 31.777444), Jericho (35.44386371224434, 31.87060143818292), Gaza (34.4333647185274, 31.52481769532773), Ashkelon (34.54722773494757, 31.66240510553615), Hebron (35.09409986578734, 31.53577362133176), Nazareth (35.30152807767973, 32.70674542474383), Tiberias (35.52922039819518, 32.79553799444466), Bethsaida (35.62697295608815, 32.90784828392077) e Caesarea Philippi (35.69463725353769, 33.24805991287043). A entrada genérica Caesarea não foi usada para fixar Cesareia Marítima."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas: Mateus 2 e Lucas 3",
+      "url": "https://ebible.org/web/MAT02.htm",
+      "license": "World English Bible (WEB), domínio público; paráfrases originais em português",
+      "note": "Mateus sustenta a sequência narrativa sobre Herodes e o temor de Arquelau; Lucas 3:1 nomeia os tetrarcas e regiões indicadas. Esses versículos não servem como prova dos monumentos ou dos limites territoriais."
+    },
+    {
+      "id": "josephus",
+      "title": "Flávio Josefo — Antiguidades Judaicas, livros XV–XVII",
+      "url": "https://www.perseus.tufts.edu/hopper/text?doc=J.+AJ",
+      "license": "Texto antigo em domínio público; dados históricos resumidos em paráfrase original",
+      "note": "Fonte histórica para o reinado, obras e fortificações de Herodes e para a sucessão e divisão dos domínios após sua morte. As menções a Cesareia Marítima, Jericó, Masada e Heródio como contexto monumental dependem desta fonte histórica, não de Mateus ou Lucas."
+    },
+    {
+      "id": "editorial",
+      "title": "Envelopes cartográficos editoriais",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Geometria editorial original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "Os polígonos ligam pontos documentados de localidades para orientação, não são limites históricos ou políticos nem itinerários. Não foram desenhadas áreas para Pereia, Itureia ou Traconítide por falta de vértices numéricos elegíveis."
+    }
+  ],
+  "places": [
+    {
+      "id": "herod-kingdom",
+      "name": "Domínio de Herodes, o Grande",
+      "modernName": "Territórios do Levante meridional sob Herodes; extensão e limites variaram",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Mateus situa Herodes em Jerusalém e Belém, mas não delimita seu reino. Josefo descreve a história política e as obras do rei; esta referência regional não é um sítio pontual e não recebe coordenada.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Mateus 2:1 — contexto do reinado"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "josephus"
+      ],
+      "centuries": [
+        "século I a.C."
+      ],
+      "kingdoms": [
+        "Reino cliente de Herodes sob Roma"
+      ]
+    },
+    {
+      "id": "archelaus-territory",
+      "name": "Arquelau: Judeia, Samaria e Idumeia",
+      "modernName": "Sul do Levante; envelope regional aproximado, sem fronteira reconstituída",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Mateus 2:22 associa Arquelau ao governo da Judeia; a divisão mais ampla de Judeia, Samaria e Idumeia é contextualizada historicamente por Josefo. O envelope é apenas uma orientação de escala e não uma fronteira exata nem uma declaração sobre soberania atual.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 22,
+          "label": "Mateus 2:22"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "josephus",
+        "editorial"
+      ],
+      "centuries": [
+        "c. 4 a.C.–6 d.C."
+      ],
+      "kingdoms": [
+        "Tetrarquia de Arquelau"
+      ]
+    },
+    {
+      "id": "antipas-territory",
+      "name": "Herodes Antipas: Galileia e Pereia",
+      "modernName": "Galileia e território a leste do Jordão chamado Pereia; sem perímetro preciso",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Lucas 3:1 nomeia Antipas como tetrarca da Galileia. Josefo contextualiza a extensão de seus domínios, incluindo Pereia; o envelope cartográfico de Galileia não representa esta última região nem afirma uma fronteira exata.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 3,
+          "verseStart": 1,
+          "label": "Lucas 3:1"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "josephus",
+        "editorial"
+      ],
+      "centuries": [
+        "c. 4 a.C.–39 d.C."
+      ],
+      "kingdoms": [
+        "Tetrarquia de Herodes Antipas"
+      ]
+    },
+    {
+      "id": "philip-territory",
+      "name": "Filipe: Itureia e Traconítide",
+      "modernName": "Regiões ao norte e nordeste da Galileia; localização regional, sem pino",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Lucas 3:1 nomeia Itureia e Traconítide como regiões sob Filipe. A única âncora de cidade com par numérico elegível dentro dos limites deste mapa é Cesareia de Filipe; isoladamente ela não define um envelope territorial. A evidência OpenBible marca Trachonitis apenas com coordenadas regionais aproximadas, rejeitadas; Itureia e Traconítide permanecem sem polígono ou pino.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 3,
+          "verseStart": 1,
+          "label": "Lucas 3:1"
+        }
+      ],
+      "sourceIds": [
+        "biblical",
+        "openbible",
+        "josephus"
+      ],
+      "centuries": [
+        "c. 4 a.C.–34 d.C."
+      ],
+      "kingdoms": [
+        "Tetrarquia de Filipe"
+      ]
+    },
+    {
+      "id": "caesarea-maritima",
+      "name": "Cesareia Marítima",
+      "modernName": "Cesareia Marítima, costa mediterrânea de Israel; pino omitido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Josefo é a fonte histórica para as grandes obras de Herodes em Cesareia. A única entrada geográfica numérica retida para Caesarea não distingue com segurança Cesareia Marítima de outros lugares chamados Cesareia; por isso não foi usada como pino.",
+      "references": [
+        {
+          "book": "Luke",
+          "chapter": 3,
+          "verseStart": 1,
+          "label": "Lucas 3:1 — contexto histórico regional, não nomeia Cesareia"
+        }
+      ],
+      "sourceIds": [
+        "josephus",
+        "openbible"
+      ],
+      "centuries": [
+        "final do século I a.C."
+      ]
+    },
+    {
+      "id": "jerusalem",
+      "name": "Jerusalém",
+      "modernName": "Jerusalém; ponto de referência urbano, não delimita a cidade antiga",
+      "coordinates": [
+        35.234935,
+        31.777444
+      ],
+      "certainty": "probable",
+      "explanation": "Mateus situa Herodes em Jerusalém. O marcador reproduz o par exato do registro Jerusalem na evidência OpenBible e indica a cidade em escala geral, não um palácio ou edifício específico.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 3,
+          "label": "Mateus 2:1–3"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ],
+      "centuries": [
+        "século I a.C.–I d.C."
+      ]
+    },
+    {
+      "id": "jericho",
+      "name": "Jericó",
+      "modernName": "Ariha/Jericó, Cisjordânia; ponto geral da região",
+      "coordinates": [
+        35.44386371224434,
+        31.87060143818292
+      ],
+      "certainty": "probable",
+      "explanation": "Josefo registra Jericó no contexto histórico dos domínios e das construções de Herodes. A coordenada é o par exato da chave Jericho na fonte geográfica e não identifica o palácio, jardim ou local de qualquer episódio evangélico.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Mateus 2:1 — contexto cronológico, não menciona Jericó"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "josephus"
+      ],
+      "centuries": [
+        "século I a.C."
+      ]
+    },
+    {
+      "id": "masada",
+      "name": "Masada",
+      "modernName": "Masada, margem ocidental do mar Morto; localização sem pino nesta compilação",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Masada é incluída como contexto histórico associado às fortificações herodianas descritas por Josefo. Nenhum par de coordenadas exato e inequívoco para Masada foi encontrado entre as evidências retidas; não se estima nem se geocodifica um local de evento.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Mateus 2:1 — contexto cronológico, não menciona Masada"
+        }
+      ],
+      "sourceIds": [
+        "josephus",
+        "openbible"
+      ],
+      "centuries": [
+        "século I a.C."
+      ]
+    },
+    {
+      "id": "herodium",
+      "name": "Heródio",
+      "modernName": "Heródio, sudeste de Belém; localização sem pino nesta compilação",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Heródio é incluído como contexto histórico do programa monumental de Herodes conforme Josefo. Não há coordenada numérica elegível para o sítio nas evidências retidas, e a proximidade de Belém não é usada para inventar uma localização.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 2,
+          "verseStart": 1,
+          "label": "Mateus 2:1 — contexto cronológico, não menciona Heródio"
+        }
+      ],
+      "sourceIds": [
+        "josephus",
+        "openbible"
+      ],
+      "centuries": [
+        "século I a.C."
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "herod-great-envelope",
+      "label": "Reino de Herodes, o Grande — c. 37–4 a.C.; envelope histórico",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.4333647185274,
+          31.52481769532773
+        ],
+        [
+          34.54722773494757,
+          31.66240510553615
+        ],
+        [
+          35.09409986578734,
+          31.53577362133176
+        ],
+        [
+          35.44386371224434,
+          31.87060143818292
+        ],
+        [
+          35.234935,
+          31.777444
+        ],
+        [
+          34.4333647185274,
+          31.52481769532773
+        ]
+      ],
+      "explanation": "Envelope editorial de referência para o reino de Herodes, o Grande, c. 37–4 a.C., construído somente com pontos urbanos documentados de localidades associadas ao contexto regional. Não é fronteira exata, não reconstrói a extensão variável do reino e não expressa soberania atual.",
+      "sourceIds": [
+        "editorial",
+        "openbible",
+        "josephus",
+        "biblical"
+      ]
+    },
+    {
+      "id": "archelaus-envelope",
+      "label": "Domínio de Arquelau — envelope ilustrativo, c. 4 a.C.–6 d.C.",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.4333647185274,
+          31.52481769532773
+        ],
+        [
+          34.54722773494757,
+          31.66240510553615
+        ],
+        [
+          35.09409986578734,
+          31.53577362133176
+        ],
+        [
+          35.44386371224434,
+          31.87060143818292
+        ],
+        [
+          35.234935,
+          31.777444
+        ],
+        [
+          34.4333647185274,
+          31.52481769532773
+        ]
+      ],
+      "explanation": "Envelope editorial construído apenas com pontos urbanos documentados para orientar a leitura de Judeia, Samaria e Idumeia sob Arquelau no período c. 4 a.C.–6 d.C.; não é fronteira exata, não é um levantamento de província e não expressa soberania atual.",
+      "sourceIds": [
+        "editorial",
+        "openbible",
+        "josephus",
+        "biblical"
+      ]
+    },
+    {
+      "id": "antipas-galilee-envelope",
+      "label": "Galileia de Antipas — envelope ilustrativo, século I d.C.",
+      "kind": "area",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.30152807767973,
+          32.70674542474383
+        ],
+        [
+          35.52922039819518,
+          32.79553799444466
+        ],
+        [
+          35.62697295608815,
+          32.90784828392077
+        ],
+        [
+          35.69463725353769,
+          33.2480599128704
+        ],
+        [
+          35.30152807767973,
+          32.70674542474383
+        ]
+      ],
+      "explanation": "Envelope cartográfico indicativo da Galileia associada a Antipas em Lucas 3:1 no século I d.C., traçado por pontos de localidades documentadas; não é fronteira exata nem pretende incluir ou delimitar Pereia.",
+      "sourceIds": [
+        "editorial",
+        "openbible",
+        "biblical"
+      ]
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "herod-kingdom",
+      "title": "Herodes, o Grande",
+      "text": "Mateus abre o relato do nascimento de Jesus situando Herodes como rei. A extensão do reino e as construções associadas a Herodes são contextualizadas por Josefo, não inferidas do versículo.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 1,
+        "label": "Mateus 2:1"
+      }
+    },
+    {
+      "placeId": "jerusalem",
+      "title": "Herodes em Jerusalém",
+      "text": "Os magos chegam a Jerusalém e a notícia inquieta Herodes e a cidade. O marcador assinala a localidade, não o palácio nem um local arqueológico do diálogo.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Mateus 2:1–3"
+      }
+    },
+    {
+      "placeId": "archelaus-territory",
+      "title": "Arquelau sucede ao pai na Judeia",
+      "text": "No retorno, José teme ir à Judeia porque Arquelau governa ali. A tradição mais ampla da divisão territorial é contextualizada por Josefo; o mapa não transforma esse versículo em fronteiras.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 22,
+        "label": "Mateus 2:22"
+      }
+    },
+    {
+      "placeId": "antipas-territory",
+      "title": "Antipas na Galileia e Pereia",
+      "text": "Lucas nomeia Antipas como tetrarca da Galileia. A Pereia é contexto histórico da extensão de seus domínios em Josefo e não recebe polígono neste mapa.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 3,
+        "verseStart": 1,
+        "label": "Lucas 3:1"
+      }
+    },
+    {
+      "placeId": "philip-territory",
+      "title": "Filipe: Itureia e Traconítide",
+      "text": "Lucas 3:1 distingue o governo de Filipe e nomeia Itureia e Traconítide. A entrada geográfica regional marcada como aproximada não foi usada para produzir pino ou contorno.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 3,
+        "verseStart": 1,
+        "label": "Lucas 3:1"
+      }
+    },
+    {
+      "placeId": "caesarea-maritima",
+      "title": "Cesareia Marítima: contexto de Josefo",
+      "text": "Josefo descreve as obras de Herodes em Cesareia Marítima. Lucas 3:1 serve apenas de referência temporal ao período dos tetrarcas; não nomeia a cidade nem é usado como prova dessas construções.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 3,
+        "verseStart": 1,
+        "label": "Lucas 3:1 — referência de período, não menção de Cesareia"
+      }
+    },
+    {
+      "placeId": "jericho",
+      "title": "Jericó: contexto histórico",
+      "text": "Jericó é incluída pelo contexto histórico de Josefo sobre Herodes, não como local de episódio em Mateus 2. O versículo remete apenas ao período, e o ponto da fonte geográfica não identifica um palácio ou jardim.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 1,
+        "label": "Mateus 2:1 — referência de período, não menção de Jericó"
+      }
+    },
+    {
+      "placeId": "masada",
+      "title": "Masada: contexto histórico",
+      "text": "A fortificação é apresentada como contexto do programa de construções de Herodes em Josefo. Mateus não nomeia Masada; a referência bíblica indica apenas o período, e o sítio permanece sem pino.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 1,
+        "label": "Mateus 2:1 — referência de contexto, não menção de Masada"
+      }
+    },
+    {
+      "placeId": "herodium",
+      "title": "Heródio: contexto histórico",
+      "text": "Josefo contextualiza Heródio entre as construções de Herodes. Mateus 2 não menciona esse sítio; o versículo oferece apenas um marco narrativo do período, e o mapa não estima suas coordenadas.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 1,
+        "label": "Mateus 2:1 — referência de período, não menção de Heródio"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Mateus diz que José ouviu que Arquelau reinava na Judeia depois de Herodes e, por isso, teve receio de ir para lá; não apresenta um mapa das demais possessões do sucessor.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 22,
+        "label": "Mateus 2:22"
+      },
+      "sourceIds": [
+        "biblical",
+        "josephus"
+      ]
+    },
+    {
+      "text": "Lucas 3:1 diferencia os governos de Antipas na Galileia e de Filipe em Itureia e Traconítide; essas designações regionais não fornecem, por si sós, linhas de fronteira.",
+      "reference": {
+        "book": "Luke",
+        "chapter": 3,
+        "verseStart": 1,
+        "label": "Lucas 3:1"
+      },
+      "sourceIds": [
+        "biblical",
+        "josephus"
+      ]
+    },
+    {
+      "text": "Mateus relata a ordem de Herodes contra as crianças de Belém. A localização do episódio vem do relato evangélico; não se deve confundi-la com evidência independente sobre o alcance histórico do reino.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 16,
+        "verseEnd": 18,
+        "label": "Mateus 2:16–18"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "Josefo é a fonte histórica citada para os projetos monumentais e fortificações de Herodes, como Cesareia, Masada e Heródio. Os Evangelhos citados neste mapa não são usados para provar essas obras ou os pinos dos lugares.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 2,
+        "verseStart": 1,
+        "label": "Mateus 2:1 — marco temporal, não evidência de monumentos"
+      },
+      "sourceIds": [
+        "josephus",
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    34.4333647185274,
+    31.52481769532773,
+    35.69463725353769,
+    33.24805991287043
+  ],
+  "review": {
+    "date": "2026-09-24",
+    "status": "needs-specialist",
+    "verified": [
+      "Versículos de Mateus e Lucas foram associados apenas às informações que os textos efetivamente nomeiam.",
+      "Contexto de sucessão e monumentos herodianos foi separado e atribuído a Josefo, não apresentado como prova de um versículo evangélico.",
+      "Coordenadas são pares numéricos exatos e sem qualificador da evidência OpenBible retida; a entrada genérica Caesarea foi rejeitada para Cesareia Marítima.",
+      "Masada, Heródio e Cesareia Marítima ficam sem pino por falta de coordenada específica elegível; referências regionais aproximadas também foram rejeitadas.",
+      "O novo envelope de Herodes usa apenas âncoras urbanas exatas já citadas na fonte; não é reconstituição de fronteira."
+    ],
+    "uncertainties": [
+      "A cronologia precisa da morte de Herodes e da transição dos domínios é discutida; datas aproximadas são usadas.",
+      "Os polígonos são envelopes de localidades e não reconstituem limites territoriais nem fronteiras de um ano específico.",
+      "Para Filipe, a única âncora de cidade elegível dentro dos limites do mapa é Cesareia de Filipe (35.69463725353769, 33.24805991287043); um ponto não sustenta um envelope. A entrada de Traconítide é regional e marcada com >, e não há âncora elegível para Itureia ou Pereia; por isso não foi desenhado envelope de Filipe.",
+      "Os vínculos geográficos de Masada, Heródio e Cesareia dependem de fonte histórica e seus pinos foram deliberadamente omitidos."
+    ],
+    "methodology": "Compilação documental assistida por software. Foram usados exclusivamente pares numéricos explícitos e não qualificados na evidência geográfica retida; coordenadas foram armazenadas como [longitude, latitude]. Coordenadas regionais marcadas com >, locais ambíguos e sítios sem par elegível não foram plotados. Envelopes editoriais usam somente pares documentados de localidades e declaram que não são fronteiras exatas. Referências bíblicas e contexto de Josefo foram mantidos separados; revisão de especialista ainda necessária."
+  }
+}

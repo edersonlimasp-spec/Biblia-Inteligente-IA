@@ -1,0 +1,1823 @@
+{
+  "id": "judges-period",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Antigo Testamento",
+  "testament": "AT",
+  "books": [
+    "Judg"
+  ],
+  "characters": [
+    "Débora",
+    "Baraque",
+    "Gideão",
+    "Abimeleque",
+    "Jefté",
+    "Sansão"
+  ],
+  "period": "Narrativas de Juízes 3–21; cronologia relativa e absoluta discutidas",
+  "title": "Período dos juízes",
+  "subtitle": "Débora e Baraque, Gideão, Jefté, Sansão, Silo e a migração de Dã",
+  "summary": "As camadas seguem a ordem literária de Juízes: ciclos iniciais, Débora e Baraque, Gideão e Abimeleque, juízes menores e Jefté, Sansão, migração de Dã e apêndice de Gibeá. Cada linha narrativa é individualizada, mas não pretende recompor uma cronologia absoluta nem itinerários militares. Coordenadas são pinos de topônimos com pares numéricos explícitos na evidência OpenBible; eventos sem sítio seguro permanecem sem marcador.",
+  "modernSummary": "Os episódios se distribuem pelo atual Israel, Cisjordânia, Líbano e Jordânia. Alguns nomes, como Mizpá de Gileade e Leí, não podem ser identificados pontualmente.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Juízes",
+    "Débora",
+    "Baraque",
+    "Gideão",
+    "Jefté",
+    "Sansão",
+    "migração de Dã",
+    "Silo",
+    "atlas"
+  ],
+  "section": "old-testament",
+  "subsection": "Conquista e juízes",
+  "order": 12,
+  "era": "Período dos juízes; sequência relativa narrada, datação debatida",
+  "modernOverview": "Os marcadores no norte incluem Quedes, o monte Tabor, Harosete-Hagoim e o rio Quisom, em áreas dos atuais Israel e Líbano. Ofra, Jezreel, Bete-Seã, Siquém, Zorá, Timna, Gaza e Silo se encontram em regiões hoje associadas a Israel e à Cisjordânia. Os relatos de Jefté usam nomes regionais como Gileade, Mizpá e o Arnom, mas não fixam todos os cenários em sítios arqueológicos precisos. Identificações de topônimos antigos e a cronologia dos ciclos permanecem sujeitas a debate; as linhas são editoriais e não são estradas.",
+  "keyReferences": [
+    {
+      "book": "Judg",
+      "chapter": 4,
+      "verseStart": 1,
+      "verseEnd": 24,
+      "label": "Judg 4:1–24"
+    },
+    {
+      "book": "Judg",
+      "chapter": 5,
+      "verseStart": 1,
+      "verseEnd": 31,
+      "label": "Judg 5:1–31"
+    },
+    {
+      "book": "Judg",
+      "chapter": 6,
+      "verseStart": 1,
+      "verseEnd": 40,
+      "label": "Judg 6:1–40"
+    },
+    {
+      "book": "Judg",
+      "chapter": 7,
+      "verseStart": 1,
+      "verseEnd": 25,
+      "label": "Judg 7:1–25"
+    },
+    {
+      "book": "Judg",
+      "chapter": 11,
+      "verseStart": 1,
+      "verseEnd": 40,
+      "label": "Judg 11:1–40"
+    },
+    {
+      "book": "Judg",
+      "chapter": 13,
+      "verseStart": 1,
+      "verseEnd": 25,
+      "label": "Judg 13:1–25"
+    },
+    {
+      "book": "Judg",
+      "chapter": 18,
+      "verseStart": 1,
+      "verseEnd": 31,
+      "label": "Judg 18:1–31"
+    },
+    {
+      "book": "Judg",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 25,
+      "label": "Judg 21:1–25"
+    }
+  ],
+  "aliases": [
+    "Livro dos Juízes",
+    "Débora",
+    "Baraque",
+    "Gideão",
+    "Abimeleque",
+    "Jefté",
+    "Sansão",
+    "Silo",
+    "Quedes",
+    "Monte Tabor",
+    "Ofra",
+    "Gileade",
+    "Zorá",
+    "Timna",
+    "Laís",
+    "Dã",
+    "ciclos dos juízes",
+    "migração de Dã"
+  ],
+  "references": [
+    {
+      "book": "Judg",
+      "chapter": 3,
+      "verseStart": 7,
+      "verseEnd": 31,
+      "label": "Judg 3:7–31"
+    },
+    {
+      "book": "Judg",
+      "chapter": 4,
+      "verseStart": 1,
+      "verseEnd": 24,
+      "label": "Judg 4:1–24"
+    },
+    {
+      "book": "Judg",
+      "chapter": 5,
+      "verseStart": 1,
+      "verseEnd": 31,
+      "label": "Judg 5:1–31"
+    },
+    {
+      "book": "Judg",
+      "chapter": 6,
+      "verseStart": 1,
+      "verseEnd": 40,
+      "label": "Judg 6:1–40"
+    },
+    {
+      "book": "Judg",
+      "chapter": 7,
+      "verseStart": 1,
+      "verseEnd": 25,
+      "label": "Judg 7:1–25"
+    },
+    {
+      "book": "Judg",
+      "chapter": 8,
+      "verseStart": 1,
+      "verseEnd": 35,
+      "label": "Judg 8:1–35"
+    },
+    {
+      "book": "Judg",
+      "chapter": 11,
+      "verseStart": 1,
+      "verseEnd": 40,
+      "label": "Judg 11:1–40"
+    },
+    {
+      "book": "Judg",
+      "chapter": 13,
+      "verseStart": 1,
+      "verseEnd": 25,
+      "label": "Judg 13:1–25"
+    },
+    {
+      "book": "Judg",
+      "chapter": 18,
+      "verseStart": 1,
+      "verseEnd": 31,
+      "label": "Judg 18:1–31"
+    },
+    {
+      "book": "Judg",
+      "chapter": 21,
+      "verseStart": 1,
+      "verseEnd": 25,
+      "label": "Judg 21:1–25"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding (merged, 2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição OpenBible.info",
+      "note": "Coordenadas plotadas com a ordem [longitude, latitude]. Chaves e pares (latitude, longitude) usados: Bethel 1 (31.93053920580005,35.22103274923676); Kedesh 1 (33.11298357486105,35.53361334150225); Mount Tabor (32.68695640243183,35.39091304299688); Harosheth-hagoyim (32.691177,35.110039); Kishon (32.761948,35.064096); Ophrah 2 (32.60868269540592,35.28826433084549); Jezreel 2 (32.5559631396043,35.33078927843792); Beth-shean (32.5042384550589,35.50307739108582); Shechem (32.21369123124062,35.2817986718367); Arnon (31.428800,35.677009); Aroer 1 (31.47109529828131,35.82200331579328); Zorah (31.762141,34.969319); Eshtaol (31.782429,35.009012); Timnah 1 (31.784368,34.909680); Gaza (31.52481769532773,34.4333647185274); Ashkelon (31.66240510553615,34.54722773494757); Etam 1 (31.736294,35.054850); Laish/Dan (33.24865997897308,35.65248345039043); Shiloh (32.05570050712985,35.28952869712683); Mizpah 3 (31.83273947023218,35.1801628605877); Hazor 1 (33.01718199667929,35.56804856758258); Harod (32.549638,35.355647); Valley of Sorek (31.825731,34.989013)."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas (paráfrases originais)",
+      "url": "https://ebible.org/web/",
+      "license": "WEB: domínio público; nenhuma tradução protegida copiada",
+      "note": "Sequência e alusões conferidas no texto local de Juízes; paráfrases redigidas originalmente. A passagem não é tratada como prova de coordenada."
+    },
+    {
+      "id": "editorial",
+      "title": "Geometria editorial esquemática",
+      "url": "https://www.openbible.info/geo/",
+      "license": "Desenho original; pontos de apoio OpenBible.info CC BY 4.0",
+      "note": "Não há rotas ou fronteiras desenhadas. A disposição das camadas é cronológica/textual, não uma reconstituição de estradas."
+    }
+  ],
+  "places": [
+    {
+      "id": "bethel",
+      "name": "Boquim",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Juízes 2:1–5 chama o lugar Boquim; identificá-lo precisamente com Betel não é seguro. Nenhum pino foi usado.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 5,
+          "label": "Judg 2:1–5"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "moab",
+      "name": "Moabe",
+      "modernName": "Região a leste do mar Morto, atual Jordânia",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Eúde atravessa território de Moabe e o palácio de Eglom não recebe nome de cidade. A geocodificação da região tem coordenada de envelope (>) e não é usada como pino.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 3,
+          "verseStart": 12,
+          "verseEnd": 30,
+          "label": "Judg 3:12–30"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "kedesh",
+      "name": "Quedes (Kedesh)",
+      "modernName": "Tell Qedesh, Galileia, Israel",
+      "coordinates": [
+        35.53361334150225,
+        33.11298357486105
+      ],
+      "certainty": "probable",
+      "explanation": "Baraque é convocado em Quedes de Naftali. O marcador reproduz o par da chave OpenBible Kedesh 1, sem estabelecer o ponto exato do chamado.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 4,
+          "verseStart": 6,
+          "verseEnd": 10,
+          "label": "Judg 4:6–10"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "mount-tabor",
+      "name": "Monte Tabor",
+      "modernName": "Monte Tabor, Galileia, Israel",
+      "coordinates": [
+        35.39091304299688,
+        32.68695640243183
+      ],
+      "certainty": "probable",
+      "explanation": "Baraque reúne forças no monte Tabor conforme a narrativa. Ponto da chave OpenBible Mount Tabor; não prova a posição de acampamentos.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 4,
+          "verseStart": 6,
+          "verseEnd": 14,
+          "label": "Judg 4:6–14"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "harosheth",
+      "name": "Harosete-Hagoim",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Harosete-Hagoim é a base de Sísera na narrativa, mas sua identificação é debatida; o ponto nominal OpenBible não constitui geocódigo confiável para este episódio.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 4,
+          "verseStart": 2,
+          "verseEnd": 16,
+          "label": "Judg 4:2–16"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "hazor",
+      "name": "Hazor",
+      "modernName": "Tel Hazor, Israel",
+      "coordinates": [
+        35.56804856758258,
+        33.01718199667929
+      ],
+      "certainty": "probable",
+      "explanation": "Juízes identifica Jabin como rei de Hazor. A coordenada usa exatamente a chave OpenBible Hazor 1; o marcador identifica o sítio da cidade, não uma camada arqueológica específica do episódio.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 4,
+          "verseStart": 2,
+          "label": "Judg 4:2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "kishon",
+      "name": "Rio Quisom",
+      "modernName": "Nahal Kishon, norte de Israel",
+      "coordinates": [
+        35.064096,
+        32.761948
+      ],
+      "certainty": "probable",
+      "explanation": "O cântico situa a torrente de Quisom na derrota dos carros. A chave OpenBible Kishon usa um ponto de referência, não o curso inteiro do rio.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 4,
+          "verseStart": 7,
+          "label": "Judg 4:7"
+        },
+        {
+          "book": "Judg",
+          "chapter": 5,
+          "verseStart": 21,
+          "label": "Judg 5:21"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "ophrah",
+      "name": "Ofra de Abiezer",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Ofra de Abiezer é ligada a Gideão, mas há localidades homônimas e o sítio é disputado; o ponto nominal OpenBible Ophrah 2 foi rejeitado.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 6,
+          "verseStart": 11,
+          "verseEnd": 24,
+          "label": "Judg 6:11–24"
+        },
+        {
+          "book": "Judg",
+          "chapter": 8,
+          "verseStart": 27,
+          "label": "Judg 8:27"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "jezreel",
+      "name": "Vale de Jezreel",
+      "modernName": "Vale de Jezreel, norte de Israel",
+      "coordinates": [
+        35.33078927843792,
+        32.5559631396043
+      ],
+      "certainty": "probable",
+      "explanation": "Jezreel é indicada como região de concentração das forças midianitas. O par usa a chave OpenBible Jezreel 2, não um limite do vale.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 6,
+          "verseStart": 33,
+          "label": "Judg 6:33"
+        },
+        {
+          "book": "Judg",
+          "chapter": 7,
+          "verseStart": 1,
+          "label": "Judg 7:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "harod-spring",
+      "name": "Fonte de Harode",
+      "modernName": "Ein Harod, Israel",
+      "coordinates": [
+        35.355647,
+        32.549638
+      ],
+      "certainty": "probable",
+      "explanation": "Gideão acampa junto à fonte de Harode. O ponto reproduz a chave OpenBible Harod e indica a fonte, sem delimitar o campo midianita.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 7,
+          "verseStart": 1,
+          "label": "Judg 7:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "beth-shean",
+      "name": "Bete-Seã",
+      "modernName": "Beit She'an, Israel",
+      "coordinates": [
+        35.50307739108582,
+        32.5042384550589
+      ],
+      "certainty": "probable",
+      "explanation": "Bete-Seã aparece entre os territórios cananeus não expulsos no resumo de Juízes 1. Ponto da chave OpenBible Beth-shean.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 1,
+          "verseStart": 27,
+          "label": "Judg 1:27"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "shechem",
+      "name": "Siquém",
+      "modernName": "Tell Balata, junto a Nablus, Cisjordânia",
+      "coordinates": [
+        35.2817986718367,
+        32.21369123124062
+      ],
+      "certainty": "probable",
+      "explanation": "Siquém figura no episódio de Abimeleque e na parábola de Jotão. Coordenada da chave OpenBible Shechem.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 6,
+          "label": "Judg 9:1–6"
+        },
+        {
+          "book": "Judg",
+          "chapter": 9,
+          "verseStart": 7,
+          "label": "Judg 9:7"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "gilead",
+      "name": "Gileade",
+      "modernName": "Terras a leste do Jordão, atuais Jordânia e áreas vizinhas",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Gileade é uma região ampla, não uma cidade única. A extensão e o ponto dos episódios de Jefté não são fixados por coordenadas pontuais.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 10,
+          "verseStart": 17,
+          "verseEnd": 18,
+          "label": "Judg 10:17–18"
+        },
+        {
+          "book": "Judg",
+          "chapter": 11,
+          "verseStart": 1,
+          "label": "Judg 11:1"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "mizpah-gilead",
+      "name": "Mizpá de Gileade",
+      "modernName": "Transjordânia; assentamento exato desconhecido",
+      "coordinates": null,
+      "certainty": "unknown",
+      "explanation": "Jefté encontra os líderes em Mizpá, no contexto de Gileade. Não se confunde com Mizpá de Benjamim nem se toma o geocódigo de outro Mizpá como este local.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 11,
+          "verseStart": 11,
+          "label": "Judg 11:11"
+        },
+        {
+          "book": "Judg",
+          "chapter": 11,
+          "verseStart": 29,
+          "label": "Judg 11:29"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "arnon",
+      "name": "Rio Arnom",
+      "modernName": "Wadi Mujib, Jordânia",
+      "coordinates": [
+        35.677009,
+        31.4288
+      ],
+      "certainty": "probable",
+      "explanation": "O Arnom é usado como limite regional na argumentação de Jefté. Pino baseado na chave OpenBible Arnon, sem representar a extensão do rio ou um campo de batalha.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 11,
+          "verseStart": 18,
+          "verseEnd": 26,
+          "label": "Judg 11:18–26"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "aroer",
+      "name": "Aroer",
+      "modernName": "Khirbet Arair, Jordânia",
+      "coordinates": [
+        35.82200331579328,
+        31.47109529828131
+      ],
+      "certainty": "probable",
+      "explanation": "Aroer é mencionado na discussão dos limites de Amom e Gileade. O ponto usa a chave OpenBible Aroer 1, distinguida de outras localidades homônimas.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 11,
+          "verseStart": 26,
+          "label": "Judg 11:26"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "zorah",
+      "name": "Zorá",
+      "modernName": "Tel Tzora, Israel",
+      "coordinates": [
+        34.969319,
+        31.762141
+      ],
+      "certainty": "probable",
+      "explanation": "Zorá é identificada como localidade de origem da família de Sansão e ponto de referência da migração danita. Par da chave OpenBible Zorah.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 13,
+          "verseStart": 2,
+          "label": "Judg 13:2"
+        },
+        {
+          "book": "Judg",
+          "chapter": 18,
+          "verseStart": 2,
+          "label": "Judg 18:2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "eshtaol",
+      "name": "Estaol",
+      "modernName": "Eshtaol, Israel",
+      "coordinates": [
+        35.009012,
+        31.782429
+      ],
+      "certainty": "probable",
+      "explanation": "Estaol aparece com Zorá na região associada a Sansão e à origem dos exploradores de Dã. Coordenada da chave OpenBible Eshtaol.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 13,
+          "verseStart": 25,
+          "label": "Judg 13:25"
+        },
+        {
+          "book": "Judg",
+          "chapter": 16,
+          "verseStart": 31,
+          "label": "Judg 16:31"
+        },
+        {
+          "book": "Judg",
+          "chapter": 18,
+          "verseStart": 2,
+          "label": "Judg 18:2"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "timnah",
+      "name": "Timna",
+      "modernName": "Tel Batash, Israel",
+      "coordinates": [
+        34.90968,
+        31.784368
+      ],
+      "certainty": "probable",
+      "explanation": "Sansão desce a Timna e o texto situa ali parte de sua história familiar. O ponto corresponde à chave OpenBible Timnah 1; outras localidades homônimas não são confundidas.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 14,
+          "verseStart": 1,
+          "verseEnd": 5,
+          "label": "Judg 14:1–5"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "gaza",
+      "name": "Gaza",
+      "modernName": "Gaza, Faixa de Gaza",
+      "coordinates": [
+        34.4333647185274,
+        31.52481769532773
+      ],
+      "certainty": "probable",
+      "explanation": "Sansão entra em Gaza no episódio em que carrega os portões da cidade. Pino da chave OpenBible Gaza, sem reconstituir a localização dos portões.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 16,
+          "verseStart": 1,
+          "verseEnd": 3,
+          "label": "Judg 16:1–3"
+        },
+        {
+          "book": "Judg",
+          "chapter": 16,
+          "verseStart": 21,
+          "label": "Judg 16:21"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "sorek-valley",
+      "name": "Vale de Soreque",
+      "modernName": "Vale do Wadi es-Sarar, Israel",
+      "coordinates": [
+        34.989013,
+        31.825731
+      ],
+      "certainty": "probable",
+      "explanation": "Juízes situa a relação de Sansão e Dalila no vale de Soreque. A chave OpenBible Valley of Sorek fornece um ponto regional, não a extensão completa do vale nem o lugar da casa.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 16,
+          "verseStart": 4,
+          "label": "Judg 16:4"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "ashkelon",
+      "name": "Ascalom",
+      "modernName": "Ascalom, Israel",
+      "coordinates": [
+        34.54722773494757,
+        31.66240510553615
+      ],
+      "certainty": "probable",
+      "explanation": "A narrativa menciona Ascalom no episódio da roupa de Sansão. Par exato da chave OpenBible Ashkelon.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 14,
+          "verseStart": 19,
+          "label": "Judg 14:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "etam-rock",
+      "name": "Rochedo de Etã",
+      "modernName": "Desconhecido",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "O esconderijo chamado rocha de Etã não tem localização segura; o ponto nominal OpenBible não prova o local do episódio.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 15,
+          "verseStart": 8,
+          "verseEnd": 11,
+          "label": "Judg 15:8–11"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "lehi",
+      "name": "Leí",
+      "modernName": "Sefelá, Israel; localização incerta",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "O texto nomeia Leí na cena da luta de Sansão, mas a referência OpenBible aponta aproximadamente para Beth-shemesh com marca ~; coordenada aproximada é rejeitada.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 15,
+          "verseStart": 9,
+          "verseEnd": 19,
+          "label": "Judg 15:9–19"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "laish-dan",
+      "name": "Laís (Dã)",
+      "modernName": "Tel Dan, norte de Israel",
+      "coordinates": [
+        35.65248345039043,
+        33.24865997897308
+      ],
+      "certainty": "probable",
+      "explanation": "Os danitas conquistam Laís e passam a chamar a cidade de Dã. Ponto da chave OpenBible Laish/Dan, que usa o mesmo marcador para o topônimo posterior.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 18,
+          "verseStart": 7,
+          "label": "Judg 18:7"
+        },
+        {
+          "book": "Judg",
+          "chapter": 18,
+          "verseStart": 27,
+          "verseEnd": 29,
+          "label": "Judg 18:27–29"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "shiloh",
+      "name": "Siló",
+      "modernName": "Khirbet Seilun, Cisjordânia",
+      "coordinates": [
+        35.28952869712683,
+        32.05570050712985
+      ],
+      "certainty": "probable",
+      "explanation": "A narrativa da migração situa os danitas perto de Silo durante a parada das famílias. Coordenada da chave OpenBible Shiloh.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 18,
+          "verseStart": 31,
+          "label": "Judg 18:31"
+        },
+        {
+          "book": "Judg",
+          "chapter": 21,
+          "verseStart": 19,
+          "label": "Judg 21:19"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "mizpah-benjamin",
+      "name": "Mizpá de Benjamim",
+      "modernName": "Tell en-Nasbeh, Cisjordânia; identificação usual",
+      "coordinates": [
+        35.1801628605877,
+        31.83273947023218
+      ],
+      "certainty": "probable",
+      "explanation": "As tribos se reúnem em Mizpá no apêndice final. Pino da chave OpenBible Mizpah 3; não é a Mizpá de Gileade do relato de Jefté.",
+      "references": [
+        {
+          "book": "Judg",
+          "chapter": 20,
+          "verseStart": 1,
+          "verseEnd": 3,
+          "label": "Judg 20:1–3"
+        },
+        {
+          "book": "Judg",
+          "chapter": 21,
+          "verseStart": 1,
+          "label": "Judg 21:1"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "deborah-barak-layer",
+      "label": "Débora e Baraque — pontos citados",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.53361334150225,
+          33.11298357486105
+        ],
+        [
+          35.39091304299688,
+          32.68695640243183
+        ],
+        [
+          35.064096,
+          32.761948
+        ]
+      ],
+      "explanation": "Conexão esquemática entre Quedes, Tabor e o ponto de referência do Quisom, todos topônimos e coordenadas documentados. Serve para orientar a leitura da sequência; não é estrada, marcha reconstruída nem localização exata da batalha.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "gideon-layer",
+      "label": "Gideão — Jezreel e fonte de Harode",
+      "kind": "point",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.33078927843792,
+          32.5559631396043
+        ],
+        [
+          35.355647,
+          32.549638
+        ]
+      ],
+      "explanation": "Dois pontos de referência nomeados na narrativa e geocodificados na fonte; conjunto esquemático, não limite de acampamento ou percurso.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "jephthah-layer",
+      "label": "Jefté — Arnom e Aroer",
+      "kind": "point",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          35.677009,
+          31.4288
+        ],
+        [
+          35.82200331579328,
+          31.47109529828131
+        ]
+      ],
+      "explanation": "Pontos documentados de topônimos citados no discurso territorial de Jefté. A dupla é esquemática e didática; não é estrada nem fronteira, campanha ou trajeto reconstruído.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "samson-layer",
+      "label": "Sansão — topônimos do ciclo",
+      "kind": "point",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.969319,
+          31.762141
+        ],
+        [
+          34.90968,
+          31.784368
+        ],
+        [
+          34.54722773494757,
+          31.66240510553615
+        ],
+        [
+          34.989013,
+          31.825731
+        ],
+        [
+          34.4333647185274,
+          31.52481769532773
+        ]
+      ],
+      "explanation": "Conjunto de pontos associados a Zorá, Timna, Ascalom, vale de Soreque e Gaza. A disposição é esquemática, não estrada nem percurso comprovado de Sansão.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    },
+    {
+      "id": "dan-migration-layer",
+      "label": "Migração de Dã — Zorá a Laís/Dã",
+      "kind": "route",
+      "certainty": "debated",
+      "coordinates": [
+        [
+          34.969319,
+          31.762141
+        ],
+        [
+          35.65248345039043,
+          33.24865997897308
+        ]
+      ],
+      "explanation": "Conexão esquemática entre os topônimos de partida e destino citados no relato. A linha não indica estrada, rota exata ou duração da marcha.",
+      "sourceIds": [
+        "openbible",
+        "editorial"
+      ]
+    }
+  ],
+  "narrative": [
+    {
+      "placeId": "bethel",
+      "explanation": "O mensageiro repreende Israel em Boquim; a compilação geocodifica o topônimo por referência a Betel, sem provar que os dois sítios coincidam.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 5,
+        "label": "Judg 2:1–5"
+      },
+      "group": "Abertura"
+    },
+    {
+      "placeId": "moab",
+      "explanation": "Eúde enfrenta Eglom, rei de Moabe, depois de Israel estar sujeito a esse domínio; o palácio não é localizado.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 3,
+        "verseStart": 12,
+        "verseEnd": 30,
+        "label": "Judg 3:12–30"
+      },
+      "group": "Ciclos iniciais"
+    },
+    {
+      "placeId": "hazor",
+      "explanation": "O relato identifica Jabin como rei de Hazor e apresenta Sísera como comandante do exército.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 4,
+        "verseStart": 2,
+        "label": "Judg 4:2"
+      },
+      "group": "Débora e Baraque"
+    },
+    {
+      "placeId": "kedesh",
+      "explanation": "Débora manda chamar Baraque em Quedes e transmite a convocação para reunir homens de Naftali e Zebulom.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 4,
+        "verseStart": 4,
+        "verseEnd": 10,
+        "label": "Judg 4:4–10"
+      },
+      "group": "Débora e Baraque"
+    },
+    {
+      "placeId": "mount-tabor",
+      "explanation": "Baraque reúne os combatentes no monte Tabor; o texto narra a mobilização, não uma rota traçada até ele.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 4,
+        "verseStart": 12,
+        "verseEnd": 14,
+        "label": "Judg 4:12–14"
+      },
+      "group": "Débora e Baraque"
+    },
+    {
+      "placeId": "harosheth",
+      "explanation": "Sísera sai de Harosete-Hagoim com seus carros, no relato da confrontação com Baraque.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 4,
+        "verseStart": 13,
+        "verseEnd": 16,
+        "label": "Judg 4:13–16"
+      },
+      "group": "Débora e Baraque"
+    },
+    {
+      "placeId": "kishon",
+      "explanation": "O cântico associa a torrente de Quisom à derrota dos carros e à fuga das forças de Sísera.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 5,
+        "verseStart": 19,
+        "verseEnd": 21,
+        "label": "Judg 5:19–21"
+      },
+      "group": "Débora e Baraque"
+    },
+    {
+      "placeId": "ophrah",
+      "explanation": "Gideão recebe o mensageiro em Ofra, no território de sua família, e ali ergue um altar.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 6,
+        "verseStart": 11,
+        "verseEnd": 24,
+        "label": "Judg 6:11–24"
+      },
+      "group": "Gideão"
+    },
+    {
+      "placeId": "jezreel",
+      "explanation": "Os midianitas e aliados se reúnem no vale de Jezreel; o relato segue com o sinal do velo e a redução do exército.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 6,
+        "verseStart": 33,
+        "verseEnd": 40,
+        "label": "Judg 6:33–40"
+      },
+      "group": "Gideão"
+    },
+    {
+      "placeId": "harod-spring",
+      "explanation": "Gideão e os homens acampam junto à fonte de Harode, diante do acampamento midianita no vale.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 7,
+        "verseStart": 1,
+        "label": "Judg 7:1"
+      },
+      "group": "Gideão"
+    },
+    {
+      "placeId": "jezreel",
+      "explanation": "Gideão acampa junto à fonte de Harode, diante do acampamento midianita no vale; não se atribui um ponto exato à fonte.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 7,
+        "verseStart": 1,
+        "label": "Judg 7:1"
+      },
+      "group": "Gideão"
+    },
+    {
+      "placeId": "shechem",
+      "explanation": "Após a vitória, Abimeleque busca apoio em Siquém; o conflito culmina na destruição da cidade e da torre.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 9,
+        "verseStart": 1,
+        "verseEnd": 6,
+        "label": "Judg 9:1–6"
+      },
+      "group": "Abimeleque"
+    },
+    {
+      "placeId": "gilead",
+      "explanation": "Depois de novos conflitos, os amonitas acampam em Gileade e os israelitas reúnem-se em Mizpá; a região não permite um único pino.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 10,
+        "verseStart": 17,
+        "verseEnd": 18,
+        "label": "Judg 10:17–18"
+      },
+      "group": "Jefté"
+    },
+    {
+      "placeId": "mizpah-gilead",
+      "explanation": "Os anciãos de Gileade vão buscar Jefté e o constituem líder em Mizpá; este lugar é distinto da Mizpá de Benjamim.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 11,
+        "verseStart": 5,
+        "verseEnd": 11,
+        "label": "Judg 11:5–11"
+      },
+      "group": "Jefté"
+    },
+    {
+      "placeId": "arnon",
+      "explanation": "Jefté recorda a disputa territorial envolvendo o Arnom ao responder às reivindicações do rei amonita.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 11,
+        "verseStart": 18,
+        "verseEnd": 26,
+        "label": "Judg 11:18–26"
+      },
+      "group": "Jefté"
+    },
+    {
+      "placeId": "aroer",
+      "explanation": "Aroer é citada por Jefté na delimitação do território israelita no lado oriental do Jordão.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 11,
+        "verseStart": 26,
+        "label": "Judg 11:26"
+      },
+      "group": "Jefté"
+    },
+    {
+      "placeId": "zorah",
+      "explanation": "O relato apresenta Manoá, de Zorá, e sua esposa; o anúncio do nascimento de Sansão é situado em sua casa, cuja localização exata não é indicada.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 13,
+        "verseStart": 2,
+        "verseEnd": 5,
+        "label": "Judg 13:2–5"
+      },
+      "group": "Sansão"
+    },
+    {
+      "placeId": "timnah",
+      "explanation": "Sansão desce a Timna e pede aos pais que arranjem para ele uma mulher dali.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 14,
+        "verseStart": 1,
+        "verseEnd": 5,
+        "label": "Judg 14:1–5"
+      },
+      "group": "Sansão"
+    },
+    {
+      "placeId": "ashkelon",
+      "explanation": "Após o enigma, Sansão mata homens em Ascalom e toma suas roupas para cumprir a aposta.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 14,
+        "verseStart": 19,
+        "label": "Judg 14:19"
+      },
+      "group": "Sansão"
+    },
+    {
+      "placeId": "etam-rock",
+      "explanation": "Sansão se refugia no rochedo de Etã; a coordenada regional da fonte não localiza a cavidade ou o abrigo.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 15,
+        "verseStart": 8,
+        "verseEnd": 11,
+        "label": "Judg 15:8–11"
+      },
+      "group": "Sansão"
+    },
+    {
+      "placeId": "lehi",
+      "explanation": "Em Leí, Sansão rompe as amarras e derrota os filisteus; o topônimo não recebe pino por depender de geocódigo aproximado.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 15,
+        "verseStart": 14,
+        "verseEnd": 19,
+        "label": "Judg 15:14–19"
+      },
+      "group": "Sansão"
+    },
+    {
+      "placeId": "gaza",
+      "explanation": "Em Gaza, Sansão carrega os portões da cidade; mais tarde, os filisteus o prendem e o levam de volta para lá.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 16,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Judg 16:1–3"
+      },
+      "group": "Sansão"
+    },
+    {
+      "placeId": "sorek-valley",
+      "explanation": "Sansão se apaixona por uma mulher do vale de Soreque chamada Dalila; o ponto regional não fixa a casa onde se encontraram.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 16,
+        "verseStart": 4,
+        "label": "Judg 16:4"
+      },
+      "group": "Sansão"
+    },
+    {
+      "placeId": "zorah",
+      "explanation": "Os irmãos enterram Sansão entre Zorá e Estaol, no sepulcro de Manoá.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 16,
+        "verseStart": 31,
+        "label": "Judg 16:31"
+      },
+      "group": "Sansão"
+    },
+    {
+      "placeId": "zorah",
+      "explanation": "Exploradores da tribo de Dã partem de Zorá e Estaol para procurar território; o relato os faz parar na casa de Mica.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 18,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Judg 18:1–2"
+      },
+      "group": "Migração de Dã"
+    },
+    {
+      "placeId": "laish-dan",
+      "explanation": "Os exploradores reconhecem Laís como cidade vulnerável e os danitas partem para ocupá-la; após a conquista, dão-lhe o nome Dã.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 18,
+        "verseStart": 7,
+        "verseEnd": 29,
+        "label": "Judg 18:7–29"
+      },
+      "group": "Migração de Dã"
+    },
+    {
+      "placeId": "shiloh",
+      "explanation": "O relato menciona Silo como lugar de celebração anual durante a narrativa da migração danita.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 18,
+        "verseStart": 31,
+        "label": "Judg 18:31"
+      },
+      "group": "Migração de Dã"
+    },
+    {
+      "placeId": "mizpah-benjamin",
+      "explanation": "No apêndice final, as tribos reúnem-se em Mizpá após o crime em Gibeá; o conflito não pertence a uma rota dos ciclos anteriores.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 20,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Judg 20:1–3"
+      },
+      "group": "Apêndice de Gibeá"
+    },
+    {
+      "placeId": "shiloh",
+      "explanation": "O relato final nomeia Silo e suas festas ao narrar a busca de esposas para os sobreviventes de Benjamim.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 21,
+        "verseStart": 19,
+        "verseEnd": 23,
+        "label": "Judg 21:19–23"
+      },
+      "group": "Apêndice de Gibeá"
+    }
+  ],
+  "storySteps": [
+    {
+      "placeId": "beth-shean",
+      "title": "Bete-Seã",
+      "text": "Bete-Seã aparece entre as cidades cujos habitantes Manassés não expulsou; esta referência é contextual, não uma etapa de batalha de Débora.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 1,
+        "verseStart": 27,
+        "label": "Judg 1:27"
+      }
+    },
+    {
+      "placeId": "bethel",
+      "title": "Abertura dos ciclos",
+      "text": "O mensageiro repreende Israel em Boquim, e o povo chora; a geocodificação associa Boquim a Betel, sem resolver a identificação do local.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 2,
+        "verseStart": 1,
+        "verseEnd": 5,
+        "label": "Judg 2:1–5"
+      }
+    },
+    {
+      "placeId": "moab",
+      "title": "Eúde e Moabe",
+      "text": "Israel fica sob Eglom, rei de Moabe; Eúde mata o rei e conduz a revolta que encerra esse domínio. A cidade do palácio não é nomeada.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 3,
+        "verseStart": 12,
+        "verseEnd": 30,
+        "label": "Judg 3:12–30"
+      }
+    },
+    {
+      "placeId": "hazor",
+      "title": "Jabin, rei de Hazor",
+      "text": "O relato apresenta Jabin como rei de Hazor e Sísera como comandante do exército que oprime Israel.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 4,
+        "verseStart": 2,
+        "label": "Judg 4:2"
+      }
+    },
+    {
+      "placeId": "harosheth",
+      "title": "Harosete-Hagoim",
+      "text": "Sísera parte de Harosete-Hagoim, cujo sítio permanece debatido; a narrativa não estabelece seu pino.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 4,
+        "verseStart": 2,
+        "label": "Judg 4:2"
+      }
+    },
+    {
+      "placeId": "kedesh",
+      "title": "Débora convoca Baraque",
+      "text": "Débora manda buscar Baraque em Quedes de Naftali e comunica a ordem de reunir forças no monte Tabor.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 4,
+        "verseStart": 4,
+        "verseEnd": 10,
+        "label": "Judg 4:4–10"
+      }
+    },
+    {
+      "placeId": "mount-tabor",
+      "title": "Reunião no monte Tabor",
+      "text": "Baraque reúne dez mil homens; Sísera desloca seus carros de Harosete-Hagoim para o combate, enquanto Débora acompanha a marcha.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 4,
+        "verseStart": 12,
+        "verseEnd": 16,
+        "label": "Judg 4:12–16"
+      }
+    },
+    {
+      "placeId": "kishon",
+      "title": "O cântico de Débora",
+      "text": "O poema celebra a vitória e menciona a torrente de Quisom, mas não fornece itinerário de batalha ou extensão precisa das forças envolvidas.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 5,
+        "verseStart": 19,
+        "verseEnd": 31,
+        "label": "Judg 5:19–31"
+      }
+    },
+    {
+      "placeId": "ophrah",
+      "title": "Chamado de Gideão",
+      "text": "Gideão recebe a visita em Ofra e derruba o altar de Baal; depois pede sinais antes de reunir as tribos contra os midianitas.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 6,
+        "verseStart": 11,
+        "verseEnd": 40,
+        "label": "Judg 6:11–40"
+      }
+    },
+    {
+      "placeId": "jezreel",
+      "title": "Acampamento midianita",
+      "text": "Os adversários acampam no vale de Jezreel. Gideão reúne homens, reduz o grupo e ataca à noite junto ao acampamento inimigo.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 6,
+        "verseStart": 33,
+        "verseEnd": 35,
+        "label": "Judg 6:33–35"
+      }
+    },
+    {
+      "placeId": "harod-spring",
+      "title": "Fonte de Harode",
+      "text": "Gideão e os homens acampam junto à fonte de Harode, diante do acampamento midianita no vale.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 7,
+        "verseStart": 1,
+        "label": "Judg 7:1"
+      }
+    },
+    {
+      "placeId": "jezreel",
+      "title": "Vitória e perseguição",
+      "text": "Depois do ataque, Gideão persegue os reis midianitas; a sequência textual inclui Sucote, Penuel e Carcor, cujas posições não foram pinadas aqui.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 7,
+        "verseStart": 19,
+        "verseEnd": 25,
+        "label": "Judg 7:19–25"
+      }
+    },
+    {
+      "placeId": "shechem",
+      "title": "Abimeleque e Siquém",
+      "text": "Abimeleque obtém apoio em Siquém, mata seus irmãos e é proclamado rei; a revolta posterior leva à queda de Siquém e da torre.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 9,
+        "verseStart": 1,
+        "verseEnd": 6,
+        "label": "Judg 9:1–6"
+      }
+    },
+    {
+      "placeId": "gilead",
+      "title": "Ameaça amonita",
+      "text": "Com os amonitas reunidos em Gileade, os líderes israelitas procuram quem os conduza; a região é ampla e não recebe um marcador urbano.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 10,
+        "verseStart": 17,
+        "verseEnd": 18,
+        "label": "Judg 10:17–18"
+      }
+    },
+    {
+      "placeId": "mizpah-gilead",
+      "title": "Jefté chamado de volta",
+      "text": "Os anciãos buscam Jefté em Tobe e fazem dele chefe em Gileade, em Mizpá; o texto não permite identificar com segurança essa Mizpá.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 11,
+        "verseStart": 5,
+        "verseEnd": 11,
+        "label": "Judg 11:5–11"
+      }
+    },
+    {
+      "placeId": "arnon",
+      "title": "Resposta sobre as fronteiras",
+      "text": "Jefté envia mensageiros e apresenta sua versão da história dos territórios entre Arnom e Jaboque; a referência ao rio não fixa toda a disputa no mapa.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 11,
+        "verseStart": 12,
+        "verseEnd": 28,
+        "label": "Judg 11:12–28"
+      }
+    },
+    {
+      "placeId": "aroer",
+      "title": "Aroer",
+      "text": "Jefté rememora as disputas territoriais desde Aroer; o relato não autoriza reconstruir toda a marcha.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 11,
+        "verseStart": 26,
+        "label": "Judg 11:26"
+      }
+    },
+    {
+      "placeId": "zorah",
+      "title": "Nascimento anunciado",
+      "text": "Manoá e sua esposa vivem em Zorá; o mensageiro anuncia o nascimento de Sansão e apresenta instruções para a criança.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 13,
+        "verseStart": 2,
+        "verseEnd": 25,
+        "label": "Judg 13:2–25"
+      }
+    },
+    {
+      "placeId": "eshtaol",
+      "title": "Estaol",
+      "text": "O Espírito começa a impelir Sansão na área entre Zorá e Estaol, antes de seus encontros em Timna.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 13,
+        "verseStart": 25,
+        "label": "Judg 13:25"
+      }
+    },
+    {
+      "placeId": "timnah",
+      "title": "Sansão vai a Timna",
+      "text": "Sansão insiste em se casar com uma mulher de Timna. No caminho, enfrenta um leão; os episódios seguintes levam ao enigma da festa.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 14,
+        "verseStart": 1,
+        "verseEnd": 20,
+        "label": "Judg 14:1–20"
+      }
+    },
+    {
+      "placeId": "ashkelon",
+      "title": "Conflito com os filisteus",
+      "text": "Sansão vai a Ascalom, mata homens e toma suas roupas para pagar a aposta perdida no enigma.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 14,
+        "verseStart": 19,
+        "label": "Judg 14:19"
+      }
+    },
+    {
+      "placeId": "etam-rock",
+      "title": "Refúgio no rochedo de Etã",
+      "text": "Depois de retaliar contra os filisteus, Sansão se abriga no rochedo de Etã; a coordenada regional não identifica o abrigo específico.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 15,
+        "verseStart": 8,
+        "verseEnd": 11,
+        "label": "Judg 15:8–11"
+      }
+    },
+    {
+      "placeId": "lehi",
+      "title": "Sansão em Leí",
+      "text": "Os filisteus chegam a Leí para capturá-lo; Sansão rompe as cordas e, com uma queixada, derrota seus perseguidores.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 15,
+        "verseStart": 14,
+        "verseEnd": 19,
+        "label": "Judg 15:14–19"
+      }
+    },
+    {
+      "placeId": "gaza",
+      "title": "Portões de Gaza",
+      "text": "Sansão carrega os portões de Gaza e, mais tarde, é capturado pelos filisteus, que o levam à cidade e o exibem no templo.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 16,
+        "verseStart": 1,
+        "verseEnd": 3,
+        "label": "Judg 16:1–3"
+      }
+    },
+    {
+      "placeId": "sorek-valley",
+      "title": "Vale de Soreque",
+      "text": "Sansão se envolve com Dalila, apresentada como mulher do vale de Soreque; o texto não localiza a casa onde se encontram.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 16,
+        "verseStart": 4,
+        "label": "Judg 16:4"
+      }
+    },
+    {
+      "placeId": "zorah",
+      "title": "Sepultamento entre Zorá e Estaol",
+      "text": "Após sua morte, os parentes de Sansão levam seu corpo e o sepultam entre Zorá e Estaol, no túmulo de Manoá.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 16,
+        "verseStart": 28,
+        "verseEnd": 31,
+        "label": "Judg 16:28–31"
+      }
+    },
+    {
+      "placeId": "zorah",
+      "title": "Exploradores danitas partem",
+      "text": "Cinco homens de Dã saem de Zorá e Estaol para explorar a terra e param em Efraim, na casa de Mica.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 18,
+        "verseStart": 1,
+        "verseEnd": 2,
+        "label": "Judg 18:1–2"
+      }
+    },
+    {
+      "placeId": "laish-dan",
+      "title": "Laís é tomada e renomeada",
+      "text": "Os exploradores identificam Laís; um grupo de danitas toma a cidade e a renomeia Dã, estabelecendo ali seu culto descrito pelo narrador.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 18,
+        "verseStart": 7,
+        "verseEnd": 31,
+        "label": "Judg 18:7–31"
+      }
+    },
+    {
+      "placeId": "shiloh",
+      "title": "Silo na narrativa de Dã",
+      "text": "O texto menciona o santuário de Silo ao registrar o período em que a imagem danita permaneceu instalada em Dã.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 18,
+        "verseStart": 30,
+        "verseEnd": 31,
+        "label": "Judg 18:30–31"
+      }
+    },
+    {
+      "placeId": "mizpah-benjamin",
+      "title": "Reunião após o crime em Gibeá",
+      "text": "O apêndice final reúne as tribos em Mizpá para decidir a resposta ao crime cometido em Gibeá de Benjamim.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 20,
+        "verseStart": 1,
+        "verseEnd": 11,
+        "label": "Judg 20:1–11"
+      }
+    },
+    {
+      "placeId": "shiloh",
+      "title": "Encerramento em Silo",
+      "text": "O relato da crise de Benjamim termina com uma festa anual em Silo e com a captura de mulheres para os sobreviventes, segundo o texto antigo.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 21,
+        "verseStart": 19,
+        "verseEnd": 25,
+        "label": "Judg 21:19–25"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "O cântico de Débora amplia a narrativa da batalha com uma composição poética que menciona tribos, estrelas e a torrente de Quisom.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 5,
+        "verseStart": 1,
+        "verseEnd": 31,
+        "label": "Judg 5:1–31"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "O exército de Gideão é reduzido em etapas antes do ataque noturno, e a narrativa descreve trombetas, jarros e tochas como sinais de confusão.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 7,
+        "verseStart": 2,
+        "verseEnd": 22,
+        "label": "Judg 7:2–22"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "A história de Jefté inclui uma longa resposta diplomática sobre a disputa com Amom antes do combate; a fala não transforma todas as regiões citadas em lugares de batalha.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 11,
+        "verseStart": 12,
+        "verseEnd": 28,
+        "label": "Judg 11:12–28"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "A narrativa distingue a cidade de Laís conquistada pelos danitas do nome Dã adotado depois; a coordenada usada é a chave OpenBible Laish/Dan.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 18,
+        "verseStart": 27,
+        "verseEnd": 29,
+        "label": "Judg 18:27–29"
+      },
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "text": "Juízes termina com apêndices sobre Dã e Benjamim, cujos eventos são organizados depois dos ciclos mesmo sem constituir necessariamente uma cronologia linear.",
+      "reference": {
+        "book": "Judg",
+        "chapter": 17,
+        "verseStart": 6,
+        "label": "Judg 17:6"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "bounds": [
+    34,
+    30,
+    36,
+    34
+  ],
+  "review": {
+    "date": "2026-06-10",
+    "status": "documented",
+    "verified": [
+      "IDs, seção, subseção e ordem conferidos no manifesto",
+      "Ordem dos passos acompanha sequência textual de Juízes 2–21 e inclui os episódios solicitados",
+      "Cada ponto usa coordenada diretamente associada à chave OpenBible documentada na nota de fonte"
+    ],
+    "uncertainties": [
+      "Cronologia absoluta dos juízes é debatida e a ordem literária não garante sequência temporal uniforme",
+      "Vários locais são regiões, homônimos ou candidatos; Mizpá de Gileade e Leí ficam sem coordenada",
+      "A coordenada de Boquim está associada pela fonte a Betel, sem comprovar identidade topográfica"
+    ],
+    "methodology": "Paráfrases produzidas a partir do texto bíblico local. Coordenadas aceitas somente como pares numéricos exatos da evidência OpenBible; linhas aproximadas ou regionais não viraram pinos. StorySteps preservam a progressão literária, não itinerários reconstruídos."
+  }
+}

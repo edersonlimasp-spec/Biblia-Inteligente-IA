@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" role="img" aria-label="Vista 3/4 da mitra de linho com lâmina dourada e cordão azul">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#152830"/><stop offset="1" stop-color="#0d1c23"/></linearGradient>
+    <linearGradient id="linen" x2="1" y2="1"><stop stop-color="#f0e8cf"/><stop offset=".55" stop-color="#cfc4a8"/><stop offset="1" stop-color="#918777"/></linearGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#ffeb9a"/><stop offset=".44" stop-color="#dfb947"/><stop offset="1" stop-color="#986a24"/></linearGradient>
+    <linearGradient id="skin" x2="1" y2="1"><stop stop-color="#d5a981"/><stop offset="1" stop-color="#946b50"/></linearGradient>
+    <pattern id="linenWeave" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 2h10M2 0v10" stroke="#725f45" stroke-opacity=".14"/></pattern>
+    <filter id="shadow" x="-.3" y="-.3" width="1.7" height="1.7"><feDropShadow dx="0" dy="9" stdDeviation="10" flood-color="#02080b" flood-opacity=".5"/></filter>
+  </defs>
+  <rect width="960" height="680" rx="28" fill="url(#bg)"/>
+  <path d="M36 105h888" stroke="#87a5aa" stroke-opacity=".2"/>
+  <text x="54" y="58" fill="#f4eee1" font-family="Georgia,serif" font-size="28">Mitra e lâmina · vista 3/4</text>
+  <text x="56" y="84" fill="#9eb7b9" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">VOLUME ILUSTRATIVO · SEM ESCALA</text>
+  <rect x="38" y="127" width="532" height="500" rx="22" fill="#192f38" stroke="#45616a" stroke-opacity=".52"/>
+  <ellipse cx="305" cy="572" rx="155" ry="14" fill="#071116" opacity=".65"/>
+  <g filter="url(#shadow)">
+    <path d="M193 445q10-79 39-120 10-16 17-46h101q1 28 15 47 29 40 42 119l-20 87H210z" fill="#35454a" stroke="#697a76" stroke-width="2"/>
+    <path d="M244 328q55 25 112-2l38 216H215z" fill="url(#linen)" stroke="#f0e8cf" stroke-opacity=".7" stroke-width="2"/>
+    <path d="M244 328q55 25 112-2l38 216H215z" fill="url(#linenWeave)"/>
+    <path d="M226 537q82 20 168-4" fill="none" stroke="#c6b98f" stroke-width="8"/>
+    <path d="M252 296q4-61 54-81 56 12 56 78l-17 61q-40 24-81-1z" fill="url(#skin)" stroke="#ecc7a3" stroke-opacity=".45" stroke-width="2"/>
+    <path d="M231 260q9-71 71-85 73 12 80 78l-34 73-103-8z" fill="url(#linen)" stroke="#fff4d9" stroke-opacity=".7" stroke-width="3"/>
+    <path d="M231 260q9-71 71-85 73 12 80 78l-34 73-103-8z" fill="url(#linenWeave)"/>
+    <path d="M239 238q42-47 115-36m-116 61q57-24 118-6m-96 34q44-16 89-5" fill="none" stroke="#8a806c" stroke-opacity=".38" stroke-width="9"/>
+    <path d="M230 264q58 20 136 0" fill="none" stroke="#15557f" stroke-width="7"/>
+  </g>
+  <g>
+    <path d="M250 253q49 15 95 3l-16 42q-44 8-81-1z" fill="url(#gold)" stroke="#fff0ad" stroke-width="2"/>
+    <text x="292" y="275" fill="#513817" font-family="Georgia,serif" font-size="8" font-weight="bold" text-anchor="middle">SANTIDADE AO SENHOR</text>
+  </g>
+  <rect x="593" y="127" width="329" height="500" rx="22" fill="#1a3038" stroke="#45616a" stroke-opacity=".52"/>
+  <text x="620" y="166" fill="#c3d3ce" font-family="Arial,sans-serif" font-size="13" letter-spacing="1.5">DETALHE ISOLADO</text>
+  <path d="M676 297q15-87 111-99 86 10 110 93l-17 47q-90 29-184 0z" fill="url(#linen)" stroke="#fff0d0" stroke-width="2"/>
+  <path d="M676 297q15-87 111-99 86 10 110 93l-17 47q-90 29-184 0z" fill="url(#linenWeave)"/>
+  <path d="M679 296q93 31 214-3" fill="none" stroke="#2679a4" stroke-width="9"/>
+  <path d="M700 294q80 23 173-3l-17 52q-79 18-148-2z" fill="url(#gold)" stroke="#fff0ad" stroke-width="2"/>
+  <text x="779" y="319" fill="#513817" font-family="Georgia,serif" font-size="9" font-weight="bold" text-anchor="middle">SANTIDADE AO SENHOR</text>
+  <path d="M620 403h275" stroke="#8aa2a3" stroke-opacity=".2"/>
+  <text x="620" y="445" fill="#dce3d9" font-family="Arial,sans-serif" font-size="14">Placa frontal presa à mitra</text>
+  <text x="620" y="477" fill="#dce3d9" font-family="Arial,sans-serif" font-size="14">Cordão azul · forma esquemática</text>
+  <text x="620" y="557" fill="#92aaa9" font-family="Arial,sans-serif" font-size="12">Inscrição e posição seguem Êxodo.</text>
+  <text x="54" y="654" fill="#66878c" font-family="Arial,sans-serif" font-size="11" letter-spacing="1">ÊXODO 28:36–39 · 39:30–31 · LEVÍTICO 8:9</text>
+</svg>

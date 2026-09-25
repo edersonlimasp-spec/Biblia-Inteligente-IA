@@ -1,0 +1,52 @@
+{
+  "id":"tabernacle-veil-entrance-curtain","version":"1","kind":"illustration","category":"Tabernáculo","testament":"AT","books":["Exod"],"characters":["Moisés"],"period":"Descrição do Tabernáculo no deserto",
+  "title":"Tabernáculo: Véu e cortina da entrada","subtitle":"Dois fechamentos distintos: a entrada da tenda e a separação interna",
+  "summary":"A tenda tinha uma cortina colorida bordada na entrada e, separadamente, um véu com querubins apoiado em quatro colunas revestidas de ouro sobre bases de prata. O véu separava o santuário do Lugar Santíssimo. A cortina externa era suspensa em cinco colunas douradas sobre bases de bronze. As dimensões dos tecidos e a altura das colunas não são informadas.",
+  "purpose":"A cortina oriental fechava a entrada da tenda; o véu interno separava o recinto principal do Lugar Santíssimo, demarcando espaços de acesso distintos. No antigo contexto do santuário, têxteis e suportes definiam limites físicos e rituais. A ilustração diferencia esses dois elementos para não os confundir.",
+  "modernSummary":"A distinção entre entrada e véu interno é explícita; dimensões das cortinas, altura das colunas e proporção não são dadas nestas instruções.",
+  "certainty":"established","sample":false,"keywords":["véu","cortina","entrada","querubins","colunas","prata","bronze"],
+  "section":"tabernacle","subsection":"Estrutura e móveis","order":8,"era":"Êxodo e deserto",
+  "modernOverview":"Êxodo 26:31–37 distingue o véu interno da cortina da porta e especifica os materiais e bases de seus suportes. A planta mostra relações espaciais, não escala arqueológica.",
+  "keyReferences":[
+    {"book":"Exod","chapter":26,"verseStart":31,"verseEnd":33,"label":"Exod 26:31–33"},
+    {"book":"Exod","chapter":26,"verseStart":36,"verseEnd":37,"label":"Exod 26:36–37"},
+    {"book":"Exod","chapter":36,"verseStart":35,"verseEnd":38,"label":"Exod 36:35–38"}
+  ],
+  "aliases":["véu do tabernáculo","cortina da tenda","porta da tenda"],
+  "references":[
+    {"book":"Exod","chapter":26,"verseStart":31,"verseEnd":37,"label":"Exod 26:31–37"},
+    {"book":"Exod","chapter":36,"verseStart":35,"verseEnd":38,"label":"Exod 36:35–38"}
+  ],
+  "sources":[{"id":"biblical","title":"Referências bíblicas (paráfrases originais)","url":"https://ebible.org/web/","license":"Referência textual; paráfrases originais, sem reprodução de tradução protegida","note":"Êxodo 26 e 36 distingue a cortina da porta e o véu interno. Medidas dos tecidos e altura das colunas não são informadas."}],
+  "places":[],"overlays":[],
+  "storySteps":[
+    {"placeId":"entrance","title":"Cortina da entrada","text":"A entrada oriental da tenda era fechada por cortina colorida bordada, apoiada em cinco colunas douradas com bases de bronze.","reference":{"book":"Exod","chapter":26,"verseStart":36,"verseEnd":37,"label":"Exod 26:36–37"}},
+    {"placeId":"veil","title":"Véu interno","text":"Um véu azul, púrpura, carmesim e linho com querubins era suspenso em quatro colunas douradas sobre bases de prata.","reference":{"book":"Exod","chapter":26,"verseStart":31,"verseEnd":32,"label":"Exod 26:31–32"}},
+    {"placeId":"boundary","title":"Separação do recinto interno","text":"O véu ficava diante da arca e separava o santuário do Lugar Santíssimo; cortina de entrada e véu não são a mesma peça.","reference":{"book":"Exod","chapter":26,"verseStart":33,"label":"Exod 26:33"}}
+  ],
+  "curiosities":[
+    {"text":"O véu trazia azul, púrpura, carmesim, linho fino torcido e querubins trabalhados.","reference":{"book":"Exod","chapter":26,"verseStart":31,"label":"Exod 26:31"},"sourceIds":["biblical"]},
+    {"text":"Quatro colunas revestidas de ouro e quatro bases de prata sustentavam o véu interno.","reference":{"book":"Exod","chapter":26,"verseStart":32,"label":"Exod 26:32"},"sourceIds":["biblical"]},
+    {"text":"A cortina da entrada também era feita de azul, púrpura, carmesim e linho fino, com trabalho de bordador.","reference":{"book":"Exod","chapter":26,"verseStart":36,"label":"Exod 26:36"},"sourceIds":["biblical"]},
+    {"text":"A entrada tinha cinco colunas douradas e cinco bases de bronze; estas bases não pertencem às cem bases de prata.","reference":{"book":"Exod","chapter":26,"verseStart":37,"label":"Exod 26:37"},"sourceIds":["biblical"]},
+    {"text":"O próprio relato explica que o véu fazia separação entre o santuário e o Lugar Santíssimo.","reference":{"book":"Exod","chapter":26,"verseStart":33,"label":"Exod 26:33"},"sourceIds":["biblical"]}
+  ],
+  "bounds":[0,0,0,0],
+  "illustration":{
+    "svgFile":"tabernacle-veil-entrance-curtain.svg",
+    "dimensions":[
+      {"label":"Véu interno","note":"medida não informada no texto","reference":{"book":"Exod","chapter":26,"verseStart":31,"verseEnd":33,"label":"Exod 26:31–33"}},
+      {"label":"Cortina da entrada","note":"medida não informada no texto","reference":{"book":"Exod","chapter":26,"verseStart":36,"verseEnd":37,"label":"Exod 26:36–37"}},
+      {"label":"Altura das colunas","note":"medida não informada no texto","reference":{"book":"Exod","chapter":26,"verseStart":32,"verseEnd":37,"label":"Exod 26:32–37"}}
+    ],
+    "notes":["Planta esquemática: a entrada e o véu aparecem em posições distintas para esclarecer a sequência espacial.","Contornos pontilhados da planta são esquemáticos; o texto não fornece largura, altura ou comprimento dos tecidos e recebem o selo proporção ilustrativa.","Convenção para eventuais conversões: côvado comum ≈ 0,45 m; côvado longo/real ≈ 0,52 m é uma estimativa. Ez 40:5 menciona côvado e palmo adicionais, sem estabelecer equivalência métrica fixa.","Quatro colunas e quatro bases de prata correspondem ao véu interno; cinco colunas e cinco bases de bronze correspondem à cortina de entrada."],
+    "relatedIds":["tabernacle-structure","tabernacle-overview"],
+    "views":[{"label":"Planta","svgFile":"tabernacle-veil-entrance-curtain.svg"},{"label":"Frente","svgFile":"tabernacle-veil-entrance-curtain-frente.svg"},{"label":"Vista 3/4","svgFile":"tabernacle-veil-entrance-curtain-isometrica.svg"}],
+    "parts":[
+      {"id":"entrance","name":"Cortina da entrada","description":"Cortina bordada em azul, púrpura, carmesim e linho fino; cinco colunas de acácia revestidas de ouro, com cinco bases de bronze. Medida do tecido e altura das colunas não informadas.","material":"Linho fino e fios azuis, púrpura e carmesim; colunas de acácia revestidas de ouro; bases de bronze","references":[{"book":"Exod","chapter":26,"verseStart":36,"verseEnd":37,"label":"Exod 26:36–37"}],"highlight":{"x":50,"y":21.2,"width":0,"height":0}},
+      {"id":"veil","name":"Véu interno","description":"Véu de azul, púrpura, carmesim e linho fino com querubins; suspenso por quatro colunas revestidas de ouro e quatro bases de prata. Dimensões não informadas.","material":"Linho fino, azul, púrpura e carmesim; colunas revestidas de ouro; bases de prata","references":[{"book":"Exod","chapter":26,"verseStart":31,"verseEnd":32,"label":"Exod 26:31–32"}],"highlight":{"x":49.9,"y":60.8,"width":0,"height":0}},
+      {"id":"boundary","name":"Limite entre os recintos","description":"O véu separava o santuário do Lugar Santíssimo; na planta, a face marcada como limite é representada esquematicamente, sem uma cota de abertura.","references":[{"book":"Exod","chapter":26,"verseStart":33,"label":"Exod 26:33"}],"highlight":{"x":49.9,"y":51.9,"width":0,"height":0}}
+    ]
+  },
+  "review":{"date":"2026-10-15","status":"documented","verified":["Ex 26:31–33: materiais, querubins, quatro colunas, bases de prata e função separadora do véu","Ex 26:36–37: materiais, cinco colunas e bases de bronze da cortina da entrada","Ex 36:35–38: execução dos dois fechamentos"],"uncertainties":["Altura das colunas e dimensões das cortinas não são informadas nestes versículos.","A separação visual da planta e o posicionamento dos tecidos são esquemáticos; não são cotas ou reconstrução arqueológica.","A forma representada dos bordados é apenas decorativa e não especifica o desenho original dos querubins."],"methodology":"Conferido com o texto ACF local em server/bible-data/exo.ts, capítulos 26 e 36. Elementos contados e materiais são os do texto; desenho vetorial esquemático assinala medidas ausentes."}
+}

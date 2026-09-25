@@ -1,0 +1,192 @@
+{
+  "id": "high-priest-breastpiece",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod"],
+  "characters": ["Arão"],
+  "period": "Tabernáculo do deserto, conforme Êxodo",
+  "title": "Peitoral do juízo",
+  "subtitle": "Peça isolada em vista frontal e 3/4; quatro ordens de pedras e elementos de fixação",
+  "summary": "O peitoral é descrito como quadrado e duplo, com um palmo de comprimento e um palmo de largura, contendo quatro fileiras de três pedras engastadas em ouro. As pedras representam os nomes das doze tribos, mas o texto não atribui nomes de tribos a pedras específicas. Correntes trançadas de ouro e cordões azuis o ligam ao éfode; Urim e Tumim ficam junto ao coração de Arão.",
+  "modernSummary": "Diagrama vetorial didático de uma peça descrita em Êxodo; identificação mineral e equivalência métrica são aproximadas e debatidas.",
+  "purpose": "Apresentar a forma quadrada dupla, a disposição textual de quatro por três pedras, as ligações ao éfode e a menção a Urim e Tumim sem atribuições tribais inventadas.",
+  "certainty": "established",
+  "sample": false,
+  "keywords": ["peitoral do juízo", "doze pedras", "Urim e Tumim", "Arão", "éfode"],
+  "section": "tabernacle",
+  "subsection": "Vestuário sacerdotal",
+  "order": 15,
+  "era": "Êxodo e deserto",
+  "modernOverview": "Esquema vetorial original com pedras genericamente coloridas. Identificações mineralógicas antigas e conversões do palmo variam; não se propõe uma correspondência definitiva.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 28, "verseStart": 15, "verseEnd": 16, "label": "Exod 28:15–16"},
+    {"book": "Exod", "chapter": 28, "verseStart": 17, "verseEnd": 21, "label": "Exod 28:17–21"},
+    {"book": "Exod", "chapter": 28, "verseStart": 22, "verseEnd": 30, "label": "Exod 28:22–30"}
+  ],
+  "aliases": ["peitoral sacerdotal", "peitoral de Arão"],
+  "references": [
+    {"book": "Exod", "chapter": 28, "verseStart": 15, "verseEnd": 30, "label": "Exod 28:15–30"},
+    {"book": "Exod", "chapter": 39, "verseStart": 8, "verseEnd": 21, "label": "Exod 39:8–21"},
+    {"book": "Lev", "chapter": 8, "verseStart": 8, "label": "Lev 8:8"}
+  ],
+  "sources": [
+    {
+      "id": "bible",
+      "title": "Êxodo e Levítico — texto bíblico ACF local consultado",
+      "url": "https://www.bible.com/pt/bible/212/EXO.28.ACF",
+      "license": "Referências e paráfrases próprias; não reproduz texto protegido",
+      "note": "Conferidos os trechos locais ACF em Êxodo 28:15–30, 39:8–21 e Levítico 8:8; equivalência do palmo e nomes minerais são tratados como incertos."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "double-cloth",
+      "title": "Forma quadrada e dupla",
+      "text": "O texto define o peitoral como quadrado e duplo, com um palmo por lado; a equivalência em côvados e metros é apenas aproximada.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 15, "verseEnd": 16, "label": "Exod 28:15–16"}
+    },
+    {
+      "placeId": "twelve-stones",
+      "title": "Quatro ordens de pedras",
+      "text": "A especificação enumera quatro ordens, cada uma com três pedras engastadas em ouro, totalizando doze.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 17, "verseEnd": 20, "label": "Exod 28:17–20"}
+    },
+    {
+      "placeId": "twelve-stones",
+      "title": "Nomes das tribos",
+      "text": "As doze pedras recebem os nomes das tribos, mas a passagem não determina qual tribo corresponde a cada pedra ou posição.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 21, "label": "Exod 28:21"}
+    },
+    {
+      "placeId": "gold-chains",
+      "title": "Correntes e cordões",
+      "text": "Correntes trançadas de ouro, argolas e cordões azuis mantêm o peitoral ligado ao éfode.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 22, "verseEnd": 28, "label": "Exod 28:22–28"}
+    },
+    {
+      "placeId": "urim-thummim",
+      "title": "Urim e Tumim",
+      "text": "Urim e Tumim são colocados no peitoral, que Arão leva sobre o coração; a passagem não descreve sua aparência material.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 29, "verseEnd": 30, "label": "Exod 28:29–30"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "A medida de um palmo por lado é textual; aqui é expressa como cerca de meio côvado comum, uma equivalência aproximada e não uma precisão metrológica.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 16, "label": "Exod 28:16"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "Êxodo lista doze nomes de pedras em quatro ordens, mas as identificações mineralógicas dos termos antigos não são todas seguras nem equivalem necessariamente aos nomes modernos.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 17, "verseEnd": 20, "label": "Exod 28:17–20"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "O texto relaciona as doze pedras às tribos de Israel, mas não fornece uma ordem tribo a tribo para as pedras; as cores da ilustração não afirmam essa correspondência.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 21, "label": "Exod 28:21"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "Levítico 8:8 narra que Urim e Tumim foram postos no peitoral durante a investidura, sem descrever sua forma ou método de uso.",
+      "reference": {"book": "Lev", "chapter": 8, "verseStart": 8, "label": "Lev 8:8"},
+      "sourceIds": ["bible"]
+    },
+    {
+      "text": "Êxodo prevê correntes de ouro, argolas e um cordão azul para unir o peitoral ao éfode, e diz que não deveriam se separar.",
+      "reference": {"book": "Exod", "chapter": 28, "verseStart": 22, "verseEnd": 28, "label": "Exod 28:22–28"},
+      "sourceIds": ["bible"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "high-priest-breastpiece.svg",
+    "dimensions": [
+      {
+        "label": "Comprimento (um palmo)",
+        "cubits": 0.5,
+        "note": "A passagem diz um palmo; ≈ 0,5 côvado comum, ou ≈ 22,5 cm usando 0,45 m por côvado, é uma equivalência aproximada e debatida, não medida métrica textual.",
+        "reference": {"book": "Exod", "chapter": 28, "verseStart": 16, "label": "Exod 28:16"}
+      },
+      {
+        "label": "Largura (um palmo)",
+        "cubits": 0.5,
+        "note": "A passagem diz um palmo; ≈ 0,5 côvado comum, ou ≈ 22,5 cm usando 0,45 m por côvado, é uma equivalência aproximada e debatida, não medida métrica textual.",
+        "reference": {"book": "Exod", "chapter": 28, "verseStart": 16, "label": "Exod 28:16"}
+      }
+    ],
+    "notes": [
+      "A equivalência entre palmo e côvado varia conforme a reconstrução metrológica; 0,5 côvado comum a 0,45 m equivale a aproximadamente 22,5 cm. Tanto a conversão quanto o valor são aproximados e debatidos; o texto não fornece medida métrica.",
+      "Quatro linhas por três pedras seguem o arranjo textual; as cores são artísticas e não identificam minerais específicos.",
+      "Nenhuma ordem de tribos por pedra é afirmada. Inscrições, quando sugeridas, não são nomes legíveis nem uma atribuição individual.",
+      "Cordões, argolas e correntes são mostrados esquematicamente; suas medidas e detalhes construtivos não são especificados."
+    ],
+    "stoneRows": [
+      {"stones":["Sárdio","Topázio","Carbúnculo"],"reference":{"book":"Exod","chapter":28,"verseStart":17,"label":"Exod 28:17"}},
+      {"stones":["Esmeralda","Safira","Diamante"],"reference":{"book":"Exod","chapter":28,"verseStart":18,"label":"Exod 28:18"}},
+      {"stones":["Jacinto","Ágata","Ametista"],"reference":{"book":"Exod","chapter":28,"verseStart":19,"label":"Exod 28:19"}},
+      {"stones":["Berilo","Ônix","Jaspe"],"reference":{"book":"Exod","chapter":28,"verseStart":20,"label":"Exod 28:20"}}
+    ],
+    "relatedIds": ["high-priest-garments", "high-priest-ephod-sash"],
+    "parts": [
+      {
+        "id": "double-cloth",
+        "name": "Tecido duplo",
+        "description": "Corpo quadrado e duplo do peitoral, confeccionado em obra esmerada; lados textuais de um palmo.",
+        "material": "Ouro, azul, púrpura, carmesim e linho fino torcido",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 15, "verseEnd": 16, "label": "Exod 28:15–16"}],
+        "highlight": {"x": 50, "y": 52, "width": 50, "height": 48}
+      },
+      {
+        "id": "twelve-stones",
+        "name": "Doze pedras em quatro ordens",
+        "description": "Quatro fileiras de três pedras, engastadas em ouro; correspondência mineral precisa e associação individual às tribos não definidas.",
+        "material": "Pedras de identificação debatida e engastes de ouro",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 17, "verseEnd": 21, "label": "Exod 28:17–21"}],
+        "highlight": {"x": 50, "y": 51, "width": 43, "height": 38}
+      },
+      {
+        "id": "gold-chains",
+        "name": "Correntes e argolas",
+        "description": "Correntes trançadas de ouro e argolas que ligam as extremidades do peitoral aos engastes e ao éfode.",
+        "material": "Ouro puro",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 22, "verseEnd": 27, "label": "Exod 28:22–27"}],
+        "highlight": {"x": 50, "y": 20, "width": 50, "height": 27}
+      },
+      {
+        "id": "blue-cords",
+        "name": "Cordões azuis",
+        "description": "Cordão azul une os anéis do peitoral aos anéis correspondentes do éfode para mantê-los juntos.",
+        "material": "Cordão azul",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 26, "verseEnd": 28, "label": "Exod 28:26–28"}],
+        "highlight": {"x": 50, "y": 89, "width": 50, "height": 10}
+      },
+      {
+        "id": "urim-thummim",
+        "name": "Urim e Tumim",
+        "description": "Elementos postos dentro ou sobre o peitoral segundo a descrição, sem forma, material ou aparência especificados.",
+        "references": [{"book": "Exod", "chapter": 28, "verseStart": 30, "label": "Exod 28:30"}],
+        "highlight": {"x": 50, "y": 79, "width": 29, "height": 9}
+      }
+    ],
+    "views": [
+      {"label": "Frente", "svgFile": "high-priest-breastpiece.svg"},
+      {"label": "Vista 3/4", "svgFile": "high-priest-breastpiece-vista-3-4.svg"}
+    ]
+  },
+  "review": {
+    "date": "2026-09-24",
+    "status": "documented",
+    "verified": ["Êxodo 28:15–30", "Êxodo 39:8–21", "Levítico 8:8"],
+    "uncertainties": [
+      "Equivalência do palmo em côvados e medidas modernas é aproximada e discutida.",
+      "Identificações mineralógicas dos nomes antigos variam; as pedras coloridas são convenções gráficas.",
+      "O texto associa as pedras às tribos sem definir uma ordem individual entre cada tribo e posição.",
+      "A forma física de Urim e Tumim não é descrita."
+    ],
+    "methodology": "Conferência direta do texto ACF local em Êxodo 28 e 39 e Levítico 8; conversão metrológica explicitamente aproximada, sem correspondências mineralógicas ou tribais inventadas."
+  }
+}

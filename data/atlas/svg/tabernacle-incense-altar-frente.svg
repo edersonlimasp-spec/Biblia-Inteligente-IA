@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Vista frontal esquemática do altar do incenso">
+  <defs><linearGradient id="gold" x2="0" y2="1"><stop stop-color="#C9A227"/><stop offset=".5" stop-color="#C9A227"/><stop offset="1" stop-color="#A0673A"/></linearGradient></defs>
+  <rect width="800" height="520" fill="#17262a"/>
+  <path d="M190 436h420" stroke="#BFC5CC" stroke-opacity=".28" stroke-width="2"/>
+  <g id="part-altar-body">
+    <path d="M326 109h148v296H326z" fill="url(#gold)" stroke="#C9A227" stroke-width="4"/>
+    <path d="M342 125h116v264H342z" fill="#17262a" stroke="#A0673A" stroke-width="3"/>
+    <path d="M308 96h184v20H308z" fill="url(#gold)" stroke="#C9A227" stroke-width="3"/>
+  </g>
+  <g id="part-horns" fill="url(#gold)" stroke="#C9A227" stroke-width="2">
+    <path d="M309 91l31 16-16 23-31-22z"/><path d="M460 107l31-16 16 17-31 22z"/>
+  </g>
+  <g id="part-gold-crown">
+    <path d="M318 90h164v9H318z" fill="#C9A227"/>
+    <path d="M324 90l8-12 8 12 8-12 8 12m112 0 8-12 8 12 8-12 8 12" fill="none" stroke="#C9A227" stroke-width="3"/>
+  </g>
+  <g id="part-poles-and-rings" fill="none" stroke="#C9A227" stroke-width="6">
+    <path d="M325 200h-24v53h24m174-53h24v53h-24M296 225h208"/>
+  </g>
+  <g id="part-incense">
+    <path d="M360 168q40-34 80 0-40 18-80 0z" fill="#BFC5CC" fill-opacity=".55" stroke="#BFC5CC" stroke-width="2"/>
+    <path d="M372 160c-15-20 12-24 2-44m30 44c-10-22 18-26 5-46" fill="none" stroke="#C9A227" stroke-opacity=".74" stroke-width="3"/>
+  </g>
+</svg>

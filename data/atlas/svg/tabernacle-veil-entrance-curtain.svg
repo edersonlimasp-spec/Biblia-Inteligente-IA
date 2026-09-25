@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Planta esquemática que distingue a entrada da tenda e o véu interno">
+<rect width="800" height="520" fill="#17262a"/>
+<g id="part-entrance">
+ <path d="M290 110H510" stroke="#9E1B32" stroke-width="13" stroke-dasharray="28 14"/>
+ <path d="M290 108H510" stroke="#2E4F8F" stroke-width="4"/>
+ <path d="M294 95v28m52-28v28m52-28v28m52-28v28m52-28v28" stroke="#C9A227" stroke-width="7"/>
+ <circle cx="294" cy="128" r="7" fill="#A0673A"/><circle cx="346" cy="128" r="7" fill="#A0673A"/><circle cx="398" cy="128" r="7" fill="#A0673A"/><circle cx="450" cy="128" r="7" fill="#A0673A"/><circle cx="502" cy="128" r="7" fill="#A0673A"/>
+</g>
+<path d="M208 133v286h384V133" fill="none" stroke="#8A6A43" stroke-width="8" stroke-dasharray="13 10"/>
+<g id="part-boundary">
+ <path d="M399 230v155" stroke="#BFC5CC" stroke-width="5" stroke-dasharray="8 8"/>
+</g>
+<g id="part-veil">
+ <path d="M299 316H499" stroke="#6B2D5C" stroke-width="15" stroke-dasharray="24 12"/>
+ <path d="M299 309H499" stroke="#2E4F8F" stroke-width="4"/>
+ <path d="M300 297v38m66-38v38m67-38v38m66-38v38" stroke="#C9A227" stroke-width="8"/>
+ <circle cx="300" cy="342" r="8" fill="#BFC5CC"/><circle cx="366" cy="342" r="8" fill="#BFC5CC"/><circle cx="433" cy="342" r="8" fill="#BFC5CC"/><circle cx="499" cy="342" r="8" fill="#BFC5CC"/>
+</g>
+</svg>

@@ -1,0 +1,179 @@
+{
+  "id": "tabernacle-ark-mercy-seat",
+  "version": "1",
+  "kind": "illustration",
+  "category": "Tabernáculo",
+  "testament": "AT",
+  "books": ["Exod", "Heb", "1Kgs"],
+  "characters": ["Moisés", "Bezalel", "Salomão"],
+  "period": "Instruções para o santuário móvel no deserto",
+  "title": "Tabernáculo: Arca e propiciatório com querubins",
+  "subtitle": "Arca revestida de ouro e cobertura de ouro puro; estatura dos querubins não informada",
+  "summary": "A arca de acácia media 2,5 × 1,5 × 1,5 côvados e era revestida de ouro; argolas e varais permitiam carregá-la. O propiciatório de ouro puro tinha 2,5 × 1,5 côvados e dois querubins batidos em ouro, com asas sobre a cobertura. O texto não dá a altura dos querubins. Hebreus 9:4 e 1 Reis 8:9 registram descrições distintas do conteúdo da arca.",
+  "modernSummary": "A imagem segue a descrição textual, sem identificar uma arca preservada. As diferenças entre Hebreus 9:4 e 1 Reis 8:9 são mantidas como questão textual e de contexto, não fundidas em uma lista de conteúdo simultânea.",
+  "certainty": "established",
+  "sample": true,
+  "keywords": ["arca da aliança", "arca do testemunho", "propiciatório", "querubins", "tábuas", "maná", "vara de Arão"],
+  "section": "tabernacle",
+  "subsection": "Santo dos Santos",
+  "order": 12,
+  "era": "Êxodo e deserto; tradição posterior em 1 Reis e Hebreus",
+  "modernOverview": "As medidas da arca e da cobertura vêm das instruções de Êxodo. A altura e a forma exata dos querubins não são dadas. Hebreus 9:4 e 1 Reis 8:9 são testemunhos de contextos literários diferentes, e a ficha explicita essa distinção.",
+  "keyReferences": [
+    {"book": "Exod", "chapter": 25, "verseStart": 10, "verseEnd": 22, "label": "Exod 25:10–22"},
+    {"book": "Exod", "chapter": 37, "verseStart": 1, "verseEnd": 9, "label": "Exod 37:1–9"},
+    {"book": "Heb", "chapter": 9, "verseStart": 4, "verseEnd": 5, "label": "Heb 9:4–5"},
+    {"book": "1Kgs", "chapter": 8, "verseStart": 9, "label": "1Kgs 8:9"}
+  ],
+  "aliases": ["arca da aliança", "arca do testemunho", "propiciatório", "querubins da arca"],
+  "references": [
+    {"book": "Exod", "chapter": 25, "verseStart": 10, "verseEnd": 22, "label": "Exod 25:10–22"},
+    {"book": "Exod", "chapter": 37, "verseStart": 1, "verseEnd": 9, "label": "Exod 37:1–9"},
+    {"book": "Heb", "chapter": 9, "verseStart": 4, "verseEnd": 5, "label": "Heb 9:4–5"},
+    {"book": "1Kgs", "chapter": 8, "verseStart": 6, "verseEnd": 9, "label": "1Kgs 8:6–9"}
+  ],
+  "sources": [
+    {
+      "id": "biblical",
+      "title": "Passagens bíblicas — textos ACF locais e referências",
+      "url": "https://ebible.org/web/",
+      "license": "Paráfrases próprias; sem reprodução de trechos de tradução",
+      "note": "Exod foi conferido no arquivo ACF local server/bible-data/exo.ts; Heb 9 no arquivo server/bible-data/heb.ts; 1 Kgs 8 no arquivo server/bible-data/1ki.ts. Não se harmonizam os dois relatos sobre o conteúdo."
+    }
+  ],
+  "places": [],
+  "overlays": [],
+  "purpose": "Funcionava como arca ligada ao testemunho da aliança; o propiciatório cobria a arca e os querubins eram representados sobre ele. A ficha descreve o uso no contexto do texto, sem leitura devocional.",
+  "storySteps": [
+    {
+      "placeId": "ark-body",
+      "title": "Arca de acácia revestida",
+      "text": "A caixa tinha 2,5 côvados de comprimento e 1,5 côvado de largura e altura, com argolas e varais para transporte.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 10, "verseEnd": 16, "label": "Exod 25:10–16"}
+    },
+    {
+      "placeId": "mercy-seat",
+      "title": "Propiciatório",
+      "text": "Uma cobertura de ouro puro, com o mesmo comprimento e largura descritos, era colocada sobre a arca.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 17, "verseEnd": 22, "label": "Exod 25:17–22"}
+    },
+    {
+      "placeId": "cherubim",
+      "title": "Dois querubins",
+      "text": "Os querubins de ouro batido ficavam nas extremidades da cobertura, com asas estendidas sobre ela; sua altura não é informada.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 18, "verseEnd": 20, "label": "Exod 25:18–20"}
+    },
+    {
+      "placeId": "contents-accounts",
+      "title": "Relatos sobre o conteúdo",
+      "text": "Hebreus 9:4 menciona recipientes e testemunhos; em 1 Reis 8:9, no contexto da instalação no templo, nada havia além das duas tábuas. As passagens não são apresentadas como listas idênticas.",
+      "reference": {"book": "Heb", "chapter": 9, "verseStart": 4, "label": "Heb 9:4"}
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "As medidas da arca são 2,5 × 1,5 × 1,5 côvados; o revestimento é descrito por dentro e por fora.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 10, "verseEnd": 11, "label": "Exod 25:10–11"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "O texto mantém os varais nas argolas da arca e diz que não deveriam ser retirados dela.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 12, "verseEnd": 15, "label": "Exod 25:12–15"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "A cobertura e os querubins são de ouro puro; a passagem não informa a altura dos querubins.",
+      "reference": {"book": "Exod", "chapter": 25, "verseStart": 17, "verseEnd": 20, "label": "Exod 25:17–20"},
+      "sourceIds": ["biblical"]
+    },
+    {
+      "text": "Hebreus 9:4 menciona maná, vara de Arão e tábuas; 1 Reis 8:9, ao relatar a instalação no templo, diz que nada havia senão as duas tábuas.",
+      "reference": {"book": "1Kgs", "chapter": 8, "verseStart": 6, "verseEnd": 9, "label": "1Kgs 8:6–9"},
+      "sourceIds": ["biblical"]
+    }
+  ],
+  "bounds": [0, 0, 0, 0],
+  "illustration": {
+    "svgFile": "tabernacle-ark-mercy-seat.svg",
+    "dimensions": [
+      {"label": "Comprimento da arca", "cubits": 2.5, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 25, "verseStart": 10, "label": "Exod 25:10"}},
+      {"label": "Largura da arca", "cubits": 1.5, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 25, "verseStart": 10, "label": "Exod 25:10"}},
+      {"label": "Altura da arca", "cubits": 1.5, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 25, "verseStart": 10, "label": "Exod 25:10"}},
+      {"label": "Comprimento do propiciatório", "cubits": 2.5, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 25, "verseStart": 17, "label": "Exod 25:17"}},
+      {"label": "Largura do propiciatório", "cubits": 1.5, "note": "Medida textual; côvado comum ≈ 0,45 m (conversão aproximada).", "reference": {"book": "Exod", "chapter": 25, "verseStart": 17, "label": "Exod 25:17"}},
+      {"label": "Altura dos querubins", "note": "medida não informada no texto; silhueta tracejada e proporção ilustrativa, sem escala dimensional", "reference": {"book": "Exod", "chapter": 25, "verseStart": 18, "verseEnd": 20, "label": "Exod 25:18–20"}}
+    ],
+    "notes": [
+      "As dimensões da arca e do propiciatório seguem Exod 25:10 e 17. A vista frontal e o corte representam proporções dimensionais gerais, não espessura de paredes.",
+      "A altura dos querubins e seus perfis anatômicos não são informados; o contorno externo tracejado e as formas simplificadas indicam proporção ilustrativa.",
+      "Heb 9:4 e 1Kgs 8:9 são apresentados separadamente: Hebreus menciona três itens no contexto de sua descrição do santuário; 1 Reis diz que na arca, na instalação do templo, estavam somente as duas tábuas.",
+      "A posição exata da arca em cada época e a data relativa dos relatos não são resolvidas pelo desenho."
+    ],
+    "relatedIds": ["tabernacle-overview", "tabernacle-veil-entrance-curtain"],
+    "views": [
+      {"label": "Frente", "svgFile": "tabernacle-ark-mercy-seat.svg"},
+      {"label": "Corte", "svgFile": "tabernacle-ark-mercy-seat-corte.svg"},
+      {"label": "Vista 3/4", "svgFile": "tabernacle-ark-mercy-seat-isometrica.svg"}
+    ],
+    "parts": [
+      {
+        "id": "ark-body",
+        "name": "Arca",
+        "description": "Caixa de acácia revestida de ouro por dentro e por fora; medida textual de 2,5 × 1,5 × 1,5 côvados.",
+        "material": "Madeira de acácia revestida de ouro puro",
+        "references": [
+          {"book": "Exod", "chapter": 25, "verseStart": 10, "verseEnd": 16, "label": "Exod 25:10–16"},
+          {"book": "Exod", "chapter": 37, "verseStart": 1, "verseEnd": 5, "label": "Exod 37:1–5"}
+        ],
+        "highlight": {"x": 50, "y": 58, "width": 0, "height": 0}
+      },
+      {
+        "id": "mercy-seat",
+        "name": "Propiciatório",
+        "description": "Cobertura de ouro puro com 2,5 × 1,5 côvados, posta sobre a arca.",
+        "material": "Ouro puro",
+        "references": [
+          {"book": "Exod", "chapter": 25, "verseStart": 17, "verseEnd": 22, "label": "Exod 25:17–22"},
+          {"book": "Exod", "chapter": 37, "verseStart": 6, "verseEnd": 9, "label": "Exod 37:6–9"}
+        ],
+        "highlight": {"x": 50, "y": 38, "width": 0, "height": 0}
+      },
+      {
+        "id": "cherubim",
+        "name": "Dois querubins",
+        "description": "Figuras de ouro batido nas extremidades da cobertura, asas voltadas sobre o propiciatório. A altura dos querubins não é informada; forma e escala do desenho são ilustrativas.",
+        "material": "Ouro batido",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 18, "verseEnd": 20, "label": "Exod 25:18–20"}],
+        "highlight": {"x": 50, "y": 25, "width": 0, "height": 0}
+      },
+      {
+        "id": "rings-and-poles",
+        "name": "Argolas e varais",
+        "description": "Quatro argolas nos cantos e varais laterais para carregar a arca; os varais permanecem nas argolas segundo a instrução.",
+        "material": "Argolas de ouro; varais de acácia revestidos de ouro",
+        "references": [{"book": "Exod", "chapter": 25, "verseStart": 12, "verseEnd": 15, "label": "Exod 25:12–15"}],
+        "highlight": {"x": 50, "y": 55, "width": 0, "height": 0}
+      },
+      {
+        "id": "contents-accounts",
+        "name": "Relatos sobre o conteúdo",
+        "description": "Heb 9:4 menciona um vaso de ouro com maná, a vara de Arão e as tábuas; 1Kgs 8:9 diz que na arca então havia apenas as duas tábuas. Os relatos não são fundidos nem tratados como descrição contemporânea idêntica.",
+        "references": [
+          {"book": "Heb", "chapter": 9, "verseStart": 4, "label": "Heb 9:4"},
+          {"book": "1Kgs", "chapter": 8, "verseStart": 9, "label": "1Kgs 8:9"}
+        ],
+        "highlight": {"x": 50, "y": 64, "width": 0, "height": 0}
+      }
+    ]
+  },
+  "review": {
+    "date": "2026-02-20",
+    "status": "documented",
+    "verified": ["Exod 25:10–22", "Exod 37:1–9", "Heb 9:4–5", "1Kgs 8:6–9; textos ACF locais conferidos"],
+    "uncertainties": [
+      "A altura dos querubins e a espessura das peças não são medidas no texto; silhuetas foram marcadas como proporção ilustrativa.",
+      "Hebreus 9:4 enumera vaso de ouro com maná, vara de Arão e tábuas; 1 Reis 8:9, no contexto da instalação no templo, declara que havia somente as tábuas. A diferença temporal, literária ou interpretativa não pode ser resolvida por esta ficha."
+    ],
+    "methodology": "As dimensões e os materiais foram conferidos em Exod 25:10–22 e Exod 37:1–9; a menção do conteúdo foi conferida separadamente em Heb 9:4 e 1Kgs 8:9 nos textos ACF locais. Desenho vetorial didático, sem alegação de exemplar arqueológico ou de escala para elementos sem medida."
+  }
+}

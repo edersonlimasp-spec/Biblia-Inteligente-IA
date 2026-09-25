@@ -1,0 +1,659 @@
+{
+  "id": "decapolis-tyre-sidon-perea",
+  "version": "1",
+  "kind": "map",
+  "category": "Geografia do Novo Testamento",
+  "testament": "NT",
+  "books": [
+    "Matt",
+    "Mark",
+    "Luke",
+    "John"
+  ],
+  "characters": [
+    "Jesus",
+    "discípulos",
+    "mulher siro-fenícia",
+    "samaritana"
+  ],
+  "period": "Ministério de Jesus no início do século I; sequência e cronologia dos relatos não harmonizadas",
+  "title": "Decápolis, Tiro, Sidom e Pereia",
+  "subtitle": "Viagens e regiões nomeadas nos Evangelhos, com localidades debatidas sem pino",
+  "summary": "Este mapa reúne os nomes de regiões e cidades ligados a episódios de Jesus fora e ao redor da Galileia. Tiro, Sidom e Cesareia de Filipe recebem pontos de referência numéricos exatos da evidência retida, sem afirmar que um evento ocorreu no ponto indicado. A Decápolis e a Pereia são regiões sem limites fixos neste mapa. Mateus usa “gadarenos” e Marcos “gerasenos” para o episódio junto ao lago; a divergência de nomes e as identificações geográficas concorrentes permanecem explícitas. Betânia além do Jordão, Samaria, Sicar e o poço de Jacó são apresentados sem coordenadas quando a identificação ou o ponto não pode ser verificado.",
+  "modernSummary": "O recorte abrange o atual Líbano, o norte de Israel, a região do Jordão e áreas da Cisjordânia. Os nomes atuais são orientação, não afirmação de fronteiras antigas ou soberania.",
+  "certainty": "debated",
+  "sample": false,
+  "keywords": [
+    "Decápolis",
+    "Tiro",
+    "Sidom",
+    "Pereia",
+    "Gadara",
+    "Gerasa",
+    "Sicar",
+    "Samaria"
+  ],
+  "section": "new-testament",
+  "subsection": "Vida de Jesus",
+  "order": 5,
+  "era": "Início do século I d.C.; período do ministério de Jesus",
+  "modernOverview": "Tiro e Sidom são cidades antigas com pontos gerais derivados das entradas nominais da evidência retida; esses pinos não localizam a cena da mulher siro-fenícia. A Decápolis e a Pereia são nomes regionais, não polígonos de fronteira. Mateus 8:28 e Marcos 5:1 empregam diferentes formas de nome para o episódio dos endemoninhados, e não há tentativa de decidir entre Gadara e Gerasa por simples coincidência de nomes modernos. A menção de Betânia além do Jordão não é confundida com a Betânia perto de Jerusalém. Samaria e Sicar são referências textuais; o poço de Jacó e os locais incertos permanecem sem pino. Nenhuma rota é desenhada.",
+  "keyReferences": [
+    {
+      "book": "Mark",
+      "chapter": 7,
+      "verseStart": 24,
+      "verseEnd": 31,
+      "label": "Marcos 7:24–31"
+    },
+    {
+      "book": "Matt",
+      "chapter": 8,
+      "verseStart": 28,
+      "verseEnd": 34,
+      "label": "Mateus 8:28–34"
+    },
+    {
+      "book": "Mark",
+      "chapter": 5,
+      "verseStart": 1,
+      "verseEnd": 20,
+      "label": "Marcos 5:1–20"
+    },
+    {
+      "book": "Matt",
+      "chapter": 16,
+      "verseStart": 13,
+      "verseEnd": 20,
+      "label": "Mateus 16:13–20"
+    },
+    {
+      "book": "John",
+      "chapter": 1,
+      "verseStart": 28,
+      "label": "João 1:28"
+    },
+    {
+      "book": "John",
+      "chapter": 10,
+      "verseStart": 40,
+      "label": "João 10:40"
+    },
+    {
+      "book": "John",
+      "chapter": 4,
+      "verseStart": 4,
+      "verseEnd": 12,
+      "label": "João 4:4–12"
+    },
+    {
+      "book": "Luke",
+      "chapter": 17,
+      "verseStart": 11,
+      "label": "Lucas 17:11"
+    }
+  ],
+  "aliases": [
+    "Tiro e Sidom nos Evangelhos",
+    "Tyre and Sidon",
+    "Decápolis",
+    "Pereia",
+    "Além do Jordão",
+    "Cesareia de Filipe",
+    "Gadara ou Gerasa",
+    "Betânia além do Jordão",
+    "Sicar",
+    "Poço de Jacó"
+  ],
+  "references": [
+    {
+      "book": "Mark",
+      "chapter": 7,
+      "verseStart": 24,
+      "verseEnd": 31,
+      "label": "Marcos 7:24–31"
+    },
+    {
+      "book": "Matt",
+      "chapter": 8,
+      "verseStart": 28,
+      "verseEnd": 34,
+      "label": "Mateus 8:28–34"
+    },
+    {
+      "book": "Mark",
+      "chapter": 5,
+      "verseStart": 1,
+      "verseEnd": 20,
+      "label": "Marcos 5:1–20"
+    },
+    {
+      "book": "Matt",
+      "chapter": 16,
+      "verseStart": 13,
+      "verseEnd": 20,
+      "label": "Mateus 16:13–20"
+    },
+    {
+      "book": "John",
+      "chapter": 1,
+      "verseStart": 28,
+      "label": "João 1:28"
+    },
+    {
+      "book": "John",
+      "chapter": 4,
+      "verseStart": 4,
+      "verseEnd": 12,
+      "label": "João 4:4–12"
+    }
+  ],
+  "sources": [
+    {
+      "id": "openbible",
+      "title": "OpenBible.info — Bible Geocoding, merged dataset (2007)",
+      "url": "https://www.openbible.info/geo/data/merged.txt",
+      "license": "CC BY 4.0; atribuição: OpenBible.info. Evidência histórica retida no repositório.",
+      "note": "Pares numéricos nominais sem marcadores de aproximação foram convertidos de latitude/longitude para [longitude, latitude]. Nomes homônimos e pontos sem correspondência segura não foram usados para localizar eventos."
+    },
+    {
+      "id": "biblical",
+      "title": "Referências bíblicas: Evangelhos",
+      "url": "https://ebible.org/web/",
+      "license": "World English Bible (WEB): domínio público; somente referências e paráfrases editoriais originais em português.",
+      "note": "As passagens sustentam nomes e episódios narrativos, não coordenadas, limites regionais ou identificações arqueológicas não demonstradas."
+    }
+  ],
+  "places": [
+    {
+      "id": "tyre",
+      "name": "Tiro",
+      "modernName": "Sour, Líbano",
+      "coordinates": [
+        35.19257453545583,
+        33.27582782266882
+      ],
+      "certainty": "probable",
+      "explanation": "Marcos relata que Jesus foi à região de Tiro; Mateus também menciona a região. O par numérico reproduz a chave Tyre da evidência OpenBible retida e marca a cidade em termos gerais, não a casa ou o local do encontro narrado.",
+      "references": [
+        {
+          "book": "Mark",
+          "chapter": 7,
+          "verseStart": 24,
+          "verseEnd": 30,
+          "label": "Marcos 7:24–30"
+        },
+        {
+          "book": "Matt",
+          "chapter": 15,
+          "verseStart": 21,
+          "verseEnd": 28,
+          "label": "Mateus 15:21–28"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "sidon",
+      "name": "Sidom",
+      "modernName": "Saida, Líbano",
+      "coordinates": [
+        35.36634649354799,
+        33.56316734135746
+      ],
+      "certainty": "probable",
+      "explanation": "Marcos diz que Jesus passou pela região de Sidom ao deixar a região de Tiro. O ponto usa a entrada numérica exata Sidon na evidência retida e não afirma que Jesus entrou no centro urbano ou que ali ocorreu um episódio específico.",
+      "references": [
+        {
+          "book": "Mark",
+          "chapter": 7,
+          "verseStart": 31,
+          "label": "Marcos 7:31"
+        },
+        {
+          "book": "Matt",
+          "chapter": 11,
+          "verseStart": 21,
+          "verseEnd": 22,
+          "label": "Mateus 11:21–22"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "decapolis",
+      "name": "Decápolis",
+      "modernName": "Região histórica a leste e sudeste do lago da Galileia; limites variáveis",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Decápolis é uma designação regional, não um sítio único. As coordenadas marcadas como região ou ligadas a uma cidade na evidência retida não são usadas como pino para essa área; nenhuma fronteira é desenhada.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 4,
+          "verseStart": 25,
+          "label": "Mateus 4:25"
+        },
+        {
+          "book": "Mark",
+          "chapter": 5,
+          "verseStart": 20,
+          "label": "Marcos 5:20"
+        },
+        {
+          "book": "Mark",
+          "chapter": 7,
+          "verseStart": 31,
+          "label": "Marcos 7:31"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "gadarenes-gerasenes",
+      "name": "Região dos gadarenos / gerasenos",
+      "modernName": "Margem oriental do lago da Galileia; identificação exata debatida e sem pino",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Mateus 8:28 chama a região de gadarena, enquanto Marcos 5:1 e Lucas 8:26 usam gerasena. Propostas de identificação com Gadara, Gerasa ou outros lugares não são intercambiáveis nem demonstradas por um homônimo moderno; o episódio permanece sem coordenada.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 8,
+          "verseStart": 28,
+          "verseEnd": 34,
+          "label": "Mateus 8:28–34"
+        },
+        {
+          "book": "Mark",
+          "chapter": 5,
+          "verseStart": 1,
+          "verseEnd": 20,
+          "label": "Marcos 5:1–20"
+        },
+        {
+          "book": "Luke",
+          "chapter": 8,
+          "verseStart": 26,
+          "verseEnd": 39,
+          "label": "Lucas 8:26–39"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "caesarea-philippi",
+      "name": "Cesareia de Filipe",
+      "modernName": "Região de Banias, nas encostas do monte Hermom, atual Israel",
+      "coordinates": [
+        35.69463725353769,
+        33.2480599128704
+      ],
+      "certainty": "probable",
+      "explanation": "Mateus situa perto de Cesareia de Filipe o diálogo sobre a identidade de Jesus; Marcos também nomeia a região. O ponto corresponde exatamente à entrada Caesarea Philippi da evidência retida e representa a cidade em termos gerais, não a localização exata do diálogo.",
+      "references": [
+        {
+          "book": "Matt",
+          "chapter": 16,
+          "verseStart": 13,
+          "verseEnd": 20,
+          "label": "Mateus 16:13–20"
+        },
+        {
+          "book": "Mark",
+          "chapter": 8,
+          "verseStart": 27,
+          "verseEnd": 30,
+          "label": "Marcos 8:27–30"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "perea",
+      "name": "Pereia",
+      "modernName": "Região a leste do rio Jordão; extensão histórica não representada",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "Pereia é usada como nome de uma região histórica, mas não aparece como um ponto específico nos episódios mapeados. Nenhum par numérico retido foi identificado como coordenada segura para a região; por isso não há pino ou limite.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 10,
+          "verseStart": 40,
+          "label": "João 10:40"
+        },
+        {
+          "book": "John",
+          "chapter": 11,
+          "verseStart": 7,
+          "label": "João 11:7"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "id": "bethany-beyond-jordan",
+      "name": "Betânia além do Jordão",
+      "modernName": "Localização debatida; margem ou vale do Jordão, sem identificação confirmada",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "João situa o testemunho de João Batista em Betânia além do Jordão e depois menciona que Jesus voltou àquele lugar. O registro OpenBible retido contém uma coordenada candidata, mas ela não confirma a identificação do sítio antigo; o ponto é deliberadamente omitido e não se confunde com a Betânia perto de Jerusalém.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 1,
+          "verseStart": 28,
+          "label": "João 1:28"
+        },
+        {
+          "book": "John",
+          "chapter": 10,
+          "verseStart": 40,
+          "label": "João 10:40"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "samaria",
+      "name": "Samaria",
+      "modernName": "Região montanhosa da Samaria, centro-norte da Cisjordânia; sem fronteira desenhada",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "João menciona a passagem de Jesus por Samaria, uma região, e não identifica a antiga cidade de Samaria como cenário do encontro do capítulo 4. A coordenada nominal da cidade antiga na evidência OpenBible não é reaproveitada como pino para a região ou para o itinerário.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 5,
+          "label": "João 4:4–5"
+        },
+        {
+          "book": "Luke",
+          "chapter": 17,
+          "verseStart": 11,
+          "label": "Lucas 17:11"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "sychar",
+      "name": "Sicar",
+      "modernName": "Identificação antiga e moderna debatida na região de Samaria",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "João nomeia Sicar, mas a identificação do lugar com localidades modernas próximas é discutida. Embora a evidência geográfica retida registre um par numérico para Sychar, a associação do nome não basta para certificar o sítio; o mapa evita transformar essa entrada em prova do lugar do encontro.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 4,
+          "verseStart": 5,
+          "label": "João 4:5"
+        },
+        {
+          "book": "John",
+          "chapter": 4,
+          "verseStart": 28,
+          "label": "João 4:28"
+        }
+      ],
+      "sourceIds": [
+        "openbible",
+        "biblical"
+      ]
+    },
+    {
+      "id": "jacobs-well",
+      "name": "Poço de Jacó",
+      "modernName": "Local tradicional na região de Sicar; posição do poço não verificada neste mapa",
+      "coordinates": null,
+      "certainty": "debated",
+      "explanation": "João menciona o poço de Jacó como cenário do diálogo com a mulher samaritana. A passagem não fornece coordenadas; como nenhum par numérico retido foi confirmado para o poço em si, ele permanece como parada narrativa sem pino.",
+      "references": [
+        {
+          "book": "John",
+          "chapter": 4,
+          "verseStart": 5,
+          "verseEnd": 12,
+          "label": "João 4:5–12"
+        }
+      ],
+      "sourceIds": [
+        "biblical"
+      ]
+    }
+  ],
+  "overlays": [],
+  "storySteps": [
+    {
+      "placeId": "tyre",
+      "title": "Na região de Tiro",
+      "text": "Marcos relata que Jesus entrou numa casa na região de Tiro e encontrou uma mulher siro-fenícia. O ponto urbano não identifica a casa nem comprova que o encontro ocorreu no centro de Tiro.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 7,
+        "verseStart": 24,
+        "verseEnd": 30,
+        "label": "Marcos 7:24–30"
+      }
+    },
+    {
+      "placeId": "sidon",
+      "title": "Passagem pela região de Sidom",
+      "text": "Depois da região de Tiro, Marcos descreve um percurso por Sidom rumo ao mar da Galileia e à região da Decápolis. O texto não especifica a estrada ou o tempo da viagem.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 7,
+        "verseStart": 31,
+        "label": "Marcos 7:31"
+      }
+    },
+    {
+      "placeId": "decapolis",
+      "title": "Decápolis: região, não pino",
+      "text": "Os Evangelhos associam a Decápolis a uma região de atuação e circulação. O nome não determina um ponto único nem limites regionais precisos, por isso a parada narrativa não recebe pino.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 7,
+        "verseStart": 31,
+        "label": "Marcos 7:31"
+      }
+    },
+    {
+      "placeId": "gadarenes-gerasenes",
+      "title": "Nomes diferentes nos relatos",
+      "text": "Mateus chama a região de gadarena; Marcos a chama de gerasena. Este mapa preserva a diferença entre os relatos e não decide a localização por correspondência com uma cidade de nome parecido.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 8,
+        "verseStart": 28,
+        "verseEnd": 34,
+        "label": "Mateus 8:28–34"
+      }
+    },
+    {
+      "placeId": "caesarea-philippi",
+      "title": "Cesareia de Filipe",
+      "text": "Mateus situa perto de Cesareia de Filipe a pergunta de Jesus aos discípulos sobre sua identidade. O marcador representa a cidade, não o local exato do diálogo.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 16,
+        "verseStart": 13,
+        "verseEnd": 20,
+        "label": "Mateus 16:13–20"
+      }
+    },
+    {
+      "placeId": "perea",
+      "title": "Além do Jordão",
+      "text": "João descreve Jesus retornando ao lugar onde João Batista havia batizado, além do Jordão. Pereia é uma referência regional útil, não um limite desenhado pelos relatos.",
+      "reference": {
+        "book": "John",
+        "chapter": 10,
+        "verseStart": 40,
+        "label": "João 10:40"
+      }
+    },
+    {
+      "placeId": "bethany-beyond-jordan",
+      "title": "Betânia além do Jordão",
+      "text": "João nomeia Betânia além do Jordão, mas a localização moderna do sítio não é confirmada por este mapa. O lugar é distinto da Betânia próxima de Jerusalém e permanece sem coordenadas.",
+      "reference": {
+        "book": "John",
+        "chapter": 1,
+        "verseStart": 28,
+        "label": "João 1:28"
+      }
+    },
+    {
+      "placeId": "samaria",
+      "title": "Passagem por Samaria",
+      "text": "João diz que Jesus precisava passar por Samaria a caminho da Galileia. O nome se refere à região na narrativa, não à antiga cidade de Samaria como local do encontro.",
+      "reference": {
+        "book": "John",
+        "chapter": 4,
+        "verseStart": 4,
+        "verseEnd": 5,
+        "label": "João 4:4–5"
+      }
+    },
+    {
+      "placeId": "sychar",
+      "title": "Sicar",
+      "text": "O relato localiza o encontro perto de Sicar, junto ao campo associado a Jacó. A identificação moderna de Sicar permanece debatida e não é fixada por um pino.",
+      "reference": {
+        "book": "John",
+        "chapter": 4,
+        "verseStart": 5,
+        "label": "João 4:5"
+      }
+    },
+    {
+      "placeId": "jacobs-well",
+      "title": "Poço de Jacó",
+      "text": "Jesus conversa com uma mulher samaritana junto ao poço de Jacó. O poço é uma parada narrativa, sem coordenada independente verificada nesta compilação.",
+      "reference": {
+        "book": "John",
+        "chapter": 4,
+        "verseStart": 6,
+        "verseEnd": 12,
+        "label": "João 4:6–12"
+      }
+    }
+  ],
+  "curiosities": [
+    {
+      "text": "Marcos apresenta a viagem como passagem da região de Tiro por Sidom até o mar da Galileia e a Decápolis, sem registrar a distância ou um percurso rua a rua.",
+      "reference": {
+        "book": "Mark",
+        "chapter": 7,
+        "verseStart": 31,
+        "label": "Marcos 7:31"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Mateus usa “gadarenos” para a região do episódio, enquanto Marcos usa “gerasenos”; a variação textual não autoriza escolher automaticamente um sítio moderno.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 8,
+        "verseStart": 28,
+        "label": "Mateus 8:28"
+      },
+      "sourceIds": [
+        "biblical"
+      ]
+    },
+    {
+      "text": "João distingue Betânia além do Jordão, onde João batizava, da Betânia associada a Marta, Maria e Lázaro perto de Jerusalém; são referências diferentes.",
+      "reference": {
+        "book": "John",
+        "chapter": 1,
+        "verseStart": 28,
+        "label": "João 1:28"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "No encontro em Samaria, João menciona Sicar e o poço de Jacó; não nomeia a antiga cidade de Samaria como local da conversa.",
+      "reference": {
+        "book": "John",
+        "chapter": 4,
+        "verseStart": 5,
+        "verseEnd": 6,
+        "label": "João 4:5–6"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    },
+    {
+      "text": "Mateus localiza a conversa com os discípulos perto de Cesareia de Filipe; a narrativa identifica a região, não um edifício ou ponto exato dentro da cidade.",
+      "reference": {
+        "book": "Matt",
+        "chapter": 16,
+        "verseStart": 13,
+        "label": "Mateus 16:13"
+      },
+      "sourceIds": [
+        "biblical",
+        "openbible"
+      ]
+    }
+  ],
+  "bounds": [
+    34.95,
+    31.95,
+    35.85,
+    33.8
+  ],
+  "review": {
+    "date": "2025-02-20",
+    "status": "needs-specialist",
+    "verified": [
+      "Tiro, Sidom e Cesareia de Filipe usam somente pares numéricos exatos e sem qualificadores da evidência OpenBible retida.",
+      "Coordenadas estão em ordem [longitude, latitude]; regiões, poço de Jacó, Sicar e Betânia além do Jordão não receberam pinos sem identificação suficientemente verificada.",
+      "A variação entre Mateus 8:28 e Marcos 5:1 foi preservada em vez de harmonizada.",
+      "Não foram desenhados limites regionais nem rotas."
+    ],
+    "uncertainties": [
+      "A extensão histórica da Decápolis e da Pereia variou e não está delimitada aqui.",
+      "Gadara e Gerasa são identificações concorrentes para os nomes divergentes do episódio; a localização exata permanece debatida.",
+      "A posição da Betânia além do Jordão e a identificação de Sicar são incertas; o poço de Jacó não recebe uma coordenada própria.",
+      "Pontos de referência urbanos não indicam o local exato dos episódios em Tiro, Sidom ou Cesareia de Filipe."
+    ],
+    "methodology": "Foram usados somente pares nominais numericamente explícitos, não qualificados, da evidência geográfica retida. Pares de cidades homônimas, pontos regionais e candidatos associados a topônimos discutidos foram excluídos como prova de localização. Os relatos bíblicos são citados separadamente de qualquer identificação moderna; não se desenhou rota, área ou fronteira."
+  }
+}

@@ -369,3 +369,87 @@ mtime_ms = 1790280577424
 storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/874a0f93-b5b0-4c83-9b47-10da86248443/ed8a90d4-4ee6-4718-a818-608eb8bc80da"
 storage_version_token = "1790280670018006"
 content_type = "image/png"
+
+[[outputs]]
+id = "Dj65K0bEwari_BvRtj8Eg"
+uri = "file://imports/peregrino/source/parte-01.txt"
+type = "text"
+title = "O Peregrino — Primeira Parte (1/6)"
+description = "Texto original em inglês do Project Gutenberg, dividido em fim de parágrafo."
+logical_id = "4e6b41fe-c09f-454a-a637-bf44e52fbba0"
+content_hash = "sha256:a245f56b54b7393fdc3e95281ea99b029473710ff2bcf8a2541ebba1526be550"
+size = 49932
+mtime_ms = 1790338855068
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/4e6b41fe-c09f-454a-a637-bf44e52fbba0/4610d30b-1eda-48c0-afc8-280820d7e440"
+storage_version_token = "1790338917351763"
+content_type = "text/plain"
+
+[[outputs]]
+id = "t8z1O8m2-It7of7vDb1Yx"
+uri = "file://imports/peregrino/source/parte-02.txt"
+type = "text"
+title = "O Peregrino — Primeira Parte (2/6)"
+description = "Texto original em inglês do Project Gutenberg, dividido em fim de parágrafo."
+logical_id = "5b065c7f-7210-4832-8d1b-24c8d2324d55"
+content_hash = "sha256:8789dce4a63f0c0ceb9afe8c5b842efcf86f7844c27a7ee10745e03e45d59036"
+size = 50041
+mtime_ms = 1790338855068
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/5b065c7f-7210-4832-8d1b-24c8d2324d55/68f6b4b4-3d7f-485a-ac08-21f7a267c128"
+storage_version_token = "1790338924414221"
+content_type = "text/plain"
+
+[[outputs]]
+id = "ZeTT4SFNqAtFt85_xYwkk"
+uri = "file://imports/peregrino/source/parte-03.txt"
+type = "text"
+title = "O Peregrino — Primeira Parte (3/6)"
+description = "Texto original em inglês do Project Gutenberg, dividido em fim de parágrafo."
+logical_id = "d0da3d72-21ac-42b5-a071-758361f60de1"
+content_hash = "sha256:a562f1142e03dd5dd50a6e2bb4b863fd9a1ea8a19f3a11679d675f5f7ee0bee4"
+size = 50003
+mtime_ms = 1790338855068
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/d0da3d72-21ac-42b5-a071-758361f60de1/c5bf3b88-9707-4240-a6df-663be871c430"
+storage_version_token = "1790338925130965"
+content_type = "text/plain"
+
+[[outputs]]
+id = "K9jXCD5yH9q39WzXuZiR3"
+uri = "file://imports/peregrino/source/parte-04.txt"
+type = "text"
+title = "O Peregrino — Primeira Parte (4/6)"
+description = "Texto original em inglês do Project Gutenberg, dividido em fim de parágrafo."
+logical_id = "8e3da690-7796-4224-bc81-c0ec4bab5b83"
+content_hash = "sha256:3fa01b8af62d23dddc63bbeb6ac9c9eae9730417af42f1f4c7d629d424d8bea3"
+size = 50260
+mtime_ms = 1790338855068
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/8e3da690-7796-4224-bc81-c0ec4bab5b83/09b789e3-387e-4f4f-93c1-c9b901a2c612"
+storage_version_token = "1790338925872504"
+content_type = "text/plain"
+
+[[outputs]]
+id = "ZvmqYdGXLOkIejb68_sdO"
+uri = "file://imports/peregrino/source/parte-05.txt"
+type = "text"
+title = "O Peregrino — Primeira Parte (5/6)"
+description = "Texto original em inglês do Project Gutenberg, dividido em fim de parágrafo."
+logical_id = "ee6a47a7-a125-4c91-afbe-c6ca18974a44"
+content_hash = "sha256:63b9c000d4665e8c8920581b3f1f5bffe94ba77dedd3435375059c2bce49651b"
+size = 49614
+mtime_ms = 1790338855068
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/ee6a47a7-a125-4c91-afbe-c6ca18974a44/87260312-1f47-4f4a-b890-80d87f1a2f56"
+storage_version_token = "1790338926981898"
+content_type = "text/plain"
+
+[[outputs]]
+id = "X4KQt1kQtLhCw33-ZhZat"
+uri = "file://imports/peregrino/source/parte-06.txt"
+type = "text"
+title = "O Peregrino — Primeira Parte (6/6)"
+description = "Texto original em inglês do Project Gutenberg, dividido em fim de parágrafo."
+logical_id = "56c8c1da-3c82-48f2-a6d2-404433c0f480"
+content_hash = "sha256:4c0d360437b21790608c187b1ec8a66f39ee54a1d32bf3807635bc4a3dc3c386"
+size = 50096
+mtime_ms = 1790338855068
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:1f1f7f2c-6a40-40b0-9596-023fb5bc0c08/56c8c1da-3c82-48f2-a6d2-404433c0f480/901b4632-f6a7-4dda-ba7f-3686cb4f85c8"
+storage_version_token = "1790338927733900"
+content_type = "text/plain"

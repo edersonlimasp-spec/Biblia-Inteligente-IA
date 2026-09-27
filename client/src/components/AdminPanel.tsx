@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag, BookMarked, Bug } from "lucide-react";
+import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag, BookMarked, Bug, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +11,7 @@ import { AdminSystemHealth } from "./admin/AdminSystemHealth";
 import { AdminCampaigns } from "./admin/AdminCampaigns";
 import { AdminCoupons } from "./admin/AdminCoupons";
 import { AdminLibrary } from "./admin/AdminLibrary";
+import { AdminBlog } from "./admin/AdminBlog";
 
 interface AdminPanelProps {
   onBack?: () => void;
@@ -74,7 +75,7 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
       {/* Admin Tabs */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 h-auto">
             <TabsTrigger value="dashboard" data-testid="tab-dashboard">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
@@ -106,6 +107,10 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
             <TabsTrigger value="library" data-testid="tab-library">
               <BookMarked className="h-4 w-4 mr-2" />
               Biblioteca
+            </TabsTrigger>
+            <TabsTrigger value="blog" data-testid="tab-blog">
+              <FileText className="h-4 w-4 mr-2" />
+              Blog/SEO
             </TabsTrigger>
           </TabsList>
 
@@ -139,6 +144,9 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
 
           <TabsContent value="library" className="mt-6">
             <AdminLibrary />
+          </TabsContent>
+          <TabsContent value="blog" className="mt-6">
+            <AdminBlog />
           </TabsContent>
         </Tabs>
       </div>

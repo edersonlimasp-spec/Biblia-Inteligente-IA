@@ -25,3 +25,4 @@
 - [Fichas Atlas legíveis](atlas-readable-json.md) — não comprimir fichas em uma linha: revisão geográfica e correções pontuais exigem JSON formatado desde a criação.
 - [Fontes históricas do Atlas](atlas-historical-citations.md) — citar textos fora do cânon do leitor como fontes históricas externas, sem enviá-los à navegação bíblica de 66 livros.
 - [Capturas do Atlas Premium](atlas-premium-captures.md) — para prévias visuais sem assinatura, usar pranchas SVG isoladas e rotuladas, nunca contornar a autorização da ficha.
+- [Provedor de capas do Blog](blog-image-provider.md) — credenciais OpenAI atuais não suportam DALL·E 3, embora uma aceite GPT Image 1; não trocar o modelo sem escolha do usuário.

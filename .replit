@@ -80,3 +80,6 @@ APPLE_APP_ID = "6766988872"
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 120000
+
+[objectStorage]
+defaultBucketID = "replit-objstore-6c247cb1-1721-497d-afd0-78b2f35aab39"

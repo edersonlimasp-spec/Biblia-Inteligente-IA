@@ -53,6 +53,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Blog pages are rendered on the server. Never serve an old cached SPA shell
+  // for their URLs, including when the app was installed before the blog existed.
+  const pathname = new URL(url).pathname;
+  if (pathname === '/blog' || pathname.startsWith('/blog/') ||
+      pathname === '/sitemap.xml' || pathname === '/robots.txt') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // CRITICAL: API requests MUST go to network (no caching)
   if (url.includes('/api/')) {
     event.respondWith(fetch(event.request).catch(() => {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  BookOpen, Check, ChevronRight, FileText, Image as ImageIcon, Loader2,
+  BarChart3, BookOpen, CalendarDays, Check, ChevronRight, FileText, Image as ImageIcon, Loader2,
   Newspaper, RefreshCw, Search, Settings2, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { getApiUrl, getAuthHeaders } from "@/lib/queryClient";
+import { BlogCalendar } from "./BlogCalendar";
+import { BlogMetrics, type BlogStatsResponse } from "./BlogMetrics";
 
 type Status = "new" | "queued" | "discarded";
+type KeywordStatus = Status | "generating" | "used";
 type ArticleStatus = "draft" | "published" | "rejected";
-type Section = "keywords" | "drafts" | "published" | "settings";
+type Section = "keywords" | "calendar" | "drafts" | "published" | "metrics" | "settings";
 
 interface Keyword {
   id: string | number;
@@ -21,8 +24,11 @@ interface Keyword {
   keyword: string;
   intent: string;
   relevance: number | string;
-  status: Status;
+  status: KeywordStatus;
   reason: string | null;
+  monthly_volume_estimate: number | null;
+  difficulty: string | null;
+  schedule_date: string | null;
   created_at: string;
 }
 
@@ -45,14 +51,26 @@ interface BlogSettings {
   tone: string;
   audience: string;
   editorial_rules: string;
+  business_type: string;
+  language: string;
+  primary_topics: string;
+  avoid_topics: string;
+  product_description: string;
+  image_style: string;
+  canonical_origin: string;
   schedule_enabled: boolean;
   daily_limit: number;
+  auto_publish: boolean;
+  gsc_verification: string;
+  gsc_html_file: string;
 }
 
 const NAV: { id: Section; label: string; icon: typeof Search }[] = [
   { id: "keywords", label: "Palavras-chave", icon: Search },
+  { id: "calendar", label: "Calendário", icon: CalendarDays },
   { id: "drafts", label: "Fila / Rascunhos", icon: FileText },
   { id: "published", label: "Publicados", icon: Newspaper },
+  { id: "metrics", label: "Métricas", icon: BarChart3 },
   { id: "settings", label: "Configurações", icon: Settings2 },
 ];
 
@@ -112,6 +130,7 @@ function LoadingRows() {
 export function AdminBlog() {
   const [section, setSection] = useState<Section>("keywords");
   const [seed, setSeed] = useState("");
+  const [manualKeywords, setManualKeywords] = useState("");
   const [keywordFilter, setKeywordFilter] = useState<Status | "all">("all");
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [settingsForm, setSettingsForm] = useState<BlogSettings | null>(null);
@@ -139,6 +158,10 @@ export function AdminBlog() {
     queryKey: ["/api/admin/blog/settings"],
     queryFn: () => apiFetch<{ settings: BlogSettings }>("/api/admin/blog/settings"),
   });
+  const statsQuery = useQuery({
+    queryKey: ["/api/admin/blog/stats"],
+    queryFn: () => apiFetch<BlogStatsResponse>("/api/admin/blog/stats"),
+  });
 
   useEffect(() => {
     if (settingsQuery.data?.settings) setSettingsForm(settingsQuery.data.settings);
@@ -148,6 +171,7 @@ export function AdminBlog() {
     qc.invalidateQueries({ queryKey: ["/api/admin/blog/articles"] });
   };
   const refreshKeywords = () => qc.invalidateQueries({ queryKey: ["/api/admin/blog/keywords"] });
+  const refreshStats = () => qc.invalidateQueries({ queryKey: ["/api/admin/blog/stats"] });
 
   const suggestMutation = useMutation({
     mutationFn: (value: string) => apiFetch<{ keywords: Keyword[] }>("/api/admin/blog/keywords/suggest", {
@@ -156,15 +180,28 @@ export function AdminBlog() {
     onSuccess: (data) => {
       setSeed("");
       refreshKeywords();
+      refreshStats();
       toast({ description: `${data.keywords?.length ?? 0} sugestões adicionadas à pesquisa.` });
     },
     onError: (error: Error) => toast({ variant: "destructive", description: `Não foi possível sugerir palavras-chave: ${error.message}` }),
+  });
+  const manualMutation = useMutation({
+    mutationFn: (keywords: string) => apiFetch<{ inserted: number; duplicates: number }>("/api/admin/blog/keywords", {
+      method: "POST", body: JSON.stringify({ keywords }),
+    }),
+    onSuccess: (data) => {
+      setManualKeywords("");
+      refreshKeywords();
+      refreshStats();
+      toast({ description: `${data.inserted} pauta(s) adicionada(s); ${data.duplicates} duplicada(s) ignorada(s).` });
+    },
+    onError: (error: Error) => toast({ variant: "destructive", description: `Não foi possível adicionar: ${error.message}` }),
   });
 
   const keywordStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string | number; status: Status }) =>
       apiFetch(`/api/admin/blog/keywords/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
-    onSuccess: () => { refreshKeywords(); toast({ description: "Status da palavra-chave atualizado." }); },
+    onSuccess: () => { refreshKeywords(); refreshStats(); toast({ description: "Status da palavra-chave atualizado." }); },
     onError: (error: Error) => toast({ variant: "destructive", description: `Falha ao atualizar: ${error.message}` }),
   });
 
@@ -173,6 +210,7 @@ export function AdminBlog() {
     onSuccess: (data) => {
       refreshKeywords();
       refreshArticles();
+      refreshStats();
       setSection("drafts");
       setDraftFilter("draft");
       if (data.article?.id) setEditingId(data.article.id);
@@ -189,6 +227,7 @@ export function AdminBlog() {
       }),
     onSuccess: (_data, vars) => {
       refreshArticles();
+      refreshStats();
       toast({ description: ({
         publish: "Artigo publicado.",
         reject: "Artigo rejeitado.",
@@ -215,6 +254,12 @@ export function AdminBlog() {
       toast({ description: "Configurações editoriais salvas." });
     },
     onError: (error: Error) => toast({ variant: "destructive", description: `Não foi possível salvar as configurações: ${error.message}` }),
+  });
+  const scheduleMutation = useMutation({
+    mutationFn: ({ id, date }: { id: string | number; date: string }) =>
+      apiFetch(`/api/admin/blog/keywords/${id}/schedule`, { method: "PATCH", body: JSON.stringify({ date }) }),
+    onSuccess: () => { refreshKeywords(); toast({ description: "Data da pauta atualizada." }); },
+    onError: (error: Error) => toast({ variant: "destructive", description: `Não foi possível reagendar: ${error.message}` }),
   });
 
   const allArticles = useMemo(() => ({
@@ -261,9 +306,10 @@ export function AdminBlog() {
     };
   }, [coverUrl]);
 
-  const queryForSection = section === "keywords" ? keywordsQuery
+  const queryForSection = section === "keywords" || section === "calendar" ? keywordsQuery
     : section === "drafts" ? (draftFilter === "rejected" ? rejectedQuery : draftQuery)
     : section === "published" ? publishedQuery
+    : section === "metrics" ? statsQuery
     : settingsQuery;
 
   return (
@@ -300,6 +346,19 @@ export function AdminBlog() {
 
       {!queryForSection.isLoading && !queryForSection.isError && section === "keywords" && (
         <section className="space-y-5">
+          <form className="rounded-xl border border-border bg-card p-5" onSubmit={(event) => {
+            event.preventDefault();
+            if (manualKeywords.trim()) manualMutation.mutate(manualKeywords);
+          }}>
+            <h3 className="font-semibold">Adicionar pautas à biblioteca</h3>
+            <p className="mt-1 mb-3 text-sm text-muted-foreground">Digite uma palavra-chave por linha ou cole uma lista separada por vírgulas. Duplicatas são ignoradas.</p>
+            <label htmlFor="blog-manual-keywords" className="sr-only">Palavras-chave</label>
+            <Textarea id="blog-manual-keywords" rows={3} value={manualKeywords} onChange={(event) => setManualKeywords(event.target.value)}
+              placeholder={"Ex.: contexto histórico de Romanos\nmapas das viagens de Paulo"} />
+            <Button type="submit" className="mt-3" disabled={!manualKeywords.trim() || manualMutation.isPending}>
+              {manualMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Adicionar palavras-chave
+            </Button>
+          </form>
           <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
             <form className="rounded-xl border border-border bg-card p-5" onSubmit={(event) => {
               event.preventDefault();
@@ -318,7 +377,7 @@ export function AdminBlog() {
                   Sugerir
                 </Button>
               </div>
-              <p className="mt-3 border-l-2 border-primary/30 pl-3 text-xs leading-relaxed text-muted-foreground">As sugestões são sinais editoriais de relevância, não dados exatos de volume de busca. Confira fontes e contexto bíblico antes de aprovar.</p>
+               <p className="mt-3 border-l-2 border-primary/30 pl-3 text-xs leading-relaxed text-muted-foreground">Consultas reais do autocompletar Google, classificadas por IA. Volume e dificuldade são estimativas da IA, não medições do Google Ads ou Search Console.</p>
             </form>
             <div className="rounded-xl border border-border bg-muted/30 p-5">
               <div className="mb-3 flex items-center gap-2"><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fluxo de revisão</span><ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs text-muted-foreground">pesquisa → fila → revisão</span></div>
@@ -348,12 +407,16 @@ export function AdminBlog() {
                         <Badge variant={item.status === "queued" ? "default" : "secondary"}>{statusLabel(item.status)}</Badge>
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">{item.reason || `Intenção: ${item.intent || "não especificada"}`}</p>
-                      <p className="mt-2 text-xs text-muted-foreground">Tema: {item.seed} <span className="mx-1.5">·</span> Relevância: {item.relevance ?? "—"} <span className="mx-1.5">·</span> {dateLabel(item.created_at)}</p>
+                       <p className="mt-2 text-xs text-muted-foreground">Tema: {item.seed} <span className="mx-1.5">·</span> Relevância: {item.relevance ?? "—"}
+                         {item.monthly_volume_estimate !== null && <span> · ~{item.monthly_volume_estimate}/mês (estimativa IA)</span>}
+                         {item.difficulty && <span> · Dificuldade estimada: {item.difficulty}</span>}
+                         {item.schedule_date && <span> · Agendada: {item.schedule_date}</span>}
+                         <span className="mx-1.5">·</span> {dateLabel(item.created_at)}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {item.status !== "queued" && <Button size="sm" variant="outline" disabled={keywordStatusMutation.isPending} onClick={() => keywordStatusMutation.mutate({ id: item.id, status: "queued" })}>Adicionar à fila</Button>}
+                       {(item.status === "new" || item.status === "discarded") && <Button size="sm" variant="outline" disabled={keywordStatusMutation.isPending} onClick={() => keywordStatusMutation.mutate({ id: item.id, status: "queued" })}>Adicionar à fila</Button>}
                       {item.status === "queued" && <Button size="sm" disabled={generateMutation.isPending} onClick={() => generateMutation.mutate(item.id)}><Sparkles className="mr-1.5 h-4 w-4" />Gerar rascunho</Button>}
-                      {item.status !== "discarded" && <Button size="sm" variant="ghost" disabled={keywordStatusMutation.isPending} onClick={() => keywordStatusMutation.mutate({ id: item.id, status: "discarded" })}>Descartar</Button>}
+                       {(item.status === "new" || item.status === "queued") && <Button size="sm" variant="ghost" disabled={keywordStatusMutation.isPending} onClick={() => keywordStatusMutation.mutate({ id: item.id, status: "discarded" })}>Descartar</Button>}
                       {item.status === "discarded" && <Button size="sm" variant="ghost" disabled={keywordStatusMutation.isPending} onClick={() => keywordStatusMutation.mutate({ id: item.id, status: "new" })}>Restaurar</Button>}
                     </div>
                   </div>
@@ -362,6 +425,10 @@ export function AdminBlog() {
             </div>
           )}
         </section>
+      )}
+      {!queryForSection.isLoading && !queryForSection.isError && section === "calendar" && (
+        <BlogCalendar keywords={keywordsQuery.data?.keywords ?? []} busy={scheduleMutation.isPending}
+          onSchedule={(id, date) => scheduleMutation.mutate({ id, date })} />
       )}
 
       {!queryForSection.isLoading && !queryForSection.isError && (section === "drafts" || section === "published") && (
@@ -388,7 +455,8 @@ export function AdminBlog() {
               coverSrc={coverSrc}
               coverError={coverError}
               saving={saveArticle.isPending}
-              actionPending={articleAction.isPending}
+               actionPending={articleAction.isPending}
+               storageReady={statsQuery.data?.storage_ready ?? false}
               onSave={(values) => saveArticle.mutate({ id: selectedArticle.id, values })}
               onAction={(action) => action === "publish" || action === "unpublish" || action === "regenerate"
                 ? confirmAction(selectedArticle, action)
@@ -397,22 +465,39 @@ export function AdminBlog() {
           </div>
         </section>
       )}
+      {!queryForSection.isLoading && !queryForSection.isError && section === "metrics" && statsQuery.data && (
+        <BlogMetrics data={statsQuery.data} />
+      )}
 
       {!queryForSection.isLoading && !queryForSection.isError && section === "settings" && settingsForm && (
         <section className="max-w-3xl space-y-5">
-          <div><h3 className="text-lg font-semibold">Diretrizes editoriais</h3><p className="text-sm text-muted-foreground">Defina os limites e o ritmo de produção. Toda publicação ainda exige revisão humana.</p></div>
+          <div><h3 className="text-lg font-semibold">DNA da marca</h3><p className="text-sm text-muted-foreground">Estas orientações acompanham a geração dos rascunhos. Regras de fidelidade bíblica e o papel de apoio da IA são fixos.</p></div>
           <div className="rounded-xl border border-border bg-card p-5 sm:p-6">
             <div className="grid gap-5 sm:grid-cols-2">
+              <div><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-business">Tipo de negócio</label><Input id="blog-business" value={settingsForm.business_type} onChange={(e) => setSettingsForm({ ...settingsForm, business_type: e.target.value })} /></div>
+              <div><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-language">Idioma</label><Input id="blog-language" value={settingsForm.language} onChange={(e) => setSettingsForm({ ...settingsForm, language: e.target.value })} /></div>
               <div><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-tone">Tom editorial</label><Input id="blog-tone" value={settingsForm.tone} onChange={(e) => setSettingsForm({ ...settingsForm, tone: e.target.value })} placeholder="Ex.: acolhedor, fundamentado e claro" /></div>
               <div><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-audience">Público principal</label><Input id="blog-audience" value={settingsForm.audience} onChange={(e) => setSettingsForm({ ...settingsForm, audience: e.target.value })} placeholder="Ex.: pessoas que estudam a Bíblia" /></div>
             </div>
+            <div className="mt-5 space-y-5">
+              <div><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-product">Descrição do produto e benefícios reais</label><Textarea id="blog-product" rows={3} value={settingsForm.product_description} onChange={(e) => setSettingsForm({ ...settingsForm, product_description: e.target.value })} /></div>
+              <div><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-topics">Temas centrais</label><Textarea id="blog-topics" rows={3} value={settingsForm.primary_topics} onChange={(e) => setSettingsForm({ ...settingsForm, primary_topics: e.target.value })} /></div>
+              <div><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-avoid">Temas a evitar</label><Textarea id="blog-avoid" rows={3} value={settingsForm.avoid_topics} onChange={(e) => setSettingsForm({ ...settingsForm, avoid_topics: e.target.value })} /></div>
+            </div>
             <div className="mt-5"><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-rules">Regras e referências editoriais</label><Textarea id="blog-rules" rows={7} value={settingsForm.editorial_rules} onChange={(e) => setSettingsForm({ ...settingsForm, editorial_rules: e.target.value })} placeholder="Fontes preferidas, critérios de interpretação, temas sensíveis e orientações de citação..." /></div>
+            <div className="mt-5"><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-image-style">Estilo das capas</label><Input id="blog-image-style" value={settingsForm.image_style} onChange={(e) => setSettingsForm({ ...settingsForm, image_style: e.target.value })} /></div>
+            <div className="mt-5"><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-origin">Domínio canônico (HTTPS)</label><Input id="blog-origin" type="url" value={settingsForm.canonical_origin} onChange={(e) => setSettingsForm({ ...settingsForm, canonical_origin: e.target.value })} placeholder="https://www.bibliainteligente.com.br" /><p className="mt-1 text-xs text-muted-foreground">Usado nas páginas públicas, sitemap.xml e robots.txt. A troca não configura o DNS do domínio.</p></div>
+            <div className="mt-5"><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-gsc">Verificação do Google Search Console</label><Input id="blog-gsc" value={settingsForm.gsc_verification} onChange={(e) => setSettingsForm({ ...settingsForm, gsc_verification: e.target.value })} placeholder="Conteúdo da meta tag google-site-verification" /><p className="mt-1 text-xs text-muted-foreground">Cole somente o valor do atributo content da tag de verificação. Ele aparece em /blog para verificar a propriedade de prefixo dessa URL; não conecta a API do Search Console nem confirma a verificação automaticamente.</p></div>
+            <div className="mt-5"><label className="mb-1.5 block text-sm font-medium" htmlFor="blog-gsc-file">Arquivo de verificação da propriedade inteira</label><Input id="blog-gsc-file" value={settingsForm.gsc_html_file} onChange={(e) => setSettingsForm({ ...settingsForm, gsc_html_file: e.target.value })} placeholder="google1234567890abcdef.html" /><p className="mt-1 text-xs text-muted-foreground">Nome exato do arquivo HTML fornecido pelo Search Console. Será servido na raiz como texto de verificação. Confira com o Google antes de considerar o domínio verificado.</p></div>
             <div className="mt-6 rounded-lg border border-border bg-muted/35 p-4">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <div><p className="font-medium">Agendamento automático</p><p className="mt-1 text-sm text-muted-foreground">Desativado por padrão. Quando ativo, respeita o limite diário abaixo.</p></div>
-                <button type="button" role="switch" aria-checked={settingsForm.schedule_enabled} onClick={() => setSettingsForm({ ...settingsForm, schedule_enabled: !settingsForm.schedule_enabled })} className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${settingsForm.schedule_enabled ? "bg-primary" : "bg-muted-foreground/30"}`}><span className={`absolute top-1 h-4 w-4 rounded-full bg-background transition-transform ${settingsForm.schedule_enabled ? "translate-x-6" : "translate-x-1"}`} /></button>
+                <div><p className="font-medium">Agendador diário</p><p className="mt-1 text-sm text-muted-foreground">Desativado por padrão. Executa pautas com data vencida, no fuso de São Paulo.</p></div>
+                <button type="button" role="switch" aria-label="Ativar agendador" aria-checked={settingsForm.schedule_enabled} onClick={() => setSettingsForm({ ...settingsForm, schedule_enabled: !settingsForm.schedule_enabled })} className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${settingsForm.schedule_enabled ? "bg-primary" : "bg-muted-foreground/30"}`}><span className={`absolute top-1 h-4 w-4 rounded-full bg-background transition-transform ${settingsForm.schedule_enabled ? "translate-x-6" : "translate-x-1"}`} /></button>
               </div>
               <div className="mt-4 max-w-xs"><label htmlFor="blog-limit" className="mb-1.5 block text-sm font-medium">Limite de artigos por dia</label><Input id="blog-limit" type="number" min={1} max={5} value={settingsForm.daily_limit} onChange={(e) => setSettingsForm({ ...settingsForm, daily_limit: Math.min(5, Math.max(1, Number(e.target.value) || 1)) })} disabled={!settingsForm.schedule_enabled} /></div>
+              <label className="mt-5 flex items-center gap-2 text-sm"><input type="checkbox" checked={settingsForm.auto_publish} disabled={!statsQuery.data?.storage_ready && !settingsForm.auto_publish}
+                onChange={(e) => setSettingsForm({ ...settingsForm, auto_publish: e.target.checked })} />Publicar automaticamente depois da geração e validação</label>
+              {!statsQuery.data?.storage_ready && <p className="mt-2 text-xs text-muted-foreground">Exige um bucket do App Storage. Sem ele, o agendador só pode criar rascunhos de texto.</p>}
             </div>
             <div className="mt-5 flex justify-end"><Button onClick={() => saveSettings.mutate(settingsForm)} disabled={saveSettings.isPending}>{saveSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Salvar diretrizes</Button></div>
           </div>
@@ -433,13 +518,14 @@ function fieldsFor(article: Article) {
 }
 
 function ArticleEditor({
-  article, coverSrc, coverError, saving, actionPending, onSave, onAction,
+  article, coverSrc, coverError, saving, actionPending, storageReady, onSave, onAction,
 }: {
   article: Article;
   coverSrc: string | null;
   coverError: boolean;
   saving: boolean;
   actionPending: boolean;
+  storageReady: boolean;
   onSave: (values: Partial<Article> & { expected_updated_at: string }) => void;
   onAction: (action: "publish" | "reject" | "unpublish" | "regenerate" | "cover") => void;
 }) {
@@ -474,7 +560,7 @@ function ArticleEditor({
         {article.status === "published" && <a href={`/blog/${article.slug}`} target="_blank" rel="noreferrer" className="shrink-0 text-xs font-medium text-primary underline-offset-4 hover:underline">Ver publicado</a>}
       </div>
       <div className="space-y-4 p-4 sm:p-5">
-        <div><label className="mb-1.5 block text-sm font-medium" htmlFor={`article-title-${article.id}`}>Título</label><Input id={`article-title-${article.id}`} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
+         <div><label className="mb-1.5 block text-sm font-medium" htmlFor={`article-title-${article.id}`}>Título (até 60 caracteres)</label><Input id={`article-title-${article.id}`} maxLength={60} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div><label className="mb-1.5 block text-sm font-medium" htmlFor={`article-slug-${article.id}`}>Slug</label><Input id={`article-slug-${article.id}`} value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} disabled={article.status === "published"} /><p className="mt-1 text-xs text-muted-foreground">{article.status === "published" ? "Endereço fixo após a publicação para preservar os links existentes." : "Você pode ajustar antes de publicar."}</p></div>
           <div><label className="mb-1.5 block text-sm font-medium" htmlFor={`article-alt-${article.id}`}>Texto alternativo da capa</label><Input id={`article-alt-${article.id}`} value={form.cover_alt} onChange={(e) => setForm({ ...form, cover_alt: e.target.value })} placeholder="Descreva a imagem para leitores de tela" /></div>
@@ -484,13 +570,14 @@ function ArticleEditor({
           <div className="mb-1.5 flex items-center justify-between"><label className="text-sm font-medium" htmlFor={`article-body-${article.id}`}>Conteúdo em Markdown</label><button type="button" onClick={() => setPreviewMode(!previewMode)} className="text-xs font-medium text-primary hover:underline">{previewMode ? "Editar texto" : "Pré-visualizar"}</button></div>
           {previewMode ? <div className="min-h-64 whitespace-pre-wrap rounded-md border border-input bg-muted/20 p-4 text-sm leading-7">{form.body_markdown || "O conteúdo aparecerá aqui."}</div> : <Textarea id={`article-body-${article.id}`} rows={16} value={form.body_markdown} onChange={(e) => setForm({ ...form, body_markdown: e.target.value })} className="font-mono text-sm leading-6" />}
         </div>
-        <div className="rounded-lg border border-border bg-muted/20 p-3">
+         {(article.has_cover || storageReady) && <div className="rounded-lg border border-border bg-muted/20 p-3">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm font-medium"><ImageIcon className="h-4 w-4 text-muted-foreground" />Capa editorial</div>
-            {article.status !== "published" && <Button size="sm" variant="outline" onClick={() => onAction("cover")} disabled={actionPending}><RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${actionPending ? "animate-spin" : ""}`} />Regenerar capa</Button>}
+            {article.status !== "published" && storageReady && <Button size="sm" variant="outline" onClick={() => onAction("cover")} disabled={actionPending}><RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${actionPending ? "animate-spin" : ""}`} />{article.has_cover ? "Regenerar capa" : "Gerar capa"}</Button>}
           </div>
           {coverSrc ? <img src={coverSrc} alt={form.cover_alt || "Prévia da capa do artigo"} className="max-h-56 w-full rounded-md object-cover" /> : <div className="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">{coverError ? "Não foi possível carregar a capa." : article.has_cover ? "Carregando prévia da capa…" : "Ainda não há capa para este artigo."}</div>}
-        </div>
+        </div>}
+        <p className="text-xs text-muted-foreground">{form.body_markdown.trim().split(/\s+/).filter(Boolean).length} palavras · Para publicar: 1.500–2.500 palavras e perguntas frequentes.</p>
         {revisionConflict && <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">Outra alteração foi salva enquanto você editava. Suas mudanças foram preservadas. <Button size="sm" variant="outline" className="ml-2" onClick={() => { setForm(fieldsFor(article)); setBaseRevision(article.updated_at); setRevisionConflict(false); }}>Descartar minhas mudanças e recarregar</Button></div>}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
           <div className="flex flex-wrap gap-2">

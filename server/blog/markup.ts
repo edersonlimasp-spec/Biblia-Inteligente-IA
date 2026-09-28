@@ -1,11 +1,13 @@
-export const origin = (() => {
-  const configured = process.env.BLOG_CANONICAL_ORIGIN || "https://bibliainteligente.replit.app";
+import { DEFAULT_BLOG_ORIGIN } from "./db";
+
+export function canonicalOrigin(configured: string = DEFAULT_BLOG_ORIGIN): string {
   const url = new URL(configured);
-  if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) {
-    throw new Error("BLOG_CANONICAL_ORIGIN precisa ser uma origem HTTPS válida.");
+  if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash ||
+      url.pathname !== "/") {
+    throw new Error("O domínio canônico precisa ser uma origem HTTPS sem caminho.");
   }
   return url.origin;
-})();
+}
 
 export function escapeHtml(value: unknown): string {
   return String(value ?? "").replace(/[&<>"']/g, (character) =>
@@ -95,6 +97,7 @@ h1{font-size:clamp(2.4rem,5vw,4.4rem);letter-spacing:-.04em;margin:.65rem 0 1.2r
 .intro{font-size:1.14rem;line-height:1.7;max-width:720px;color:#54606b}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;padding-top:2rem;padding-bottom:5rem}
 .card{display:block;padding:1.7rem;border:1px solid #dfd6c5;border-radius:12px;background:#fffcf6;text-decoration:none;transition:transform .2s,border-color .2s}
 .card:hover{transform:translateY(-3px);border-color:#a3443d}.card h2{font-size:1.4rem;margin:.5rem 0;color:#193d4c}.card p{color:#54606b;line-height:1.6}
+.card-cover{display:block;width:100%;height:170px;object-fit:cover;border-radius:8px;margin-bottom:1rem}
 .pill{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#a3443d;font-weight:bold}.pagination{display:flex;gap:1rem;justify-content:center;margin:0 auto 4rem}
 .pagination a{border:1px solid #b8ac97;border-radius:8px;padding:.7rem 1rem;text-decoration:none}
 .article{max-width:760px;margin:auto;padding:3rem 1.5rem 5rem}.article p,.article li{font-size:1.08rem;line-height:1.82;color:#354656}.article li{margin-bottom:.5rem}
@@ -108,13 +111,16 @@ footer{border-top:1px solid #dfd6c5;padding:2rem 0;color:#596873;font-size:.9rem
 
 export function pageHtml(input: {
   title: string; description: string; path: string; body: string;
-  image?: string; structured?: unknown[]; prev?: string; next?: string;
+  image?: string; structured?: unknown[]; prev?: string; next?: string; origin?: string;
+  verification?: string;
 }): string {
+  const origin = input.origin ?? DEFAULT_BLOG_ORIGIN;
   const canonical = origin + input.path;
   const title = `${input.title} | Bíblia Inteligente`;
   const image = input.image ?? `${origin}/logo.svg`;
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(input.description)}">
+ ${input.verification ? `<meta name="google-site-verification" content="${escapeHtml(input.verification)}">` : ""}
 <link rel="canonical" href="${escapeHtml(canonical)}">
 ${input.prev ? `<link rel="prev" href="${escapeHtml(origin + input.prev)}">` : ""}
 ${input.next ? `<link rel="next" href="${escapeHtml(origin + input.next)}">` : ""}

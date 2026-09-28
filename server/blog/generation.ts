@@ -4,6 +4,12 @@ export interface EditorialSettings {
   tone: string;
   audience: string;
   editorial_rules: string;
+  business_type: string;
+  language: string;
+  primary_topics: string;
+  avoid_topics: string;
+  product_description: string;
+  image_style: string;
 }
 
 export interface KeywordSuggestion {
@@ -11,6 +17,8 @@ export interface KeywordSuggestion {
   intent: string;
   relevance: number;
   reason: string;
+  monthly_volume_estimate: number | null;
+  difficulty: "baixa" | "média" | "alta";
 }
 
 export interface RelatedArticle {
@@ -30,7 +38,7 @@ async function jsonCompletion(system: string, user: string) {
     model: "gpt-4o-mini",
     response_format: { type: "json_object" },
     temperature: 0.4,
-    max_completion_tokens: 6500,
+    max_completion_tokens: 7000,
     messages: [{ role: "system", content: system }, { role: "user", content: user }],
   });
   const text = response.choices[0]?.message?.content;
@@ -63,7 +71,7 @@ export async function suggestKeywords(seed: string): Promise<KeywordSuggestion[]
   if (candidates.size === 0) return [];
   const choices = Array.from(candidates).slice(0, 30);
   const classified = await jsonCompletion(
-    "Classifique somente as sugestões reais recebidas. Responda JSON {\"suggestions\":[{\"keyword\":\"texto exato da lista\",\"intent\":\"informacional|navegacional|comercial|transacional\",\"relevance\":1-5,\"reason\":\"motivo curto\"}]}. Não crie consultas novas. Descarte consultas sem relação com estudo bíblico e com o app Bíblia Inteligente. Português do Brasil.",
+    "Classifique somente as sugestões reais recebidas. Responda JSON {\"suggestions\":[{\"keyword\":\"texto exato da lista\",\"intent\":\"informacional|navegacional|comercial|transacional\",\"relevance\":1-5,\"reason\":\"motivo curto\",\"monthly_volume_estimate\":inteiro ou null,\"difficulty\":\"baixa|média|alta\"}]}. Não crie consultas novas. Volume é apenas palpite editorial em buscas mensais, NÃO dado medido: use null se não houver base razoável para estimar. Descarte consultas sem relação com estudo bíblico e com o app Bíblia Inteligente. Português do Brasil.",
     JSON.stringify({ seed, suggestionsFromGoogle: choices }),
   );
   const allowed = new Map(choices.map((value) => [value.toLocaleLowerCase("pt-BR"), value]));
@@ -83,6 +91,11 @@ export async function suggestKeywords(seed: string): Promise<KeywordSuggestion[]
         ? intent : "informacional",
       relevance: Math.min(5, Math.max(1, Math.round(Number(item.relevance) || 1))),
       reason: String(item.reason ?? "").slice(0, 250),
+      monthly_volume_estimate: Number.isInteger(item.monthly_volume_estimate) &&
+        Number(item.monthly_volume_estimate) >= 0 && Number(item.monthly_volume_estimate) <= 1_000_000
+        ? Number(item.monthly_volume_estimate) : null,
+      difficulty: ["baixa", "média", "alta"].includes(String(item.difficulty))
+        ? item.difficulty as KeywordSuggestion["difficulty"] : "média",
     });
   }
   return output;
@@ -113,10 +126,14 @@ export async function generateArticle(
   related: RelatedArticle[],
 ): Promise<ArticleDraft> {
   const system = `Você redige artigos originais para o Bíblia Inteligente. Responda SOMENTE JSON com title, meta_description, body_markdown, cover_alt, cover_prompt.
-Regras FIXAS, acima das configurações: português brasileiro; tom respeitoso e evangélico; sem polêmicas denominacionais; não invente citações bíblicas nem fatos históricos. Cite livro, capítulo e versículo de modo exato; se não tiver certeza de uma referência, não a cite. Não atribua palavras literais à Bíblia sem conferir. Não reproduza texto de outros sites. A IA/Professor IA do app é SEMPRE um apoio ou auxílio para aprofundar o conhecimento bíblico (contexto histórico/cultural, mapas, dicionários), NUNCA uma autoridade espiritual ou alguém que ensina. Não inclua afirmações promocionais enganosas. Não escreva HTML nem links inventados. Inclua em body_markdown uma introdução, seções ## e ###, seção ## Perguntas frequentes com ao menos 3 perguntas ### e respostas, e conclusão. Escreva de 1200 a 1850 palavras no corpo. Meta description até 155 caracteres. Capa ilustrativa reverente sem rostos realistas de Jesus e sem texto na imagem.`;
+ Regras FIXAS, acima das configurações: português brasileiro; tom respeitoso e evangélico; sem polêmicas denominacionais; não invente citações bíblicas nem fatos históricos. Cite livro, capítulo e versículo de modo exato; se não tiver certeza de uma referência, não a cite. Não atribua palavras literais à Bíblia sem conferir. Se mencionar concordância Strong, nunca traduza "Strong" como "Forte" e não invente números G/H. Não reproduza texto de outros sites. A IA/Professor IA do app é SEMPRE um apoio ou auxílio para aprofundar o conhecimento bíblico (contexto histórico/cultural, mapas, dicionários), NUNCA uma autoridade espiritual ou alguém que ensina. Não inclua afirmações promocionais enganosas. Não escreva HTML nem links inventados. Título com até 60 caracteres; meta description até 155 caracteres. Responda à pergunta principal logo na introdução, inclua seções ## e ###, seção literal ## Perguntas frequentes com ao menos 3 perguntas ### e respostas, e conclusão. Objetivo: 1.500 a 2.300 palavras no corpo (continue em partes quando necessário). Capa ilustrativa reverente sem rostos realistas de Jesus e sem texto na imagem.`;
   const request = JSON.stringify({
     keyword, intent, tone: settings.tone, audience: settings.audience,
     additionalEditorialRules: settings.editorial_rules,
+    businessType: settings.business_type, language: settings.language,
+    primaryTopics: settings.primary_topics, avoidTopics: settings.avoid_topics,
+    productDescription: settings.product_description,
+    visualStyle: settings.image_style,
     publishedArticlesToAvoidRepeating: related.map((r) => r.title),
   });
   let article: Record<string, unknown> = await jsonCompletion(system, request);
@@ -129,10 +146,10 @@ Regras FIXAS, acima das configurações: português brasileiro; tom respeitoso e
   // A single model response often stops around 800–1,000 words. Add new
   // editorial sections in separate bounded requests instead of accepting a
   // short article or repeatedly discarding a usable draft.
-  for (let part = 0; words(body) < 1200 && part < 3; part++) {
-    const missing = 1250 - words(body);
+  for (let part = 0; words(body) < 1550 && part < 5; part++) {
+    const missing = 1600 - words(body);
     const expansion = await jsonCompletion(
-      `${system}\nAgora responda APENAS JSON {"expansion_markdown":"..."} com seções NOVAS (## título e parágrafos). Não repita o texto anterior nem inclua outra FAQ ou conclusão. Desenvolva ${Math.min(650, Math.max(300, missing + 100))} palavras, com citações bíblicas somente se puder verificá-las. Não adicione novos links.`,
+      `${system}\nAgora responda APENAS JSON {"expansion_markdown":"..."} com seções NOVAS (## título e parágrafos). Não repita o texto anterior nem inclua outra FAQ ou conclusão. Desenvolva cerca de ${Math.min(650, Math.max(230, missing + 50))} palavras, com citações bíblicas somente se puder verificá-las. Não adicione novos links.`,
       JSON.stringify({ keyword, bodyAlreadyWritten: body, topics: "Aprofunde ângulos que ainda não foram desenvolvidos, sem inventar fatos." }),
     );
     const addition = String(expansion.expansion_markdown ?? "").trim();
@@ -148,9 +165,9 @@ Regras FIXAS, acima das configurações: português brasileiro; tom respeitoso e
   const meta = String(article.meta_description ?? "").trim();
   const alt = String(article.cover_alt ?? "").trim();
   const prompt = String(article.cover_prompt ?? "").trim();
-  if (words(body) < 1200 || words(body) > 1850 || !body.includes("## ") ||
+   if (words(body) < 1500 || words(body) > 2300 || !body.includes("## ") ||
     !/## Perguntas frequentes/i.test(body) || (body.match(/^### /gm) ?? []).length < 3 ||
-    !title || title.length > 150 || !meta || meta.length > 155 || !alt || !prompt) {
+     !title || title.length > 60 || !meta || meta.length > 155 || !alt || !prompt) {
     throw new Error(`A geração não atingiu os critérios editoriais (palavras: ${words(body)}; seções: ${(body.match(/^## /gm) ?? []).length}; perguntas: ${(body.match(/^### /gm) ?? []).length}; FAQ: ${/## Perguntas frequentes/i.test(body)}; meta: ${meta.length}). Tente novamente.`);
   }
   // The destination URLs are chosen by the server, never hallucinated by the model.
@@ -164,19 +181,19 @@ Regras FIXAS, acima das configurações: português brasileiro; tom respeitoso e
     links.push("- [Veja a oferta do aplicativo](/oferta) se desejar conhecer os recursos disponíveis.");
   }
   const linked = `${body}\n\n## Continue estudando\n\n${links.join("\n")}\n\n> Aprofunde seu estudo bíblico com o Bíblia Inteligente. [Baixe o aplicativo](/baixar).\n`;
-  if (words(linked) > 2000) throw new Error("O artigo ultrapassou o limite de palavras.");
+  if (words(linked) > 2500) throw new Error("O artigo ultrapassou o limite de 2.500 palavras.");
   const slug = slugify(title);
   if (!slug) throw new Error("Título inválido para gerar o endereço do artigo.");
   return { title, slug, meta_description: meta, body_markdown: linked, cover_alt: alt, cover_prompt: prompt };
 }
 
-export async function generateCover(prompt: string): Promise<{ data: Buffer; mime: string }> {
+export async function generateCover(prompt: string, style = ""): Promise<{ data: Buffer; mime: string }> {
   const result = await images.images.generate({
-    model: "dall-e-3",
+    model: "gpt-image-1",
     size: "1024x1024",
-    quality: "standard",
+    quality: "medium",
     n: 1,
-    prompt: `Ilustração editorial bíblica, respeitosa, contextualmente apropriada: ${prompt.slice(0, 700)}. Sem letras, palavras, logotipos, marcas d'água ou tipografia. Não representar Jesus com rosto realista. Sem violência gráfica.`,
+    prompt: `Ilustração editorial bíblica, respeitosa, contextualmente apropriada: ${prompt.slice(0, 700)}. Estilo: ${style.slice(0, 300)}. Sem letras, palavras, logotipos, marcas d'água ou tipografia. Não representar Jesus com rosto realista. Sem violência gráfica.`,
   });
   const encoded = result.data?.[0]?.b64_json;
   const imageUrl = result.data?.[0]?.url;
@@ -202,6 +219,6 @@ export async function generateCover(prompt: string): Promise<{ data: Buffer; mim
     ? "image/png"
     : data.subarray(0, 3).equals(Buffer.from("ffd8ff", "hex")) ? "image/jpeg" : "";
   if (!mime) throw new Error("Formato de capa não suportado.");
-  // The signed URL is never saved. The actual bytes are stored in PostgreSQL.
+  // Persist the bytes in App Storage; never save a temporary image URL.
   return { data, mime };
 }

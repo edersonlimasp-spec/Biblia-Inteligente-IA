@@ -110,7 +110,7 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
             </TabsTrigger>
             <TabsTrigger value="blog" data-testid="tab-blog">
               <FileText className="h-4 w-4 mr-2" />
-              Blog/SEO
+              SEO &amp; Blog
             </TabsTrigger>
           </TabsList>
 

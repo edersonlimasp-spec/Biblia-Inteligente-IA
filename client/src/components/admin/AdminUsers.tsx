@@ -97,6 +97,19 @@ export function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
     onError: () => toast({ title: 'Erro ao alterar bloqueio', variant: 'destructive' }),
   });
 
+  const promoteMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await apiRequest('PATCH', `/api/admin/users/${userId}/role`, { role: 'admin' });
+      if (!res.ok) throw new Error('Erro ao conceder acesso administrativo');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: 'Acesso administrativo concedido' });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+    },
+    onError: () => toast({ title: 'Não foi possível alterar a função', variant: 'destructive' }),
+  });
+
   const users = data?.users || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / pageSize);
@@ -214,6 +227,23 @@ export function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                       </td>
                       <td className="py-2 px-3">
                         <div className="flex gap-1">
+                          {isSuperAdmin && user.role === 'user' && !user.isBlocked && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (window.confirm(`Dar acesso a todos os painéis administrativos para ${user.email}?`)) {
+                                  promoteMutation.mutate(user.id);
+                                }
+                              }}
+                              disabled={promoteMutation.isPending}
+                              data-testid={`button-promote-admin-${user.id}`}
+                              title="Tornar administrador"
+                            >
+                              <Edit2 className="h-4 w-4 mr-1" />
+                              Tornar admin
+                            </Button>
+                          )}
                           {!user.isBlocked ? (
                             <Button
                               variant="ghost"

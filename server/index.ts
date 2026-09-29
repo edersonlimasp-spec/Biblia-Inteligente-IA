@@ -125,6 +125,13 @@ function ensureFrontendFilesReady() {
 }
 
 const app = express();
+// SEO: dominio canonico via header (sem redirect, nao afeta apps TWA/Capacitor)
+app.use((req, res, next) => {
+  if ((req.method === "GET" || req.method === "HEAD") && !req.path.startsWith("/api")) {
+    res.setHeader("Link", `<https://www.bibliainteligente.com.br${req.path}>; rel="canonical"`);
+  }
+  next();
+});
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
 // Only Capacitor WebViews need cross-origin API access. Browser requests are

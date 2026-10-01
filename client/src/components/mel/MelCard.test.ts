@@ -9,23 +9,25 @@ import { MelCard, MelCompletionNotice } from "./MelCard";
 import { MelMascot } from "./MelMascot";
 
 describe("Mel celebration", () => {
-  it("constrains the home mascot space to 90px without scaling the card text", () => {
+  it("preserves home progress and actions without a permanent mascot", () => {
     const html = renderToStaticMarkup(createElement(MelCard, {
       onContinue: vi.fn(),
       onOpenDevotional: vi.fn(),
     }));
-    expect(html).toContain("w-[90px] shrink-0");
-    expect(html).toContain("h-auto w-full");
+    expect(html).not.toContain("mel-mascot");
+    expect(html).not.toContain("Conversar com a Mel");
+    expect(html).toContain("button-mel-continue");
+    expect(html).toContain("button-mel-devotional");
     expect(html).toContain("min-w-0 flex-1");
   });
 
-  it("animates ordinary daily completion, not only milestones", () => {
+  it("keeps the completion message without a duplicate permanent mascot", () => {
     const html = renderToStaticMarkup(createElement(MelCompletionNotice, {
       message: "Que alegria! Você esteve na Palavra hoje.",
       streak: 1,
     }));
-    expect(html).toContain("mel-mascot--celebrate");
-    expect(html).toContain("--mel-motion-state:running");
+    expect(html).toContain("Que alegria! Você esteve na Palavra hoje.");
+    expect(html).not.toContain("mel-mascot");
     expect(html).not.toContain("Que marco especial!");
   });
 

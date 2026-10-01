@@ -89,7 +89,6 @@ export function MelStage({ currentScreen, onContinue, onOpenDevotional }: MelSta
   const [presentation, setPresentation] = useState<StagePresentation | null>(null);
   const [typedMessage, setTypedMessage] = useState("");
   const dialogRef = useRef<HTMLDivElement>(null);
-  const companionRef = useRef<HTMLButtonElement>(null);
   const openerRef = useRef<{ element: HTMLElement; screen: string } | null>(null);
   const currentScreenRef = useRef(currentScreen);
   const focusRestoreFrameRef = useRef<{ id: number; animationFrame: boolean } | null>(null);
@@ -263,7 +262,9 @@ export function MelStage({ currentScreen, onContinue, onOpenDevotional }: MelSta
         const sameScreenOpener = opener?.screen === currentScreenRef.current
           && opener.element.isConnected
           && !opener.element.closest("[hidden], [aria-hidden='true']");
-        const target = sameScreenOpener ? opener.element : companionRef.current;
+        const target = sameScreenOpener ? opener.element : document.querySelector<HTMLElement>(
+          "main button:not([disabled]), main a[href], [role='main'] button:not([disabled])",
+        );
         if (target?.isConnected && !target.closest("[hidden], [aria-hidden='true']")) target.focus();
         openerRef.current = null;
       };
@@ -277,10 +278,8 @@ export function MelStage({ currentScreen, onContinue, onOpenDevotional }: MelSta
     };
   }, [closeStage, contextScene, enabled, presentation?.id]);
 
-  if (!enabled || !contextScene) return null;
+  if (!enabled || !contextScene || !presentation) return null;
 
-  const currentStageScene = presentation?.scene
-    ?? (sleeping && contextScene !== "reading" && contextScene !== "praying" ? "sleeping" : contextScene);
   const prayerContext = currentScreen === "prayer" || currentScreen === "mel-devotional";
   const sleepContext = (sleeping && (!presentation || presentation.scene === "sleeping"))
     || presentation?.scene === "sleeping";
@@ -306,40 +305,6 @@ export function MelStage({ currentScreen, onContinue, onOpenDevotional }: MelSta
 
   return (
     <>
-      {!presentation && currentScreen !== "bible" && currentScreen !== "library-reader" && (
-        <button
-          type="button"
-          className="mel-stage__companion"
-          ref={companionRef}
-          aria-label={currentStageScene === "sleeping"
-            ? "Mel está dormindo. Toque para interagir"
-            : currentStageScene === "reading"
-              ? "Interagir com a Mel durante a leitura"
-              : currentStageScene === "praying"
-                ? "Interagir com a Mel em oração"
-                : "Interagir com a Mel"}
-          onClick={() => {
-            if (!enabled) return;
-            rememberOpener(companionRef.current);
-            setPresentation({
-              id: nextStageId++,
-              scene: sleeping && contextScene !== "reading" && contextScene !== "praying" ? "sleeping" : contextScene,
-              source: "interaction",
-              tapRevision: 1,
-            });
-          }}
-          data-testid="mel-stage-companion"
-        >
-          <MelMascot
-            scene={currentStageScene}
-            reference={reference}
-            milestone={usableStatus?.streak ?? 0}
-            interaction={false}
-            className="mel-stage__companion-art"
-          />
-        </button>
-      )}
-
       {presentation && (
         <div
           className="mel-stage__backdrop"

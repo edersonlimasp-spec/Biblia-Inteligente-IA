@@ -20,3 +20,9 @@ A graça semanal e a leitura de hoje continuam seguindo o calendário canônico 
 **Why:** o usuário pediu cenas de manhã e de sono, não mudanças na contagem de atividade nem notificações do sistema.
 
 **How to apply:** a aparência deve acompanhar o horário sem gravar atividade ou alterar a rotina escolhida.
+
+A Mel deve ser uma mensageira pontual, não uma personagem permanentemente presente na interface.
+
+**Why:** o usuário restringiu suas aparições a recados e lembretes conforme as regras e os prazos já estabelecidos; a presença decorativa constante não corresponde ao comportamento desejado.
+
+**How to apply:** mantenha a personagem ligada à mensagem ativa e esconda-a ao encerrar o recado. Não reintroduza mascotes fixas, flutuantes ou cabeçalhos com a personagem ao criar novas telas; preserve a lógica existente de progresso e lembretes.

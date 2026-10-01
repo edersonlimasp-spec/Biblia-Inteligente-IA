@@ -135,14 +135,14 @@ describe("MelStage visual behavior", () => {
     act(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
     expect(host?.querySelector('[role="dialog"]')).toBeNull();
     act(() => rafQueue.splice(0).forEach((callback) => callback(0)));
-    expect(document.activeElement).toBe(host?.querySelector('[data-testid="mel-stage-companion"]'));
+    expect(host?.querySelector(".mel-mascot")).toBeNull();
 
     act(() => requestMelInteraction());
     const backdrop = host?.querySelector<HTMLElement>(".mel-stage__backdrop");
     act(() => backdrop?.dispatchEvent(new MouseEvent("click", { bubbles: true })));
     expect(host?.querySelector('[role="dialog"]')).toBeNull();
     act(() => rafQueue.splice(0).forEach((callback) => callback(0)));
-    expect(document.activeElement).toBe(host?.querySelector('[data-testid="mel-stage-companion"]'));
+    expect(host?.querySelector(".mel-mascot")).toBeNull();
   });
 
   it("traps focus with Tab and restores it after closing with X", () => {
@@ -153,10 +153,11 @@ describe("MelStage visual behavior", () => {
     });
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
     renderStage("prayer");
-    const companion = host?.querySelector<HTMLButtonElement>('[data-testid="mel-stage-companion"]');
+    const opener = document.createElement("button");
+    host?.prepend(opener);
     act(() => {
-      companion?.focus();
-      companion?.click();
+      opener.focus();
+      requestMelInteraction();
     });
 
     const closeButton = host?.querySelector<HTMLButtonElement>('[aria-label="Fechar"]');
@@ -170,7 +171,8 @@ describe("MelStage visual behavior", () => {
 
     act(() => closeButton?.click());
     act(() => rafQueue.splice(0).forEach((callback) => callback(0)));
-    expect(document.activeElement).toBe(host?.querySelector('[data-testid="mel-stage-companion"]'));
+    expect(document.activeElement).toBe(opener);
+    expect(host?.querySelector(".mel-mascot")).toBeNull();
   });
 
   it("restores focus to the connected event opener when it is still present", () => {
@@ -203,18 +205,19 @@ describe("MelStage visual behavior", () => {
     });
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
     const { rerender } = renderStage("lesson");
-    const previousCompanion = host?.querySelector<HTMLButtonElement>('[data-testid="mel-stage-companion"]');
+    const previousOpener = document.createElement("button");
+    host?.prepend(previousOpener);
     act(() => {
-      previousCompanion?.focus();
-      previousCompanion?.click();
+      previousOpener.focus();
+      requestMelInteraction();
     });
     expect(host?.querySelector('[role="dialog"]')).not.toBeNull();
 
     rerender("dashboard");
     act(() => rafQueue.splice(0).forEach((callback) => callback(0)));
-    const nextCompanion = host?.querySelector<HTMLButtonElement>('[data-testid="mel-stage-companion"]');
-    expect(nextCompanion).not.toBe(previousCompanion);
-    expect(document.activeElement).toBe(nextCompanion);
+    expect(host?.querySelector('[data-testid="mel-stage-companion"]')).toBeNull();
+    expect(host?.querySelector(".mel-mascot")).toBeNull();
+    expect(document.activeElement).not.toBe(previousOpener);
   });
 
   it("uses a complete static message with reduced motion", () => {
@@ -235,7 +238,9 @@ describe("MelStage visual behavior", () => {
     renderStage("prayer", { includeCard: true });
     expect(host?.querySelector('[data-testid="button-mel-continue"]')).not.toBeNull();
     expect(host?.querySelector('[data-testid="button-mel-devotional"]')).not.toBeNull();
-    expect(host?.querySelector('[data-testid="mel-stage-companion"]')).not.toBeNull();
+    expect(host?.querySelector('[data-testid="mel-stage-companion"]')).toBeNull();
+    act(() => dispatchMelCelebration("Que alegria!", 7));
+    expect(host?.querySelector(".mel-mascot")).not.toBeNull();
 
     act(() => setMelVisibility(false));
     expect(host?.querySelector('[data-testid="mel-stage-companion"]')).toBeNull();
@@ -338,12 +343,11 @@ describe("MelStage visual behavior", () => {
     ["bible", "2025-05-12T07:00:00.000Z"],
     ["library-reader", "2025-05-12T13:00:00.000Z"],
     ["library-reader", "2025-05-12T07:00:00.000Z"],
-  ])("hides the small companion in %s at %s and keeps prayer available", (screen, time) => {
+  ])("shows no idle mascot in %s at %s or after navigating to prayer", (screen, time) => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(time));
     const { rerender } = renderStage(screen);
-    let companion = host?.querySelector<HTMLButtonElement>('[data-testid="mel-stage-companion"]');
-    expect(companion).toBeNull();
+    expect(host?.querySelector(".mel-mascot")).toBeNull();
 
     act(() => requestMelInteraction());
     expect(host?.querySelector('[data-testid="mel-stage-dialog"]')).not.toBeNull();
@@ -351,8 +355,6 @@ describe("MelStage visual behavior", () => {
     expect(host?.querySelector('[data-testid="mel-stage-companion"]')).toBeNull();
 
     rerender("prayer");
-    companion = host?.querySelector<HTMLButtonElement>('[data-testid="mel-stage-companion"]');
-    expect(companion?.querySelector('[data-scene="praying"]')).not.toBeNull();
-    expect(companion?.getAttribute("aria-label")).toContain("em oração");
+    expect(host?.querySelector(".mel-mascot")).toBeNull();
   });
 });

@@ -9,8 +9,6 @@ import { useMel } from "@/hooks/useMel";
 import { apiRequest } from "@/lib/queryClient";
 import { getBookName } from "@/lib/bible-book-names";
 import { MelCompletionNotice } from "@/components/mel/MelCard";
-import { MelMascot } from "@/components/mel/MelMascot";
-import { requestMelInteraction, useMelVisibility } from "@/hooks/useMelVisibility";
 
 interface DailyDevotionalScreenProps {
   date?: string;
@@ -37,7 +35,6 @@ function psalmForDate(date: string) {
 }
 
 export function DailyDevotionalScreen({ date, onBack, onSignIn }: DailyDevotionalScreenProps) {
-  const { enabled: showMel } = useMelVisibility();
   const { user } = useAuth();
   const { status, savePosition, recordActivity, isRecordingActivity, today } = useMel();
   const [readingDate, setReadingDate] = useState(() => isDateString(date) ? date : today);
@@ -117,16 +114,6 @@ export function DailyDevotionalScreen({ date, onBack, onSignIn }: DailyDevotiona
 
       <main className="mx-auto max-w-3xl space-y-5 px-4 py-6 pb-12">
         <section className="flex items-center gap-4 rounded-2xl border bg-card p-4 sm:p-5" data-testid="daily-devotional-intro">
-          {showMel && (
-            <button
-              type="button"
-              onClick={requestMelInteraction}
-              aria-label="Interagir com a Mel em oração"
-              className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <MelMascot scene="praying" className="h-16 w-16" />
-            </button>
-          )}
           <div>
             <h2 className="font-serif text-lg font-semibold">Um momento na Palavra</h2>
             <p className="mt-1 text-sm text-muted-foreground">

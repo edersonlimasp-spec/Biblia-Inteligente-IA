@@ -242,6 +242,7 @@ export interface IStorage {
   getLessonById(id: string): Promise<StudyLesson | undefined>;
   getLessonWithContext(id: string): Promise<{ lesson: StudyLesson; track: StudyTrack; module: StudyModule; lessonIndex: number; moduleIndex: number } | undefined>;
   getUserStudyProgress(userId: string | null, deviceId: string | null): Promise<UserStudyProgress[]>;
+  touchStudyProgress(userId: string | null, deviceId: string | null, lessonId: string): Promise<UserStudyProgress>;
   updateStudyProgress(userId: string | null, deviceId: string | null, lessonId: string, completed: boolean): Promise<UserStudyProgress>;
   migrateStudyProgressToUser(userId: string, deviceId: string): Promise<{ migrated: number; merged: number }>;
   getModuleProgress(moduleId: string, userId: string | null, deviceId: string | null): Promise<{ total: number; completed: number; percentage: number }>;
@@ -1894,9 +1895,12 @@ class PostgresStorage implements IStorage {
     
     const conditions = [];
     if (userId) conditions.push(eq(readingProgress.userId, userId));
-    else if (deviceId) conditions.push(eq(readingProgress.deviceId, deviceId));
+    else if (deviceId) {
+      conditions.push(eq(readingProgress.deviceId, deviceId));
+      conditions.push(sql`${readingProgress.userId} IS NULL`);
+    }
     
-    const rows = await db.select().from(readingProgress).where(conditions[0]);
+    const rows = await db.select().from(readingProgress).where(and(...conditions));
     
     return rows.map(row => ({
       book: row.book,
@@ -1915,7 +1919,10 @@ class PostgresStorage implements IStorage {
     
     const conditions = [eq(readingProgress.book, book)];
     if (userId) conditions.push(eq(readingProgress.userId, userId));
-    else if (deviceId) conditions.push(eq(readingProgress.deviceId, deviceId!));
+    else if (deviceId) {
+      conditions.push(eq(readingProgress.deviceId, deviceId!));
+      conditions.push(sql`${readingProgress.userId} IS NULL`);
+    }
     
     const existing = await db.select().from(readingProgress).where(and(...conditions)).limit(1);
     
@@ -2011,12 +2018,49 @@ class PostgresStorage implements IStorage {
     
     const conditions = [];
     if (userId) conditions.push(eq(userStudyProgress.userId, userId));
-    else if (deviceId) conditions.push(eq(userStudyProgress.deviceId, deviceId));
+    else if (deviceId) {
+      conditions.push(eq(userStudyProgress.deviceId, deviceId));
+      conditions.push(sql`${userStudyProgress.userId} IS NULL`);
+    }
     
-    return db.select().from(userStudyProgress).where(conditions[0]);
+    return db.select().from(userStudyProgress).where(and(...conditions));
+  }
+
+  async touchStudyProgress(userId: string | null, deviceId: string | null, lessonId: string): Promise<UserStudyProgress> {
+    if (!userId && !deviceId?.trim()) {
+      throw new Error("A userId or deviceId is required to touch study progress");
+    }
+    const conditions = [eq(userStudyProgress.lessonId, lessonId)];
+    if (userId) conditions.push(eq(userStudyProgress.userId, userId));
+    else if (deviceId) {
+      conditions.push(eq(userStudyProgress.deviceId, deviceId));
+      conditions.push(sql`${userStudyProgress.userId} IS NULL`);
+    }
+
+    const existing = await db.select().from(userStudyProgress).where(and(...conditions)).limit(1);
+    const now = new Date();
+    if (existing.length > 0) {
+      const [updated] = await db.update(userStudyProgress)
+        .set({ lastAccessAt: now })
+        .where(eq(userStudyProgress.id, existing[0].id))
+        .returning();
+      return updated as UserStudyProgress;
+    }
+    const [created] = await db.insert(userStudyProgress).values({
+      userId: userId || null,
+      deviceId: userId ? null : deviceId,
+      lessonId,
+      completed: false,
+      completedAt: null,
+      lastAccessAt: now,
+    }).returning();
+    return created as UserStudyProgress;
   }
 
   async updateStudyProgress(userId: string | null, deviceId: string | null, lessonId: string, completed: boolean): Promise<UserStudyProgress> {
+    if (!userId && !deviceId?.trim()) {
+      throw new Error("A userId or deviceId is required to update study progress");
+    }
     const conditions = [eq(userStudyProgress.lessonId, lessonId)];
     if (userId) conditions.push(eq(userStudyProgress.userId, userId));
     else if (deviceId) {
@@ -2028,10 +2072,13 @@ class PostgresStorage implements IStorage {
     const existing = await db.select().from(userStudyProgress).where(and(...conditions)).limit(1);
     
     if (existing.length > 0) {
+      const completedAt = completed
+        ? (existing[0].completedAt ?? new Date())
+        : null;
       const [updated] = await db.update(userStudyProgress)
         .set({ 
           completed, 
-          completedAt: completed ? new Date() : null,
+          completedAt,
           lastAccessAt: new Date() 
         })
         .where(eq(userStudyProgress.id, existing[0].id))
@@ -2137,7 +2184,10 @@ class PostgresStorage implements IStorage {
     const lessonIds = lessons.map(l => l.id);
     const conditions = [sql`${userStudyProgress.lessonId} IN (${sql.join(lessonIds.map(id => sql`${id}`), sql`, `)})`];
     if (userId) conditions.push(eq(userStudyProgress.userId, userId));
-    else if (deviceId) conditions.push(eq(userStudyProgress.deviceId, deviceId));
+    else if (deviceId) {
+      conditions.push(eq(userStudyProgress.deviceId, deviceId));
+      conditions.push(sql`${userStudyProgress.userId} IS NULL`);
+    }
     
     const progress = await db.select().from(userStudyProgress).where(and(...conditions));
     const completed = progress.filter(p => p.completed).length;

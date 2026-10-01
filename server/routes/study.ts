@@ -22,6 +22,7 @@ import { TRANSLATION_REGISTRY, getEnabledTranslations, hasDataAvailable, getTran
 import iapRoutes from "../payments/iap-routes";
 import { generateStrongDefinition, isEntryIncomplete } from "../services/strong-ai-generator";
 import { readingPlanService } from "../reading-plans";
+import { recordMelActivity } from "../services/mel";
 import { transcribeAudio, generateSermonSummary, generateShareToken } from "../services/sermon-ai";
 import { GENESIS_WORD_STRONG } from "../genesis-strong-mappings";
 import { EXO_WORD_STRONG } from "../exo-strong-mappings";
@@ -88,6 +89,9 @@ export function registerStudyRoutes(app: Express): void {
         ts: z.number().optional(), // timestamp em ms (para sincronizar conclusões offline)
       });
       const { type, ts } = bodySchema.parse(req.body ?? {});
+      if (type === "mel_bible_chapter" || type === "mel_devotional" || type === "mel_lesson") {
+        return res.status(400).json({ error: "Atividade Mel deve ser registrada pela rota verificada" });
+      }
       const completedAt = ts ? new Date(ts) : undefined;
       // Rejeita timestamps inválidos ou futuros
       if (completedAt && (isNaN(completedAt.getTime()) || completedAt.getTime() > Date.now() + 5 * 60 * 1000)) {
@@ -406,7 +410,7 @@ export function registerStudyRoutes(app: Express): void {
       
       // Mark as accessed
       if (userId || deviceId) {
-        await storage.updateStudyProgress(userId, deviceId, id, false);
+        await storage.touchStudyProgress(userId, deviceId, id);
       }
       
       // Get translated lesson
@@ -435,14 +439,45 @@ export function registerStudyRoutes(app: Express): void {
         return res.status(400).json({ error: "ID da lição é obrigatório" });
       }
       
-      const userId = (req as any).userId || null;
-      const deviceId = req.headers['x-device-id'] as string || null;
+      const userId = req.userId || null;
+      const deviceHeader = req.headers['x-device-id'];
+      const deviceId = typeof deviceHeader === "string" ? deviceHeader.trim() || null : null;
       
       if (!userId && !deviceId) {
         return res.status(401).json({ error: "Usuário não identificado" });
       }
+
+      if (completed === true && userId) {
+        const context = await storage.getLessonWithContext(lessonId);
+        if (!context) return res.status(404).json({ error: "Lição não encontrada" });
+        const user = await storage.getUser(userId);
+        if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
+        const [hasPremium, hasGold, hasLifetime] = await Promise.all([
+          storage.hasActiveSubscription(userId, "premium"),
+          storage.hasActiveSubscription(userId, "gold"),
+          storage.hasActiveSubscription(userId, "strong_lifetime"),
+        ]);
+        const userPlan: "free" | "gold" | "premium" = hasPremium
+          ? "premium"
+          : (hasGold || hasLifetime) ? "gold" : "free";
+        const { canOpenLesson } = await import("@shared/courseAccess");
+        const access = canOpenLesson({
+          isLoggedIn: true,
+          plan: userPlan,
+          courseLevel: context.track.level as "iniciante" | "moderado" | "avancado",
+          moduleIndex: context.moduleIndex,
+          lessonIndex: context.lessonIndex,
+          isAdmin: user.role === "admin" || user.role === "super_admin",
+        });
+        if (!access.allowed) {
+          return res.status(403).json({ error: access.message, reason: "UPGRADE_REQUIRED" });
+        }
+      }
       
       const progress = await storage.updateStudyProgress(userId, deviceId, lessonId, completed === true);
+      if (completed === true && userId) {
+        await recordMelActivity(userId, "mel_lesson");
+      }
       
       res.json({ success: true, progress });
     } catch (error) {
@@ -505,14 +540,16 @@ export function registerStudyRoutes(app: Express): void {
   app.post("/api/reading-plans/user", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const { templateId, startDate } = req.body;
-      const deviceId = req.headers['x-device-id'] as string;
       const userId = req.userId || null;
+      const deviceHeader = req.headers['x-device-id'];
+      const headerDeviceId = typeof deviceHeader === "string" ? deviceHeader.trim() : "";
+      const deviceId = userId ? null : headerDeviceId || null;
       
       if (!templateId) {
         return res.status(400).json({ error: "templateId is required" });
       }
       
-      if (!userId && !deviceId) {
+      if (!userId && !headerDeviceId) {
         return res.status(400).json({ error: "User must be logged in or provide deviceId" });
       }
       
@@ -533,11 +570,13 @@ export function registerStudyRoutes(app: Express): void {
   // GET /api/reading-plans/user - Get user's reading plans
   app.get("/api/reading-plans/user", optionalAuth, async (req: AuthRequest, res) => {
     try {
-      const deviceId = req.headers['x-device-id'] as string;
       const userId = req.userId || null;
+      const deviceHeader = req.headers['x-device-id'];
+      const headerDeviceId = typeof deviceHeader === "string" ? deviceHeader.trim() : "";
+      const deviceId = userId ? null : headerDeviceId || null;
       const { status } = req.query;
       
-      if (!userId && !deviceId) {
+      if (!userId && !headerDeviceId) {
         return res.status(400).json({ error: "User must be logged in or provide deviceId" });
       }
       
@@ -557,10 +596,12 @@ export function registerStudyRoutes(app: Express): void {
   // GET /api/reading-plans/user/active - Get user's active plan with today's reading
   app.get("/api/reading-plans/user/active", optionalAuth, async (req: AuthRequest, res) => {
     try {
-      const deviceId = req.headers['x-device-id'] as string;
       const userId = req.userId || null;
+      const deviceHeader = req.headers['x-device-id'];
+      const headerDeviceId = typeof deviceHeader === "string" ? deviceHeader.trim() : "";
+      const deviceId = userId ? null : headerDeviceId || null;
       
-      if (!userId && !deviceId) {
+      if (!userId && !headerDeviceId) {
         return res.status(400).json({ error: "User must be logged in or provide deviceId" });
       }
       
@@ -591,7 +632,11 @@ export function registerStudyRoutes(app: Express): void {
   app.get("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const { planId } = req.params;
-      const plan = await readingPlanService.getUserPlanById(planId);
+      if (!planId) return res.status(400).json({ error: "planId is required" });
+      const userId = req.userId || null;
+      const deviceHeader = req.headers['x-device-id'];
+      const deviceId = typeof deviceHeader === "string" ? deviceHeader.trim() || null : null;
+      const plan = await readingPlanService.getOwnedUserPlanById(planId, userId, userId ? null : deviceId);
       
       if (!plan) {
         return res.status(404).json({ error: "Plan not found" });
@@ -617,10 +662,22 @@ export function registerStudyRoutes(app: Express): void {
   app.post("/api/reading-plans/user/:planId/complete", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const { planId } = req.params;
-      const { dayIndex, completedReadings } = req.body;
-      
-      if (typeof dayIndex !== 'number') {
-        return res.status(400).json({ error: "dayIndex is required" });
+      if (!planId) return res.status(400).json({ error: "planId is required" });
+      const bodySchema = z.object({
+        dayIndex: z.number().int().positive(),
+        completedReadings: z.array(z.object({
+          book: z.string().min(1).max(8),
+          chapter: z.number().int().positive(),
+        }).strict()).optional(),
+      }).strict();
+      const parsed = bodySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "dayIndex is required" });
+      const { dayIndex, completedReadings } = parsed.data;
+      const userId = req.userId || null;
+      const deviceHeader = req.headers['x-device-id'];
+      const deviceId = typeof deviceHeader === "string" ? deviceHeader.trim() || null : null;
+      if (!(await readingPlanService.ownsUserPlan(planId, userId, userId ? null : deviceId))) {
+        return res.status(404).json({ error: "Plan not found" });
       }
       
       const result = await readingPlanService.markReadingComplete(
@@ -640,7 +697,21 @@ export function registerStudyRoutes(app: Express): void {
   app.patch("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const { planId } = req.params;
-      const { status, notificationsEnabled, notificationTime } = req.body;
+      if (!planId) return res.status(400).json({ error: "planId is required" });
+      const settingsSchema = z.object({
+        status: z.enum(["active", "paused", "completed", "abandoned"]).optional(),
+        notificationsEnabled: z.boolean().optional(),
+        notificationTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).optional(),
+      }).strict().refine((settings) => Object.keys(settings).length > 0);
+      const parsed = settingsSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Plan settings are invalid" });
+      const { status, notificationsEnabled, notificationTime } = parsed.data;
+      const userId = req.userId || null;
+      const deviceHeader = req.headers['x-device-id'];
+      const deviceId = typeof deviceHeader === "string" ? deviceHeader.trim() || null : null;
+      if (!(await readingPlanService.ownsUserPlan(planId, userId, userId ? null : deviceId))) {
+        return res.status(404).json({ error: "Plan not found" });
+      }
       
       if (status) {
         await readingPlanService.updatePlanStatus(planId, status);
@@ -654,7 +725,7 @@ export function registerStudyRoutes(app: Express): void {
         );
       }
       
-      const updatedPlan = await readingPlanService.getUserPlanById(planId);
+      const updatedPlan = await readingPlanService.getOwnedUserPlanById(planId, userId, userId ? null : deviceId);
       res.json(updatedPlan);
     } catch (error) {
       console.error("[Reading Plans] Error updating plan:", error);
@@ -666,6 +737,13 @@ export function registerStudyRoutes(app: Express): void {
   app.delete("/api/reading-plans/user/:planId", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const { planId } = req.params;
+      if (!planId) return res.status(400).json({ error: "planId is required" });
+      const userId = req.userId || null;
+      const deviceHeader = req.headers['x-device-id'];
+      const deviceId = typeof deviceHeader === "string" ? deviceHeader.trim() || null : null;
+      if (!(await readingPlanService.ownsUserPlan(planId, userId, userId ? null : deviceId))) {
+        return res.status(404).json({ error: "Plan not found" });
+      }
       await readingPlanService.deletePlan(planId);
       res.json({ success: true });
     } catch (error) {

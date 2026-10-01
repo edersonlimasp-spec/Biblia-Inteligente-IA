@@ -12,7 +12,7 @@ import {
   type InsertUserReadingPlan,
   type InsertUserDailyReading
 } from "@shared/schema";
-import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
+import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
 
 const BIBLE_BOOKS = [
   { abbr: "gen", name: "Gênesis", chapters: 50, testament: "OT", genre: "law" },
@@ -255,6 +255,7 @@ export const readingPlanService = {
       conditions.push(eq(userReadingPlans.userId, userId));
     } else if (deviceId) {
       conditions.push(eq(userReadingPlans.deviceId, deviceId));
+      conditions.push(sql`${userReadingPlans.userId} IS NULL`);
     } else {
       return [];
     }
@@ -295,6 +296,25 @@ export const readingPlanService = {
     }
     
     return { ...plan, template };
+  },
+
+  async ownsUserPlan(planId: string, userId: string | null, deviceId: string | null): Promise<boolean> {
+    if (!planId || (!userId && !deviceId?.trim())) return false;
+    const conditions = [eq(userReadingPlans.id, planId)];
+    if (userId) {
+      conditions.push(eq(userReadingPlans.userId, userId));
+    } else {
+      conditions.push(eq(userReadingPlans.deviceId, deviceId!.trim()));
+      conditions.push(sql`${userReadingPlans.userId} IS NULL`);
+    }
+    const [owned] = await db.select({ id: userReadingPlans.id })
+      .from(userReadingPlans).where(and(...conditions)).limit(1);
+    return !!owned;
+  },
+
+  async getOwnedUserPlanById(planId: string, userId: string | null, deviceId: string | null) {
+    if (!(await this.ownsUserPlan(planId, userId, deviceId))) return null;
+    return this.getUserPlanById(planId);
   },
 
   async getTodaysReading(planId: string) {

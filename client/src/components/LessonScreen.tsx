@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,10 +14,17 @@ import { recordStudyCompletion } from "@/lib/completions";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDeviceId } from "@/hooks/use-device-id";
+import { useMel } from "@/hooks/useMel";
+import { MelCompletionNotice } from "@/components/mel/MelCard";
+import type { MelPosition } from "@shared/mel";
+import type { MelPositionSaveTicket } from "@/lib/mel-position-queue";
+import { createMelLessonPosition, restoreMelVideoOffset } from "@/lib/mel-video-position";
 
 interface LessonScreenProps {
   lessonId: string;
   trackLevel: string;
+  moduleId?: string;
+  initialVideoSeconds?: number;
   onBack: () => void;
 }
 
@@ -162,17 +169,28 @@ function ReflectionQuestions({ questions }: { questions: string }) {
   );
 }
 
-export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps) {
+export function LessonScreen({ lessonId, trackLevel, moduleId, initialVideoSeconds, onBack }: LessonScreenProps) {
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const deviceId = getDeviceId();
   const { toast } = useToast();
+  const {
+    status: melStatus,
+    savePosition: saveMelPosition,
+    createPositionTicket: reserveMelPosition,
+    savePositionTicket: saveMelPositionTicket,
+    refresh: refreshMel,
+    today: melToday,
+  } = useMel();
 
   const [showAskProfessor, setShowAskProfessor] = useState(false);
   const [question, setQuestion] = useState("");
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isAskingProfessor, setIsAskingProfessor] = useState(false);
   const [completedUI, setCompletedUI] = useState(false);
+  const [completionCelebration, setCompletionCelebration] = useState(false);
+  const [completionStreak, setCompletionStreak] = useState<number | undefined>();
+  const videoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const level = (trackLevel as ClassLevel) in CLASS_CONFIG
     ? (trackLevel as ClassLevel)
@@ -199,6 +217,93 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
   const lesson = lessonData?.lesson;
   const isCompleted = lessonData?.completed || completedUI;
 
+  useEffect(() => {
+    if (!user || !lesson?.content || !moduleId) return;
+    const buildPosition = (videoSeconds?: number) =>
+      createMelLessonPosition(lesson.id, moduleId, trackLevel, videoSeconds);
+
+    void saveMelPosition(buildPosition(initialVideoSeconds)).catch((saveError) => {
+      console.warn("[Mel] Could not save lesson position:", saveError);
+    });
+
+    // Text-only lessons have no playback state. If a native/HTML5 player is
+    // present, save its current time; embedded iframe playback is not inferred.
+    const videos = Array.from(document.querySelectorAll("video"));
+    let pendingVideoTicket: MelPositionSaveTicket<MelPosition> | null = null;
+    const saveVideoPosition = (video: HTMLVideoElement, immediate = false) => {
+      const ticket = reserveMelPosition(buildPosition(Math.floor(video.currentTime)));
+      if (!ticket) return;
+      pendingVideoTicket = ticket;
+      const persist = () => {
+        if (pendingVideoTicket?.sequence !== ticket.sequence) return;
+        pendingVideoTicket = null;
+        videoSaveTimer.current = null;
+        void saveMelPositionTicket(ticket).catch((saveError) => {
+          console.warn("[Mel] Could not save lesson video position:", saveError);
+        });
+      };
+      if (videoSaveTimer.current) clearTimeout(videoSaveTimer.current);
+      if (immediate) persist();
+      else videoSaveTimer.current = setTimeout(persist, 2_000);
+    };
+    const listeners = videos.map((video) => {
+      let lastPersistedSecond = Math.floor(video.currentTime);
+      let videoOffsetRestored = initialVideoSeconds === undefined;
+      const restoreInitialOffset = () => {
+        if (videoOffsetRestored) return true;
+        try {
+          if (!restoreMelVideoOffset(video, initialVideoSeconds)) return false;
+          videoOffsetRestored = true;
+          lastPersistedSecond = Math.floor(video.currentTime);
+          return true;
+        } catch (restoreError) {
+          console.warn("[Mel] Could not restore lesson video position:", restoreError);
+          return false;
+        }
+      };
+      const onLoadedMetadata = () => {
+        if (restoreInitialOffset()) video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      };
+      if (!restoreInitialOffset()) {
+        video.addEventListener("loadedmetadata", onLoadedMetadata);
+      }
+      const onTimeUpdate = () => {
+        if (!restoreInitialOffset()) return;
+        const currentSecond = Math.floor(video.currentTime);
+        const saveImmediately = currentSecond - lastPersistedSecond >= 10;
+        if (saveImmediately) lastPersistedSecond = currentSecond;
+        saveVideoPosition(video, saveImmediately);
+      };
+      const onPause = () => {
+        if (!restoreInitialOffset()) return;
+        lastPersistedSecond = Math.floor(video.currentTime);
+        saveVideoPosition(video, true);
+      };
+      video.addEventListener("timeupdate", onTimeUpdate);
+      video.addEventListener("pause", onPause);
+      return () => {
+        video.removeEventListener("loadedmetadata", onLoadedMetadata);
+        video.removeEventListener("timeupdate", onTimeUpdate);
+        video.removeEventListener("pause", onPause);
+      };
+    });
+
+    return () => {
+      listeners.forEach((remove) => remove());
+      if (videoSaveTimer.current) {
+        clearTimeout(videoSaveTimer.current);
+        videoSaveTimer.current = null;
+      }
+      const pending = pendingVideoTicket;
+      pendingVideoTicket = null;
+      if (pending) {
+        void saveMelPositionTicket(pending).catch((saveError) => {
+          console.warn("[Mel] Could not flush lesson video position:", saveError);
+        });
+      }
+    };
+  }, [initialVideoSeconds, lesson?.content, lesson?.id, moduleId, reserveMelPosition, saveMelPosition, saveMelPositionTicket, trackLevel, user]);
+
   // Query da trilha para a barra segmentada
   const { data: trackData } = useQuery<{ lessons: { id: string; completed: boolean }[] }>({
     queryKey: ["/api/study/tracks", lesson?.trackId],
@@ -221,13 +326,17 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
       queryClient.invalidateQueries({ queryKey: ["/api/study/lessons", lessonId] });
       queryClient.invalidateQueries({ queryKey: ["/api/study/modules"] });
       queryClient.invalidateQueries({ queryKey: ["/api/study/tracks", lesson?.trackId] });
+      void refreshMel();
 
       setCompletedUI(true);
+      setCompletionCelebration(true);
+      const currentMelStatus = melStatus?.today === melToday ? melStatus : undefined;
+      setCompletionStreak(currentMelStatus?.completedToday ? currentMelStatus.streak : (currentMelStatus?.streak ?? 0) + 1);
       toast({
         title: t("courses.lessonCompleted"),
         description: t("courses.progressSaved"),
       });
-      setTimeout(() => onBack(), 1200);
+      setTimeout(() => onBack(), 2200);
     },
     onError: () => {
       toast({
@@ -398,6 +507,16 @@ export function LessonScreen({ lessonId, trackLevel, onBack }: LessonScreenProps
       </div>
 
       {/* Rodapé fixo */}
+      {completionCelebration && (
+        <div className="fixed inset-x-4 bottom-20 z-[70] mx-auto max-w-lg">
+          <MelCompletionNotice
+            message="Muito bem! Mais uma aula concluída. Continue crescendo na Palavra."
+            streak={completionStreak}
+            onDismiss={() => setCompletionCelebration(false)}
+          />
+        </div>
+      )}
+
       <div
         className="fixed inset-x-0 bottom-0 bg-background/95 backdrop-blur border-t border-border"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}

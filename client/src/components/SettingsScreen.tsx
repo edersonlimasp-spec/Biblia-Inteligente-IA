@@ -27,6 +27,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useTheme } from "@/components/ThemeProvider";
+import { MelPreferences } from "@/components/mel/MelPreferences";
 
 interface SettingsScreenProps {
   onBack?: () => void;
@@ -259,6 +260,8 @@ export function SettingsScreen({ onBack, onNavigateToSubscriptions }: SettingsSc
             </Button>
           </CardContent>
         </Card>
+
+        <MelPreferences />
 
         <Card>
           <CardHeader>

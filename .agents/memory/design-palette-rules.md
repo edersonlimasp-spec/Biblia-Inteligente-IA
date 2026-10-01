@@ -26,6 +26,14 @@ Na página pública `/oferta`, o usuário pediu azul-marinho e dourado para a di
 
 **How to apply:** manter o estilo da campanha isolado; não propagar o dourado para menus, telas de assinatura ou outros módulos.
 
+### Exceção explícita para a mascote Mel
+
+Na ilustração da Mel, o usuário pediu lã creme, rosto bege, orelhas caramelo e uma cruz dourada na pequena Bíblia. Essas cores são restritas ao SVG da personagem.
+
+**Why:** a identidade da personagem foi solicitada explicitamente; não autoriza alterar a paleta das telas, os tokens ou os módulos existentes.
+
+**How to apply:** manter as cores da Mel dentro da ilustração e usar os tokens semânticos existentes no cartão, nas preferências e no devocional.
+
 ### Acento vermelho — uso máximo
 - No máximo 2 elementos com acento (vermelho) por tela.
 - Usos válidos: botão/ação principal, estado ativo, borda do banner de assinatura.

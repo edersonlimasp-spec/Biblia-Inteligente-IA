@@ -811,16 +811,17 @@ export function registerBibleRoutes(app: Express): void {
   });
 
   // Reading Progress routes
-  app.get("/api/reading-progress", async (req, res) => {
+  app.get("/api/reading-progress", optionalAuth, async (req: AuthRequest, res) => {
     try {
-      const deviceId = req.headers['x-device-id'] as string;
-      const userId = (req as AuthRequest).userId;
+      const headerDeviceId = req.headers['x-device-id'];
+      const deviceId = typeof headerDeviceId === "string" ? headerDeviceId.trim() : "";
+      const userId = req.userId;
       
       if (!deviceId && !userId) {
         return res.json([]);
       }
       
-      const progress = await storage.getReadingProgress(userId || undefined, deviceId || undefined);
+      const progress = await storage.getReadingProgress(userId || undefined, userId ? undefined : deviceId || undefined);
       res.json(progress);
     } catch (error) {
       console.error("Get reading progress error:", error);
@@ -828,15 +829,29 @@ export function registerBibleRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/reading-progress", async (req, res) => {
+  app.post("/api/reading-progress", optionalAuth, async (req: AuthRequest, res) => {
     try {
-      const { book, chapter, deviceId, userId } = req.body;
-      
-      if (!book || !chapter) {
+      const bodySchema = z.object({
+        book: z.string().min(1).max(8),
+        chapter: z.number().int().positive(),
+      }).strict();
+      const parsed = bodySchema.safeParse(req.body);
+      if (!parsed.success) {
         return res.status(400).json({ error: "book e chapter são obrigatórios" });
       }
+      const { book, chapter } = parsed.data;
+      const headerDeviceId = req.headers['x-device-id'];
+      const deviceId = typeof headerDeviceId === "string" ? headerDeviceId.trim() : "";
+      const userId = req.userId || undefined;
       
-      await storage.trackChapterRead(userId || undefined, deviceId || undefined, book, chapter);
+      if (!userId && !deviceId) {
+        return res.status(401).json({ error: "Usuário não identificado" });
+      }
+      const bookData = getBookById(book);
+      if (!bookData || chapter > bookData.chapters) {
+        return res.status(400).json({ error: "Livro ou capítulo inválido" });
+      }
+      await storage.trackChapterRead(userId, userId ? undefined : deviceId, book, chapter);
       res.json({ success: true });
     } catch (error) {
       console.error("Track reading progress error:", error);

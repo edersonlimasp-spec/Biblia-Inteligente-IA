@@ -1501,3 +1501,11 @@ export const insertLibraryPurchaseSchema = createInsertSchema(libraryPurchases).
 
 export type InsertLibraryPurchase = z.infer<typeof insertLibraryPurchaseSchema>;
 export type LibraryPurchase = typeof libraryPurchases.$inferSelect;
+
+// Mel account profile: resume metadata and reminder preferences are account-owned.
+export const melProfiles = pgTable("mel_profiles", {
+  userId: varchar("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  position: jsonb("position"),
+  preferences: jsonb("preferences"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, useLayoutEffect } from "react";
 import { useBibleFontSize, bibleFontSizeClass, setBibleFontSize, type BibleFontSize } from "@/hooks/use-bible-font-size";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Bookmark, Search, Settings, ChevronLeft, ChevronRight, X, Shield, MessageSquare, Loader2, Globe, BookOpen, Home, Share2, Copy, Check, CheckSquare } from "lucide-react";
@@ -37,6 +37,10 @@ import { getBookName } from "@/lib/bible-book-names";
 import { trackPageView, trackStrongLookup } from "@/lib/tracking";
 import logoSmall from "@assets/logo/logo-small.png";
 import type { Bookmark as BookmarkType, Annotation } from "@shared/schema";
+import type { MelPosition } from "@shared/mel";
+import type { MelPositionSaveTicket } from "@/lib/mel-position-queue";
+import { useMel } from "@/hooks/useMel";
+import { MelCompletionNotice } from "@/components/mel/MelCard";
 
 interface BibleBook {
   id: string;
@@ -58,6 +62,8 @@ interface Chapter {
 interface BibleChapterData {
   book: BibleBook;
   chapter: Chapter;
+  version?: string;
+  requestedVersion?: string;
 }
 
 interface BibleReaderProps {
@@ -69,6 +75,8 @@ interface BibleReaderProps {
   onNavigateToDashboard?: () => void;
   initialBook?: string;
   initialChapter?: number;
+  initialVerse?: number;
+  initialVersion?: string;
 }
 
 interface GlobalSearchResult {
@@ -117,6 +125,8 @@ export function BibleReader({
   onNavigateToDashboard,
   initialBook,
   initialChapter,
+  initialVerse,
+  initialVersion,
 }: BibleReaderProps) {
   const { user, isAdmin, logout } = useAuth();
   const { toast } = useToast();
@@ -135,8 +145,25 @@ export function BibleReader({
   } = useSyncManager();
   
   const { trackReading, getLastReading } = useReadingHistory();
+  const {
+    status: melStatus,
+    savePosition: saveMelPosition,
+    createPositionTicket: reserveMelPosition,
+    savePositionTicket: saveMelPositionTicket,
+    sessionGeneration: melSessionGeneration,
+    today: melToday,
+    recordActivity: recordMelActivity,
+    isRecordingActivity: isRecordingMelActivity,
+  } = useMel();
   
   const verseRef = useRef<HTMLDivElement>(null);
+  const mainScrollRef = useRef<HTMLElement>(null);
+  const melPositionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingMelPositionRef = useRef<MelPositionSaveTicket<MelPosition> | null>(null);
+  const saveMelPositionTicketRef = useRef(saveMelPositionTicket);
+  const initialTargetScrolledRef = useRef(false);
+  const [melCompletionMessage, setMelCompletionMessage] = useState<string | null>(null);
+  const [melCompletionStreak, setMelCompletionStreak] = useState<number | undefined>();
   
   // Flag to prevent tracking on initial load (before restoring last reading)
   const hasRestoredReadingRef = useRef(false);
@@ -198,8 +225,8 @@ export function BibleReader({
     const defaultVersion = getDefaultBibleVersion();
     
     // Determine version to use
-    let versionToUse = savedVersion || defaultVersion;
-    if (!savedVersion) {
+    let versionToUse = initialVersion || savedVersion || defaultVersion;
+    if (!initialVersion && !savedVersion) {
       fallbackApplied = true;
       versionToUse = defaultVersion;
     }
@@ -224,6 +251,7 @@ export function BibleReader({
       console.log(`[BIBLE] NAVIGATING_FROM_PLAN -> book=${initialBook} chapter=${initialChapter}`);
       setSelectedBook(initialBook);
       setSelectedChapter(initialChapter);
+      if (initialVerse) setSelectedVerse(initialVerse);
     } else if (lastReading && lastReading.book && lastReading.chapter) {
       setSelectedBook(lastReading.book);
       setSelectedChapter(lastReading.chapter);
@@ -235,6 +263,20 @@ export function BibleReader({
     // Mark as restored so tracking can begin
     hasRestoredReadingRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    saveMelPositionTicketRef.current = saveMelPositionTicket;
+  }, [saveMelPositionTicket]);
+
+  const getVisibleVerseNumber = useCallback(() => {
+    const container = mainScrollRef.current;
+    if (!container) return undefined;
+    const containerTop = container.getBoundingClientRect().top;
+    const visibleVerse = Array.from(container.querySelectorAll<HTMLElement>('[data-testid^="verse-"]'))
+      .find((element) => element.getBoundingClientRect().bottom > containerTop + 8);
+    const verseNumber = Number(visibleVerse?.dataset.testid?.replace("verse-", ""));
+    return Number.isFinite(verseNumber) && verseNumber > 0 ? verseNumber : undefined;
   }, []);
 
   // Track previous language to detect changes AFTER initial mount
@@ -430,21 +472,140 @@ export function BibleReader({
     },
   });
 
-  // Track reading progress non-blocking (fire and forget)
-  useEffect(() => {
-    if (chapterData && selectedBook && selectedChapter) {
-      const deviceId = getDeviceId();
-      // Fire and forget - don't block rendering
-      setTimeout(() => {
-        apiRequest('POST', '/api/reading-progress', {
-          book: selectedBook,
-          chapter: selectedChapter,
-          deviceId,
-          userId: user?.id,
-        }).catch(() => {});
-      }, 100);
+  const positionSelectionRef = useRef({
+    book: selectedBook,
+    chapter: selectedChapter,
+    version: selectedVersion,
+    verse: selectedVerse,
+    userId: user?.id,
+    generation: melSessionGeneration,
+  });
+
+  const scheduleMelPositionSave = useCallback((verse?: number) => {
+    if (!user?.id) return;
+    const chapterMatchesSelection =
+      chapterData?.book?.id === selectedBook &&
+      chapterData?.chapter?.chapter === selectedChapter &&
+      (!chapterData?.requestedVersion || chapterData.requestedVersion === selectedVersion);
+    if (!chapterMatchesSelection) return;
+
+    const selectedVerseExists = selectedVerse !== null &&
+      chapterData.chapter.verses.some((item) => item.verse === selectedVerse);
+    const currentVerse = verse ?? getVisibleVerseNumber() ?? (selectedVerseExists ? selectedVerse : undefined) ?? 1;
+    const position: MelPosition = {
+      kind: "bible",
+      book: selectedBook,
+      chapter: selectedChapter,
+      verse: currentVerse,
+      versionCode: chapterData.version || selectedVersion,
+    };
+    const ticket = reserveMelPosition(position);
+    if (!ticket) return;
+    pendingMelPositionRef.current = ticket;
+    if (melPositionTimerRef.current) clearTimeout(melPositionTimerRef.current);
+    melPositionTimerRef.current = setTimeout(() => {
+      melPositionTimerRef.current = null;
+      if (pendingMelPositionRef.current?.sequence !== ticket.sequence) return;
+      pendingMelPositionRef.current = null;
+      void saveMelPositionTicketRef.current(ticket).catch((saveError) => {
+        console.warn("[Mel] Could not save Bible position:", saveError);
+      });
+    }, 650);
+  }, [chapterData, getVisibleVerseNumber, reserveMelPosition, selectedBook, selectedChapter, selectedVerse, selectedVersion, user?.id]);
+
+  const chapterMatchesMelSelection =
+    chapterData?.book?.id === selectedBook &&
+    chapterData?.chapter?.chapter === selectedChapter &&
+    (!chapterData?.requestedVersion || chapterData.requestedVersion === selectedVersion);
+  useLayoutEffect(() => {
+    const previousSelection = positionSelectionRef.current;
+    const selectionChanged =
+      previousSelection.book !== selectedBook ||
+      previousSelection.chapter !== selectedChapter ||
+      previousSelection.version !== selectedVersion ||
+      previousSelection.verse !== selectedVerse ||
+      previousSelection.userId !== user?.id ||
+      previousSelection.generation !== melSessionGeneration;
+    positionSelectionRef.current = {
+      book: selectedBook,
+      chapter: selectedChapter,
+      version: selectedVersion,
+      verse: selectedVerse,
+      userId: user?.id,
+      generation: melSessionGeneration,
+    };
+    const pending = pendingMelPositionRef.current;
+    const pendingSessionChanged = !!pending && (
+      pending.userId !== user?.id ||
+      pending.sessionGeneration !== melSessionGeneration
+    );
+    if (chapterMatchesMelSelection && !selectionChanged && !pendingSessionChanged) return;
+    pendingMelPositionRef.current = null;
+    if (melPositionTimerRef.current) {
+      clearTimeout(melPositionTimerRef.current);
+      melPositionTimerRef.current = null;
     }
-  }, [chapterData, selectedBook, selectedChapter, user?.id]);
+  }, [chapterMatchesMelSelection, melSessionGeneration, selectedBook, selectedChapter, selectedVerse, selectedVersion, user?.id]);
+
+  useEffect(() => {
+    if (!user || !chapterMatchesMelSelection) return;
+    const initialTargetVerse = selectedVerse !== null &&
+      chapterData.chapter.verses.some((item) => item.verse === selectedVerse)
+      ? selectedVerse
+      : getVisibleVerseNumber();
+    scheduleMelPositionSave(initialTargetVerse);
+    return () => {
+      if (melPositionTimerRef.current) {
+        clearTimeout(melPositionTimerRef.current);
+        melPositionTimerRef.current = null;
+      }
+    };
+  }, [chapterData, chapterMatchesMelSelection, getVisibleVerseNumber, scheduleMelPositionSave, selectedBook, selectedChapter, selectedVersion, selectedVerse, user]);
+
+  useEffect(() => {
+    return () => {
+      if (melPositionTimerRef.current) clearTimeout(melPositionTimerRef.current);
+      const pending = pendingMelPositionRef.current;
+      pendingMelPositionRef.current = null;
+      if (pending) {
+        void saveMelPositionTicketRef.current(pending).catch((saveError) => {
+          console.warn("[Mel] Could not flush Bible position:", saveError);
+        });
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!initialVerse || initialTargetScrolledRef.current ||
+      chapterData?.book?.id !== initialBook ||
+      chapterData?.chapter?.chapter !== initialChapter) return;
+    const timer = window.setTimeout(() => {
+      const target = mainScrollRef.current?.querySelector<HTMLElement>(`[data-testid="verse-${initialVerse}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        initialTargetScrolledRef.current = true;
+      }
+    }, 150);
+    return () => window.clearTimeout(timer);
+  }, [chapterData, initialBook, initialChapter, initialVerse]);
+
+  // Track reading progress non-blocking (fire and forget), only for the
+  // chapter currently displayed; the route has a strict {book, chapter} body.
+  useEffect(() => {
+    const chapterMatchesSelection =
+      chapterData?.book?.id === selectedBook &&
+      chapterData?.chapter?.chapter === selectedChapter &&
+      (!chapterData?.requestedVersion || chapterData.requestedVersion === selectedVersion);
+    if (!chapterMatchesSelection || !selectedBook || !selectedChapter) return;
+    if (!user?.id && !getDeviceId()) return;
+    const timer = setTimeout(() => {
+      void apiRequest("POST", "/api/reading-progress", {
+        book: selectedBook,
+        chapter: selectedChapter,
+      }).catch(() => {});
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [chapterData, selectedBook, selectedChapter, selectedVersion, user?.id]);
 
   // Query to search for Strong's number when clicking a word
   const { data: wordSearchResults, error: wordSearchError, isLoading: isWordSearchLoading } = useQuery<StrongSearchResponse>({
@@ -786,6 +947,50 @@ export function BibleReader({
         setSelectedBook(nextBook.id);
         setSelectedChapter(1);
       }
+    }
+  };
+
+  const handleCompleteMelBibleReading = async () => {
+    if (!user || !chapterMatchesMelSelection) return;
+    const verse = getVisibleVerseNumber() ?? selectedVerse ?? 1;
+    const position: MelPosition = {
+      kind: "bible",
+      book: selectedBook,
+      chapter: selectedChapter,
+      verse,
+      versionCode: chapterData.version || selectedVersion,
+    };
+    if (melPositionTimerRef.current) {
+      clearTimeout(melPositionTimerRef.current);
+      melPositionTimerRef.current = null;
+    }
+    pendingMelPositionRef.current = null;
+    try {
+      await recordMelActivity({ kind: "bible", book: selectedBook, chapter: selectedChapter });
+      const completionTicket = reserveMelPosition(position);
+      try {
+        await saveMelPositionTicket(completionTicket);
+      } catch (saveError) {
+        console.warn("[Mel] Bible activity was recorded but its resume position could not be updated:", saveError);
+        toast({
+          title: "Posição de leitura não atualizada",
+          description: "Sua atividade foi registrada, mas não foi possível atualizar o versículo para continuar.",
+          variant: "destructive",
+        });
+      }
+      const pendingAfterSave = pendingMelPositionRef.current as MelPositionSaveTicket<MelPosition> | null;
+      if (completionTicket && pendingAfterSave && pendingAfterSave.sequence <= completionTicket.sequence) {
+        pendingMelPositionRef.current = null;
+      }
+      const currentStatus = melStatus?.today === melToday ? melStatus : undefined;
+      setMelCompletionStreak(currentStatus?.completedToday ? currentStatus.streak : (currentStatus?.streak ?? 0) + 1);
+      setMelCompletionMessage("Que alegria ter você na Palavra hoje. A Mel está feliz por acompanhar sua leitura.");
+    } catch (activityError) {
+      toast({
+        title: "Não foi possível registrar a leitura",
+        description: activityError instanceof Error ? activityError.message : "Tente novamente em instantes.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1307,7 +1512,11 @@ export function BibleReader({
           </h2>
         </div>
       )}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-28 sm:pb-24 bible-page">
+      <main
+        ref={mainScrollRef}
+        onScroll={() => scheduleMelPositionSave()}
+        className="flex-1 overflow-y-auto overflow-x-hidden pb-28 sm:pb-24 bible-page"
+      >
         <div className="w-full mx-auto px-6 sm:px-8 py-4 sm:py-6" style={{ maxWidth: "68ch" }}>
           {isLoading ? (
             <div className="space-y-4">
@@ -1425,6 +1634,40 @@ export function BibleReader({
                   onClose={() => setSelectedVerse(null)}
                 />
               )}
+
+              <section className="mt-8 rounded-xl border border-primary/20 bg-card/80 p-4" data-testid="mel-chapter-completion">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-serif font-semibold">Sua leitura com a Mel</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {melStatus?.completedToday
+                        ? "Sua atividade de hoje já está registrada. Se quiser, você também pode concluir este capítulo."
+                        : "Ao terminar o capítulo, marque a leitura para registrar sua atividade de hoje."}
+                    </p>
+                  </div>
+                  {user ? (
+                    <Button
+                      type="button"
+                      onClick={handleCompleteMelBibleReading}
+                      disabled={isRecordingMelActivity || !chapterMatchesMelSelection}
+                      data-testid="button-complete-bible-chapter"
+                      className="min-h-11 w-full sm:w-auto sm:shrink-0"
+                    >
+                      {isRecordingMelActivity ? "Salvando..." : "Concluir leitura do capítulo"}
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onNavigateToLogin}
+                      data-testid="button-login-to-save-bible-reading"
+                      className="min-h-11 w-full sm:w-auto sm:shrink-0"
+                    >
+                      Entre para registrar
+                    </Button>
+                  )}
+                </div>
+              </section>
             </>
           ) : null}
         </div>
@@ -1506,6 +1749,16 @@ export function BibleReader({
       )}
 
       {/* AI Panel - completamente desmontado quando AnnotationPanel está aberto para garantir isolamento de estado */}
+      {melCompletionMessage && (
+        <div className="fixed inset-x-4 bottom-4 z-[70] mx-auto max-w-lg">
+          <MelCompletionNotice
+            message={melCompletionMessage}
+            streak={melCompletionStreak}
+            onDismiss={() => setMelCompletionMessage(null)}
+          />
+        </div>
+      )}
+
       {!showAnnotationPanel && (
         <AIPanel 
           shouldResetAI={shouldResetAI} 

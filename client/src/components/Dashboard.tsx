@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { trackAppOpen, trackPageView } from "@/lib/tracking";
+import type { MelPosition } from "@shared/mel";
+import { MelCard } from "@/components/mel/MelCard";
 
 /* ─── tipos ─────────────────────────────────────────────────── */
 interface DashboardProps {
@@ -32,6 +34,8 @@ interface DashboardProps {
   onNavigateToSettings: () => void;
   onNavigateToLibrary: () => void;
   onNavigateToAtlas: () => void;
+  onMelContinue: (position: MelPosition) => void;
+  onMelDevotional: (date: string) => void;
 }
 
 interface ModuleDef {
@@ -154,6 +158,8 @@ export function Dashboard({
   onNavigateToSettings,
   onNavigateToLibrary,
   onNavigateToAtlas,
+  onMelContinue,
+  onMelDevotional,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
   const { t } = useLanguage();
@@ -336,6 +342,8 @@ export function Dashboard({
           style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}
         >
           {/* ── Cartão da Bíblia (largura total) ────────────────── */}
+          <MelCard onContinue={onMelContinue} onOpenDevotional={onMelDevotional} />
+
           <motion.button
             type="button"
             initial={{ opacity: 0, y: 14 }}

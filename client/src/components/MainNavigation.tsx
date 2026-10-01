@@ -37,6 +37,8 @@ import { PaymentSuccess, PaymentError, PaymentPending } from "@/pages/PaymentRes
 import { PrivacyPolicy } from "@/pages/PrivacyPolicy";
 import { TermsOfUse } from "@/pages/TermsOfUse";
 import { isNative } from "@/lib/capacitor";
+import type { MelPosition } from "@shared/mel";
+import { DailyDevotionalScreen } from "@/components/mel/DailyDevotionalScreen";
 
 const AtlasScreen = lazy(() => import("./atlas/AtlasScreen").then((module) => ({ default: module.AtlasScreen })));
 
@@ -65,11 +67,13 @@ function NavigationContent() {
   const { user, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
   
-  // State for navigating to specific Bible chapter from reading plans
-  const [bibleNavTarget, setBibleNavTarget] = useState<{ book: string; chapter: number } | null>(null);
+  // State for navigating to a specific Bible location.
   
   // State for selected reading plan
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [selectedLessonVideoSeconds, setSelectedLessonVideoSeconds] = useState<number | undefined>();
+  const [melDevotionalDate, setMelDevotionalDate] = useState<string | undefined>();
+  const [bibleNavTarget, setBibleNavTarget] = useState<{ book: string; chapter: number; verse?: number; versionCode?: string } | null>(null);
 
   const handleBackToLoginFromReset = () => {
     setLocation("/");
@@ -238,7 +242,10 @@ function NavigationContent() {
       )}
       {currentScreen === "dashboard" && (
         <Dashboard
-          onNavigateToBible={() => navigate("bible")}
+          onNavigateToBible={() => {
+            setBibleNavTarget(null);
+            navigate("bible");
+          }}
           onNavigateToPrayer={() => navigate("prayer")}
           onNavigateToProfessor={() => navigate("professor")}
           onNavigateToAIModes={() => navigate("ai-modes")}
@@ -252,6 +259,37 @@ function NavigationContent() {
           onNavigateToSettings={() => navigate("settings")}
           onNavigateToLibrary={() => navigate("library")}
           onNavigateToAtlas={() => navigate("atlas")}
+          onMelContinue={(position: MelPosition) => {
+            if (position.kind === "bible") {
+              setBibleNavTarget({
+                book: position.book,
+                chapter: position.chapter,
+                verse: position.verse,
+                versionCode: position.versionCode,
+              });
+              navigate("bible");
+            } else if (position.kind === "devotional") {
+              setMelDevotionalDate(position.devotionalDate);
+              navigate("mel-devotional");
+            } else {
+              setSelectedModuleId(position.moduleId);
+              setSelectedLessonId(position.lessonId);
+              setSelectedTrackLevel(position.trackLevel);
+              setSelectedLessonVideoSeconds(position.videoSeconds);
+              navigate("lesson");
+            }
+          }}
+          onMelDevotional={(date: string) => {
+            setMelDevotionalDate(date);
+            navigate("mel-devotional");
+          }}
+        />
+      )}
+      {currentScreen === "mel-devotional" && (
+        <DailyDevotionalScreen
+          date={melDevotionalDate}
+          onBack={() => goBack()}
+          onSignIn={() => navigate("login")}
         />
       )}
       {currentScreen === "atlas" && (
@@ -277,6 +315,8 @@ function NavigationContent() {
           }}
           initialBook={bibleNavTarget?.book}
           initialChapter={bibleNavTarget?.chapter}
+          initialVerse={bibleNavTarget?.verse}
+          initialVersion={bibleNavTarget?.versionCode}
         />
       )}
       {currentScreen === "bookmarks" && (
@@ -385,6 +425,7 @@ function NavigationContent() {
           onNavigateToLesson={(lessonId, trackLevel) => {
             setSelectedLessonId(lessonId);
             setSelectedTrackLevel(trackLevel);
+            setSelectedLessonVideoSeconds(undefined);
             navigate("lesson");
           }}
           onNavigateToSubscriptions={() => navigate("subscriptions")}
@@ -394,8 +435,11 @@ function NavigationContent() {
         <LessonScreen
           lessonId={selectedLessonId}
           trackLevel={selectedTrackLevel}
+          moduleId={selectedModuleId ?? undefined}
+          initialVideoSeconds={selectedLessonVideoSeconds}
           onBack={() => {
             setSelectedLessonId(null);
+            setSelectedLessonVideoSeconds(undefined);
             goBack();
           }}
         />

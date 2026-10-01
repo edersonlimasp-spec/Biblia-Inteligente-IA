@@ -24,6 +24,7 @@ type Screen =
   | "professor-premium"
   | "module-detail"
   | "lesson"
+  | "mel-devotional"
   | "install"
   | "library"
   | "library-book"
@@ -104,6 +105,7 @@ const SCREEN_PARENT_MAP: Record<Screen, Screen | null> = {
   "professor-premium": "dashboard",
   "module-detail": "professor-premium",
   "lesson": "module-detail",
+  "mel-devotional": "dashboard",
   "install": "dashboard",
   "library": "dashboard",
   "library-book": "library",

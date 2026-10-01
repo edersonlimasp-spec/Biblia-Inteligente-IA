@@ -39,6 +39,7 @@ import { TermsOfUse } from "@/pages/TermsOfUse";
 import { isNative } from "@/lib/capacitor";
 import type { MelPosition } from "@shared/mel";
 import { DailyDevotionalScreen } from "@/components/mel/DailyDevotionalScreen";
+import { MelStage } from "@/components/mel/MelStage";
 
 const AtlasScreen = lazy(() => import("./atlas/AtlasScreen").then((module) => ({ default: module.AtlasScreen })));
 
@@ -191,6 +192,33 @@ function NavigationContent() {
     }
   }, [isLoading, user, currentScreen, navigate]);
 
+  // The visual companion uses the same navigation as the Phase 1 card.
+  const handleMelContinue = useCallback((position: MelPosition) => {
+    if (position.kind === "bible") {
+      setBibleNavTarget({
+        book: position.book,
+        chapter: position.chapter,
+        verse: position.verse,
+        versionCode: position.versionCode,
+      });
+      navigate("bible");
+    } else if (position.kind === "devotional") {
+      setMelDevotionalDate(position.devotionalDate);
+      navigate("mel-devotional");
+    } else {
+      setSelectedModuleId(position.moduleId);
+      setSelectedLessonId(position.lessonId);
+      setSelectedTrackLevel(position.trackLevel);
+      setSelectedLessonVideoSeconds(position.videoSeconds);
+      navigate("lesson");
+    }
+  }, [navigate, setSelectedModuleId, setSelectedLessonId, setSelectedTrackLevel]);
+
+  const handleMelDevotional = useCallback((date: string) => {
+    setMelDevotionalDate(date);
+    navigate("mel-devotional");
+  }, [navigate]);
+
   // ── Early returns SEMPRE depois de todos os hooks (Rules of Hooks) ──
   // Render payment result pages directly (bypass normal navigation)
   if (isPaymentPage && paymentStatus) {
@@ -259,30 +287,8 @@ function NavigationContent() {
           onNavigateToSettings={() => navigate("settings")}
           onNavigateToLibrary={() => navigate("library")}
           onNavigateToAtlas={() => navigate("atlas")}
-          onMelContinue={(position: MelPosition) => {
-            if (position.kind === "bible") {
-              setBibleNavTarget({
-                book: position.book,
-                chapter: position.chapter,
-                verse: position.verse,
-                versionCode: position.versionCode,
-              });
-              navigate("bible");
-            } else if (position.kind === "devotional") {
-              setMelDevotionalDate(position.devotionalDate);
-              navigate("mel-devotional");
-            } else {
-              setSelectedModuleId(position.moduleId);
-              setSelectedLessonId(position.lessonId);
-              setSelectedTrackLevel(position.trackLevel);
-              setSelectedLessonVideoSeconds(position.videoSeconds);
-              navigate("lesson");
-            }
-          }}
-          onMelDevotional={(date: string) => {
-            setMelDevotionalDate(date);
-            navigate("mel-devotional");
-          }}
+          onMelContinue={handleMelContinue}
+          onMelDevotional={handleMelDevotional}
         />
       )}
       {currentScreen === "mel-devotional" && (
@@ -494,6 +500,11 @@ function NavigationContent() {
           onNavigateToSubscriptions={() => navigate("subscriptions")}
         />
       )}
+      <MelStage
+        currentScreen={currentScreen}
+        onContinue={handleMelContinue}
+        onOpenDevotional={handleMelDevotional}
+      />
     </>
   );
 }

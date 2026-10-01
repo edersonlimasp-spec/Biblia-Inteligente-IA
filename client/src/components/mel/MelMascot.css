@@ -1,0 +1,196 @@
+.mel-mascot {
+  --mel-motion-state: running;
+  display: block;
+  overflow: visible;
+  width: 100%;
+  height: auto;
+  isolation: isolate;
+}
+
+.mel-mascot .mel-character,
+.mel-mascot .mel-interaction-body,
+.mel-mascot .mel-tail,
+.mel-mascot .mel-wool,
+.mel-mascot .mel-head,
+.mel-mascot .mel-ears,
+.mel-mascot .mel-bible,
+.mel-mascot .mel-heart,
+.mel-mascot .mel-wave-paw,
+.mel-mascot .mel-reference,
+.mel-mascot .mel-sun,
+.mel-mascot .mel-badge,
+.mel-mascot .mel-confetti,
+.mel-mascot .mel-zzz,
+.mel-mascot .mel-prayer-light,
+.mel-mascot .mel-praying-paws,
+.mel-mascot .mel-page-turn,
+.mel-mascot .mel-tear {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-play-state: var(--mel-motion-state, running);
+}
+
+.mel-mascot .mel-character { transform-origin: 50% 90%; }
+.mel-mascot .mel-wool { transform-origin: 50% 70%; animation: mel-wool-breathe 3.2s ease-in-out infinite; }
+.mel-mascot .mel-tail { transform-origin: 50% 50%; animation: mel-tail-wag 5.8s ease-in-out infinite; }
+.mel-mascot .mel-head { transform-origin: 50% 85%; animation: mel-idle-tilt 7.2s ease-in-out infinite; }
+.mel-mascot .mel-ears { transform-origin: 50% 60%; animation: mel-ear-flick 5.5s ease-in-out infinite; }
+.mel-mascot .mel-ear { transform-box: view-box; }
+.mel-mascot .mel-ear--left { transform-origin: 89px 84px; }
+.mel-mascot .mel-ear--right { transform-origin: 151px 84px; }
+.mel-mascot .mel-eye-blink { opacity: 0; transform-origin: center; }
+.mel-mascot .mel-eye-open { animation: mel-eyes-open 4.2s steps(1, end) infinite; }
+.mel-mascot .mel-eye-blink { animation: mel-blink 4.2s steps(1, end) infinite; }
+.mel-mascot .mel-eyes { transform-box: fill-box; transform-origin: center; }
+.mel-mascot .mel-heart { transform-origin: center; }
+.mel-mascot .mel-page-turn { transform-origin: left center; }
+.mel-mascot .mel-yawn { transform-origin: center; }
+.mel-mascot .mel-prayer-light { transform-origin: center; fill: #E9C66F; opacity: 0; }
+.mel-mascot .mel-reference-label,
+.mel-mascot .mel-badge-days,
+.mel-mascot .mel-zzz {
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #FFF8EC;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.mel-mascot .mel-reference-label { fill: #527D8A; font-size: 8px; }
+.mel-mascot .mel-badge-days { fill: #775D34; font-size: 9px; }
+.mel-mascot .mel-badge-label { fill: #775D34; font-family: "DM Sans", sans-serif; font-size: 5.5px; font-weight: 700; }
+.mel-mascot .mel-zzz { fill: #527D8A; font-size: 15px; stroke-width: 2px; }
+.mel-mascot .mel-sleep-blush { opacity: .75; }
+.mel-mascot .mel-yawn { opacity: 0; transform: scale(.2); }
+
+.mel-mascot--welcome .mel-character { animation: mel-welcome-bob 3.1s ease-in-out infinite; }
+.mel-mascot--welcome .mel-head { animation: mel-welcome-tilt 3.8s ease-in-out infinite; }
+.mel-mascot--welcome .mel-wave-paw { transform-origin: 173px 153px; animation: mel-wave 1s ease-in-out infinite; }
+
+.mel-mascot--morning .mel-character { animation: mel-morning-stretch 3.6s ease-in-out 1 both; }
+.mel-mascot--morning .mel-head { animation: mel-morning-head 3.6s ease-in-out 1 both; }
+.mel-mascot--morning .mel-sun { animation: mel-sunrise 3.6s ease-in-out 1 both; }
+.mel-mascot--morning .mel-yawn { animation: mel-yawn 3.6s ease-in-out 1 both; }
+.mel-mascot--morning .mel-eye-open {
+  animation: mel-morning-eyes 3.6s steps(1, end) 1 both, mel-eyes-open 4.2s steps(1, end) 3.6s infinite;
+}
+.mel-mascot--morning .mel-eye-blink {
+  animation: mel-morning-blink 3.6s steps(1, end) 1 both, mel-blink 4.2s steps(1, end) 3.6s infinite;
+}
+
+.mel-mascot--continue .mel-character { animation: mel-hop 1.1s cubic-bezier(.35,.1,.55,1) infinite; }
+.mel-mascot--continue .mel-reference { animation: mel-marker 1.1s ease-in-out infinite; }
+.mel-mascot--continue .mel-head { animation: mel-look-marker 1.1s ease-in-out infinite; }
+
+.mel-mascot--reading .mel-eyes { animation: mel-reading-eyes 3.4s ease-in-out infinite; }
+.mel-mascot--reading .mel-page-turn { animation: mel-page-turn 2.4s ease-in-out infinite; }
+.mel-mascot--reading .mel-bible { animation: mel-book-hold 3s ease-in-out infinite; }
+
+.mel-mascot--complete .mel-character,
+.mel-mascot--celebrate .mel-character { animation: mel-joy-jump 850ms cubic-bezier(.3,.7,.35,1) infinite; }
+.mel-mascot--complete .mel-wool,
+.mel-mascot--celebrate .mel-wool { animation: mel-joy-squash 850ms ease-in-out infinite; }
+.mel-mascot--complete .mel-heart,
+.mel-mascot--celebrate .mel-heart { animation: mel-heart-float 1.4s ease-in-out infinite; }
+.mel-mascot--complete .mel-heart--two,
+.mel-mascot--celebrate .mel-heart--two { animation-delay: .55s; }
+
+.mel-mascot--milestone .mel-character { animation: mel-air-spin 2.5s ease-in-out infinite; }
+.mel-mascot--milestone .mel-confetti-piece { animation: mel-confetti-fall 1.8s ease-in infinite; }
+.mel-mascot--milestone .mel-confetti-piece--two,
+.mel-mascot--milestone .mel-confetti-piece--five,
+.mel-mascot--milestone .mel-confetti-piece--eight { animation-delay: .45s; }
+.mel-mascot--milestone .mel-confetti-piece--three,
+.mel-mascot--milestone .mel-confetti-piece--six,
+.mel-mascot--milestone .mel-confetti-piece--nine { animation-delay: .9s; }
+.mel-mascot--milestone .mel-badge { animation: mel-badge-pop 2.5s ease-in-out infinite; transform-origin: 190px 54px; }
+.mel-mascot--milestone .mel-heart { animation: mel-heart-float 1.5s ease-in-out infinite; }
+
+.mel-mascot--saudade .mel-head { transform: translateY(4px) rotate(-5deg); animation: mel-sad-bow 3s ease-in-out infinite; }
+.mel-mascot--saudade .mel-ear--left { transform: rotate(-15deg); }
+.mel-mascot--saudade .mel-ear--right { transform: rotate(15deg); }
+.mel-mascot--saudade .mel-ear--left { animation: mel-ear-sad-left 3s ease-in-out infinite; }
+.mel-mascot--saudade .mel-ear--right { animation: mel-ear-sad-right 3s ease-in-out infinite; }
+.mel-mascot--saudade .mel-tear { animation: mel-tear-flow 2.5s ease-in-out infinite; }
+
+.mel-mascot--sleeping .mel-character { animation: mel-sleep-breathe 4s ease-in-out infinite; }
+.mel-mascot--sleeping .mel-head { animation: mel-sleep-nod 4s ease-in-out infinite; }
+.mel-mascot--sleeping .mel-wool { animation-duration: 5.2s; }
+.mel-mascot--sleeping .mel-zzz { animation: mel-zzz-float 2.4s ease-in-out infinite; transform-origin: 167px 73px; }
+
+.mel-mascot--praying .mel-character { animation: mel-prayer-breathe 4s ease-in-out infinite; }
+.mel-mascot--praying .mel-prayer-light { animation: mel-prayer-pulse 3s ease-in-out infinite; }
+.mel-mascot--praying .mel-praying-paws { animation: mel-paws-settle 4s ease-in-out infinite; transform-origin: 120px 150px; }
+
+.mel-mascot--peeking .mel-character { animation: mel-peek-bob 3.6s ease-in-out infinite; }
+.mel-mascot--peeking .mel-head { animation: mel-peek-look 3.6s ease-in-out infinite; }
+
+.mel-mascot--interaction .mel-interaction-body { animation: mel-tap-squash 480ms cubic-bezier(.2,.8,.3,1) both; }
+.mel-mascot--interaction .mel-heart { animation: mel-heart-pop 700ms ease-out both; }
+
+@keyframes mel-wool-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025,.985); } }
+@keyframes mel-tail-wag { 0%,75%,100% { transform: rotate(0); } 80% { transform: rotate(-12deg); } 85% { transform: rotate(12deg); } 90% { transform: rotate(-7deg); } }
+@keyframes mel-idle-tilt { 0%,100% { transform: rotate(0); } 43% { transform: rotate(-2deg); } 52% { transform: rotate(1deg); } }
+@keyframes mel-eyes-open { 0%,94%,100% { opacity: 1; } 95%,98% { opacity: 0; } }
+@keyframes mel-blink { 0%,94%,100% { opacity: 0; } 95%,98% { opacity: 1; } }
+@keyframes mel-welcome-bob { 0%,100% { transform: translateY(0); } 45% { transform: translateY(-5px); } }
+@keyframes mel-welcome-tilt { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-7deg); } 65% { transform: rotate(3deg); } }
+@keyframes mel-wave { 0%,100% { transform: rotate(0); } 25%,65% { transform: rotate(-19deg); } 45%,85% { transform: rotate(12deg); } }
+@keyframes mel-ear-flick { 0%,82%,100% { transform: rotate(0); } 85% { transform: rotate(-5deg); } 89% { transform: rotate(3deg); } }
+@keyframes mel-morning-stretch { 0%,100% { transform: scale(1); } 18% { transform: scale(.95,1.08) translateY(2px); } 48% { transform: scale(1.06,.94) translateY(-3px); } 72% { transform: scale(.98,1.03); } }
+@keyframes mel-morning-head { 0%,100% { transform: rotate(0); } 15% { transform: rotate(-7deg); } 43% { transform: rotate(1deg); } 70% { transform: rotate(-2deg); } }
+@keyframes mel-sunrise { 0% { transform: translateY(12px); opacity: .2; } 55% { transform: translateY(4px); opacity: .65; } 100% { transform: translateY(0); opacity: 1; } }
+@keyframes mel-yawn { 0%,35%,100% { transform: scale(.2); opacity: 0; } 48%,68% { transform: scale(1); opacity: 1; } 80% { transform: scale(.35); opacity: 0; } }
+@keyframes mel-morning-eyes { 0%,62% { opacity: 0; } 63%,100% { opacity: 1; } }
+@keyframes mel-morning-blink { 0%,62% { opacity: 1; } 63%,100% { opacity: 0; } }
+@keyframes mel-hop { 0%,100% { transform: translate(0,0) rotate(0); } 45% { transform: translate(15px,-12px) rotate(3deg); } 75% { transform: translate(20px,0) rotate(0); } }
+@keyframes mel-marker { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes mel-look-marker { 0%,20%,100% { transform: translateX(0); } 45%,75% { transform: translateX(7px) rotate(2deg); } }
+@keyframes mel-reading-eyes { 0%,100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+@keyframes mel-page-turn { 0%,22%,100% { transform: scaleX(.05); opacity: 0; } 35%,70% { transform: scaleX(1); opacity: 1; } 82% { transform: scaleX(.1); opacity: 0; } }
+@keyframes mel-book-hold { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(1deg); } }
+@keyframes mel-joy-jump { 0%,100% { transform: translateY(0) scale(1); } 35% { transform: translateY(-12px) scale(1.02); } 58% { transform: translateY(-10px) scale(.98,1.04); } 75% { transform: translateY(1px) scale(1.05,.94); } }
+@keyframes mel-joy-squash { 0%,100% { transform: scale(1); } 36% { transform: scale(1.04,.97); } 76% { transform: scale(.96,1.04); } }
+@keyframes mel-heart-float { 0%,100% { opacity: .55; transform: translateY(2px) scale(.85); } 50% { opacity: 1; transform: translateY(-9px) scale(1.08); } }
+@keyframes mel-air-spin { 0%,100% { transform: translateY(0) rotate(0); } 38% { transform: translateY(-12px) rotate(180deg); } 78% { transform: translateY(-5px) rotate(360deg); } }
+@keyframes mel-confetti-fall { 0% { opacity: 0; transform: translateY(-10px) rotate(-15deg); } 18% { opacity: 1; } 78% { opacity: 1; transform: translateY(12px) rotate(25deg); } 100% { opacity: 0; transform: translateY(18px) rotate(38deg); } }
+@keyframes mel-badge-pop { 0%,100% { transform: scale(.94); } 15% { transform: scale(1.08); } 28% { transform: scale(1); } }
+@keyframes mel-sad-bow { 0%,100% { transform: translateY(1px) rotate(0); } 50% { transform: translateY(5px) rotate(-4deg); } }
+@keyframes mel-ear-sad-left { 0%,100% { transform: rotate(-15deg); } 50% { transform: rotate(-19deg); } }
+@keyframes mel-ear-sad-right { 0%,100% { transform: rotate(15deg); } 50% { transform: rotate(19deg); } }
+@keyframes mel-tear-flow { 0%,35%,100% { transform: translateY(0); opacity: .2; } 55%,75% { transform: translateY(5px); opacity: 1; } }
+@keyframes mel-sleep-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025,.985); } }
+@keyframes mel-sleep-nod { 0%,100% { transform: rotate(0); } 45%,60% { transform: rotate(3deg) translateY(2px); } }
+@keyframes mel-zzz-float { 0%,100% { opacity: .55; transform: translateY(3px) scale(.9); } 50% { opacity: 1; transform: translateY(-7px) scale(1); } }
+@keyframes mel-prayer-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.015,.99); } }
+@keyframes mel-prayer-pulse { 0%,100% { opacity: .06; transform: scale(.88); } 50% { opacity: .24; transform: scale(1.08); } }
+@keyframes mel-paws-settle { 0%,100% { transform: translateY(0); } 45% { transform: translateY(2px); } }
+@keyframes mel-peek-bob { 0%,100% { transform: translateY(68px); } 22%,78% { transform: translateY(30px); } 44%,58% { transform: translateY(42px); } }
+@keyframes mel-peek-look { 0%,100% { transform: translateX(-4px); } 30% { transform: translateX(5px); } 60% { transform: translateX(-5px); } }
+@keyframes mel-tap-squash { 0% { transform: scale(1); } 35% { transform: scale(1.08,.88); } 68% { transform: scale(.97,1.06); } 100% { transform: scale(1); } }
+@keyframes mel-heart-pop { 0% { opacity: 0; transform: scale(.3) translateY(6px); } 45% { opacity: 1; transform: scale(1.15) translateY(-5px); } 100% { opacity: 0; transform: scale(1) translateY(-14px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mel-mascot,
+  .mel-mascot *,
+  .mel-mascot::before,
+  .mel-mascot::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .mel-mascot--morning .mel-character,
+  .mel-mascot--morning .mel-head,
+  .mel-mascot--morning .mel-sun {
+    transform: none;
+  }
+  .mel-mascot--morning .mel-eye-open { opacity: 1; }
+  .mel-mascot--morning .mel-eye-blink,
+  .mel-mascot--morning .mel-yawn { opacity: 0; }
+  .mel-mascot--saudade .mel-head { transform: translateY(4px) rotate(-5deg); }
+  .mel-mascot--saudade .mel-ear--left { transform: rotate(-15deg); }
+  .mel-mascot--saudade .mel-ear--right { transform: rotate(15deg); }
+  .mel-mascot--peeking .mel-character { transform: translateY(40px); }
+  .mel-mascot--praying .mel-prayer-light { opacity: .12; transform: scale(1); }
+  .mel-mascot--milestone .mel-confetti-piece { opacity: 1; transform: none; }
+}

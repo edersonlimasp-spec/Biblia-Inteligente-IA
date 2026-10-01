@@ -3,7 +3,9 @@ import { Bell, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMelVisibility } from "@/hooks/useMelVisibility";
 import {
   useMelPreferences,
   type MelDailyGoalMinutes,
@@ -20,6 +22,7 @@ const defaultPreferences: MelPreferencesValue = {
 export function MelPreferences() {
   const { user } = useAuth();
   const { preferences, isLoading, error, savePreferences, isSaving } = useMelPreferences();
+  const { enabled, setEnabled } = useMelVisibility();
   const [draft, setDraft] = useState<MelPreferencesValue>(defaultPreferences);
   const [message, setMessage] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -64,6 +67,21 @@ export function MelPreferences() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="mb-5 flex items-center justify-between gap-4 rounded-lg border p-3">
+          <div className="space-y-1">
+            <Label htmlFor="mel-show-on-screen">Mostrar a Mel na tela</Label>
+            <p className="text-xs text-muted-foreground">
+              Esta opção fica salva somente neste dispositivo e não altera seus lembretes.
+            </p>
+          </div>
+          <Switch
+            id="mel-show-on-screen"
+            checked={enabled}
+            onCheckedChange={setEnabled}
+            aria-label="Mostrar a Mel na tela"
+            data-testid="switch-mel-visibility"
+          />
+        </div>
         {isLoading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

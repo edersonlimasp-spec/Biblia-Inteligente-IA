@@ -1,9 +1,12 @@
+import { useEffect, useRef } from "react";
 import { ArrowRight, BookOpen, CalendarDays, Flame, GraduationCap, TrendingUp } from "lucide-react";
 import type { MelPosition } from "@shared/mel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMel, type MelStatus } from "@/hooks/useMel";
 import { MelMascot } from "@/components/mel/MelMascot";
+import { dispatchMelCelebration, requestMelInteraction, useMelVisibility } from "@/hooks/useMelVisibility";
+import { isMelMilestone } from "@/lib/mel-visual";
 
 interface MelCardProps {
   onContinue: (position: MelPosition) => void;
@@ -38,6 +41,7 @@ function messageFor(status?: MelStatus, hasAccount = true) {
 export function MelCard({ onContinue, onOpenDevotional }: MelCardProps) {
   const { user } = useAuth();
   const { status, isLoading, today, error, refresh } = useMel();
+  const { enabled } = useMelVisibility();
   const position = status?.position ?? null;
   const statusForToday = status
     ? { ...status, completedToday: status.today === today && status.completedToday, mood: status.today === today ? status.mood : "normal" as const }
@@ -50,10 +54,19 @@ export function MelCard({ onContinue, onOpenDevotional }: MelCardProps) {
       className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-4 shadow-sm sm:p-5"
     >
       <div className="flex items-start gap-3">
-        <MelMascot
-          mood={statusForToday?.completedToday ? "feliz" : statusForToday?.mood ?? "normal"}
-          className="h-16 w-16 shrink-0 sm:h-[72px] sm:w-[72px]"
-        />
+        {enabled && (
+          <button
+            type="button"
+            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="Conversar com a Mel"
+            onClick={requestMelInteraction}
+          >
+            <MelMascot
+              mood={statusForToday?.completedToday ? "feliz" : statusForToday?.mood ?? "normal"}
+              className="h-16 w-16 sm:h-[72px] sm:w-[72px]"
+            />
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <h2 id="mel-card-title" className="font-serif text-lg font-semibold">
             Sua caminhada com a Mel
@@ -158,7 +171,17 @@ export function MelCompletionNotice({
   streak?: number;
   onDismiss?: () => void;
 }) {
-  const milestone = streak && [7, 30, 100, 365].includes(streak);
+  const milestone = isMelMilestone(streak);
+  const { enabled } = useMelVisibility();
+  const noticeId = useRef<number | null>(null);
+  if (noticeId.current === null) noticeId.current = nextNoticeId++;
+
+  useEffect(() => {
+    if (!enabled || dispatchedNoticeIds.has(noticeId.current!)) return;
+    dispatchedNoticeIds.add(noticeId.current!);
+    dispatchMelCelebration(message, streak);
+  }, [enabled, message, streak]);
+
   return (
     <div
       role="status"
@@ -166,7 +189,7 @@ export function MelCompletionNotice({
       data-testid="mel-completion-notice"
       className="flex items-center gap-3 rounded-xl border border-primary/30 bg-card p-3 shadow-lg motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
     >
-      <MelMascot mood="feliz" celebrate className="h-12 w-12 shrink-0" />
+      {enabled && <MelMascot mood="feliz" celebrate className="h-12 w-12 shrink-0" />}
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{message}</p>
         {milestone && <p className="text-xs text-muted-foreground">{streak} dias seguidos na Palavra. Que marco especial!</p>}
@@ -179,3 +202,6 @@ export function MelCompletionNotice({
     </div>
   );
 }
+
+let nextNoticeId = 1;
+const dispatchedNoticeIds = new Set<number>();

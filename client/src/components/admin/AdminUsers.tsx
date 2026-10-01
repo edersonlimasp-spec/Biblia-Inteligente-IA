@@ -98,13 +98,13 @@ export function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
   });
 
   const promoteMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      const res = await apiRequest('PATCH', `/api/admin/users/${userId}/role`, { role: 'admin' });
+    mutationFn: async ({ userId, role }: { userId: string; role: 'admin' | 'super_admin' }) => {
+      const res = await apiRequest('PATCH', `/api/admin/users/${userId}/role`, { role });
       if (!res.ok) throw new Error('Erro ao conceder acesso administrativo');
       return res.json();
     },
-    onSuccess: () => {
-      toast({ title: 'Acesso administrativo concedido' });
+    onSuccess: (_, { role }) => {
+      toast({ title: role === 'super_admin' ? 'Acesso de administrador principal concedido' : 'Acesso administrativo concedido' });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
     },
     onError: () => toast({ title: 'Não foi possível alterar a função', variant: 'destructive' }),
@@ -226,14 +226,14 @@ export function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                         {new Date(user.createdAt).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="py-2 px-3">
-                        <div className="flex gap-1">
+                        <div className="flex flex-wrap gap-1">
                           {isSuperAdmin && user.role === 'user' && !user.isBlocked && (
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => {
                                 if (window.confirm(`Dar acesso a todos os painéis administrativos para ${user.email}?`)) {
-                                  promoteMutation.mutate(user.id);
+                                  promoteMutation.mutate({ userId: user.id, role: 'admin' });
                                 }
                               }}
                               disabled={promoteMutation.isPending}
@@ -242,6 +242,23 @@ export function AdminUsers({ isSuperAdmin }: AdminUsersProps) {
                             >
                               <Edit2 className="h-4 w-4 mr-1" />
                               Tornar admin
+                            </Button>
+                          )}
+                          {isSuperAdmin && ['user', 'admin'].includes(user.role) && !user.isBlocked && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (window.confirm(`Tornar ${user.email} administrador principal? Essa conta terá acesso a todos os painéis administrativos e poderá alterar as permissões de outras contas.`)) {
+                                  promoteMutation.mutate({ userId: user.id, role: 'super_admin' });
+                                }
+                              }}
+                              disabled={promoteMutation.isPending}
+                              data-testid={`button-promote-super-admin-${user.id}`}
+                              title="Conceder acesso de administrador principal"
+                            >
+                              <Crown className="h-4 w-4 mr-1" />
+                              Tornar administrador principal
                             </Button>
                           )}
                           {!user.isBlocked ? (

@@ -306,7 +306,7 @@ export function MelStage({ currentScreen, onContinue, onOpenDevotional }: MelSta
 
   return (
     <>
-      {!presentation && (
+      {!presentation && currentScreen !== "bible" && currentScreen !== "library-reader" && (
         <button
           type="button"
           className="mel-stage__companion"

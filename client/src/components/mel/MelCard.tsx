@@ -57,13 +57,13 @@ export function MelCard({ onContinue, onOpenDevotional }: MelCardProps) {
         {enabled && (
           <button
             type="button"
-            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="w-[90px] shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Conversar com a Mel"
             onClick={requestMelInteraction}
           >
             <MelMascot
               mood={statusForToday?.completedToday ? "feliz" : statusForToday?.mood ?? "normal"}
-              className="h-16 w-16 sm:h-[72px] sm:w-[72px]"
+              className="h-auto w-full"
             />
           </button>
         )}

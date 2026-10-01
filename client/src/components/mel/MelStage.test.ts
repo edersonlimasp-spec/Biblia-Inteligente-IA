@@ -129,7 +129,7 @@ describe("MelStage visual behavior", () => {
       return rafQueue.length;
     });
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
-    renderStage();
+    renderStage("prayer");
     act(() => requestMelInteraction());
     expect(host?.querySelector('[role="dialog"]')).not.toBeNull();
     act(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
@@ -152,7 +152,7 @@ describe("MelStage visual behavior", () => {
       return rafQueue.length;
     });
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
-    renderStage();
+    renderStage("prayer");
     const companion = host?.querySelector<HTMLButtonElement>('[data-testid="mel-stage-companion"]');
     act(() => {
       companion?.focus();
@@ -232,7 +232,7 @@ describe("MelStage visual behavior", () => {
   });
 
   it("hides only Mel visuals when disabled, preserving Phase1 card text and actions", () => {
-    renderStage("bible", { includeCard: true });
+    renderStage("prayer", { includeCard: true });
     expect(host?.querySelector('[data-testid="button-mel-continue"]')).not.toBeNull();
     expect(host?.querySelector('[data-testid="button-mel-devotional"]')).not.toBeNull();
     expect(host?.querySelector('[data-testid="mel-stage-companion"]')).not.toBeNull();
@@ -333,13 +333,22 @@ describe("MelStage visual behavior", () => {
     expect(onContinue).not.toHaveBeenCalled();
   });
 
-  it("keeps the Bible and prayer companion scenes awake at night", () => {
+  it.each([
+    ["bible", "2025-05-12T13:00:00.000Z"],
+    ["bible", "2025-05-12T07:00:00.000Z"],
+    ["library-reader", "2025-05-12T13:00:00.000Z"],
+    ["library-reader", "2025-05-12T07:00:00.000Z"],
+  ])("hides the small companion in %s at %s and keeps prayer available", (screen, time) => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2025-05-12T07:00:00.000Z")); // 04:00 in São Paulo
-    const { rerender } = renderStage("bible");
+    vi.setSystemTime(new Date(time));
+    const { rerender } = renderStage(screen);
     let companion = host?.querySelector<HTMLButtonElement>('[data-testid="mel-stage-companion"]');
-    expect(companion?.querySelector('[data-scene="reading"]')).not.toBeNull();
-    expect(companion?.getAttribute("aria-label")).toContain("durante a leitura");
+    expect(companion).toBeNull();
+
+    act(() => requestMelInteraction());
+    expect(host?.querySelector('[data-testid="mel-stage-dialog"]')).not.toBeNull();
+    act(() => host?.querySelector<HTMLButtonElement>('[aria-label="Fechar"]')?.click());
+    expect(host?.querySelector('[data-testid="mel-stage-companion"]')).toBeNull();
 
     rerender("prayer");
     companion = host?.querySelector<HTMLButtonElement>('[data-testid="mel-stage-companion"]');

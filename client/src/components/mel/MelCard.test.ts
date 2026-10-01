@@ -5,10 +5,20 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: null }) }));
 vi.mock("@/hooks/useMel", () => ({ useMel: () => ({}) }));
 
-import { MelCompletionNotice } from "./MelCard";
+import { MelCard, MelCompletionNotice } from "./MelCard";
 import { MelMascot } from "./MelMascot";
 
 describe("Mel celebration", () => {
+  it("constrains the home mascot space to 90px without scaling the card text", () => {
+    const html = renderToStaticMarkup(createElement(MelCard, {
+      onContinue: vi.fn(),
+      onOpenDevotional: vi.fn(),
+    }));
+    expect(html).toContain("w-[90px] shrink-0");
+    expect(html).toContain("h-auto w-full");
+    expect(html).toContain("min-w-0 flex-1");
+  });
+
   it("animates ordinary daily completion, not only milestones", () => {
     const html = renderToStaticMarkup(createElement(MelCompletionNotice, {
       message: "Que alegria! Você esteve na Palavra hoje.",

@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Bíblia Inteligente IA</string>
     <string name="title_activity_main">Bíblia Inteligente IA</string>
+    <string name="mel_reminders_channel_id">mel-reminders</string>
+    <string name="mel_reminders_channel_name">Lembretes da Mel</string>
     <string name="package_name">app.replit.bibliainteligente.twa</string>
     <string name="custom_url_scheme">app.replit.bibliainteligente.twa</string>
 </resources>

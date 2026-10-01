@@ -16,6 +16,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { loadAtlasCatalog } from "./atlas/catalog";
+import { runMelPushReminders } from "./services/push";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -402,5 +403,16 @@ app.use((req, res, next) => {
     };
     setTimeout(runMarkExpired, 5000); // 5s após iniciar
     setInterval(runMarkExpired, 6 * 60 * 60 * 1000); // a cada 6h
+
+    // Durable cross-instance claims prevent duplicate reminders. Autoscale may
+    // pause this in-process clock, so a scheduled caller can use the protected
+    // /api/push/reminders/run endpoint when an external scheduler is available.
+    const runMelPushCycle = () => {
+      void runMelPushReminders().catch(() => {
+        // Push failures must never interrupt app startup or the other schedulers.
+      });
+    };
+    setTimeout(runMelPushCycle, 15_000);
+    setInterval(runMelPushCycle, 15 * 60 * 1000);
   });
 })();

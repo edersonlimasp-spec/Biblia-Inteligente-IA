@@ -1,5 +1,9 @@
 package com.bibliainteligente.app;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -16,6 +20,17 @@ public class MainActivity extends BridgeActivity {
         // evitando chamadas às APIs descontinuadas setStatusBarColor/getStatusBarColor.
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel melChannel = new NotificationChannel(
+                getString(R.string.mel_reminders_channel_id),
+                getString(R.string.mel_reminders_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+            );
+            notificationManager.createNotificationChannel(melChannel);
+        }
 
         // Trava o zoom de texto do WebView em 100%, ignorando a configuração de
         // "Tamanho da fonte" do sistema Android (Acessibilidade). Sem isso, usuários

@@ -4,6 +4,7 @@ import { clearAuthToken, setAuthToken, apiRequest, queryClient, ApiError } from 
 import { signInWithGoogle, isFirebaseConfigured } from "@/lib/firebase";
 import { signInWithApple, isAppleSignInAvailable } from "@/lib/appleSignIn";
 import { isIOS, isNative } from "@/lib/capacitor";
+import { unregisterMelPushForLogout } from "@/lib/mel-push";
 import { syncLocalCompletionsToServer, migrateDeviceStudyProgressToAccount } from "@/lib/completions";
 import type { User } from "@shared/schema";
 
@@ -81,6 +82,10 @@ function NativeAuthProviderContent({ children }: { children: ReactNode }) {
     setAuthToken(data.token); setToken(data.token); apply(data);
   };
   const logout = async () => {
+    await Promise.race([
+      unregisterMelPushForLogout(user?.id).catch(() => undefined),
+      new Promise((resolve) => setTimeout(resolve, 1200)),
+    ]);
     clearAuthToken(); setToken(null); setUser(null); setTrialActive(false); setTrialDaysRemaining(0); queryClient.clear();
   };
   return <AuthContext.Provider value={authValue(user, token, isLoading, false, trialActive, trialDaysRemaining, { login, register, loginWithGoogle, loginWithApple, logout })}>{children}</AuthContext.Provider>;
@@ -124,6 +129,10 @@ function WebAuthProviderContent({ children }: { children: ReactNode }) {
   const loginWithGoogle = login;
   const loginWithApple = login;
   const logout = async () => {
+    await Promise.race([
+      unregisterMelPushForLogout(user?.id).catch(() => undefined),
+      new Promise((resolve) => setTimeout(resolve, 1200)),
+    ]);
     clearAuthToken(); setUser(null); setAccessDenied(false); setTrialActive(false); setTrialDaysRemaining(0); queryClient.clear();
     await signOut({ redirectUrl: basePath || "/" });
   };

@@ -40,6 +40,14 @@ import { isNative } from "@/lib/capacitor";
 import type { MelPosition } from "@shared/mel";
 import { DailyDevotionalScreen } from "@/components/mel/DailyDevotionalScreen";
 import { MelStage } from "@/components/mel/MelStage";
+import { MelPushProvider } from "@/hooks/useMelPush";
+import {
+  subscribeToMelPushDestination,
+  subscribeToMelPushMessage,
+  type MelPushDestination,
+  type MelPushMessage,
+} from "@/lib/mel-push";
+import { Bell, X } from "lucide-react";
 
 const AtlasScreen = lazy(() => import("./atlas/AtlasScreen").then((module) => ({ default: module.AtlasScreen })));
 
@@ -213,6 +221,15 @@ function NavigationContent() {
       navigate("lesson");
     }
   }, [navigate, setSelectedModuleId, setSelectedLessonId, setSelectedTrackLevel]);
+
+  useEffect(() => {
+    const userId = user?.id;
+    if (!userId) return;
+    return subscribeToMelPushDestination(userId, (destination: MelPushDestination) => {
+      if (user?.id !== userId) return;
+      handleMelContinue(destination);
+    });
+  }, [handleMelContinue, user?.id]);
 
   const handleMelDevotional = useCallback((date: string) => {
     setMelDevotionalDate(date);
@@ -505,7 +522,71 @@ function NavigationContent() {
         onContinue={handleMelContinue}
         onOpenDevotional={handleMelDevotional}
       />
+      <MelPushNotice onContinue={handleMelContinue} />
     </>
+  );
+}
+
+function MelPushNotice({ onContinue }: { onContinue: (destination: MelPosition) => void }) {
+  const { user } = useAuth();
+  const [message, setMessage] = useState<MelPushMessage | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setMessage(null);
+      return;
+    }
+
+    return subscribeToMelPushMessage(user.id, (nextMessage) => {
+      setMessage(nextMessage);
+    });
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => setMessage(null), 20_000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
+
+  if (!message || !user || message.userId !== user.id) return null;
+
+  return (
+    <div
+      className="fixed inset-x-3 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] mx-auto max-w-lg"
+      role="status"
+      aria-live="polite"
+      data-testid="mel-push-notice"
+    >
+      <div className="rounded-2xl border bg-card p-4 shadow-xl">
+        <div className="flex items-start gap-3">
+          <Bell className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className="font-semibold">{message.title}</p>
+            {message.body && <p className="text-sm text-muted-foreground">{message.body}</p>}
+            {message.destination && (
+              <button
+                type="button"
+                className="pt-1 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+                onClick={() => {
+                  onContinue(message.destination!);
+                  setMessage(null);
+                }}
+              >
+                Continuar leitura
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            className="rounded p-1 text-muted-foreground hover:bg-muted"
+            aria-label="Fechar recado da Mel"
+            onClick={() => setMessage(null)}
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -575,6 +656,7 @@ export function MainNavigation() {
 
   return (
     <ThemeProvider>
+      <MelPushProvider>
       {/* Reset de senha: renderizado diretamente pelo path da URL, ignorando
           splash e loading de auth — o usuário chegou via link do email e
           precisa ver o formulário imediatamente, independente do estado do app. */}
@@ -592,6 +674,7 @@ export function MainNavigation() {
           />
         </NavigationProvider>
       )}
+      </MelPushProvider>
     </ThemeProvider>
   );
 }

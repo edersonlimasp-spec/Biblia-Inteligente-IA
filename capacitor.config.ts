@@ -30,6 +30,9 @@ const config: CapacitorConfig = {
       style: 'LIGHT',
       overlaysWebView: true,
     },
+    FirebaseMessaging: {
+      presentationOptions: ['alert', 'badge', 'sound'],
+    },
     Keyboard: {
       resize: 'body',
       resizeOnFullScreen: true,
@@ -55,7 +58,7 @@ const config: CapacitorConfig = {
     // eventuais redimensionamentos/overscrolls antes do CSS ser redesenhado.
     backgroundColor: '#0A1420',
     webContentsDebuggingEnabled: true,
-    handleApplicationNotifications: false,
+    handleApplicationNotifications: true,
   },
 };
 

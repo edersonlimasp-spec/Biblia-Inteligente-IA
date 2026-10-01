@@ -21,6 +21,7 @@ import { registerStudyRoutes }    from "./routes/study";
 import { registerLibraryRoutes }  from "./routes/library";
 import { registerBlogRoutes, startBlogScheduler } from "./routes/blog";
 import { registerMelRoutes } from "./routes/mel";
+import { registerPushRoutes } from "./routes/push";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Inicializa Firebase Admin para login Google/Apple
@@ -119,6 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAdminRoutes(app);    // /api/admin/*, /api/debug/*, /api/cron/*, /api/telemetry/*
   registerStudyRoutes(app);    // /api/study/*, /api/reading-plans/*, /api/prayer/*, /api/sermons/*
   registerMelRoutes(app);      // /api/mel/*
+  registerPushRoutes(app);     // /api/push/*, /api/admin/push/*
   registerLibraryRoutes(app);  // /api/library/*, /api/admin/library/*
   registerBlogRoutes(app);     // /blog/*, /sitemap.xml, /robots.txt, /api/admin/blog/*
   startBlogScheduler();        // Optional, disabled by default; creates drafts only

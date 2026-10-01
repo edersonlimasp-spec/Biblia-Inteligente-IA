@@ -1509,3 +1509,26 @@ export const melProfiles = pgTable("mel_profiles", {
   preferences: jsonb("preferences"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+// Native FCM registrations are account-owned; a token is unique across users.
+export const pushTokens = pgTable("push_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  platform: text("platform").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
+}, (table) => ({
+  userIdx: index("push_tokens_user_id_idx").on(table.userId),
+  platformIdx: index("push_tokens_platform_idx").on(table.platform),
+}));
+
+// A durable, timezone-local daily claim makes reminders at-most-once across
+// autoscale instances. Ambiguous sends deliberately are not retried.
+export const pushNotificationClaims = pgTable("push_notification_claims", {
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  localDate: text("local_date").notNull(),
+  claimedAt: timestamp("claimed_at").notNull().defaultNow(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.userId, table.localDate] }),
+}));

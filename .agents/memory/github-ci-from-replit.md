@@ -7,8 +7,18 @@ description: Armadilhas ao usar GitHub Actions com código sincronizado do Repli
 
 **Regra 2 — autenticação Git:** o token do conector Replit NÃO serve para `git push` (proxy apenas, sem token exposto). Um PAT salvo como `GITHUB_TOKEN` funciona via HTTPS com `gh auth setup-git` quando tem escrita em Contents. Se o push alterar `.github/workflows/**`, token clássico também precisa do escopo `workflow`; quando a alteração não é necessária, preservar a versão remota do workflow evita ampliar o privilégio. Para sincronizações pequenas sem Git autenticado, a Git Data API (blobs → tree com base_tree → commit → PATCH ref) é alternativa; não usar para reconstruir históricos ou árvores grandes.
 
-**Regra 3 — logs de Actions ilegíveis:** endpoints de logs redirecionam para blob storage e o proxy devolve "Forbidden"; anotações do check-run só trazem o exit code. Diagnóstico que funcionou: fazer o script de build no CI postar seu próprio log num webhook.site temporário (criar token via `POST https://webhook.site/token`, ler via `/token/<uuid>/requests`). Tokens webhook podem deixar de existir; se retornarem 404, não repetir o upload às cegas e usar o estado das etapas/anotações como fallback. Remover o wrapper depois.
+**Regra 3 — privacidade dos diagnósticos:** manter logs somente no GitHub Actions; não enviar diagnósticos ao webhook.site ou a serviços externos de terceiros.
 
-**Regra 4 — iOS upload:** o workflow "Build iOS IPA (App Store)" (workflow_dispatch, inputs version_name/version_code) envia via altool + fallback fastlane, com diagnóstico postado num webhook.site. Erro `CONTRACT_NOT_VALID` = pendência de contrato/assinatura na conta Apple do usuário, não é problema de credencial nem de CI.
+**Why:** o usuário determinou remover o diagnóstico externo usado anteriormente na submissão iOS. A dificuldade de ler logs via proxy não autoriza reativar esse envio.
+
+**How to apply:** quando autorizado a preparar o workflow, remover os wrappers de envio externo e preservar a saída nativa do Actions. Se o acesso aos logs falhar, informar a limitação e usar etapas/anotações disponíveis.
+
+**Regra 4 — iOS upload:** o workflow "Build iOS IPA (App Store)" (workflow_dispatch, inputs version_name/version_code) envia via altool + fallback fastlane. O diagnóstico externo legado não deve ser mantido em novas submissões (Regra 3). Erro `CONTRACT_NOT_VALID` = pendência de contrato/assinatura na conta Apple do usuário, não é problema de credencial nem de CI.
+
+**Regra 5 — limites da submissão:** só disparar builds de loja depois de confirmar APIs e schema necessários em produção. Enviar o IPA ao App Store Connect/TestFlight ou gerar um AAB não autoriza enviar para revisão pública da Apple nem lançar em produção no Google Play.
+
+**Why:** o usuário reservou a revisão e a publicação pública das lojas para execução manual nos consoles e exigiu interromper a sequência quando uma pré-verificação falhar.
+
+**How to apply:** tratar preparação, upload de binários e publicação pública como autorizações separadas; um bloqueio de produção impede avançar para commit/push que dispare builds.
 
 **Como aplicar:** antes de sincronizar, revisar lockfile e diferenças em `.github/workflows`; preferir push Git normal com PAT de menor privilégio suficiente e usar a Git Data API apenas quando o volume e o histórico tornarem isso seguro.

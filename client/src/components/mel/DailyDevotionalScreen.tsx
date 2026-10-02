@@ -13,6 +13,7 @@ import { shareDevotionalImage } from "@/components/mel/DevotionalShare";
 import { StrongModal } from "@/components/StrongModal";
 import { MelMascot } from "@/components/mel/MelMascot";
 import { MelCompletionNotice } from "@/components/mel/MelCard";
+import { closeDevotionalInvitation } from "@/hooks/useDevotionalInvitation";
 
 interface DailyDevotionalScreenProps {
   date?: string;
@@ -88,6 +89,17 @@ export function DailyDevotionalScreen({ date, onBack, onSignIn, onNavigateToPray
   const activeIdentity = `${user?.id ?? "guest"}:${sessionGeneration}:${readingDate}:${routine}`;
   const activeIdentityRef = useRef(activeIdentity);
   activeIdentityRef.current = activeIdentity;
+  const closeReading = () => {
+    if (isCurrentDate) closeDevotionalInvitation(user?.id, readingDate, routine);
+    onBack();
+  };
+  useEffect(() => {
+    if (!completionSavedKey || completionSavedKey !== activeIdentity) return;
+    closeDevotionalInvitation(user?.id, readingDate, routine);
+    // Keep the existing Mel completion notice visible before returning.
+    const timer = window.setTimeout(onBack, 2200);
+    return () => window.clearTimeout(timer);
+  }, [completionSavedKey, activeIdentity, user?.id, readingDate, routine, onBack]);
   useEffect(() => {
     followsToday.current = !localDateValid(date) || date === today;
     if (localDateValid(date)) setReadingDate(date);
@@ -180,8 +192,10 @@ export function DailyDevotionalScreen({ date, onBack, onSignIn, onNavigateToPray
     }
   };
   const finish = async () => {
-    if (!user) { onSignIn?.(); return; }
-    if (!isCurrentDate) return;
+    if (!user || !isCurrentDate || journalQuery.data?.completed) {
+      closeReading();
+      return;
+    }
     const identity = activeIdentity;
     if (journalQuery.isSuccess) {
       const saved = await persistJournal();
@@ -295,17 +309,17 @@ export function DailyDevotionalScreen({ date, onBack, onSignIn, onNavigateToPray
       {shareError && <p role="alert" className="text-sm">{shareError}</p>}
       {completionSavedKey === activeIdentity && <div className="mt-5"><MelCompletionNotice message="Que alegria ter vivido este momento com Deus." streak={complete.data?.status?.streak} /></div>}
       {user ? <div className="mt-5">
-        {completionRecorded ? <p className="inline-flex items-center gap-2 text-sm" style={{ color: theme.accent }}><Check className="h-4 w-4" /> Momento concluído</p> : <Button onClick={finish} disabled={complete.isPending || !isCurrentDate} className="min-h-12 rounded-full px-7" style={{ background: theme.accent, color: isNight ? "#172328" : "#fff" }}>{complete.isPending ? "Registrando..." : "Concluir meu momento"}</Button>}
+        {completionRecorded ? <><p className="inline-flex items-center gap-2 text-sm" style={{ color: theme.accent }}><Check className="h-4 w-4" /> Momento concluído</p><Button onClick={closeReading} variant="outline" className="mx-auto mt-4 block min-h-12 rounded-full px-7" style={{ borderColor: theme.line, color: theme.ink }}>Fechar leitura</Button></> : <Button onClick={finish} disabled={complete.isPending} className="min-h-12 rounded-full px-7" style={{ background: theme.accent, color: isNight ? "#172328" : "#fff" }}>{complete.isPending ? "Registrando..." : isCurrentDate ? "Concluir meu momento" : "Concluir leitura"}</Button>}
         {!isCurrentDate && <p className="mt-3 text-sm" style={{ color: theme.muted }}>Momentos de outra data podem ser lidos, mas não registrados como concluídos.</p>}
         {complete.isError && <p role="alert" className="mt-3 text-sm text-red-700">Não foi possível registrar. Tente novamente.</p>}
-      </div> : <Button variant="outline" onClick={onSignIn} className="mt-5 min-h-12 rounded-full px-6" style={{ borderColor: theme.line, color: theme.ink }}>Entre para guardar seu progresso</Button>}
+      </div> : <div className="mt-5"><Button onClick={finish} className="min-h-12 rounded-full px-7" style={{ background: theme.accent, color: isNight ? "#172328" : "#fff" }}>Concluir leitura</Button><Button variant="outline" onClick={onSignIn} className="mx-auto mt-3 block min-h-12 rounded-full px-6" style={{ borderColor: theme.line, color: theme.ink }}>Entre para guardar seu progresso</Button></div>}
     </div>;
   };
 
   return (
     <main className="min-h-[100dvh] overflow-hidden transition-colors duration-500" style={{ background: theme.bg, color: theme.ink, paddingTop: "env(safe-area-inset-top, 0px)", paddingBottom: "env(safe-area-inset-bottom, 0px)" }} data-testid="devotional-screen" data-routine={routine}>
       <header className="mx-auto flex w-full max-w-4xl items-center justify-between px-4 py-4 sm:px-8">
-        <Button variant="ghost" size="icon" onClick={onBack} aria-label="Fechar momento" className="h-11 w-11 rounded-full" style={{ color: theme.ink }}><X className="h-5 w-5" /></Button>
+        <Button variant="ghost" size="icon" onClick={closeReading} aria-label="Fechar devocional" className="h-11 w-11 rounded-full" style={{ color: theme.ink }}><X className="h-5 w-5" /></Button>
         <div className="text-center">
           <p className="font-serif text-lg">{routineLabel}</p>
           <p className="mt-0.5 text-xs" style={{ color: theme.muted }}>{new Date(`${readingDate}T12:00:00`).toLocaleDateString("pt-BR", { dateStyle: "long" })} · {isNight ? "À noite" : "Pela manhã"}</p>

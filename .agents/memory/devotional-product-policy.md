@@ -14,3 +14,9 @@ A aparência clara/pergaminho foi autorizada especificamente para a manhã de �
 **Why:** o pedido desta experiência é uma exceção intencional ao isolamento anterior do pergaminho no leitor.
 
 **How to apply:** mantenha esse estilo restrito à experiência e ao seu cartão de entrada, sem aplicá-lo aos demais módulos.
+
+O usuário escolheu manter o convite temporário no topo e um acesso permanente chamado “Devocional” em “Rotinas”. Dispensar o convite pelo X não representa uma atividade concluída.
+
+**Why:** o convite deve poder sair do painel sem impedir uma leitura posterior nem mudar as mensagens e os lembretes já definidos da Mel.
+
+**How to apply:** mantenha o acesso permanente ao ocultar o convite; trate a dispensa como apresentação, separada do diário, da conclusão autenticada e da sequência diária.

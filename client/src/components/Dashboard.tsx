@@ -6,7 +6,7 @@ import { getDeviceId } from "@/hooks/use-device-id";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import {
-  BookOpen, Brain, TrendingUp, Check, Sun, Moon,
+  BookOpen, Brain, TrendingUp, Check, Sun, Moon, X,
   HandHeart, Calendar, CreditCard, Shield, GraduationCap,
   Mic, Library, LogIn, Settings, Crown, Gem, Infinity,
   ChevronRight, LucideIcon, BookMarked, Map,
@@ -18,6 +18,7 @@ import { trackAppOpen, trackPageView } from "@/lib/tracking";
 import { devotionalRoutineAt } from "@shared/devotional";
 import { getMelDate } from "@/lib/mel-date";
 import { useDevotionalJournal } from "@/hooks/use-devotional";
+import { useDevotionalInvitation } from "@/hooks/useDevotionalInvitation";
 
 /* ─── tipos ─────────────────────────────────────────────────── */
 interface DashboardProps {
@@ -178,6 +179,7 @@ export function Dashboard({
   const momentRoutine = devotionalRoutineAt(dashboardClock);
   const { data: momentJournal } = useDevotionalJournal(momentDate, momentRoutine);
   const momentDone = !!momentJournal?.completed;
+  const invitation = useDevotionalInvitation(user?.id, momentDate, momentRoutine);
 
   /* último capítulo lido (para a faixa "Continuar") */
   const [lastRead, setLastRead] = useState<{
@@ -290,6 +292,14 @@ export function Dashboard({
 
   const rotina: ModuleDef[] = useMemo(() => [
     {
+      id: "devotional", title: "Devocional",
+      desc: momentRoutine === "manha" ? "Bom Dia com Deus · 5 min" : "Boa Noite com Deus · 3 min",
+      icon: momentDone ? Check : momentRoutine === "manha" ? Sun : Moon,
+      from: "#315F66", to: "#203F47",
+      badge: momentDone ? "Concluído" : "Gratuito",
+      onClick: () => onMelDevotional(momentDate), testId: "module-devotional",
+    },
+    {
       id: "prayer", title: t("module.prayer"),
       desc: t("module.prayer.desc"),
       icon: HandHeart, from: "#93602A", to: "#734818",
@@ -314,7 +324,7 @@ export function Dashboard({
       icon: CreditCard, from: "#3A4657", to: "#2A3441",
       onClick: onNavigateToSubscriptions, testId: "module-subscriptions",
     },
-  ], [t, onNavigateToPrayer, onNavigateToCalendar, onNavigateToRecordings, onNavigateToSubscriptions]);
+  ], [t, onNavigateToPrayer, onNavigateToCalendar, onNavigateToRecordings, onNavigateToSubscriptions, onMelDevotional, momentDate, momentRoutine, momentDone]);
 
   /* ─── render ─────────────────────────────────────────────── */
   return (
@@ -354,11 +364,12 @@ export function Dashboard({
           className="max-w-2xl mx-auto px-3 py-4 sm:px-5"
           style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}
         >
+          {!invitation.closed && !momentDone && <div className="relative mb-3" data-testid="devotional-invitation">
           <button
             type="button"
             onClick={() => onMelDevotional(momentDate)}
             data-testid="dashboard-devotional"
-            className="group relative mb-3 block w-full overflow-hidden rounded-[18px] text-left transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            className="group relative block w-full overflow-hidden rounded-[18px] text-left transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             style={{
               background: momentRoutine === "manha"
                 ? "linear-gradient(118deg, #f0dfbb 0%, #e8d7b6 54%, #d8c49c 100%)"
@@ -370,7 +381,7 @@ export function Dashboard({
           >
             <div className="absolute right-[-12px] top-[-24px] h-36 w-36 rounded-full border opacity-20" style={{ borderColor: momentRoutine === "manha" ? "#8c6c36" : "#d3bd83" }} />
             <div className="absolute right-5 top-5 h-24 w-24 rounded-full border opacity-15" style={{ borderColor: momentRoutine === "manha" ? "#8c6c36" : "#d3bd83" }} />
-            <div className="relative flex items-start justify-between gap-4">
+            <div className="relative flex items-start justify-between gap-4 pr-10">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[.17em]" style={{ color: momentRoutine === "manha" ? "#806339" : "#cdb77d" }}>
                   {momentRoutine === "manha" ? "Meu Momento com Deus · 5 min" : "Meu Momento com Deus · 3 min"}
@@ -380,15 +391,23 @@ export function Dashboard({
                   {momentRoutine === "manha" ? "Comece o dia com a Palavra, um passo de cada vez." : "Feche o dia com uma leitura e um instante de quietude."}
                 </p>
               </div>
-              <div className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style={{ background: momentRoutine === "manha" ? "rgba(255,255,255,.45)" : "rgba(255,255,255,.10)" }}>
-                {momentDone ? <Check className="h-5 w-5" /> : momentRoutine === "manha" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </div>
             </div>
             <div className="relative mt-5 flex items-center justify-between border-t pt-3 text-xs font-medium" style={{ borderColor: momentRoutine === "manha" ? "rgba(52,46,36,.17)" : "rgba(241,233,217,.18)" }}>
               <span>{momentDone ? "Momento concluído hoje" : "Gratuito, para ler no seu tempo"}</span>
               <span className="inline-flex items-center gap-1">Abrir <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
             </div>
           </button>
+          <button
+            type="button"
+            onClick={invitation.close}
+            aria-label="Dispensar convite do devocional"
+            data-testid="dismiss-devotional-invitation"
+            className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/10 focus-visible:outline-none focus-visible:ring-2"
+            style={{ color: momentRoutine === "manha" ? "#342e24" : "#f1e9d9" }}
+          >
+            <X className="h-5 w-5" />
+          </button>
+          </div>}
           <motion.button
             type="button"
             initial={{ opacity: 0, y: 14 }}
@@ -478,7 +497,7 @@ export function Dashboard({
           </div>
 
           {/* ── Rotina ──────────────────────────────────────────── */}
-          <SectionLabel label="Rotina" />
+          <SectionLabel label="Rotinas" />
           <div className="grid grid-cols-2 gap-2.5">
             {rotina.map((mod, i) => (
               <ModuleCard key={mod.id} mod={mod} delay={0.20 + i * 0.04} uniform />

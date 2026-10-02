@@ -13,6 +13,9 @@ import { storage } from "../storage";
 import { getBookById } from "../bible-data/books";
 import { getMelPreferences, getMelStatus } from "./mel";
 import { MEL_TIME_ZONE, melDate } from "./mel-calendar";
+import { devotionalRoutineAt, type DevotionalMoment } from "@shared/devotional";
+import { getDevotionalMoment } from "./devotional-moments";
+import { userBiblePreferences } from "@shared/schema";
 
 type PushPlatform = "android" | "ios";
 type PushPayload = {
@@ -229,6 +232,15 @@ export function shouldSkipCompletedMelReminder(status: Pick<MelStatus, "complete
   return status.completedToday;
 }
 
+export function buildDevotionalReminder(moment: Pick<DevotionalMoment, "date" | "routine" | "title" | "verse">): PushPayload {
+  const preview = moment.verse.text.length > 160 ? `${moment.verse.text.slice(0, 157)}…` : moment.verse.text;
+  return {
+    title: moment.routine === "manha" ? "Bom Dia com Deus" : "Boa Noite com Deus",
+    body: `${moment.title} · ${moment.verse.reference}: ${preview}`,
+    destination: { kind: "devotional", devotionalDate: moment.date },
+  };
+}
+
 export function buildMelReminder(status: Pick<MelStatus, "position" | "streak" | "lastActivityDate" | "today">): PushPayload {
   const position = status.position;
   if (position?.kind === "bible" && isPushBibleBookId(position.book)) {
@@ -314,10 +326,13 @@ export async function runMelPushReminders(now = new Date()): Promise<{
             skippedCompleted++;
             return;
           }
+          const [biblePreference] = await db.select({ version: userBiblePreferences.lastViewedVersionCode })
+            .from(userBiblePreferences).where(eq(userBiblePreferences.userId, userId)).limit(1);
+          const moment = await getDevotionalMoment(date, devotionalRoutineAt(now), biblePreference?.version ?? "ACF");
+          const payload = buildDevotionalReminder(moment);
           // Never reserve a day's claim while Firebase is unavailable.
           if (!(await claimMelReminderForDay(userId, date))) return;
           claimedCount++;
-          const payload = buildMelReminder(status);
           const tokens = await db.select({ token: pushTokens.token }).from(pushTokens)
             .where(eq(pushTokens.userId, userId));
           if (tokens.length === 0) return;

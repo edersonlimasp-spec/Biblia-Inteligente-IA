@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag, BookMarked, Bug, FileText, Bell } from "lucide-react";
+import { BarChart3, Users, CreditCard, Gift, LogOut, ArrowLeft, HeartPulse, Mail, Tag, BookMarked, Bug, FileText, Bell, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +13,7 @@ import { AdminCoupons } from "./admin/AdminCoupons";
 import { AdminLibrary } from "./admin/AdminLibrary";
 import { AdminBlog } from "./admin/AdminBlog";
 import { AdminPushNotifications } from "./admin/AdminPushNotifications";
+import { AdminDevotionals } from "./admin/AdminDevotionals";
 
 interface AdminPanelProps {
   onBack?: () => void;
@@ -76,7 +77,7 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
       {/* Admin Tabs */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-10 h-auto">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-11 h-auto">
             <TabsTrigger value="dashboard" data-testid="tab-dashboard">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
@@ -117,6 +118,10 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
               <Bell className="h-4 w-4 mr-2" />
               Notificações push
             </TabsTrigger>
+            <TabsTrigger value="devotionals" data-testid="tab-devotionals">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Devocionais
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="mt-6">
@@ -155,6 +160,9 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
           </TabsContent>
           <TabsContent value="push" className="mt-6">
             <AdminPushNotifications />
+          </TabsContent>
+          <TabsContent value="devotionals" className="mt-6">
+            <AdminDevotionals />
           </TabsContent>
         </Tabs>
       </div>

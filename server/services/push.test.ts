@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   buildMelReminder,
+  buildDevotionalReminder,
   claimMelReminderForDay,
   getMelReminderMinute,
   isPushConfigured,
@@ -18,6 +19,17 @@ vi.mock("../storage", () => ({ storage: {} }));
 vi.mock("./mel", () => ({ getMelPreferences: vi.fn(), getMelStatus: vi.fn() }));
 
 describe("native push reminder behavior", () => {
+  it("opens today's routine with its title and real Bible verse preview", () => {
+    const payload = buildDevotionalReminder({
+      date: "2026-10-02", routine: "noite", title: "Descansar no cuidado do Pastor",
+      verse: { book: "psa", chapter: 4, verse: 8, endVerse: null, reference: "Salmos 4:8",
+        versionCode: "ACF", text: "Texto obtido do banco bíblico" },
+    });
+    expect(payload.title).toBe("Boa Noite com Deus");
+    expect(payload.body).toContain("Salmos 4:8");
+    expect(payload.body).toContain("Texto obtido do banco bíblico");
+    expect(payload.destination).toEqual({ kind: "devotional", devotionalDate: "2026-10-02" });
+  });
   it("maps configured reminder periods to Sao Paulo local time", () => {
     const prefs = (reminderPeriod: "morning" | "afternoon" | "evening" | "exact", reminderTime: string | null = null) => ({
       reminderPeriod,

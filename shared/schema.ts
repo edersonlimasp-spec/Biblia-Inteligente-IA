@@ -1532,3 +1532,27 @@ export const pushNotificationClaims = pgTable("push_notification_claims", {
 }, (table) => ({
   pk: primaryKey({ columns: [table.userId, table.localDate] }),
 }));
+
+// Additive devotional editorial and private journal storage. Existing Mel
+// activities remain the source of truth for streaks and reading history.
+export const dailyDevotionals = pgTable("daily_devotionals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  localDate: text("local_date").notNull(),
+  routine: text("routine").notNull(),
+  status: text("status").notNull().default("rascunho"),
+  content: jsonb("content").$type<import("./devotional").DevotionalContent>().notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  dateRoutine: uniqueIndex("daily_devotionals_date_routine_idx").on(table.localDate, table.routine),
+}));
+
+export const devotionalJournal = pgTable("devotional_journal", {
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  localDate: text("local_date").notNull(),
+  routine: text("routine").notNull(),
+  entries: jsonb("entries").$type<import("./devotional").DevotionalJournalInput>().notNull(),
+  completed: boolean("completed").notNull().default(false),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.userId, table.localDate, table.routine] }),
+}));

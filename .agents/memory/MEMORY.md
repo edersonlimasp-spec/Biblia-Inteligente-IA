@@ -28,3 +28,5 @@
 - [Provedor de capas do Blog](blog-image-provider.md) — credenciais OpenAI atuais não suportam DALL·E 3, embora uma aceite GPT Image 1; não trocar o modelo sem escolha do usuário.
 - [Transformador dos testes](test-toolchain-isolation.md) — Vitest pode carregar outro Vite; configurar JSX no transformador do runner sem alterar o build do app.
 - [Limites visuais da Mel](mel-visual-boundaries.md) — aparições não gravam atividade; opção visual fica no aparelho para preservar banco e preferências da Fase 1.
+- [Política dos devocionais](devotional-product-policy.md) — rotinas gratuitas não liberam Strong/Biblioteca; pergaminho autorizado só nesta experiência, sem trocar a paleta global.
+- [Retornos dos hooks Vitest](vitest-hook-returns.md) — retorno implícito de um mock em hook pode registrá-lo como limpeza e gerar falha após as expectativas.

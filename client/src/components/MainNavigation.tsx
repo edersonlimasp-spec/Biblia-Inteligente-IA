@@ -313,6 +313,8 @@ function NavigationContent() {
           date={melDevotionalDate}
           onBack={() => goBack()}
           onSignIn={() => navigate("login")}
+          onNavigateToPrayer={() => navigate("prayer")}
+          onNavigateToSubscriptions={() => navigate("subscriptions")}
         />
       )}
       {currentScreen === "atlas" && (

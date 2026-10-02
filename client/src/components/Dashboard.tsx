@@ -6,7 +6,7 @@ import { getDeviceId } from "@/hooks/use-device-id";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import {
-  BookOpen, Brain, TrendingUp,
+  BookOpen, Brain, TrendingUp, Check, Sun, Moon,
   HandHeart, Calendar, CreditCard, Shield, GraduationCap,
   Mic, Library, LogIn, Settings, Crown, Gem, Infinity,
   ChevronRight, LucideIcon, BookMarked, Map,
@@ -17,6 +17,9 @@ import { motion } from "framer-motion";
 import { trackAppOpen, trackPageView } from "@/lib/tracking";
 import type { MelPosition } from "@shared/mel";
 import { MelCard } from "@/components/mel/MelCard";
+import { devotionalRoutineAt } from "@shared/devotional";
+import { getMelDate } from "@/lib/mel-date";
+import { useDevotionalJournal } from "@/hooks/use-devotional";
 
 /* ─── tipos ─────────────────────────────────────────────────── */
 interface DashboardProps {
@@ -165,6 +168,20 @@ export function Dashboard({
   const { t } = useLanguage();
   const deviceId = getDeviceId();
   const isAdmin = user?.role === "admin" || user?.role === "super_admin" || isSuperAdmin;
+  const [dashboardClock, setDashboardClock] = useState(() => new Date());
+  useEffect(() => {
+    const refresh = () => setDashboardClock(new Date());
+    const timer = window.setInterval(refresh, 60_000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+  const momentDate = getMelDate(dashboardClock);
+  const momentRoutine = devotionalRoutineAt(dashboardClock);
+  const { data: momentJournal } = useDevotionalJournal(momentDate, momentRoutine);
+  const momentDone = !!momentJournal?.completed;
 
   /* último capítulo lido (para a faixa "Continuar") */
   const [lastRead, setLastRead] = useState<{
@@ -341,6 +358,41 @@ export function Dashboard({
           className="max-w-2xl mx-auto px-3 py-4 sm:px-5"
           style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}
         >
+          <button
+            type="button"
+            onClick={() => onMelDevotional(momentDate)}
+            data-testid="dashboard-devotional"
+            className="group relative mb-3 block w-full overflow-hidden rounded-[18px] text-left transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            style={{
+              background: momentRoutine === "manha"
+                ? "linear-gradient(118deg, #f0dfbb 0%, #e8d7b6 54%, #d8c49c 100%)"
+                : "linear-gradient(118deg, #26383c 0%, #1c2c31 54%, #34434a 100%)",
+              color: momentRoutine === "manha" ? "#342e24" : "#f1e9d9",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,.35), 0 12px 28px rgba(16,25,28,.13)",
+              padding: "20px",
+            }}
+          >
+            <div className="absolute right-[-12px] top-[-24px] h-36 w-36 rounded-full border opacity-20" style={{ borderColor: momentRoutine === "manha" ? "#8c6c36" : "#d3bd83" }} />
+            <div className="absolute right-5 top-5 h-24 w-24 rounded-full border opacity-15" style={{ borderColor: momentRoutine === "manha" ? "#8c6c36" : "#d3bd83" }} />
+            <div className="relative flex items-start justify-between gap-4">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[.17em]" style={{ color: momentRoutine === "manha" ? "#806339" : "#cdb77d" }}>
+                  {momentRoutine === "manha" ? "Meu Momento com Deus · 5 min" : "Meu Momento com Deus · 3 min"}
+                </p>
+                <h2 className="mt-2 font-serif text-[25px] font-medium leading-tight">{momentRoutine === "manha" ? "Bom Dia com Deus" : "Boa Noite com Deus"}</h2>
+                <p className="mt-2 max-w-[280px] text-sm leading-5 opacity-75">
+                  {momentRoutine === "manha" ? "Comece o dia com a Palavra, um passo de cada vez." : "Feche o dia com uma leitura e um instante de quietude."}
+                </p>
+              </div>
+              <div className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style={{ background: momentRoutine === "manha" ? "rgba(255,255,255,.45)" : "rgba(255,255,255,.10)" }}>
+                {momentDone ? <Check className="h-5 w-5" /> : momentRoutine === "manha" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </div>
+            </div>
+            <div className="relative mt-5 flex items-center justify-between border-t pt-3 text-xs font-medium" style={{ borderColor: momentRoutine === "manha" ? "rgba(52,46,36,.17)" : "rgba(241,233,217,.18)" }}>
+              <span>{momentDone ? "Momento concluído hoje" : "Gratuito, para ler no seu tempo"}</span>
+              <span className="inline-flex items-center gap-1">Abrir <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
+            </div>
+          </button>
           {/* ── Cartão da Bíblia (largura total) ────────────────── */}
           <MelCard onContinue={onMelContinue} onOpenDevotional={onMelDevotional} />
 

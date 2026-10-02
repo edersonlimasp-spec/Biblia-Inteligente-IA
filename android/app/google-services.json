@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "498175838160",
+    "project_id": "biblia-inteligente",
+    "storage_bucket": "biblia-inteligente.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498175838160:android:4d49a1a719eea22704dbd5",
+        "android_client_info": {
+          "package_name": "app.replit.bibliainteligente.twa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEXXGjOtQMcjxk-z78Rq6L0M3r2R0KhSI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498175838160:android:fc35b7c8f1d36fbf04dbd5",
+        "android_client_info": {
+          "package_name": "com.bibliainteligente.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEXXGjOtQMcjxk-z78Rq6L0M3r2R0KhSI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

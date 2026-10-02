@@ -1,4 +1,5 @@
 import type { DevotionalContent, DevotionalRoutine } from "@shared/devotional";
+import { devotionalVerseSnapshot } from "./devotional-verse-snapshots";
 
 // Editorial reserve explicitly commissioned for this experience. Scripture is
 // never generated: references are resolved against the app's Bible database.
@@ -131,6 +132,8 @@ export function reserveForDate(date: string, routine: DevotionalRoutine): Devoti
     strongNumber: routine === "manha" ? seed.strong : "H7965",
     action: seed.action, prayer: routine === "manha" ? seed.prayer : seed.nightPrayer,
     question: routine === "manha" ? seed.question : "O que desejo apresentar a Deus antes de descansar?",
+    verseText: devotionalVerseSnapshot(routine === "manha" ? seed : { book: "psa", chapter: 4, verse: 8 }),
+    verseVersion: "ACF",
     status: "aprovado",
   };
 }

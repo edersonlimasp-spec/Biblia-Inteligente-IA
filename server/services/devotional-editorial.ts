@@ -8,7 +8,7 @@ import { devotionalReserve, reserveForDate } from "./devotional-reserve";
 import { devotionalPassage } from "./devotional-moments";
 
 export async function validateDevotionalApproval(content: DevotionalContent) {
-  await devotionalPassage(content, "ACF");
+  const passage = await devotionalPassage(content, "ACF");
   const [strong] = await db.select({ id: strongEntries.id }).from(strongEntries)
     .where(eq(strongEntries.strongNumber, content.strongNumber)).limit(1);
   if (!strong) throw new Error("O número Strong não existe no dicionário do app.");
@@ -28,6 +28,9 @@ export async function validateDevotionalApproval(content: DevotionalContent) {
     const count = content.reflection.trim().split(/\s+/).length;
     if (count < 150 || count > 200) throw new Error(`A reflexão da manhã deve ter 150–200 palavras (atual: ${count}).`);
   }
+  // Preserve verified text in the JSON content for future missing Bible data.
+  content.verseText = passage.text;
+  content.verseVersion = passage.versionCode;
 }
 
 export async function generateDevotionalDrafts(startDate: string, days: number) {

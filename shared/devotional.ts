@@ -18,6 +18,8 @@ export const devotionalContentSchema = z.object({
   chapter: z.number().int().positive().max(150),
   verse: z.number().int().positive().max(176),
   endVerse: z.number().int().positive().max(176).nullable().default(null),
+  verseText: z.string().trim().min(1).max(10000).optional(),
+  verseVersion: z.string().regex(/^[A-Za-z0-9_-]{1,24}$/).optional(),
   reflection: z.string().trim().min(80).max(8000),
   strongNumber: z.string().regex(/^[HG]\d{1,5}$/),
   action: z.string().trim().min(5).max(1000),

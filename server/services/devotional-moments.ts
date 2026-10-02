@@ -1,11 +1,12 @@
 import { and, asc, eq, gte, ilike, lte, or } from "drizzle-orm";
 import type { DevotionalContent, DevotionalJournalInput, DevotionalMoment, DevotionalRoutine } from "@shared/devotional";
-import { bibleVerses, strongEntries, dailyDevotionals, devotionalJournal, libraryBooks, libraryChapters, prayerLists, prayerRequests } from "@shared/schema";
+import { bibleVerses, bibleVersions, strongEntries, dailyDevotionals, devotionalJournal, libraryBooks, libraryChapters, prayerLists, prayerRequests } from "@shared/schema";
 import { db } from "../db";
 import { getBookById } from "../bible-data/books";
 import { melDate } from "./mel-calendar";
 import { getMelStatus, recordMelActivity } from "./mel";
 import { reserveForDate } from "./devotional-reserve";
+import { devotionalVerseSnapshot } from "./devotional-verse-snapshots";
 
 let schemaWarningLogged = false;
 export function isMissingDevotionalSchema(error: unknown): boolean {
@@ -29,14 +30,16 @@ export async function devotionalContentFor(date: string, routine: DevotionalRout
   return { ...reserveForDate(date, routine), source: "reserva" };
 }
 
+class MissingDevotionalPassageError extends Error {}
+
 export async function devotionalPassage(content: Pick<DevotionalContent, "book" | "chapter" | "verse" | "endVerse">, versionCode: string) {
   const verses = await db.select({ verse: bibleVerses.verse, text: bibleVerses.text }).from(bibleVerses).where(and(
     eq(bibleVerses.book, content.book), eq(bibleVerses.chapter, content.chapter), eq(bibleVerses.versionCode, versionCode),
     gte(bibleVerses.verse, content.verse), lte(bibleVerses.verse, content.endVerse ?? content.verse),
   )).orderBy(asc(bibleVerses.verse));
   const expected = (content.endVerse ?? content.verse) - content.verse + 1;
-  if (verses.length !== expected || verses.some((v) => !v.text.trim())) {
-    throw new Error("Este trecho não está disponível na versão escolhida. Selecione outra versão da Bíblia.");
+  if (verses.length !== expected || verses.some((v, index) => v.verse !== content.verse + index || !v.text.trim())) {
+    throw new MissingDevotionalPassageError("Este trecho não está disponível na versão escolhida. Selecione outra versão da Bíblia.");
   }
   const name = getBookById(content.book)?.name;
   if (!name) throw new Error("Livro bíblico inválido.");
@@ -44,6 +47,42 @@ export async function devotionalPassage(content: Pick<DevotionalContent, "book" 
     book: content.book, chapter: content.chapter, verse: content.verse, endVerse: content.endVerse,
     reference: `${name} ${content.chapter}:${content.verse}${content.endVerse && content.endVerse !== content.verse ? `–${content.endVerse}` : ""}`,
     versionCode, text: verses.map((v) => v.text).join(" "),
+  };
+}
+
+// Reader-only fallback. Editorial approval still requires an actual ACF passage.
+export async function resolveDevotionalPassage(
+  content: DevotionalContent, requestedVersion: string,
+): Promise<DevotionalMoment["verse"] | null> {
+  const tried = new Set<string>();
+  const tryVersion = async (version: string) => {
+    if (tried.has(version)) return null;
+    tried.add(version);
+    try {
+      return await devotionalPassage(content, version);
+    } catch (error) {
+      if (!(error instanceof MissingDevotionalPassageError)) throw error;
+      return null;
+    }
+  };
+  for (const version of [requestedVersion, "ACF"]) {
+    const passage = await tryVersion(version);
+    if (passage) return passage;
+  }
+  const active = await db.select({ code: bibleVersions.code }).from(bibleVersions)
+    .where(eq(bibleVersions.isActive, true)).orderBy(asc(bibleVersions.code));
+  for (const { code } of active) {
+    const passage = await tryVersion(code);
+    if (passage) return passage;
+  }
+  const text = content.verseText?.trim() || devotionalVerseSnapshot(content);
+  if (!text) return null;
+  const name = getBookById(content.book)?.name;
+  if (!name) return null;
+  return {
+    book: content.book, chapter: content.chapter, verse: content.verse, endVerse: content.endVerse,
+    reference: `${name} ${content.chapter}:${content.verse}${content.endVerse && content.endVerse !== content.verse ? `–${content.endVerse}` : ""}`,
+    versionCode: content.verseText ? content.verseVersion ?? "ACF" : "ACF", text,
   };
 }
 
@@ -75,9 +114,16 @@ async function spurgeonReading(date: string): Promise<DevotionalMoment["nightRea
 }
 
 export async function getDevotionalMoment(date: string, routine: DevotionalRoutine, versionCode = "ACF"): Promise<DevotionalMoment> {
-  const content = await devotionalContentFor(date, routine);
+  let content = await devotionalContentFor(date, routine);
+  let verse = await resolveDevotionalPassage(content, versionCode);
+  if (!verse) {
+    // Legacy approved content may lack a snapshot. Use the complete reserve
+    // devotional rather than attaching an unrelated verse to its reflection.
+    content = { ...reserveForDate(date, routine), source: "reserva" };
+    verse = await resolveDevotionalPassage(content, versionCode);
+  }
+  if (!verse) throw new Error("A reserva editorial está sem seu trecho verificado.");
   const morning = routine === "manha" ? content : await devotionalContentFor(date, "manha");
-  const verse = await devotionalPassage(content, versionCode);
   const [entry] = await db.select({
     strongNumber: strongEntries.strongNumber, lemma: strongEntries.lemma,
     transliteration: strongEntries.translit, alternative: strongEntries.xlit, meaning: strongEntries.portugueseDef,

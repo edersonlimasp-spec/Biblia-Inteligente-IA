@@ -20,3 +20,9 @@ O usuário escolheu manter o convite temporário no topo e um acesso permanente 
 **Why:** o convite deve poder sair do painel sem impedir uma leitura posterior nem mudar as mensagens e os lembretes já definidos da Mel.
 
 **How to apply:** mantenha o acesso permanente ao ocultar o convite; trate a dispensa como apresentação, separada do diário, da conclusão autenticada e da sequência diária.
+
+Falta de um trecho na versão escolhida não pode impedir a leitura do devocional. A autorização é tentar a versão escolhida, ACF e outras versões ativas; por último, usar texto bíblico verificado embutido no conteúdo. Nunca inventar ou gerar versículos.
+
+**Why:** o usuário exigiu disponibilidade dos devocionais mesmo quando os textos bíblicos não estão no banco publicado. A reserva editorial pode operar sem registros aprovados para a data.
+
+**How to apply:** preserve a preferência do leitor e informe a versão realmente usada no trecho. Se um aprovado antigo não tiver trecho nem cópia verificada, use o devocional completo da reserva, sem combinar sua reflexão com um versículo alheio. A tolerância de leitura não dispensa a validação editorial de novos aprovados.

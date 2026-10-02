@@ -19,10 +19,30 @@ attached_assets/*.aab
 attached_assets/*.apk
 attached_assets/*.txt
 
+# Material de assinatura e builds antigos: manter no Replit, nunca no GitHub.
+attached_assets/**/KEYSTORE_BASE64_*.txt
+attached_assets/**/keystore_base64_content_*.txt
+attached_assets/**/*.cer
+attached_assets/**/*.mobileprovision
+attached_assets/**/*.csr
+attached_assets/**/*.aab
+attached_assets/**/*.apk
+attached_assets/**/*.p12
+attached_assets/**/*.p8
+attached_assets/**/*.jks
+attached_assets/**/*.keystore
+
 # Binários Android
 *.jks
 *.keystore
 *.pem
+*.p12
+*.p8
+android/keystore.properties
+
+# Configuração pública oficial do Firebase: incluir quando fornecida.
+!android/app/google-services.json
+!ios/App/App/GoogleService-Info.plist
 
 # Logs
 *.log

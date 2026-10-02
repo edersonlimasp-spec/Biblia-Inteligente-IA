@@ -21,4 +21,10 @@ description: Armadilhas ao usar GitHub Actions com código sincronizado do Repli
 
 **How to apply:** tratar preparação, upload de binários e publicação pública como autorizações separadas; um bloqueio de produção impede avançar para commit/push que dispare builds.
 
+**Regra 6 — preservação em releases:** preparar um release não autoriza alterar lógica do app, Clerk, Mercado Pago, Google Play Billing, StoreKit, planos, regras de assinatura ou painel admin.
+
+**Why:** o usuário reiterou essas restrições para a preparação e a continuação dos builds de loja.
+
+**How to apply:** limitar o trabalho às configurações e à segurança do build autorizadas. Se uma pré-verificação revelar um problema de produção, informar o bloqueio e obter autorização específica antes de mudar o comportamento do aplicativo para resolvê-lo.
+
 **Como aplicar:** antes de sincronizar, revisar lockfile e diferenças em `.github/workflows`; preferir push Git normal com PAT de menor privilégio suficiente e usar a Git Data API apenas quando o volume e o histórico tornarem isso seguro.

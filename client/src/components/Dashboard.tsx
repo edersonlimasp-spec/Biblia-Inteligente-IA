@@ -15,8 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { trackAppOpen, trackPageView } from "@/lib/tracking";
-import type { MelPosition } from "@shared/mel";
-import { MelCard } from "@/components/mel/MelCard";
 import { devotionalRoutineAt } from "@shared/devotional";
 import { getMelDate } from "@/lib/mel-date";
 import { useDevotionalJournal } from "@/hooks/use-devotional";
@@ -37,7 +35,6 @@ interface DashboardProps {
   onNavigateToSettings: () => void;
   onNavigateToLibrary: () => void;
   onNavigateToAtlas: () => void;
-  onMelContinue: (position: MelPosition) => void;
   onMelDevotional: (date: string) => void;
 }
 
@@ -161,7 +158,6 @@ export function Dashboard({
   onNavigateToSettings,
   onNavigateToLibrary,
   onNavigateToAtlas,
-  onMelContinue,
   onMelDevotional,
 }: DashboardProps) {
   const { user, isSuperAdmin } = useAuth();
@@ -393,9 +389,6 @@ export function Dashboard({
               <span className="inline-flex items-center gap-1">Abrir <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
             </div>
           </button>
-          {/* ── Cartão da Bíblia (largura total) ────────────────── */}
-          <MelCard onContinue={onMelContinue} onOpenDevotional={onMelDevotional} />
-
           <motion.button
             type="button"
             initial={{ opacity: 0, y: 14 }}

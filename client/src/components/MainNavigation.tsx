@@ -304,7 +304,6 @@ function NavigationContent() {
           onNavigateToSettings={() => navigate("settings")}
           onNavigateToLibrary={() => navigate("library")}
           onNavigateToAtlas={() => navigate("atlas")}
-          onMelContinue={handleMelContinue}
           onMelDevotional={handleMelDevotional}
         />
       )}

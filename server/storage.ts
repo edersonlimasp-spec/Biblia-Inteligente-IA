@@ -104,6 +104,10 @@ export interface IStorage {
   // AI Usage Limits (Rate Limiting)
   getTodayUsageCount(userId: string): Promise<number>;
   getTotalUsageCount(userId: string): Promise<number>;
+  reserveAIUsage(userId: string, limits: { totalLimit?: number; dailyLimit?: number }): Promise<{
+    allowed: boolean; usedTotal: number; usedToday: number; reservationId: string | null;
+  }>;
+  releaseAIUsageReservation(userId: string, reservationId: string): Promise<void>;
   incrementUsageCount(userId: string): Promise<void>;
   getTodayStrongLookups(userId: string): Promise<number>;
   getTotalStrongLookups(userId: string): Promise<number>;
@@ -749,6 +753,59 @@ class PostgresStorage implements IStorage {
       .where(eq(aiUsageLimits.userId, userId));
 
     return result.reduce((sum, record) => sum + record.questionCount, 0);
+  }
+
+  async reserveAIUsage(
+    userId: string,
+    limits: { totalLimit?: number; dailyLimit?: number },
+  ): Promise<{ allowed: boolean; usedTotal: number; usedToday: number; reservationId: string | null }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return db.transaction(async (tx) => {
+      // Serialize quota check + reservation across app instances. The counter
+      // is reserved before calling the model, so concurrent requests cannot
+      // all pass against the same stale usage count.
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${userId}))`);
+      const records = await tx.select().from(aiUsageLimits).where(eq(aiUsageLimits.userId, userId));
+      const usedTotal = records.reduce((sum, record) => sum + record.questionCount, 0);
+      const usedToday = records
+        .filter((record) => record.date >= today)
+        .reduce((sum, record) => sum + record.questionCount, 0);
+
+      if (
+        (limits.totalLimit !== undefined && usedTotal >= limits.totalLimit) ||
+        (limits.dailyLimit !== undefined && usedToday >= limits.dailyLimit)
+      ) {
+        return { allowed: false, usedTotal, usedToday, reservationId: null };
+      }
+
+      const todayRecord = records.find((record) => record.date >= today);
+      let reservationId: string;
+      if (todayRecord) {
+        const [updated] = await tx.update(aiUsageLimits)
+          .set({ questionCount: sql`${aiUsageLimits.questionCount} + 1` })
+          .where(eq(aiUsageLimits.id, todayRecord.id))
+          .returning({ id: aiUsageLimits.id });
+        reservationId = updated.id;
+      } else {
+        const [created] = await tx.insert(aiUsageLimits).values({
+          userId, date: today, questionCount: 1,
+        }).returning({ id: aiUsageLimits.id });
+        reservationId = created.id;
+      }
+
+      return { allowed: true, usedTotal: usedTotal + 1, usedToday: usedToday + 1, reservationId };
+    });
+  }
+
+  async releaseAIUsageReservation(userId: string, reservationId: string): Promise<void> {
+    await db.transaction(async (tx) => {
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${userId}))`);
+      await tx.update(aiUsageLimits)
+        .set({ questionCount: sql`GREATEST(${aiUsageLimits.questionCount} - 1, 0)` })
+        .where(and(eq(aiUsageLimits.id, reservationId), eq(aiUsageLimits.userId, userId)));
+    });
   }
 
   async incrementUsageCount(userId: string): Promise<void> {

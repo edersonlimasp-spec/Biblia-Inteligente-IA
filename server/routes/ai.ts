@@ -254,13 +254,11 @@ export function registerAiRoutes(app: Express): void {
       const aiAllowedSources = getPlatformAllowedSources(aiPlatform);
 
       // Fetch user, subscription flags and usage counters in parallel (cuts latency vs sequential DB round-trips)
-      const [user, hasGold, hasPremium, hasLifetime, totalUsed, todayCount] = await Promise.all([
+      const [user, hasGold, hasPremium, hasLifetime] = await Promise.all([
         storage.getUser(req.userId!),
         storage.hasActiveSubscription(req.userId!, 'gold', aiAllowedSources),
         storage.hasActiveSubscription(req.userId!, 'premium', aiAllowedSources),
         storage.hasActiveSubscription(req.userId!, 'lifetime', aiAllowedSources),
-        storage.getTotalUsageCount(req.userId!),
-        storage.getTodayUsageCount(req.userId!),
       ]);
 
       if (!user) {
@@ -303,58 +301,68 @@ export function registerAiRoutes(app: Express): void {
       // ----------------------------------------
       const AI_FREE_LIMIT = 2;  // 2 perguntas para usuários logados sem assinatura
 
-      if (!hasFullAccess && !isAdmin) {
-        // Plano gratuito: verificar limite total
-        if (totalUsed >= AI_FREE_LIMIT) {
-          return res.status(429).json({ 
-            error: `Você atingiu o limite de ${AI_FREE_LIMIT} perguntas do plano gratuito. Assine um plano para continuar usando o Professor IA.`,
-            requiresSubscription: true,
-            totalLimit: AI_FREE_LIMIT,
-            usedTotal: totalUsed
-          });
-        }
-      } else if (!isAdmin) {
-        // Assinantes/trial: verificar limite diário (100 para Premium/Trial, 30 para Gold)
-        const dailyLimit = effectivePremiumAI ? 100 : 30;
-        if (todayCount >= dailyLimit) {
-          return res.status(429).json({ 
+      // Reserve usage atomically before contacting the model. This preserves
+      // the existing free and paid limits while closing the concurrent-request
+      // race between reading a count and incrementing it after the AI call.
+      const dailyLimit = hasFullAccess && !isAdmin ? (effectivePremiumAI ? 100 : 30) : undefined;
+      const quota = await storage.reserveAIUsage(req.userId!, {
+        totalLimit: !hasFullAccess && !isAdmin ? AI_FREE_LIMIT : undefined,
+        dailyLimit,
+      });
+      if (!quota.allowed) {
+        if (dailyLimit !== undefined) {
+          return res.status(429).json({
             error: `Você atingiu o limite diário de ${dailyLimit} perguntas. ${
               effectivePremiumAI ? 'Aguarde até amanhã para continuar.' :
               'Faça upgrade para Premium (100 perguntas/dia) ou aguarde até amanhã.'
             }`,
             dailyLimit,
-            usedToday: todayCount
+            usedToday: quota.usedToday,
           });
         }
+        return res.status(429).json({
+          error: `Você atingiu o limite de ${AI_FREE_LIMIT} perguntas do plano gratuito. Assine um plano para continuar usando o Professor IA.`,
+          requiresSubscription: true,
+          totalLimit: AI_FREE_LIMIT,
+          usedTotal: quota.usedTotal,
+        });
       }
 
       // All validations passed - make OpenAI call
-      const response = await askTheologicalQuestion({
-        question,
-        verse: verse !== undefined ? String(verse) : undefined,
-        book,
-        chapter,
-        mode,
-        language,
-        ...(atlasContext === undefined ? {} : { atlasContext }),
-      });
+      let response: string;
+      try {
+        response = await askTheologicalQuestion({
+          question,
+          verse: verse !== undefined ? String(verse) : undefined,
+          book,
+          chapter,
+          mode,
+          language,
+          ...(atlasContext === undefined ? {} : { atlasContext }),
+        });
+      } catch (error) {
+        if (quota.reservationId) {
+          try {
+            await storage.releaseAIUsageReservation(req.userId!, quota.reservationId);
+          } catch (releaseError) {
+            console.error("[AI ask] failed to release quota reservation:", releaseError);
+          }
+        }
+        throw error;
+      }
 
       // Retornar informações de uso baseadas no tipo de acesso
       const usageInfo = hasFullAccess || isAdmin
         ? {
-            usedToday: todayCount + 1,
-            dailyLimit: hasPremium ? 100 : 30,
-            remaining: (hasPremium ? 100 : 30) - (todayCount + 1)
+            usedToday: quota.usedToday,
+            dailyLimit: effectivePremiumAI ? 100 : 30,
+            remaining: (effectivePremiumAI ? 100 : 30) - quota.usedToday
           }
         : {
-            usedTotal: totalUsed + 1,
+            usedTotal: quota.usedTotal,
             totalLimit: AI_FREE_LIMIT,
-            remaining: AI_FREE_LIMIT - (totalUsed + 1)
+            remaining: AI_FREE_LIMIT - quota.usedTotal
           };
-
-      // Increment usage count before responding to keep quota enforcement accurate
-      // (prevents limit bypass under rapid/concurrent requests).
-      await storage.incrementUsageCount(req.userId!);
 
       // Send the answer immediately; non-critical tracking/history persist in background.
       res.json({ 

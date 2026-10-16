@@ -560,6 +560,27 @@
   display: none;
 }
 
+.ai-panel-root {
+  padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  transition: bottom 0.2s;
+}
+
+.keyboard-visible .ai-panel-root {
+  padding-bottom: 0.25rem;
+}
+
+.keyboard-visible .ai-panel-messages {
+  height: min(20rem, calc(100vh - var(--keyboard-offset, 0px) - 12rem));
+}
+
+.professor-input-bar {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+.keyboard-visible .professor-input-bar {
+  padding-bottom: 0.75rem;
+}
+
 /* Capacitor Native App Support */
 .keyboard-visible .ai-panel-footer,
 .keyboard-visible .chat-footer,

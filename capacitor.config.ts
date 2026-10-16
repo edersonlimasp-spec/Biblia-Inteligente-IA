@@ -14,15 +14,16 @@ const config: CapacitorConfig = {
 
   plugins: {
     SplashScreen: {
-      launchShowDuration: 3000,
+      // Evita ANR "No focused window" na abertura e flags de tela cheia descontinuadas.
+      launchShowDuration: 0,
       launchAutoHide: true,
       launchFadeOutDuration: 500,
       backgroundColor: '#1A5299',
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
-      splashFullScreen: true,
-      splashImmersive: true,
+      splashFullScreen: false,
+      splashImmersive: false,
     },
     StatusBar: {
       // Ícones claros sobre o cabeçalho escuro. Com overlay, o próprio header

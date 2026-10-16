@@ -425,7 +425,7 @@ https://bibliainteligente.replit.app`;
   const isPending = askMutation.isPending || analyzeImageMutation.isPending || generateImageMutation.isPending;
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
+    <div className="h-screen bg-background flex flex-col overflow-hidden" style={{ height: "calc(100dvh - var(--keyboard-offset, 0px))" }}>
       <header className="flex-shrink-0 z-50 bg-background/95 backdrop-blur border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-back">
@@ -646,7 +646,7 @@ https://bibliainteligente.replit.app`;
         </div>
       </div>
 
-      <div className="flex-shrink-0 border-t bg-background p-4" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}>
+      <div className="flex-shrink-0 border-t bg-background p-4 professor-input-bar">
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>
             {pendingImage && (

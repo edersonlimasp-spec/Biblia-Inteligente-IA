@@ -861,8 +861,8 @@ Conheça: https://bibliainteligente.replit.app`;
 
   return (
     <div
-      className="linho-chrome fixed bottom-0 left-0 right-0 z-40 border-t"
-      style={{ paddingBottom: "calc(0.25rem + env(safe-area-inset-bottom, 0px))" }}
+      className="linho-chrome fixed ai-panel-root left-0 right-0 z-40 border-t"
+      style={{ bottom: "var(--keyboard-offset, 0px)" }}
     >
       {/* Expanded Chat Area */}
       {isExpanded && messages.length > 0 && (
@@ -909,7 +909,7 @@ Conheça: https://bibliainteligente.replit.app`;
             </div>
             
             {/* Chat Messages */}
-            <ScrollArea className="h-80">
+            <ScrollArea className="h-80 ai-panel-messages">
               <div className="space-y-4 pr-4">
                 {messages.map((msg, idx) => (
                   <div

@@ -1161,7 +1161,10 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     purchaseTimeoutId = setTimeout(() => {
       trackPurchaseStep('TIMEOUT', { planType, productId, paymentMethod: 'apple' });
       cleanupPendingPurchase();
-      resolvePending({ success: false, error: 'Tempo esgotado aguardando aprovação da compra' });
+      resolvePending({
+        success: false,
+        error: 'A confirmação do Google Play está demorando. Se o pagamento for aprovado, seu plano é liberado automaticamente ao reabrir o app (ou toque em "Restaurar compras").',
+      });
     }, 120_000);
 
     // Disparar checkout do StoreKit. Apple não retorna IError direto pro order(),
@@ -1290,9 +1293,27 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
       if (idx !== -1) _pendingPurchases.splice(idx, 1);
 
       const code = orderResult.code;
-      if (code === 6500 || code === 'USER_CANCELLED') {
+      if (code === 6500 || code === 'USER_CANCELLED' || code === 6777006 || code === '6777006') {
         trackPurchaseStep('USER_CANCELLED', { planType, productId, paymentMethod: 'google', errorCode: code });
         return { success: false, error: 'Compra cancelada' };
+      }
+      if (
+        code === 6777003 ||
+        code === '6777003' ||
+        String(orderResult.message || '').toLowerCase().includes('already owned')
+      ) {
+        trackPurchaseStep('ALREADY_OWNED_RESTORE', {
+          planType, productId, paymentMethod: 'google', errorCode: code,
+        });
+        const restored = await restorePurchases();
+        if (restored.success && restored.restored > 0) {
+          trackPurchaseStep('VERIFY_OK', { planType, productId, paymentMethod: 'google' });
+          return { success: true };
+        }
+        return {
+          success: false,
+          error: 'Você já possui este item na sua conta Google. Se o acesso ainda não apareceu, toque em "Restaurar compras".',
+        };
       }
       console.error('[IAP] store.order() retornou erro:', orderResult);
       trackPurchaseStep('ORDER_ERROR', {

@@ -103,6 +103,7 @@ export type PurchaseStep =
   | 'VERIFY_OK'
   | 'VERIFY_FAIL'
   | 'TIMEOUT'
+  | 'ALREADY_OWNED_RESTORE'
   | 'UNEXPECTED_ERROR';
 
 // Whitelist de campos permitidos no payload — evita vazamento acidental

@@ -28,17 +28,56 @@ export async function initializeCapacitor() {
     await StatusBar.setOverlaysWebView({ overlay: true });
     await StatusBar.setStyle({ style: Style.Light });
     
-    if (isAndroid) {
-      await StatusBar.setBackgroundColor({ color: '#0A1420' });
-    }
+    // setBackgroundColor removida por ser uma API descontinuada de ponta a ponta.
 
-    Keyboard.addListener('keyboardWillShow', () => {
+    let baseWindowHeight = window.innerHeight;
+    let keyboardVisible = false;
+
+    window.addEventListener('resize', () => {
+      if (!keyboardVisible) {
+        baseWindowHeight = window.innerHeight;
+      }
+    });
+
+    const handleKeyboardShow = (keyboardHeight: number) => {
+      keyboardVisible = true;
       document.body.classList.add('keyboard-visible');
-    });
+      const windowShrink = Math.max(0, baseWindowHeight - window.innerHeight);
+      const offset = windowShrink > keyboardHeight / 2
+        ? 0
+        : Math.max(0, keyboardHeight - windowShrink);
+      document.documentElement.style.setProperty('--keyboard-offset', `${offset}px`);
+    };
 
-    Keyboard.addListener('keyboardWillHide', () => {
+    const handleKeyboardHide = () => {
+      keyboardVisible = false;
       document.body.classList.remove('keyboard-visible');
+      document.documentElement.style.setProperty('--keyboard-offset', '0px');
+    };
+
+    Keyboard.addListener('keyboardWillShow', ({ keyboardHeight }) => {
+      handleKeyboardShow(keyboardHeight);
     });
+    Keyboard.addListener('keyboardDidShow', ({ keyboardHeight }) => {
+      handleKeyboardShow(keyboardHeight);
+    });
+    Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    Keyboard.addListener('keyboardDidHide', handleKeyboardHide);
+
+    document.addEventListener('touchstart', (event) => {
+      if (!document.body.classList.contains('keyboard-visible')) return;
+      const eventTarget = event.target;
+      const target = eventTarget instanceof Element
+        ? eventTarget
+        : eventTarget instanceof Node
+          ? eventTarget.parentElement
+          : null;
+      if (!target) return;
+      if (target.closest('input, textarea, select, button, a, [contenteditable], [role="button"]')) return;
+      void Keyboard.hide().catch((error) => {
+        console.warn('[Capacitor] Keyboard.hide on outside touch failed:', error);
+      });
+    }, { passive: true });
 
     App.addListener('backButton', ({ canGoBack }) => {
       if (canGoBack) {

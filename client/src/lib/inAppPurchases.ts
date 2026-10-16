@@ -1161,10 +1161,7 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
     purchaseTimeoutId = setTimeout(() => {
       trackPurchaseStep('TIMEOUT', { planType, productId, paymentMethod: 'apple' });
       cleanupPendingPurchase();
-      resolvePending({
-        success: false,
-        error: 'A confirmação do Google Play está demorando. Se o pagamento for aprovado, seu plano é liberado automaticamente ao reabrir o app (ou toque em "Restaurar compras").',
-      });
+      resolvePending({ success: false, error: 'Tempo esgotado aguardando aprovação da compra' });
     }, 120_000);
 
     // Disparar checkout do StoreKit. Apple não retorna IError direto pro order(),
@@ -1281,7 +1278,10 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
       const idx = _pendingPurchases.indexOf(pendingEntry);
       if (idx !== -1) _pendingPurchases.splice(idx, 1);
       trackPurchaseStep('TIMEOUT', { planType, productId, paymentMethod: 'google' });
-      resolvePending({ success: false, error: 'Tempo esgotado aguardando aprovação da compra' });
+      resolvePending({
+        success: false,
+        error: 'A confirmação do Google Play está demorando. Se o pagamento for aprovado, seu plano é liberado automaticamente ao reabrir o app (ou toque em "Restaurar compras").',
+      });
     }, 120_000);
 
     // Disparar o checkout do Google Play. order() retorna IError em caso de

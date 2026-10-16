@@ -85,6 +85,20 @@ export async function seedBibleVersions() {
         sourceUrl: 'https://www.kingjamesbibleonline.org',
       },
       {
+        code: 'ASV',
+        name: 'American Standard Version',
+        language: 'en',
+        license: 'public_domain',
+        sourceUrl: 'https://www.biblegateway.com/versions/American-Standard-Version-ASV-Bible/',
+      },
+      {
+        code: 'WEB',
+        name: 'World English Bible',
+        language: 'en',
+        license: 'public_domain',
+        sourceUrl: 'https://worldenglish.bible/',
+      },
+      {
         code: 'NKJV',
         name: 'New King James Version',
         language: 'en',
@@ -104,6 +118,20 @@ export async function seedBibleVersions() {
         language: 'en',
         license: 'commercial',
         sourceUrl: 'https://www.crossway.org',
+      },
+      {
+        code: 'RVR1960',
+        name: 'Reina Valera 1960',
+        language: 'es',
+        license: 'commercial',
+        sourceUrl: 'https://www.biblegateway.com/versions/Reina-Valera-1960-RVR1960-Biblia/',
+      },
+      {
+        code: 'RVR1909',
+        name: 'Reina Valera 1909',
+        language: 'es',
+        license: 'public_domain',
+        sourceUrl: 'https://www.biblegateway.com/versions/Reina-Valera-1909-RV1909-Biblia/',
       },
     ];
 

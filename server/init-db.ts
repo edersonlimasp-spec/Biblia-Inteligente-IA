@@ -4,6 +4,7 @@ import { seedAdminUsers } from './seed-admins';
 import { seedBibleVersions } from './seed-versions';
 import { seedLibraryBooks } from './seed-library';
 import { seedStrongWords } from './seed-strong-words';
+import { seedBibleVerses } from './seed-bible-verses';
 
 const READING_PLAN_TEMPLATES = [
   {
@@ -439,6 +440,9 @@ export async function initializeDatabase() {
     // Strong interlinear + índice do PDF: copiar da fonte quando faltarem
     // linhas (idempotente). Em background para não atrasar o boot.
     seedStrongWords().catch((e) => console.error('Strong seed (background) falhou:', e));
+
+    // Textos bíblicos: copiar versões ausentes da fonte em background.
+    seedBibleVerses().catch((e) => console.error('Bible verses seed (background) falhou:', e));
     
     // Check if strong_entries table has SUFFICIENT data (expect ~14000 entries)
     const strongCountResult = await db.select({ count: sql<number>`count(*)` }).from(strongEntries);

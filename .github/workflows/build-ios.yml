@@ -58,6 +58,25 @@ jobs:
           cd ios/App
           pod install --repo-update
 
+      - name: Incluir configuracao oficial do Firebase no target App
+        run: |
+          if [ ! -f ios/App/App/GoogleService-Info.plist ]; then
+            echo "GoogleService-Info.plist ausente: build continua sem push Firebase."
+            exit 0
+          fi
+          ruby -rxcodeproj <<'RUBY'
+          project = Xcodeproj::Project.open('ios/App/App.xcodeproj')
+          target = project.targets.find { |candidate| candidate.name == 'App' }
+          abort 'Target App nao encontrado.' unless target
+          group = project.main_group.find_subpath('App', false)
+          abort 'Grupo App nao encontrado.' unless group
+          file = group.files.find { |candidate| candidate.path == 'GoogleService-Info.plist' }
+          file ||= group.new_file('GoogleService-Info.plist')
+          target.resources_build_phase.add_file_reference(file, true)
+          project.save
+          puts 'GoogleService-Info.plist incluido em App / Copy Bundle Resources.'
+          RUBY
+
       - name: Importar certificado p12
         env:
           P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_P12_BASE64 }}
@@ -81,6 +100,34 @@ jobs:
         run: |
           PROFILE_PATH=$RUNNER_TEMP/distribution.mobileprovision
           echo "$PROFILE_BASE64" | base64 --decode > $PROFILE_PATH
+          security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/profile.plist"
+          python3 - "$RUNNER_TEMP/profile.plist" <<'PY'
+          import datetime
+          import plistlib
+          import sys
+
+          with open(sys.argv[1], 'rb') as source:
+              profile = plistlib.load(source)
+          entitlements = profile.get('Entitlements', {})
+          expiration = profile.get('ExpirationDate')
+          now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+          checks = [
+              (profile.get('Name') == 'BiblaInteligente AppStore',
+               'O profile deve se chamar BiblaInteligente AppStore.'),
+              (entitlements.get('aps-environment') == 'production',
+               'Profile sem Push de producao: regenere-o com Push Notifications e atualize IOS_PROVISIONING_PROFILE_BASE64.'),
+              (entitlements.get('application-identifier') == 'SQVM7RVJN9.com.bibliainteligente.ios',
+               'O profile nao pertence ao Bundle ID/team esperado.'),
+              (isinstance(expiration, datetime.datetime) and expiration > now,
+               'O provisioning profile esta expirado ou nao tem data de validade.'),
+              (not profile.get('ProvisionedDevices') and not profile.get('ProvisionsAllDevices'),
+               'E necessario um profile de distribuicao App Store, nao Ad Hoc/Development/Enterprise.'),
+          ]
+          for valid, message in checks:
+              if not valid:
+                  sys.exit(message)
+          print('Profile App Store validado: Bundle ID correto e Push de producao.')
+          PY
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           UUID=$(security cms -D -i $PROFILE_PATH | plutil -extract UUID xml1 -o - - | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
           echo "Profile UUID: $UUID"
@@ -210,7 +257,6 @@ jobs:
             echo "=== fastlane exit $FL (últimas 80 linhas) ==="
             tail -80 /tmp/fastlane.log 2>/dev/null
           } | sed "s/$APPLE_ID/APPLE_ID/g" > /tmp/diag.txt
-          curl -s -X POST --data-binary @/tmp/diag.txt https://webhook.site/9ed365c7-7a9b-4d3f-b2d4-12eec70a5ba5 || true
           tail -40 /tmp/diag.txt
           if [ $ALT -eq 0 ] || [ $FL -eq 0 ]; then exit 0; else exit 1; fi
 

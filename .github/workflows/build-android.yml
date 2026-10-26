@@ -56,6 +56,9 @@ jobs:
       # ─── 6. Android SDK ──────────────────────────────────────────
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The deprecated "tools" package no longer exists in Google's repository.
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
 
       # ─── 7. Restaurar keystore a partir do Secret ─────────────────
       - name: Restaurar keystore de assinatura

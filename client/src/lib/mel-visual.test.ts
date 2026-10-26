@@ -28,17 +28,18 @@ describe("Mel visual scene decisions", () => {
   it("uses São Paulo time and recognizes the sleeping interval", () => {
     expect(getSaoPauloHour(new Date("2025-05-12T10:00:00.000Z"))).toBe(7);
     expect([6, 7, 21, 22].map(isMelSleepingHour)).toEqual([true, false, false, true]);
-    expect(getMelStartupScene(status({ position: { kind: "bible", book: "slm", chapter: 23, verse: 1, versionCode: "ACF" } }), "2025-05-12", 23)).toBe("sleeping");
+    expect(getMelStartupScene(status({ position: { kind: "bible", book: "slm", chapter: 23, verse: 1, versionCode: "ACF" } }), "2025-05-12", 23)).toBeNull();
   });
 
-  it("applies startup precedence and only welcomes saudade after two days", () => {
+  it("shows only a return reminder after two days away", () => {
     const saudade = status({ mood: "saudade", lastActivityDate: "2025-05-10" });
     expect(getActivityGapDays("2025-05-10", "2025-05-12")).toBe(2);
     expect(getMelStartupScene(saudade, "2025-05-12", 8)).toBe("saudade");
-    expect(getMelStartupScene(status({ mood: "saudade", lastActivityDate: "2025-05-11" }), "2025-05-12", 8)).toBe("morning");
-    expect(getMelStartupScene(status({ completedToday: true }), "2025-05-12", 8)).toBe("welcome");
-    expect(getMelStartupScene(status({ position: { kind: "bible", book: "slm", chapter: 23, verse: 1, versionCode: "ACF" } }), "2025-05-12", 13)).toBe("continue");
-    expect(getMelStartupScene(undefined, "2025-05-12", 13)).toBe("welcome");
+    expect(getMelStartupScene(status({ mood: "saudade", lastActivityDate: "2025-05-11" }), "2025-05-12", 8)).toBeNull();
+    expect(getMelStartupScene(saudade, "2025-05-12", 23)).toBeNull();
+    expect(getMelStartupScene(status({ completedToday: true }), "2025-05-12", 8)).toBeNull();
+    expect(getMelStartupScene(status({ position: { kind: "bible", book: "slm", chapter: 23, verse: 1, versionCode: "ACF" } }), "2025-05-12", 13)).toBeNull();
+    expect(getMelStartupScene(undefined, "2025-05-12", 13)).toBeNull();
   });
 
   it("maps silent companion scenes and excludes protected screens", () => {

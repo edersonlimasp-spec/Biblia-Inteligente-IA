@@ -154,7 +154,7 @@ export function MelStage({ currentScreen, onContinue, onOpenDevotional }: MelSta
     if (currentScreen !== "dashboard" || (userId && (isLoading || error || !status))) return;
     if (!claimMelStartupEntrance()) return;
     const scene = getMelStartupScene(usableStatus, today, hour);
-    if (scene !== "sleeping") {
+    if (scene) {
       rememberOpener(document.activeElement);
       setPresentation((current) => current?.source === "celebration"
         ? current

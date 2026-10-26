@@ -75,14 +75,22 @@ afterEach(() => {
 });
 
 describe("MelStage visual behavior", () => {
-  it("shows the automatic startup at most once across StrictMode and rerenders, including guest query loading", () => {
+  it("shows only the return reminder at startup and only once across StrictMode and rerenders", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2025-05-12T13:00:00.000Z")); // 10:00 in São Paulo
-    melMock.value = { ...melMock.value, isLoading: true };
+    melMock.value = {
+      ...melMock.value,
+      status: { mood: "saudade", lastActivityDate: "2025-05-10", today: "2025-05-12" },
+      userId: "user-1",
+      isLoading: false,
+      error: undefined,
+    };
     const { rerender } = renderStage("dashboard", { strict: true });
-    expect(host?.querySelector('[role="dialog"] [data-scene="morning"]')).not.toBeNull();
+    expect(host?.querySelector('[role="dialog"] [data-scene="saudade"]')).not.toBeNull();
+    expect(host?.querySelector('[data-testid="mel-stage-action"]')?.textContent).toContain("Voltar a ler");
 
     act(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+    expect(host?.querySelector('[role="dialog"]')).toBeNull();
     rerender("dashboard");
     expect(host?.querySelector('[role="dialog"]')).toBeNull();
 

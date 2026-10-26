@@ -43,13 +43,11 @@ export function getMelStartupScene(
   status: MelStatus | undefined,
   today: string,
   hour: number,
-): MelVisualScene {
-  // Startup precedence is intentional: sleeping > saudade > morning > continue > welcome.
-  if (isMelSleepingHour(hour)) return "sleeping";
+): MelVisualScene | null {
+  // The automatic opening is reserved for a gentle reminder after an absence.
+  if (isMelSleepingHour(hour)) return null;
   if (status?.mood === "saudade" && getActivityGapDays(status.lastActivityDate, today) >= 2) return "saudade";
-  if (hour >= 7 && hour < 12 && !status?.completedToday) return "morning";
-  if (status?.position) return "continue";
-  return "welcome";
+  return null;
 }
 
 export function getMelContextScene(currentScreen: string): MelVisualScene | null {

@@ -21,6 +21,12 @@ A graça semanal e a leitura de hoje continuam seguindo o calendário canônico 
 
 **How to apply:** a aparência deve acompanhar o horário sem gravar atividade ou alterar a rotina escolhida.
 
+Na abertura do app, a Mel não deve dar boas-vindas nem acenar; mostre-a automaticamente apenas como lembrete para a pessoa voltar.
+
+**Why:** o usuário pediu remover o aceno da inicialização e reservar essa aparição automática para lembrar a pessoa de retornar.
+
+**How to apply:** mantenha o início silencioso em visitas normais e preserve o lembrete contextual de retorno; não remova interações ou comemorações em outros fluxos sem pedido explícito.
+
 A Mel deve ser uma mensageira pontual, não uma personagem permanentemente presente na interface.
 
 **Why:** o usuário restringiu suas aparições a recados e lembretes conforme as regras e os prazos já estabelecidos; a presença decorativa constante não corresponde ao comportamento desejado.

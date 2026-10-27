@@ -124,7 +124,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
         className="sticky top-0 z-50"
         style={{
           background: "linear-gradient(158deg, #75356A, #5A2551)",
-          paddingTop: "env(safe-area-inset-top, 0px)",
+          paddingTop: "var(--safe-area-inset-top,env(safe-area-inset-top,0px))",
         }}
       >
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">

@@ -519,7 +519,7 @@ export function LessonScreen({ lessonId, trackLevel, moduleId, initialVideoSecon
 
       <div
         className="fixed inset-x-0 bottom-0 bg-background/95 backdrop-blur border-t border-border"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        style={{ paddingBottom: "var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px))" }}
       >
         <div className="max-w-2xl mx-auto px-4 py-3 flex gap-3">
           <Button
@@ -617,7 +617,7 @@ export function LessonScreen({ lessonId, trackLevel, moduleId, initialVideoSecon
 
               <div
                 className="px-4 py-3 border-t border-border"
-                style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+                style={{ paddingBottom: "var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px))" }}
               >
                 <div className="flex gap-2">
                   <Textarea

@@ -587,7 +587,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
       <div className="h-[calc(100vh-108px)] overflow-y-auto overflow-x-hidden">
         <div
           className="max-w-2xl mx-auto px-4 py-5 space-y-5"
-          style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}
+          style={{ paddingBottom: "calc(2rem + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))" }}
         >
           {isLoading ? (
             <div className="space-y-4">

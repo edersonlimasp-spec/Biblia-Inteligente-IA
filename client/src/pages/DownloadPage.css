@@ -7,7 +7,7 @@
   box-sizing: border-box;
   display: grid;
   place-items: center;
-  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  padding: max(24px, var(--safe-area-inset-top,env(safe-area-inset-top))) 20px max(24px, var(--safe-area-inset-bottom,env(safe-area-inset-bottom)));
   background: #ebe5d9;
   color: #2b2419;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;

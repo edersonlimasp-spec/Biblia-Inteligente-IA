@@ -601,7 +601,7 @@ export function PrayerMode({ onBack }: PrayerModeProps) {
         className="sticky top-0 z-50"
         style={{
           background: "linear-gradient(158deg, #93602A, #734818)",
-          paddingTop: "env(safe-area-inset-top, 0px)",
+          paddingTop: "var(--safe-area-inset-top,env(safe-area-inset-top,0px))",
         }}
       >
         <div className="flex items-center justify-between px-4 py-3">

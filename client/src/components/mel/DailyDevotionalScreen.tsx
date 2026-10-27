@@ -317,7 +317,7 @@ export function DailyDevotionalScreen({ date, onBack, onSignIn, onNavigateToPray
   };
 
   return (
-    <main className="min-h-[100dvh] overflow-hidden transition-colors duration-500" style={{ background: theme.bg, color: theme.ink, paddingTop: "env(safe-area-inset-top, 0px)", paddingBottom: "env(safe-area-inset-bottom, 0px)" }} data-testid="devotional-screen" data-routine={routine}>
+    <main className="min-h-[100dvh] overflow-hidden transition-colors duration-500" style={{ background: theme.bg, color: theme.ink, paddingTop: "var(--safe-area-inset-top,env(safe-area-inset-top,0px))", paddingBottom: "var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px))" }} data-testid="devotional-screen" data-routine={routine}>
       <header className="mx-auto flex w-full max-w-4xl items-center justify-between px-4 py-4 sm:px-8">
         <Button variant="ghost" size="icon" onClick={closeReading} aria-label="Fechar devocional" className="h-11 w-11 rounded-full" style={{ color: theme.ink }}><X className="h-5 w-5" /></Button>
         <div className="text-center">

@@ -448,7 +448,7 @@ export function ProfessorChat({ onBack }: ProfessorChatProps) {
       {/* Input area (fixed at bottom) */}
       <div
         className="flex-shrink-0 border-t bg-background p-4"
-        style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+        style={{ paddingBottom: "calc(1rem + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))" }}
       >
         <div className="max-w-4xl mx-auto">
           <AnimatePresence>

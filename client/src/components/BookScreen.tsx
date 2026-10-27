@@ -153,7 +153,7 @@ export function BookScreen({ bookId, onBack, onNavigateToReader, onNavigateToSub
     return (
       <div className="min-h-screen bg-background overflow-x-hidden">
         <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-3 py-2 flex items-center gap-2"
-          style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+          style={{ paddingTop: "var(--safe-area-inset-top,env(safe-area-inset-top,0px))" }}>
           <Button variant="ghost" size="icon" onClick={onBack}><ChevronLeft className="w-5 h-5" /></Button>
         </div>
         <div className="max-w-lg mx-auto px-3 py-6 space-y-4">
@@ -169,7 +169,7 @@ export function BookScreen({ bookId, onBack, onNavigateToReader, onNavigateToSub
     return (
       <div className="min-h-screen bg-background overflow-x-hidden">
         <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-3 py-2 flex items-center gap-2"
-          style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+          style={{ paddingTop: "var(--safe-area-inset-top,env(safe-area-inset-top,0px))" }}>
           <Button variant="ghost" size="icon" onClick={onBack}><ChevronLeft className="w-5 h-5" /></Button>
         </div>
         <div className="max-w-lg mx-auto px-4 py-16 text-center space-y-3">
@@ -226,7 +226,7 @@ export function BookScreen({ bookId, onBack, onNavigateToReader, onNavigateToSub
       {/* Header */}
       <header
         className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border"
-        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+        style={{ paddingTop: "var(--safe-area-inset-top,env(safe-area-inset-top,0px))" }}
       >
         <div className="max-w-lg mx-auto px-3 py-2 flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-book-back">
@@ -240,7 +240,7 @@ export function BookScreen({ bookId, onBack, onNavigateToReader, onNavigateToSub
 
       <div
         className="max-w-lg mx-auto px-4 py-6 overflow-x-hidden"
-        style={{ paddingBottom: "calc(4rem + env(safe-area-inset-bottom, 0px))" }}
+        style={{ paddingBottom: "calc(4rem + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))" }}
       >
         {/* Cover */}
         <motion.div

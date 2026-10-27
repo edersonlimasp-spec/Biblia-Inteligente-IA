@@ -12,9 +12,9 @@
   justify-content: center;
   padding:
     1rem
-    max(1rem, env(safe-area-inset-right, 0px))
-    calc(5.25rem + env(safe-area-inset-bottom, 0px))
-    max(1rem, env(safe-area-inset-left, 0px));
+    max(1rem, var(--safe-area-inset-right,env(safe-area-inset-right,0px)))
+    calc(5.25rem + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))
+    max(1rem, var(--safe-area-inset-left,env(safe-area-inset-left,0px)));
   background: hsl(var(--foreground) / 0.46);
   animation: mel-stage-dim 180ms ease-out both;
 }
@@ -26,8 +26,8 @@
   align-items: center;
   gap: clamp(0.6rem, 3vw, 1.4rem);
   width: min(100%, 34rem);
-  max-height: calc(100vh - 7.25rem - env(safe-area-inset-bottom, 0px));
-  max-height: calc(100dvh - 7.25rem - env(safe-area-inset-bottom, 0px));
+  max-height: calc(100vh - 7.25rem - var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)));
+  max-height: calc(100dvh - 7.25rem - var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)));
   overflow-y: auto;
   overscroll-behavior: contain;
   border: 1px solid hsl(var(--border));
@@ -180,7 +180,7 @@
     gap: 0.15rem;
     width: min(100%, 27rem);
     text-align: center;
-    padding: 0.7rem 1.1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.7rem 1.1rem calc(1rem + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)));
   }
 
   .mel-stage__art-wrap {

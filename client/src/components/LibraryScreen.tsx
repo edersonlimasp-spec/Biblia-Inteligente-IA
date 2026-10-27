@@ -238,7 +238,7 @@ export function LibraryScreen({ onBack, onNavigateToBook, onNavigateToReader }: 
       {/* Header */}
       <header
         className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border"
-        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+        style={{ paddingTop: "var(--safe-area-inset-top,env(safe-area-inset-top,0px))" }}
       >
         <div className="max-w-2xl mx-auto px-3 py-2 flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={onBack} data-testid="button-library-back">
@@ -255,7 +255,7 @@ export function LibraryScreen({ onBack, onNavigateToBook, onNavigateToReader }: 
 
       <div
         className="max-w-2xl mx-auto px-3 py-4 overflow-x-hidden"
-        style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}
+        style={{ paddingBottom: "calc(2rem + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))" }}
       >
         {/* Sub-title counts */}
         <p className="text-[11px] font-mono text-muted-foreground mb-5">

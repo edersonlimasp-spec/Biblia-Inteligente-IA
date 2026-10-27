@@ -121,7 +121,7 @@ export function PlansProgressScreen({ onBack, onNavigateToBible, onOpenMyPlan }:
         className="shrink-0 sticky top-0 z-40 flex items-center gap-3 px-4 py-4"
         style={{
           background: `linear-gradient(158deg, ${MOD_FROM}, ${MOD_TO})`,
-          paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))",
+          paddingTop: "calc(1rem + var(--safe-area-inset-top,env(safe-area-inset-top,0px)))",
         }}
       >
         <Button

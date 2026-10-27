@@ -329,7 +329,7 @@ export function ModuleDetailScreen({
       <div className="h-[calc(100vh-80px)] overflow-y-auto overflow-x-hidden">
         <div
           className="max-w-2xl mx-auto pb-10"
-          style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom, 0px))" }}
+          style={{ paddingBottom: "calc(2.5rem + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))" }}
         >
           {/* ── Bloco de classe colorido ── */}
           {track && (

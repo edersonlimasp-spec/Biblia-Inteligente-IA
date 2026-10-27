@@ -553,7 +553,7 @@ function MelPushNotice({ onContinue }: { onContinue: (destination: MelPosition) 
 
   return (
     <div
-      className="fixed inset-x-3 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] mx-auto max-w-lg"
+      className="fixed inset-x-3 top-[calc(var(--safe-area-inset-top,env(safe-area-inset-top))+0.75rem)] z-[60] mx-auto max-w-lg"
       role="status"
       aria-live="polite"
       data-testid="mel-push-notice"

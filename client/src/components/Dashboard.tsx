@@ -332,7 +332,7 @@ export function Dashboard({
       {/* cabeçalho */}
       <header
         className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border"
-        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+        style={{ paddingTop: "var(--safe-area-inset-top,env(safe-area-inset-top,0px))" }}
       >
         <div className="max-w-2xl mx-auto px-3 py-2 flex items-center justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -362,7 +362,7 @@ export function Dashboard({
       <ScrollArea className="h-[calc(100vh-60px)]">
         <div
           className="max-w-2xl mx-auto px-3 py-4 sm:px-5"
-          style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}
+          style={{ paddingBottom: "calc(2rem + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))" }}
         >
           {!invitation.closed && !momentDone && <div className="relative mb-3" data-testid="devotional-invitation">
           <button

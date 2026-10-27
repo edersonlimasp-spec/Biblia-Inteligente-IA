@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+
+// MapLibre 6 resolve o worker relativo ao chunk; no build (e no app nativo) o arquivo nao existe.
+maplibregl.setWorkerUrl(maplibreWorkerUrl);
 import type { AtlasItem } from "@shared/atlas";
 
 export type AtlasMode = "ancient" | "modern";

@@ -94,14 +94,17 @@ export function AtlasScreen({ onBack, onSubscribe, onLogin, navigateToVerse }: A
   }, [selectedCollection]);
   useEffect(() => {
     const onPop = () => {
+      // So trata voltas das entradas que o proprio Atlas empilhou.
+      if (!((window as any).__atlasHistoryDepth > 0)) return;
+      (window as any).__atlasHistoryDepth -= 1;
       if (selectedIdRef.current) { selectedIdRef.current = undefined; setSelectedId(undefined); }
       else if (selectedCollectionRef.current) { selectedCollectionRef.current = undefined; setSelectedCollection(undefined); }
-      else onBack();
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, [onBack]);
 
+  useEffect(() => () => { (window as any).__atlasHistoryDepth = 0; }, []);
   const catalog = useQuery({
     queryKey: ["atlas", identity, "catalog"], enabled: !isLoading,
     queryFn: async () => (await apiRequest("GET", "/api/atlas/catalog")).json() as Promise<{ items: AtlasSummary[]; fullAccess: boolean }>,
@@ -153,12 +156,12 @@ export function AtlasScreen({ onBack, onSubscribe, onLogin, navigateToVerse }: A
   const openCollection = (key: string) => {
     setQuery(""); clearFilters();
     setSelectedCollection(key); setSelectedId(undefined);
-    window.history.pushState({ atlas: "collection", key }, "");
+    (window as any).__atlasHistoryDepth = ((window as any).__atlasHistoryDepth || 0) + 1; window.history.pushState({ atlas: "collection", key }, "");
   };
   const open = (id: string) => {
     const item = items.find(entry => entry.id === id);
     if (item?.locked && !catalog.data?.fullAccess) { onSubscribe(); } else {
-      setSelectedId(id); window.history.pushState({ atlas: "item", id }, "");
+      setSelectedId(id); (window as any).__atlasHistoryDepth = ((window as any).__atlasHistoryDepth || 0) + 1; window.history.pushState({ atlas: "item", id }, "");
     }
   };
   const backOneLevel = () => window.history.back();
@@ -180,7 +183,7 @@ export function AtlasScreen({ onBack, onSubscribe, onLogin, navigateToVerse }: A
     <main className="atlas-home">
       <div className="atlas-home-shell">
         {!showLibrary && <header className="atlas-home-header">
-          <button className="atlas-home-back" onClick={onBack} aria-label="Voltar">← <span>Início</span></button>
+          <button className="atlas-home-back" onClick={() => { (window as any).__atlasHistoryDepth = 0; onBack(); }} aria-label="Voltar">← <span>Início</span></button>
           <div className="atlas-home-brand"><span className="atlas-home-mark">A</span><div><p>Estudo visual</p><h1>Mapas e Imagens Bíblicas</h1></div></div>
           <button className="atlas-filter-trigger" onClick={() => setFilterOpen(true)}>Filtrar <span>{[testament, era, book, available ? "sim" : ""].filter(Boolean).length || ""}</span></button>
         </header>}

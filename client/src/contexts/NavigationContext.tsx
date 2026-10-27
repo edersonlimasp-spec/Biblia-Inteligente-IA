@@ -232,6 +232,8 @@ export function NavigationProvider({ children, onExitRequest }: NavigationProvid
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
+      // Voltas internas do Atlas (Mapas e Imagens) sao tratadas pela propria tela.
+      if ((window as any).__atlasHistoryDepth > 0) return;
       event.preventDefault();
       
       if (currentScreen === HOME_SCREEN && historyStack.current.length <= 1) {

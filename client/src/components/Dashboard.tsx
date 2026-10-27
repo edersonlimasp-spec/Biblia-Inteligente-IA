@@ -6,10 +6,30 @@ import { getDeviceId } from "@/hooks/use-device-id";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import {
-  BookOpen, Brain, TrendingUp, Check, Sun, Moon, X,
-  HandHeart, Calendar, CreditCard, Shield, GraduationCap,
-  Mic, Library, LogIn, Settings, Crown, Gem, Infinity,
-  ChevronRight, LucideIcon, BookMarked, Map,
+  BookOpen,
+  Brain,
+  TrendingUp,
+  Check,
+  Sun,
+  Moon,
+  X,
+  HandHeart,
+  Calendar,
+  CreditCard,
+  Shield,
+  GraduationCap,
+  Mic,
+  Library,
+  LogIn,
+  Settings,
+  Crown,
+  Gem,
+  Infinity,
+  ChevronRight,
+  LucideIcon,
+  BookMarked,
+  Map,
+  Church,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +39,24 @@ import { devotionalRoutineAt } from "@shared/devotional";
 import { getMelDate } from "@/lib/mel-date";
 import { useDevotionalJournal } from "@/hooks/use-devotional";
 import { useDevotionalInvitation } from "@/hooks/useDevotionalInvitation";
+import { Capacitor } from "@capacitor/core";
+
+// Modulo SIGI: pede ao servidor um ingresso de uso unico e abre o SIGI ja logado.
+// Os dados da igreja ficam no banco do SIGI; aqui so abrimos a porta.
+async function openSigi() {
+  try {
+    // import dinamico: nao carrega o cliente de API so por abrir o painel
+    const { apiRequest } = await import("@/lib/queryClient");
+    const r = await apiRequest("POST", "/api/sigi/ticket");
+    const d = await r.json();
+    if (!d?.url) throw new Error(d?.error || "sem url");
+    const native = typeof Capacitor !== "undefined" && Capacitor.isNativePlatform?.();
+    if (native) window.open(d.url, "_blank");
+    else window.location.href = d.url;
+  } catch {
+    window.alert("Não foi possível abrir o SIGI agora. Tente novamente em instantes.");
+  }
+}
 
 /* ─── tipos ─────────────────────────────────────────────────── */
 interface DashboardProps {
@@ -317,6 +355,12 @@ export function Dashboard({
       icon: Mic, from: "#9A4432", to: "#7A3022",
       badge: t("common.new"),
       onClick: onNavigateToRecordings, testId: "module-recordings",
+    },
+    {
+      id: "sigi", title: "SIGI — Gestão da Igreja",
+      desc: "Membros, cultos e financeiro da sua igreja",
+      icon: Church, from: "#1B4A9C", to: "#12295C",
+      onClick: () => { void openSigi(); }, testId: "module-sigi",
     },
     {
       id: "subscriptions", title: t("module.subscriptions"),

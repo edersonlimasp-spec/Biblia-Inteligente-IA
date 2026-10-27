@@ -23,8 +23,11 @@ import { registerBlogRoutes, startBlogScheduler } from "./routes/blog";
 import { registerMelRoutes } from "./routes/mel";
 import { registerPushRoutes } from "./routes/push";
 import { registerDevotionalRoutes } from "./routes/devotionals";
+import { registerSigiRoutes } from "./routes/sigi";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Modulo SIGI (ingresso de login para o sistema de gestao de igrejas)
+  registerSigiRoutes(app);
   // Inicializa Firebase Admin para login Google/Apple
   initFirebaseAdmin();
 

@@ -57,7 +57,11 @@ async function openSigi() {
   if (sigiOverlay) return;
   try {
     // import dinamico: nao carrega o cliente de API so por abrir o painel
-    const { apiRequest } = await import("@/lib/queryClient");
+    const { apiRequest, getAuthToken } = await import("@/lib/queryClient");
+    if (!getAuthToken()) {
+      window.alert("Entre na sua conta do Bíblia Inteligente (botão Entrar, no topo) para acessar o SIGI.");
+      return;
+    }
     const r = await apiRequest("POST", "/api/sigi/ticket");
     const d = await r.json();
     if (!d?.url) throw new Error(d?.error || "sem url");

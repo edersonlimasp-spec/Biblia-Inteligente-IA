@@ -78,3 +78,6 @@
 @media(max-width:800px){.atlas-illustration-stage{height:min(50dvh,420px)!important;min-height:300px!important}.atlas-illustration-stage .atlas-illustration{min-height:0}.atlas-illustration-point{width:34px;height:34px;min-width:34px;min-height:34px;font-size:.75rem}}
 .atlas-illustration-legend{position:absolute;bottom:10px;left:10px;right:10px;display:flex;gap:6px 15px;align-items:baseline;flex-wrap:wrap;padding:8px 12px;border:1px solid #bfc5cc80;border-radius:8px;background:#17262ae8;color:#f4eee0;font-size:.77rem;pointer-events:none}
 .atlas-illustration-legend span{color:#bfc5cc}
+/* Ficha do Atlas abaixo da barra de status; cabecalho fixo nao entra sob o relogio */
+.atlas-home-shell:has(.atlas-detail){padding-top:var(--safe-area-inset-top,env(safe-area-inset-top,0px))}
+@media(max-width:800px){.atlas-topbar{top:var(--safe-area-inset-top,env(safe-area-inset-top,0px));box-shadow:0 calc(-1 * var(--safe-area-inset-top,env(safe-area-inset-top,0px))) 0 #101f1b}}

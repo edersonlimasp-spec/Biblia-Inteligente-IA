@@ -20,3 +20,6 @@
   .atlas-timeline{padding-bottom:20px}
   .atlas-section-block{margin-top:12px}
 }
+/* Topo do Atlas abaixo da barra de status (iPhone/Android) */
+.atlas-home-shell{padding-top:calc(22px + var(--safe-area-inset-top,env(safe-area-inset-top,0px)))}
+@media (max-width:700px){.atlas-home-shell{padding-top:calc(16px + var(--safe-area-inset-top,env(safe-area-inset-top,0px)))}}

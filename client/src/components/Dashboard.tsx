@@ -39,20 +39,58 @@ import { devotionalRoutineAt } from "@shared/devotional";
 import { getMelDate } from "@/lib/mel-date";
 import { useDevotionalJournal } from "@/hooks/use-devotional";
 import { useDevotionalInvitation } from "@/hooks/useDevotionalInvitation";
-import { Capacitor } from "@capacitor/core";
 
-// Modulo SIGI: pede ao servidor um ingresso de uso unico e abre o SIGI ja logado.
-// Os dados da igreja ficam no banco do SIGI; aqui so abrimos a porta.
+// Modulo SIGI: abre o SIGI DENTRO do app, em tela cheia, ja logado (ingresso de uso unico).
+// Nao sai do app nem abre navegador. Os dados da igreja ficam no banco do SIGI.
+// Lojas: sem compra, sem link de venda e sem criar conta dentro do SIGI embutido.
+let sigiOverlay: HTMLDivElement | null = null;
+
+function closeSigi() {
+  if (!sigiOverlay) return;
+  sigiOverlay.remove();
+  sigiOverlay = null;
+  document.body.style.overflow = "";
+  window.removeEventListener("popstate", closeSigi);
+}
+
 async function openSigi() {
+  if (sigiOverlay) return;
   try {
     // import dinamico: nao carrega o cliente de API so por abrir o painel
     const { apiRequest } = await import("@/lib/queryClient");
     const r = await apiRequest("POST", "/api/sigi/ticket");
     const d = await r.json();
     if (!d?.url) throw new Error(d?.error || "sem url");
-    const native = typeof Capacitor !== "undefined" && Capacitor.isNativePlatform?.();
-    if (native) window.open(d.url, "_blank");
-    else window.location.href = d.url;
+
+    const overlay = document.createElement("div");
+    overlay.setAttribute("data-testid", "sigi-overlay");
+    overlay.style.cssText =
+      "position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;background:#12295C;" +
+      "padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)";
+    const bar = document.createElement("div");
+    bar.style.cssText = "display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;color:#fff;flex:none";
+    const back = document.createElement("button");
+    back.type = "button";
+    back.textContent = "\u2039 Voltar";
+    back.setAttribute("aria-label", "Voltar ao Bíblia Inteligente");
+    back.style.cssText = "background:none;border:0;color:#fff;font-size:16px;padding:8px 4px;cursor:pointer";
+    back.onclick = () => (window.history.state?.sigi ? window.history.back() : closeSigi());
+    const title = document.createElement("strong");
+    title.textContent = "SIGI";
+    title.style.cssText = "font-size:16px;margin-left:4px";
+    bar.append(back, title);
+    const frame = document.createElement("iframe");
+    frame.src = d.url;
+    frame.title = "SIGI — Gestão da Igreja";
+    frame.setAttribute("allow", "clipboard-write");
+    frame.style.cssText = "flex:1;width:100%;border:0;background:#fff";
+    overlay.append(bar, frame);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = "hidden";
+    sigiOverlay = overlay;
+    // botao "voltar" do Android / navegador fecha o SIGI e volta ao painel
+    window.history.pushState({ sigi: true }, "");
+    window.addEventListener("popstate", closeSigi);
   } catch {
     window.alert("Não foi possível abrir o SIGI agora. Tente novamente em instantes.");
   }

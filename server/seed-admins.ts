@@ -4,15 +4,14 @@
  * Este script cria automaticamente os usuários admin se eles não existirem.
  * É IDEMPOTENTE - pode ser executado múltiplas vezes sem duplicar usuários.
  * 
- * Usuários criados:
- * 1. admin@meuapp.com / Admin@12345 (super_admin)
- * 2. googleplay@meuapp.com / Play@12345 (admin)
+ * Contas fixas antigas desativadas (ver LEGACY_ADMINS).
  */
 
 import { db } from './db';
 import { users } from '@shared/schema';
 import { eq, sql } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 
 interface AdminUserSeed {
   email: string;
@@ -22,33 +21,44 @@ interface AdminUserSeed {
 }
 
 // Definição dos usuários administrativos fixos
-const ADMIN_USERS: AdminUserSeed[] = [
-  {
-    email: 'admin@meuapp.com',
-    name: 'Administrador Principal',
-    password: 'Admin@12345',
-    role: 'super_admin',
-  },
-  {
-    email: 'googleplay@meuapp.com',
-    name: 'Admin Google Play',
-    password: 'Play@12345',
-    role: 'admin',
-  },
-  // Mantendo o admin antigo também para compatibilidade
-  {
-    email: 'admin@biblical.app',
-    name: 'Admin Biblical',
-    password: 'Admin123456',
-    role: 'super_admin',
-  },
+// Contas fixas antigas foram DESATIVADAS por segurança (senhas estavam escritas no código).
+// Acesso ao painel agora é só pelas contas reais em OWNER_ACCOUNTS (fim do arquivo).
+const ADMIN_USERS: AdminUserSeed[] = [];
+
+// Contas administrativas antigas com senha pública no código: perdem o acesso ao painel.
+// - admin@meuapp.com e admin@biblical.app: viram usuário comum e recebem senha aleatória (ninguém entra).
+// - googleplay@meuapp.com: vira usuário comum mas mantém a senha, para o login de revisão das lojas continuar.
+const LEGACY_ADMINS: { email: string; keepLogin: boolean }[] = [
+  { email: 'admin@meuapp.com', keepLogin: false },
+  { email: 'admin@biblical.app', keepLogin: false },
+  { email: 'googleplay@meuapp.com', keepLogin: true },
 ];
+
+async function retireLegacyAdmins(): Promise<void> {
+  for (const legacy of LEGACY_ADMINS) {
+    try {
+      const found = await db
+        .select({ id: users.id, role: users.role })
+        .from(users)
+        .where(eq(users.email, legacy.email))
+        .limit(1);
+      if (found.length === 0 || found[0].role === 'user') continue; // já desativada
+      const patch: { role: string; password?: string } = { role: 'user' };
+      if (!legacy.keepLogin) patch.password = await bcrypt.hash(randomBytes(32).toString('hex'), 10);
+      await db.update(users).set(patch).where(eq(users.id, found[0].id));
+      console.log(`  🔒 ${legacy.email}: acesso administrativo removido`);
+    } catch (error) {
+      console.error(`  ❌ Erro ao desativar ${legacy.email}:`, error);
+    }
+  }
+}
 
 /**
  * Cria os usuários administrativos se não existirem
  * Esta função é IDEMPOTENTE - pode ser chamada múltiplas vezes sem efeitos colaterais
  */
 export async function seedAdminUsers(): Promise<void> {
+  await retireLegacyAdmins();
   console.log('🔐 Verificando usuários administrativos...');
 
   for (const adminUser of ADMIN_USERS) {

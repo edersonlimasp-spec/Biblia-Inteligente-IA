@@ -15,7 +15,7 @@ const xml = (value: string) => escapeHtml(value);
 async function siteConfig() {
   const { rows } = await blogPool.query("SELECT canonical_origin,gsc_verification FROM blog_settings WHERE id=1");
   return {
-    origin: canonicalOrigin(rows[0]?.canonical_origin ?? DEFAULT_BLOG_ORIGIN),
+    origin: canonicalOrigin(process.env.BLOG_CANONICAL_ORIGIN || (rows[0]?.canonical_origin ?? DEFAULT_BLOG_ORIGIN)),
     verification: String(rows[0]?.gsc_verification ?? ""),
   };
 }

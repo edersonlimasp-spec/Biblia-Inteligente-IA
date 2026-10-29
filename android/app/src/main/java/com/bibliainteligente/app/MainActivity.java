@@ -4,9 +4,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebSettings;
@@ -79,9 +81,12 @@ public class MainActivity extends BridgeActivity {
         applyColors(container);
 
         ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
-            Insets bars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
-            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            // Só a parte das barras que REALMENTE cobre a janela do app. Alguns aparelhos (centrais
+            // multimídia de carro, tablets, janelas divididas) informam barras que ficam fora da
+            // janela — somar esse valor criava uma faixa vazia no topo/rodapé.
+            Insets bars = overlapOnly(insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()));
+            Insets ime = overlapOnly(insets.getInsets(WindowInsetsCompat.Type.ime()));
             // Teclado: o recuo inferior passa a ser a altura do teclado (o plugin Keyboard
             // não redimensiona nada: resizeOnFullScreen=false no capacitor.config.ts).
             v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
@@ -89,9 +94,43 @@ public class MainActivity extends BridgeActivity {
             return WindowInsetsCompat.CONSUMED;
         });
         ViewCompat.requestApplyInsets(container);
+        // Janela mudou de tamanho/posição (rotação, tela dividida): recalcula o recuo.
+        getWindow().getDecorView().addOnLayoutChangeListener(
+            (dv, l, t, r, b, ol, ot, or, ob) -> {
+                if (l != ol || t != ot || r != or || b != ob) ViewCompat.requestApplyInsets(container);
+            });
         barsContainer = container;
         // O plugin SystemBars do Capacitor ajusta os ícones depois do onCreate; reaplica as nossas cores.
         container.postDelayed(this::reapplyColors, 300);
+    }
+
+    /** Tamanho real da tela, em px. */
+    private int[] screenSize() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Rect b = getWindowManager().getCurrentWindowMetrics().getBounds();
+            return new int[] { b.width(), b.height() };
+        }
+        DisplayMetrics m = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getRealMetrics(m);
+        return new int[] { m.widthPixels, m.heightPixels };
+    }
+
+    /** Desconta das barras a parte que já fica fora da janela do app. */
+    private Insets overlapOnly(Insets in) {
+        View root = getWindow().getDecorView();
+        int w = root.getWidth();
+        int h = root.getHeight();
+        if (w == 0 || h == 0) return in; // ainda sem layout: usa o valor informado
+        int[] loc = new int[2];
+        root.getLocationOnScreen(loc);
+        int[] screen = screenSize();
+        int spaceRight = Math.max(0, screen[0] - (loc[0] + w));
+        int spaceBelow = Math.max(0, screen[1] - (loc[1] + h));
+        return Insets.of(
+            Math.max(0, in.left - Math.max(0, loc[0])),
+            Math.max(0, in.top - Math.max(0, loc[1])),
+            Math.max(0, in.right - spaceRight),
+            Math.max(0, in.bottom - spaceBelow));
     }
 
     private void reapplyColors() {

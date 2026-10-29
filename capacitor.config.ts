@@ -25,6 +25,10 @@ const config: CapacitorConfig = {
       splashFullScreen: false,
       splashImmersive: false,
     },
+    SystemBars: {
+      // Android: barras do sistema tratadas no nativo (MainActivity) em todas as versoes.
+      insetsHandling: 'disable',
+    },
     StatusBar: {
       // Ícones claros sobre o cabeçalho escuro. Com overlay, o próprio header
       // preenche a safe area; não sobra uma superfície nativa branca acima dele.
@@ -36,7 +40,8 @@ const config: CapacitorConfig = {
     },
     Keyboard: {
       resize: 'body',
-      resizeOnFullScreen: true,
+      // Android: o recuo do teclado e feito no nativo (MainActivity); evita espaco em dobro.
+      resizeOnFullScreen: false,
     },
     App: {
       // Deep linking configuration if needed

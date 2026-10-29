@@ -82,12 +82,20 @@ public class MainActivity extends BridgeActivity {
             Insets bars = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            // Teclado: o recuo inferior passa a ser a altura do teclado (o plugin Keyboard
+            // não redimensiona nada: resizeOnFullScreen=false no capacitor.config.ts).
             v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
             // O WebView não recebe recuo: o conteúdo web não precisa (nem deve) somar safe-area.
             return WindowInsetsCompat.CONSUMED;
         });
         ViewCompat.requestApplyInsets(container);
         barsContainer = container;
+        // O plugin SystemBars do Capacitor ajusta os ícones depois do onCreate; reaplica as nossas cores.
+        container.postDelayed(this::reapplyColors, 300);
+    }
+
+    private void reapplyColors() {
+        if (barsContainer != null) applyColors(barsContainer);
     }
 
     private void applyColors(View container) {
@@ -119,11 +127,24 @@ public class MainActivity extends BridgeActivity {
             return;
         }
         runOnUiThread(() -> {
-            if (barsContainer == null || (t == topColor && b == bottomColor)) return;
+            if (barsContainer == null) return;
             topColor = t;
             bottomColor = b;
             applyColors(barsContainer);
         });
+    }
+
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Troca de tema claro/escuro ou rotação: o Capacitor redefine os ícones; reaplica os do app.
+        if (barsContainer != null) barsContainer.postDelayed(this::reapplyColors, 150);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (barsContainer != null) barsContainer.postDelayed(this::reapplyColors, 150);
     }
 
     @Override

@@ -3,6 +3,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Keyboard } from '@capacitor/keyboard';
 import { App } from '@capacitor/app';
+import { installKeyboardAvoidance, keyboardShown, keyboardHidden } from './keyboardAvoid';
 
 export const isNative = Capacitor.isNativePlatform();
 export const platform = Capacitor.getPlatform();
@@ -75,27 +76,34 @@ export async function initializeCapacitor() {
 
     let baseWindowHeight = window.innerHeight;
     let keyboardVisible = false;
+    let lastKeyboardHeight = 0;
 
     window.addEventListener('resize', () => {
       if (!keyboardVisible) {
         baseWindowHeight = window.innerHeight;
+      } else {
+        // a tela encolheu/cresceu com o teclado aberto: recalcula o quanto ele ainda cobre
+        handleKeyboardShow(lastKeyboardHeight);
       }
     });
 
     const handleKeyboardShow = (keyboardHeight: number) => {
       keyboardVisible = true;
+      lastKeyboardHeight = keyboardHeight;
       document.body.classList.add('keyboard-visible');
       const windowShrink = Math.max(0, baseWindowHeight - window.innerHeight);
       const offset = windowShrink > keyboardHeight / 2
         ? 0
         : Math.max(0, keyboardHeight - windowShrink);
       document.documentElement.style.setProperty('--keyboard-offset', `${offset}px`);
+      keyboardShown(offset); // campo focado nunca fica atrás do teclado
     };
 
     const handleKeyboardHide = () => {
       keyboardVisible = false;
       document.body.classList.remove('keyboard-visible');
       document.documentElement.style.setProperty('--keyboard-offset', '0px');
+      keyboardHidden();
     };
 
     Keyboard.addListener('keyboardWillShow', ({ keyboardHeight }) => {
@@ -106,6 +114,7 @@ export async function initializeCapacitor() {
     });
     Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
     Keyboard.addListener('keyboardDidHide', handleKeyboardHide);
+    installKeyboardAvoidance();
 
     document.addEventListener('touchstart', (event) => {
       if (!document.body.classList.contains('keyboard-visible')) return;

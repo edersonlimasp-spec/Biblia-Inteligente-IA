@@ -3,6 +3,7 @@ import { blogPool, ensureBlogTables } from "./db";
 import { DEFAULT_BLOG_ORIGIN } from "./db";
 import { canonicalOrigin, escapeHtml, extractFaq, pageHtml, renderMarkdown } from "./markup";
 import { downloadBlogCover } from "./storage";
+import { registerArticleApi, startSoroScheduler, syncSoroSoon } from "./soro-sync";
 
 type Handler = (req: Request, res: Response) => Promise<unknown>;
 const asyncRoute = (fn: Handler) => (req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +21,8 @@ async function siteConfig() {
 }
 
 export function registerPublicBlogRoutes(app: Express) {
+  registerArticleApi(app);
+  startSoroScheduler();
   // Google Search Console's HTML-file method verifies the site's root without
   // replacing or modifying the application's existing home page.
   app.get(/^\/google[a-zA-Z0-9_-]+\.html$/, asyncRoute(async (req, res) => {
@@ -55,6 +58,7 @@ export function registerPublicBlogRoutes(app: Express) {
 
   app.get("/blog", asyncRoute(async (req, res) => {
     await ensureBlogTables();
+    await syncSoroSoon(5000);
     const { origin, verification } = await siteConfig();
     const rawPage = typeof req.query.page === "string" ? req.query.page : "1";
     if (!/^[1-9]\d{0,3}$/.test(rawPage)) return res.sendStatus(404);
@@ -108,7 +112,7 @@ export function registerPublicBlogRoutes(app: Express) {
     const { slug } = req.params;
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 90) return res.sendStatus(404);
     const { rows } = await blogPool.query(
-      `SELECT id,title,slug,meta_description,body_markdown,cover_alt,created_at,updated_at,published_at,
+      `SELECT id,title,slug,meta_description,body_markdown,body_html,cover_alt,created_at,updated_at,published_at,
         (cover_file_key IS NOT NULL OR cover_image IS NOT NULL) AS has_cover FROM blog_articles
         WHERE slug=$1 AND status='published'`, [slug],
     );
@@ -159,7 +163,7 @@ export function registerPublicBlogRoutes(app: Express) {
       <p class="eyebrow">Artigo · Estudo bíblico</p><h1>${escapeHtml(article.title)}</h1>
       <p class="meta">Publicado em ${escapeHtml(new Date(article.published_at).toLocaleDateString("pt-BR"))}</p>
       ${cover ? `<img class="cover" src="${cover}" alt="${escapeHtml(article.cover_alt)}" width="1024" height="1024">` : ""}
-      <div class="article-body">${renderMarkdown(article.body_markdown)}</div>
+      <div class="article-body">${article.body_html ? article.body_html : renderMarkdown(article.body_markdown)}</div>
       <aside class="cta"><h2>Continue seu estudo bíblico</h2><p>Explore a Bíblia com planos de leitura, contexto histórico, mapas e recursos de apoio no aplicativo.</p>
        <a href="/baixar">Baixar Bíblia Inteligente</a></aside>
        ${related.length ? `<nav aria-label="Artigos relacionados"><h2>Leia também</h2><ul>${related.map((r) =>

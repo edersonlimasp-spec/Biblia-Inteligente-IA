@@ -1,6 +1,6 @@
 import { db } from './db';
 import { strongEntries, bibleWords, studyModules, studyTracks, studyLessons, readingPlanTemplates, subscriptions, paymentReceipts } from '@shared/schema';
-import { seedAdminUsers } from './seed-admins';
+import { seedAdminUsers, promoteOwnerAccounts } from './seed-admins';
 import { seedBibleVersions } from './seed-versions';
 import { seedLibraryBooks } from './seed-library';
 import { seedStrongWords } from './seed-strong-words';
@@ -430,6 +430,7 @@ export async function initializeDatabase() {
     
     // SEMPRE criar/verificar usuários admin (idempotente)
     await seedAdminUsers();
+    await promoteOwnerAccounts();
     
     // SEMPRE seed versões de Bíblia
     await seedBibleVersions();

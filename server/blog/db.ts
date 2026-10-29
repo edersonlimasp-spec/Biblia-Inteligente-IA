@@ -66,6 +66,8 @@ export function ensureBlogTables(): Promise<void> {
         await client.query("ALTER TABLE blog_articles ADD COLUMN IF NOT EXISTS cover_file_key text");
         await client.query("ALTER TABLE blog_articles ADD COLUMN IF NOT EXISTS category text NOT NULL DEFAULT 'Estudo bíblico'");
         await client.query("ALTER TABLE blog_articles ADD COLUMN IF NOT EXISTS scheduled_for timestamptz");
+        await client.query("ALTER TABLE blog_articles ADD COLUMN IF NOT EXISTS body_html text");
+        await client.query("ALTER TABLE blog_articles ADD COLUMN IF NOT EXISTS external_source text");
         await client.query("CREATE INDEX IF NOT EXISTS blog_articles_status_published_idx ON blog_articles (status, published_at DESC)");
         await client.query("CREATE INDEX IF NOT EXISTS blog_articles_keyword_idx ON blog_articles (keyword_id)");
         await client.query(`

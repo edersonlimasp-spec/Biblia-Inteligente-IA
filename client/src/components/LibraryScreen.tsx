@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { getApiUrl, getAuthHeaders } from "@/lib/queryClient";
 import { BookCover } from "@/components/BookCover";
+import { LibraryArticles } from "@/components/LibraryArticles";
 
 // ── Paleta couro — exclusiva da Biblioteca ──────────────────────────────
 const LEATHER_FROM = "#5C4632";
@@ -271,6 +272,9 @@ export function LibraryScreen({ onBack, onNavigateToBook, onNavigateToReader }: 
             onPress={() => onNavigateToReader(lastProgress.book.id, lastProgress.progress.currentChapter, lastProgress.book.title)}
           />
         )}
+
+        {/* Artigos do blog (Soro) */}
+        <LibraryArticles />
 
         {/* Category rows */}
         {isLoading ? (

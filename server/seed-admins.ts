@@ -11,7 +11,7 @@
 
 import { db } from './db';
 import { users } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 
 interface AdminUserSeed {
@@ -148,4 +148,34 @@ export async function testAdminLogin(email: string, password: string): Promise<b
   console.log(`  🔐 Resultado bcrypt.compare: ${isValid ? 'VÁLIDO ✅' : 'INVÁLIDO ❌'}`);
 
   return isValid;
+}
+
+/**
+ * Contas reais do dono do app com acesso total ao painel administrativo.
+ * Só ALTERA O PAPEL de quem já tem conta: nunca cria usuário nem mexe em senha.
+ * Idempotente: roda a cada inicialização e não faz nada se o papel já estiver certo.
+ */
+const OWNER_ACCOUNTS: { email: string; role: 'admin' | 'super_admin' }[] = [
+  { email: 'edersonlima.sp@gmail.com', role: 'super_admin' },
+];
+
+export async function promoteOwnerAccounts(): Promise<void> {
+  for (const owner of OWNER_ACCOUNTS) {
+    try {
+      const found = await db
+        .select({ id: users.id, role: users.role })
+        .from(users)
+        .where(sql`lower(trim(${users.email})) = ${owner.email.toLowerCase()}`)
+        .limit(1);
+      if (found.length === 0) {
+        console.log(`  ⏳ ${owner.email}: conta ainda não existe (será promovida após o cadastro)`);
+        continue;
+      }
+      if (found[0].role === owner.role) continue;
+      await db.update(users).set({ role: owner.role }).where(eq(users.id, found[0].id));
+      console.log(`  👑 ${owner.email}: papel atualizado para ${owner.role}`);
+    } catch (error) {
+      console.error(`  ❌ Erro ao promover ${owner.email}:`, error);
+    }
+  }
 }

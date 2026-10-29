@@ -3,21 +3,47 @@ package com.bibliainteligente.app;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewParent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+
 import androidx.activity.EdgeToEdge;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
 import com.getcapacitor.BridgeActivity;
 
+/**
+ * Barras do sistema (status bar / navegação) — solução definitiva da "faixa preta".
+ *
+ * Antes: o WebView desenhava atrás da status bar e cada tela web somava o recuo
+ * (safe-area) por conta própria. Em vários aparelhos Android o recuo vinha em
+ * dobro ou com valor errado, gerando uma faixa preta abaixo da status bar.
+ *
+ * Agora o recuo é feito UMA vez, aqui no nativo: o container do WebView recebe
+ * padding igual às barras do sistema (e ao teclado), e o WebView recebe recuo zero.
+ * A cor dessa área acompanha automaticamente a cor do topo/rodapé da tela aberta
+ * (claro ou escuro), enviada pelo JavaScript via plugin local "SystemBarsColor".
+ * Funciona do Android 7 ao 16 (edge-to-edge obrigatório no targetSdk 35/36).
+ */
 public class MainActivity extends BridgeActivity {
+
+    private static final int DEFAULT_COLOR = Color.parseColor("#0A1420");
+    private int topColor = DEFAULT_COLOR;
+    private int bottomColor = DEFAULT_COLOR;
+    private View barsContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // IMPORTANTE: EdgeToEdge.enable() deve ser chamado ANTES de super.onCreate()
-        // para que esteja ativo quando os plugins do Capacitor (StatusBar etc.) inicializam.
-        // Isso garante que shouldSetStatusBarColor() retorne false no Android 15,
-        // evitando chamadas às APIs descontinuadas setStatusBarColor/getStatusBarColor.
+        registerPlugin(SystemBarsColorPlugin.class);
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
@@ -32,28 +58,74 @@ public class MainActivity extends BridgeActivity {
             notificationManager.createNotificationChannel(melChannel);
         }
 
-        // Trava o zoom de texto do WebView em 100%, ignorando a configuração de
-        // "Tamanho da fonte" do sistema Android (Acessibilidade). Sem isso, usuários
-        // com fonte grande/enorme no Android viam o app com tipografia gigante e layout
-        // quebrado, sem como reduzir dentro do app.
         if (this.bridge != null && this.bridge.getWebView() != null) {
-            WebSettings settings = this.bridge.getWebView().getSettings();
+            WebView webView = this.bridge.getWebView();
+            WebSettings settings = webView.getSettings();
             settings.setTextZoom(100);
+            setupSystemBars(webView);
         }
     }
 
-    /**
-     * Fix: faixa branca após fechar o Google Play Billing bottom sheet.
-     *
-     * Quando o bottom sheet do Google Play Billing é exibido, o Android comprime
-     * o WebView verticalmente (resize do viewport). Ao fechar o sheet, o sistema
-     * não restaura automaticamente a altura do WebView — resultado: faixa branca
-     * na parte inferior do app até o próximo redraw.
-     *
-     * Solução: ao recuperar o foco da janela (hasFocus=true), forçamos o WebView
-     * a recalcular seu layout (requestLayout) e redesenhar (invalidate).
-     * Isso ocorre sempre que qualquer overlay nativo fecha, incluindo o billing sheet.
-     */
+    private void setupSystemBars(WebView webView) {
+        // Sem véu/escurecimento automático sobre as barras: a cor vem do app.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setStatusBarContrastEnforced(false);
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
+
+        ViewParent parent = webView.getParent();
+        if (!(parent instanceof View)) return;
+        final View container = (View) parent;
+        applyColors(container);
+
+        ViewCompat.setOnApplyWindowInsetsListener(container, (v, insets) -> {
+            Insets bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
+            // O WebView não recebe recuo: o conteúdo web não precisa (nem deve) somar safe-area.
+            return WindowInsetsCompat.CONSUMED;
+        });
+        ViewCompat.requestApplyInsets(container);
+        barsContainer = container;
+    }
+
+    private void applyColors(View container) {
+        GradientDrawable bg = new GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            new int[] { topColor, topColor, bottomColor, bottomColor });
+        container.setBackground(bg);
+        getWindow().getDecorView().setBackgroundColor(topColor);
+
+        WindowInsetsControllerCompat controller =
+            WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        controller.setAppearanceLightStatusBars(isLight(topColor));
+        controller.setAppearanceLightNavigationBars(isLight(bottomColor));
+    }
+
+    private static boolean isLight(int color) {
+        double l = (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255.0;
+        return l > 0.6;
+    }
+
+    /** Chamado pelo plugin SystemBarsColor (JS) com a cor do topo e do rodapé da tela atual. */
+    public void setBarColors(String top, String bottom) {
+        final int t;
+        final int b;
+        try {
+            t = Color.parseColor(top);
+            b = Color.parseColor(bottom);
+        } catch (Exception e) {
+            return;
+        }
+        runOnUiThread(() -> {
+            if (barsContainer == null || (t == topColor && b == bottomColor)) return;
+            topColor = t;
+            bottomColor = b;
+            applyColors(barsContainer);
+        });
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);

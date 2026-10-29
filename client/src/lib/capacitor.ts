@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Keyboard } from '@capacitor/keyboard';
@@ -9,6 +9,41 @@ export const platform = Capacitor.getPlatform();
 export const isIOS = platform === 'ios';
 export const isAndroid = platform === 'android';
 export const isWeb = platform === 'web';
+
+// Android: o recuo das barras do sistema é feito no nativo (MainActivity) e a cor
+// dessas barras acompanha o topo/rodapé da tela aberta. Ver syncAndroidSystemBars().
+const SystemBarsColor = registerPlugin<{ setColors(o: { top: string; bottom: string }): Promise<void> }>('SystemBarsColor');
+
+function toHex(color: string): string | null {
+  const m = color.match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+))?\s*\)/);
+  if (!m) return null;
+  if (m[4] !== undefined && parseFloat(m[4]) < 0.5) return null; // transparente: sobe para o pai
+  return '#' + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('');
+}
+
+function colorAt(x: number, y: number): string | null {
+  let el: Element | null = document.elementFromPoint(x, y);
+  while (el) {
+    const cs = getComputedStyle(el);
+    const solid = toHex(cs.backgroundColor);
+    if (solid) return solid;
+    const grad = cs.backgroundImage.match(/rgba?\([^)]*\)/);
+    if (grad) { const g = toHex(grad[0]); if (g) return g; }
+    el = el.parentElement;
+  }
+  return toHex(getComputedStyle(document.body).backgroundColor) ?? toHex(getComputedStyle(document.documentElement).backgroundColor);
+}
+
+let lastBars = '';
+function syncAndroidSystemBars() {
+  const w = window.innerWidth / 2;
+  const top = colorAt(w, 1) ?? '#0A1420';
+  const bottom = colorAt(w, window.innerHeight - 2) ?? top;
+  const key = top + bottom;
+  if (key === lastBars) return;
+  lastBars = key;
+  void SystemBarsColor.setColors({ top, bottom }).catch(() => { lastBars = ''; });
+}
 
 export async function hideSplashScreen() {
   if (!isNative) return;
@@ -25,8 +60,16 @@ export async function initializeCapacitor() {
   try {
     // O conteúdo ocupa também a área da status bar; os headers absorvem o
     // safe-area-inset-top e pintam essa região com a mesma cor do app.
-    await StatusBar.setOverlaysWebView({ overlay: true });
-    await StatusBar.setStyle({ style: Style.Light });
+    if (isAndroid) {
+      // Recuo feito no nativo: o conteúdo web não soma safe-area (evita a faixa preta).
+      document.documentElement.classList.add('android-native-insets');
+      syncAndroidSystemBars();
+      window.setInterval(syncAndroidSystemBars, 400);
+      document.addEventListener('visibilitychange', () => { lastBars = ''; syncAndroidSystemBars(); });
+    } else {
+      await StatusBar.setOverlaysWebView({ overlay: true });
+      await StatusBar.setStyle({ style: Style.Light });
+    }
     
     // setBackgroundColor removida por ser uma API descontinuada de ponta a ponta.
 
@@ -95,6 +138,7 @@ export async function initializeCapacitor() {
 
 export async function setStatusBarStyle(dark: boolean) {
   if (!isNative) return;
+  if (isAndroid) { lastBars = ''; syncAndroidSystemBars(); return; } // cor/ícones vêm da tela
   
   try {
     await StatusBar.setStyle({ style: dark ? Style.Light : Style.Dark });

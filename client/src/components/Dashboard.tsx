@@ -53,13 +53,18 @@ function closeSigi() {
   window.removeEventListener("popstate", closeSigi);
 }
 
-async function openSigi() {
+const SIGI_RESUME_KEY = "sigi_open_after_login";
+
+async function openSigi(goToLogin?: () => void) {
   if (sigiOverlay) return;
   try {
     // import dinamico: nao carrega o cliente de API so por abrir o painel
     const { apiRequest, getAuthToken } = await import("@/lib/queryClient");
     if (!getAuthToken()) {
-      window.alert("Entre na sua conta do Bíblia Inteligente (botão Entrar, no topo) para acessar o SIGI.");
+      // Única senha é a do Bíblia Inteligente: abre o login do app e, ao voltar logado, entra no SIGI.
+      try { sessionStorage.setItem(SIGI_RESUME_KEY, "1"); } catch { /* sem storage */ }
+      if (goToLogin) goToLogin();
+      else window.alert("Entre na sua conta do Bíblia Inteligente para acessar o SIGI.");
       return;
     }
     const r = await apiRequest("POST", "/api/sigi/ticket");
@@ -370,6 +375,18 @@ export function Dashboard({
     },
   ], [t, onNavigateToProfessor, onNavigateToAIModes, onNavigateToProfessorPremium, onNavigateToPlansProgress, onNavigateToAtlas]);
 
+  // Voltou do login iniciado pelo card SIGI: entra direto no SIGI.
+  useEffect(() => {
+    let pending = false;
+    try { pending = sessionStorage.getItem(SIGI_RESUME_KEY) === "1"; } catch { pending = false; }
+    if (!pending) return;
+    void import("@/lib/queryClient").then(({ getAuthToken }) => {
+      if (!getAuthToken()) return;
+      try { sessionStorage.removeItem(SIGI_RESUME_KEY); } catch { /* sem storage */ }
+      void openSigi();
+    });
+  }, []);
+
   const rotina: ModuleDef[] = useMemo(() => [
     {
       id: "devotional", title: "Devocional",
@@ -402,7 +419,7 @@ export function Dashboard({
       id: "sigi", title: "SIGI — Gestão da Igreja",
       desc: "Membros, cultos e financeiro da sua igreja",
       icon: Church, from: "#1B4A9C", to: "#12295C",
-      onClick: () => { void openSigi(); }, testId: "module-sigi",
+      onClick: () => { void openSigi(onNavigateToLogin); }, testId: "module-sigi",
     },
     {
       id: "subscriptions", title: t("module.subscriptions"),

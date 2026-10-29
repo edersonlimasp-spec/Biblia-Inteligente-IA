@@ -920,3 +920,12 @@ body::-webkit-scrollbar {
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
 }
+
+/* Android: as barras do sistema já são recuadas no nativo (MainActivity).
+   Zera o safe-area no conteúdo web para não haver recuo em dobro (faixa preta). */
+html.android-native-insets {
+  --safe-area-inset-top: 0px !important;
+  --safe-area-inset-bottom: 0px !important;
+  --safe-area-inset-left: 0px !important;
+  --safe-area-inset-right: 0px !important;
+}

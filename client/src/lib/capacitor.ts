@@ -13,7 +13,7 @@ export const isWeb = platform === 'web';
 
 // Android: o recuo das barras do sistema é feito no nativo (MainActivity) e a cor
 // dessas barras acompanha o topo/rodapé da tela aberta. Ver syncAndroidSystemBars().
-const SystemBarsColor = registerPlugin<{ setColors(o: { top: string; bottom: string }): Promise<void> }>('SystemBarsColor');
+const SystemBarsColor = registerPlugin<{ setColors(o: { top: string; bottom: string }): Promise<{ insetTop?: number }> }>('SystemBarsColor');
 
 function toHex(color: string): string | null {
   const m = color.match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+))?\s*\)/);
@@ -23,14 +23,15 @@ function toHex(color: string): string | null {
 }
 
 function colorAt(x: number, y: number): string | null {
-  let el: Element | null = document.elementFromPoint(x, y);
-  while (el) {
+  // Ordem visual (de cima para baixo): ignora camadas transparentes (ex.: area de avisos) e pega a cor real do cabecalho.
+  const stack = typeof document.elementsFromPoint === 'function' ? document.elementsFromPoint(x, y) : [];
+  for (const el of stack) {
     const cs = getComputedStyle(el);
+    if (cs.visibility === 'hidden' || cs.opacity === '0') continue;
     const solid = toHex(cs.backgroundColor);
     if (solid) return solid;
     const grad = cs.backgroundImage.match(/rgba?\([^)]*\)/);
     if (grad) { const g = toHex(grad[0]); if (g) return g; }
-    el = el.parentElement;
   }
   return toHex(getComputedStyle(document.body).backgroundColor) ?? toHex(getComputedStyle(document.documentElement).backgroundColor);
 }
@@ -43,7 +44,7 @@ function syncAndroidSystemBars() {
   const key = top + bottom;
   if (key === lastBars) return;
   lastBars = key;
-  void SystemBarsColor.setColors({ top, bottom }).catch(() => { lastBars = ''; });
+  void SystemBarsColor.setColors({ top, bottom }).then((r) => { if (r && typeof r.insetTop === 'number' && r.insetTop > 0) document.documentElement.style.setProperty('--safe-area-inset-top', r.insetTop + 'px'); }).catch(() => { lastBars = ''; });
 }
 
 export async function hideSplashScreen() {

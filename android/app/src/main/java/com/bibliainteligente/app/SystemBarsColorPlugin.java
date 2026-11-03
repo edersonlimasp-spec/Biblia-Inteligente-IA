@@ -2,6 +2,7 @@ package com.bibliainteligente.app;
 
 import android.app.Activity;
 
+import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
@@ -19,6 +20,8 @@ public class SystemBarsColorPlugin extends Plugin {
         if (activity instanceof MainActivity) {
             ((MainActivity) activity).setBarColors(top, bottom);
         }
-        call.resolve();
+        JSObject ret = new JSObject();
+        if (activity instanceof MainActivity) ret.put("insetTop", ((MainActivity) activity).getTopInsetDp());
+        call.resolve(ret);
     }
 }

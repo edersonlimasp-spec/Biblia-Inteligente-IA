@@ -89,7 +89,9 @@ public class MainActivity extends BridgeActivity {
             Insets ime = overlapOnly(insets.getInsets(WindowInsetsCompat.Type.ime()));
             // Teclado: o recuo inferior passa a ser a altura do teclado (o plugin Keyboard
             // não redimensiona nada: resizeOnFullScreen=false no capacitor.config.ts).
-            v.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
+            // Topo: sem recuo nativo (sem faixa). O cabecalho web vai ate o alto e usa --safe-area-inset-top.
+            v.setPadding(bars.left, 0, bars.right, Math.max(bars.bottom, ime.bottom));
+            publishTopInset(bars.top);
             // O WebView não recebe recuo: o conteúdo web não precisa (nem deve) somar safe-area.
             return WindowInsetsCompat.CONSUMED;
         });
@@ -105,6 +107,19 @@ public class MainActivity extends BridgeActivity {
     }
 
     /** Tamanho real da tela, em px. */
+    private int lastTopPx = 0;
+    private int topInsetDp = 0;
+    /** Informa ao app web a altura exata da status bar (em dp) via --safe-area-inset-top. */
+    private void publishTopInset(int topPx) {
+        lastTopPx = topPx;
+        float d = getResources().getDisplayMetrics().density;
+        topInsetDp = Math.round(topPx / d);
+        if (this.bridge == null || this.bridge.getWebView() == null) return;
+        final WebView wv = this.bridge.getWebView();
+        final String js = "document.documentElement.style.setProperty('--safe-area-inset-top','" + topInsetDp + "px')";
+        wv.post(() -> wv.evaluateJavascript(js, null));
+    }
+    public int getTopInsetDp() { return topInsetDp; }
     private int[] screenSize() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Rect b = getWindowManager().getCurrentWindowMetrics().getBounds();
@@ -134,6 +149,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void reapplyColors() {
+        if (lastTopPx > 0) publishTopInset(lastTopPx);
         if (barsContainer != null) applyColors(barsContainer);
     }
 
@@ -169,6 +185,7 @@ public class MainActivity extends BridgeActivity {
             if (barsContainer == null) return;
             topColor = t;
             bottomColor = b;
+            if (lastTopPx > 0) publishTopInset(lastTopPx);
             applyColors(barsContainer);
         });
     }

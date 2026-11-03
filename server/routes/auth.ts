@@ -1,4 +1,5 @@
 import type { Express, Request, Response } from "express";
+import { getStoreSubscriptionSummary, isStoreTrialEligible } from "../payments/store-trial";
 import { storage } from "../storage";
 import { hashPassword, verifyPassword, generateToken, ensureAuthenticated, ensureAdmin, ensureSuperAdmin, optionalAuth, isTrialActive, getTrialDaysRemaining, type AuthRequest } from "../auth";
 import { sendPasswordResetEmail, sendReengagementEmail } from "../email";
@@ -711,6 +712,19 @@ export function registerAuthRoutes(app: Express): void {
 
       console.log(`[Subscription Status] userId=${req.userId} platform=${clientPlatform}, hasGold=${hasGold}, hasPremium=${hasPremium}, hasLifetime=${hasLifetime}, webOnly=${hasWebOnlySubscription}`);
 
+      // Teste grátis das lojas (Premium Anual): estado da assinatura da loja
+      // deste aparelho e se o usuário ainda pode receber o convite de teste.
+      let storeSubscription: Awaited<ReturnType<typeof getStoreSubscriptionSummary>> = null;
+      let storeTrialEligible = false;
+      if (clientPlatform === 'ios' || clientPlatform === 'android') {
+        try {
+          storeSubscription = await getStoreSubscriptionSummary(req.userId!, clientPlatform === 'ios' ? 'apple' : 'google');
+          storeTrialEligible = !effectiveHasPremium && !hasGold && await isStoreTrialEligible(req.userId!);
+        } catch (trialError) {
+          console.warn('[Subscription Status] store trial lookup failed', trialError);
+        }
+      }
+
       res.json({
         hasPremium: effectiveHasPremium,
         hasGold: effectiveHasGold,
@@ -718,6 +732,8 @@ export function registerAuthRoutes(app: Express): void {
         trialActive,
         userId: req.userId,
         hasWebOnlySubscription,
+        storeSubscription,
+        storeTrialEligible,
       });
     } catch (error) {
       console.error("Get subscription status error:", error);

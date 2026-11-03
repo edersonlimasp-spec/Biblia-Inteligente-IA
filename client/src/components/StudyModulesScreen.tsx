@@ -615,7 +615,7 @@ export function StudyModulesScreen({ onBack, onNavigateToModule, onNavigateToSub
                 <div className="rounded-xl p-4 bg-card border border-border text-center">
                   <Mono className="text-[#647B90]">Acesso completo</Mono>
                   <p className="text-sm text-foreground font-serif font-medium mt-2 mb-1">
-                    Classe II e III com Gold e Premium
+                    Classe II e III com Premium
                   </p>
                   <p className="text-xs text-muted-foreground mb-3">
                     Continue sua formação com acesso a todas as trilhas e aulas.

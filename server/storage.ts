@@ -1,4 +1,5 @@
 import { db } from './db';
+import { computeStoreTrialStats, isStoreTrialSubscription, type StoreTrialStats } from "./payments/store-trial";
 import { users, subscriptions, bookmarks, annotations, studyCompletions, aiHistory, aiUsageLimits, passwordResetTokens, adminActions, bonuses, userSessions, pageEvents, highlights, syncState, readingHistory, guests, appEvents, guestAiUsageLimits, readingProgress, achievements, studyModules, studyTracks, studyLessons, userStudyProgress, freeAiQuota, freeStrongQuota, guestStrongQuota, campaignLogs, paymentReceipts, chatSessions, userSyncMeta, prayerLists, prayerRequests } from '@shared/schema';
 import type { FreeStrongQuota, GuestStrongQuota, PaymentReceipt, InsertPaymentReceipt, ChatSession, InsertChatSession, UserSyncMeta, PrayerList, PrayerRequest } from '@shared/schema';
 import { getBookById } from './bible-data/books';
@@ -213,6 +214,7 @@ export interface IStorage {
   }>;
   getSubscriptionHealth(): Promise<{
     activeByPlan: { gold: number; premium: number; lifetime: number };
+    trials: StoreTrialStats;
     mrr: number;
     arpu: number;
     newLast30Days: number;
@@ -1756,6 +1758,7 @@ class PostgresStorage implements IStorage {
 
   async getSubscriptionHealth(): Promise<{
     activeByPlan: { gold: number; premium: number; lifetime: number };
+    trials: StoreTrialStats;
     mrr: number;
     arpu: number;
     newLast30Days: number;
@@ -1805,8 +1808,11 @@ class PostgresStorage implements IStorage {
     const isGold = (s: any) => s.planType === 'gold' || s.planType === 'gold_anual';
 
     // Active = active-like status AND (lifetime OR endDate still in the future)
+    // Testes grátis das lojas (7 dias, R$ 0) não são assinantes pagantes: ficam
+    // fora das contagens e do MRR e aparecem em "trials".
     const activeSubs = allSubs.filter(s =>
-      isPaidActive(s) && (isLifetime(s) || (s.endDate && new Date(s.endDate) >= now))
+      isPaidActive(s) && (isLifetime(s) || (s.endDate && new Date(s.endDate) >= now)) &&
+      !isStoreTrialSubscription(s)
     );
 
     const activeGold = activeSubs.filter(isGold).length;
@@ -1844,7 +1850,9 @@ class PostgresStorage implements IStorage {
 
     const APPROVED_RECEIPT_STATUSES = new Set(['approved', 'Approved', 'APPROVED']);
     const allReceipts = await db.select().from(paymentReceipts);
+    const trials = computeStoreTrialStats(allSubs, allReceipts, now);
     const recurringReceipts = allReceipts.filter(r =>
+      r.grossAmount > 0 &&
       !r.isTest &&
       !r.financiallyExcluded &&
       APPROVED_RECEIPT_STATUSES.has(r.status) &&
@@ -1934,6 +1942,7 @@ class PostgresStorage implements IStorage {
 
     return {
       activeByPlan: { gold: activeGold, premium: activePremium, lifetime: activeLifetime },
+      trials,
       mrr: Math.round(mrr * 100) / 100,
       arpu,
       newLast30Days,

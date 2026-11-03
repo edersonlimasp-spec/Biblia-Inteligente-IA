@@ -50,7 +50,7 @@ export function SubscriptionLimitModal({
                 <p className="font-medium">Upgrade seu plano</p>
                 <p className="text-muted-foreground">
                   {subscriptionType === 'free' 
-                    ? 'Gold: 30 itens | Premium: 100 itens' 
+                    ? 'Premium: 100 itens' 
                     : 'Premium: 100 itens'}
                 </p>
               </div>

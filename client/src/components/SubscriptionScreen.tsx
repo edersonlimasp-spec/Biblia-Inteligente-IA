@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2, Tag, X, AlertCircle, RotateCcw } from "lucide-react";
+import { Check, Crown, Sparkles, Lock, ArrowLeft, Loader2, Tag, X, AlertCircle, RotateCcw, Settings2, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,10 @@ import { apiRequest, getApiUrl, getAuthHeaders } from "@/lib/queryClient";
 import { trackSubscriptionPageVisit, trackPurchaseStep } from "@/lib/tracking";
 import { isAndroid, isIOS, isNative, platform } from "@/lib/capacitor";
 import { purchaseProduct, restorePurchases } from "@/lib/inAppPurchases";
+import { useLocation } from "wouter";
+import { FALLBACK_PRICES, formatDateBR, perMonthFrom, useStoreSubscription } from "@/hooks/useStoreSubscription";
+import { TrialInviteSheet } from "./subscription/TrialInviteSheet";
+import { ManageSubscriptionSheet } from "./subscription/ManageSubscriptionSheet";
 
 interface CouponData {
   valid: boolean;
@@ -56,6 +60,15 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
   // using the Play Store app — we show them an informational banner.
   const [hasWebOnlySubscription, setHasWebOnlySubscription] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+
+  // Teste grátis (oferta introdutória das lojas) e gestão da assinatura atual
+  const [, setLocation] = useLocation();
+  const store = useStoreSubscription();
+  const [showTrialSheet, setShowTrialSheet] = useState(false);
+  const [showManageSheet, setShowManageSheet] = useState(false);
+  const trialAvailable = isNative && store.canStartTrial && !store.storeSubscription && !store.hasPremium;
+  const trialDays = store.trial.days || 7;
+  const annualPriceLabel = store.trial.annualPrice || FALLBACK_PRICES.annual;
 
   // Restaurar compras nativas (obrigatório pela App Store guideline 3.1.1).
   // Disponível em iOS e Android — em web não faz sentido (Mercado Pago é gerenciado server-side).
@@ -236,9 +249,9 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
     // Mercado Pago só é permitido na versão web (fora das lojas).
     if (isIOS || isAndroid) {
       try {
-        const planTypeMap: Record<string, 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime'> = {
-          gold:          'gold',
-          gold_anual:    'gold_anual',
+        // Gold foi descontinuado (nov/2026): não é mais vendido. Quem já assina
+        // continua com acesso normal até cancelar.
+        const planTypeMap: Record<string, 'premium' | 'premium_anual' | 'strong_lifetime'> = {
           premium:       'premium',
           premium_anual: 'premium_anual',
           vitalicio:     'strong_lifetime',
@@ -406,43 +419,6 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
       highlight: false,
     },
     {
-      id: "gold",
-      name: t("subscription.plans.gold.name"),
-      price: t("subscription.plans.gold.price"),
-      priceValue: 990, // R$ 9,90
-      period: t("subscription.plans.gold.period"),
-      icon: Sparkles,
-      features: [
-        t("subscription.plans.gold.feature1"),
-        t("subscription.plans.gold.feature2"),
-        t("subscription.plans.gold.feature3"),
-        t("subscription.plans.gold.feature4"),
-        t("subscription.plans.gold.feature5"),
-        t("subscription.plans.gold.feature6"),
-        t("subscription.plans.gold.feature7"),
-      ],
-      highlight: false,
-    },
-    {
-      id: "gold_anual",
-      name: t("subscription.plans.gold_anual.name"),
-      price: t("subscription.plans.gold_anual.price"),
-      priceValue: 7990, // R$ 79,90
-      period: t("subscription.plans.gold_anual.period"),
-      icon: Sparkles,
-      features: [
-        t("subscription.plans.gold_anual.feature1"),
-        t("subscription.plans.gold_anual.feature2"),
-        t("subscription.plans.gold_anual.feature3"),
-        t("subscription.plans.gold_anual.feature4"),
-        t("subscription.plans.gold_anual.feature5"),
-        t("subscription.plans.gold_anual.feature6"),
-        t("subscription.plans.gold_anual.feature7"),
-      ],
-      highlight: false,
-      badge: t("subscription.plans.gold_anual.savings"),
-    },
-    {
       id: "premium",
       name: t("subscription.plans.premium.name"),
       price: t("subscription.plans.premium.price"),
@@ -479,9 +455,12 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
         t("subscription.plans.premium_anual.feature8"),
       ],
       highlight: true,
-      badge: t("subscription.plans.premium_anual.savings"),
+      badge: trialAvailable ? `${trialDays} dias grátis` : t("subscription.plans.premium_anual.savings"),
     },
   ];
+  // Ordem de exibição: Gratuito, Premium Anual (destaque), Premium Mensal, Strong Vitalício
+  const PLAN_ORDER = ["free", "premium_anual", "premium", "vitalicio"];
+  plans.sort((a, b) => PLAN_ORDER.indexOf(a.id) - PLAN_ORDER.indexOf(b.id));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 dark:from-primary/20 dark:via-background dark:to-primary/20">
@@ -571,6 +550,64 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           </div>
         )}
 
+        {/* Assinatura atual da loja — status claro + gerenciar/cancelar */}
+        {isNative && store.storeSubscription && (
+          <Card className="mb-6 border-primary/30 bg-card shadow-sm" data-testid="card-current-subscription">
+            <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div className="p-2 rounded-full bg-primary/10 shrink-0">
+                  <Crown className="h-5 w-5 text-[#BFA87A]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold">
+                    {store.storeSubscription.inTrial
+                      ? "Você está no teste grátis do Premium"
+                      : store.storeSubscription.planType.startsWith("gold")
+                      ? "Plano Gold ativo"
+                      : store.storeSubscription.planType === "premium_anual" ? "Premium Anual ativo" : "Premium Mensal ativo"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {store.storeSubscription.inTrial
+                      ? store.storeSubscription.autoRenew
+                        ? `Grátis até ${formatDateBR(store.storeSubscription.endDate)}. Depois, ${annualPriceLabel} por ano.`
+                        : `Acesso até ${formatDateBR(store.storeSubscription.endDate)}. Renovação desligada: nada será cobrado.`
+                      : store.storeSubscription.autoRenew
+                      ? `Renova em ${formatDateBR(store.storeSubscription.endDate)}.`
+                      : `Acesso até ${formatDateBR(store.storeSubscription.endDate)}. Renovação desligada.`}
+                  </p>
+                </div>
+              </div>
+              <Button variant="outline" className="shrink-0" onClick={() => setShowManageSheet(true)} data-testid="button-manage-subscription">
+                <Settings2 className="h-4 w-4 mr-2" />
+                Gerenciar assinatura
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Convite para o teste grátis (opcional) */}
+        {trialAvailable && store.canStartTrial && (
+          <Card className="mb-6 overflow-hidden border-[#BFA87A]/50 bg-gradient-to-br from-card via-card to-[#BFA87A]/10 shadow-md" data-testid="card-trial-hero">
+            <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="p-2.5 rounded-full bg-[#BFA87A]/15 shrink-0">
+                  <Gift className="h-6 w-6 text-[#BFA87A]" />
+                </div>
+                <div>
+                  <p className="font-serif text-xl font-medium leading-tight">Experimente o Premium grátis por {trialDays} dias</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Depois, {annualPriceLabel} por ano. Cancele antes do fim do teste e não paga nada.
+                  </p>
+                </div>
+              </div>
+              <Button className="shrink-0 h-11 rounded-xl font-semibold" onClick={() => setShowTrialSheet(true)} data-testid="button-open-trial">
+                <Crown className="h-4 w-4 mr-2" />
+                Ver como funciona
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Plans Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {plans.map((plan) => {
@@ -635,6 +672,12 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                     <span className="text-xs text-muted-foreground block mt-1">
                       {plan.period}
                     </span>
+                    {plan.id === "premium_anual" && (
+                      <span className="text-[11px] text-muted-foreground block">
+                        equivale a {perMonthFrom(store.trial.annualPrice)}/mês
+                        {trialAvailable && <> · {trialDays} dias grátis para novos assinantes</>}
+                      </span>
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
@@ -783,9 +826,17 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                       </>
                     )}
                     
+                    {!hasCoupon && trialAvailable && selectedPlanForPurchase === "premium_anual" && (
+                      <div className="rounded-lg bg-[#BFA87A]/10 border border-[#BFA87A]/30 p-3 text-sm space-y-1">
+                        <div className="flex justify-between"><span className="text-muted-foreground">Hoje</span><span className="font-semibold">R$ 0,00 · {trialDays} dias grátis</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Primeira cobrança</span><span className="font-semibold">{(() => { const d = new Date(); d.setDate(d.getDate() + trialDays); return d.toLocaleDateString("pt-BR"); })()}</span></div>
+                        <p className="text-xs text-muted-foreground pt-1">Avisamos 2 dias antes. Cancele até 24h antes do fim do teste e nada será cobrado.</p>
+                      </div>
+                    )}
+
                     {!hasCoupon && (
                       <div className="flex justify-between items-center text-lg font-bold">
-                        <span>Total:</span>
+                        <span>{trialAvailable && selectedPlanForPurchase === "premium_anual" ? "Depois do teste:" : "Total:"}</span>
                         <span className="text-primary">
                           R$ {(finalPrice / 100).toFixed(2).replace('.', ',')}
                         </span>
@@ -803,6 +854,11 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
                         <>
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
                           Processando...
+                        </>
+                      ) : trialAvailable && selectedPlanForPurchase === "premium_anual" ? (
+                        <>
+                          <Crown className="h-4 w-4 mr-2" />
+                          Começar {trialDays} dias grátis
                         </>
                       ) : isAndroid ? (
                         <>
@@ -855,6 +911,32 @@ export function SubscriptionScreen({ onBack }: SubscriptionScreenProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Rodapé legal (App Store 3.1.2 / Google Play) */}
+      <div className="max-w-6xl mx-auto px-4 pb-10 text-center text-[11px] leading-relaxed text-muted-foreground">
+        {isNative && (
+          <p className="mb-1">
+            Assinaturas renovam automaticamente até serem canceladas nos ajustes da {isIOS ? "App Store" : "Google Play"}, até 24 horas antes do fim do período.
+          </p>
+        )}
+        <button type="button" className="underline underline-offset-2" onClick={() => setLocation("/termos")}>Termos de Uso</button>
+        {" · "}
+        <button type="button" className="underline underline-offset-2" onClick={() => setLocation("/privacidade")}>Política de Privacidade</button>
+      </div>
+
+      {store.canStartTrial && (
+        <TrialInviteSheet open={showTrialSheet} onOpenChange={setShowTrialSheet} trial={store.trial} onStarted={store.refresh} />
+      )}
+      {store.storeSubscription && (
+        <ManageSubscriptionSheet
+          open={showManageSheet}
+          onOpenChange={setShowManageSheet}
+          subscription={store.storeSubscription}
+          monthlyPrice={store.trial.monthlyPrice}
+          annualPrice={store.trial.annualPrice}
+          onChanged={store.refresh}
+        />
+      )}
 
       <AuthModal
         open={showAuthModal}

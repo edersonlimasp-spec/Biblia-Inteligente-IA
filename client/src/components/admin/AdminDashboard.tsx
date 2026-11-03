@@ -181,6 +181,8 @@ interface PurchaseFunnelMetrics {
 
 interface SubscriptionHealth {
   activeByPlan: { gold: number; premium: number; lifetime: number };
+  /** Teste grátis de 7 dias do Premium Anual (lojas). Não conta como assinatura paga. */
+  trials?: { active: number; canceling: number; started: number; converted: number; conversionRate: number };
   mrr: number;
   arpu: number;
   newLast30Days: number;
@@ -293,9 +295,6 @@ export function AdminDashboard() {
     : (stats?.activeGoldSubscriptions || 0) + (stats?.activePremiumSubscriptions || 0) + (stats?.lifetimeStrong || 0);
   const activeAccessUsers = (stats?.totalUsers || 0) + (stats?.totalGuests || 0);
   const conversionRate = stats?.totalGuests ? ((stats.convertedGuests / stats.totalGuests) * 100).toFixed(1) : "0.0";
-  const monthlyChurn = stats?.activeGoldSubscriptions || stats?.activePremiumSubscriptions || stats?.lifetimeStrong
-    ? ((stats.inactiveUsers / Math.max(1, stats.totalUsers)) * 100).toFixed(1)
-    : "0.0";
 
   const StatCard = ({ 
     icon: Icon, 
@@ -337,12 +336,12 @@ export function AdminDashboard() {
               <p className="text-xs text-muted-foreground">Usuários + visitantes únicos</p>
             </div>
             <div className="p-4 border-t md:border-t-0 md:border-l">
-              <p className="text-xs text-muted-foreground">Dispositivos ativos / acesso</p>
-              <p className="text-3xl font-bold" data-testid="text-active-devices">{appEngagement?.uniqueDevices || stats?.totalGuests || 0}</p>
-              <p className="text-xs text-muted-foreground">Baseado em eventos do app</p>
+              <p className="text-xs text-muted-foreground">Em teste grátis (7 dias)</p>
+              <p className="text-3xl font-bold" data-testid="text-trials-active">{subHealth?.trials?.active || 0}</p>
+              <p className="text-xs text-muted-foreground">{subHealth?.trials?.canceling || 0} já desligaram a renovação</p>
             </div>
             <div className="p-4 border-t md:border-t-0 md:border-l">
-              <p className="text-xs text-muted-foreground">Assinaturas ativas</p>
+              <p className="text-xs text-muted-foreground">Assinantes pagantes</p>
               <p className="text-3xl font-bold" data-testid="text-active-subscriptions">{totalSubscriptions}</p>
               <p className="text-xs text-muted-foreground">{stats?.inactiveUsers || 0} sem uso recente</p>
             </div>
@@ -372,10 +371,10 @@ export function AdminDashboard() {
                 <div className="p-4 rounded-md bg-accent/30">
                   <div className="flex items-center gap-2 text-[#BFA87A]">
                     <CreditCard className="h-4 w-4" />
-                    <p className="text-xs font-medium">Gold ativos</p>
+                    <p className="text-xs font-medium">Gold (legado)</p>
                   </div>
                   <p className="text-3xl font-bold mt-1" data-testid="text-sub-gold-active">{subHealth?.activeByPlan.gold || 0}</p>
-                  <p className="text-xs text-muted-foreground">Mensal + anual</p>
+                  <p className="text-xs text-muted-foreground">Fora de venda · só renovações</p>
                 </div>
                 <div className="p-4 rounded-md bg-accent/30">
                   <div className="flex items-center gap-2 text-purple-600">
@@ -400,6 +399,35 @@ export function AdminDashboard() {
                   </div>
                   <p className="text-3xl font-bold mt-1" data-testid="text-sub-mrr">R$ {(subHealth?.mrr || 0).toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">ARPU R$ {(subHealth?.arpu || 0).toFixed(2)}</p>
+                </div>
+              </div>
+
+              <div className="rounded-md border border-[#BFA87A]/40 bg-[#BFA87A]/5 p-3" data-testid="card-store-trials">
+                <div className="flex items-center gap-2 mb-2">
+                  <Gift className="h-4 w-4 text-[#BFA87A]" />
+                  <p className="text-sm font-medium">Teste grátis de 7 dias → Premium Anual</p>
+                  <span className="text-xs text-muted-foreground">(App Store e Google Play · não entra no MRR)</span>
+                </div>
+                <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Em teste agora</p>
+                    <p className="text-2xl font-bold">{subHealth?.trials?.active || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Vão cancelar</p>
+                    <p className="text-2xl font-bold text-red-600">{subHealth?.trials?.canceling || 0}</p>
+                    <p className="text-xs text-muted-foreground">Renovação desligada</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Viraram anual pago</p>
+                    <p className="text-2xl font-bold text-green-600">{subHealth?.trials?.converted || 0}</p>
+                    <p className="text-xs text-muted-foreground">de {subHealth?.trials?.started || 0} testes iniciados</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Conversão teste → anual</p>
+                    <p className="text-2xl font-bold">{subHealth?.trials?.conversionRate || 0}%</p>
+                    <p className="text-xs text-muted-foreground">Entre testes já encerrados</p>
+                  </div>
                 </div>
               </div>
 
@@ -499,9 +527,9 @@ export function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <StatCard
           icon={Gift}
-          label="Em degustação Premium"
+          label="Degustação automática (antiga)"
           value={stats?.activeTrials || 0}
-          subtext="7 dias gratuitos (não conta como assinatura)"
+          subtext="Encerrada para novas contas desde 04/11/2026 — zera sozinha"
         />
         <StatCard
           icon={Zap}
@@ -546,12 +574,14 @@ export function AdminDashboard() {
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="p-3 rounded-md bg-background/40">
-                  <p className="text-xs text-muted-foreground">Conversão guest → conta</p>
-                  <p className="text-2xl font-bold">{conversionRate}%</p>
+                  <p className="text-xs text-muted-foreground">Visitantes sem login</p>
+                  <p className="text-2xl font-bold">{stats?.totalGuests || 0}</p>
+                  <p className="text-xs text-muted-foreground">{stats?.newGuestsToday || 0} novos hoje · {stats?.activeGuestsToday || 0} ativos hoje</p>
                 </div>
                 <div className="p-3 rounded-md bg-background/40">
-                  <p className="text-xs text-muted-foreground">Churn estimado</p>
-                  <p className="text-2xl font-bold">{monthlyChurn}%</p>
+                  <p className="text-xs text-muted-foreground">Visitantes que criaram conta</p>
+                  <p className="text-2xl font-bold">{stats?.convertedGuests || 0}</p>
+                  <p className="text-xs text-muted-foreground">{conversionRate}% de conversão visitante → conta</p>
                 </div>
               </div>
               {appEngagement?.dailyTrend?.length ? (
@@ -895,42 +925,6 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Visitantes anônimos */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Smartphone className="h-5 w-5 text-primary" />
-            Visitantes anônimos (sem login)
-          </CardTitle>
-          <CardDescription>Usuários que usam o app sem criar conta, rastreados por dispositivo.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {statsLoading ? (
-            <Skeleton className="h-24 w-full" />
-          ) : (
-            <div className="grid md:grid-cols-4 gap-3">
-              <div className="p-3 rounded-md bg-accent/30">
-                <p className="text-xs text-muted-foreground">Total de dispositivos</p>
-                <p className="text-2xl font-bold">{stats?.totalGuests || 0}</p>
-              </div>
-              <div className="p-3 rounded-md bg-accent/30">
-                <p className="text-xs text-muted-foreground">Novos hoje</p>
-                <p className="text-2xl font-bold">{stats?.newGuestsToday || 0}</p>
-              </div>
-              <div className="p-3 rounded-md bg-accent/30">
-                <p className="text-xs text-muted-foreground">Ativos hoje</p>
-                <p className="text-2xl font-bold">{stats?.activeGuestsToday || 0}</p>
-              </div>
-              <div className="p-3 rounded-md bg-accent/30">
-                <p className="text-xs text-muted-foreground">Criaram conta depois</p>
-                <p className="text-2xl font-bold">{stats?.convertedGuests || 0}</p>
-                <p className="text-xs text-muted-foreground">{conversionRate}% de conversão</p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Métricas de Conversão */}
       <Card>
         <CardHeader>
@@ -1188,7 +1182,7 @@ export function AdminDashboard() {
                 <div className="p-4 bg-gradient-to-br from-[#8A6A2E]/15 to-[#93602A]/10 border border-[#8A6A2E]/40 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <Crown className="h-5 w-5 text-[#BFA87A]" />
-                    <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Gold</p>
+                    <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Gold (legado)</p>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <p className="text-3xl font-bold text-[#BFA87A]">{purchaseMetrics?.summary.gold.count || 0}</p>
@@ -1285,7 +1279,7 @@ export function AdminDashboard() {
                         purchaseMetrics.recentPurchases.gold.map((purchase, idx) => (
                           <div key={idx} className="flex items-center justify-between p-2 bg-amber-500/5 border border-amber-500/10 rounded">
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="border-amber-500/30 text-[#BFA87A]">Gold</Badge>
+                              <Badge variant="outline" className="border-amber-500/30 text-[#BFA87A]">Gold (legado)</Badge>
                               <span className="text-sm break-all">{purchase.user?.email || 'N/A'}</span>
                             </div>
                             <div className="flex items-center gap-2">

@@ -417,7 +417,12 @@ export function registerPaymentsRoutes(app: Express): void {
       
       const { plan, couponCode } = req.body;
       if (!plan || !MP_PLAN_CONFIG[plan]) {
-        return res.status(400).json({ error: "Plano inválido. Escolha: gold, premium ou vitalicio" });
+        return res.status(400).json({ error: "Plano inválido. Escolha: premium, premium_anual ou vitalicio" });
+      }
+      // Gold descontinuado (nov/2026): não aceita novas vendas. Assinantes
+      // atuais continuam com acesso até cancelar.
+      if (plan === 'gold' || plan === 'gold_anual') {
+        return res.status(410).json({ error: "O plano Gold foi descontinuado. Escolha o Premium mensal ou anual." });
       }
       
       const mpAccessToken = process.env.MP_ACCESS_TOKEN;

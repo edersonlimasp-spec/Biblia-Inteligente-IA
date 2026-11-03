@@ -64,7 +64,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
       icon: GraduationCap,
       from: "#3E5F8A", to: "#2A4466",
       requiredPlan: "gold",
-      badge: "Gold+",
+      badge: "Premium",
     },
     {
       id: "pregador",
@@ -73,7 +73,7 @@ export function AIModesScreen({ onBack, onNavigateToSubscriptions }: AIModesScre
       icon: Church,
       from: "#75356A", to: "#5A2551",
       requiredPlan: "gold",
-      badge: "Gold+",
+      badge: "Premium",
     },
     {
       id: "exegese",

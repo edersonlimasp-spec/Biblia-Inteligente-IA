@@ -94,8 +94,9 @@ export function TermsOfUse({ onBack }: TermsOfUseProps) {
         <section className="space-y-2">
           <h2 className="text-lg font-semibold">3. Assinaturas e Pagamentos</h2>
           <p>
-            O App possui funcionalidades gratuitas e <strong>planos pagos</strong> (Gold,
-            Premium e Strong Vitalício) com recursos premium. Preços, recursos inclusos e
+            O App possui funcionalidades gratuitas e <strong>planos pagos</strong> (Premium
+            mensal ou anual e Strong Vitalício; o plano Gold foi descontinuado e segue
+            válido apenas para quem já o assinava) com recursos premium. Preços, recursos inclusos e
             periodicidade são exibidos na tela de assinatura antes da compra.
           </p>
 
@@ -146,10 +147,14 @@ export function TermsOfUse({ onBack }: TermsOfUseProps) {
 
           <h3 className="text-base font-semibold mt-3">3.4. Teste gratuito (free trial)</h3>
           <p>
-            Quando oferecido, o teste gratuito é destinado apenas a <strong>novos
-            assinantes</strong> e tem duração informada na tela de oferta. Para evitar
-            cobrança, cancele antes do término do período de teste pelos mesmos canais
-            descritos em 3.3. O teste pode ser alterado ou removido a qualquer momento.
+            O teste gratuito é <strong>opcional</strong> e destinado apenas a <strong>novos
+            assinantes</strong>. Nos apps da App Store e do Google Play ele dura 7 dias e está
+            vinculado ao <strong>Premium Anual</strong>: ao aceitar o convite, você confirma a
+            assinatura na loja, não paga nada durante o teste e, se não cancelar, a assinatura
+            anual começa automaticamente no fim do período, pelo valor exibido na oferta.
+            Avisamos antes do fim do teste. Para evitar cobrança, cancele até 24 horas antes do
+            término pelos canais descritos em 3.3. Quem não aceitar o teste continua no plano
+            gratuito. O teste pode ser alterado ou removido a qualquer momento.
           </p>
 
           <h3 className="text-base font-semibold mt-3">3.5. Reembolso e arrependimento</h3>

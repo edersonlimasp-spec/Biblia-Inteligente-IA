@@ -1001,7 +1001,12 @@ export async function getProducts(): Promise<IAPProduct[]> {
  */
 export type PurchasablePlanType = 'gold' | 'gold_anual' | 'premium' | 'premium_anual' | 'strong_lifetime';
 
-export async function purchaseProduct(planType: PurchasablePlanType): Promise<PurchaseResult> {
+export interface PurchaseOptions {
+  /** Android: substitui a assinatura atual (ex.: anual → mensal) sem cobrança dupla. */
+  replacePurchaseToken?: string | null;
+}
+
+export async function purchaseProduct(planType: PurchasablePlanType, options: PurchaseOptions = {}): Promise<PurchaseResult> {
   const paymentMethod = getPaymentMethod();
   const productId = getProductId(planType);
 
@@ -1026,7 +1031,7 @@ export async function purchaseProduct(planType: PurchasablePlanType): Promise<Pu
   }
 
   if (paymentMethod === 'google') {
-    return purchaseWithGoogle(planType);
+    return purchaseWithGoogle(planType, options);
   }
 
   if (paymentMethod === 'mercadopago') {
@@ -1224,7 +1229,7 @@ async function purchaseWithApple(planType: string): Promise<PurchaseResult> {
 /**
  * Purchase with Google Play Billing (Android)
  */
-async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
+async function purchaseWithGoogle(planType: string, options: PurchaseOptions = {}): Promise<PurchaseResult> {
   const productId = getProductId(planType as any);
 
   try {
@@ -1254,7 +1259,10 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
       productTitle: product.title, productPrice: product.pricing?.price,
     });
 
-    const offer = product.getOffer();
+    // No plano anual, o Google Play só devolve a oferta de teste grátis para
+    // quem é elegível; quando ela existe, usamos ela (mesmo comportamento da
+    // oferta introdutória da Apple, que é aplicada automaticamente).
+    const offer = (planType === 'premium_anual' ? findFreeTrialOffer(product) : null) || product.getOffer();
     if (!offer) {
       trackPurchaseStep('OFFER_NOT_FOUND', { planType, productId, paymentMethod: 'google' });
       return { success: false, error: 'Oferta indisponível para este produto' };
@@ -1286,7 +1294,13 @@ async function purchaseWithGoogle(planType: string): Promise<PurchaseResult> {
 
     // Disparar o checkout do Google Play. order() retorna IError em caso de
     // falha imediata (rede, billing indisponível, usuário cancelou no diálogo).
-    const orderResult: any = await store.order(offer);
+    // Troca de plano (ex.: anual → mensal na tela de cancelamento): DEFERRED
+    // mantém o período já pago/teste e só começa a cobrar o novo plano quando
+    // o atual terminar — sem cobrança dupla.
+    const additionalData = options.replacePurchaseToken
+      ? { googlePlay: { oldPurchaseToken: options.replacePurchaseToken, replacementMode: 'DEFERRED' } }
+      : undefined;
+    const orderResult: any = await store.order(offer, additionalData as any);
     if (orderResult && (orderResult.code !== undefined || orderResult.isError)) {
       clearTimeout(timeoutId);
       const idx = _pendingPurchases.indexOf(pendingEntry);
@@ -1505,4 +1519,93 @@ export async function getSubscriptionStatus(): Promise<{
       allSubscriptions: [],
     };
   }
+}
+
+
+// ──────────────────────────────────────────────────────────────────────
+// Teste grátis do Premium Anual (oferta introdutória das lojas)
+// ──────────────────────────────────────────────────────────────────────
+
+export interface StoreTrialInfo {
+  /** A loja oferece teste grátis para este usuário/produto. */
+  available: boolean;
+  /** Duração do teste em dias (7 por padrão). */
+  days: number;
+  /** Preço anual formatado pela loja (ex.: "R$ 129,90"), quando disponível. */
+  annualPrice: string | null;
+  /** Preço mensal formatado pela loja, quando disponível. */
+  monthlyPrice: string | null;
+}
+
+const NO_TRIAL: StoreTrialInfo = { available: false, days: 0, annualPrice: null, monthlyPrice: null };
+
+function isFreePhase(phase: any): boolean {
+  return !!phase && (Number(phase.priceMicros) === 0 || phase.paymentMode === 'FreeTrial');
+}
+
+function phaseDays(phase: any): number {
+  const match = String(phase?.billingPeriod || '').match(/^P(\d+)([DWMY])$/);
+  const cycles = Math.max(1, Number(phase?.billingCycles) || 1);
+  if (!match) return 7;
+  const n = Number(match[1]);
+  const unit = match[2];
+  const days = unit === 'D' ? n : unit === 'W' ? n * 7 : unit === 'M' ? n * 30 : n * 365;
+  return days * cycles;
+}
+
+function findFreeTrialOffer(product: any): any | null {
+  const offers: any[] = Array.isArray(product?.offers) ? product.offers : [];
+  return offers.find((offer) => (offer?.pricingPhases || []).some(isFreePhase)) || null;
+}
+
+function paidPrice(product: any): string | null {
+  const offers: any[] = Array.isArray(product?.offers) ? product.offers : [];
+  for (const offer of offers) {
+    const phase = (offer?.pricingPhases || []).find((p: any) => Number(p?.priceMicros) > 0);
+    if (phase?.price) return phase.price;
+  }
+  return product?.pricing?.price ?? null;
+}
+
+/**
+ * Lê na loja (App Store / Google Play) se o Premium Anual tem teste grátis
+ * disponível. Nunca lança erro: na dúvida, responde "sem teste" para que o
+ * app não prometa algo que a loja não vai aplicar.
+ */
+export async function getAnnualTrialInfo(): Promise<StoreTrialInfo> {
+  if (!isNative || (!isIOS && !isAndroid)) return NO_TRIAL;
+  try {
+    const store = isIOS ? await getAppleStore() : await getGooglePlayStore();
+    if (!store) return NO_TRIAL;
+    const annual = store.get(getProductId('premium_anual'));
+    const monthly = store.get(getProductId('premium'));
+    const annualPrice = annual ? paidPrice(annual) : null;
+    const monthlyPrice = monthly ? paidPrice(monthly) : null;
+    const offer = annual ? findFreeTrialOffer(annual) : null;
+    if (!offer) return { ...NO_TRIAL, annualPrice, monthlyPrice };
+    const free = offer.pricingPhases.find(isFreePhase);
+    return { available: true, days: phaseDays(free), annualPrice, monthlyPrice };
+  } catch (error) {
+    console.warn('[IAP] Não foi possível ler o teste grátis da loja', error);
+    return NO_TRIAL;
+  }
+}
+
+/**
+ * Abre a tela de assinaturas da loja (onde o usuário troca de plano ou cancela).
+ */
+export async function openStoreSubscriptionManagement(): Promise<void> {
+  try {
+    const store = isIOS ? await getAppleStore() : isAndroid ? await getGooglePlayStore() : null;
+    if (store?.manageSubscriptions) {
+      const err = await store.manageSubscriptions();
+      if (!err) return;
+    }
+  } catch {
+    // cai no link direto abaixo
+  }
+  const url = isIOS
+    ? 'https://apps.apple.com/account/subscriptions'
+    : `https://play.google.com/store/account/subscriptions?package=app.replit.bibliainteligente.twa`;
+  window.open(url, '_system');
 }

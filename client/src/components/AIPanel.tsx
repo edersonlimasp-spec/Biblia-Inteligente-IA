@@ -1248,7 +1248,7 @@ Conheça: https://bibliainteligente.replit.app`;
                 Você utilizou suas <strong>3 perguntas gratuitas</strong> para o Professor IA.
               </p>
               <p>
-                Para continuar usando a IA ilimitadamente, faça upgrade para um plano <strong>Gold</strong> ou <strong>Premium</strong>.
+                Para continuar usando a IA ilimitadamente, faça upgrade para o plano <strong>Premium</strong>.
               </p>
             </DialogDescription>
           </DialogHeader>

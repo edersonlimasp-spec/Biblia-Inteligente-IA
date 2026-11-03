@@ -13,14 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { AppleNotificationsSection } from "./AppleNotificationsSection";
 import { RecurringRevenuePanel } from "./RecurringRevenuePanel";
 
-interface SubscriptionStats {
-  activeGold: number;
-  activePremium: number;
-  lifetimeStrong: number;
-  totalRevenue: string;
-  monthlyRevenue: string;
-}
-
 interface AdminSubscription {
   id: string;
   planType: string;
@@ -38,10 +30,6 @@ export function AdminMonetization({ isSuperAdmin = false }: { isSuperAdmin?: boo
   const [email, setEmail] = useState("");
   const [planType, setPlanType] = useState<string>("");
   const [durationDays, setDurationDays] = useState("30");
-
-  const { data: stats, isLoading } = useQuery<SubscriptionStats>({
-    queryKey: ['/api/admin/monetization'],
-  });
 
   const { data: subscriptionsData, isLoading: subsLoading } = useQuery<{ subscriptions: AdminSubscription[] }>({
     queryKey: ['/api/admin/subscriptions'],
@@ -90,12 +78,24 @@ export function AdminMonetization({ isSuperAdmin = false }: { isSuperAdmin?: boo
 
   const getPlanIcon = (plan: string) => {
     switch (plan) {
-      case 'gold': return <Shield className="h-4 w-4 text-yellow-500" />;
-      case 'premium': return <Crown className="h-4 w-4 text-purple-500" />;
+      case 'gold':
+      case 'gold_anual': return <Shield className="h-4 w-4 text-yellow-500" />;
+      case 'premium':
+      case 'premium_anual': return <Crown className="h-4 w-4 text-purple-500" />;
       case 'strong_lifetime': return <Key className="h-4 w-4 text-blue-500" />;
       default: return null;
     }
   };
+
+  const PLAN_LABELS: Record<string, string> = {
+    gold: 'Gold Mensal (legado)',
+    gold_anual: 'Gold Anual (legado)',
+    premium: 'Premium Mensal',
+    premium_anual: 'Premium Anual',
+    strong_lifetime: 'Strong Vitalício',
+    lifetime: 'Strong Vitalício',
+  };
+  const planLabel = (plan: string) => PLAN_LABELS[plan] || plan;
 
   const getStatusBadge = (status: string) => {
     const isActive = ['active', 'Active', 'ACTIVE', 'approved', 'Approved', 'APPROVED', 'authorized', 'Authorized', 'AUTHORIZED'].includes(status);
@@ -111,53 +111,6 @@ export function AdminMonetization({ isSuperAdmin = false }: { isSuperAdmin?: boo
     <div className="space-y-4">
       <RecurringRevenuePanel />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Monetização e Assinaturas</CardTitle>
-          <CardDescription>Dados de receita e planos ativos</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map(i => (
-                <Skeleton key={i} className="h-20 w-full" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="border rounded-lg p-4">
-                <p className="text-sm text-muted-foreground">Gold Ativo</p>
-                <p className="text-3xl font-bold">{stats?.activeGold || 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">R$ 9,90/mês</p>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <p className="text-sm text-muted-foreground">Premium Ativo</p>
-                <p className="text-3xl font-bold">{stats?.activePremium || 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">R$ 19,90/mês</p>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <p className="text-sm text-muted-foreground">Lifetime Strong</p>
-                <p className="text-3xl font-bold">{stats?.lifetimeStrong || 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">Em breve</p>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <p className="text-sm text-muted-foreground">Receita Este Mês</p>
-                <p className="text-3xl font-bold">R$ {stats?.monthlyRevenue || '0'}</p>
-                <p className="text-xs text-muted-foreground mt-1">Total: R$ {stats?.totalRevenue || '0'}</p>
-              </div>
-            </div>
-          )}
-
-          <Button variant="outline" className="w-full" data-testid="button-export-csv">
-            <Download className="h-4 w-4 mr-2" />
-            Exportar CSV
-          </Button>
-        </CardContent>
-      </Card>
-
       {/* Manual Subscription Activation - Super Admin Only */}
       <Card>
         <CardHeader>
@@ -166,7 +119,7 @@ export function AdminMonetization({ isSuperAdmin = false }: { isSuperAdmin?: boo
             Ativar Assinatura Manualmente
           </CardTitle>
           <CardDescription>
-            Use quando o webhook do Mercado Pago não processar o pagamento automaticamente
+            Use quando o webhook do Mercado Pago não processar o pagamento automaticamente. O Gold foi descontinuado e não é mais concedido.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -190,16 +143,10 @@ export function AdminMonetization({ isSuperAdmin = false }: { isSuperAdmin?: boo
                   <SelectValue placeholder="Selecione o plano" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="gold">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-yellow-500" />
-                      Gold - R$ 9,90/mês
-                    </div>
-                  </SelectItem>
                   <SelectItem value="premium">
                     <div className="flex items-center gap-2">
                       <Crown className="h-4 w-4 text-purple-500" />
-                      Premium - R$ 19,90/mês
+                      Premium
                     </div>
                   </SelectItem>
                   <SelectItem value="strong_lifetime">
@@ -271,7 +218,7 @@ export function AdminMonetization({ isSuperAdmin = false }: { isSuperAdmin?: boo
                     <div>
                       <p className="font-medium">{sub.userEmail || 'Email não encontrado'}</p>
                       <p className="text-xs text-muted-foreground">
-                        {sub.planType.toUpperCase()} - R$ {sub.amount}
+                        {planLabel(sub.planType)} · R$ {sub.amount}
                       </p>
                     </div>
                   </div>

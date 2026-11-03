@@ -8,6 +8,7 @@ import { LoginScreen } from "./LoginScreen";
 import { RegisterScreen } from "./RegisterScreen";
 import { BibleReader } from "./BibleReader";
 import { SubscriptionScreen } from "./SubscriptionScreen";
+import { TrialInviteController } from "./subscription/TrialInviteController";
 import { SettingsScreen } from "./SettingsScreen";
 import { AIHistoryScreen } from "./AIHistoryScreen";
 import { AdminPanel } from "./AdminPanel";
@@ -222,14 +223,24 @@ function NavigationContent() {
     }
   }, [navigate, setSelectedModuleId, setSelectedLessonId, setSelectedTrackLevel]);
 
+  // Push pode abrir a leitura/devocional/lição (Mel) ou a tela de Assinaturas
+  // (lembrete do fim do teste grátis).
+  const handlePushDestination = useCallback((destination: MelPushDestination) => {
+    if (destination.kind === "subscriptions") {
+      navigate("subscriptions");
+      return;
+    }
+    handleMelContinue(destination);
+  }, [handleMelContinue, navigate]);
+
   useEffect(() => {
     const userId = user?.id;
     if (!userId) return;
     return subscribeToMelPushDestination(userId, (destination: MelPushDestination) => {
       if (user?.id !== userId) return;
-      handleMelContinue(destination);
+      handlePushDestination(destination);
     });
-  }, [handleMelContinue, user?.id]);
+  }, [handlePushDestination, user?.id]);
 
   const handleMelDevotional = useCallback((date: string) => {
     setMelDevotionalDate(date);
@@ -523,12 +534,13 @@ function NavigationContent() {
         onContinue={handleMelContinue}
         onOpenDevotional={handleMelDevotional}
       />
-      <MelPushNotice onContinue={handleMelContinue} />
+      <MelPushNotice onContinue={handlePushDestination} />
+      <TrialInviteController active={currentScreen === "dashboard"} />
     </>
   );
 }
 
-function MelPushNotice({ onContinue }: { onContinue: (destination: MelPosition) => void }) {
+function MelPushNotice({ onContinue }: { onContinue: (destination: MelPushDestination) => void }) {
   const { user } = useAuth();
   const [message, setMessage] = useState<MelPushMessage | null>(null);
 
@@ -573,7 +585,7 @@ function MelPushNotice({ onContinue }: { onContinue: (destination: MelPosition) 
                   setMessage(null);
                 }}
               >
-                Continuar leitura
+                {message.destination?.kind === "subscriptions" ? "Ver minha assinatura" : "Continuar leitura"}
               </button>
             )}
           </div>

@@ -45,11 +45,17 @@ const lessonDestinationSchema = z.object({
   trackLevel: z.enum(pushTrackLevels),
 }).strict();
 
+/** Tela de Assinaturas (lembrete do fim do teste grátis). */
+const subscriptionsDestinationSchema = z.object({
+  kind: z.literal("subscriptions"),
+}).strict();
+
 /** Safe in-app destinations only. Push data must never be an arbitrary URL. */
 export const pushDestinationSchema = z.union([
   bibleDestinationSchema,
   devotionalDestinationSchema,
   lessonDestinationSchema,
+  subscriptionsDestinationSchema,
 ]);
 
 export type PushDestination = z.infer<typeof pushDestinationSchema>;

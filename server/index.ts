@@ -414,5 +414,16 @@ app.use((req, res, next) => {
     };
     setTimeout(runMelPushCycle, 15_000);
     setInterval(runMelPushCycle, 15 * 60 * 1000);
+
+    // Lembrete do fim do teste grátis de 7 dias (Premium Anual das lojas).
+    const runTrialReminderCycle = () => {
+      void import("./services/trial-reminders")
+        .then(({ runTrialEndingReminders }) => runTrialEndingReminders())
+        .catch(() => {
+          // Nunca interromper o servidor por falha de push.
+        });
+    };
+    setTimeout(runTrialReminderCycle, 60_000);
+    setInterval(runTrialReminderCycle, 60 * 60 * 1000);
   });
 })();

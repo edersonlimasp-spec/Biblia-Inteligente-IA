@@ -434,7 +434,7 @@ export function ModuleDetailScreen({
                                   : { color: "#D3B573", backgroundColor: "#D3B57315", border: "1px solid #D3B57325" }
                               }
                             >
-                              {lockInfo.requiredPlan === "premium" ? "Premium" : "Gold"}
+                              Premium
                             </span>
                           )}
                         </div>
@@ -514,7 +514,7 @@ export function ModuleDetailScreen({
             >
               <Crown className="w-7 h-7 mx-auto mb-2" style={{ color: "#D3B573" }} />
               <p className="font-serif text-sm font-medium text-foreground mb-1">
-                Acesso completo com Gold
+                Acesso completo com Premium
               </p>
               <p className="text-xs text-muted-foreground mb-3">
                 {t("courses.subscribeGold")}

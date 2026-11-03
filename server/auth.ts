@@ -247,9 +247,19 @@ export async function ensureSuperAdmin(
   }
 }
 
-// Check if trial is still active (within 7 days - degustação Premium)
+// Nov/2026: a degustação automática de 7 dias foi substituída pelo teste
+// OPCIONAL das lojas (convite após o login, que vira Premium Anual se o usuário
+// não cancelar). Contas criadas a partir desta data começam no plano gratuito;
+// quem já estava na degustação antiga termina o período normalmente.
+const AUTO_TRIAL_CUTOFF = (() => {
+  const parsed = new Date(process.env.AUTO_TRIAL_CUTOFF || '2026-11-04T03:00:00Z');
+  return Number.isNaN(parsed.getTime()) ? new Date('2026-11-04T03:00:00Z') : parsed;
+})();
+
+// Check if trial is still active (within 7 days - degustação Premium antiga)
 export function isTrialActive(trialStartDate: Date | null | undefined): boolean {
   if (!trialStartDate) return false;
+  if (new Date(trialStartDate) >= AUTO_TRIAL_CUTOFF) return false;
   const now = new Date();
   const trialEnd = new Date(trialStartDate);
   trialEnd.setDate(trialEnd.getDate() + TRIAL_DURATION_DAYS);
@@ -259,6 +269,7 @@ export function isTrialActive(trialStartDate: Date | null | undefined): boolean 
 // Get days remaining in trial
 export function getTrialDaysRemaining(trialStartDate: Date | null | undefined): number {
   if (!trialStartDate) return 0;
+  if (!isTrialActive(trialStartDate)) return 0;
   const now = new Date();
   const trialEnd = new Date(trialStartDate);
   trialEnd.setDate(trialEnd.getDate() + TRIAL_DURATION_DAYS);

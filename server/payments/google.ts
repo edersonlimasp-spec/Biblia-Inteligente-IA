@@ -4,6 +4,7 @@
  */
 
 import { db } from '../db';
+import { isStoreTrialSubscription } from './store-trial';
 import { subscriptions, paymentReceipts, users } from '@shared/schema';
 import { eq, and, or, lte, isNotNull, sql } from 'drizzle-orm';
 
@@ -389,6 +390,10 @@ export async function processGooglePurchase(
     }
 
     // Create payment receipt
+    // Teste grátis (paymentState=2): o Google não cobra nada agora, então o
+    // recibo é de R$ 0 — a receita só entra quando o teste vira anual pago.
+    const isFreeTrialPeriod = productInfo.isSubscription && Number(verification?.paymentState) === 2;
+    const receiptCents = isFreeTrialPeriod ? 0 : Math.round(parseFloat(productInfo.amount) * 100);
     const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
     await db.insert(paymentReceipts).values({
       externalPaymentId: orderId,
@@ -399,10 +404,10 @@ export async function processGooglePurchase(
       planType: productInfo.planType,
       subscriptionDays: productInfo.durationDays,
       isLifetime: !productInfo.durationDays,
-      grossAmount: Math.round(parseFloat(productInfo.amount) * 100),
+      grossAmount: receiptCents,
       feeAmount: 0,
       taxAmount: 0,
-      netAmount: Math.round(parseFloat(productInfo.amount) * 100),
+      netAmount: receiptCents,
       status: 'approved',
       origin: 'api',
       providerRawData: verification as any,
@@ -462,8 +467,52 @@ export async function syncGoogleSubscriptionRow(
         status: isActive ? 'active' : 'expired',
         lastVerifiedAt: new Date(),
         nextRenewalCheck: new Date(newEndDate.getTime() - 24 * 60 * 60 * 1000),
+        // Renovação automática ligada/desligada (usado no convite de troca
+        // para o mensal e no painel: "cancelaram durante o teste").
+        autoRenewStatus: verification.autoRenewing === false ? 'disabled' : 'enabled',
       })
       .where(eq(subscriptions.id, subscription.id));
+
+    // Teste grátis que virou anual pago: registra o primeiro pagamento real.
+    const wasTrial = isStoreTrialSubscription(subscription);
+    const nowTrial = isStoreTrialSubscription({ ...subscription, endDate: newEndDate });
+    if (wasTrial && !nowTrial && isActive && Number(verification.paymentState) === 1 && verification.orderId) {
+      try {
+        const [existing] = await db.select({ id: paymentReceipts.id }).from(paymentReceipts)
+          .where(and(eq(paymentReceipts.paymentProvider, 'google'), eq(paymentReceipts.externalPaymentId, verification.orderId)))
+          .limit(1);
+        if (!existing) {
+          const cents = Math.round(Number(verification.priceAmountMicros || 0) / 10_000) || Math.round(parseFloat(productInfo.amount) * 100);
+          const [owner] = await db.select({ email: users.email }).from(users).where(eq(users.id, subscription.userId)).limit(1);
+          await db.insert(paymentReceipts).values({
+            externalPaymentId: verification.orderId,
+            paymentProvider: 'google',
+            paymentType: 'subscription',
+            userId: subscription.userId,
+            userEmail: owner?.email || null,
+            planType: productInfo.planType,
+            subscriptionDays: productInfo.durationDays,
+            isLifetime: false,
+            grossAmount: cents,
+            feeAmount: 0,
+            taxAmount: 0,
+            netAmount: cents,
+            currency: verification.priceCurrencyCode || 'BRL',
+            isRenewal: true,
+            status: 'approved',
+            origin: 'api',
+            providerRawData: verification as any,
+            isValidated: true,
+            validatedAt: new Date(),
+            subscriptionId: subscription.id,
+            activatedAt: new Date(),
+            paymentDate: new Date(),
+          });
+        }
+      } catch (receiptError) {
+        console.warn('[Google IAP] Could not record trial conversion receipt', subscription.id, receiptError);
+      }
+    }
 
     if (isActive && changed) {
       console.log(`[Google IAP] Renewal detected: subscription ${subscription.id} extended to ${newEndDate.toISOString()}`);

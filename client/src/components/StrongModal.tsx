@@ -337,7 +337,7 @@ export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSu
                     <Crown className="w-6 h-6 text-amber-500 flex-shrink-0" />
                     <div className="text-left flex-1">
                       <div className="font-semibold text-foreground">Ou Assine um Plano</div>
-                      <div className="text-xs text-muted-foreground">Gold: 20 palavras/dia, Premium: ilimitado</div>
+                      <div className="text-xs text-muted-foreground">Premium: ilimitado · Strong Vitalício: para sempre</div>
                     </div>
                   </div>
                   <Button 
@@ -439,8 +439,8 @@ export function StrongModal({ strongNumber, clickedWord, onClose, onNavigateToSu
                 <div className="flex items-center gap-3">
                   <Crown className="w-6 h-6 text-amber-500 flex-shrink-0" />
                   <div className="text-left flex-1">
-                    <div className="font-semibold text-foreground">Plano Gold ou Premium</div>
-                    <div className="text-xs text-muted-foreground">Gold: 20/dia, Premium: ilimitado</div>
+                    <div className="font-semibold text-foreground">Plano Premium</div>
+                    <div className="text-xs text-muted-foreground">Strong ilimitado e todos os recursos</div>
                   </div>
                 </div>
                 <Button 

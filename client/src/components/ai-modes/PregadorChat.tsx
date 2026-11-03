@@ -247,7 +247,7 @@ export function PregadorChat({ onBack }: PregadorChatProps) {
     const trimmed = input.trim();
     if (!trimmed && !pendingImage) return;
     if (!hasAccess) {
-      toast({ title: "Assinatura necessária", description: "Este modo requer Gold ou Premium", variant: "destructive" });
+      toast({ title: "Assinatura necessária", description: "Este modo faz parte do Premium", variant: "destructive" });
       return;
     }
 
@@ -351,7 +351,7 @@ export function PregadorChat({ onBack }: PregadorChatProps) {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Badge variant="outline" className="border-primary/40 text-primary">Gold+</Badge>
+            <Badge variant="outline" className="border-primary/40 text-primary">Premium</Badge>
           </div>
         </div>
       </header>

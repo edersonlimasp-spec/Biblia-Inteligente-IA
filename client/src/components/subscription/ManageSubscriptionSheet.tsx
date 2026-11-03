@@ -34,9 +34,9 @@ export function ManageSubscriptionSheet({ open, onOpenChange, subscription, mont
   const switchToMonthly = async () => {
     trackPurchaseStep("BUTTON_CLICK", { planType: "premium", planName: "Premium Mensal (retenção)", source: "cancel_flow" });
     if (isIOS) {
-      // Mesmo grupo de assinaturas: a Apple faz a troca na tela dela e ela vale
-      // a partir da próxima renovação.
-      toast({ title: "Escolha “Premium Mensal”", description: "Na tela da App Store, toque em Premium Mensal para trocar. A troca vale a partir da próxima renovação." });
+      // Mesmo grupo de assinaturas: a Apple faz a troca na tela dela. Com Premium
+      // Mensal e Anual no MESMO nível do grupo, a troca vale na próxima renovação.
+      toast({ title: "Escolha “Premium Mensal”", description: "Na tela da App Store, toque em Premium Mensal. A Apple mostra a data e o valor antes de você confirmar." });
       await openStoreSubscriptionManagement();
       onOpenChange(false);
       return;
@@ -96,7 +96,9 @@ export function ManageSubscriptionSheet({ open, onOpenChange, subscription, mont
                   <p className="mt-2 font-serif text-xl font-semibold">{monthly} <span className="font-sans text-sm font-normal text-muted-foreground">por mês</span></p>
                   <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                     <CalendarDays className="h-3.5 w-3.5" />
-                    Vale a partir {until ? `de ${until}` : "da próxima renovação"} · cancele quando quiser
+                    {isIOS
+                      ? "A App Store mostra a data e o valor da troca antes de você confirmar"
+                      : `Vale a partir ${until ? `de ${until}` : "da próxima renovação"} · cancele quando quiser`}
                   </p>
                 </div>
               </div>

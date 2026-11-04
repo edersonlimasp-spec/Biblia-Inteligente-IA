@@ -922,9 +922,9 @@ body::-webkit-scrollbar {
 }
 
 /* Android: as barras do sistema já são recuadas no nativo (MainActivity).
-   Zera o safe-area no conteúdo web para não haver recuo em dobro (faixa preta). */
+   Zera o safe-area no conteúdo web para não haver recuo em dobro (faixa preta).
+   O topo NAO e zerado: o nativo publica a altura real da status bar em --safe-area-inset-top. */
 html.android-native-insets {
-  --safe-area-inset-top: 0px !important;
   --safe-area-inset-bottom: 0px !important;
   --safe-area-inset-left: 0px !important;
   --safe-area-inset-right: 0px !important;
